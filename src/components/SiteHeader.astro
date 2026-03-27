@@ -1,0 +1,45 @@
+---
+import { withBase } from '../lib/paths';
+import { primaryNav, siteConfig } from '../site.config';
+
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const relativePath =
+	basePath && pathname.startsWith(basePath) ? pathname.slice(basePath.length) || '/' : pathname;
+---
+
+<header class="site-header">
+	<div class="container">
+		<div class="site-header__inner">
+			<a class="brand" href={withBase('/')}>
+				<span class="brand__mark">N/N</span>
+				<span class="brand__text">
+					<span class="brand__title">{siteConfig.title}</span>
+					<span class="brand__subtitle">{siteConfig.tagline}</span>
+				</span>
+			</a>
+
+			<nav class="nav-links" aria-label="Primary">
+				{
+					primaryNav.map((item) => {
+						const itemPath = item.href.replace(/\/$/, '') || '/';
+						const isActive =
+							itemPath === '/'
+								? relativePath === itemPath
+								: relativePath === itemPath || relativePath.startsWith(`${itemPath}/`);
+
+						return (
+							<a
+								class="nav-link"
+								href={withBase(item.href)}
+								aria-current={isActive ? 'page' : undefined}
+							>
+								{item.label}
+							</a>
+						);
+					})
+				}
+			</nav>
+		</div>
+	</div>
+</header>

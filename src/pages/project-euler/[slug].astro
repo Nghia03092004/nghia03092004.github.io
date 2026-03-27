@@ -1,0 +1,43 @@
+---
+import { render, getCollection } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+import { getEulerProblemUrl, formatProblemNumber } from '../../lib/content';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('euler', ({ data }) => !data.draft);
+
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+const metaItems = [
+	{ label: 'Problem', value: formatProblemNumber(entry.data.problem) },
+	{ label: 'Status', value: entry.data.status },
+	{ label: 'Difficulty', value: entry.data.difficulty },
+	...(entry.data.languages.length
+		? [{ label: 'Languages', value: entry.data.languages.join(', ') }]
+		: []),
+	...(entry.data.answer ? [{ label: 'Answer', value: entry.data.answer }] : []),
+];
+---
+
+<PostLayout
+	title={entry.data.title}
+	description={entry.data.description}
+	published={entry.data.published}
+	updated={entry.data.updated}
+	eyebrow="Project Euler"
+	backHref="/project-euler"
+	backLabel="All Euler entries"
+	tags={entry.data.tags}
+	metaItems={metaItems}
+	headings={headings}
+	primaryLink={{ label: 'View original problem', href: getEulerProblemUrl(entry.data.problem) }}
+>
+	<Content />
+</PostLayout>

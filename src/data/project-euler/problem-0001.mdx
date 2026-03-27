@@ -1,0 +1,39 @@
+---
+title: Multiples of 3 or 5
+description: A warmup note on separating brute force from the arithmetic-series shortcut.
+published: 2026-03-21
+featured: true
+problem: 1
+status: solved
+difficulty: warmup
+languages:
+  - Python
+  - Rust
+answer: "233168"
+tags:
+  - arithmetic-series
+  - warmup
+---
+
+This is a good first entry because the brute-force solution is trivial, but the cleaner solution exposes the pattern that matters later.
+
+## The real move
+
+Instead of summing every multiple directly, split the problem into:
+
+- multiples of 3
+- multiples of 5
+- subtract multiples of 15 once
+
+That turns the problem into three arithmetic sums.
+
+## Why I still keep the brute-force version
+
+The brute-force version is useful as a correctness oracle.
+
+```python
+total = sum(n for n in range(1000) if n % 3 == 0 or n % 5 == 0)
+print(total)
+```
+
+Once the direct version is correct, I replace the work with the closed-form approach and keep the note about why inclusion-exclusion is the decisive idea.

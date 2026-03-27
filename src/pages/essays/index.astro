@@ -1,0 +1,38 @@
+---
+import ContentCard from '../../components/ContentCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedEntries, getUniqueTags } from '../../lib/content';
+
+const essays = await getPublishedEntries('essays');
+const tags = getUniqueTags(essays);
+---
+
+<BaseLayout title="Essays" description="Long-form essays on math, engineering, and learning.">
+	<section class="page-intro">
+		<span class="eyebrow">Essays</span>
+		<h1>Long-form notes that deserve more than a timeline.</h1>
+		<p>
+			Use this section for essays, reflections, research notes, and anything that benefits from
+			slow writing.
+		</p>
+		<div class="chip-row">
+			{tags.map((tag, index) => (
+				<span class="chip" data-tone={index % 2 === 0 ? 'warm' : 'cool'}>{tag}</span>
+			))}
+		</div>
+	</section>
+
+	<section class="post-grid">
+		{essays.map((entry) => (
+			<ContentCard
+				href={`/essays/${entry.id}`}
+				title={entry.data.title}
+				description={entry.data.description}
+				date={entry.data.published}
+				tags={entry.data.tags}
+				eyebrow="Essay"
+				tone="warm"
+			/>
+		))}
+	</section>
+</BaseLayout>

@@ -1,11 +1,148 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import ContentCard from '../components/ContentCard.astro';
+import EulerCard from '../components/EulerCard.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPublishedEntries, getUniqueTags } from '../lib/content';
+import { focusAreas } from '../site.config';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const essays = await getPublishedEntries('essays');
+const code = await getPublishedEntries('code');
+const euler = await getPublishedEntries('euler');
+
+const featuredEssay = essays.find((entry) => entry.data.featured) ?? essays[0];
+const featuredCode = code.find((entry) => entry.data.featured) ?? code[0];
+const featuredEuler = euler.find((entry) => entry.data.featured) ?? euler[0];
+const totalTags = new Set([
+	...getUniqueTags(essays),
+	...getUniqueTags(code),
+	...getUniqueTags(euler),
+]).size;
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout>
+	<section class="hero">
+		<div class="panel hero-copy">
+			<span class="eyebrow">Personal laboratory</span>
+			<h1>Math, code, and long-form notes with a cleaner signal-to-noise ratio.</h1>
+			<p>
+				A static home for essays, implementation write-ups, and Project Euler logs.
+				Built to feel more like a working notebook than a portfolio landing page.
+			</p>
+			<div class="chip-row">
+				{focusAreas.map((item, index) => (
+					<span class="chip" data-tone={index === 0 ? 'warm' : index === 1 ? 'cool' : 'olive'}>
+						{item}
+					</span>
+				))}
+			</div>
+		</div>
+
+		<aside class="hero-aside">
+			<div>
+				<span class="eyebrow">Current scope</span>
+				<p class="lede">
+					Three content streams, one publishing system: essays for ideas, code for
+					implementation, Euler for deliberate practice.
+				</p>
+			</div>
+			<div class="stats-grid">
+				<div class="stat">
+					<span class="stat__value">{essays.length}</span>
+					<span class="stat__label">Essays published</span>
+				</div>
+				<div class="stat">
+					<span class="stat__value">{code.length}</span>
+					<span class="stat__label">Code notes</span>
+				</div>
+				<div class="stat">
+					<span class="stat__value">{euler.length}</span>
+					<span class="stat__label">Euler entries</span>
+				</div>
+				<div class="stat">
+					<span class="stat__value">{totalTags}</span>
+					<span class="stat__label">Topics tracked</span>
+				</div>
+			</div>
+		</aside>
+	</section>
+
+	<div class="section-stack">
+		<section class="section-panel">
+			<div class="section-heading">
+				<div>
+					<h2>Three tracks, one system</h2>
+					<p>
+						The structure borrows the directness of Project Euler archives and the calm pace of
+						personal technical blogs.
+					</p>
+				</div>
+			</div>
+			<div class="track-grid">
+				<div class="card track-card" data-tone="warm">
+					<span class="eyebrow">Essays</span>
+					<h3>Long-form thinking</h3>
+					<p>Write about math, learning, engineering tradeoffs, or anything worth revisiting.</p>
+				</div>
+				<div class="card track-card" data-tone="cool">
+					<span class="eyebrow">Code</span>
+					<h3>Build logs and snippets</h3>
+					<p>Document small tools, experiments, architecture choices, and practical notes.</p>
+				</div>
+				<div class="card track-card" data-tone="olive">
+					<span class="eyebrow">Project Euler</span>
+					<h3>Problem archive</h3>
+					<p>Track solved problems, languages used, and the ideas worth keeping after the solve.</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="section-panel">
+			<div class="section-heading">
+				<div>
+					<h2>Featured entries</h2>
+					<p>
+						Each section gets a first-class place on the front page instead of being buried
+						under one generic blog feed.
+					</p>
+				</div>
+			</div>
+			<div class="feature-grid">
+				{featuredEssay ? (
+					<ContentCard
+						href={`/essays/${featuredEssay.id}`}
+						title={featuredEssay.data.title}
+						description={featuredEssay.data.description}
+						date={featuredEssay.data.published}
+						tags={featuredEssay.data.tags}
+						eyebrow="Featured essay"
+						tone="warm"
+					/>
+				) : null}
+				{featuredCode ? (
+					<ContentCard
+						href={`/code/${featuredCode.id}`}
+						title={featuredCode.data.title}
+						description={featuredCode.data.description}
+						date={featuredCode.data.published}
+						tags={featuredCode.data.tags}
+						eyebrow="Featured code note"
+						tone="cool"
+					/>
+				) : null}
+				{featuredEuler ? (
+					<EulerCard
+						href={`/project-euler/${featuredEuler.id}`}
+						title={featuredEuler.data.title}
+						description={featuredEuler.data.description}
+						published={featuredEuler.data.published}
+						problem={featuredEuler.data.problem}
+						status={featuredEuler.data.status}
+						difficulty={featuredEuler.data.difficulty}
+						languages={featuredEuler.data.languages}
+						answer={featuredEuler.data.answer}
+					/>
+				) : null}
+			</div>
+		</section>
+	</div>
+</BaseLayout>

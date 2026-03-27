@@ -1,0 +1,25 @@
+---
+import { withBase } from '../lib/paths';
+import { siteConfig, socialLinks } from '../site.config';
+---
+
+<footer class="footer">
+	<div class="container">
+		<div class="footer__inner">
+			<p class="footer__copy">
+				{siteConfig.title} by {siteConfig.author}. Essays, code, and Project Euler logs from{' '}
+				{siteConfig.location}.
+			</p>
+
+			<nav class="footer-links" aria-label="Secondary">
+				{
+					socialLinks.map((link) => (
+						<a class="footer-link nav-link" href={withBase(link.href)}>
+							{link.label}
+						</a>
+					))
+				}
+			</nav>
+		</div>
+	</div>
+</footer>

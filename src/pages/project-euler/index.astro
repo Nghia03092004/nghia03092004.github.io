@@ -1,0 +1,100 @@
+---
+import EulerCard from '../../components/EulerCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedEntries } from '../../lib/content';
+
+const entries = await getPublishedEntries('euler');
+const languageOptions = [...new Set(entries.flatMap((entry) => entry.data.languages.map((language) => language.toLowerCase())))].sort();
+---
+
+<BaseLayout
+	title="Project Euler"
+	description="A searchable archive of Project Euler solution notes."
+>
+	<section class="page-intro">
+		<span class="eyebrow">Project Euler</span>
+		<h1>A problem-solving archive built to be scanned.</h1>
+		<p>
+			Track which problems you solved, which ideas mattered, and which languages you used. The
+			filter controls stay lightweight so the site remains static and deployable anywhere.
+		</p>
+	</section>
+
+	<section data-euler-root>
+		<form class="filter-bar" aria-label="Problem filters">
+			<select class="filter-select" name="status">
+				<option value="all">All statuses</option>
+				<option value="solved">Solved</option>
+				<option value="working">Working</option>
+				<option value="revisit">Revisit</option>
+			</select>
+			<select class="filter-select" name="difficulty">
+				<option value="all">All difficulties</option>
+				<option value="warmup">Warmup</option>
+				<option value="medium">Medium</option>
+				<option value="hard">Hard</option>
+			</select>
+			<select class="filter-select" name="language">
+				<option value="all">All languages</option>
+				{languageOptions.map((language) => (
+					<option value={language}>{language}</option>
+				))}
+			</select>
+		</form>
+
+		<div class="problem-grid">
+			{entries.map((entry) => (
+				<EulerCard
+					href={`/project-euler/${entry.id}`}
+					title={entry.data.title}
+					description={entry.data.description}
+					published={entry.data.published}
+					problem={entry.data.problem}
+					status={entry.data.status}
+					difficulty={entry.data.difficulty}
+					languages={entry.data.languages}
+					answer={entry.data.answer}
+				/>
+			))}
+		</div>
+
+		<div class="archive-empty panel" data-empty-state hidden>
+			<span class="eyebrow">No match</span>
+			<p class="lede">No entries fit the current filter combination.</p>
+		</div>
+	</section>
+
+	<script is:inline>
+		const root = document.querySelector('[data-euler-root]');
+		const form = root?.querySelector('form');
+		const cards = Array.from(root?.querySelectorAll('[data-problem-card]') ?? []);
+		const emptyState = root?.querySelector('[data-empty-state]');
+
+		const applyFilters = () => {
+			if (!form) return;
+
+			const status = form.elements.namedItem('status')?.value ?? 'all';
+			const difficulty = form.elements.namedItem('difficulty')?.value ?? 'all';
+			const language = form.elements.namedItem('language')?.value ?? 'all';
+			let visibleCount = 0;
+
+			cards.forEach((card) => {
+				const languages = (card.dataset.languages ?? '').split(',').filter(Boolean);
+				const matches =
+					(status === 'all' || card.dataset.status === status) &&
+					(difficulty === 'all' || card.dataset.difficulty === difficulty) &&
+					(language === 'all' || languages.includes(language));
+
+				card.hidden = !matches;
+				if (matches) visibleCount += 1;
+			});
+
+			if (emptyState) {
+				emptyState.hidden = visibleCount !== 0;
+			}
+		};
+
+		form?.addEventListener('input', applyFilters);
+		applyFilters();
+	</script>
+</BaseLayout>

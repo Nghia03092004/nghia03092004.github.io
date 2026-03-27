@@ -1,0 +1,38 @@
+---
+import ContentCard from '../../components/ContentCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedEntries, getUniqueTags } from '../../lib/content';
+
+const notes = await getPublishedEntries('code');
+const tags = getUniqueTags(notes);
+---
+
+<BaseLayout title="Code" description="Technical notes, implementation logs, and small tools.">
+	<section class="page-intro">
+		<span class="eyebrow">Code</span>
+		<h1>Implementation notes, not marketing copy.</h1>
+		<p>
+			A space for build logs, snippets, experiments, and practical details you want to remember
+			the next time you solve a similar problem.
+		</p>
+		<div class="chip-row">
+			{tags.map((tag, index) => (
+				<span class="chip" data-tone={index % 2 === 0 ? 'cool' : 'olive'}>{tag}</span>
+			))}
+		</div>
+	</section>
+
+	<section class="post-grid">
+		{notes.map((entry) => (
+			<ContentCard
+				href={`/code/${entry.id}`}
+				title={entry.data.title}
+				description={entry.data.description}
+				date={entry.data.published}
+				tags={entry.data.tags}
+				eyebrow="Code note"
+				tone="cool"
+			/>
+		))}
+	</section>
+</BaseLayout>

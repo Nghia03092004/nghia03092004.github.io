@@ -1,0 +1,36 @@
+---
+import { formatDate } from '../lib/content';
+import { withBase } from '../lib/paths';
+
+interface Props {
+	href: string;
+	title: string;
+	description: string;
+	date: Date;
+	tags?: string[];
+	eyebrow: string;
+	tone?: 'warm' | 'cool' | 'olive';
+}
+
+const {
+	href,
+	title,
+	description,
+	date,
+	tags = [],
+	eyebrow,
+	tone = 'warm',
+} = Astro.props;
+---
+
+<a class="card" data-tone={tone} href={withBase(href)}>
+	<span class="eyebrow">{eyebrow}</span>
+	<h3>{title}</h3>
+	<p>{description}</p>
+	<div class="card__meta">
+		<time datetime={date.toISOString()}>{formatDate(date)}</time>
+		{tags.slice(0, 3).map((tag) => (
+			<span class="metric">{tag}</span>
+		))}
+	</div>
+</a>

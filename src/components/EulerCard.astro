@@ -1,0 +1,61 @@
+---
+import { formatDate, formatProblemNumber } from '../lib/content';
+import { withBase } from '../lib/paths';
+
+interface Props {
+	href: string;
+	title: string;
+	description: string;
+	published: Date;
+	problem: number;
+	status: 'solved' | 'working' | 'revisit';
+	difficulty: 'warmup' | 'medium' | 'hard';
+	languages?: string[];
+	answer?: string;
+}
+
+const {
+	href,
+	title,
+	description,
+	published,
+	problem,
+	status,
+	difficulty,
+	languages = [],
+	answer,
+} = Astro.props;
+
+const toneMap = {
+	solved: 'olive',
+	working: 'cool',
+	revisit: 'warm',
+} as const;
+
+const normalizedLanguages = languages.map((language) => language.toLowerCase());
+---
+
+<a
+	class="card"
+	data-tone={toneMap[status]}
+	data-problem-card
+	data-status={status}
+	data-difficulty={difficulty}
+	data-languages={normalizedLanguages.join(',')}
+	href={withBase(href)}
+>
+	<div class="card__meta">
+		<span class="metric">{formatProblemNumber(problem)}</span>
+		<time datetime={published.toISOString()}>{formatDate(published)}</time>
+	</div>
+	<h3>{title}</h3>
+	<p>{description}</p>
+	<div class="chip-row">
+		<span class="chip" data-tone="olive">{status}</span>
+		<span class="chip" data-tone="cool">{difficulty}</span>
+		{languages.map((language) => (
+			<span class="chip">{language}</span>
+		))}
+		{answer ? <span class="chip" data-tone="warm">answer {answer}</span> : null}
+	</div>
+</a>

@@ -1,0 +1,108 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { formatDate } from '../lib/content';
+import { withBase } from '../lib/paths';
+
+interface MetaItem {
+	label: string;
+	value: string;
+}
+
+interface LinkItem {
+	label: string;
+	href: string;
+}
+
+interface HeadingItem {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+interface Props {
+	title: string;
+	description: string;
+	published: Date;
+	updated?: Date;
+	eyebrow: string;
+	backHref: string;
+	backLabel: string;
+	tags?: string[];
+	metaItems?: MetaItem[];
+	headings?: HeadingItem[];
+	primaryLink?: LinkItem;
+}
+
+const {
+	title,
+	description,
+	published,
+	updated,
+	eyebrow,
+	backHref,
+	backLabel,
+	tags = [],
+	metaItems = [],
+	headings = [],
+	primaryLink,
+} = Astro.props;
+
+const visibleHeadings = headings.filter((heading) => heading.depth <= 3);
+const visibleMetaItems = [
+	{ label: 'Published', value: formatDate(published) },
+	...(updated ? [{ label: 'Updated', value: formatDate(updated) }] : []),
+	...metaItems.filter((item) => item.value),
+];
+---
+
+<BaseLayout title={title} description={description}>
+	<article class="article-shell">
+		<div class="post-content">
+			<a class="post-layout__back" href={withBase(backHref)}>
+				<span aria-hidden="true">&larr;</span>
+				<span>{backLabel}</span>
+			</a>
+
+			<header class="post-header">
+				<span class="eyebrow">{eyebrow}</span>
+				<h1>{title}</h1>
+				<p>{description}</p>
+				<div class="meta-grid">
+					{
+						visibleMetaItems.map((item) => (
+							<div class="meta-item">
+								<strong>{item.label}</strong>
+								<span>{item.value}</span>
+							</div>
+						))
+					}
+				</div>
+				<div class="chip-row">
+					{tags.map((tag) => (
+						<span class="chip">{tag}</span>
+					))}
+				</div>
+			</header>
+
+			<div class="post-content">
+				<slot />
+			</div>
+		</div>
+
+		<aside class="post-sidebar">
+			{primaryLink ? <a class="button" href={primaryLink.href}>{primaryLink.label}</a> : null}
+			{visibleHeadings.length ? (
+				<nav class="toc" aria-label="Table of contents">
+					<h2>On this page</h2>
+					<ul>
+						{visibleHeadings.map((heading) => (
+							<li>
+								<a href={`#${heading.slug}`}>{heading.text}</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			) : null}
+		</aside>
+	</article>
+</BaseLayout>

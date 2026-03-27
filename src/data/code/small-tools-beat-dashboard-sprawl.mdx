@@ -1,0 +1,49 @@
+---
+title: Small tools beat dashboard sprawl
+description: Why I would rather build a narrow script with a clear contract than another oversized internal UI.
+published: 2026-03-20
+featured: true
+readingTime: 5 min
+tags:
+  - automation
+  - cli
+  - tooling
+---
+
+Internal dashboards are often built because they feel safer than scripts.
+
+But a lot of the time the real need is narrower:
+
+- collect one input
+- transform one dataset
+- emit one useful artifact
+
+That is not a dashboard problem. That is a tool problem.
+
+## Prefer a contract over a surface area
+
+If the tool can be expressed as:
+
+```bash
+tool --input data.json --output report.md
+```
+
+then I already know a lot about how it should behave.
+
+The contract is explicit. The inputs are versionable. The outputs can be tested. The user can automate around it later.
+
+## When I still build a UI
+
+I build a UI when one of these is true:
+
+- the workflow needs multi-step human judgment
+- the users are not technical
+- the output must be explored visually
+
+Otherwise I start with the smallest script that makes the work repeatable.
+
+## What this changes in practice
+
+It becomes much easier to publish build notes, because the system has edges.
+
+Inputs, outputs, failure modes, and tradeoffs are all visible. That is a much better raw material for technical writing than a vague story about “we built a platform.”
