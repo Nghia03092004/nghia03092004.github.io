@@ -125,22 +125,131 @@ function escapeRegExp(value: string) {
 }
 
 function extractSection(body: string, heading: string) {
-	const expression = new RegExp(
-		`^## ${escapeRegExp(heading)}\\s*$([\\s\\S]*?)(?=^##\\s+|\\Z)`,
-		'm',
-	);
+	const headingExpression = new RegExp(`^## ${escapeRegExp(heading)}\\s*$`, 'm');
+	const headingMatch = headingExpression.exec(body);
+	if (!headingMatch) {
+		return '';
+	}
 
-	return expression.exec(body)?.[1]?.trim() ?? '';
+	const remainder = body.slice((headingMatch.index ?? 0) + headingMatch[0].length);
+	const nextHeadingMatch = /^##\s+/m.exec(remainder);
+	const section = nextHeadingMatch ? remainder.slice(0, nextHeadingMatch.index) : remainder;
+
+	return section.trim();
 }
 
-function stripMarkdown(value: string) {
+function formatMathScript(prefix: '^' | '_', content: string) {
+	const trimmed = content.trim();
+	if (!trimmed) {
+		return '';
+	}
+
+	return /^[A-Za-z0-9]+$/.test(trimmed) ? `${prefix}${trimmed}` : `${prefix}(${trimmed})`;
+}
+
+function simplifyInlineMath(value: string) {
+	const leftBraceToken = '__EULER_LBRACE__';
+	const rightBraceToken = '__EULER_RBRACE__';
+
+	return value
+		.replace(/\\\{/g, leftBraceToken)
+		.replace(/\\\}/g, rightBraceToken)
+		.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)')
+		.replace(/\\binom\{([^{}]+)\}\{([^{}]+)\}/g, 'C($1, $2)')
+		.replace(/\\sqrt\{([^{}]+)\}/g, 'sqrt($1)')
+		.replace(/(\d)\\,(\d)/g, '$1,$2')
+		.replace(/\\(?:displaystyle|textstyle|scriptstyle|scriptscriptstyle)\b/g, '')
+		.replace(/\\(?:left|right|bigl|bigr|Bigl|Bigr|big|Big)\b/g, '')
+		.replace(/\\pmod\{([^{}]+)\}/g, '(mod $1)')
+		.replace(/\\pmod\s*([A-Za-z0-9]+)/g, '(mod $1)')
+		.replace(/\\operatorname\*?\{([^}]*)\}/g, '$1')
+		.replace(/\\text\{([^}]*)\}/g, '$1')
+		.replace(/\\mathbb\{([^}]*)\}/g, '$1')
+		.replace(/\\mathcal\{([^}]*)\}/g, '$1')
+		.replace(/\\mathrm\{([^}]*)\}/g, '$1')
+		.replace(/\\mathbf\{([^}]*)\}/g, '$1')
+		.replace(/\\mathsf\{([^}]*)\}/g, '$1')
+		.replace(/\\mathtt\{([^}]*)\}/g, '$1')
+		.replace(/\\mathscr\{([^}]*)\}/g, '$1')
+		.replace(/\\substack\{([\s\S]*?)\}/g, (_match, content: string) =>
+			content.replace(/\\\\/g, ', ').replace(/\s+/g, ' ').trim(),
+		)
+		.replace(/\\(?:cdots|ldots|dots)\b/g, '...')
+		.replace(/\\cdot\b/g, '*')
+		.replace(/\\times\b/g, 'x')
+		.replace(/\\div\b/g, '/')
+		.replace(/\\pm\b/g, '+/-')
+		.replace(/\\mp\b/g, '-/+')
+		.replace(/\\oplus\b/g, '+')
+		.replace(/\\otimes\b/g, 'x')
+		.replace(/\\geqslant\b|\\geq\b|\\ge\b/g, '>=')
+		.replace(/\\leqslant\b|\\leq\b|\\le\b/g, '<=')
+		.replace(/\\neq\b/g, '!=')
+		.replace(/\\equiv\b/g, 'equiv')
+		.replace(/\\approx\b/g, 'approx')
+		.replace(/\\sim\b/g, '~')
+		.replace(/\\to\b|\\rightarrow\b|\\mapsto\b/g, '->')
+		.replace(/\\mid\b/g, '|')
+		.replace(/\\notin\b/g, 'not in')
+		.replace(/\\in\b/g, 'in')
+		.replace(/\\cup\b/g, 'union')
+		.replace(/\\cap\b/g, 'intersection')
+		.replace(/\\subseteq\b/g, 'subseteq')
+		.replace(/\\subset\b/g, 'subset')
+		.replace(/\\bmod\b|\\mod\b/g, 'mod')
+		.replace(/\\infty\b/g, 'infinity')
+		.replace(/\\sum\b/g, 'sum')
+		.replace(/\\prod\b/g, 'prod')
+		.replace(/\\gcd\b/g, 'gcd')
+		.replace(/\\log\b/g, 'log')
+		.replace(/\\ln\b/g, 'ln')
+		.replace(/\\max\b/g, 'max')
+		.replace(/\\min\b/g, 'min')
+		.replace(/\\lfloor\b/g, 'floor(')
+		.replace(/\\rfloor\b/g, ')')
+		.replace(/\\lceil\b/g, 'ceil(')
+		.replace(/\\rceil\b/g, ')')
+		.replace(/\\lvert\b|\\rvert\b|\\vert\b/g, '|')
+		.replace(/\\quad\b|\\qquad\b|\\,|\\;|\\:|\\!/g, ' ')
+		.replace(/\\\\/g, ' ')
+		.replace(/\\(?:begin|end)\{[^}]+\}/g, ' ')
+		.replace(/\^\{([^{}]+)\}/g, (_match, content: string) => formatMathScript('^', content))
+		.replace(/_\{([^{}]+)\}/g, (_match, content: string) => formatMathScript('_', content))
+		.replace(/\\([_%#$&])/g, '$1')
+		.replace(/\\([A-Za-z]+)/g, '$1')
+		.replace(/\\([{}])/g, '$1')
+		.replace(/[{}]/g, '')
+		.replace(new RegExp(leftBraceToken, 'g'), '{')
+		.replace(new RegExp(rightBraceToken, 'g'), '}')
+		.replace(/\s+([,.;:!?])/g, '$1')
+		.replace(/([([{])\s+/g, '$1')
+		.replace(/\s+([)\]}])/g, '$1')
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
+function stripMarkdown(value: string, options?: { preserveInlineMath?: boolean }) {
+	const preserveInlineMath = options?.preserveInlineMath ?? false;
+	const inlineMathReplacement = (_match: string, math: string) =>
+		preserveInlineMath ? ` ${simplifyInlineMath(math)} ` : ' ';
+
 	return value
 		.replace(/```[\s\S]*?```/g, ' ')
-		.replace(/\$\$[\s\S]*?\$\$/g, ' ')
+		.replace(/\$\$([\s\S]*?)\$\$/g, inlineMathReplacement)
+		.replace(/\\\[([\s\S]*?)\\\]/g, inlineMathReplacement)
+		.replace(/\$([^$\n]+)\$/g, inlineMathReplacement)
+		.replace(/\\\(([\s\S]*?)\\\)/g, inlineMathReplacement)
 		.replace(/`([^`]+)`/g, '$1')
 		.replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
 		.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-		.replace(/[*_>#-]/g, ' ')
+		.replace(/^\s{0,3}#{1,6}\s+/gm, '')
+		.replace(/^\s{0,3}>\s?/gm, '')
+		.replace(/^\s{0,3}[-+*]\s+/gm, '')
+		.replace(/\*\*([^*]+)\*\*/g, '$1')
+		.replace(/\*([^*]+)\*/g, '$1')
+		.replace(/\s+([,.;:!?])/g, '$1')
+		.replace(/([([{])\s+/g, '$1')
+		.replace(/\s+([)\]}])/g, '$1')
 		.replace(/\s+/g, ' ')
 		.trim();
 }
@@ -159,13 +268,28 @@ function extractTitle(body: string, fallbackProblem: number) {
 }
 
 function extractDescription(body: string) {
-	const statement = stripMarkdown(extractSection(body, 'Problem Statement'));
-	if (statement) {
+	const problemStatement = extractSection(body, 'Problem Statement');
+	const statementWithMath = stripMarkdown(problemStatement, { preserveInlineMath: true });
+	if (statementWithMath.length >= 32) {
+		return clampText(statementWithMath, 200);
+	}
+
+	const statement = stripMarkdown(problemStatement);
+	if (statement.length >= 32) {
 		return clampText(statement, 200);
 	}
 
-	const firstParagraph = stripMarkdown(body.split(/\n\s*\n/)[0] ?? '');
-	return clampText(firstParagraph, 200);
+	if (statementWithMath) {
+		return clampText(statementWithMath, 200);
+	}
+
+	const firstParagraph = body.split(/\n\s*\n/)[0] ?? '';
+	const plainFirstParagraph = stripMarkdown(firstParagraph);
+	if (plainFirstParagraph.length >= 32) {
+		return clampText(plainFirstParagraph, 200);
+	}
+
+	return clampText(stripMarkdown(firstParagraph, { preserveInlineMath: true }), 200);
 }
 
 function extractAnswer(body: string) {
