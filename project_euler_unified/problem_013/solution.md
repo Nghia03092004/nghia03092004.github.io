@@ -1,0 +1,71 @@
+# Problem 13: Large Sum
+
+## Problem Statement
+
+Given $N = 100$ positive integers, each having exactly $D = 50$ decimal digits, compute the first $10$ digits of their sum $S = \sum_{i=1}^{N} a_i$.
+
+## Definitions
+
+**Definition 1.** For a positive integer $x$ with decimal representation $x = \sum_{k=0}^{m} d_k \cdot 10^k$, the *leading $t$ digits* of $x$ are the string formed by the $t$ most significant digits, i.e., $\lfloor x / 10^{m+1-t} \rfloor$ expressed in decimal.
+
+**Definition 2.** The *$t$-digit truncation* of a $D$-digit number $a_i$ is $\tilde{a}_i = \lfloor a_i / 10^{D-t} \rfloor$.
+
+## Theorems
+
+**Theorem 1 (Upper bound on the sum).** Let each $a_i$ satisfy $10^{D-1} \le a_i < 10^D$. Then
+
+$$N \cdot 10^{D-1} \le S < N \cdot 10^D.$$
+
+In particular, $S$ has at most $D + \lceil \log_{10} N \rceil$ digits.
+
+*Proof.* The lower bound follows from $a_i \ge 10^{D-1}$. The upper bound follows from $a_i < 10^D$. Taking logarithms: $\log_{10} S < D + \log_{10} N$, so $S$ has at most $\lfloor D + \log_{10} N \rfloor + 1 = D + \lceil \log_{10} N \rceil$ digits (since $N = 100 = 10^2$ is a power of 10, this gives at most $52$ digits). $\square$
+
+**Theorem 2 (Truncation sufficiency).** Define $\tilde{S} = \sum_{i=1}^{N} \tilde{a}_i$ where $\tilde{a}_i = \lfloor a_i / 10^{D-t} \rfloor$. Then
+
+$$\tilde{S} \cdot 10^{D-t} \le S < (\tilde{S} + N) \cdot 10^{D-t}.$$
+
+Consequently, if we require the first $r$ digits of $S$, it suffices to choose $t$ such that $t \ge r + \lceil \log_{10} N \rceil + 1$.
+
+*Proof.* Write $a_i = \tilde{a}_i \cdot 10^{D-t} + r_i$ where $0 \le r_i < 10^{D-t}$. Summing:
+
+$$S = \tilde{S} \cdot 10^{D-t} + R, \quad \text{where } R = \sum_{i=1}^N r_i \text{ satisfies } 0 \le R < N \cdot 10^{D-t}.$$
+
+The error $R$ can affect at most $\lceil \log_{10}(N \cdot 10^{D-t}) \rceil - (D-t) = \lceil \log_{10} N \rceil$ digit positions above position $D - t$. Therefore the first $t - \lceil \log_{10} N \rceil - 1$ digits of $S$ are determined exactly by $\tilde{S}$. Setting $t - \lceil \log_{10} N \rceil - 1 \ge r$ gives the condition. $\square$
+
+**Corollary 1.** For $N = 100$, $D = 50$, $r = 10$: we need $t \ge 10 + 2 + 1 = 13$. Using $t = 15$ provides a comfortable margin.
+
+*Proof.* $\lceil \log_{10} 100 \rceil = 2$. Substituting into the condition of Theorem 2 gives $t \ge 13$. $\square$
+
+**Remark.** In languages with native arbitrary-precision integers (e.g., Python), one can compute $S$ exactly, making the truncation analysis unnecessary for correctness but still valuable as a proof technique and for languages with fixed-width integers.
+
+## Algorithm
+
+```
+FIRST-R-DIGITS-OF-SUM(a[1..N], D, r):
+    // Exact method (arbitrary-precision arithmetic)
+    S <- 0
+    for i <- 1 to N:
+        S <- S + a[i]
+    return leading r digits of S
+
+    // Truncation method (fixed-precision arithmetic)
+    t <- r + ceil(log10(N)) + 2
+    S_approx <- 0
+    for i <- 1 to N:
+        S_approx <- S_approx + floor(a[i] / 10^(D - t))
+    return leading r digits of S_approx
+```
+
+## Complexity Analysis
+
+**Proposition.** The exact method runs in $\Theta(ND)$ time and $\Theta(D + \log N)$ auxiliary space.
+
+*Proof.* Each of the $N$ additions involves numbers with at most $D + \lceil \log_{10} N \rceil$ digits, costing $O(D)$ per addition in arbitrary-precision arithmetic. The running sum occupies $O(D + \log N)$ digits. Total: $O(ND)$ time. $\square$
+
+**Proposition.** The truncation method runs in $\Theta(Nt)$ time and $O(t + \log N)$ auxiliary space, where $t = O(r + \log N)$.
+
+*Proof.* Each truncated number has $t$ digits. The sum of $N$ such numbers has at most $t + \lceil \log_{10} N \rceil$ digits. Each addition costs $O(t)$, giving total $O(Nt)$. Since $t = r + O(\log N) = O(r + \log N)$, for fixed $r$ this is $O(N \log N)$. For $N = 100, t = 15$, the sum fits in a 64-bit integer (at most 17 digits), so each addition is $O(1)$ in practice. $\square$
+
+## Answer
+
+$$\boxed{5537376230}$$

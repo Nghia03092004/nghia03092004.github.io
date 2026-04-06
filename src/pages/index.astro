@@ -1,147 +1,180 @@
 ---
-import ContentCard from '../components/ContentCard.astro';
 import EulerCard from '../components/EulerCard.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPublishedEntries, getUniqueTags } from '../lib/content';
+import { formatDate } from '../lib/content';
+import { formatProblemNumber, getEulerRecords } from '../lib/euler';
+import { withBase } from '../lib/paths';
 import { focusAreas } from '../site.config';
 
-const essays = await getPublishedEntries('essays');
-const code = await getPublishedEntries('code');
-const euler = await getPublishedEntries('euler');
-
-const featuredEssay = essays.find((entry) => entry.data.featured) ?? essays[0];
-const featuredCode = code.find((entry) => entry.data.featured) ?? code[0];
-const featuredEuler = euler.find((entry) => entry.data.featured) ?? euler[0];
-const totalTags = new Set([
-	...getUniqueTags(essays),
-	...getUniqueTags(code),
-	...getUniqueTags(euler),
-]).size;
+const entries = await getEulerRecords();
+const featuredProblems = [1, 48, 250, 700].flatMap((problem) => {
+	const entry = entries.find((item) => item.problem === problem);
+	return entry ? [entry] : [];
+});
+const latestEntries = [...entries]
+	.sort((a, b) => b.updated.getTime() - a.updated.getTime())
+	.slice(0, 4);
+const totalWords = entries.reduce((sum, entry) => sum + entry.wordCount, 0);
 ---
 
-<BaseLayout>
+<BaseLayout
+	title="Project Euler"
+	description="A polished Project Euler archive with full mathematical solutions and source code."
+>
 	<section class="hero">
 		<div class="panel hero-copy">
-			<span class="eyebrow">Personal laboratory</span>
-			<h1>Math, code, and long-form notes with a cleaner signal-to-noise ratio.</h1>
+			<div class="hero-copy__topline">
+				<span class="eyebrow">Project Euler archive</span>
+				<span class="hero-copy__burst">{entries.length} full problems</span>
+			</div>
+			<h1>Full Project Euler solutions, cleaner design, both C++ and Python.</h1>
 			<p>
-				A static home for essays, implementation write-ups, and Project Euler logs.
-				Built to feel more like a working notebook than a portfolio landing page.
+				This site is centered on Project Euler: full mathematical writeups, algorithm
+				explanations, and source code side by side. It stays static, fast, and easy to scan even
+				with hundreds of problems in the archive.
 			</p>
-			<div class="chip-row">
+			<div class="hero-actions">
+				<a class="button" href={withBase('/project-euler')}>Browse all problems</a>
+				<a class="button button--ghost" href={withBase('/project-euler/problem-0001')}>
+					Open problem 0001
+				</a>
+			</div>
+			<div class="hero-ledger">
 				{focusAreas.map((item, index) => (
-					<span class="chip" data-tone={index === 0 ? 'warm' : index === 1 ? 'cool' : 'olive'}>
-						{item}
-					</span>
+					<div class="hero-ledger__card">
+						<span class="hero-ledger__label">Focus 0{index + 1}</span>
+						<strong class="hero-ledger__value">{item}</strong>
+					</div>
 				))}
 			</div>
 		</div>
 
 		<aside class="hero-aside">
-			<div>
-				<span class="eyebrow">Current scope</span>
+			<div class="hero-aside__panel hero-aside__panel--warm">
+				<span class="eyebrow">What each page includes</span>
 				<p class="lede">
-					Three content streams, one publishing system: essays for ideas, code for
-					implementation, Euler for deliberate practice.
+					The problem statement, a full derivation, the final answer, and the original C++ and
+					Python files from the archive.
+				</p>
+				<p class="hero-note">
+					The detail pages are built for reference: read the reasoning first, then switch
+					directly into source code without leaving the page.
 				</p>
 			</div>
-			<div class="stats-grid">
-				<div class="stat">
-					<span class="stat__value">{essays.length}</span>
-					<span class="stat__label">Essays published</span>
-				</div>
-				<div class="stat">
-					<span class="stat__value">{code.length}</span>
-					<span class="stat__label">Code notes</span>
-				</div>
-				<div class="stat">
-					<span class="stat__value">{euler.length}</span>
-					<span class="stat__label">Euler entries</span>
-				</div>
-				<div class="stat">
-					<span class="stat__value">{totalTags}</span>
-					<span class="stat__label">Topics tracked</span>
+			<div class="hero-aside__panel hero-aside__panel--grid">
+				<span class="section-label">Archive scope</span>
+				<div class="stats-grid">
+					<div class="stat">
+						<span class="stat__value">{entries.length}</span>
+						<span class="stat__label">Euler problems</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{entries.length * 2}</span>
+						<span class="stat__label">Source files</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">2</span>
+						<span class="stat__label">Languages per page</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{Math.round(totalWords / 1000)}k</span>
+						<span class="stat__label">Words in archive</span>
+					</div>
 				</div>
 			</div>
 		</aside>
 	</section>
 
 	<div class="section-stack">
-		<section class="section-panel">
+		<section class="section-panel section-panel--spotlight">
 			<div class="section-heading">
 				<div>
-					<h2>Three tracks, one system</h2>
+					<span class="section-label">Archive format</span>
+					<h2>Built like a serious Project Euler library</h2>
 					<p>
-						The structure borrows the directness of Project Euler archives and the calm pace of
-						personal technical blogs.
+						The front page stays editorial, but the archive and detail pages are optimized for
+						actual use: scan, open, verify, copy, move on.
 					</p>
 				</div>
 			</div>
 			<div class="track-grid">
-				<div class="card track-card" data-tone="warm">
-					<span class="eyebrow">Essays</span>
-					<h3>Long-form thinking</h3>
-					<p>Write about math, learning, engineering tradeoffs, or anything worth revisiting.</p>
-				</div>
-				<div class="card track-card" data-tone="cool">
-					<span class="eyebrow">Code</span>
-					<h3>Build logs and snippets</h3>
-					<p>Document small tools, experiments, architecture choices, and practical notes.</p>
-				</div>
-				<div class="card track-card" data-tone="olive">
-					<span class="eyebrow">Project Euler</span>
-					<h3>Problem archive</h3>
-					<p>Track solved problems, languages used, and the ideas worth keeping after the solve.</p>
-				</div>
+				<a class="card track-card" data-tone="warm" href={withBase('/project-euler')}>
+					<span class="track-card__index">01</span>
+					<span class="eyebrow">Full writeups</span>
+					<h3>The mathematics stays visible</h3>
+					<p>Problem statements, proofs, algorithm notes, complexity analysis, and answers on one page.</p>
+					<span class="track-card__link">Browse the archive</span>
+				</a>
+				<a class="card track-card" data-tone="cool" href={withBase('/project-euler/problem-0048')}>
+					<span class="track-card__index">02</span>
+					<span class="eyebrow">C++ source</span>
+					<h3>Reference implementation for performance-minded solves</h3>
+					<p>Every problem page exposes the exact C++ file from the local Project Euler archive.</p>
+					<span class="track-card__link">See a source page</span>
+				</a>
+				<a class="card track-card" data-tone="olive" href={withBase('/project-euler/problem-0700')}>
+					<span class="track-card__index">03</span>
+					<span class="eyebrow">Python source</span>
+					<h3>A second implementation for clarity and cross-checking</h3>
+					<p>The Python version lives next to the writeup so the explanation and the code stay in sync.</p>
+					<span class="track-card__link">Open a dual-language entry</span>
+				</a>
 			</div>
 		</section>
 
 		<section class="section-panel">
 			<div class="section-heading">
 				<div>
-					<h2>Featured entries</h2>
+					<span class="section-label">Featured problems</span>
+					<h2>Good entry points into the archive</h2>
 					<p>
-						Each section gets a first-class place on the front page instead of being buried
-						under one generic blog feed.
+						A few handpicked problems to show the range: warmup arithmetic, modular arithmetic,
+						combinatorics, and one high-number late-archive problem.
 					</p>
 				</div>
 			</div>
 			<div class="feature-grid">
-				{featuredEssay ? (
-					<ContentCard
-						href={`/essays/${featuredEssay.id}`}
-						title={featuredEssay.data.title}
-						description={featuredEssay.data.description}
-						date={featuredEssay.data.published}
-						tags={featuredEssay.data.tags}
-						eyebrow="Featured essay"
-						tone="warm"
-					/>
-				) : null}
-				{featuredCode ? (
-					<ContentCard
-						href={`/code/${featuredCode.id}`}
-						title={featuredCode.data.title}
-						description={featuredCode.data.description}
-						date={featuredCode.data.published}
-						tags={featuredCode.data.tags}
-						eyebrow="Featured code note"
-						tone="cool"
-					/>
-				) : null}
-				{featuredEuler ? (
+				{featuredProblems.map((entry) => (
 					<EulerCard
-						href={`/project-euler/${featuredEuler.id}`}
-						title={featuredEuler.data.title}
-						description={featuredEuler.data.description}
-						published={featuredEuler.data.published}
-						problem={featuredEuler.data.problem}
-						status={featuredEuler.data.status}
-						difficulty={featuredEuler.data.difficulty}
-						languages={featuredEuler.data.languages}
-						answer={featuredEuler.data.answer}
+						href={`/project-euler/${entry.id}`}
+						title={entry.title}
+						description={entry.description}
+						updated={entry.updated}
+						problem={entry.problem}
+						languages={entry.languages}
+						answer={entry.answer}
 					/>
-				) : null}
+				))}
+			</div>
+		</section>
+
+		<section class="section-panel section-panel--signal">
+			<div class="section-heading">
+				<div>
+					<span class="section-label">Latest sync</span>
+					<h2>Recently updated source entries</h2>
+					<p>
+						These are pulled from the source file timestamps, so the homepage can surface
+						recently touched Project Euler entries without manual editing.
+					</p>
+				</div>
+				<a class="button button--ghost" href={withBase('/about')}>About this archive</a>
+			</div>
+			<div class="signal-grid">
+				{latestEntries.map((entry, index) => (
+					<a class="signal-card" data-tone="olive" href={withBase(`/project-euler/${entry.id}`)}>
+						<span class="signal-card__index">0{index + 1}</span>
+						<div>
+							<span class="eyebrow">{formatProblemNumber(entry.problem)}</span>
+							<h3>{entry.title}</h3>
+							<p>{entry.description}</p>
+						</div>
+						<div class="signal-card__meta">
+							<span class="metric">{formatDate(entry.updated)}</span>
+							<span class="metric">{entry.answer ? `answer ${entry.answer}` : 'full solution'}</span>
+						</div>
+					</a>
+				))}
 			</div>
 		</section>
 	</div>

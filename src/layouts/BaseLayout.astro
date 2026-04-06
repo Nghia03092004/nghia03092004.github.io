@@ -25,7 +25,7 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString(
 		<meta name="description" content={pageDescription} />
 		<link rel="canonical" href={canonical} />
 		<link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
-		<meta name="theme-color" content="#f5eee2" />
+		<meta name="theme-color" content="#efe0ca" />
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={pageDescription} />
 		<meta property="og:type" content="website" />
@@ -34,6 +34,11 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString(
 		<title>{pageTitle}</title>
 	</head>
 	<body>
+		<div class="site-backdrop" aria-hidden="true">
+			<div class="site-backdrop__orb site-backdrop__orb--warm"></div>
+			<div class="site-backdrop__orb site-backdrop__orb--cool"></div>
+			<div class="site-backdrop__grid"></div>
+		</div>
 		<div class="page-shell">
 			<SiteHeader />
 			<main class="container site-main">

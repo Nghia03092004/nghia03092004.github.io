@@ -37,17 +37,18 @@ const code = defineCollection({
 
 const euler = defineCollection({
 	loader: glob({
-		pattern: '**/*.{md,mdx}',
-		base: './src/data/project-euler',
+		pattern: 'problem_*/solution.md',
+		base: './project_euler_unified',
+		generateId: ({ entry }) => {
+			const match = entry.match(/^problem_(\d+)\/solution\.md$/);
+			if (!match) {
+				return entry;
+			}
+
+			return `problem-${match[1].padStart(4, '0')}`;
+		},
 	}),
-	schema: z.object({
-		...sharedFields,
-		problem: z.number().int().positive(),
-		status: z.enum(['solved', 'working', 'revisit']).default('solved'),
-		difficulty: z.enum(['warmup', 'medium', 'hard']).default('medium'),
-		languages: z.array(z.string()).default([]),
-		answer: z.string().optional(),
-	}),
+	schema: z.object({}),
 });
 
 export const collections = { essays, code, euler };

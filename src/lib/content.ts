@@ -1,6 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 
-type CollectionName = 'essays' | 'code' | 'euler';
+type CollectionName = 'essays' | 'code';
 
 type DatedEntry<C extends CollectionName> = CollectionEntry<C>;
 
@@ -13,9 +13,6 @@ export function getPublishedEntries(
 	collection: 'essays',
 ): Promise<CollectionEntry<'essays'>[]>;
 export function getPublishedEntries(collection: 'code'): Promise<CollectionEntry<'code'>[]>;
-export function getPublishedEntries(
-	collection: 'euler',
-): Promise<CollectionEntry<'euler'>[]>;
 export async function getPublishedEntries(collection: CollectionName) {
 	const entries = await getCollection(collection);
 	return entries.filter((entry) => !entry.data.draft).sort(byPublishedDesc);

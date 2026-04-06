@@ -1,0 +1,68 @@
+# Problem 27: Quadratic Primes
+
+## Problem Statement
+
+Considering quadratics of the form $n^2 + an + b$ where $|a| < 1000$ and $|b| \leq 1000$, find the product of the coefficients $a$ and $b$ that produces the maximum number of primes for consecutive values of $n$, starting with $n = 0$.
+
+## Mathematical Development
+
+**Definition 1.** For integers $a, b$, define $f_{a,b}(n) = n^2 + an + b$. The *prime chain length* of $(a, b)$ is $L(a, b) = \max\{m \geq 0 : f_{a,b}(n) \text{ is prime for all } 0 \leq n < m\}$.
+
+**Lemma 1 (Necessity of $b$ Prime).** *If $L(a, b) \geq 1$, then $b$ is a positive prime.*
+
+*Proof.* Evaluating at $n = 0$ gives $f_{a,b}(0) = b$. For $b$ to be prime, we need $b \geq 2$. $\square$
+
+**Lemma 2 (Parity Constraint).** *If $b$ is an odd prime and $L(a, b) \geq 2$, then $a$ is odd.*
+
+*Proof.* We require $f_{a,b}(1) = 1 + a + b$ to be prime. Since $b$ is odd, $1 + a + b$ has the same parity as $a$. If $a$ is even, then $1 + a + b$ is even, so $f_{a,b}(1) = 2$ is the only possibility, forcing $a = 1 - b$. But then $f_{a,b}(2) = 4 + 2(1-b) + b = 6 - b < 2$ for $b \geq 5$, contradicting $L(a,b) \geq 2$. For $b = 3$: $a = -2$, $f(2) = 4 - 4 + 3 = 3$ (prime), $f(3) = 9 - 6 + 3 = 6$ (not prime), giving $L = 3$. This is a short chain. For long chains with $b \geq 5$, we need $a$ odd. $\square$
+
+**Lemma 3 (Lower Bound on $a$).** *If $L(a, b) \geq 2$, then $a > -b$.*
+
+*Proof.* We need $f_{a,b}(1) = 1 + a + b \geq 2$, so $a \geq 1 - b$, i.e., $a > -b$. $\square$
+
+**Theorem 1 (Connection to Heegner Numbers).** *Euler's quadratic $n^2 + n + 41$ produces primes for $n = 0, 1, \ldots, 39$. This is intimately connected to the fact that $-163$ is a Heegner number.*
+
+*Proof.* The discriminant of $n^2 + n + 41$ is $\Delta = 1^2 - 4 \cdot 41 = -163$. By the Stark--Heegner theorem, the imaginary quadratic field $\mathbb{Q}(\sqrt{-163})$ has class number $h(-163) = 1$, meaning its ring of integers $\mathbb{Z}\bigl[\frac{1+\sqrt{-163}}{2}\bigr]$ is a principal ideal domain (and hence a unique factorization domain). In the theory of binary quadratic forms, class number 1 implies that the principal form $x^2 + xy + 41y^2$ is the unique reduced form of discriminant $-163$. By Rabinowitz's theorem (1913), a quadratic $n^2 + n + p$ produces primes for $n = 0, 1, \ldots, p - 2$ if and only if the class number $h(1 - 4p) = 1$. Since $h(-163) = 1$ and $p = 41$, the quadratic $n^2 + n + 41$ is prime for $n = 0, \ldots, 39$. $\square$
+
+**Remark.** The quadratic $n^2 - 79n + 1601 = (n - 40)^2 + (n - 40) + 41$ is a reindexing of Euler's polynomial, producing 80 primes for $n = 0, \ldots, 79$.
+
+**Theorem 2 (Optimal Coefficients).** *Among all $(a, b)$ with $|a| < 1000$ and $|b| \leq 1000$, the pair maximizing $L(a, b)$ is $(a, b) = (-61, 971)$, with $L(-61, 971) = 71$. The product is $a \cdot b = -59231$.*
+
+*Proof.* By exhaustive search. The search space is constrained as follows:
+1. By Lemma 1, $b$ ranges over the 168 primes in $[2, 1000]$.
+2. By Lemma 2, for odd $b \geq 5$, only odd values of $a$ are tested.
+3. By Lemma 3, $a > -b$.
+
+For each admissible $(a, b)$, we evaluate $f_{a,b}(n)$ for $n = 0, 1, 2, \ldots$ until a composite or negative value is reached. Primality is checked via a precomputed sieve. The maximum chain length found is $71$, achieved uniquely at $(a, b) = (-61, 971)$. The discriminant of $n^2 - 61n + 971$ is $61^2 - 4 \cdot 971 = 3721 - 3884 = -163$, confirming the connection to the Heegner number $-163$. $\square$
+
+## Algorithm
+
+```
+function quadratic_primes(A_max, B_max):
+    sieve <- prime sieve up to A_max^2 + A_max * B_max + B_max
+    primes_b <- {p <= B_max : p is prime}
+    best_count <- 0
+    result <- 0
+    for b in primes_b:
+        for a <- -(A_max - 1) to A_max - 1:
+            if b is odd and b >= 5 and a is even: continue
+            n <- 0
+            while f(n) = n^2 + a*n + b >= 2 and f(n) is prime:
+                n <- n + 1
+            if n > best_count:
+                best_count <- n
+                result <- a * b
+    return result
+```
+
+## Complexity Analysis
+
+**Proposition (Time Complexity).** *The algorithm runs in $O(|B| \cdot |A| \cdot C)$ time, where $|B| = \pi(B_{\max}) = 168$ is the number of candidate primes, $|A| \leq 2A_{\max} = 1998$ is the range of $a$ (halved by parity pruning for odd $b$), and $C \leq 71$ is the maximum chain length. Total: $O(168 \times 1000 \times 71) \approx 1.2 \times 10^7$ operations.*
+
+*Proof.* The outer loops enumerate at most $|B| \cdot |A|$ pairs. For each pair, the inner loop runs at most $C$ iterations, each performing an $O(1)$ sieve lookup. $\square$
+
+**Proposition (Space Complexity).** *The algorithm uses $O(S)$ space where $S = O(A_{\max}^2)$ is the sieve size. We need to test values up to approximately $70^2 + 999 \cdot 70 + 1000 = 75830$, so $S \approx 10^5$.*
+
+## Answer
+
+$$\boxed{-59231}$$

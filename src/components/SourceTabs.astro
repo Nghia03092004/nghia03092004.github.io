@@ -1,0 +1,104 @@
+---
+interface Props {
+	problem: number;
+	cppSource: string;
+	pythonSource: string;
+	cppPath: string;
+	pythonPath: string;
+}
+
+const { problem, cppSource, pythonSource, cppPath, pythonPath } = Astro.props;
+const rootId = `source-tabs-${problem}`;
+---
+
+<section class="source-library panel" id="source-code" data-source-root={rootId}>
+	<div class="source-library__header">
+		<div>
+			<span class="section-label">Source code</span>
+			<h2>Reference implementations in both languages</h2>
+			<p>
+				Each problem page includes the exact C++ and Python source files from the local archive.
+			</p>
+		</div>
+		<div class="source-toolbar" role="tablist" aria-label="Source language">
+			<button class="source-tab is-active" type="button" data-source-tab="cpp" role="tab">
+				C++
+			</button>
+			<button class="source-tab" type="button" data-source-tab="python" role="tab">
+				Python
+			</button>
+		</div>
+	</div>
+
+	<article class="source-panel is-active" id="cpp-source" data-source-panel="cpp">
+		<div class="source-panel__meta">
+			<span class="metric">C++</span>
+			<code>{cppPath}</code>
+			<button class="source-copy" type="button" data-source-copy="cpp">Copy</button>
+		</div>
+		<pre><code class="language-cpp">{cppSource}</code></pre>
+	</article>
+
+	<article class="source-panel" id="python-source" data-source-panel="python" hidden>
+		<div class="source-panel__meta">
+			<span class="metric">Python</span>
+			<code>{pythonPath}</code>
+			<button class="source-copy" type="button" data-source-copy="python">Copy</button>
+		</div>
+		<pre><code class="language-python">{pythonSource}</code></pre>
+	</article>
+</section>
+
+<script is:inline>
+	const sourceRoots = document.querySelectorAll('[data-source-root]');
+
+	sourceRoots.forEach((root) => {
+		const buttons = Array.from(root.querySelectorAll('[data-source-tab]'));
+		const panels = Array.from(root.querySelectorAll('[data-source-panel]'));
+		const copyButtons = Array.from(root.querySelectorAll('[data-source-copy]'));
+
+		const setActive = (language) => {
+			buttons.forEach((button) => {
+				const isActive = button.dataset.sourceTab === language;
+				button.classList.toggle('is-active', isActive);
+				button.setAttribute('aria-selected', String(isActive));
+			});
+
+			panels.forEach((panel) => {
+				const isActive = panel.dataset.sourcePanel === language;
+				panel.classList.toggle('is-active', isActive);
+				panel.hidden = !isActive;
+			});
+		};
+
+		buttons.forEach((button) => {
+			button.addEventListener('click', () => setActive(button.dataset.sourceTab));
+		});
+
+		copyButtons.forEach((button) => {
+			button.addEventListener('click', async () => {
+				const language = button.dataset.sourceCopy;
+				const codeElement = root.querySelector(`[data-source-panel="${language}"] code`);
+				const code = codeElement?.textContent ?? '';
+				if (!code) {
+					return;
+				}
+
+				try {
+					await navigator.clipboard.writeText(code);
+					button.textContent = 'Copied';
+					window.setTimeout(() => {
+						button.textContent = 'Copy';
+					}, 1200);
+				} catch {
+					button.textContent = 'Unavailable';
+					window.setTimeout(() => {
+						button.textContent = 'Copy';
+					}, 1200);
+				}
+			});
+		});
+
+		setActive('cpp');
+	});
+</script>

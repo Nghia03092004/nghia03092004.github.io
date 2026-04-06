@@ -22,7 +22,8 @@ interface HeadingItem {
 interface Props {
 	title: string;
 	description: string;
-	published: Date;
+	published?: Date;
+	publishedLabel?: string;
 	updated?: Date;
 	eyebrow: string;
 	backHref: string;
@@ -31,12 +32,14 @@ interface Props {
 	metaItems?: MetaItem[];
 	headings?: HeadingItem[];
 	primaryLink?: LinkItem;
+	secondaryLinks?: LinkItem[];
 }
 
 const {
 	title,
 	description,
 	published,
+	publishedLabel = 'Published',
 	updated,
 	eyebrow,
 	backHref,
@@ -45,11 +48,12 @@ const {
 	metaItems = [],
 	headings = [],
 	primaryLink,
+	secondaryLinks = [],
 } = Astro.props;
 
 const visibleHeadings = headings.filter((heading) => heading.depth <= 3);
 const visibleMetaItems = [
-	{ label: 'Published', value: formatDate(published) },
+	...(published ? [{ label: publishedLabel, value: formatDate(published) }] : []),
 	...(updated ? [{ label: 'Updated', value: formatDate(updated) }] : []),
 	...metaItems.filter((item) => item.value),
 ];
@@ -90,7 +94,14 @@ const visibleMetaItems = [
 		</div>
 
 		<aside class="post-sidebar">
-			{primaryLink ? <a class="button" href={primaryLink.href}>{primaryLink.label}</a> : null}
+			{primaryLink || secondaryLinks.length ? (
+				<div class="post-actions">
+					{primaryLink ? <a class="button" href={primaryLink.href}>{primaryLink.label}</a> : null}
+					{secondaryLinks.map((link) => (
+						<a class="button button--ghost" href={link.href}>{link.label}</a>
+					))}
+				</div>
+			) : null}
 			{visibleHeadings.length ? (
 				<nav class="toc" aria-label="Table of contents">
 					<h2>On this page</h2>

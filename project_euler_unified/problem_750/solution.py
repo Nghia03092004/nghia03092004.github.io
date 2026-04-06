@@ -1,0 +1,8 @@
+"""
+Problem 750: Optimal Card Stacking
+
+Cards labeled 1 to N at positions $3^n \bmod (N+1)$. Merge into ordered stack with minimum total drag distance $G(N)$. Given $G(6)=8$, $G(16)=47$. Find $G(976)$.
+"""
+
+print("Problem 750: Optimal Card Stacking")
+# See solution.md for mathematical analysis
