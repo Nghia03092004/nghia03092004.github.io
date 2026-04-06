@@ -3,15 +3,32 @@ import path from 'node:path';
 
 import { getCollection, type CollectionEntry } from 'astro:content';
 
+import eulerSolvedCountsData from '../data/euler-solved-counts.json';
+
 const EULER_ROOT = path.resolve(process.cwd(), 'project_euler_unified');
 const SOURCE_FILE_NAMES = {
 	cpp: 'solution.cpp',
 	python: 'solution.py',
 } as const;
 
-// The unified local archive does not carry Project Euler's live per-problem ratings.
-// We mirror the public "Level NN" presentation by assigning one level per 25 solved
-// problems after sorting the archive by problem number.
+interface EulerSolvedCountSnapshot {
+	source: string;
+	capturedAt: string;
+	counts: Record<string, number>;
+}
+
+const EULER_SOLVED_COUNT_SNAPSHOT = eulerSolvedCountsData as EulerSolvedCountSnapshot;
+const EULER_SOLVED_COUNTS = new Map(
+	Object.entries(EULER_SOLVED_COUNT_SNAPSHOT.counts).map(([problem, solvedBy]) => [
+		Number(problem),
+		Number(solvedBy),
+	]),
+);
+
+// Project Euler's public pages now present difficulty as "Level NN" bands.
+// The public archive HTML still exposes solve counts rather than direct levels,
+// so we mirror the official style by ranking local entries by public solve counts
+// and then grouping every 25 ranked problems into one level band.
 const EULER_LEVEL_GROUP_SIZE = 25;
 
 export interface EulerRecord {
@@ -22,6 +39,7 @@ export interface EulerRecord {
 	answer?: string;
 	updated: Date;
 	wordCount: number;
+	solvedByCount?: number;
 	difficultyLevel: number;
 	difficultyLabel: string;
 	difficultyColor: string;
@@ -68,6 +86,14 @@ export function getEulerProblemUrl(problem: number) {
 
 export function formatProblemNumber(problem: number) {
 	return `#${String(problem).padStart(4, '0')}`;
+}
+
+export function formatEulerSolvedByCount(solvedByCount: number) {
+	return solvedByCount.toLocaleString('en-US');
+}
+
+export function getEulerDifficultySnapshotDate() {
+	return new Date(EULER_SOLVED_COUNT_SNAPSHOT.capturedAt);
 }
 
 // Match the Level 00, Level 01, ... label format used across the archive UI.
@@ -335,6 +361,7 @@ async function loadEulerRecords() {
 				answer: extractAnswer(body),
 				updated: stats.mtime,
 				wordCount: countWords(body),
+				solvedByCount: EULER_SOLVED_COUNTS.get(problem),
 				languages: ['C++', 'Python'],
 				entry,
 				sourcePaths: {
@@ -346,11 +373,26 @@ async function loadEulerRecords() {
 	);
 
 	const sortedRecords = baseRecords.sort((left, right) => left.problem - right.problem);
-	// With 988 local entries this yields Level 00 through Level 39.
-	const maxLevel = Math.floor(Math.max(sortedRecords.length - 1, 0) / EULER_LEVEL_GROUP_SIZE);
+	const difficultyRankedRecords = [...sortedRecords].sort((left, right) => {
+		const leftSolvedBy = left.solvedByCount ?? -1;
+		const rightSolvedBy = right.solvedByCount ?? -1;
+		if (leftSolvedBy !== rightSolvedBy) {
+			return rightSolvedBy - leftSolvedBy;
+		}
 
-	return sortedRecords.map((record, index) => {
-		const difficultyLevel = Math.min(maxLevel, Math.floor(index / EULER_LEVEL_GROUP_SIZE));
+		return left.problem - right.problem;
+	});
+	// With 988 local entries this yields Level 00 through Level 39.
+	const maxLevel = Math.floor(Math.max(difficultyRankedRecords.length - 1, 0) / EULER_LEVEL_GROUP_SIZE);
+	const levelByProblem = new Map(
+		difficultyRankedRecords.map((record, index) => [
+			record.problem,
+			Math.min(maxLevel, Math.floor(index / EULER_LEVEL_GROUP_SIZE)),
+		]),
+	);
+
+	return sortedRecords.map((record) => {
+		const difficultyLevel = levelByProblem.get(record.problem) ?? maxLevel;
 
 		return {
 			...record,

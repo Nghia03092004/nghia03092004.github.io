@@ -3,7 +3,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatDate } from '../../lib/content';
 import {
 	formatEulerDifficultyLevel,
+	formatEulerSolvedByCount,
 	formatProblemNumber,
+	getEulerDifficultySnapshotDate,
 	getEulerDifficultyColor,
 	getEulerDifficultyInk,
 	getEulerProblemUrl,
@@ -15,7 +17,8 @@ const entries = await getEulerRecords();
 const entriesByProblem = [...entries].sort((left, right) => left.problem - right.problem);
 const latestUpdated = [...entries].sort((a, b) => b.updated.getTime() - a.updated.getTime())[0];
 const previewEntry = entriesByProblem[0];
-const maxDifficultyLevel = entriesByProblem.at(-1)?.difficultyLevel ?? 0;
+const maxDifficultyLevel = Math.max(...entriesByProblem.map((entry) => entry.difficultyLevel), 0);
+const difficultySnapshotDate = getEulerDifficultySnapshotDate();
 const legendLevels = [
 	0,
 	Math.round(maxDifficultyLevel * 0.25),
@@ -76,9 +79,9 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 					open the writeup when you want the full proof and code.
 				</p>
 				<p class="archive-toolbar__note">
-					Project Euler now uses a level scale from green to light red. This archive mirrors
-					that layout locally with 25-problem level blocks because the unified dataset does
-					not include the official live ratings.
+					Levels are now ranked from Project Euler&apos;s public <em>Solved By</em> counts
+					snapshot from {formatDate(difficultySnapshotDate)}, then grouped into 25-problem
+					<em>Level NN</em> bands to mirror the official heatmap style.
 				</p>
 			</div>
 
@@ -142,6 +145,7 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 								data-level-label={entry.difficultyLabel}
 								data-level-color={entry.difficultyColor}
 								data-level-ink={entry.difficultyInk}
+								data-solved-by={entry.solvedByCount ? formatEulerSolvedByCount(entry.solvedByCount) : ''}
 								data-search={getSearchText(entry)}
 								data-band={getBand(entry.problem)}
 								data-problem={entry.problem}
@@ -152,7 +156,7 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 								style={`--level-color: ${entry.difficultyColor}; --level-ink: ${entry.difficultyInk};`}
 								data-href={withBase(`/project-euler/${entry.id}`)}
 								href={withBase(`/project-euler/${entry.id}`)}
-								title={`${formatProblemNumber(entry.problem)} ${entry.title} (${entry.difficultyLabel})`}
+								title={`${formatProblemNumber(entry.problem)} ${entry.title} (${entry.difficultyLabel})${entry.solvedByCount ? `, solved by ${formatEulerSolvedByCount(entry.solvedByCount)}` : ''}`}
 							>
 								<span>{entry.problem}</span>
 							</a>
@@ -175,6 +179,12 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 							<div class="meta-item">
 								<strong>Level</strong>
 								<span data-preview-difficulty>{previewEntry.difficultyLabel}</span>
+							</div>
+							<div class="meta-item">
+								<strong>Solved By</strong>
+								<span data-preview-solved-by>
+									{previewEntry.solvedByCount ? formatEulerSolvedByCount(previewEntry.solvedByCount) : 'n/a'}
+								</span>
 							</div>
 							<div class="meta-item">
 								<strong>Updated</strong>
@@ -240,6 +250,7 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 							data-level-label={entry.difficultyLabel}
 							data-level-color={entry.difficultyColor}
 							data-level-ink={entry.difficultyInk}
+							data-solved-by={entry.solvedByCount ? formatEulerSolvedByCount(entry.solvedByCount) : ''}
 							data-href={withBase(`/project-euler/${entry.id}`)}
 							href={withBase(`/project-euler/${entry.id}`)}
 						>
@@ -251,6 +262,9 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 								<p>{entry.description}</p>
 							</div>
 							<div class="euler-row__meta">
+								{entry.solvedByCount ? (
+									<span class="metric">Solved by {formatEulerSolvedByCount(entry.solvedByCount)}</span>
+								) : null}
 								<span class="metric">Updated {formatDate(entry.updated)}</span>
 								<span
 									class="chip chip--level"
@@ -288,6 +302,7 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 			description: root?.querySelector('[data-preview-description]'),
 			difficulty: root?.querySelector('[data-preview-difficulty]'),
 			difficultyChip: root?.querySelector('[data-preview-difficulty-chip]'),
+			solvedBy: root?.querySelector('[data-preview-solved-by]'),
 			updated: root?.querySelector('[data-preview-updated]'),
 			link: root?.querySelector('[data-preview-link]'),
 			original: root?.querySelector('[data-preview-original]'),
@@ -313,6 +328,7 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 			const levelLabel = element.dataset.levelLabel ?? 'Level 00';
 			const levelColor = element.dataset.levelColor ?? 'rgba(190, 218, 164, 0.9)';
 			const levelInk = element.dataset.levelInk ?? 'var(--ink)';
+			const solvedBy = element.dataset.solvedBy ?? '';
 			const updated = Number(element.dataset.updated ?? 0);
 
 			previewRefs.problem.textContent = formatProblem(problem);
@@ -325,6 +341,9 @@ const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
 				previewRefs.difficultyChip.textContent = levelLabel;
 				previewRefs.difficultyChip.style.setProperty('--level-color', levelColor);
 				previewRefs.difficultyChip.style.setProperty('--level-ink', levelInk);
+			}
+			if (previewRefs.solvedBy) {
+				previewRefs.solvedBy.textContent = solvedBy || 'n/a';
 			}
 			if (previewRefs.updated && updated) {
 				previewRefs.updated.textContent = new Date(updated).toLocaleDateString('en', {

@@ -4,6 +4,7 @@ import { render } from 'astro:content';
 import SourceTabs from '../../components/SourceTabs.astro';
 import PostLayout from '../../layouts/PostLayout.astro';
 import {
+	formatEulerSolvedByCount,
 	formatProblemNumber,
 	getEulerProblemUrl,
 	getEulerRecord,
@@ -31,6 +32,10 @@ const sources = await getEulerSources(record.problem);
 
 const metaItems = [
 	{ label: 'Problem', value: formatProblemNumber(record.problem) },
+	{ label: 'Level', value: record.difficultyLabel },
+	...(record.solvedByCount
+		? [{ label: 'Solved By', value: formatEulerSolvedByCount(record.solvedByCount) }]
+		: []),
 	{ label: 'Languages', value: record.languages.join(', ') },
 	...(record.answer ? [{ label: 'Answer', value: record.answer }] : []),
 	{ label: 'Length', value: `${record.wordCount.toLocaleString()} words` },
@@ -45,7 +50,7 @@ const metaItems = [
 	eyebrow="Project Euler"
 	backHref="/project-euler"
 	backLabel="All Euler problems"
-	tags={['full solution', ...record.languages]}
+	tags={[record.difficultyLabel, 'full solution', ...record.languages]}
 	metaItems={metaItems}
 	headings={headings}
 	primaryLink={{ label: 'View original problem', href: getEulerProblemUrl(record.problem) }}
