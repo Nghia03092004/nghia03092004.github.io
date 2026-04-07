@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import copyTexScriptUrl from 'katex/dist/contrib/copy-tex.min.js?url';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { withBase } from '../lib/paths';
@@ -25,7 +26,7 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString(
 		<meta name="description" content={pageDescription} />
 		<link rel="canonical" href={canonical} />
 		<link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
-		<meta name="theme-color" content="#efe0ca" />
+		<meta name="theme-color" content="#f8fafc" />
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={pageDescription} />
 		<meta property="og:type" content="website" />
@@ -46,5 +47,6 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString(
 			</main>
 			<SiteFooter />
 		</div>
+		<script src={copyTexScriptUrl} defer></script>
 	</body>
 </html>
