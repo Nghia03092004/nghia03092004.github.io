@@ -24,9 +24,10 @@ jobs:
         shell: bash
         run: |
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          REPO_NAME_LOWER="${REPO_NAME,,}"
           OWNER="${GITHUB_REPOSITORY_OWNER,,}"
 
-          if [ "$REPO_NAME" = "$OWNER.github.io" ]; then
+          if [ "$REPO_NAME_LOWER" = "$OWNER.github.io" ]; then
             echo "SITE_URL=https://$OWNER.github.io" >> "$GITHUB_ENV"
             echo "BASE_PATH=/" >> "$GITHUB_ENV"
           else

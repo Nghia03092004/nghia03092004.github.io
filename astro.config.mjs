@@ -6,7 +6,7 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 
 export default defineConfig({
-	site: process.env.SITE_URL ?? 'https://example.com',
+	site: process.env.SITE_URL ?? 'https://nghia03092004.github.io',
 	base: process.env.BASE_PATH ?? '/',
 	integrations: [mdx(), sitemap()],
 	markdown: {

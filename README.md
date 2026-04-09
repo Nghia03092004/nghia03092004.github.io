@@ -19,7 +19,13 @@ Build production:
 npm run build
 ```
 
-Neu deploy that su, set domain cho sitemap/RSS:
+Mac dinh site da duoc set san cho GitHub Pages root site:
+
+```bash
+npm run build
+```
+
+Neu can custom domain rieng, override `SITE_URL`:
 
 ```bash
 SITE_URL=https://your-domain.com npm run build
@@ -117,6 +123,13 @@ Workflow se tu build va deploy len GitHub Pages cho ca 2 truong hop:
 
 - repo ten `username.github.io`
 - repo thuong, deploy duoi duong dan `https://username.github.io/<repo>/`
+
+De chuyen site nay thanh root site cua ban, doi ten repo thanh `nghia03092004.github.io`.
+
+Sau khi rename, workflow se tu build voi:
+
+- `SITE_URL=https://nghia03092004.github.io`
+- `BASE_PATH=/`
 
 Neu can domain rieng, sau nay co the them `public/CNAME`.
 
