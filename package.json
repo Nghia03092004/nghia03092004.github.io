@@ -12,7 +12,8 @@
     "build": "astro build",
     "check": "astro check",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "sync:project-euler-statements": "node tools/sync-project-euler-statements.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.3",

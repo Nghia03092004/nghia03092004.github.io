@@ -258,3 +258,11 @@ export function normalizeEulerMarkdown(markdown: string) {
 		),
 	);
 }
+
+export function stripEulerProblemStatementSection(markdown: string) {
+	return markdown
+		.replace(/^## Problem Statement\s*$[\s\S]*?(?=^##\s)/m, '')
+		.replace(/^## Problem Statement\s*$[\s\S]*$/m, '')
+		.replace(/\n{3,}/g, '\n\n')
+		.trim();
+}

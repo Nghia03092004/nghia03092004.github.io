@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 
+import ProjectEulerStatement from '../../components/ProjectEulerStatement.astro';
 import SourceTabs from '../../components/SourceTabs.astro';
 import PostLayout from '../../layouts/PostLayout.astro';
 import {
@@ -11,6 +12,7 @@ import {
 	getEulerRecords,
 	getEulerSources,
 } from '../../lib/euler';
+import { getEulerMirroredStatement } from '../../lib/euler-statement';
 
 export async function getStaticPaths() {
 	const entries = await getEulerRecords();
@@ -29,6 +31,9 @@ if (!record) {
 
 const { Content, headings } = await render(record.entry);
 const sources = await getEulerSources(record.problem);
+const mirroredStatement = record.hasMirroredStatement
+	? await getEulerMirroredStatement(record.problem)
+	: undefined;
 
 const metaItems = [
 	{ label: 'Problem', value: formatProblemNumber(record.problem) },
@@ -59,6 +64,7 @@ const metaItems = [
 		{ label: 'Jump to Python', href: '#python-source' },
 	]}
 >
+	{mirroredStatement ? <ProjectEulerStatement problem={record.problem} statement={mirroredStatement} /> : null}
 	<Content />
 	<SourceTabs
 		problem={record.problem}

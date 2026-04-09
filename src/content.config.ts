@@ -6,7 +6,7 @@ import { defineCollection } from 'astro/content/config';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-import { normalizeEulerMarkdown } from './lib/euler-markdown';
+import { normalizeEulerMarkdown, stripEulerProblemStatementSection } from './lib/euler-markdown';
 
 const sharedFields = {
 	title: z.string(),
@@ -60,13 +60,24 @@ const euler = defineCollection({
 				}
 
 				const absoluteFilePath = path.join(rootPath, directoryEntry.name, 'solution.md');
+				const mirroredStatementPath = path.join(rootPath, directoryEntry.name, 'statement.html');
 				const rawBody = await fs.readFile(absoluteFilePath, 'utf8');
-				const body = normalizeEulerMarkdown(rawBody).trim();
+				const sourceBody = normalizeEulerMarkdown(rawBody).trim();
+				const hasMirroredStatement = await fs
+					.access(mirroredStatementPath)
+					.then(() => true)
+					.catch(() => false);
+				const body = hasMirroredStatement
+					? stripEulerProblemStatementSection(sourceBody)
+					: sourceBody;
 				const id = `problem-${match[1].padStart(4, '0')}`;
 				const relativeFilePath = path.relative(fileURLToPath(config.root), absoluteFilePath).replaceAll('\\', '/');
 				const data = await parseData({
 					id,
-					data: {},
+					data: {
+						sourceBody,
+						hasMirroredStatement,
+					},
 					filePath: absoluteFilePath,
 				});
 				const rendered = await renderMarkdown(body, {
@@ -78,7 +89,7 @@ const euler = defineCollection({
 					data,
 					body,
 					filePath: relativeFilePath,
-					digest: generateDigest(body),
+					digest: generateDigest(`${hasMirroredStatement}:${body}`),
 					rendered,
 				});
 				untouchedEntries.delete(id);
@@ -89,7 +100,10 @@ const euler = defineCollection({
 			}
 		},
 	},
-	schema: z.object({}),
+	schema: z.object({
+		sourceBody: z.string().optional(),
+		hasMirroredStatement: z.boolean().default(false),
+	}),
 });
 
 export const collections = { essays, code, euler };

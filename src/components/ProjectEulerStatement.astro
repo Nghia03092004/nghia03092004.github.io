@@ -1,0 +1,71 @@
+---
+import autoRenderSource from 'katex/dist/contrib/auto-render.min.js?raw';
+
+import type { EulerMirroredStatement } from '../lib/euler-statement';
+
+interface Props {
+	problem: number;
+	statement: EulerMirroredStatement;
+}
+
+const { problem, statement } = Astro.props;
+const basePath = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+const statementHtml = statement.html.replaceAll('="/project-euler-media/', `="${basePath}/project-euler-media/`);
+---
+
+<section class="project-euler-statement panel" data-project-euler-statement>
+	<div class="project-euler-statement__header">
+		<span class="section-label">Original statement</span>
+		<h2>Problem statement mirrored from Project Euler</h2>
+		<p>
+			This mirrors the official Project Euler wording, including problem media where it exists.
+		</p>
+	</div>
+
+	<div class="project-euler-statement__body" set:html={statementHtml} />
+
+	<div class="project-euler-statement__footer">
+		<p class="project-euler-statement__credit">
+			Problem {problem} content is attributed to Project Euler and mirrored under the
+			<a href={statement.licenseUrl}>CC BY-NC-SA 4.0</a> license.
+		</p>
+		<div class="project-euler-statement__links">
+			<a class="button button--ghost" href={statement.sourceUrl}>Open official problem</a>
+			<a class="button button--ghost" href={statement.licenseUrl}>License details</a>
+		</div>
+	</div>
+</section>
+
+<script is:inline set:html={autoRenderSource}></script>
+<script is:inline>
+	const renderEulerStatements = () => {
+		if (typeof renderMathInElement !== 'function') {
+			return;
+		}
+
+		document.querySelectorAll('[data-project-euler-statement]').forEach((root) => {
+			if (root.dataset.mathRendered === 'true') {
+				return;
+			}
+
+			renderMathInElement(root, {
+				delimiters: [
+					{ left: '$$', right: '$$', display: true },
+					{ left: '$', right: '$', display: false },
+					{ left: '\\(', right: '\\)', display: false },
+					{ left: '\\[', right: '\\]', display: true },
+				],
+				throwOnError: false,
+			});
+			root.dataset.mathRendered = 'true';
+		});
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', renderEulerStatements, { once: true });
+	} else {
+		renderEulerStatements();
+	}
+
+	document.addEventListener('astro:page-load', renderEulerStatements);
+</script>

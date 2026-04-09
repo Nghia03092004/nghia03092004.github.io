@@ -133,6 +133,31 @@ Sau khi rename, workflow se tu build voi:
 
 Neu can domain rieng, sau nay co the them `public/CNAME`.
 
+## Mirror Project Euler statements
+
+Trang problem Euler bay gio co the render problem statement goc cua Project Euler, kem theo image/gif neu problem co media.
+
+De dong bo lai toan bo statement:
+
+```bash
+npm run sync:project-euler-statements -- --all
+```
+
+Co the dong bo mot problem hoac mot khoang:
+
+```bash
+npm run sync:project-euler-statements -- --problem 96
+npm run sync:project-euler-statements -- --from 1 --to 100
+```
+
+Script se:
+
+- lay HTML statement goc tu Project Euler
+- download media ve `public/project-euler-media/`
+- luu fragment vao `project_euler_unified/problem_XXX/statement.html`
+
+Site se uu tien render statement mirror nay o dau trang problem, va tu dong bo phan `## Problem Statement` trong file `solution.md` de tranh lap noi dung.
+
 ## Ghi chu ve Project Euler
 
-Site nay da duoc thiet ke theo kieu archive/log, link ve bai goc tren Project Euler thay vi mirror nguyen de bai. Neu ban dang dinh dang full statement hoac solution chi tiet cho nhieu bai, nen tu kiem tra lai policy/licensing hien hanh cua Project Euler truoc khi public hang loat.
+Main problem content cua Project Euler duoc cap phep theo `CC BY-NC-SA 4.0`. Neu ban public statement mirror tren site, can giu attribution va khong dung cho muc dich thuong mai. Xem them tai `https://projecteuler.net/copyright`.

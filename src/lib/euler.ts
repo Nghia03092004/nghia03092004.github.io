@@ -40,6 +40,7 @@ export interface EulerRecord {
 	updated: Date;
 	wordCount: number;
 	solvedByCount?: number;
+	hasMirroredStatement: boolean;
 	difficultyLevel: number;
 	difficultyLabel: string;
 	difficultyColor: string;
@@ -348,7 +349,7 @@ async function loadEulerRecords() {
 	const baseRecords = await Promise.all(
 		entries.map(async (entry) => {
 			const problem = getEulerProblemNumberFromSlug(entry.id);
-			const body = entry.body ?? '';
+			const body = entry.data.sourceBody ?? entry.body ?? '';
 			const directory = getEulerProblemDirectory(problem);
 			const solutionPath = path.join(directory, 'solution.md');
 			const stats = await fs.stat(solutionPath);
@@ -362,6 +363,7 @@ async function loadEulerRecords() {
 				updated: stats.mtime,
 				wordCount: countWords(body),
 				solvedByCount: EULER_SOLVED_COUNTS.get(problem),
+				hasMirroredStatement: entry.data.hasMirroredStatement ?? false,
 				languages: ['C++', 'Python'],
 				entry,
 				sourcePaths: {
