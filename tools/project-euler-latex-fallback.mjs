@@ -477,6 +477,7 @@ function splitTableRows(source) {
 	let current = '';
 	let braceDepth = 0;
 	let inlineMath = false;
+	let nestedTabularDepth = 0;
 
 	for (let index = 0; index < source.length; index += 1) {
 		const character = source[index];
@@ -489,6 +490,20 @@ function splitTableRows(source) {
 		}
 
 		if (!inlineMath) {
+			if (source.startsWith('\\begin{tabular}', index)) {
+				nestedTabularDepth += 1;
+				current += '\\begin{tabular}';
+				index += '\\begin{tabular}'.length - 1;
+				continue;
+			}
+
+			if (source.startsWith('\\end{tabular}', index)) {
+				nestedTabularDepth = Math.max(0, nestedTabularDepth - 1);
+				current += '\\end{tabular}';
+				index += '\\end{tabular}'.length - 1;
+				continue;
+			}
+
 			if (character === '{') {
 				braceDepth += 1;
 			} else if (character === '}') {
@@ -500,6 +515,7 @@ function splitTableRows(source) {
 			character === '\\' &&
 			nextCharacter === '\\' &&
 			braceDepth === 0 &&
+			nestedTabularDepth === 0 &&
 			!inlineMath &&
 			!isEscaped(source, index)
 		) {
@@ -530,6 +546,7 @@ function splitTableCells(row) {
 	let current = '';
 	let braceDepth = 0;
 	let inlineMath = false;
+	let nestedTabularDepth = 0;
 
 	for (let index = 0; index < row.length; index += 1) {
 		const character = row[index];
@@ -542,6 +559,20 @@ function splitTableCells(row) {
 		}
 
 		if (!inlineMath) {
+			if (row.startsWith('\\begin{tabular}', index)) {
+				nestedTabularDepth += 1;
+				current += '\\begin{tabular}';
+				index += '\\begin{tabular}'.length - 1;
+				continue;
+			}
+
+			if (row.startsWith('\\end{tabular}', index)) {
+				nestedTabularDepth = Math.max(0, nestedTabularDepth - 1);
+				current += '\\end{tabular}';
+				index += '\\end{tabular}'.length - 1;
+				continue;
+			}
+
 			if (character === '{') {
 				braceDepth += 1;
 			} else if (character === '}') {
@@ -549,7 +580,7 @@ function splitTableCells(row) {
 			}
 		}
 
-		if (character === '&' && braceDepth === 0 && !inlineMath) {
+		if (character === '&' && braceDepth === 0 && nestedTabularDepth === 0 && !inlineMath) {
 			cells.push(current.trim());
 			current = '';
 			continue;
@@ -566,6 +597,12 @@ function splitTableCells(row) {
 }
 
 function renderTableCell(cell, context) {
+	const trimmed = cell.trim();
+
+	if (trimmed.startsWith('\\begin{tabular}')) {
+		return `<td>${renderEnvironmentAt(trimmed, 'tabular', 0, context).html}</td>`;
+	}
+
 	if (cell.startsWith('\\multicolumn')) {
 		const parsed = readMacroArguments(cell, '\\multicolumn', 3);
 		if (parsed) {
@@ -756,6 +793,15 @@ function renderInlineCommand(source, startIndex, context) {
 		return {
 			html: '<br>',
 			endIndex: command.endIndex,
+		};
+	}
+
+	if (command.name === 'hspace' || command.name === 'hspace*') {
+		const argument = readBalanced(source, cursor, '{', '}');
+		const widthStyle = buildLengthStyle('width', argument.value);
+		return {
+			html: widthStyle ? `<span style="display:inline-block;${widthStyle}"></span>` : ' ',
+			endIndex: argument.endIndex,
 		};
 	}
 

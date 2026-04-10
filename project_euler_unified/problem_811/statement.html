@@ -1,1 +1,5 @@
-<p class="noindent">Let $b(n)$ be the largest power of $2$ that divides $n$. For example $b(24) = 8$.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Define the recursive function: \begin{align*} A(0) &amp;= 1 \\ A(2n) &amp;= 3A(n) + 5A(2n - b(n)) \qquad \text{for } n &gt; 0 \\ A(2n + 1) &amp;= A(n) \end{align*} and let $H(t, r) = A\left((2^t + 1)^r\right)$.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">You are given $H(3, 2) = A(81) = 636056$.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Find $H(10^{14} + 31, 62)$. Give your answer modulo $\num{1000062031}$.</p>
+<p class="noindent">Let \(b(n)\) be the largest power of \(2\) that divides \(n\). For example \(b(24) = 8\).
+</p><p class="noindent">Define the recursive function: \begin {align*}  A(0) &amp;= 1 \\ A(2n) &amp;= 3A(n) + 5A(2n - b(n)) \qquad \text {for } n &gt; 0 \\ A(2n + 1) &amp;= A(n)  \end {align*}
+</p><p class="noindent">and let \(H(t, r) = A\left ((2^t + 1)^r\right )\).
+</p><p class="noindent">You are given \(H(3, 2) = A(81) = 636056\).
+</p><p class="noindent">Find \(H(10^{14} + 31, 62)\). Give your answer modulo \(\num {1000062031}\). </p>

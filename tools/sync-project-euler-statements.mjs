@@ -49,6 +49,49 @@ function isRelativeUrl(value) {
 	return Boolean(value) && !/^(?:[a-z]+:)?\/\//i.test(value) && !value.startsWith('#') && !value.startsWith('mailto:');
 }
 
+function stripQueryAndHash(value) {
+	return value.split('#', 1)[0].split('?', 1)[0];
+}
+
+function getLinkedMediaBasename(value) {
+	if (!value) {
+		return null;
+	}
+
+	try {
+		const url = new URL(value, 'https://projecteuler.net/');
+		if (url.origin !== 'https://projecteuler.net' || !url.pathname.startsWith('/resources/images/')) {
+			return null;
+		}
+
+		const extension = path.posix.extname(url.pathname).toLowerCase();
+		if (!LATEX_ASSET_EXTENSIONS.includes(extension)) {
+			return null;
+		}
+
+		return path.posix.basename(url.pathname).toLowerCase();
+	} catch {
+		return null;
+	}
+}
+
+function htmlStatementHasMissingLinkedMedia(statement) {
+	if (!statement || statement.sourceType !== 'book-html') {
+		return false;
+	}
+
+	const assetBasenames = new Set(
+		statement.assets
+			.filter(Boolean)
+			.map((asset) => path.posix.basename(stripQueryAndHash(asset).replace(/\\/g, '/')).toLowerCase()),
+	);
+
+	return statement.links.some((link) => {
+		const basename = getLinkedMediaBasename(link);
+		return basename && !assetBasenames.has(basename);
+	});
+}
+
 function normalizeBookAssetPath(sourcePath) {
 	return sourcePath.replace(/\\/g, '/').replace(/^\.?\//, '').replace(/^Images\/Images_\d+\//, '');
 }
@@ -227,29 +270,37 @@ async function extractBookStatements(page, requestedProblems) {
 				requestedProblems.map((problem) => String(Number.parseInt(String(problem), 10))),
 			);
 			const results = [];
+			const seen = new Set();
 
-			for (const anchor of document.querySelectorAll('.tcolorbox-title a[href*="problem="]')) {
-				if (!(anchor instanceof HTMLAnchorElement)) {
-					continue;
-				}
-
-				const href = anchor.getAttribute('href');
-				if (!href) {
-					continue;
-				}
-
-				const match = href.match(/problem=(\d+)/);
-				if (!match) {
-					continue;
-				}
-
-				const problem = String(Number.parseInt(match[1], 10));
-				if (!requested.has(problem)) {
-					continue;
-				}
-
-				const statementBox = anchor.closest('.tcolorbox');
+			for (const statementBox of document.querySelectorAll('.tcolorbox')) {
 				if (!(statementBox instanceof HTMLElement)) {
+					continue;
+				}
+
+				let headingProblem = null;
+				let previous = statementBox.previousElementSibling;
+				while (previous) {
+					if (previous instanceof HTMLElement && previous.classList.contains('sectionHead')) {
+						const match = previous.textContent?.match(/Problem\s+(\d+)/);
+						if (match) {
+							headingProblem = String(Number.parseInt(match[1], 10));
+						}
+						break;
+					}
+
+					previous = previous.previousElementSibling;
+				}
+
+				let problem = headingProblem;
+				if (!problem) {
+					const href = statementBox.querySelector('.tcolorbox-title a[href*="problem="]')?.getAttribute('href');
+					const match = href?.match(/problem=(\d+)/);
+					if (match) {
+						problem = String(Number.parseInt(match[1], 10));
+					}
+				}
+
+				if (!problem || !requested.has(problem) || seen.has(problem)) {
 					continue;
 				}
 
@@ -288,6 +339,7 @@ async function extractBookStatements(page, requestedProblems) {
 					placeholder: (clone.textContent ?? '').includes(placeholderMarker),
 					sourceType: 'book-html',
 				});
+				seen.add(problem);
 			}
 
 			return results;
@@ -369,6 +421,22 @@ async function resolveLatexAssetSource(assetPath) {
 	}
 
 	const directoryPath = path.dirname(directPath);
+	const parentDirectoryPath = path.dirname(directoryPath);
+	const siblingPath = path.join(parentDirectoryPath, path.basename(directPath));
+	if (await fileExists(siblingPath)) {
+		const relativeDirectory = normalized.includes('/') ? normalized.slice(0, normalized.lastIndexOf('/')) : '';
+		const siblingRelativeDirectory = relativeDirectory.includes('/')
+			? relativeDirectory.slice(0, relativeDirectory.lastIndexOf('/'))
+			: '';
+		const relativePath = siblingRelativeDirectory
+			? `${siblingRelativeDirectory}/${path.basename(siblingPath)}`
+			: path.basename(siblingPath);
+		return {
+			sourcePath: siblingPath,
+			relativePath,
+		};
+	}
+
 	if (await fileExists(directoryPath)) {
 		const basename = path.basename(normalized).replace(/[-_]+$/, '');
 		const entries = await fs.readdir(directoryPath, { withFileTypes: true });
@@ -459,8 +527,12 @@ async function main() {
 			for (const problem of requestedProblems) {
 				const htmlStatement = htmlStatementsByProblem.get(problem);
 				const latexStatement = latexStatementsByProblem.get(problem);
+				const useHtmlStatement =
+					htmlStatement &&
+					!htmlStatement.placeholder &&
+					!htmlStatementHasMissingLinkedMedia(htmlStatement);
 				const statement =
-					htmlStatement && !htmlStatement.placeholder
+					useHtmlStatement
 						? htmlStatement
 						: latexStatement && !latexStatement.placeholder
 							? latexStatement

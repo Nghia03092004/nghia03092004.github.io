@@ -1,16 +1,1 @@
-<p class="noindent">\(N \times N\) disks are placed on a square game board. Each disk has a black side and white side.
-</p><p class="noindent">At each turn, you may choose a disk and flip all the disks in the same row and the same column as this disk: thus \(2 \times N - 1\)
-disks are flipped. The game ends when all disks show their white side. The following example shows a game on a \(5 \times 5\)
-board. </p>
-<div class="center">
-<p class="noindent">
-</p><p class="noindent"><a href="https://projecteuler.net/resources/images/0331_crossflips3.gif?1678992056"></a></p></div>
-<p class="noindent">It can be proven that \(3\) is the minimal number of turns to finish this game.
-</p><p class="noindent">The bottom left disk on the \(N \times N\) board has coordinates \((0, 0)\); the bottom right disk has coordinates \((N - 1, 0)\) and the top left disk
-has coordinates \((0, N - 1)\).
-</p><p class="noindent">Let \(C_N\) be the following configuration of a board with \(N \times N\) disks:
-</p><p class="noindent">A disk at \((x, y)\) satisfying \(N - 1 \leq \sqrt [2]{x^2 + y^2} &lt; N\), shows its black side; otherwise, it shows its white side. \(C_5\) is shown above.
-</p><p class="noindent">Let \(T(N)\) be the minimal number of turns to finish the game starting from configuration \(C_N\) or \(0\) if configuration \(C_N\) is
-unsolvable.
-</p><p class="noindent">We have shown that \(T(5) = 3\). You are also given that \(T(10) = 29\) and \(T(\num {1000}) = 395253\).
-</p><p class="noindent">Find \(\sum _{i = 3}^{31} T(2^i - i)\). </p>
+<p class="noindent">$N \times N$ disks are placed on a square game board. Each disk has a black side and white side.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">At each turn, you may choose a disk and flip all the disks in the same row and the same column as this disk: thus $2 \times N - 1$ disks are flipped. The game ends when all disks show their white side. The following example shows a game on a $5 \times 5$ board.</p><div class="center"><p class="noindent"><a href="https://projecteuler.net/resources/images/0331_crossflips3.gif?1678992056"><img src="/project-euler-media/problem-0331/0331_crossflips3/0331_crossflips3.gif" alt="Problem animation" style="width:50%"></a></p></div><p class="noindent">It can be proven that $3$ is the minimal number of turns to finish this game.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">The bottom left disk on the $N \times N$ board has coordinates $(0, 0)$; the bottom right disk has coordinates $(N - 1, 0)$ and the top left disk has coordinates $(0, N - 1)$.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Let $C_N$ be the following configuration of a board with $N \times N$ disks:</p><p class="noindent">A disk at $(x, y)$ satisfying $N - 1 \leq \sqrt[2]{x^2 + y^2} &lt; N$, shows its black side; otherwise, it shows its white side. $C_5$ is shown above.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Let $T(N)$ be the minimal number of turns to finish the game starting from configuration $C_N$ or $0$ if configuration $C_N$ is unsolvable.</p><p class="noindent">We have shown that $T(5) = 3$. You are also given that $T(10) = 29$ and $T(\num{1000}) = 395253$.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Find $\sum_{i = 3}^{31} T(2^i - i)$.</p>

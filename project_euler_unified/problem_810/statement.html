@@ -1,5 +1,7 @@
-<p class="noindent">Let \(b(n)\) be the largest power of \(2\) that divides \(n\). For example \(b(24) = 8\).
-</p><p class="noindent">Define the recursive function: \begin {align*}  A(0) &amp;= 1 \\ A(2n) &amp;= 3A(n) + 5A(2n - b(n)) \qquad \text {for } n &gt; 0 \\ A(2n + 1) &amp;= A(n)  \end {align*}
-</p><p class="noindent">and let \(H(t, r) = A\left ((2^t + 1)^r\right )\).
-</p><p class="noindent">You are given \(H(3, 2) = A(81) = 636056\).
-</p><p class="noindent">Find \(H(10^{14} + 31, 62)\). Give your answer modulo \(\num {1000062031}\). </p>
+<p class="noindent">We use \(x \oplus y\) for the bitwise XOR of \(x\) and \(y\).
+</p><p class="noindent">Define the <tspan font-family="\ec-lmri" font-size="\12">XOR-product </tspan>of \(x\) and \(y\), denoted by \(x \otimes y\), similar to long multiplication in base \(2\), except that the
+intermediate results are XORed instead of the usual integer addition.
+</p><p class="noindent">For example, \(7 \otimes 3 = 9\), or in base \(2\), \(111_2 \otimes 11_2 = 1001_2\): \[ \begin {array}{r@{}r} &amp; 111_2 \\ \otimes &amp; 11_2 \\ \hline &amp; 111_2 \\ \oplus &amp; 111_2 \text { } \\ \hline &amp;1001_2 \end {array} \] An <tspan font-family="\ec-lmri" font-size="\12">XOR-prime </tspan>is an integer \(n\) greater than \(1\) that is not an XOR-product
+of two integers greater than \(1\). The above example shows that \(9\) is not an XOR-prime. Similarly, \(5 = 3 \otimes 3\) is not an
+XOR-prime. The first few XOR-primes are \(2, 3, 7, 11, 13, \ldots \) and the \(10\)th XOR-prime is \(41\).
+</p><p class="noindent">Find the \(\num {5000000}\)th XOR-prime. </p>
