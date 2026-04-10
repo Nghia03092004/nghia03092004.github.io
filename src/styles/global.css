@@ -1270,12 +1270,74 @@ h4 {
 	max-width: 74ch;
 }
 
+.project-euler-statement__body ul,
+.project-euler-statement__body ol {
+	padding-left: 1.5rem;
+}
+
+.project-euler-statement__body li > :first-child {
+	margin-top: 0;
+}
+
+.project-euler-statement__body li > :last-child {
+	margin-bottom: 0;
+}
+
 .project-euler-statement__body a {
 	color: var(--accent-strong);
 }
 
+.project-euler-statement__body .flushleft {
+	text-align: left;
+}
+
 .project-euler-statement__body .center {
 	text-align: center;
+}
+
+.project-euler-statement__body .statement-spacer {
+	height: 1rem;
+}
+
+.project-euler-statement__body .statement-spacer--baseline {
+	height: 1.25rem;
+}
+
+.project-euler-statement__body .statement-fill {
+	flex: 1 1 2rem;
+}
+
+.project-euler-statement__body table {
+	margin: 1rem auto;
+	border-collapse: collapse;
+	max-width: 100%;
+}
+
+.project-euler-statement__body td,
+.project-euler-statement__body th {
+	padding: 0.1rem 0.38rem;
+	vertical-align: top;
+}
+
+.project-euler-statement__body .multicols,
+.project-euler-statement__body .statement-multicols {
+	column-width: 18rem;
+	column-gap: 1.5rem;
+}
+
+.project-euler-statement__body .multicols p,
+.project-euler-statement__body .multicols ul,
+.project-euler-statement__body .multicols ol,
+.project-euler-statement__body .statement-multicols p,
+.project-euler-statement__body .statement-multicols ul,
+.project-euler-statement__body .statement-multicols ol {
+	max-width: none;
+}
+
+.project-euler-statement__body mjx-container {
+	max-width: 100%;
+	overflow-x: auto;
+	overflow-y: hidden;
 }
 
 .project-euler-statement__body img {
@@ -1293,8 +1355,55 @@ h4 {
 	vertical-align: middle;
 }
 
-.project-euler-statement__body .katex-display {
+.project-euler-statement__body .MJXc-display,
+.project-euler-statement__body mjx-container[display='true'] {
 	margin: 1rem 0;
+}
+
+.project-euler-statement__body .statement-mybox-col {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	align-items: flex-start;
+}
+
+.project-euler-statement__body .statement-minipage {
+	flex: 1 1 18rem;
+	min-width: min(100%, 18rem);
+}
+
+.project-euler-statement__body .statement-small {
+	font-size: 0.94rem;
+}
+
+.project-euler-statement__body .statement-footnotesize {
+	font-size: 0.88rem;
+}
+
+.project-euler-statement__body .statement-code {
+	max-width: 100%;
+	padding: 0.9rem 1rem;
+	overflow-x: auto;
+	background: rgba(29, 27, 26, 0.05);
+	border: 1px solid rgba(22, 20, 18, 0.08);
+	border-radius: 12px;
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.92rem;
+	line-height: 1.55;
+}
+
+.project-euler-statement__body .statement-caption {
+	display: block;
+	margin-top: 0.35rem;
+	color: var(--muted);
+	font-size: 0.92rem;
+	text-align: center;
+}
+
+.project-euler-statement__body .statement-underline {
+	text-decoration: underline;
+	text-decoration-thickness: 0.08em;
+	text-underline-offset: 0.12em;
 }
 
 .project-euler-statement__footer {

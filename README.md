@@ -133,9 +133,9 @@ Sau khi rename, workflow se tu build voi:
 
 Neu can domain rieng, sau nay co the them `public/CNAME`.
 
-## Mirror Project Euler statements
+## Sync Project Euler statements
 
-Trang problem Euler bay gio co the render problem statement goc cua Project Euler, kem theo image/gif neu problem co media.
+Trang problem Euler co the render full statement tu local TeX archive trong `../Project Euler/build_statement_books`, kem theo image/gif neu problem co media.
 
 De dong bo lai toan bo statement:
 
@@ -152,11 +152,12 @@ npm run sync:project-euler-statements -- --from 1 --to 100
 
 Script se:
 
-- lay HTML statement goc tu Project Euler
-- download media ve `public/project-euler-media/`
+- build HTML tu local TeX statement books bang `make4ht`
+- tach moi problem thanh mot fragment rieng
+- copy media tu `../Project Euler/Images/` ve `public/project-euler-media/`
 - luu fragment vao `project_euler_unified/problem_XXX/statement.html`
 
-Site se uu tien render statement mirror nay o dau trang problem, va tu dong bo phan `## Problem Statement` trong file `solution.md` de tranh lap noi dung.
+Neu local TeX archive khong co compile-safe fragment cho mot problem, script se giu lai `statement.html` hien co lam fallback. Site se uu tien render statement nay o dau trang problem, va tu dong bo phan `## Problem Statement` trong file `solution.md` de tranh lap noi dung.
 
 ## Ghi chu ve Project Euler
 

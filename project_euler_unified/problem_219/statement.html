@@ -1,13 +1,1 @@
-<p>Let <span style="font-weight:bold;">A</span> and <span style="font-weight:bold;">B</span> be bit strings (sequences of 0's and 1's).<br>
-If <span style="font-weight:bold;">A</span> is equal to the <span style="text-decoration:underline;">left</span>most length(<span style="font-weight:bold;">A</span>) bits of <span style="font-weight:bold;">B</span>, then <span style="font-weight:bold;">A</span> is said to be a <span style="font-style:italic;">prefix</span> of <span style="font-weight:bold;">B</span>.<br>
-For example, 00110 is a prefix of <span style="text-decoration:underline;">00110</span>1001, but not of 00111 or 100110.</p>
-
-<p>A <span style="font-style:italic;">prefix-free code of size</span> <var>n</var> is a collection of <var>n</var> distinct bit strings such that no string is a prefix of any other.  For example, this is a prefix-free code of size 6:</p>
-
-<p class="center">0000, 0001, 001, 01, 10, 11</p>
-
-<p>Now suppose that it costs one penny to transmit a '0' bit, but four pence to transmit a '1'.<br>
-Then the total cost of the prefix-free code shown above is 35 pence, which happens to be the cheapest possible for the skewed pricing scheme in question.<br>
-In short, we write Cost(6) = 35.</p>
-
-<p>What is Cost(10<sup>9</sup>) ?</p>
+<p class="noindent">Let $A$ and $B$ be bit strings (sequences of 0's and 1's).</p><p class="noindent">If $A$ is equal to the <span class="statement-underline">left</span>most length($A$) bits of $B$, then $A$ is said to be a prefix of $B$.</p><p class="noindent">For example, 00110 is a prefix of <em>00110</em>1001, but not of 00111 or 100110.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">A prefix-free code of size n is a collection of n distinct bit strings such that no string is a prefix of any other. For example, this is a prefix-free code of size 6: $$0000, 0001, 001, 01, 10, 11$$ Now suppose that it costs one penny to transmit a '0' bit, but four pence to transmit a '1'.</p><p class="noindent">Then the total cost of the prefix-free code shown above is 35 pence, which happens to be the cheapest possible for the skewed pricing scheme in question.</p><p class="noindent">In short, we write $\operatorname{Cost}(6) = 35$.</p><p class="noindent">What is $\operatorname{Cost}(109)$ ?</p>

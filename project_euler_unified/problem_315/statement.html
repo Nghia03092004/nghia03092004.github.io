@@ -1,49 +1,7 @@
-<p></p><div align="center"><img src="/project-euler-media/problem-0315/0315_clocks.gif" alt="0315_clocks.gif"></div>
-
-<p>Sam and Max are asked to transform two digital clocks into two "digital root" clocks.<br>
-A digital root clock is a digital clock that calculates digital roots step by step.</p>
-
-<p>When a clock is fed a number, it will show it and then it will start the calculation, showing all the intermediate values until it gets to the result.<br>
-For example, if the clock is fed the number 137, it will show: "<b>137</b>" → "<b>11</b>" → "<b>2</b>" and then it will go black, waiting for the next number.</p>
-
-<p>Every digital number consists of some light segments: three horizontal (top, middle, bottom) and four vertical (top-left, top-right, bottom-left, bottom-right).<br>
-Number "<b>1</b>" is made of vertical top-right and bottom-right, number "<b>4</b>" is made by middle horizontal and vertical top-left, top-right and bottom-right. Number "<b>8</b>" lights them all.</p>
-
-<p>The clocks consume energy only when segments are turned on/off.<br>
-To turn on a "<b>2</b>" will cost 5 transitions, while a "<b>7</b>" will cost only 4 transitions.</p>
-
-<p>Sam and Max built two different clocks.</p>
-
-<p>Sam's clock is fed e.g. number 137: the clock shows "<b>137</b>", then the panel is turned off, then the next number ("<b>11</b>") is turned on, then the panel is turned off again and finally the last number ("<b>2</b>") is turned on and, after some time, off.<br>
-For the example, with number 137, Sam's clock requires:<br></p><table><tbody><tr><td>"<b>137</b>"</td>
-<td>:</td>
-<td>(2 + 5 + 4) × 2 = 22 transitions ("<b>137</b>" on/off).</td>
-</tr><tr><td>"<b>11</b>"</td>
-<td>:</td>
-<td>(2 + 2) × 2 = 8 transitions ("<b>11</b>" on/off).</td>
-</tr><tr><td>"<b>2</b>"</td>
-<td>:</td>
-<td>(5) × 2 = 10 transitions ("<b>2</b>" on/off).</td>
-</tr></tbody></table>
-For a grand total of 40 transitions.
-
-<p>Max's clock works differently. Instead of turning off the whole panel, it is smart enough to turn off only those segments that won't be needed for the next number.<br>
-For number 137, Max's clock requires:<br></p><table><tbody><tr><td>"<b>137</b>"<br><br></td>
-<td>:<br><br></td>
-<td>2 + 5 + 4 = 11 transitions ("<b>137</b>" on)<br>
-7 transitions (to turn off the segments that are not needed for number "<b>11</b>").</td>
-</tr><tr><td>"<b>11</b>"<br><br><br></td>
-<td>:<br><br><br></td>
-<td>0 transitions (number "<b>11</b>" is already turned on correctly)<br>
-3 transitions (to turn off the first "<b>1</b>" and the bottom part of the second "<b>1</b>"; <br>
-the top part is common with number "<b>2</b>").</td>
-</tr><tr><td>"<b>2</b>"<br><br></td>
-<td>:<br><br></td>
-<td>4 transitions (to turn on the remaining segments in order to get a "<b>2</b>")<br>
-5 transitions (to turn off number "<b>2</b>").</td>
-</tr></tbody></table>
-For a grand total of 30 transitions.
-
-<p>Of course, Max's clock consumes less power than Sam's one.<br>
-The two clocks are fed all the prime numbers between A = 10<sup>7</sup> and B = 2×10<sup>7</sup>. <br>
-Find the difference between the total number of transitions needed by Sam's clock and that needed by Max's one.</p>
+<div class="statement-footnotesize"><div class="statement-spacer statement-spacer--small"></div><div class="center"><p class="noindent"><a href="https://projecteuler.net/resources/images/0315_clocks.gif?1678992056"><img src="/project-euler-media/problem-0315/0315_clocks/0315_clocks.gif" alt="Problem animation" style="width:62%"></a></p></div><div class="statement-spacer statement-spacer--small"></div><p class="noindent">Sam and Max are asked to transform two digital clocks into two "digital root" clocks.</p><p class="noindent">A digital root clock is a digital clock that calculates digital roots step by step.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">When a clock is fed a number, it will show it and then it will start the calculation, showing all the intermediate values until it gets to the result.</p><p class="noindent">For example, if the clock is fed the number <span style="color:red">"137"</span>, it will show: <span style="color:red">"137"</span> $\rightarrow$ <span style="color:red">"11"</span> $\rightarrow$ <span style="color:red">"2"</span> and then it will go black, waiting for the next number.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Every digital number consists of some light segments: three horizontal (top, middle, bottom) and four vertical (top-left, top-right, bottom-left, bottom-right).</p><p class="noindent">Number <span style="color:red">"1"</span> is made of vertical top-right and bottom-right, number <span style="color:red">"4"</span> is made by middle horizontal and vertical top-left, top-right and bottom-right. Number <span style="color:red">"8"</span> lights them all.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">The clocks consume energy only when segments are turned on/off.</p><p class="noindent">To turn on a <span style="color:red">"2"</span> will cost $5$ transitions, while a <span style="color:red">"7"</span> will cost only $4$ transitions.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Sam and Max built two different clocks.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Sam's clock is fed e.g. number $137$: the clock shows <span style="color:red">"137"</span>, then the panel is turned off, then the next number (<span style="color:red">"11"</span>) is turned on, then the panel is turned off again and finally the last number (<span style="color:red">"2"</span>) is turned on and, after some time, off.</p><p class="noindent">For the example, with number $137$, Sam's clock requires:</p><div class="statement-spacer statement-spacer--small"></div><div class="center"><p class="noindent"><strong>Sam's Clock Transitions</strong></p></div><div class="statement-spacer statement-spacer--small"></div><div class="center"><table class="statement-table"><tbody><tr><td><strong>Number</strong></td><td><strong>Transitions</strong></td></tr><tr><td><span style="color:red">"137"</span></td><td>tabular[t]@l@
+     $(2 + 5 + 4) \times 2$ = 22 transitions (<span style="color:red">"137"</span> on/off).</td></tr><tr><td>tabular</td></tr><tr><td><span style="color:red">"11"</span></td><td>tabular[t]@l@
+     $(2 + 2) \times 2 = 8$ transitions (<span style="color:red">"11"</span> on/off).</td></tr><tr><td>tabular</td></tr><tr><td><span style="color:red">"2"</span></td><td>tabular[t]@l@
+     $(5) \times 2 = 10$ transitions (<span style="color:red">"2"</span> on/off).</td></tr><tr><td>tabular</td></tr></tbody></table></div><div class="statement-spacer statement-spacer--small"></div><p class="noindent">For a grand total of $40$ transitions.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Max's clock works differently. Instead of turning off the whole panel, it is smart enough to turn off only those segments that won't be needed for the next number.</p><p class="noindent">For number $137$, Max's clock requires:</p><div class="statement-spacer statement-spacer--small"></div><div class="center"><p class="noindent"><strong>Max's Clock Transitions</strong></p></div><div class="statement-spacer statement-spacer--small"></div><div class="center"><table class="statement-table"><tbody><tr><td><strong>Number</strong></td><td><strong>Transitions</strong></td></tr><tr><td><span style="color:red">"137"</span></td><td>tabular[t]@l@
+     $2 + 5 + 4 = 11$ transitions (<span style="color:red">"137"</span> on).</td></tr><tr><td>$7$ transitions (to turn off the segments that are not needed for number <span style="color:red">"11"</span>).</td></tr><tr><td>tabular</td></tr><tr><td><span style="color:red">"11"</span></td><td>tabular[t]@l@
+     $0$ transitions (number <span style="color:red">"11"</span> is already turned on correctly).</td></tr><tr><td>$3$ transitions (to turn off the first <span style="color:red">"1"</span> and the bottom part of the second <span style="color:red">"1"</span>;</td></tr><tr><td>1em the top part is common with number <span style="color:red">"2"</span>).</td></tr><tr><td>tabular</td></tr><tr><td><span style="color:red">"2"</span></td><td>tabular[t]@l@
+     $4$ transitions (to turn on the remaining segments in order to get <span style="color:red">"2"</span>).</td></tr><tr><td>$5$ transitions (to turn off number <span style="color:red">"2"</span>).</td></tr><tr><td>tabular</td></tr></tbody></table></div><div class="statement-spacer statement-spacer--small"></div><p class="noindent">For a grand total of $30$ transitions.</p><div class="statement-spacer statement-spacer--baseline"></div><p class="noindent">Of course, Max's clock consumes less power than Sam's one.</p><p class="noindent">The two clocks are fed all the prime numbers between $A = 10^7$ and $B = 2\times10^7$.</p><p class="noindent">Find the difference between the total number of transitions needed by Sam's clock and that needed by Max's one.</p></div>
