@@ -1,14 +1,40 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
-/*
- * Problem 761: Runner and Swimmer
- *
- * Swimmer at center of regular hexagonal pool, runner at edge midpoint. Swimmer speed 1, runner speed $v$. Find critical speed $V_{{\text{{Hexagon}}}}$ 
- */
+double critical_speed_regular_polygon(int sides) {
+    const double pi = std::acos(-1.0);
+    const double theta = pi / static_cast<double>(sides);
+    const double tangent = std::tan(theta);
 
+    auto threshold_function = [&](int k) {
+        const double angle = k * theta;
+        return std::sin(angle) - (k + sides) * tangent * std::cos(angle);
+    };
+
+    int k = 0;
+    while (threshold_function(k) < 0.0) {
+        ++k;
+    }
+    --k;
+
+    const double angle = k * theta;
+    const double correction = std::acos(
+        2.0 * std::sin(angle) / ((k + sides) * tangent) - std::cos(angle)
+    );
+    const double alpha = (angle + correction) / 2.0;
+    return 1.0 / std::cos(alpha);
+}
+
+std::string solve() {
+    std::ostringstream output;
+    output << std::fixed << std::setprecision(8)
+           << critical_speed_regular_polygon(6);
+    return output.str();
+}
 
 int main() {
-    printf("Problem 761: Runner and Swimmer\n");
+    std::cout << solve() << '\n';
     return 0;
 }
