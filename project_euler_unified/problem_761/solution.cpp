@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-double critical_speed_regular_polygon(int sides) {
+int cutoff_index_regular_polygon(int sides) {
     const double pi = std::acos(-1.0);
     const double theta = pi / static_cast<double>(sides);
     const double tangent = std::tan(theta);
@@ -17,9 +17,17 @@ double critical_speed_regular_polygon(int sides) {
     while (threshold_function(k) < 0.0) {
         ++k;
     }
-    --k;
+    return k - 1;
+}
+
+double critical_speed_regular_polygon(int sides) {
+    const double pi = std::acos(-1.0);
+    const double theta = pi / static_cast<double>(sides);
+    const double tangent = std::tan(theta);
+    const int k = cutoff_index_regular_polygon(sides);
 
     const double angle = k * theta;
+    // Theorem 2 from the PDF gives V_n = sec(alpha).
     const double correction = std::acos(
         2.0 * std::sin(angle) / ((k + sides) * tangent) - std::cos(angle)
     );

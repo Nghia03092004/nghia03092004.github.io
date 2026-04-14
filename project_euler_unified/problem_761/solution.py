@@ -1,7 +1,7 @@
 import math
 
 
-def critical_speed_regular_polygon(sides: int) -> float:
+def cutoff_index_regular_polygon(sides: int) -> int:
     theta = math.pi / sides
     tangent = math.tan(theta)
 
@@ -12,9 +12,16 @@ def critical_speed_regular_polygon(sides: int) -> float:
     k = 0
     while threshold_function(k) < 0.0:
         k += 1
-    k -= 1
+    return k - 1
+
+
+def critical_speed_regular_polygon(sides: int) -> float:
+    theta = math.pi / sides
+    tangent = math.tan(theta)
+    k = cutoff_index_regular_polygon(sides)
 
     angle = k * theta
+    # Theorem 2 from the PDF gives V_n = sec(alpha).
     correction = math.acos(
         2.0 * math.sin(angle) / ((k + sides) * tangent) - math.cos(angle)
     )
