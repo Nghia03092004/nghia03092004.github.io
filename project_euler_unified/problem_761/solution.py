@@ -21,7 +21,7 @@ def critical_speed_regular_polygon(sides: int) -> float:
     k = cutoff_index_regular_polygon(sides)
 
     angle = k * theta
-    # Theorem 2 from the PDF gives V_n = sec(alpha).
+    # Theorem 2 gives V_n = sec(alpha).
     correction = math.acos(
         2.0 * math.sin(angle) / ((k + sides) * tangent) - math.cos(angle)
     )
