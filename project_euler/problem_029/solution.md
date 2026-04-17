@@ -54,25 +54,21 @@ We keep two equivalent viewpoints. The direct method enumerates every pair $(a, 
 ## Pseudocode
 
 ```text
-function distinctPowersDirect(limitA, limitB):
-    values <- empty set
-    for a <- 2 to limitA:
-        for b <- 2 to limitB:
-            insert a^b into values
-    return size(values)
+Algorithm: Distinct Powers by Direct Enumeration
+Require: Positive integers A >= 2 and B >= 2.
+Ensure: The cardinality of {a^b : 2 <= a <= A, 2 <= b <= B}.
+1: Initialize an empty set S.
+2: For each pair (a, b) with 2 <= a <= A and 2 <= b <= B, insert a^b into S.
+3: Return |S|.
+```
 
-function distinctPowersCanonical(limitA, limitB):
-    canonical[2..limitA] <- canonical representation of each a as c^p with primitive base c
-    exponentsByBase <- empty map from base to set of exponents
-    for a <- 2 to limitA:
-        (base, power) <- canonical[a]
-        for b <- 2 to limitB:
-            insert power * b into exponentsByBase[base]
-
-    total <- 0
-    for each base in exponentsByBase:
-        total <- total + size(exponentsByBase[base])
-    return total
+```text
+Algorithm: Distinct Powers by Canonical Exponents
+Require: Positive integers A >= 2 and B >= 2.
+Ensure: The cardinality of {a^b : 2 <= a <= A, 2 <= b <= B}.
+1: For each a in {2, 3, ..., A}, write a uniquely as c^p with primitive base c.
+2: For each canonical base c, collect the exponents pb arising from all admissible pairs (a, b) whose canonical representation is a = c^p.
+3: Return the total number of distinct exponents collected across the canonical bases.
 ```
 
 ## Complexity Analysis

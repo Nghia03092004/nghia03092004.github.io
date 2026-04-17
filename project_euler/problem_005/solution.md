@@ -95,12 +95,12 @@ Thus the algorithm is correct. $\square$
 ## Pseudocode
 
 ```text
-function smallestMultiple(limit):
-    lcmValue <- 1
-    for k <- 2 to limit:
-        g <- gcd(lcmValue, k)
-        lcmValue <- (lcmValue / g) * k
-    return lcmValue
+Algorithm: Iterated Least Common Multiple
+Require: An integer N >= 1.
+Ensure: L = lcm(1, 2, ..., N).
+1: Initialize L ← 1.
+2: For each k in {2, 3, ..., N}, update L ← lcm(L, k) = L · k / gcd(L, k).
+3: Return L.
 ```
 
 ## Complexity Analysis

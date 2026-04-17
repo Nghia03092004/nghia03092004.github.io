@@ -61,14 +61,21 @@ We evaluate the closed-form expression obtained from summing the four corner val
 ## Pseudocode
 
 ```text
-function spiralDiagonalSum(size):
-    return (4 * size^3 + 3 * size^2 + 8 * size - 9) / 6
+Algorithm: Spiral Diagonal Sum by Closed Form
+Require: An odd integer N >= 1.
+Ensure: The sum of the diagonal entries in the N x N number spiral.
+1: Compute S ← (4N^3 + 3N^2 + 8N - 9)/6.
+2: Regard S as the closed-form sum of the center together with all ring-corner contributions.
+3: Return S.
+```
 
-function spiralDiagonalSumIterative(size):
-    total <- 1
-    for layer <- 1 to (size - 1) / 2:
-        total <- total + 16 * layer^2 + 4 * layer + 4
-    return total
+```text
+Algorithm: Spiral Diagonal Sum by Ring Accumulation
+Require: An odd integer N >= 1.
+Ensure: The sum of the diagonal entries in the N x N number spiral.
+1: Initialize S ← 1.
+2: For each ring index k in {1, 2, ..., (N - 1)/2}, update S ← S + 16k^2 + 4k + 4.
+3: Return S.
 ```
 
 ## Complexity Analysis

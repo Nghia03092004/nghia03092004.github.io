@@ -109,8 +109,12 @@ Step by step:
 ## Pseudocode
 
 ```text
-function sumSquareDifference(n):
-    return n * (n - 1) * (n + 1) * (3 * n + 2) / 12
+Algorithm: Sum-Square Difference by Closed Form
+Require: An integer n >= 1.
+Ensure: D = (∑_{i=1}^n i)^2 - ∑_{i=1}^n i^2.
+1: Compute D ← n(n - 1)(n + 1)(3n + 2)/12.
+2: Regard D as the closed-form value derived for the difference of the two sums.
+3: Return D.
 ```
 
 ## Complexity Analysis

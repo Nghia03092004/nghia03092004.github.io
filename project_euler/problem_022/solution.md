@@ -39,17 +39,12 @@ We read the quoted names, sort them lexicographically, and then evaluate each na
 ## Pseudocode
 
 ```text
-function totalNameScores(filename):
-    names <- parse the CSV file into a list of names
-    sort names in lexicographic order
-
-    total <- 0
-    for index <- 1 to length(names):
-        value <- 0
-        for each letter in names[index]:
-            value <- value + alphabetical position of letter
-        total <- total + index * value
-    return total
+Algorithm: Total Name Scores
+Require: A finite list of uppercase names.
+Ensure: The total of the positional name scores after lexicographic sorting.
+1: Sort the names into lexicographic order.
+2: For each position j, compute α_j as the sum of alphabetical values of the letters in the j-th name and update T ← T + j · α_j.
+3: Return T.
 ```
 
 ## Complexity Analysis

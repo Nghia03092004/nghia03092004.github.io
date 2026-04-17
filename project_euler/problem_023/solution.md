@@ -45,30 +45,12 @@ We first precompute $s(n)$, the sum of proper divisors, for every $n \le N$ with
 ## Pseudocode
 
 ```text
-function nonAbundantSums(limit):
-    properDivisorSum[0..limit] <- 0
-    for divisor <- 1 to limit:
-        for multiple <- 2 * divisor to limit step divisor:
-            properDivisorSum[multiple] <- properDivisorSum[multiple] + divisor
-
-    abundants <- empty list
-    for value <- 1 to limit:
-        if properDivisorSum[value] > value:
-            append value to abundants
-
-    representable[0..limit] <- false
-    for i <- 0 to length(abundants) - 1:
-        for j <- i to length(abundants) - 1:
-            sumValue <- abundants[i] + abundants[j]
-            if sumValue > limit:
-                break
-            representable[sumValue] <- true
-
-    total <- 0
-    for value <- 1 to limit:
-        if not representable[value]:
-            total <- total + value
-    return total
+Algorithm: Sum of Positive Integers Not Representable by Two Abundant Numbers
+Require: A bound N >= 1.
+Ensure: The sum of all x in {1, 2, ..., N} that are not of the form a + b with a and b abundant.
+1: Compute the proper-divisor sums s(n) for all n <= N and form the abundant set A ← {n <= N : s(n) > n}.
+2: Mark every x <= N that can be written as x = a + b with a, b ∈ A.
+3: Return the sum of all unmarked integers in {1, 2, ..., N}.
 ```
 
 ## Complexity Analysis

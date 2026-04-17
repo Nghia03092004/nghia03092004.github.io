@@ -85,26 +85,12 @@ Therefore $104743$ is the $10001$-st prime. $\square$
 ## Pseudocode
 
 ```text
-function nthPrime(n):
-    if n >= 6:
-        upper <- ceil(n * (ln(n) + ln(ln(n)))) + 100
-    else:
-        upper <- 20
-
-    isPrime[0..upper] <- true
-    isPrime[0] <- false
-    isPrime[1] <- false
-    for p <- 2 to floor(sqrt(upper)):
-        if isPrime[p]:
-            for multiple <- p * p to upper step p:
-                isPrime[multiple] <- false
-
-    count <- 0
-    for value <- 2 to upper:
-        if isPrime[value]:
-            count <- count + 1
-            if count = n:
-                return value
+Algorithm: n-th Prime via Sieving
+Require: An integer n >= 1.
+Ensure: The n-th prime number p_n.
+1: Choose an upper bound U that is guaranteed to satisfy p_n <= U.
+2: Apply the Sieve of Eratosthenes on {2, 3, ..., U} to identify the primes in increasing order.
+3: Return the n-th element of the resulting prime list.
 ```
 
 ## Complexity Analysis

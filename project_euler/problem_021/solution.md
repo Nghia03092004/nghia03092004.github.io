@@ -44,25 +44,12 @@ We enumerate every integer $n < N$ and test the amicable condition directly. The
 ## Pseudocode
 
 ```text
-function sumProperDivisors(n):
-    if n = 1:
-        return 0
-    total <- 1
-    for factor <- 2 to floor(sqrt(n)):
-        if n mod factor = 0:
-            total <- total + factor
-            partner <- n / factor
-            if partner != factor:
-                total <- total + partner
-    return total
-
-function sumAmicable(limit):
-    total <- 0
-    for n <- 2 to limit - 1:
-        m <- sumProperDivisors(n)
-        if m != n and m > 0 and sumProperDivisors(m) = n:
-            total <- total + n
-    return total
+Algorithm: Sum of Amicable Numbers Below N
+Require: An integer N > 1.
+Ensure: T = ∑ {n < N : n is amicable}.
+1: Initialize T ← 0 and let s(x) denote the sum of the proper divisors of x.
+2: For each n in {2, 3, ..., N - 1}, compute m ← s(n); if m != n and s(m) = n, update T ← T + n.
+3: Return T.
 ```
 
 ## Complexity Analysis

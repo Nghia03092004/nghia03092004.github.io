@@ -50,19 +50,12 @@ We perform a bounded exhaustive search. The algorithm precomputes the fifth powe
 ## Pseudocode
 
 ```text
-function digitFifthPowerSum():
-    digitPower[0..9] <- the fifth powers of 0 through 9
-    upper <- 6 * 9^5
-    total <- 0
-    for n <- 2 to upper:
-        sumPowers <- 0
-        value <- n
-        while value > 0:
-            sumPowers <- sumPowers + digitPower[value mod 10]
-            value <- floor(value / 10)
-        if sumPowers = n:
-            total <- total + n
-    return total
+Algorithm: Sum of Numbers Equal to the Sum of Fifth Powers of Their Digits
+Require: The decimal digit alphabet {0, 1, ..., 9}.
+Ensure: T = ∑ {n >= 2 : n = ∑_{d ∈ Digits(n)} d^5}.
+1: Precompute the digit-power table d ↦ d^5 and set U ← 6 · 9^5.
+2: For each n in {2, 3, ..., U}, compute s ← ∑_{d ∈ Digits(n)} d^5; if s = n, update T ← T + n.
+3: Return T.
 ```
 
 ## Complexity Analysis

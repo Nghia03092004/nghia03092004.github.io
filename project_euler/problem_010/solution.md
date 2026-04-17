@@ -63,20 +63,12 @@ By Theorem 3, this is exactly the required sum. $\square$
 ## Pseudocode
 
 ```text
-function sumOfPrimesBelow(limit):
-    isPrime[0..limit - 1] <- true
-    isPrime[0] <- false
-    isPrime[1] <- false
-    for p <- 2 to floor(sqrt(limit - 1)):
-        if isPrime[p]:
-            for multiple <- p * p to limit - 1 step p:
-                isPrime[multiple] <- false
-
-    total <- 0
-    for value <- 2 to limit - 1:
-        if isPrime[value]:
-            total <- total + value
-    return total
+Algorithm: Sum of Primes Below a Bound
+Require: An integer N >= 2.
+Ensure: S = ∑_{p < N, p prime} p.
+1: Apply the Sieve of Eratosthenes on {2, 3, ..., N - 1}.
+2: Compute S as the sum of all integers that remain marked prime after sieving.
+3: Return S.
 ```
 
 ## Complexity Analysis

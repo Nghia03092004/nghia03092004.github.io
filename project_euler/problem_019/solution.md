@@ -55,24 +55,12 @@ We simulate the calendar month by month, keeping track of the weekday of the fir
 ## Pseudocode
 
 ```text
-function isLeapYear(year):
-    return (year mod 4 = 0 and year mod 100 != 0) or (year mod 400 = 0)
-
-function daysInMonth(month, year):
-    monthLengths <- [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    if month = 2 and isLeapYear(year):
-        return 29
-    return monthLengths[month]
-
-function countFirstSundays(startYear, endYear):
-    weekday <- 1    // 0 = Sunday, so 1 Jan 1900 is Monday
-    count <- 0
-    for year <- 1900 to endYear:
-        for month <- 1 to 12:
-            if year >= startYear and weekday = 0:
-                count <- count + 1
-            weekday <- (weekday + daysInMonth(month, year)) mod 7
-    return count
+Algorithm: Counting First-of-Month Sundays
+Require: Years y_start and y_end with 1900 <= y_start <= y_end.
+Ensure: The number of months in the interval [y_start, y_end] whose first day is a Sunday.
+1: Initialize the weekday offset w of 1 January 1900.
+2: Traverse the months from January 1900 through December y_end; whenever the current month lies in the target range and w denotes Sunday, increment the count, then advance w by the month length modulo 7.
+3: Return the final count.
 ```
 
 ## Complexity Analysis

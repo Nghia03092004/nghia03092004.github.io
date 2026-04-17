@@ -51,27 +51,12 @@ We scan every starting value below $N$ while memoizing Collatz chain lengths tha
 ## Pseudocode
 
 ```text
-function longestCollatz(limit):
-    lengthCache[1..limit] <- 0
-    lengthCache[1] <- 1
-    bestStart <- 1
-    bestLength <- 1
-
-    for start <- 2 to limit - 1:
-        value <- start
-        steps <- 0
-        while value >= limit or lengthCache[value] = 0:
-            if value is even:
-                value <- value / 2
-            else:
-                value <- 3 * value + 1
-            steps <- steps + 1
-        lengthCache[start] <- steps + lengthCache[value]
-        if lengthCache[start] > bestLength:
-            bestLength <- lengthCache[start]
-            bestStart <- start
-
-    return bestStart
+Algorithm: Longest Collatz Chain Below N
+Require: An integer N > 1.
+Ensure: A starting value s < N whose Collatz chain has maximal length among all starts below N.
+1: Initialize a cache c with c(1) ← 1, together with best_start ← 1 and best_length ← 1.
+2: For each s in {2, 3, ..., N - 1}, follow the Collatz trajectory until a cached length is reached, deduce c(s), and update the best pair whenever c(s) exceeds best_length.
+3: Return best_start.
 ```
 
 ## Complexity Analysis

@@ -85,15 +85,12 @@ The outer loop visits every admissible starting position exactly once and keeps 
 ## Pseudocode
 
 ```text
-function largestProductInSeries(digits, window):
-    best <- 0
-    for start <- 0 to length(digits) - window:
-        product <- 1
-        for offset <- 0 to window - 1:
-            product <- product * digits[start + offset]
-        if product > best:
-            best <- product
-    return best
+Algorithm: Largest Product in Consecutive Digits
+Require: A digit sequence d_0, d_1, ..., d_{N-1} and a window length k.
+Ensure: B = max_{0 <= i <= N-k} ∏_{j=0}^{k-1} d_{i+j}.
+1: Initialize B ← 0.
+2: For each starting index i in {0, 1, ..., N - k}, compute P_i ← ∏_{j=0}^{k-1} d_{i+j} and update B ← max(B, P_i).
+3: Return B.
 ```
 
 ## Complexity Analysis

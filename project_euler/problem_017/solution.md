@@ -77,35 +77,12 @@ We precompute the letter counts for the atomic words `one` through `nineteen` an
 ## Pseudocode
 
 ```text
-function letterCount(n, ones, teens, tens):
-    if n = 1000:
-        return 11
-
-    total <- 0
-    if n >= 100:
-        total <- total + ones[floor(n / 100)] + 7
-        n <- n mod 100
-        if n > 0:
-            total <- total + 3
-    if n >= 20:
-        total <- total + tens[floor(n / 10)]
-        n <- n mod 10
-    if 10 <= n and n <= 19:
-        total <- total + teens[n - 10]
-        n <- 0
-    if 1 <= n and n <= 9:
-        total <- total + ones[n]
-    return total
-
-function totalNumberLetterCount(limit):
-    ones <- [0, 3, 3, 5, 4, 4, 3, 5, 5, 4]
-    teens <- [3, 6, 6, 8, 8, 7, 7, 9, 8, 8]
-    tens <- [0, 0, 6, 6, 5, 5, 5, 7, 6, 6]
-
-    total <- 0
-    for value <- 1 to limit:
-        total <- total + letterCount(value, ones, teens, tens)
-    return total
+Algorithm: Number-Letter Count in British Usage
+Require: An integer N with 1 <= N <= 1000.
+Ensure: T = ∑_{n=1}^N ℓ(n), where ℓ(n) counts letters in the British English name of n.
+1: Prepare the lookup tables for ones, teens, and tens.
+2: For each n in {1, 2, ..., N}, evaluate ℓ(n) by decomposing n into its hundreds, tens, and units components according to the British “and” convention, and accumulate T ← T + ℓ(n).
+3: Return T.
 ```
 
 ## Complexity Analysis

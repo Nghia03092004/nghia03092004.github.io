@@ -46,18 +46,12 @@ We compute $b^n$ exactly and then sum its decimal digits. The reference pseudoco
 ## Pseudocode
 
 ```text
-function powerDigitSum(base, exponent):
-    digits <- [1]    // least significant digit first
-    for step <- 1 to exponent:
-        carry <- 0
-        for i <- 0 to length(digits) - 1:
-            value <- digits[i] * base + carry
-            digits[i] <- value mod 10
-            carry <- floor(value / 10)
-        while carry > 0:
-            append carry mod 10 to digits
-            carry <- floor(carry / 10)
-    return the sum of the entries in digits
+Algorithm: Power-Digit Sum
+Require: Integers b >= 2 and n >= 0.
+Ensure: The sum of the decimal digits of b^n.
+1: Compute B ← b^n exactly.
+2: Compute S ← ∑_{d ∈ Digits(B)} d.
+3: Return S.
 ```
 
 ## Complexity Analysis

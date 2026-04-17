@@ -133,13 +133,12 @@ By Theorem 3, this quantity is precisely $\sigma(A_3(N) \cup A_5(N))$. Therefore
 ## Pseudocode
 
 ```text
-function sumMultiples(limit):
-    count3 <- floor((limit - 1) / 3)
-    count5 <- floor((limit - 1) / 5)
-    count15 <- floor((limit - 1) / 15)
-    return 3 * count3 * (count3 + 1) / 2
-         + 5 * count5 * (count5 + 1) / 2
-         - 15 * count15 * (count15 + 1) / 2
+Algorithm: Sum of Multiples Below a Bound
+Require: An integer N >= 2.
+Ensure: S = ∑_{1 <= k < N, 3 | k or 5 | k} k.
+1: Compute p_3 ← ⌊(N - 1)/3⌋, p_5 ← ⌊(N - 1)/5⌋, and p_15 ← ⌊(N - 1)/15⌋.
+2: Compute S ← 3 · p_3(p_3 + 1)/2 + 5 · p_5(p_5 + 1)/2 - 15 · p_15(p_15 + 1)/2.
+3: Return S.
 ```
 
 ## Complexity Analysis

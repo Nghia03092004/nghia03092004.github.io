@@ -172,14 +172,12 @@ The loop terminates when $a_i = E_i > L$, at which point total $= \sum_{j=1}^{i-
 ## Pseudocode
 
 ```text
-function sumEvenFibonacci(limit):
-    current <- 2
-    next <- 8
-    total <- 0
-    while current <= limit:
-        total <- total + current
-        (current, next) <- (next, 4 * next + current)
-    return total
+Algorithm: Sum of Even Fibonacci Terms
+Require: A bound L >= 1.
+Ensure: T = ∑ {E_k : E_k <= L}, where E_k = F_{3k}.
+1: Initialize e_1 ← 2, e_2 ← 8, and T ← 0.
+2: Repeat while e_1 <= L: set T ← T + e_1 and update (e_1, e_2) ← (e_2, 4 · e_2 + e_1).
+3: Return T.
 ```
 
 ## Complexity Analysis

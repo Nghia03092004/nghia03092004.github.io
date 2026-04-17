@@ -45,12 +45,12 @@ We solve the triangle with bottom-up dynamic programming. Starting from the last
 ## Pseudocode
 
 ```text
-function maxPathSum(triangle):
-    bestBelow <- copy of the last row of triangle
-    for row <- rowCount(triangle) - 2 downto 0:
-        for col <- 0 to row:
-            bestBelow[col] <- triangle[row][col] + max(bestBelow[col], bestBelow[col + 1])
-    return bestBelow[0]
+Algorithm: Maximum Path Sum in a Triangle
+Require: A triangular array T with n rows.
+Ensure: The maximum total along an adjacent path from the apex to the base.
+1: Copy the final row of T into a working array A.
+2: For r descending from n - 2 to 0, replace each A[c] by T_{r,c} + max(A[c], A[c + 1]).
+3: Return A[0].
 ```
 
 ## Complexity Analysis

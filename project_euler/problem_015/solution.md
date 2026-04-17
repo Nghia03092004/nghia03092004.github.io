@@ -69,11 +69,12 @@ We compute the central binomial coefficient multiplicatively instead of expandin
 ## Pseudocode
 
 ```text
-function latticePaths(size):
-    result <- 1
-    for k <- 1 to size:
-        result <- result * (size + k) / k
-    return result
+Algorithm: Central Binomial Coefficient for Lattice Paths
+Require: An integer n >= 0.
+Ensure: The number of monotone lattice paths through an n x n grid.
+1: Initialize R ← 1.
+2: For each k in {1, 2, ..., n}, update R ← R · (n + k)/k.
+3: Return R.
 ```
 
 ## Complexity Analysis

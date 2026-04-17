@@ -55,22 +55,12 @@ We exhaustively evaluate the product of four adjacent entries in each relevant d
 ## Pseudocode
 
 ```text
-function largestGridProduct(grid, length):
-    directions <- [(0, 1), (1, 0), (1, 1), (1, -1)]
-    best <- 0
-    for each (dr, dc) in directions:
-        for row <- 0 to rowCount(grid) - 1:
-            for col <- 0 to columnCount(grid) - 1:
-                endRow <- row + (length - 1) * dr
-                endCol <- col + (length - 1) * dc
-                if endRow is outside the grid or endCol is outside the grid:
-                    continue
-                product <- 1
-                for step <- 0 to length - 1:
-                    product <- product * grid[row + step * dr][col + step * dc]
-                if product > best:
-                    best <- product
-    return best
+Algorithm: Largest Product in a Grid
+Require: A grid G = (g_{i,j}), a side length n, and a segment length ℓ.
+Ensure: B = max_{(d_r,d_c)} max_{(i,j) ∈ F_{d_r,d_c}} ∏_{k=0}^{ℓ-1} g_{i+k d_r, j+k d_c}, where (d_r, d_c) ranges over the four relevant directions.
+1: Initialize B ← 0.
+2: For each direction (d_r, d_c) ∈ {(0, 1), (1, 0), (1, 1), (1, -1)} and each feasible starting cell (i, j), compute the corresponding length-ℓ product and update B ← max(B, product).
+3: Return B.
 ```
 
 ## Complexity Analysis

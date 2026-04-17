@@ -65,18 +65,21 @@ We keep both the analytical and iterative viewpoints. The closed-form method use
 ## Pseudocode
 
 ```text
-function firstFibonacciWithDigitsByFormula(digitsWanted):
-    phi <- (1 + sqrt(5)) / 2
-    return ceil((digitsWanted - 1 + log10(5) / 2) / log10(phi))
+Algorithm: First Fibonacci Index with D Digits by Formula
+Require: An integer D >= 1.
+Ensure: The least n such that F_n has at least D decimal digits.
+1: Set φ ← (1 + √5)/2.
+2: Compute n ← ⌈(D - 1 + log_10 5 / 2)/log_10 φ⌉.
+3: Return n.
+```
 
-function firstFibonacciWithDigitsIterative(digitsWanted):
-    previous <- 1
-    current <- 1
-    index <- 2
-    while number of decimal digits in current < digitsWanted:
-        (previous, current) <- (current, previous + current)
-        index <- index + 1
-    return index
+```text
+Algorithm: First Fibonacci Index with D Digits by Iteration
+Require: An integer D >= 1.
+Ensure: The least n such that F_n has at least D decimal digits.
+1: Initialize (F_1, F_2) ← (1, 1) and index ← 2.
+2: Repeatedly replace (F_{index-1}, F_index) by (F_index, F_{index-1} + F_index) until F_index has D decimal digits.
+3: Return index.
 ```
 
 ## Complexity Analysis

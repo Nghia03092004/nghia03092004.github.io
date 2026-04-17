@@ -48,33 +48,12 @@ We test triangle numbers in increasing order and compute their divisor counts fr
 ## Pseudocode
 
 ```text
-function divisorCount(value):
-    if value = 0:
-        return 0
-    count <- 1
-    factor <- 2
-    while factor * factor <= value:
-        exponent <- 0
-        while value mod factor = 0:
-            value <- value / factor
-            exponent <- exponent + 1
-        if exponent > 0:
-            count <- count * (exponent + 1)
-        factor <- factor + 1
-    if value > 1:
-        count <- count * 2
-    return count
-
-function firstTriangleWithMoreThan(divisorsTarget):
-    n <- 1
-    while true:
-        if n is even:
-            totalDivisors <- divisorCount(n / 2) * divisorCount(n + 1)
-        else:
-            totalDivisors <- divisorCount(n) * divisorCount((n + 1) / 2)
-        if totalDivisors > divisorsTarget:
-            return n * (n + 1) / 2
-        n <- n + 1
+Algorithm: First Triangle Number with More Than K Divisors
+Require: A threshold K >= 1.
+Ensure: The least triangular number T_n such that τ(T_n) > K.
+1: For n ← 1, 2, 3, ..., form T_n ← n(n + 1)/2.
+2: Use the coprime decomposition of n and n + 1 to compute τ(T_n) from prime factorizations of n/2 and n + 1, or of n and (n + 1)/2, according to the parity of n.
+3: Return the first T_n for which τ(T_n) > K.
 ```
 
 ## Complexity Analysis

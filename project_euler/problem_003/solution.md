@@ -115,15 +115,12 @@ Return $n = 6857$.
 ## Pseudocode
 
 ```text
-function largestPrimeFactor(n):
-    divisor <- 2
-    while divisor * divisor <= n:
-        while n mod divisor = 0:
-            n <- n / divisor
-        divisor <- divisor + 1
-    if n > 1:
-        return n
-    return divisor - 1
+Algorithm: Largest Prime Factor
+Require: An integer n > 1.
+Ensure: The largest prime p such that p | n.
+1: Compute a prime-power factorization n = ∏_{i=1}^r p_i^{e_i} with p_1 < p_2 < ... < p_r.
+2: Set p_max ← p_r.
+3: Return p_max.
 ```
 
 ## Complexity Analysis

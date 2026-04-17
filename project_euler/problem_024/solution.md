@@ -60,17 +60,12 @@ We construct the required permutation directly from the factoradic representatio
 ## Pseudocode
 
 ```text
-function kthPermutation(digits, rank):
-    rank <- rank - 1
-    available <- sorted copy of digits
-    result <- empty list
-    for remaining <- length(digits) - 1 downto 0:
-        blockSize <- remaining!
-        index <- floor(rank / blockSize)
-        rank <- rank mod blockSize
-        append available[index] to result
-        remove available[index] from available
-    return concatenate the elements of result
+Algorithm: k-th Lexicographic Permutation
+Require: An ordered digit set D and an index k with 1 <= k <= |D|!.
+Ensure: The k-th permutation of D in lexicographic order.
+1: Set k' ← k - 1 and let A be the current ordered list of available digits.
+2: For each remaining position, compute the relevant factorial block size, select the digit indexed by ⌊k'/block_size⌋ in A, append it to the output, remove it from A, and replace k' by the corresponding remainder.
+3: Return the resulting digit sequence.
 ```
 
 ## Complexity Analysis

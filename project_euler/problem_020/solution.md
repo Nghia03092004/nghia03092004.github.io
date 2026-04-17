@@ -53,16 +53,12 @@ We form $n!$ by multiplying the integers from 2 through $n$, then extract its de
 ## Pseudocode
 
 ```text
-function factorialDigitSum(n):
-    factorial <- 1
-    for k <- 2 to n:
-        factorial <- factorial * k
-
-    total <- 0
-    while factorial > 0:
-        total <- total + (factorial mod 10)
-        factorial <- floor(factorial / 10)
-    return total
+Algorithm: Factorial-Digit Sum
+Require: An integer n >= 1.
+Ensure: The sum of the decimal digits of n!.
+1: Compute F ← n!.
+2: Compute S ← ∑_{d ∈ Digits(F)} d.
+3: Return S.
 ```
 
 ## Complexity Analysis

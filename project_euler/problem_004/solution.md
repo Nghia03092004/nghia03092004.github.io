@@ -83,21 +83,12 @@ Therefore the algorithm never discards a pair that could beat the final answer, 
 ## Pseudocode
 
 ```text
-function isPalindrome(value):
-    digits <- decimal string of value
-    return digits = reverse(digits)
-
-function largestPalindromeProduct():
-    best <- 0
-    for x <- 990 downto 110 step 11:
-        for y <- 999 downto x step -1:
-            product <- x * y
-            if product <= best:
-                break
-            if isPalindrome(product):
-                best <- product
-                break
-    return best
+Algorithm: Largest Palindromic Product of Two 3-Digit Integers
+Require: The search domain {100, 101, ..., 999}.
+Ensure: The maximum palindromic value P representable as x · y with 100 <= x, y <= 999.
+1: Initialize P* ← 0.
+2: Examine all admissible pairs (x, y) with 100 <= x <= y <= 999 and 11 | x in descending product order; whenever P ← x · y is a decimal palindrome and P > P*, set P* ← P.
+3: Use the monotonicity of the descending search to discard the remaining pairs for a fixed x once no larger product can occur, and return P*.
 ```
 
 ## Complexity Analysis

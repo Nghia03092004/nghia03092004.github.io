@@ -47,19 +47,21 @@ We support two equivalent implementations. With arbitrary-precision arithmetic, 
 ## Pseudocode
 
 ```text
-function firstDigitsOfSumExact(numbers, digitsWanted):
-    total <- 0
-    for each value in numbers:
-        total <- total + value
-    return the first digitsWanted digits of decimal(total)
+Algorithm: Leading Digits by Exact Summation
+Require: Positive integers a_1, a_2, ..., a_N and a target length r.
+Ensure: The first r decimal digits of S = ∑_{i=1}^N a_i.
+1: Compute the exact sum S ← ∑_{i=1}^N a_i.
+2: Extract the leading r decimal digits of S.
+3: Return that length-r prefix.
+```
 
-function firstDigitsOfSumTruncated(numbers, digitsWanted):
-    keep <- digitsWanted + ceil(log10(length(numbers))) + 2
-    truncatedTotal <- 0
-    for each value in numbers:
-        prefix <- the first keep digits of value
-        truncatedTotal <- truncatedTotal + prefix
-    return the first digitsWanted digits of decimal(truncatedTotal)
+```text
+Algorithm: Leading Digits by Safe Truncation
+Require: Positive integers a_1, a_2, ..., a_N, a common digit length D, and a target length r.
+Ensure: The first r decimal digits of S = ∑_{i=1}^N a_i.
+1: Choose t ← r + ⌈log_10 N⌉ + 2 and replace each a_i by its leading t-digit truncation \tilde{a}_i.
+2: Compute \tilde{S} ← ∑_{i=1}^N \tilde{a}_i and extract the leading r digits of \tilde{S}.
+3: Return that length-r prefix, which is valid by the truncation bound.
 ```
 
 ## Complexity Analysis

@@ -59,15 +59,12 @@ We iterate over the possible first leg $a$ and use the linear relation derived f
 ## Pseudocode
 
 ```text
-function specialPythagoreanTriplet(sumTarget):
-    for a <- 1 to floor(sumTarget / 3) - 1:
-        numerator <- sumTarget * sumTarget / 2 - sumTarget * a
-        denominator <- sumTarget - a
-        if numerator is divisible by denominator:
-            b <- numerator / denominator
-            c <- sumTarget - a - b
-            if a < b and b < c:
-                return a * b * c
+Algorithm: Special Pythagorean Triplet with Prescribed Sum
+Require: A target sum s > 0.
+Ensure: The product abc for the unique triple a < b < c satisfying a^2 + b^2 = c^2 and a + b + c = s.
+1: For each a in {1, 2, ..., ⌊s/3⌋ - 1}, compute the candidate value b ← (s^2/2 - sa)/(s - a) whenever the quotient is integral.
+2: Set c ← s - a - b and test the ordering a < b < c.
+3: Return abc for the first admissible triple.
 ```
 
 ## Complexity Analysis
