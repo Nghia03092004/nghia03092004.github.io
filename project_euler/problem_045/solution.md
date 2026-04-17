@@ -14,7 +14,9 @@ It can be verified that $T_{285} = P_{165} = H_{143} = 40755$.
 
 Find the next triangle number that is also pentagonal and hexagonal.
 
-## Mathematical Foundation
+## Mathematical Development
+
+### Mathematical Foundation
 
 **Theorem 1.** *Every hexagonal number is a triangular number. Specifically, $H_m = T_{2m-1}$ for all positive integers $m$.*
 
@@ -67,20 +69,17 @@ Verifying triangularity: $T_{55385} = \frac{55385 \times 55386}{2} = 1533776805$
 
 ## Algorithm
 
-```
-function next_tri_pent_hex():
-    m = 144  // start after H_143 = 40755
-    while true:
-        H = m * (2*m - 1)
-        if is_pentagonal(H):
-            return H
-        m += 1
+Since every hexagonal number is automatically triangular, it is enough to enumerate hexagonal numbers beyond the known value $H_{143} = 40755$ and test only for pentagonality. Starting from $m = 144$, we compute $H_m = m(2m-1)$ and apply the discriminant criterion for pentagonal numbers. The first hexagonal number that passes this test is therefore the next number that is simultaneously triangular, pentagonal, and hexagonal.
 
-function is_pentagonal(v):
-    disc = 1 + 24 * v
-    s = integer_sqrt(disc)
-    if s * s != disc: return false
-    return (1 + s) mod 6 == 0
+## Pseudocode
+
+```text
+Algorithm: Next Triangular-Pentagonal-Hexagonal Number
+Require: The known common value H_143 = 40755.
+Ensure: The smallest number greater than 40755 that is triangular, pentagonal, and hexagonal.
+1: Set m ← 144.
+2: Repeatedly compute H_m ← m(2m - 1) and test whether 24H_m + 1 is a perfect square whose square root is congruent to 5 modulo 6.
+3: Return the first H_m that satisfies the pentagonal test.
 ```
 
 ## Complexity Analysis

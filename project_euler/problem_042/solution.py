@@ -1,6 +1,5 @@
 import math
-import os
-import urllib.request
+from pathlib import Path
 
 
 def is_triangular(v):
@@ -19,25 +18,30 @@ def word_value(word):
     return sum(ord(c) - ord('A') + 1 for c in word.upper())
 
 
+def load_words():
+    script_dir = Path(__file__).resolve().parent
+    candidates = [
+        script_dir / "words.txt",
+        script_dir / "0042_words.txt",
+        Path("words.txt"),
+        Path("0042_words.txt"),
+        Path("project_euler/problem_042/words.txt"),
+        Path("project_euler/problem_042/0042_words.txt"),
+    ]
+
+    for path in candidates:
+        if path.exists():
+            return path.read_text().strip()
+
+    raise FileNotFoundError("Could not locate the Problem 42 word list.")
+
+
 def solve():
-    filename = "words.txt"
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    filepath = os.path.join(script_dir, filename)
-
-    if not os.path.exists(filepath):
-        url = "https://projecteuler.net/resources/documents/0042_words.txt"
-        try:
-            urllib.request.urlretrieve(url, filepath)
-        except Exception:
-            print(162)
-            return
-
-    with open(filepath) as f:
-        content = f.read()
-
+    content = load_words()
     words = [w.strip('"') for w in content.split(',')]
-    count = sum(1 for w in words if is_triangular(word_value(w)))
-    print(count)
+    return sum(1 for w in words if is_triangular(word_value(w)))
 
 
-solve()
+answer = solve()
+assert answer == 162
+print(answer)

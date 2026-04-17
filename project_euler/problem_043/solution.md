@@ -16,13 +16,15 @@ Let $d_1 d_2 d_3 \ldots d_{10}$ be a $0$-to-$9$ pandigital number (a permutation
 
 Find the sum of all $0$-to-$9$ pandigital numbers satisfying these conditions.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** For a sequence of digits $d_i, d_j, d_k$, the *three-digit substring value* is $\overline{d_i d_j d_k} = 100 d_i + 10 d_j + d_k$.
 
 **Definition 2.** Let $p_1 = 2, p_2 = 3, p_3 = 5, p_4 = 7, p_5 = 11, p_6 = 13, p_7 = 17$ denote the first seven primes. The *substring divisibility property* requires $p_i \mid \overline{d_{i+1}\, d_{i+2}\, d_{i+3}}$ for each $i \in \{1, \ldots, 7\}$.
 
-## Mathematical Development
+### Theoretical Development
 
 **Lemma 1 (Parity of $d_4$).** *The digit $d_4$ must be even, i.e., $d_4 \in \{0, 2, 4, 6, 8\}$.*
 
@@ -69,34 +71,17 @@ The construction is complete in the sense that every digit assignment is tested 
 
 ## Algorithm
 
-```
-function FIND_SUBSTRING_DIVISIBLE_PANDIGITALS():
-    primes <- [17, 13, 11, 7, 5, 3, 2]
-    candidates <- {}
+We construct admissible pandigital numbers from right to left, using the overlap between consecutive three-digit divisibility conditions. The search is seeded with distinct-digit multiples of $17$ for the block $d_8d_9d_{10}$, and each subsequent stage prepends one unused digit that makes the new leading three-digit block divisible by $13,11,7,5,3,$ and $2$, respectively. Once all divisibility constraints have been enforced, the unique remaining digit becomes $d_1$, and the resulting pandigital numbers are summed.
 
-    // Step 1: seed with multiples of 17 having distinct digits
-    for m <- 0 to 999 step 17:
-        (d8, d9, d10) <- decimal digits of m (zero-padded)
-        if d8, d9, d10 are pairwise distinct:
-            candidates <- candidates + {([d8, d9, d10], {d8, d9, d10})}
+## Pseudocode
 
-    // Steps 2-7: extend leftward
-    for i <- 1 to 6:
-        p <- primes[i]
-        new_candidates <- {}
-        for (seq, used) in candidates:
-            for d <- 0 to 9:
-                if d not in used and p | (100*d + 10*seq[0] + seq[1]):
-                    new_candidates <- new_candidates + {([d] + seq, used + {d})}
-        candidates <- new_candidates
-
-    // Step 8: assign remaining digit as d1
-    total <- 0
-    for (seq, used) in candidates:
-        d1 <- the unique element of {0,...,9} \ used
-        N <- integer formed by [d1] + seq
-        total <- total + N
-    return total
+```text
+Algorithm: Sum of Substring-divisible Pandigital Numbers
+Require: The digit set {0, 1, ..., 9} and the divisor sequence (17, 13, 11, 7, 5, 3, 2).
+Ensure: The sum of all 0-to-9 pandigital numbers satisfying the substring divisibility property.
+1: Initialize the candidate set with all distinct-digit three-digit multiples of 17, interpreted as possible suffixes (d_8, d_9, d_10).
+2: For each subsequent divisor p in (13, 11, 7, 5, 3, 2), extend every candidate one digit to the left by prepending each unused digit d for which the new three-digit prefix is divisible by p.
+3: For each surviving candidate, prepend the unique remaining digit, interpret the resulting 10-digit sequence as an integer, and return the sum of all such integers.
 ```
 
 ## Complexity Analysis

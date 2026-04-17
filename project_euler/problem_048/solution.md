@@ -4,7 +4,9 @@
 
 The series $1^1 + 2^2 + 3^3 + \cdots + 10^{10} = 10{,}405{,}071{,}317$. Find the last ten digits of the series $1^1 + 2^2 + 3^3 + \cdots + 1000^{1000}$.
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1.** The *self-power sum* of order $N$ is $S_N := \sum_{k=1}^{N} k^k$. We seek $S_{1000} \bmod 10^{10}$.
 
@@ -51,23 +53,17 @@ The computation yields $S_{1000} \bmod 10^{10} = 9110846700$.
 
 ## Algorithm
 
-```
-function SELF_POWERS_LAST_TEN(N):
-    M <- 10^10
-    total <- 0
-    for k <- 1 to N do
-        total <- (total + MODPOW(k, k, M)) mod M
-    return total
+We carry out the entire computation modulo $10^{10}$, since only the last ten digits are required. For each $k$ from $1$ to $1000$, the term $k^k \bmod 10^{10}$ is computed by modular exponentiation and added to an accumulator that is itself reduced modulo $10^{10}$ after every step. The final residue is exactly the desired suffix of the full sum.
 
-function MODPOW(base, exp, mod):
-    result <- 1
-    base <- base mod mod
-    while exp > 0 do
-        if exp is odd then
-            result <- (result * base) mod mod
-        exp <- exp >> 1
-        base <- (base * base) mod mod
-    return result
+## Pseudocode
+
+```text
+Algorithm: Last Ten Digits of the Self-power Sum
+Require: A positive integer N and the modulus M ← 10^10.
+Ensure: The value (∑_{k=1}^{N} k^k) mod M.
+1: Initialize S ← 0.
+2: For each k in {1, 2, ..., N}, compute t_k ← k^k mod M by modular exponentiation and update S ← (S + t_k) mod M.
+3: Return S.
 ```
 
 ## Complexity Analysis

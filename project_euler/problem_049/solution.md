@@ -4,7 +4,9 @@
 
 The arithmetic sequence $1487, 4817, 8147$, in which each term increases by $3330$, is unusual in two ways: (i) each of the three terms is prime, and (ii) each of the three 4-digit numbers are permutations of one another. There is one other 4-digit increasing arithmetic sequence with these properties. What 12-digit number do you form by concatenating the three terms?
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Digit permutation equivalence).** For non-negative integers $a$ and $b$, write $a \sim b$ if $a$ and $b$ have the same multiset of decimal digits. Define the *canonical signature* $\sigma(n)$ as the string obtained by sorting the digits of $n$ in non-decreasing order.
 
@@ -51,28 +53,17 @@ Since the exhaustive search over all $\binom{1061}{2}$ pairs within each group i
 
 ## Algorithm
 
-```
-function FIND_PRIME_PERMUTATION_SEQUENCE():
-    is_prime <- SIEVE_OF_ERATOSTHENES(10000)
+We generate all four-digit primes and group them by their sorted-digit signatures, so each group contains precisely the prime permutations of one another. Inside each group, we inspect ordered pairs $p_i < p_j$ and compute the only possible third term of an arithmetic progression, namely $p_k = 2p_j - p_i$. A set lookup determines whether this third value is present in the same permutation class, and excluding the known sequence beginning with $1487$ leaves the required triple.
 
-    // Group 4-digit primes by canonical digit signature
-    groups <- empty dictionary
-    for p <- 1000 to 9999 do
-        if is_prime[p] then
-            key <- SORT_DIGITS(p)
-            groups[key].append(p)
+## Pseudocode
 
-    // Search for AP-permutation triples
-    for each (key, G) in groups do
-        if |G| < 3 then continue
-        G_set <- SET(G)
-        for i <- 0 to |G| - 1 do
-            for j <- i + 1 to |G| - 1 do
-                d <- G[j] - G[i]
-                third <- G[j] + d
-                if third in G_set then
-                    if G[i] != 1487 then
-                        return CONCATENATE(G[i], G[j], third)
+```text
+Algorithm: Prime Permutation Arithmetic Progression
+Require: The set of all four-digit primes.
+Ensure: The 12-digit concatenation of the nontrivial AP-permutation triple.
+1: Partition the four-digit primes into equivalence classes according to their sorted-digit signatures.
+2: For each class G with at least three members, examine pairs p_i < p_j in G and compute p_k ← 2p_j - p_i; if p_k also belongs to G and p_i ≠ 1487, return the concatenation of p_i, p_j, and p_k.
+3: Return failure.
 ```
 
 ## Complexity Analysis

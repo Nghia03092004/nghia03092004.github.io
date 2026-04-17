@@ -4,7 +4,9 @@
 
 Which prime, below one million, can be written as the sum of the most consecutive primes?
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Consecutive prime sum).** Let $p_1 = 2, p_2 = 3, p_3 = 5, \ldots$ denote the primes in ascending order. A *consecutive prime sum* of length $L$ starting at index $i$ is:
 $$S(i, L) = \sum_{k=i}^{i+L-1} p_k.$$
@@ -45,32 +47,17 @@ $$997651 = \sum_{k=4}^{546} p_k = 7 + 11 + 13 + \cdots + 3931.$$
 
 ## Algorithm
 
-```
-function LONGEST_CONSECUTIVE_PRIME_SUM(N):
-    is_prime <- SIEVE_OF_ERATOSTHENES(N)
-    primes <- [p for p in 2..N-1 if is_prime[p]]
-    n <- |primes|
+We sieve all primes below the limit and build prefix sums of the prime sequence, which makes every consecutive prime sum a constant-time difference of two prefixes. Candidate chain lengths are then examined in decreasing order; for each length, the starting index is advanced until the corresponding sum reaches the limit, and primality is checked by table lookup. Because the search proceeds from longer chains to shorter ones, the first prime found is the optimal answer.
 
-    // Compute prefix sums
-    P[0] <- 0
-    for i <- 1 to n do
-        P[i] <- P[i-1] + primes[i-1]
+## Pseudocode
 
-    best_len <- 0
-    best_prime <- 0
-
-    // Search from longest feasible length downward
-    for L <- n downto best_len + 1 do
-        for start <- 0 to n - L do
-            s <- P[start + L] - P[start]
-            if s >= N then break
-            if is_prime[s] then
-                best_len <- L
-                best_prime <- s
-                break               // found optimal for this L
-        if best_len = L then break  // cannot improve
-
-    return best_prime
+```text
+Algorithm: Longest Consecutive Prime Sum
+Require: A bound N > 2.
+Ensure: The prime q < N representable as a sum of the most consecutive primes.
+1: Construct the list of primes below N together with its prefix-sum array.
+2: Examine candidate lengths L in decreasing order; for each L, evaluate each consecutive prime sum by a prefix-sum difference, stop when the sum reaches N, and test primality by lookup.
+3: Return the first prime found in this descending-length search.
 ```
 
 ## Complexity Analysis

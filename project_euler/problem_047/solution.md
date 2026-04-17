@@ -4,7 +4,9 @@
 
 Find the first four consecutive integers to have four distinct prime factors each. What is the first of these numbers?
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Distinct prime factor count).** For a positive integer $n$ with canonical prime factorization $n = p_1^{a_1} p_2^{a_2} \cdots p_r^{a_r}$, the *number of distinct prime factors* is $\omega(n) = r$.
 
@@ -46,28 +48,17 @@ Each factorization is verified by confirming that $491, 23, 31, 47, 41, 59, 43, 
 
 ## Algorithm
 
-```
-function FIRST_FOUR_CONSECUTIVE_OMEGA_4():
-    N <- 150000
-    omega[0..N] <- 0
+We evaluate the function $\omega(n)$ for every integer up to a fixed bound by a modified sieve: whenever a prime $p$ is encountered, each multiple of $p$ receives one increment in its distinct-factor count. After this preprocessing, a single left-to-right scan locates the first run of four consecutive integers whose counts are all equal to $4$, and the first term of that run is returned.
 
-    // Phase 1: Sieve for distinct prime factor counts
-    for p <- 2 to N do
-        if omega[p] = 0 then           // p is prime
-            for m <- p, 2p, 3p, ... up to N do
-                omega[m] <- omega[m] + 1
+## Pseudocode
 
-    // Phase 2: Scan for run of 4 consecutive integers with omega = 4
-    run <- 0
-    for n <- 2 to N do
-        if omega[n] = 4 then
-            run <- run + 1
-            if run = 4 then
-                return n - 3
-        else
-            run <- 0
-
-    return FAILURE
+```text
+Algorithm: First Run with Four Distinct Prime Factors
+Require: A bound N above the first qualifying run.
+Ensure: The smallest n such that ω(n) = ω(n + 1) = ω(n + 2) = ω(n + 3) = 4.
+1: Initialize an array ω on {0, 1, ..., N} with zeros.
+2: For each prime p <= N, increment ω(m) by 1 for every multiple m of p; then scan the array from left to right until the first index n with four consecutive values equal to 4 is found.
+3: Return n.
 ```
 
 ## Complexity Analysis

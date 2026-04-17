@@ -4,7 +4,9 @@
 
 It was proposed by Christian Goldbach that every odd composite number can be written as the sum of a prime and twice a square. It turns out that the conjecture was false. What is the smallest odd composite that cannot be written as the sum of a prime and twice a square?
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Goldbach Representability).** An odd integer $n > 1$ is *Goldbach-representable* if there exist a prime $p$ and an integer $k \geq 1$ such that $n = p + 2k^2$. Let $\mathcal{G}$ denote the set of all Goldbach-representable odd integers.
 
@@ -50,27 +52,17 @@ Combining Parts 1--3, $5777 = \min(\mathcal{C}_{\mathrm{odd}} \setminus \mathcal
 
 ## Algorithm
 
-```
-function SMALLEST_GOLDBACH_COUNTEREXAMPLE():
-    is_prime <- SIEVE_OF_ERATOSTHENES(10000)
-    for n <- 9, 11, 13, ... do           // iterate over odd integers
-        if is_prime[n] then continue      // skip primes
-        found <- false
-        for k <- 1, 2, ... while 2k^2 < n do
-            if is_prime[n - 2k^2] then
-                found <- true
-                break
-        if not found then
-            return n
+We first build a primality table up to a search limit using the Sieve of Eratosthenes. Then we inspect odd composite integers in increasing order, and for each such $n$ we test all values of $k$ with $2k^2 < n$ to see whether the remainder $n - 2k^2$ is prime. The first odd composite for which no such witness exists is the smallest counterexample to Goldbach's other conjecture.
 
-function SIEVE_OF_ERATOSTHENES(L):
-    is_prime[0..L] <- true
-    is_prime[0] <- false; is_prime[1] <- false
-    for p <- 2, 3, ... while p^2 <= L do
-        if is_prime[p] then
-            for m <- p^2, p^2 + p, ... up to L do
-                is_prime[m] <- false
-    return is_prime
+## Pseudocode
+
+```text
+Algorithm: Smallest Counterexample to Goldbach's Other Conjecture
+Require: A search limit L exceeding the first counterexample.
+Ensure: The smallest odd composite n <= L that cannot be written as p + 2k^2 with p prime.
+1: Construct a primality table on the interval {0, 1, ..., L}.
+2: Examine odd composites n in increasing order; for each n, determine whether there exists an integer k >= 1 with n - 2k^2 prime.
+3: Return the first n for which no such k exists.
 ```
 
 ## Complexity Analysis

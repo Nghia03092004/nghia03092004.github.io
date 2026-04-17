@@ -4,7 +4,9 @@
 
 The $n$-th triangle number is $T_n = \frac{n(n+1)}{2}$. By converting each letter in a word to its alphabetical position ($\text{A}=1, \text{B}=2, \ldots, \text{Z}=26$) and summing, we obtain a *word value*. A word is a *triangle word* if its word value is a triangle number. Using the provided word list, determine how many words are triangle words.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** The *alphabetical value* of a letter $c \in \{\text{A}, \ldots, \text{Z}\}$ is $\operatorname{pos}(c) = \operatorname{ord}(c) - \operatorname{ord}(\text{A}) + 1 \in \{1, 2, \ldots, 26\}$.
 
@@ -12,7 +14,7 @@ The $n$-th triangle number is $T_n = \frac{n(n+1)}{2}$. By converting each lette
 
 **Definition 3.** A positive integer $v$ is a *triangular number* if $v = T_n = \frac{n(n+1)}{2}$ for some $n \in \mathbb{Z}^+$.
 
-## Mathematical Development
+### Theoretical Development
 
 **Theorem 1 (Triangular number characterization).** *A positive integer $v$ is triangular if and only if $8v + 1$ is a perfect square.*
 
@@ -36,20 +38,17 @@ Since $v \geq 1$, we have $n \geq 1$, confirming $v$ is triangular. $\square$
 
 ## Algorithm
 
-```
-function COUNT_TRIANGLE_WORDS(word_list):
-    count <- 0
-    for each word w in word_list:
-        v <- SUM(pos(c) for each letter c in w)
-        if IS_TRIANGULAR(v):
-            count <- count + 1
-    return count
+We read the word list, compute the value of each word by summing the alphabetical positions of its letters, and test the resulting integer with the triangular-number criterion from Theorem 1. Every word whose value satisfies that criterion contributes one to the running count, and the final count is the number of triangle words in the file.
 
-function IS_TRIANGULAR(v):
-    if v <= 0: return false
-    Delta <- 8 * v + 1
-    s <- ISQRT(Delta)
-    return s * s == Delta
+## Pseudocode
+
+```text
+Algorithm: Count Triangle Words
+Require: A finite word list W over the alphabet {A, B, ..., Z}.
+Ensure: The number of words in W whose word values are triangular.
+1: Initialize c ← 0.
+2: For each word w in W, compute v ← ∑_{x ∈ Letters(w)} pos(x); if 8v + 1 is a perfect square, update c ← c + 1.
+3: Return c.
 ```
 
 ## Complexity Analysis

@@ -4,13 +4,15 @@
 
 We say that an $n$-digit number is *pandigital* if it uses each of the digits $1, 2, \ldots, n$ exactly once. Find the largest $n$-digit pandigital number that is also prime.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** For $n \in \{1, 2, \ldots, 9\}$, an *$n$-pandigital number* is a positive integer whose decimal representation is a permutation of the digits $\{1, 2, \ldots, n\}$.
 
 **Definition 2.** The *digit sum* of the $n$-pandigital class is $S(n) = \sum_{k=1}^{n} k = \frac{n(n+1)}{2}$.
 
-## Mathematical Development
+### Theoretical Development
 
 **Theorem 1 (Divisibility by 3).** *An $n$-pandigital number is divisible by $3$ if and only if $3 \mid S(n)$. In particular, every $n$-pandigital number is divisible by $3$ for $n \in \{2, 3, 5, 6, 8, 9\}$.*
 
@@ -47,25 +49,17 @@ Since $7652413$ is the first prime encountered in the descending enumeration of 
 
 ## Algorithm
 
-```
-function LARGEST_PANDIGITAL_PRIME():
-    for n in {7, 4}:                          // Theorem 2: only admissible values
-        digits <- {1, 2, ..., n}
-        for each permutation P of digits in descending lexicographic order:
-            N <- DIGITS_TO_INTEGER(P)
-            if IS_PRIME(N):
-                return N
-    return "no pandigital prime"               // unreachable for this problem
+By the divisibility argument, only $7$-pandigital and $4$-pandigital numbers need to be considered. We enumerate the corresponding digit permutations in descending lexicographic order, first for $\{1,2,\ldots,7\}$ and then for $\{1,2,3,4\}$, convert each permutation into its integer value, and apply a primality test. Because every $7$-pandigital number exceeds every $4$-pandigital number and the enumeration is descending within each class, the first prime encountered is the largest pandigital prime.
 
-function IS_PRIME(n):
-    if n < 2: return false
-    if n < 4: return true
-    if 2 | n or 3 | n: return false
-    i <- 5
-    while i * i <= n:
-        if i | n or (i + 2) | n: return false
-        i <- i + 6
-    return true
+## Pseudocode
+
+```text
+Algorithm: Largest Pandigital Prime
+Require: The admissible digit lengths {7, 4}.
+Ensure: The largest pandigital prime.
+1: For each n in {7, 4}, enumerate the permutations of {1, 2, ..., n} in descending lexicographic order.
+2: For each permutation P, let N be the integer whose decimal digits are given by P; if N is prime, return N.
+3: Return failure.
 ```
 
 ## Complexity Analysis

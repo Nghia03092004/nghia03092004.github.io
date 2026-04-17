@@ -20,10 +20,25 @@ int word_value(const string& w) {
 }
 
 int main() {
-    ifstream fin("words.txt");
+    vector<string> candidates = {
+        "words.txt",
+        "0042_words.txt",
+        "project_euler/problem_042/words.txt",
+        "project_euler/problem_042/0042_words.txt"
+    };
+
+    ifstream fin;
+    for (const auto& path : candidates) {
+        fin.open(path);
+        if (fin.is_open()) {
+            break;
+        }
+        fin.clear();
+    }
+
     if (!fin.is_open()) {
-        cout << 162 << endl;
-        return 0;
+        cerr << "Could not locate the Problem 42 word list." << endl;
+        return 1;
     }
 
     string line;
