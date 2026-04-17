@@ -77,6 +77,36 @@ For each non-square D from 2 to 1000:
 Return D with largest minimal x
 ```
 
+## Pseudocode
+
+```text
+best_D = 0
+best_x = 0
+
+for D from 2 to 1000:
+    a0 = floor(sqrt(D))
+    if a0^2 = D:
+        continue
+
+    compute the period r of the continued fraction of sqrt(D)
+    using the standard recurrence for (m, d, a)
+
+    if r is even:
+        target = r - 1
+    else:
+        target = 2r - 1
+
+    restart the continued-fraction recurrence
+    generate convergents up to index target
+    let x be the numerator of that convergent
+
+    if x > best_x:
+        best_x = x
+        best_D = D
+
+return best_D
+```
+
 ## Complexity
 
 - **Time**: $O(N \cdot P_{\max})$ where $N = 1000$ and $P_{\max}$ is the maximum period length of any continued fraction for $D \le 1000$.

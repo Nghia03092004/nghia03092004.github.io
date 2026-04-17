@@ -72,6 +72,31 @@ For each permutation (i_1, ..., i_5) of {1, 2, 3, 4, 5}:
         Update maximum
 ```
 
+## Pseudocode
+
+```text
+best = the empty string
+
+for each cyclic ordering (i_1, ..., i_5) of the inner nodes 1, ..., 5:
+    derive the outer nodes from
+        o_k = 14 - i_k - i_(k+1)
+
+    if (o_1, ..., o_5) is not a permutation of 6, ..., 10:
+        continue
+
+    let s be the position of the smallest outer node
+    read the five triples
+        (o_s, i_s, i_(s+1)),
+        (o_(s+1), i_(s+1), i_(s+2)), ...
+    clockwise from that start
+    concatenate them into one string
+
+    if the string has 16 digits and is lexicographically larger than best:
+        best = that string
+
+return best
+```
+
 ## Complexity
 
 - **Time:** $O(5!) = O(1)$. Only 120 permutations to check.

@@ -53,6 +53,19 @@ The exponents $a_i$ do not appear in this expression, so the ratio depends only 
 
 Since $510510 \le 1{,}000{,}000 < 9{,}699{,}690$, the answer is $n^* = 2 \times 3 \times 5 \times 7 \times 11 \times 13 \times 17 = 510510$.
 
+## Pseudocode
+
+```text
+n = 1
+
+for each prime p in the increasing sequence 2, 3, 5, 7, 11, ...:
+    if n * p > 1,000,000:
+        stop
+    n = n * p
+
+return n
+```
+
 ## Complexity
 
 - **Time:** $O(\pi^{-1}(N))$ where $\pi^{-1}$ denotes the primorial index -- effectively $O(\log \log N)$ multiplications.

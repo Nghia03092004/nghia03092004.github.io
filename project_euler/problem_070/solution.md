@@ -69,6 +69,31 @@ For $n = p^2$, we have $\varphi(p^2) = p(p-1)$ and $n/\varphi(n) = p/(p-1)$, whi
 3. Return best n
 ```
 
+## Pseudocode
+
+```text
+Generate all primes below 10^7.
+
+best_n = 0
+best_ratio = infinity
+
+for each prime p in increasing order with p^2 < 10^7:
+    for each prime q >= p:
+        n = p * q
+        if n >= 10^7:
+            break
+
+        phi = (p - 1)(q - 1)
+        if the digit signature of n does not match the digit signature of phi:
+            continue
+
+        if n / phi < best_ratio:
+            best_ratio = n / phi
+            best_n = n
+
+return best_n
+```
+
 ## Complexity
 
 - **Sieve:** $O(N \log \log N)$ where $N = 10^7$.

@@ -63,6 +63,19 @@ We can modify the triangle array in place, working from the bottom row upward, s
 3. Return T[0][0]
 ```
 
+## Pseudocode
+
+```text
+Load the triangle into a mutable array T.
+
+for each row i from the second-last row up to the top:
+    for each position j in row i:
+        replace T[i][j] by
+            T[i][j] + max(T[i+1][j], T[i+1][j+1])
+
+return T[0][0]
+```
+
 ## Complexity
 
 - **Time**: $O(n^2)$ where $n = 100$ is the number of rows. Total operations: $\sum_{i=0}^{98}(i+1) = \frac{99 \times 100}{2} = 4950$.

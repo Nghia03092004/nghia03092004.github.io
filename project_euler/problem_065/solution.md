@@ -82,6 +82,24 @@ CONVERGENTS_OF_E(target=100):
     return digit_sum(h_prev1)
 ```
 
+## Pseudocode
+
+```text
+Define the partial quotient a_k by
+    a_0 = 2
+    a_k = 2(k + 1) / 3 when k ≡ 2 (mod 3)
+    a_k = 1 otherwise
+
+h_prev2 = 1
+h_prev1 = a_0
+
+for k = 1, 2, ..., 99:
+    h_curr = a_k * h_prev1 + h_prev2
+    shift (h_prev2, h_prev1) forward to (h_prev1, h_curr)
+
+return the sum of the decimal digits of h_prev1
+```
+
 ## Complexity Analysis
 
 **Time:** The algorithm computes 100 iterations of the recurrence. Each iteration involves one big-integer multiplication and one big-integer addition. Since $h_{99}$ has $d \approx 58$ digits, each arithmetic operation costs $O(d)$ with schoolbook multiplication (or $O(d \log d)$ with FFT-based multiplication, though unnecessary here). Total: $O(100 \cdot d) = O(100 \cdot 58) = O(5800)$.

@@ -92,6 +92,37 @@ CYCLICAL_FIGURATE_SEARCH():
         return None
 ```
 
+## Pseudocode
+
+```text
+Build the 4-digit polygonal values of each type s = 3, ..., 8.
+Discard any value whose last two digits do not form a genuine two-digit suffix.
+
+Index the remaining values by their first two digits:
+    by_prefix[s][p] = all type-s values beginning with p
+
+for each polygonal type t:
+    for each starting value v of type t:
+        let start_prefix be the first two digits of v
+        let current_suffix be the last two digits of v
+        search recursively from the chain [v]
+
+procedure extend(chain, used_types, current_suffix, start_prefix):
+    if six values have been chosen:
+        if current_suffix = start_prefix:
+            return the sum of the chain
+        backtrack
+
+    for each unused polygonal type s:
+        for each candidate in by_prefix[s][current_suffix]:
+            extend(chain followed by candidate,
+                   used_types with s added,
+                   suffix(candidate),
+                   start_prefix)
+
+Return the first successful sum.
+```
+
 ## Complexity Analysis
 
 **Time:** Let $E = \sum_{s} |E_s| \le 351$ be the total number of valid edges. The DFS explores at most $\prod_{d=1}^{5} B_d$ paths from each starting edge, where $B_d$ is the branching factor at depth $d$. Since the label-uniqueness constraint eliminates at least one type per level and the average out-degree per vertex is $E/|V| \approx 4$, the effective search space is small. The overall worst-case bound is $O(E \cdot (E/|V|)^5)$, which evaluates to a constant for this problem size.

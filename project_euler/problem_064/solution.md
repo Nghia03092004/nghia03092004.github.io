@@ -82,6 +82,32 @@ ODD_PERIOD_COUNT(N_max):
     return count
 ```
 
+## Pseudocode
+
+```text
+count = 0
+
+for N from 2 to N_max:
+    a0 = floor(sqrt(N))
+    if a0^2 = N:
+        continue
+
+    m, d, a = 0, 1, a0
+    period = 0
+
+    repeat
+        m = d*a - m
+        d = (N - m^2) / d
+        a = floor((a0 + m) / d)
+        period = period + 1
+    until a = 2*a0
+
+    if period is odd:
+        count = count + 1
+
+return count
+```
+
 ## Complexity Analysis
 
 **Time:** For each non-square $N$, the period computation performs exactly $r$ iterations, where $r \le 2a_0 \cdot a_0 = O(N)$ by the state-space bound (Lemma 2), but in practice $r = O(\sqrt{N})$ on average. Summing over all non-square $N \le N_{\max}$:

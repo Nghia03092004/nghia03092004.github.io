@@ -57,6 +57,29 @@ CUBIC_PERMUTATIONS(target_count=5):
         groups[key].append(cube)
 ```
 
+## Pseudocode
+
+```text
+Let groups map each digit signature to the cubes having that signature.
+Let current_digits record the digit length of the layer being processed.
+
+for n = 1, 2, 3, ...:
+    cube = n^3
+    d = number of digits of cube
+
+    if current_digits = 0:
+        current_digits = d
+
+    if d > current_digits:
+        inspect every signature class from the previous digit length
+        if some class contains exactly five cubes:
+            return the smallest cube in that class
+        clear groups
+        current_digits = d
+
+    append cube to groups[sorted digits of cube]
+```
+
 ## Complexity Analysis
 
 **Time:** Let $K$ be the value of $n$ at termination. For each $n$, we compute $n^3$ in $O(1)$ (or $O(d)$ for arbitrary-precision integers), sort its $d$ digits in $O(d \log d)$, and perform a hash-map lookup in $O(d)$ expected time. The answer occurs at $n = 5027$ with $d = 12$ digits, giving total cost $O(K \cdot d \log d) \approx O(5027 \times 12 \times 4) = O(2.4 \times 10^5)$.

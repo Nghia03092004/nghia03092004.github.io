@@ -62,6 +62,22 @@ POWERFUL_DIGIT_COUNTS():
     return count
 ```
 
+## Pseudocode
+
+```text
+count = 0
+
+for a in {1, 2, ..., 9}:
+    if a = 1:
+        count = count + 1
+        continue
+
+    n_max = floor(1 / (1 - log10(a)))
+    count = count + n_max
+
+return count
+```
+
 ## Complexity Analysis
 
 **Time:** $O(1)$. The algorithm performs exactly 9 iterations, each involving one logarithm, one division, and one floor operation.
