@@ -48,23 +48,17 @@ $$S(a^b) \leq 9 \cdot D(a,b) \leq 9(\lfloor 99 \log_{10} 99 \rfloor + 1) = 9 \ti
 
 ## Algorithm
 
-```
-POWERFUL_DIGIT_SUM():
-    max_sum <- 0
-    for a <- 2 to 99:
-        power <- a                    // a^1
-        for b <- 2 to 99:
-            power <- power * a        // Incrementally compute a^b from a^{b-1}
-            s <- DIGIT_SUM(power)
-            max_sum <- max(max_sum, s)
-    return max_sum
+We exhaustively examine all pairs $(a,b)$ with $2 \leq a < 100$ and $1 \leq b < 100$. For each fixed base $a$, the powers are built incrementally by repeated multiplication so that $a^b$ is obtained from $a^{b-1}$ without recomputing from scratch, and the decimal digit sum of each power is evaluated. The maximum digit sum observed over the whole search is the answer.
 
-DIGIT_SUM(n):
-    s <- 0
-    while n > 0:
-        s <- s + (n mod 10)
-        n <- floor(n / 10)
-    return s
+## Pseudocode
+
+```text
+Algorithm: Maximum Digital Sum of a^b
+Require: The ranges 2 <= a < 100 and 1 <= b < 100.
+Ensure: The maximum value of S(a^b) over all admissible pairs (a, b).
+1: Initialize M ← 0.
+2: For each base a in {2, 3, ..., 99}, generate the powers a, a^2, ..., a^99 incrementally; for each generated power, compute its decimal digit sum and update M if a larger value is found.
+3: Return M.
 ```
 
 ## Complexity Analysis

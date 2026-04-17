@@ -4,7 +4,9 @@
 
 A Lychrel number is a number that never forms a palindrome through the reverse-and-add process. Working with the assumption that a number is Lychrel if it has not produced a palindrome within 50 iterations, how many Lychrel numbers are there below 10,000?
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Digit Reversal).** For a positive integer $n$ with decimal representation $d_k d_{k-1} \cdots d_1 d_0$ (where $d_k \neq 0$), define the *digit reversal*
 
@@ -50,28 +52,17 @@ In the absence of carries (i.e., when $d_i + d_{k-i} \leq 9$ for all $i$), $R(n)
 
 ## Algorithm
 
-```
-LYCHREL_COUNT(N = 10000, L = 50):
-    count := 0
-    For n = 1 to N - 1:
-        x := n
-        is_lychrel := true
-        For i = 1 to L:
-            x := x + rev(x)
-            if x = rev(x):        // palindrome check
-                is_lychrel := false
-                break
-        if is_lychrel:
-            count := count + 1
-    Return count
+We inspect every starting value below 10,000 independently. For each candidate, the reverse-and-add transformation is applied repeatedly for at most 50 steps, and after each step the new value is checked for palindromicity. If no palindrome appears within those 50 iterations, the starting value is counted as a Lychrel candidate under the problem's convention.
 
-REV(n):
-    result := 0
-    temp := n
-    While temp > 0:
-        result := result * 10 + (temp mod 10)
-        temp := floor(temp / 10)
-    Return result
+## Pseudocode
+
+```text
+Algorithm: Count Lychrel Candidates Below 10,000
+Require: A bound N ← 10,000 and an iteration limit L ← 50.
+Ensure: The number of integers n with 1 <= n < N that do not become palindromic within L reverse-and-add steps.
+1: Initialize c ← 0.
+2: For each n in {1, 2, ..., N - 1}, iterate x ← n + rev(n), then x ← x + rev(x), and so on for at most L steps; if no iterate is a palindrome, update c ← c + 1.
+3: Return c.
 ```
 
 ## Complexity Analysis

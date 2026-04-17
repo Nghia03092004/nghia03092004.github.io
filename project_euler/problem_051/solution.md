@@ -8,7 +8,9 @@ By replacing the 3rd and 4th digits of 56\*\*3 with the same digit, the 5-digit 
 
 Find the smallest prime which, by replacing part of the number (not necessarily adjacent digits) with the same digit, is part of an eight prime value family.
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Digit Replacement Family).** Let $n$ be a positive integer with $m$-digit decimal representation $d_{m-1} d_{m-2} \cdots d_1 d_0$. A *digit replacement mask* is a nonempty subset $M \subseteq \{0, 1, \ldots, m-1\}$. The *replacement family* $\mathcal{F}(n, M)$ is the multiset
 
@@ -56,23 +58,17 @@ Since an 8-prime family requires $\pi(n, M) > 7$, Case 1 is impossible. $\blacks
 
 ## Algorithm
 
-```
-PRIME_DIGIT_REPLACEMENT():
-    1. Compute boolean sieve is_prime[0..999999] via Sieve of Eratosthenes.
-    2. For each n = 100000, 100001, ..., 999999:
-       a. If not is_prime[n], skip.
-       b. Let D[0..5] be the decimal digits of n.
-       c. For each digit value v in {0, 1, 2}:
-          i.   Let P_v = {i : D[i] = v} (positions where digit equals v).
-          ii.  For each 3-element subset M of P_v:
-               - count := 0; smallest := NULL
-               - For delta = 0, 1, ..., 9:
-                   * If delta = 0 and 0 in M (leading position), skip.
-                   * Construct n_delta by replacing positions M with delta.
-                   * If is_prime[n_delta]: increment count;
-                     if smallest = NULL, set smallest := n_delta.
-               - If count = 8: return smallest.
-    3. Return the first result found (guaranteed by ascending order of n).
+We sieve the primes below one million and then scan the six-digit primes in increasing order. For each prime, only the repeated digits 0, 1, and 2 are considered, since the smallest member of an eight-prime family must use one of those masked values. Among the positions carrying such a digit, we enumerate masks whose sizes are divisible by 3, replace all masked positions by a common digit from 0 through 9, discard leading-zero cases, and count how many resulting numbers remain prime. The first family of size eight yields the desired smallest member.
+
+## Pseudocode
+
+```text
+Algorithm: Smallest Eight-prime Replacement Family
+Require: A sieve bound B ← 10^6.
+Ensure: The smallest prime belonging to an eight-prime digit-replacement family.
+1: Construct a primality table on the interval {0, 1, ..., B - 1}.
+2: Examine six-digit primes n in increasing order; for each digit value v in {0, 1, 2}, enumerate position subsets M consisting only of occurrences of v with |M| divisible by 3. For each such M, replace the digits in M by a common digit δ ∈ {0, 1, ..., 9}, discard leading-zero outcomes, and count the primes obtained.
+3: Return the smallest member of the first family whose prime count is 8.
 ```
 
 ## Complexity Analysis

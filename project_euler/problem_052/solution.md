@@ -4,7 +4,9 @@
 
 Find the smallest positive integer $x$ such that $2x$, $3x$, $4x$, $5x$, and $6x$ contain the same digits as $x$.
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Digit Multiset).** For a positive integer $n$ with decimal representation $d_{k-1} d_{k-2} \cdots d_0$, define $\mathcal{D}(n)$ as the sorted multiset of its decimal digits. Formally, $\mathcal{D}(n) = \text{sort}(d_{k-1}, d_{k-2}, \ldots, d_0)$.
 
@@ -64,15 +66,17 @@ Exhaustive computation over $d = 1, \ldots, 5$ yields no solution. For $d = 6$, 
 
 ## Algorithm
 
-```
-PERMUTED_MULTIPLES():
-    For d = 1, 2, 3, ...:
-        lo := 10^(d-1)
-        hi := floor(10^d / 6)
-        For x = lo to hi:
-            s := sorted_digits(x)
-            if all k in {2,3,4,5,6}: sorted_digits(k*x) = s
-                return x
+We search the positive integers in increasing order and compare each candidate with its first five nontrivial multiples. For a given value $x$, we compute its canonical digit signature by sorting its decimal digits, then test whether the same signature appears for $2x,3x,4x,5x,$ and $6x$. The first integer that passes all five comparisons is the smallest solution.
+
+## Pseudocode
+
+```text
+Algorithm: Smallest Permuted Multiple
+Require: The positive integers in increasing order.
+Ensure: The least x for which 2x, 3x, 4x, 5x, and 6x are digit permutations of x.
+1: Initialize x ← 1.
+2: Repeatedly compute the sorted-digit signature of x and compare it with the signatures of kx for k ∈ {2, 3, 4, 5, 6}.
+3: Return the first x for which all five signatures agree.
 ```
 
 ## Complexity Analysis

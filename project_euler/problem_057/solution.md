@@ -64,23 +64,17 @@ This occurs when there exists an integer $m$ such that $q_n < 10^m \leq p_n$.
 
 ## Algorithm
 
-```
-SQUARE_ROOT_CONVERGENTS(N = 1000):
-    p <- 3      // p_1
-    q <- 2      // q_1
-    count <- 0
-    for i <- 1 to N:
-        if NUM_DIGITS(p) > NUM_DIGITS(q):
-            count <- count + 1
-        p_new <- p + 2 * q
-        q_new <- p + q
-        p <- p_new
-        q <- q_new
-    return count
+We generate the first 1000 convergents of $\sqrt{2}$ using the recurrence for successive numerators and denominators. After each update, only the decimal lengths of the current numerator and denominator need to be compared, so every expansion contributes either zero or one to the running count. The final count is the number of convergents whose numerator has more digits than the denominator.
 
-NUM_DIGITS(n):
-    return floor(log10(n)) + 1
-    // Equivalently: length of decimal string representation of n
+## Pseudocode
+
+```text
+Algorithm: Count Longer Numerators in sqrt(2) Convergents
+Require: An expansion count N ← 1000.
+Ensure: The number of the first N convergents of sqrt(2) whose numerators have more decimal digits than their denominators.
+1: Initialize (p, q) ← (3, 2) and c ← 0.
+2: For each expansion index from 1 to N, compare the decimal lengths of p and q, update c when the numerator is longer, and then replace (p, q) by (p + 2q, p + q).
+3: Return c.
 ```
 
 ## Complexity Analysis

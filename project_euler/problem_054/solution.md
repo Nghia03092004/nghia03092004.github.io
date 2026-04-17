@@ -4,7 +4,9 @@
 
 The file `poker.txt` contains one-thousand random hands dealt to two players. Each line contains ten cards (separated by spaces): the first five are Player 1's hand and the last five are Player 2's hand. How many hands does Player 1 win?
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Card and Hand).** A *card* is a pair $(v, s)$ where $v \in \{2, 3, \ldots, 14\}$ is the *value* (with $11 = \mathrm{J}$, $12 = \mathrm{Q}$, $13 = \mathrm{K}$, $14 = \mathrm{A}$) and $s \in \{\clubsuit, \diamondsuit, \heartsuit, \spadesuit\}$ is the *suit*. A *hand* is an ordered 5-tuple of distinct cards $H = (c_1, c_2, c_3, c_4, c_5)$.
 
@@ -67,37 +69,17 @@ In each case, the lexicographic ordering of $\kappa$ faithfully implements the p
 
 ## Algorithm
 
-```
-POKER_HANDS(filename):
-    wins := 0
-    For each line in file:
-        cards := parse_line(line)
-        H1 := cards[0..4], H2 := cards[5..9]
-        if kappa(H1) > kappa(H2):
-            wins := wins + 1
-    Return wins
+We read the file line by line, split each record into the two five-card hands, and evaluate both hands into comparison keys. Each key consists of the hand category together with the category-specific tiebreak values derived from frequencies, straights, and flushes, including the ace-low straight correction. Player 1 wins precisely when the lexicographic key of the first hand exceeds that of the second, so the final answer is the total number of such lines.
 
-COMPARISON_KEY(H):
-    V := sorted values of H (descending)
-    S := suits of H
-    f := frequency_count(V)
-    flush := |set(S)| = 1
-    // Straight check
-    U := sorted(set(V))
-    straight := (|U| = 5 and U[4] - U[0] = 4) or U = [2,3,4,5,14]
-    // Ace-low correction
-    if U = [2,3,4,5,14] and straight:
-        high := 5
-    else if straight:
-        high := max(V)
-    // Classify category c
-    c := classify(f, flush, straight)
-    // Build tiebreaker
-    if c in {4, 8, 9}:
-        tau := (high,)
-    else:
-        tau := distinct values sorted by (f(v), v) descending
-    Return (c, tau)
+## Pseudocode
+
+```text
+Algorithm: Count Player 1 Poker Wins
+Require: A list of poker deals, each containing two valid five-card hands.
+Ensure: The number of deals won by Player 1.
+1: Initialize w ← 0.
+2: For each deal, compute the comparison keys κ(H_1) and κ(H_2) by classifying the two hands and attaching the appropriate tiebreak tuple; if κ(H_1) > κ(H_2), update w ← w + 1.
+3: Return w.
 ```
 
 ## Complexity Analysis

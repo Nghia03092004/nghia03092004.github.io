@@ -4,7 +4,9 @@
 
 How many values of $\binom{n}{r}$ for $1 \leq n \leq 100$ and $0 \leq r \leq n$ are greater than one million?
 
-## Formal Development
+## Mathematical Development
+
+### Formal Development
 
 **Definition 1 (Binomial Coefficient).** For non-negative integers $n \geq r$,
 
@@ -62,22 +64,17 @@ $$\sum_{n=1}^{100} |E_{10^6}(n)| = \sum_{\substack{n=1 \\ E_{10^6}(n) \neq \empt
 
 ## Algorithm
 
-```
-COMBINATORIC_SELECTIONS(N = 100, T = 1000000):
-    count := 0
-    prev := [1]                          // Row n = 0
-    For n = 1 to N:
-        curr := [1]
-        For r = 1 to n - 1:
-            val := min(prev[r-1] + prev[r], T + 1)
-            curr.append(val)
-        curr.append(1)
-        // Count entries exceeding T
-        For r = 0 to n:
-            if curr[r] > T:
-                count := count + 1
-        prev := curr
-    Return count
+We examine every pair $(n,r)$ with $1 \leq n \leq 100$ and $0 \leq r \leq n$, determine the corresponding binomial coefficient, and count those exceeding one million. A practical implementation can either evaluate the coefficients directly or generate them row by row using Pascal's recurrence with capping to avoid large intermediate values; both approaches enumerate exactly the same set of coefficients and apply the same threshold test.
+
+## Pseudocode
+
+```text
+Algorithm: Count Large Binomial Coefficients
+Require: A bound N ← 100 and a threshold T ← 10^6.
+Ensure: The number of pairs (n, r) with 1 <= n <= N, 0 <= r <= n, and C(n, r) > T.
+1: Initialize c ← 0.
+2: For each n in {1, 2, ..., N} and each r in {0, 1, ..., n}, determine the value of C(n, r); if C(n, r) > T, update c ← c + 1.
+3: Return c.
 ```
 
 ## Complexity Analysis

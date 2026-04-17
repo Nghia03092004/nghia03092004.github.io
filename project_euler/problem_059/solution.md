@@ -60,27 +60,17 @@ This holds provided no other plaintext character exceeds the frequency of space 
 
 ## Algorithm
 
-```
-XOR_DECRYPT(cipher):
-    // Step 1: Key recovery via frequency analysis
-    key <- [0, 0, 0]
-    for j <- 0, 1, 2:
-        group <- {cipher[i] : i mod 3 = j}
-        freq <- frequency_count(group)
-        most_common_byte <- argmax(freq)
-        key[j] <- most_common_byte XOR 32
+We exploit the period-3 structure of the repeating XOR key by splitting the ciphertext into three residue classes. In each class, the most common ciphertext byte is interpreted as the encryption of a space character, which directly recovers one key byte by XOR with ASCII 32. Once the three-byte key is known, the entire ciphertext is decrypted in one pass and the plaintext byte values are summed.
 
-    // Step 2: Decrypt
-    plaintext <- []
-    for i <- 0 to len(cipher) - 1:
-        plaintext[i] <- cipher[i] XOR key[i mod 3]
+## Pseudocode
 
-    // Step 3: Validate
-    assert all bytes in plaintext are in [32, 126]
-    assert plaintext forms coherent English
-
-    // Step 4: Compute answer
-    return sum(plaintext)
+```text
+Algorithm: Recover a Three-byte XOR Key by Frequency Analysis
+Require: A ciphertext sequence C encrypted by a repeating three-byte lowercase key.
+Ensure: The sum of the ASCII values in the decrypted plaintext.
+1: Partition C into the three residue subsequences G_0, G_1, and G_2 according to the index modulo 3.
+2: For each residue class j, determine the modal byte of G_j and set k_j ← mode(G_j) XOR 32; then decrypt each ciphertext byte by p_i ← c_i XOR k_{i mod 3}.
+3: Return ∑ p_i over the decrypted plaintext.
 ```
 
 ## Complexity Analysis

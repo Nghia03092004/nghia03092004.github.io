@@ -60,41 +60,17 @@ For primes $p, q > 3$, we have $p, q \not\equiv 0 \pmod{3}$, so $p \in \{1, 2\} 
 
 ## Algorithm
 
-```
-PRIME_PAIR_SETS(B = 10000):
-    primes <- sieve_primes(B)
+We first generate the primes below a search bound and build the prime pair graph whose edges correspond to pairs of primes whose two concatenations are both prime. The desired set is then a 5-clique of minimum weight in this graph, so we search for it incrementally: a partial clique is extended only by primes adjacent to all of its current vertices, and branch-and-bound inequalities discard any branch whose best possible completion cannot improve the smallest sum found so far.
 
-    // Build adjacency lists
-    for i <- 0 to |primes| - 1:
-        for j <- i + 1 to |primes| - 1:
-            if PAIR_OK(primes[i], primes[j]):
-                adj[i].append(j)
+## Pseudocode
 
-    best_sum <- infinity
-    // Depth-first 5-clique search
-    for each p1 in primes:
-        if 5 * p1 >= best_sum: break
-        S1 <- adj[p1]
-        for each p2 in S1:
-            if p1 + 4 * p2 >= best_sum: break
-            S2 <- {p in S1 : p > p2 and PAIR_OK(p2, p)}
-            for each p3 in S2:
-                if p1 + p2 + 3 * p3 >= best_sum: break
-                S3 <- {p in S2 : p > p3 and PAIR_OK(p3, p)}
-                for each p4 in S3:
-                    if p1 + p2 + p3 + 2 * p4 >= best_sum: break
-                    S4 <- {p in S3 : p > p4 and PAIR_OK(p4, p)}
-                    for each p5 in S4:
-                        s <- p1 + p2 + p3 + p4 + p5
-                        best_sum <- min(best_sum, s)
-    return best_sum
-
-PAIR_OK(p, q):
-    return IS_PRIME(CONCAT(p, q)) and IS_PRIME(CONCAT(q, p))
-
-CONCAT(a, b):
-    d <- number of digits in b
-    return a * 10^d + b
+```text
+Algorithm: Minimum-sum Prime Pair 5-clique
+Require: A prime bound B and a primality test for concatenations below the induced search range.
+Ensure: The smallest sum of five primes for which every pair forms a prime pair.
+1: Generate the primes below B and build the prime pair graph by connecting distinct primes p and q whenever both p || q and q || p are prime.
+2: Search the graph for 5-cliques in increasing prime order, extending each partial clique only by common neighbors and pruning any branch whose optimistic completion already exceeds the best sum found.
+3: Return the minimum clique sum obtained.
 ```
 
 ## Complexity Analysis

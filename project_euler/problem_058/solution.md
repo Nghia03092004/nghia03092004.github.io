@@ -63,30 +63,17 @@ $$\frac{P(k)}{4k + 1} \approx \frac{3k/(2 \ln k)}{4k} = \frac{3}{8 \ln k} \xrigh
 
 ## Algorithm
 
-```
-SPIRAL_PRIMES():
-    primes <- 0
-    total <- 1                   // center (value 1, not prime)
-    for k <- 1, 2, 3, ...:
-        s <- 2 * k + 1
-        corners <- [4k^2 - 2k + 1,  4k^2 + 1,  4k^2 + 2k + 1]
-        // Skip (2k+1)^2 which is always composite
-        for c in corners:
-            if IS_PRIME(c):
-                primes <- primes + 1
-        total <- total + 4
-        if primes > 0 and primes / total < 0.10:
-            return s
+We process the spiral layer by layer. For each new side length $s = 2k+1$, only the three non-square corner values need to be tested for primality, because the fourth corner is always $(2k+1)^2$ and therefore composite. Maintaining the cumulative number of diagonal entries and diagonal primes allows the prime ratio to be updated after each layer, and the first side length for which this ratio falls below 10% is returned.
 
-IS_PRIME(n):
-    if n < 2: return false
-    if n < 4: return true
-    if n mod 2 = 0 or n mod 3 = 0: return false
-    d <- 5
-    while d * d <= n:
-        if n mod d = 0 or n mod (d + 2) = 0: return false
-        d <- d + 6
-    return true
+## Pseudocode
+
+```text
+Algorithm: Spiral Side Length Below the 10% Prime Ratio
+Require: The square-spiral corner formulas for each layer k >= 1.
+Ensure: The first odd side length s for which the diagonal prime ratio is below 0.10.
+1: Initialize the diagonal counts by P ← 0 and T ← 1.
+2: For layers k = 1, 2, 3, ... with side length s ← 2k + 1, test the three non-square corner values for primality, update P and T ← T + 4, and compute the ratio P/T.
+3: Return the first side length s for which P/T < 0.10.
 ```
 
 ## Complexity Analysis

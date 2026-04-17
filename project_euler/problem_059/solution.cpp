@@ -64,36 +64,26 @@ int main() {
         3,69,25,2,0,88,21,19,29,30,69,22,5,8,26,21,23,11,94
     };
 
-    // Brute force: try all 26^3 keys, score by English frequency
-    int bestSum = 0;
-    int bestScore = -1;
-
-    for (int a = 'a'; a <= 'z'; a++) {
-        for (int b = 'a'; b <= 'z'; b++) {
-            for (int c = 'a'; c <= 'z'; c++) {
-                int key[3] = {a, b, c};
-                int score = 0;
-                int asciiSum = 0;
-                bool valid = true;
-
-                for (int i = 0; i < (int)cipher.size(); i++) {
-                    int p = cipher[i] ^ key[i % 3];
-                    if (p < 32 || p > 126) { valid = false; break; }
-                    asciiSum += p;
-                    if (p == ' ') score += 3;
-                    else if (p == 'e' || p == 't' || p == 'a' || p == 'o' ||
-                             p == 'i' || p == 'n' || p == 's' || p == 'h' ||
-                             p == 'r') score += 1;
-                }
-
-                if (valid && score > bestScore) {
-                    bestScore = score;
-                    bestSum = asciiSum;
-                }
-            }
+    int key[3] = {0, 0, 0};
+    for (int j = 0; j < 3; j++) {
+        array<int, 256> freq{};
+        for (int i = j; i < (int)cipher.size(); i += 3) {
+            freq[cipher[i]]++;
         }
+
+        int mode = 0;
+        for (int b = 1; b < 256; b++) {
+            if (freq[b] > freq[mode]) mode = b;
+        }
+        key[j] = mode ^ ' ';
     }
 
-    cout << bestSum << endl;
+    int asciiSum = 0;
+    for (int i = 0; i < (int)cipher.size(); i++) {
+        int plain = cipher[i] ^ key[i % 3];
+        asciiSum += plain;
+    }
+
+    cout << asciiSum << endl;
     return 0;
 }
