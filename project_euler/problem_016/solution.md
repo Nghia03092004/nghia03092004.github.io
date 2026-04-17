@@ -41,22 +41,23 @@ $$1 \le S(2^n) \le 9 \cdot d(2^n) = 9\bigl(\lfloor n \log_{10} 2 \rfloor + 1\big
 
 ## Algorithm
 
-```
-POWER-DIGIT-SUM(b, n):
-    Input: base b >= 2, exponent n >= 0
-    Output: S(b^n)
+We compute $b^n$ exactly and then sum its decimal digits. The reference pseudocode uses a digit array in base 10: each multiplication by $b$ propagates carries across the current digits, and the final digit array is summed. This is sufficient because repeated exact multiplication constructs the decimal expansion of $b^n$ without losing information.
 
-    D <- [1]                           // digits of b^n, least significant first
-    for i <- 1 to n:
+## Pseudocode
+
+```text
+function powerDigitSum(base, exponent):
+    digits <- [1]    // least significant digit first
+    for step <- 1 to exponent:
         carry <- 0
-        for j <- 0 to |D| - 1:
-            v <- D[j] * b + carry
-            D[j] <- v mod 10
-            carry <- v div 10
+        for i <- 0 to length(digits) - 1:
+            value <- digits[i] * base + carry
+            digits[i] <- value mod 10
+            carry <- floor(value / 10)
         while carry > 0:
-            D.append(carry mod 10)
-            carry <- carry div 10
-    return sum(D)
+            append carry mod 10 to digits
+            carry <- floor(carry / 10)
+    return the sum of the entries in digits
 ```
 
 ## Complexity Analysis

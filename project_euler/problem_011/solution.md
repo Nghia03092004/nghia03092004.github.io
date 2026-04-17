@@ -50,15 +50,26 @@ Total: $340 + 340 + 289 + 289 = 1258$. $\square$
 
 ## Algorithm
 
-```
-LARGEST-GRID-PRODUCT(G, n, l):
+We exhaustively evaluate the product of four adjacent entries in each relevant direction. The algorithm traverses every grid position, tests the horizontal, vertical, main-diagonal, and anti-diagonal directions whenever four cells remain in bounds, multiplies those four entries, and retains the largest product seen. This is sufficient because these four directions cover every possible set of four collinear adjacent cells.
+
+## Pseudocode
+
+```text
+function largestGridProduct(grid, length):
+    directions <- [(0, 1), (1, 0), (1, 1), (1, -1)]
     best <- 0
-    for each (dr, dc) in {(0,1), (1,0), (1,1), (1,-1)}:
-        for each (i, j) in F_{dr,dc}:
-            p <- 1
-            for k <- 0 to l-1:
-                p <- p * G[i + k*dr][j + k*dc]
-            best <- max(best, p)
+    for each (dr, dc) in directions:
+        for row <- 0 to rowCount(grid) - 1:
+            for col <- 0 to columnCount(grid) - 1:
+                endRow <- row + (length - 1) * dr
+                endCol <- col + (length - 1) * dc
+                if endRow is outside the grid or endCol is outside the grid:
+                    continue
+                product <- 1
+                for step <- 0 to length - 1:
+                    product <- product * grid[row + step * dr][col + step * dc]
+                if product > best:
+                    best <- product
     return best
 ```
 

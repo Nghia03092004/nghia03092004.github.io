@@ -41,26 +41,35 @@ Since $982 > p - 1$ for every prime $p < 983$, no smaller $d$ can produce a long
 
 ## Algorithm
 
-```
-function longest_cycle(N):
-    max_len <- 0
-    best_d  <- 0
-    for d <- 2 to N - 1:
-        d' <- d with all factors of 2 and 5 removed
-        if d' = 1: continue
-        // Compute ord_{d'}(10) via long-division simulation
+We test each denominator $d < N$ separately. After removing all factors of 2 and 5, terminating decimals are skipped; otherwise we simulate long division by repeatedly updating the remainder $r \mapsto 10r \bmod d'$ and recording the first step at which each remainder appears. The cycle length is the distance between repeated remainders, and the denominator with the largest such length is returned. This is sufficient because the repeating part of $1/d$ is completely determined by this remainder sequence.
+
+## Pseudocode
+
+```text
+function longestRecurringCycle(limit):
+    bestDenominator <- 0
+    bestLength <- 0
+    for d <- 2 to limit - 1:
+        reduced <- d
+        while reduced mod 2 = 0:
+            reduced <- reduced / 2
+        while reduced mod 5 = 0:
+            reduced <- reduced / 5
+        if reduced = 1:
+            continue
+
         seen <- empty map
-        r <- 1
+        remainder <- 1 mod reduced
         step <- 0
-        while r not in seen:
-            seen[r] <- step
-            r <- (10 * r) mod d'
+        while remainder not in seen:
+            seen[remainder] <- step
+            remainder <- (10 * remainder) mod reduced
             step <- step + 1
-        cycle_len <- step - seen[r]
-        if cycle_len > max_len:
-            max_len <- cycle_len
-            best_d  <- d
-    return best_d
+        cycleLength <- step - seen[remainder]
+        if cycleLength > bestLength:
+            bestLength <- cycleLength
+            bestDenominator <- d
+    return bestDenominator
 ```
 
 ## Complexity Analysis

@@ -153,16 +153,7 @@ Each $E_k$ is verified via the recurrence $E_k = 4E_{k-1} + E_{k-2}$: e.g., $E_{
 
 ## Algorithm
 
-```
-function SumEvenFibonacci(L):
-    a <- 2         // E_1
-    b <- 8         // E_2
-    total <- 0
-    while a <= L:
-        total <- total + a
-        (a, b) <- (b, 4*b + a)
-    return total
-```
+We generate only the even Fibonacci terms, not the entire Fibonacci sequence. Starting from $E_1 = 2$ and $E_2 = 8$, we repeatedly use the recurrence $E_k = 4E_{k-1} + E_{k-2}$, add each term to a running total, and stop once the next even term exceeds the limit. This is sufficient because Theorem 1 shows that every third Fibonacci number is even, and Theorem 2 gives a recurrence that enumerates exactly those terms.
 
 **Theorem 5 (Algorithm Correctness).** `SumEvenFibonacci(L)` returns $\sum \{E_k : E_k \le L\}$ for all $L \ge 1$.
 
@@ -177,6 +168,19 @@ This holds initially ($a_1 = 2 = E_1$, $b_1 = 8 = E_2$). After the update $(a, b
 This holds initially (total = 0). After adding $a_i = E_i$, total becomes $\sum_{j=1}^{i} E_j$.
 
 The loop terminates when $a_i = E_i > L$, at which point total $= \sum_{j=1}^{i-1} E_j = \sum\{E_k : E_k \le L\}$. Termination is guaranteed by Corollary 1 ($E_k \to \infty$). $\square$
+
+## Pseudocode
+
+```text
+function sumEvenFibonacci(limit):
+    current <- 2
+    next <- 8
+    total <- 0
+    while current <= limit:
+        total <- total + current
+        (current, next) <- (next, 4 * next + current)
+    return total
+```
 
 ## Complexity Analysis
 

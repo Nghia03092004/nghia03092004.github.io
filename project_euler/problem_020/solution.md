@@ -48,21 +48,21 @@ The 134 non-trailing-zero digits have an average value near $4.5$, giving a heur
 
 ## Algorithm
 
-```
-FACTORIAL-DIGIT-SUM(n):
-    Input: positive integer n
-    Output: S(n!)
+We form $n!$ by multiplying the integers from 2 through $n$, then extract its decimal digits and add them. The second phase repeatedly takes the last digit with a modulo-10 operation and removes it with integer division until no digits remain. This is sufficient because every digit of $n!$ is processed exactly once.
 
-    f <- 1
+## Pseudocode
+
+```text
+function factorialDigitSum(n):
+    factorial <- 1
     for k <- 2 to n:
-        f <- f * k
+        factorial <- factorial * k
 
-    s <- 0
-    while f > 0:
-        s <- s + (f mod 10)
-        f <- f div 10
-
-    return s
+    total <- 0
+    while factorial > 0:
+        total <- total + (factorial mod 10)
+        factorial <- floor(factorial / 10)
+    return total
 ```
 
 ## Complexity Analysis

@@ -37,22 +37,33 @@ For each admissible $(a, b)$, we evaluate $f_{a,b}(n)$ for $n = 0, 1, 2, \ldots$
 
 ## Algorithm
 
-```
-function quadratic_primes(A_max, B_max):
-    sieve <- prime sieve up to A_max^2 + A_max * B_max + B_max
-    primes_b <- {p <= B_max : p is prime}
-    best_count <- 0
-    result <- 0
-    for b in primes_b:
-        for a <- -(A_max - 1) to A_max - 1:
-            if b is odd and b >= 5 and a is even: continue
+We search over the admissible coefficient pairs using number-theoretic pruning. Because $f(0) = b$ must be prime, we only enumerate prime values of $b$, precompute a prime sieve large enough for all tested values, and then scan the allowed range of $a$ while skipping parity patterns that cannot produce long prime runs. For each pair $(a, b)$ we count consecutive values of $n$ starting from 0 until $n^2 + an + b$ stops being prime, and we keep the product $ab$ for the longest run. This is sufficient because every candidate pair in the search region is either tested or eliminated by a necessary condition.
+
+## Pseudocode
+
+```text
+function quadraticPrimes(limitA, limitB):
+    upper <- limitA * limitA + limitA * limitB + limitB
+    isPrime <- prime sieve up to upper
+    primeBs <- all primes p with p <= limitB
+    bestRun <- 0
+    bestProduct <- 0
+
+    for each b in primeBs:
+        for a <- -(limitA - 1) to limitA - 1:
+            if b is odd and b >= 5 and a is even:
+                continue
             n <- 0
-            while f(n) = n^2 + a*n + b >= 2 and f(n) is prime:
+            while true:
+                value <- n * n + a * n + b
+                if value < 2 or value > upper or not isPrime[value]:
+                    break
                 n <- n + 1
-            if n > best_count:
-                best_count <- n
-                result <- a * b
-    return result
+            if n > bestRun:
+                bestRun <- n
+                bestProduct <- a * b
+
+    return bestProduct
 ```
 
 ## Complexity Analysis

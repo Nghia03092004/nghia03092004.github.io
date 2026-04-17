@@ -63,23 +63,7 @@ We verify that $906{,}609$ is a palindrome and that $913 = 11 \times 83$, so the
 
 ## Algorithm
 
-```
-function LargestPalindromeProduct():
-    best <- 0
-    for x <- 990 downto 110 step -11:        // 3-digit multiples of 11, descending
-        for y <- 999 downto x step -1:
-            P <- x * y
-            if P <= best:
-                break                          // inner loop early termination
-            if IsPalindrome(P):
-                best <- P
-                break                          // first palindrome found for this x
-    return best
-
-function IsPalindrome(n):
-    s <- DecimalString(n)
-    return s = Reverse(s)
-```
+We search the factor pairs in descending order while exploiting the divisibility-by-11 constraint for six-digit palindromes. The outer loop enumerates 3-digit multiples of 11 from largest to smallest, the inner loop scans the matching partner in descending order, and each product is tested by reversing its decimal digits. Two early exits avoid useless work: once a product is no larger than the current best, later partners for the same outer factor cannot improve it, and once a palindrome is found for a fixed outer factor, smaller partners only decrease the product.
 
 **Theorem 4** (Algorithm correctness). *`LargestPalindromeProduct()` returns the largest palindrome of the form $xy$ with $100 \le x, y \le 999$.*
 
@@ -95,6 +79,26 @@ There are two early exits:
 2. If `P` is palindromic, the algorithm stores `best <- P` and breaks. This is valid because any later inner-loop value satisfies $y' < y$, hence $xy' < xy = P$, so no later pair with the same outer-loop value $x$ can produce a larger palindrome.
 
 Therefore the algorithm never discards a pair that could beat the final answer, and it eventually records the maximum palindromic product. $\square$
+
+## Pseudocode
+
+```text
+function isPalindrome(value):
+    digits <- decimal string of value
+    return digits = reverse(digits)
+
+function largestPalindromeProduct():
+    best <- 0
+    for x <- 990 downto 110 step 11:
+        for y <- 999 downto x step -1:
+            product <- x * y
+            if product <= best:
+                break
+            if isPalindrome(product):
+                best <- product
+                break
+    return best
+```
 
 ## Complexity Analysis
 

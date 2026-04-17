@@ -51,29 +51,7 @@ Then for every integer $i \in [2, N]$, $A[i] = \mathrm{true}$ if and only if $i$
 
 ## Algorithm
 
-```
-function NthPrime(n):
-    if n >= 6:
-        N <- ceil(n * (ln(n) + ln(ln(n)))) + 100
-    else:
-        N <- 20
-
-    // Sieve of Eratosthenes
-    is_prime[0..N] <- true
-    is_prime[0] <- false; is_prime[1] <- false
-    for p = 2 to floor(sqrt(N)):
-        if is_prime[p]:
-            for k = p*p to N step p:
-                is_prime[k] <- false
-
-    // Extract n-th prime
-    count <- 0
-    for i = 2 to N:
-        if is_prime[i]:
-            count <- count + 1
-            if count == n:
-                return i
-```
+The algorithm first chooses a proven upper bound that is guaranteed to contain the $n$-th prime. It then runs the Sieve of Eratosthenes on $[2, N]$, marks every composite starting from $p^2$, and performs a final increasing scan through the sieve until the $n$-th marked prime is reached. This is sufficient because the bound contains $p_n$ and the sieve leaves exactly the primes unmarked.
 
 **Theorem 5 (Algorithm correctness).** `NthPrime(n)` returns the $n$-th prime number for every $n \ge 1$.
 
@@ -103,6 +81,31 @@ $$p_{10001} = 104743.$$
 - there are exactly $10001$ primes less than or equal to $104743$.
 
 Therefore $104743$ is the $10001$-st prime. $\square$
+
+## Pseudocode
+
+```text
+function nthPrime(n):
+    if n >= 6:
+        upper <- ceil(n * (ln(n) + ln(ln(n)))) + 100
+    else:
+        upper <- 20
+
+    isPrime[0..upper] <- true
+    isPrime[0] <- false
+    isPrime[1] <- false
+    for p <- 2 to floor(sqrt(upper)):
+        if isPrime[p]:
+            for multiple <- p * p to upper step p:
+                isPrime[multiple] <- false
+
+    count <- 0
+    for value <- 2 to upper:
+        if isPrime[value]:
+            count <- count + 1
+            if count = n:
+                return value
+```
 
 ## Complexity Analysis
 

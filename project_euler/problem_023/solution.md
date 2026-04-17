@@ -40,26 +40,35 @@ Since $n$ is abundant, $\sigma_1(n) > 2n$, so $\sigma_1(kn) \geq k\,\sigma_1(n) 
 
 ## Algorithm
 
-```
-function NonAbundantSums(N = 28123):
-    // Step 1: Sieve for s(n)
-    spd[0..N] <- 0
-    for i <- 1 to N:
-        for j <- 2i, 3i, ... up to N:
-            spd[j] <- spd[j] + i
+We first precompute $s(n)$, the sum of proper divisors, for every $n \le N$ with a sieve-like pass over multiples. From that table we collect the abundant numbers, enumerate all sums of two abundant numbers that stay within the limit, mark those sums as representable, and finally add every unmarked integer. This is sufficient because any number that can be written as a sum of two abundant numbers will be marked during the nested scan.
 
-    // Step 2: Collect abundant numbers
-    A <- {i in [1, N] : spd[i] > i}
+## Pseudocode
 
-    // Step 3: Mark abundant-sum representable numbers
-    representable[0..N] <- false
-    for each a in A:
-        for each b in A with b >= a:
-            if a + b > N: break
-            representable[a + b] <- true
+```text
+function nonAbundantSums(limit):
+    properDivisorSum[0..limit] <- 0
+    for divisor <- 1 to limit:
+        for multiple <- 2 * divisor to limit step divisor:
+            properDivisorSum[multiple] <- properDivisorSum[multiple] + divisor
 
-    // Step 4: Sum non-representable numbers
-    return sum of i for i in [1, N] where representable[i] = false
+    abundants <- empty list
+    for value <- 1 to limit:
+        if properDivisorSum[value] > value:
+            append value to abundants
+
+    representable[0..limit] <- false
+    for i <- 0 to length(abundants) - 1:
+        for j <- i to length(abundants) - 1:
+            sumValue <- abundants[i] + abundants[j]
+            if sumValue > limit:
+                break
+            representable[sumValue] <- true
+
+    total <- 0
+    for value <- 1 to limit:
+        if not representable[value]:
+            total <- total + value
+    return total
 ```
 
 ## Complexity Analysis

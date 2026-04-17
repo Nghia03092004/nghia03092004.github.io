@@ -55,19 +55,22 @@ Applying Theorem 2 with $k = 999{,}999$ and $n = 10$:
 
 ## Algorithm
 
-```
-function KthPermutation(D, k):
-    n <- |D|
-    k <- k - 1                            // convert to 0-indexed
-    available <- sorted copy of D
+We construct the required permutation directly from the factoradic representation of $k-1$. At each position we compute the relevant factorial block size, choose the corresponding index among the remaining digits, append that digit to the answer, and remove it from the available set. This is sufficient because lexicographic permutations are partitioned into equal factorial-sized blocks at each step.
+
+## Pseudocode
+
+```text
+function kthPermutation(digits, rank):
+    rank <- rank - 1
+    available <- sorted copy of digits
     result <- empty list
-    for i <- 0 to n - 1:
-        f <- (n - 1 - i)!
-        q <- floor(k / f)
-        k <- k mod f
-        result.append(available[q])
-        available.remove(index q)
-    return result
+    for remaining <- length(digits) - 1 downto 0:
+        blockSize <- remaining!
+        index <- floor(rank / blockSize)
+        rank <- rank mod blockSize
+        append available[index] to result
+        remove available[index] from available
+    return concatenate the elements of result
 ```
 
 ## Complexity Analysis

@@ -72,17 +72,7 @@ Hence the maximal product is $23{,}514{,}624{,}000$. $\square$
 
 ## Algorithm
 
-```
-function LargestProductInSeries(d[0..N-1], k):
-    best <- 0
-    for i <- 0 to N-k:
-        P <- 1
-        for j <- 0 to k-1:
-            P <- P * d[i+j]
-        if P > best:
-            best <- P
-    return best
-```
+We enumerate every block of $k$ consecutive digits in the 1000-digit string. For each starting position we multiply the $k$ digits in that window and compare the product against the current maximum. This exhaustive scan is sufficient because every admissible length-$k$ substring appears exactly once as some window.
 
 **Theorem 2 (Algorithm correctness).** `LargestProductInSeries(d, k)` returns the largest product of $k$ consecutive digits.
 
@@ -91,6 +81,20 @@ function LargestProductInSeries(d[0..N-1], k):
 $$P_i = \prod_{j=0}^{k-1} d_{i+j}.$$
 
 The outer loop visits every admissible starting position exactly once and keeps the maximum value seen so far in `best`. By Theorem 1, the maximum over these values is precisely the desired quantity. Therefore the returned value is correct. $\square$
+
+## Pseudocode
+
+```text
+function largestProductInSeries(digits, window):
+    best <- 0
+    for start <- 0 to length(digits) - window:
+        product <- 1
+        for offset <- 0 to window - 1:
+            product <- product * digits[start + offset]
+        if product > best:
+            best <- product
+    return best
+```
 
 ## Complexity Analysis
 

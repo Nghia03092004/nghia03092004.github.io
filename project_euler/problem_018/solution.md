@@ -40,18 +40,17 @@ Setting $r = 0$, $c = 0$ gives the global optimum. $\square$
 
 ## Algorithm
 
-```
-MAX-PATH-SUM(T, n):
-    Input: triangular array T with n rows
-    Output: maximum adjacent-path sum
+We solve the triangle with bottom-up dynamic programming. Starting from the last row, we traverse upward row by row and replace each entry by its value plus the larger of the two best totals directly beneath it. This is sufficient because any maximal path from a cell must continue through one of those two children, so the updated entry stores the best possible total from that position.
 
-    A <- copy of T[n - 1]
+## Pseudocode
 
-    for r <- n - 2 downto 0:
-        for c <- 0 to r:
-            A[c] <- T[r][c] + max(A[c], A[c + 1])
-
-    return A[0]
+```text
+function maxPathSum(triangle):
+    bestBelow <- copy of the last row of triangle
+    for row <- rowCount(triangle) - 2 downto 0:
+        for col <- 0 to row:
+            bestBelow[col] <- triangle[row][col] + max(bestBelow[col], bestBelow[col + 1])
+    return bestBelow[0]
 ```
 
 ## Complexity Analysis

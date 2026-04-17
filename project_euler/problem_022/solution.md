@@ -34,16 +34,21 @@ $$k \leq \alpha(w) \leq 26k.$$
 
 ## Algorithm
 
-```
-function TotalNameScores(filename):
-    names <- ParseCSV(filename)
-    Sort(names)                        // lexicographic sort
+We read the quoted names, sort them lexicographically, and then evaluate each name score in sorted order. For position $j$, we compute the alphabetical value of the name by summing its letter values and multiply by $j$ before adding to the running total. This is sufficient because the problem definition depends only on the sorted order and those per-name letter sums.
+
+## Pseudocode
+
+```text
+function totalNameScores(filename):
+    names <- parse the CSV file into a list of names
+    sort names in lexicographic order
+
     total <- 0
-    for j <- 1 to |names|:
-        alpha <- 0
-        for each character c in names[j]:
-            alpha <- alpha + (ord(c) - 64)
-        total <- total + j * alpha
+    for index <- 1 to length(names):
+        value <- 0
+        for each letter in names[index]:
+            value <- value + alphabetical position of letter
+        total <- total + index * value
     return total
 ```
 

@@ -68,16 +68,7 @@ $$720{,}720 \times 17 = 12{,}252{,}240, \quad 12{,}252{,}240 \times 19 = 232{,}7
 
 ## Algorithm
 
-The reference implementation builds the answer iteratively using Lemma 1 and Lemma 2:
-
-```
-function SmallestMultiple(N):
-    L <- 1
-    for k <- 2 to N:
-        g <- gcd(L, k)
-        L <- (L / g) * k
-    return L
-```
+We build the least common multiple incrementally. Starting from $L = 1$, we traverse $k = 2, 3, \ldots, N$, compute $g = \gcd(L, k)$, and update $L$ to $(L / g)k$, which equals $\operatorname{lcm}(L, k)$. This is sufficient because after each step the accumulator is the least common multiple of all integers seen so far, so the final value is $\operatorname{lcm}(1, 2, \ldots, N)$.
 
 **Remark.** The division by $g = \gcd(L,k)$ is exact by Lemma 1, because
 
@@ -100,6 +91,17 @@ for every $k$. In particular, after the final iteration,
 $$L_N = \operatorname{lcm}(1,2,\ldots,N).$$
 
 Thus the algorithm is correct. $\square$
+
+## Pseudocode
+
+```text
+function smallestMultiple(limit):
+    lcmValue <- 1
+    for k <- 2 to limit:
+        g <- gcd(lcmValue, k)
+        lcmValue <- (lcmValue / g) * k
+    return lcmValue
+```
 
 ## Complexity Analysis
 

@@ -60,18 +60,21 @@ $$n = \lceil 4781.8594\ldots \rceil = 4782.$$
 
 ## Algorithm
 
-```
-function FirstFibonacciWithDDigits(D):
-    // Analytical method -- O(1)
-    log_phi <- log10((1 + sqrt(5)) / 2)
-    h <- log10(5) / 2
-    return ceil((D - 1 + h) / log_phi)
+We keep both the analytical and iterative viewpoints. The closed-form method uses the logarithmic inequality derived from Binet's formula to compute the smallest index whose Fibonacci number has $D$ digits, while the iterative method advances the Fibonacci sequence until the digit threshold is reached. This is sufficient because the formula identifies the first valid index directly and the iterative scan provides a straightforward verification.
 
-    // Iterative method -- O(nD) with big-integer arithmetic
-    a, b <- 1, 1
+## Pseudocode
+
+```text
+function firstFibonacciWithDigitsByFormula(digitsWanted):
+    phi <- (1 + sqrt(5)) / 2
+    return ceil((digitsWanted - 1 + log10(5) / 2) / log10(phi))
+
+function firstFibonacciWithDigitsIterative(digitsWanted):
+    previous <- 1
+    current <- 1
     index <- 2
-    while digits(b) < D:
-        a, b <- b, a + b
+    while number of decimal digits in current < digitsWanted:
+        (previous, current) <- (current, previous + current)
         index <- index + 1
     return index
 ```

@@ -93,10 +93,7 @@ Subtracting $\sum i^2$ from both sides yields $D(n) = 2\sum_{i < j} ij$. $\squar
 
 ## Algorithm
 
-```
-function SumSquareDifference(n):
-    return n * (n - 1) * (n + 1) * (3 * n + 2) / 12
-```
+The implementation evaluates the closed formula derived above, so no enumeration is needed. Once $n$ is given, it substitutes $n$ into $D(n) = n(n-1)(n+1)(3n+2)/12$ and returns the result. This is sufficient because the algebraic reduction already transformed the original difference of sums into this polynomial expression.
 
 **Application to $n = 100$.** We compute
 $$D(100) = \frac{100 \times 99 \times 101 \times 302}{12}.$$
@@ -108,6 +105,13 @@ Step by step:
 - $301{,}969{,}800 \div 12 = 25{,}164{,}150$.
 
 *Verification.* $S_1(100) = 5{,}050$ and $S_1(100)^2 = 25{,}502{,}500$. Also $S_2(100) = 100 \times 101 \times 201 / 6 = 338{,}350$. Then $D(100) = 25{,}502{,}500 - 338{,}350 = 25{,}164{,}150$. $\checkmark$
+
+## Pseudocode
+
+```text
+function sumSquareDifference(n):
+    return n * (n - 1) * (n + 1) * (3 * n + 2) / 12
+```
 
 ## Complexity Analysis
 

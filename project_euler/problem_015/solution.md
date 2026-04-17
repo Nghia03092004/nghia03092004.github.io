@@ -62,15 +62,19 @@ $$\binom{40}{20} = \frac{40!}{(20!)^2} = 137\,846\,528\,820.$$
 
 ## Algorithm
 
-```
-LATTICE-PATHS(n):
-    result <- 1
-    for k <- 1 to n:
-        result <- result * (n + k) / k
-    return result
-```
+We compute the central binomial coefficient multiplicatively instead of expanding full factorials. The loop traverses $k = 1, \ldots, n$ and multiplies the accumulator by $(n+k)/k$ at each step, which stays integral by the binomial-coefficient derivation. This is sufficient because the resulting product is exactly $\binom{2n}{n}$, the number of lattice paths.
 
 **Correctness.** By Theorem 3, this computes $\prod_{k=1}^{n} \frac{n+k}{k} = \binom{2n}{n}$. By Corollary 1, all divisions are exact.
+
+## Pseudocode
+
+```text
+function latticePaths(size):
+    result <- 1
+    for k <- 1 to size:
+        result <- result * (size + k) / k
+    return result
+```
 
 ## Complexity Analysis
 

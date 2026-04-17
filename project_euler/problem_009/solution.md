@@ -54,15 +54,19 @@ Both cases yield the same triplet. No other divisor of $500000$ lies in $(500, 1
 
 ## Algorithm
 
-```
-function SpecialPythagoreanTriplet(s):
-    for a = 1 to s/3 - 1:
-        num <- s*s/2 - s*a       // = 500000 - 1000a when s = 1000
-        den <- s - a
-        if den divides num:
-            b <- num / den
-            c <- s - a - b
-            if a < b < c:
+We iterate over the possible first leg $a$ and use the linear relation derived from $a+b+c=s$ and $a^2+b^2=c^2$ to solve for $b$. For each $a$, we compute the candidate numerator and denominator, check whether the division is exact, recover $b$ and $c = s-a-b$, and return the product once the ordering $a < b < c$ holds. This is sufficient because every Pythagorean triple with sum $s$ must satisfy the derived formula for $b$.
+
+## Pseudocode
+
+```text
+function specialPythagoreanTriplet(sumTarget):
+    for a <- 1 to floor(sumTarget / 3) - 1:
+        numerator <- sumTarget * sumTarget / 2 - sumTarget * a
+        denominator <- sumTarget - a
+        if numerator is divisible by denominator:
+            b <- numerator / denominator
+            c <- sumTarget - a - b
+            if a < b and b < c:
                 return a * b * c
 ```
 

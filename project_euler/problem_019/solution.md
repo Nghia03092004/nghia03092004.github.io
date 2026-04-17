@@ -50,20 +50,28 @@ In a leap year, only February changes: $D(2, y) \bmod 7 = 1$.
 
 ## Algorithm
 
-```
-COUNT-FIRST-SUNDAYS(y_start, y_end):
-    Input: years y_start, y_end with 1900 <= y_start <= y_end
-    Output: number of first-of-month Sundays in [y_start, y_end]
+We simulate the calendar month by month, keeping track of the weekday of the first day of the current month. Beginning from the known fact that 1 January 1900 was a Monday, we iterate through all months up to the ending year, count the months in the target interval whose first day is Sunday, and advance the weekday by the month length modulo 7. This is sufficient because every month in the range is visited exactly once.
 
-    w <- 1                              // 1 Jan 1900 = Monday
+## Pseudocode
+
+```text
+function isLeapYear(year):
+    return (year mod 4 = 0 and year mod 100 != 0) or (year mod 400 = 0)
+
+function daysInMonth(month, year):
+    monthLengths <- [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    if month = 2 and isLeapYear(year):
+        return 29
+    return monthLengths[month]
+
+function countFirstSundays(startYear, endYear):
+    weekday <- 1    // 0 = Sunday, so 1 Jan 1900 is Monday
     count <- 0
-
-    for y <- 1900 to y_end:
-        for m <- 1 to 12:
-            if y >= y_start and w = 0:
+    for year <- 1900 to endYear:
+        for month <- 1 to 12:
+            if year >= startYear and weekday = 0:
                 count <- count + 1
-            w <- (w + D(m, y)) mod 7
-
+            weekday <- (weekday + daysInMonth(month, year)) mod 7
     return count
 ```
 

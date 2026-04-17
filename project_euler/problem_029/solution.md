@@ -49,26 +49,30 @@ $$\sum_{c \text{ primitive}} |E_c|,$$
 
 ## Algorithm
 
-```
-function distinct_powers(A, B):
-    // Method 1: Direct computation (simple, uses big integers)
-    S <- empty set
-    for a <- 2 to A:
-        for b <- 2 to B:
-            S <- S union {a^b}
-    return |S|
+We keep two equivalent viewpoints. The direct method enumerates every pair $(a, b)$ with $2 \le a, b \le 100$ and inserts $a^b$ into a set, while the canonical method rewrites each base as $a = c^p$ with primitive base $c$ and records the exponent products $pb$ grouped by $c$. This is sufficient because two powers are equal exactly when they share the same canonical base and exponent.
 
-    // Method 2: Canonical exponent counting (avoids big integers)
-    canonical <- array of (base, power) pairs
-    for a <- 2 to A:
-        (c, p) <- canonical representation of a
-        canonical[a] <- (c, p)
-    exponents_by_base <- map from base to set of integers
-    for a <- 2 to A:
-        (c, p) <- canonical[a]
-        for b <- 2 to B:
-            insert p*b into exponents_by_base[c]
-    return sum of |exponents_by_base[c]| over all c
+## Pseudocode
+
+```text
+function distinctPowersDirect(limitA, limitB):
+    values <- empty set
+    for a <- 2 to limitA:
+        for b <- 2 to limitB:
+            insert a^b into values
+    return size(values)
+
+function distinctPowersCanonical(limitA, limitB):
+    canonical[2..limitA] <- canonical representation of each a as c^p with primitive base c
+    exponentsByBase <- empty map from base to set of exponents
+    for a <- 2 to limitA:
+        (base, power) <- canonical[a]
+        for b <- 2 to limitB:
+            insert power * b into exponentsByBase[base]
+
+    total <- 0
+    for each base in exponentsByBase:
+        total <- total + size(exponentsByBase[base])
+    return total
 ```
 
 ## Complexity Analysis

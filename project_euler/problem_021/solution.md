@@ -39,23 +39,30 @@ $$\{(220, 284),\; (1184, 1210),\; (2620, 2924),\; (5020, 5564),\; (6232, 6368)\}
 
 ## Algorithm
 
-```
-function SumAmicable(N):
-    total <- 0
-    for n <- 2 to N - 1:
-        m <- s(n)
-        if m != n and m > 0 and s(m) = n:
-            total <- total + n
+We enumerate every integer $n < N$ and test the amicable condition directly. The helper $s(n)$ computes the sum of proper divisors by scanning divisor pairs up to $\sqrt{n}$, then the main loop sets $m = s(n)$ and checks whether $m \ne n$ and $s(m) = n$; if so, $n$ is added to the total. This is sufficient because the definition of an amicable number is exactly the symmetric condition being tested.
+
+## Pseudocode
+
+```text
+function sumProperDivisors(n):
+    if n = 1:
+        return 0
+    total <- 1
+    for factor <- 2 to floor(sqrt(n)):
+        if n mod factor = 0:
+            total <- total + factor
+            partner <- n / factor
+            if partner != factor:
+                total <- total + partner
     return total
 
-function s(n):
-    sigma <- 1
-    for i <- 2 to floor(sqrt(n)):
-        if n mod i = 0:
-            sigma <- sigma + i
-            if i != n / i:
-                sigma <- sigma + n / i
-    return sigma
+function sumAmicable(limit):
+    total <- 0
+    for n <- 2 to limit - 1:
+        m <- sumProperDivisors(n)
+        if m != n and m > 0 and sumProperDivisors(m) = n:
+            total <- total + n
+    return total
 ```
 
 ## Complexity Analysis

@@ -72,33 +72,40 @@ Total: $854 + 20259 + 11 = 21124$. $\square$
 
 ## Algorithm
 
-```
-NUMBER-LETTER-COUNT(N):
-    Input: positive integer N
-    Output: sum of ell(n) for n = 1, ..., N
+We precompute the letter counts for the atomic words `one` through `nineteen` and the tens words `twenty` through `ninety`. A helper `letterCount(n)` decomposes each number according to British usage rules for hundreds and the word `and`, and the main loop sums that value for $n = 1$ to $N$. This is sufficient because every number in the range falls into one of the cases covered by the lookup-based decomposition.
 
+## Pseudocode
+
+```text
+function letterCount(n, ones, teens, tens):
+    if n = 1000:
+        return 11
+
+    total <- 0
+    if n >= 100:
+        total <- total + ones[floor(n / 100)] + 7
+        n <- n mod 100
+        if n > 0:
+            total <- total + 3
+    if n >= 20:
+        total <- total + tens[floor(n / 10)]
+        n <- n mod 10
+    if 10 <= n and n <= 19:
+        total <- total + teens[n - 10]
+        n <- 0
+    if 1 <= n and n <= 9:
+        total <- total + ones[n]
+    return total
+
+function totalNumberLetterCount(limit):
     ones <- [0, 3, 3, 5, 4, 4, 3, 5, 5, 4]
     teens <- [3, 6, 6, 8, 8, 7, 7, 9, 8, 8]
-    tens  <- [0, 0, 6, 6, 5, 5, 5, 7, 6, 6]
+    tens <- [0, 0, 6, 6, 5, 5, 5, 7, 6, 6]
 
-    function ell(n):
-        if n = 1000: return 11
-        c <- 0
-        if n >= 100:
-            c <- c + ones[n div 100] + 7
-            n <- n mod 100
-            if n > 0: c <- c + 3
-        if n >= 20:
-            c <- c + tens[n div 10]
-            n <- n mod 10
-        if 10 <= n <= 19:
-            c <- c + teens[n - 10]
-            n <- 0
-        if 1 <= n <= 9:
-            c <- c + ones[n]
-        return c
-
-    return sum of ell(n) for n = 1 to N
+    total <- 0
+    for value <- 1 to limit:
+        total <- total + letterCount(value, ones, teens, tens)
+    return total
 ```
 
 ## Complexity Analysis

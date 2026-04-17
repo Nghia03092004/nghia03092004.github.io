@@ -99,18 +99,7 @@ $\square$
 
 ## Algorithm
 
-```
-function LargestPrimeFactor(n):
-    d <- 2
-    while d * d <= n:
-        while n mod d = 0:
-            n <- n / d
-        d <- d + 1
-    if n > 1:
-        return n
-    else:
-        return d - 1
-```
+We remove prime factors by trial division. Starting with $d = 2$, we divide the current value of $n$ by $d$ as long as $d$ is a factor, then increment $d$ and continue while $d^2 \le n$. When the loop ends, any remaining value greater than 1 is the largest prime factor; otherwise the last divisor used is the answer. This works because every composite factor has a prime divisor at most the square root of the current remainder.
 
 **Execution Trace for $n = 600\,851\,475\,143$:**
 
@@ -122,6 +111,20 @@ function LargestPrimeFactor(n):
 | 4 | 1472 | $d^2 = 2\,166\,784 > 6857$; exit loop | $6\,857$ |
 
 Return $n = 6857$.
+
+## Pseudocode
+
+```text
+function largestPrimeFactor(n):
+    divisor <- 2
+    while divisor * divisor <= n:
+        while n mod divisor = 0:
+            n <- n / divisor
+        divisor <- divisor + 1
+    if n > 1:
+        return n
+    return divisor - 1
+```
 
 ## Complexity Analysis
 

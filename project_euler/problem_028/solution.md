@@ -56,17 +56,18 @@ $$= \frac{4N^3 + 3N^2 + 8N - 9}{6}. \qquad\square$$
 
 ## Algorithm
 
-```
-function spiral_diagonal_sum(N):
-    return (4*N^3 + 3*N^2 + 8*N - 9) / 6
-```
+We evaluate the closed-form expression obtained from summing the four corner values contributed by each spiral layer. That gives the answer in constant time; the iterative layer-by-layer accumulation is retained as a verification method. This is sufficient because every diagonal entry belongs either to the center or to exactly one square ring.
 
-Alternative (iterative, for verification):
-```
-function spiral_diagonal_sum_iterative(N):
+## Pseudocode
+
+```text
+function spiralDiagonalSum(size):
+    return (4 * size^3 + 3 * size^2 + 8 * size - 9) / 6
+
+function spiralDiagonalSumIterative(size):
     total <- 1
-    for k <- 1 to (N - 1) / 2:
-        total <- total + 16*k^2 + 4*k + 4
+    for layer <- 1 to (size - 1) / 2:
+        total <- total + 16 * layer^2 + 4 * layer + 4
     return total
 ```
 

@@ -45,18 +45,22 @@ $$4150 + 4151 + 54748 + 92727 + 93084 + 194979 = 443839.$$
 
 ## Algorithm
 
-```
-function digit_fifth_power_sum():
-    pow5[0..9] <- precomputed table: pow5[d] = d^5
-    U <- 6 * 9^5                      // = 354294
+We perform a bounded exhaustive search. The algorithm precomputes the fifth power of each digit, iterates through every candidate from 2 up to the proven upper bound $6 \cdot 9^5$, computes the sum of the fifth powers of its digits, and adds the number when the digit-power sum matches the original value. This is sufficient because Lemma 1 shows that no solution can lie above that bound.
+
+## Pseudocode
+
+```text
+function digitFifthPowerSum():
+    digitPower[0..9] <- the fifth powers of 0 through 9
+    upper <- 6 * 9^5
     total <- 0
-    for n <- 2 to U:
-        s <- 0
-        temp <- n
-        while temp > 0:
-            s <- s + pow5[temp mod 10]
-            temp <- floor(temp / 10)
-        if s = n:
+    for n <- 2 to upper:
+        sumPowers <- 0
+        value <- n
+        while value > 0:
+            sumPowers <- sumPowers + digitPower[value mod 10]
+            value <- floor(value / 10)
+        if sumPowers = n:
             total <- total + n
     return total
 ```

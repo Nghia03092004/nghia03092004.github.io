@@ -42,20 +42,7 @@ $$S = \sum_{\substack{p < N \\ p \text{ prime}}} p.$$
 
 ## Algorithm
 
-```
-function SumOfPrimesBelow(N):
-    A[0..N-1] <- true
-    A[0] <- false; A[1] <- false
-    for p = 2 to floor(sqrt(N-1)):
-        if A[p]:
-            for k = p*p to N-1 step p:
-                A[k] <- false
-    S <- 0
-    for i = 2 to N-1:
-        if A[i]:
-            S <- S + i
-    return S
-```
+We use the Sieve of Eratosthenes to classify all integers below $N$ as prime or composite. After initializing the table, we traverse prime bases up to $\sqrt{N-1}$ and mark their multiples starting at $p^2$, then sum the indices that remain marked. This is sufficient because every composite below $N$ has a prime factor at most $\sqrt{N-1}$.
 
 **Theorem 3 (Algorithm correctness).** `SumOfPrimesBelow(N)` returns the sum of all primes less than $N$.
 
@@ -72,6 +59,25 @@ $$142{,}913{,}828{,}922.$$
 $$142{,}913{,}828{,}922.$$
 
 By Theorem 3, this is exactly the required sum. $\square$
+
+## Pseudocode
+
+```text
+function sumOfPrimesBelow(limit):
+    isPrime[0..limit - 1] <- true
+    isPrime[0] <- false
+    isPrime[1] <- false
+    for p <- 2 to floor(sqrt(limit - 1)):
+        if isPrime[p]:
+            for multiple <- p * p to limit - 1 step p:
+                isPrime[multiple] <- false
+
+    total <- 0
+    for value <- 2 to limit - 1:
+        if isPrime[value]:
+            total <- total + value
+    return total
+```
 
 ## Complexity Analysis
 

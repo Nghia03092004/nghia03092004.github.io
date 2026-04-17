@@ -43,28 +43,38 @@ We must verify $\gcd(A,B) = 1$ in each case. Consider the case $2 \mid n$. Every
 
 ## Algorithm
 
-```
-FIRST-TRIANGLE-EXCEEDING-K-DIVISORS(K):
-    function tau(m):
-        if m = 0: return 0
-        count <- 1
-        for p <- 2, 3, 4, ... while p^2 <= m:
-            e <- 0
-            while p | m:
-                m <- m / p
-                e <- e + 1
-            count <- count * (e + 1)
-        if m > 1:
-            count <- count * 2
-        return count
+We test triangle numbers in increasing order and compute their divisor counts from prime factorizations. For each index $n$, we use $T_n = n(n+1)/2$ together with the coprimality of $n$ and $n+1$ to evaluate $\tau(T_n)$ as $\tau(n/2)\tau(n+1)$ or $\tau(n)\tau((n+1)/2)$, where the helper $\tau$ factors its input by trial division. The first triangle number whose divisor count exceeds the target is therefore the desired answer.
 
-    for n <- 1, 2, 3, ...:
-        if 2 | n:
-            d <- tau(n / 2) * tau(n + 1)
+## Pseudocode
+
+```text
+function divisorCount(value):
+    if value = 0:
+        return 0
+    count <- 1
+    factor <- 2
+    while factor * factor <= value:
+        exponent <- 0
+        while value mod factor = 0:
+            value <- value / factor
+            exponent <- exponent + 1
+        if exponent > 0:
+            count <- count * (exponent + 1)
+        factor <- factor + 1
+    if value > 1:
+        count <- count * 2
+    return count
+
+function firstTriangleWithMoreThan(divisorsTarget):
+    n <- 1
+    while true:
+        if n is even:
+            totalDivisors <- divisorCount(n / 2) * divisorCount(n + 1)
         else:
-            d <- tau(n) * tau((n + 1) / 2)
-        if d > K:
+            totalDivisors <- divisorCount(n) * divisorCount((n + 1) / 2)
+        if totalDivisors > divisorsTarget:
             return n * (n + 1) / 2
+        n <- n + 1
 ```
 
 ## Complexity Analysis

@@ -46,28 +46,32 @@ Consequently, $L(n) = 2 + L\!\left(\frac{3n+1}{2}\right)$ for odd $n > 1$.
 
 ## Algorithm
 
-```
-LONGEST-COLLATZ(N):
-    cache[1..N] <- 0
-    cache[1] <- 1
-    best_n <- 1
-    best_len <- 1
+We scan every starting value below $N$ while memoizing Collatz chain lengths that have already been resolved. For each `start`, we follow the sequence until we hit a value with known length, count how many new steps were taken, and store the resulting length for the starting value before comparing it with the current best. This is sufficient because every candidate under $N$ is examined and each evaluation eventually terminates at a cached chain tail.
 
-    for start <- 2 to N - 1:
-        n <- start
+## Pseudocode
+
+```text
+function longestCollatz(limit):
+    lengthCache[1..limit] <- 0
+    lengthCache[1] <- 1
+    bestStart <- 1
+    bestLength <- 1
+
+    for start <- 2 to limit - 1:
+        value <- start
         steps <- 0
-        while n >= N or cache[n] = 0:
-            if 2 | n:
-                n <- n / 2
+        while value >= limit or lengthCache[value] = 0:
+            if value is even:
+                value <- value / 2
             else:
-                n <- 3n + 1
+                value <- 3 * value + 1
             steps <- steps + 1
-        cache[start] <- steps + cache[n]
-        if cache[start] > best_len:
-            best_len <- cache[start]
-            best_n <- start
+        lengthCache[start] <- steps + lengthCache[value]
+        if lengthCache[start] > bestLength:
+            bestLength <- lengthCache[start]
+            bestStart <- start
 
-    return best_n
+    return bestStart
 ```
 
 ## Complexity Analysis

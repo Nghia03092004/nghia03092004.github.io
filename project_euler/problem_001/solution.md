@@ -114,15 +114,7 @@ Therefore $S(1000) = 166833 + 99500 - 33165 = 233168$. $\square$
 
 ## Algorithm
 
-```
-function SumMultiples(N):
-    p3  <- floor((N - 1) / 3)
-    p5  <- floor((N - 1) / 5)
-    p15 <- floor((N - 1) / 15)
-    return 3 * p3 * (p3 + 1) / 2
-         + 5 * p5 * (p5 + 1) / 2
-         - 15 * p15 * (p15 + 1) / 2
-```
+We use the closed-form arithmetic-series formula rather than scanning every integer. The procedure counts how many multiples of 3, 5, and 15 lie below the limit, converts each count into the corresponding sum of multiples, and then applies inclusion-exclusion to subtract the overlap. This is sufficient because every qualifying integer is a multiple of 3 or 5, and the only double-counted terms are multiples of 15.
 
 **Theorem 4 (Algorithm Correctness).** `SumMultiples(N)` returns $\sigma(A_3(N) \cup A_5(N))$ for all $N \ge 2$.
 
@@ -137,6 +129,18 @@ and then returns
 $$3 \cdot \frac{p_3(p_3+1)}{2} + 5 \cdot \frac{p_5(p_5+1)}{2} - 15 \cdot \frac{p_{15}(p_{15}+1)}{2}.$$
 
 By Theorem 3, this quantity is precisely $\sigma(A_3(N) \cup A_5(N))$. Therefore the algorithm is correct. $\square$
+
+## Pseudocode
+
+```text
+function sumMultiples(limit):
+    count3 <- floor((limit - 1) / 3)
+    count5 <- floor((limit - 1) / 5)
+    count15 <- floor((limit - 1) / 15)
+    return 3 * count3 * (count3 + 1) / 2
+         + 5 * count5 * (count5 + 1) / 2
+         - 15 * count15 * (count15 + 1) / 2
+```
 
 ## Complexity Analysis
 
