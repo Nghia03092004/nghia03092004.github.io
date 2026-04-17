@@ -4,7 +4,9 @@
 
 Given a text file of over five thousand first names, sort the names into lexicographic (alphabetical) order. Define the *alphabetical value* of a name as the sum of the positional values of its letters (A = 1, B = 2, ..., Z = 26). The *name score* of the $j$-th name in sorted order is $j$ times its alphabetical value. Compute the sum of all name scores.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1 (Letter Value).** For an uppercase Latin letter $c$, define
 $$\operatorname{val}(c) = \operatorname{ord}(c) - 64,$$
@@ -15,7 +17,7 @@ $$\alpha(w) = \sum_{i=1}^{k} \operatorname{val}(c_i).$$
 
 **Definition 3 (Name Score).** Let $w_1 \prec w_2 \prec \cdots \prec w_n$ be the names in lexicographic order. The *name score* of $w_j$ is $S(w_j) = j \cdot \alpha(w_j)$.
 
-## Theorems and Proofs
+### Theorems and Proofs
 
 **Theorem 1 (Well-Definedness).** *The total score $T = \sum_{j=1}^{n} j \cdot \alpha(w_j)$ is uniquely determined by the input set of names.*
 

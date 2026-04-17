@@ -4,7 +4,9 @@
 
 A *permutation* is an ordered arrangement of objects. The lexicographic permutations of $\{0, 1, 2\}$ are: 012, 021, 102, 120, 201, 210. What is the millionth lexicographic permutation of the digits $\{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}$?
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1 (Factorial Number System).** The *factoradic* (or *factorial number system*) represents a non-negative integer $k$ as
 $$k = \sum_{i=1}^{m} d_i \cdot i!,$$
@@ -12,7 +14,7 @@ where the *digits* satisfy $0 \leq d_i \leq i$ for each $1 \leq i \leq m$.
 
 **Definition 2 (Lehmer Code).** Given a permutation $\pi$ of $\{0, 1, \ldots, n-1\}$, its *Lehmer code* is the sequence $(l_0, l_1, \ldots, l_{n-1})$ where $l_i = |\{j > i : \pi(j) < \pi(i)\}|$ counts elements to the right of position $i$ that are smaller than $\pi(i)$.
 
-## Theorems and Proofs
+### Theorems and Proofs
 
 **Theorem 1 (Factoradic Uniqueness).** *Every non-negative integer $k$ with $0 \leq k < n!$ has a unique factoradic representation $(d_{n-1}, d_{n-2}, \ldots, d_1)$ satisfying $0 \leq d_i \leq i$ for each $i$.*
 

@@ -4,13 +4,15 @@
 
 The Fibonacci sequence is defined by $F_1 = 1$, $F_2 = 1$, and $F_n = F_{n-1} + F_{n-2}$ for $n \geq 3$. Determine the index of the first term to contain 1000 digits.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1 (Fibonacci Sequence).** The sequence $(F_n)_{n \geq 1}$ defined by $F_1 = F_2 = 1$ and $F_n = F_{n-1} + F_{n-2}$ for $n \geq 3$.
 
 **Definition 2 (Golden Ratio).** $\varphi = \frac{1 + \sqrt{5}}{2}$ and $\psi = \frac{1 - \sqrt{5}}{2}$. These are the roots of the characteristic polynomial $x^2 - x - 1 = 0$.
 
-## Theorems and Proofs
+### Theorems and Proofs
 
 **Theorem 1 (Binet's Formula).** *For all $n \geq 1$,*
 $$F_n = \frac{\varphi^n - \psi^n}{\sqrt{5}}.$$

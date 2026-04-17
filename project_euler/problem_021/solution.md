@@ -4,7 +4,9 @@
 
 Let $d(n)$ denote the sum of proper divisors of $n$ (i.e., divisors strictly less than $n$). If $d(a) = b$ and $d(b) = a$ with $a \neq b$, then $a$ and $b$ form an **amicable pair**. Compute the sum of all amicable numbers below 10000.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1 (Divisor-Sum Functions).** For $n \in \mathbb{Z}_{>0}$, the *divisor-sum function* is
 $$\sigma_1(n) = \sum_{d \mid n} d,$$
@@ -12,7 +14,7 @@ and the *restricted divisor-sum function* (sum of proper divisors) is $s(n) = \s
 
 **Definition 2 (Amicable Pair).** An ordered pair $(a, b) \in \mathbb{Z}_{>0}^2$ with $a \neq b$ is *amicable* if $s(a) = b$ and $s(b) = a$.
 
-## Theorems and Proofs
+### Theorems and Proofs
 
 **Theorem 1 (Multiplicativity of $\sigma_1$).** *The function $\sigma_1$ is multiplicative: if $\gcd(m, n) = 1$, then $\sigma_1(mn) = \sigma_1(m)\,\sigma_1(n)$. Consequently, for $n = \prod_{i=1}^{k} p_i^{a_i}$,*
 $$\sigma_1(n) = \prod_{i=1}^{k} \frac{p_i^{a_i+1} - 1}{p_i - 1}.$$

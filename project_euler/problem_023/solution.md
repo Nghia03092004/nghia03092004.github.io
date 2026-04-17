@@ -4,13 +4,15 @@
 
 A positive integer $n$ is *perfect* if $s(n) = n$, *deficient* if $s(n) < n$, and *abundant* if $s(n) > n$, where $s(n) = \sigma_1(n) - n$ is the sum of proper divisors. It is known that every integer greater than 28123 can be expressed as the sum of two abundant numbers. Find the sum of all positive integers that **cannot** be written as the sum of two abundant numbers.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1 (Abundant Number).** A positive integer $n$ is *abundant* if $s(n) > n$, equivalently $\sigma_1(n) > 2n$.
 
 **Definition 2 (Abundant-Sum Representability).** A positive integer $m$ is *abundant-sum representable* if there exist abundant numbers $a, b$ (not necessarily distinct) such that $m = a + b$. Denote the set of such integers by $\mathcal{A}_2$.
 
-## Theorems and Proofs
+### Theorems and Proofs
 
 **Theorem 1 (Smallest Abundant Number).** *The smallest abundant number is $12$.*
 
