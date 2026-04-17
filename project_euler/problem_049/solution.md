@@ -58,12 +58,13 @@ We generate all four-digit primes and group them by their sorted-digit signature
 ## Pseudocode
 
 ```text
-Algorithm: Prime Permutation Arithmetic Progression
-Require: The set of all four-digit primes.
-Ensure: The 12-digit concatenation of the nontrivial AP-permutation triple.
-1: Partition the four-digit primes into equivalence classes according to their sorted-digit signatures.
-2: For each class G with at least three members, examine pairs p_i < p_j in G and compute p_k ← 2p_j - p_i; if p_k also belongs to G and p_i ≠ 1487, return the concatenation of p_i, p_j, and p_k.
-3: Return failure.
+Algorithm: Arithmetic Prime Permutation Sequence
+Require: The four-digit primes.
+Ensure: The 12-digit concatenation of the nontrivial three-term arithmetic progression formed by prime permutations.
+1: Generate all four-digit primes and group them by their sorted-digit signatures.
+2: For each signature class with at least three members, sort the primes in increasing order.
+3: For each ordered pair p < q in the class, set r ← 2q - p and test whether r also lies in the class.
+4: If such a triple exists and is not the known example 1487, 4817, 8147, return the concatenation of p, q, and r.
 ```
 
 ## Complexity Analysis

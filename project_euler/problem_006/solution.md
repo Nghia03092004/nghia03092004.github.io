@@ -109,12 +109,13 @@ Step by step:
 ## Pseudocode
 
 ```text
-Algorithm: Sum-Square Difference by Closed Form
-Require: An integer n >= 1.
-Ensure: D = (∑_{i=1}^n i)^2 - ∑_{i=1}^n i^2.
-1: Compute D ← n(n - 1)(n + 1)(3n + 2)/12.
-2: Regard D as the closed-form value derived for the difference of the two sums.
-3: Return D.
+Algorithm: Difference Between Square of Sum and Sum of Squares
+Require: An integer n ≥ 1.
+Ensure: The value D = (∑_{k=1}^n k)^2 - ∑_{k=1}^n k^2.
+1: Compute A ← n(n + 1) / 2.
+2: Compute B ← n(n + 1)(2n + 1) / 6.
+3: Set D ← A^2 - B.
+4: Return D.
 ```
 
 ## Complexity Analysis

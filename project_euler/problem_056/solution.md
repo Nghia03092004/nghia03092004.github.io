@@ -53,12 +53,14 @@ We exhaustively examine all pairs $(a,b)$ with $2 \leq a < 100$ and $1 \leq b < 
 ## Pseudocode
 
 ```text
-Algorithm: Maximum Digital Sum of a^b
-Require: The ranges 2 <= a < 100 and 1 <= b < 100.
-Ensure: The maximum value of S(a^b) over all admissible pairs (a, b).
-1: Initialize M ← 0.
-2: For each base a in {2, 3, ..., 99}, generate the powers a, a^2, ..., a^99 incrementally; for each generated power, compute its decimal digit sum and update M if a larger value is found.
-3: Return M.
+Algorithm: Maximum Digital Sum of a^b with a, b < 100
+Require: The integer ranges 2 ≤ a < 100 and 1 ≤ b < 100.
+Ensure: The maximum decimal digit sum among all powers a^b in the specified range.
+1: Initialize best ← 0.
+2: For each base a in {2, 3, ..., 99}, initialize value ← 1.
+3: For each exponent b in {1, 2, ..., 99}, update value ← a · value and compute s ← the sum of the decimal digits of value.
+4: If s > best, update best ← s.
+5: Return best.
 ```
 
 ## Complexity Analysis

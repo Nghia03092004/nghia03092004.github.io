@@ -44,12 +44,14 @@ We enumerate every integer $n < N$ and test the amicable condition directly. The
 ## Pseudocode
 
 ```text
-Algorithm: Sum of Amicable Numbers Below N
-Require: An integer N > 1.
-Ensure: T = ∑ {n < N : n is amicable}.
-1: Initialize T ← 0 and let s(x) denote the sum of the proper divisors of x.
-2: For each n in {2, 3, ..., N - 1}, compute m ← s(n); if m != n and s(m) = n, update T ← T + n.
-3: Return T.
+Algorithm: Sum of Amicable Numbers Below a Bound
+Require: An integer N ≥ 2.
+Ensure: The sum of all amicable numbers less than N.
+1: Initialize total ← 0.
+2: For each n in {2, 3, ..., N - 1}, compute m ← s(n), where s(x) denotes the sum of the proper divisors of x.
+3: If m = n, continue to the next value; otherwise compute s(m).
+4: If s(m) = n, update total ← total + n.
+5: Return total.
 ```
 
 ## Complexity Analysis

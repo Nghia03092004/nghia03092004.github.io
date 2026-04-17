@@ -45,12 +45,14 @@ We first precompute $s(n)$, the sum of proper divisors, for every $n \le N$ with
 ## Pseudocode
 
 ```text
-Algorithm: Sum of Positive Integers Not Representable by Two Abundant Numbers
-Require: A bound N >= 1.
-Ensure: The sum of all x in {1, 2, ..., N} that are not of the form a + b with a and b abundant.
-1: Compute the proper-divisor sums s(n) for all n <= N and form the abundant set A ← {n <= N : s(n) > n}.
-2: Mark every x <= N that can be written as x = a + b with a, b ∈ A.
-3: Return the sum of all unmarked integers in {1, 2, ..., N}.
+Algorithm: Sum of Integers Not Expressible as Two Abundant Numbers
+Require: An upper bound N.
+Ensure: The sum of all positive integers up to N that are not representable as a sum of two abundant numbers.
+1: Compute s(n) for every 1 ≤ n ≤ N by distributing each divisor d to the proper multiples of d.
+2: Collect all abundant numbers into a list A ← {n : s(n) > n}.
+3: Initialize a Boolean table mark on {0, 1, ..., N}; for each pair a, b in A with a + b ≤ N, set mark[a + b] ← true.
+4: Compute S ← sum of all n with 1 ≤ n ≤ N and mark[n] = false.
+5: Return S.
 ```
 
 ## Complexity Analysis

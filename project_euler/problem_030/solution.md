@@ -51,11 +51,13 @@ We perform a bounded exhaustive search. The algorithm precomputes the fifth powe
 
 ```text
 Algorithm: Sum of Numbers Equal to the Sum of Fifth Powers of Their Digits
-Require: The decimal digit alphabet {0, 1, ..., 9}.
-Ensure: T = ∑ {n >= 2 : n = ∑_{d ∈ Digits(n)} d^5}.
-1: Precompute the digit-power table d ↦ d^5 and set U ← 6 · 9^5.
-2: For each n in {2, 3, ..., U}, compute s ← ∑_{d ∈ Digits(n)} d^5; if s = n, update T ← T + n.
-3: Return T.
+Require: The decimal digit set {0, 1, ..., 9}.
+Ensure: The sum of all integers that equal the sum of the fifth powers of their decimal digits.
+1: Precompute w(d) ← d^5 for each digit d.
+2: Initialize total ← 0.
+3: For each candidate n in {2, 3, ..., 6 · 9^5}, compute s ← sum of w(d) over the decimal digits d of n.
+4: If s = n, update total ← total + n.
+5: Return total.
 ```
 
 ## Complexity Analysis

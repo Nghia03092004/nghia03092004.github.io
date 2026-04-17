@@ -39,12 +39,14 @@ We read the quoted names, sort them lexicographically, and then evaluate each na
 ## Pseudocode
 
 ```text
-Algorithm: Total Name Scores
-Require: A finite list of uppercase names.
-Ensure: The total of the positional name scores after lexicographic sorting.
-1: Sort the names into lexicographic order.
-2: For each position j, compute α_j as the sum of alphabetical values of the letters in the j-th name and update T ← T + j · α_j.
-3: Return T.
+Algorithm: Total of Name Scores
+Require: A finite list of quoted names.
+Ensure: The sum of all name scores after lexicographic sorting.
+1: Read the names, remove quotation marks, and sort the resulting list lexicographically.
+2: Initialize total ← 0.
+3: For each position j and corresponding name w in the sorted list, compute value(w) ← sum of the letter positions in w.
+4: Update total ← total + j · value(w).
+5: Return total.
 ```
 
 ## Complexity Analysis

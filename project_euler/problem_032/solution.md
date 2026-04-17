@@ -42,11 +42,12 @@ We enumerate only the feasible factor-length patterns identified in the mathemat
 
 ```text
 Algorithm: Sum of Pandigital Products
-Require: The decimal digit set {1, 2, ..., 9}.
-Ensure: The sum of all distinct products p for which there exists a pandigital identity a · b = p.
-1: Initialize P ← ∅.
-2: Enumerate the two admissible factor-length patterns, namely (1 digit) · (4 digits) and (2 digits) · (3 digits); for each admissible pair (a, b), compute p ← a · b and test whether the decimal concatenation of a, b, and p uses each digit 1, 2, ..., 9 exactly once. If so, insert p into P.
-3: Return ∑_{x ∈ P} x.
+Require: The decimal digits 1 through 9.
+Ensure: The sum of all products whose multiplicand, multiplier, and product together form a 1-to-9 pandigital identity.
+1: Initialize an empty set P of products.
+2: For each feasible factor-length pattern, enumerate multiplicands x and multipliers y of the prescribed lengths.
+3: Let z ← x · y; if the concatenation of x, y, and z uses each digit 1 through 9 exactly once, insert z into P.
+4: Return the sum of all elements of P.
 ```
 
 ## Complexity Analysis

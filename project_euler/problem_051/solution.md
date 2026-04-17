@@ -63,12 +63,14 @@ We sieve the primes below one million and then scan the six-digit primes in incr
 ## Pseudocode
 
 ```text
-Algorithm: Smallest Eight-prime Replacement Family
-Require: A sieve bound B ← 10^6.
-Ensure: The smallest prime belonging to an eight-prime digit-replacement family.
-1: Construct a primality table on the interval {0, 1, ..., B - 1}.
-2: Examine six-digit primes n in increasing order; for each digit value v in {0, 1, 2}, enumerate position subsets M consisting only of occurrences of v with |M| divisible by 3. For each such M, replace the digits in M by a common digit δ ∈ {0, 1, ..., 9}, discard leading-zero outcomes, and count the primes obtained.
-3: Return the smallest member of the first family whose prime count is 8.
+Algorithm: Smallest Prime in an Eight-prime Digit-replacement Family
+Require: The prime table below 10^6.
+Ensure: The smallest prime belonging to an eight-prime family obtained by replacing repeated digits in common positions.
+1: Build a prime lookup table on {0, 1, ..., 10^6 - 1}.
+2: For each six-digit prime n in increasing order, group its digit positions by digit value.
+3: For each digit v in {0, 1, 2} present in n and each subset M of its positions with |M| divisible by 3, generate the family produced by replacing all positions in M by a common digit delta in {0, 1, ..., 9}.
+4: Discard outcomes with a leading zero; count the prime members of the family and record its smallest member.
+5: Return the smallest member of the first family whose prime count is 8.
 ```
 
 ## Complexity Analysis

@@ -50,18 +50,20 @@ We support two equivalent implementations. With arbitrary-precision arithmetic, 
 Algorithm: Leading Digits by Exact Summation
 Require: Positive integers a_1, a_2, ..., a_N and a target length r.
 Ensure: The first r decimal digits of S = ∑_{i=1}^N a_i.
-1: Compute the exact sum S ← ∑_{i=1}^N a_i.
-2: Extract the leading r decimal digits of S.
-3: Return that length-r prefix.
+1: Initialize S ← 0.
+2: For each addend a_i, update S ← S + a_i.
+3: Convert S to decimal form and extract its leading r digits.
+4: Return that length-r prefix.
 ```
 
 ```text
 Algorithm: Leading Digits by Safe Truncation
-Require: Positive integers a_1, a_2, ..., a_N, a common digit length D, and a target length r.
+Require: Positive integers a_1, a_2, ..., a_N with common digit length D, and a target length r.
 Ensure: The first r decimal digits of S = ∑_{i=1}^N a_i.
-1: Choose t ← r + ⌈log_10 N⌉ + 2 and replace each a_i by its leading t-digit truncation \tilde{a}_i.
-2: Compute \tilde{S} ← ∑_{i=1}^N \tilde{a}_i and extract the leading r digits of \tilde{S}.
-3: Return that length-r prefix, which is valid by the truncation bound.
+1: Choose t ← r + ceil(log_10 N) + 2 and initialize S_trunc ← 0.
+2: For each addend a_i, replace it by its leading t-digit truncation a_i^(t) and update S_trunc ← S_trunc + a_i^(t).
+3: Convert S_trunc to decimal form and extract its leading r digits.
+4: Return that prefix; by the truncation bound it matches the leading digits of S.
 ```
 
 ## Complexity Analysis

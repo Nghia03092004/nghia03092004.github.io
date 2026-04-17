@@ -55,12 +55,14 @@ We simulate the calendar month by month, keeping track of the weekday of the fir
 ## Pseudocode
 
 ```text
-Algorithm: Counting First-of-Month Sundays
-Require: Years y_start and y_end with 1900 <= y_start <= y_end.
-Ensure: The number of months in the interval [y_start, y_end] whose first day is a Sunday.
-1: Initialize the weekday offset w of 1 January 1900.
-2: Traverse the months from January 1900 through December y_end; whenever the current month lies in the target range and w denotes Sunday, increment the count, then advance w by the month length modulo 7.
-3: Return the final count.
+Algorithm: Counting Sundays on the First of the Month
+Require: The date range from 1 January 1901 through 31 December 2000, together with the fact that 1 January 1900 was a Monday.
+Ensure: The number of months in the target range whose first day is a Sunday.
+1: Initialize the weekday of the first day of the current month and set count ← 0.
+2: For each month from January 1900 through December 2000 do:
+3:     If the current year lies in 1901, ..., 2000 and the current first weekday is Sunday, increment count.
+4:     Advance the weekday by the length of the current month, using the leap-year rule for February.
+5: Return count.
 ```
 
 ## Complexity Analysis

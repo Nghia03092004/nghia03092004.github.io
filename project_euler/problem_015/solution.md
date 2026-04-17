@@ -69,12 +69,13 @@ We compute the central binomial coefficient multiplicatively instead of expandin
 ## Pseudocode
 
 ```text
-Algorithm: Central Binomial Coefficient for Lattice Paths
-Require: An integer n >= 0.
-Ensure: The number of monotone lattice paths through an n x n grid.
-1: Initialize R ← 1.
-2: For each k in {1, 2, ..., n}, update R ← R · (n + k)/k.
-3: Return R.
+Algorithm: Central Binomial Coefficient by Multiplicative Update
+Require: An integer n ≥ 0.
+Ensure: The number of lattice paths through an n x n grid.
+1: Initialize P ← 1.
+2: For each k in {1, 2, ..., n} do:
+3:     Update P ← P · (n + k) / k.
+4: Return P.
 ```
 
 ## Complexity Analysis

@@ -53,12 +53,13 @@ We form $n!$ by multiplying the integers from 2 through $n$, then extract its de
 ## Pseudocode
 
 ```text
-Algorithm: Factorial-Digit Sum
-Require: An integer n >= 1.
+Algorithm: Digit Sum of a Factorial
+Require: An integer n ≥ 1.
 Ensure: The sum of the decimal digits of n!.
-1: Compute F ← n!.
-2: Compute S ← ∑_{d ∈ Digits(F)} d.
-3: Return S.
+1: Initialize F ← 1.
+2: For each k in {2, 3, ..., n}, update F ← F · k.
+3: Compute the decimal digit expansion of F.
+4: Return the sum of those digits.
 ```
 
 ## Complexity Analysis

@@ -95,12 +95,13 @@ Thus the algorithm is correct. $\square$
 ## Pseudocode
 
 ```text
-Algorithm: Iterated Least Common Multiple
-Require: An integer N >= 1.
+Algorithm: Least Common Multiple of an Initial Segment
+Require: An integer N ≥ 1.
 Ensure: L = lcm(1, 2, ..., N).
 1: Initialize L ← 1.
-2: For each k in {2, 3, ..., N}, update L ← lcm(L, k) = L · k / gcd(L, k).
-3: Return L.
+2: For each k in {2, 3, ..., N} do:
+3:     Compute g ← gcd(L, k) and update L ← (L / g) · k.
+4: Return L.
 ```
 
 ## Complexity Analysis

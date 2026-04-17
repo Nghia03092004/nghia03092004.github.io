@@ -55,12 +55,14 @@ We exhaustively evaluate the product of four adjacent entries in each relevant d
 ## Pseudocode
 
 ```text
-Algorithm: Largest Product in a Grid
-Require: A grid G = (g_{i,j}), a side length n, and a segment length ℓ.
-Ensure: B = max_{(d_r,d_c)} max_{(i,j) ∈ F_{d_r,d_c}} ∏_{k=0}^{ℓ-1} g_{i+k d_r, j+k d_c}, where (d_r, d_c) ranges over the four relevant directions.
-1: Initialize B ← 0.
-2: For each direction (d_r, d_c) ∈ {(0, 1), (1, 0), (1, 1), (1, -1)} and each feasible starting cell (i, j), compute the corresponding length-ℓ product and update B ← max(B, product).
-3: Return B.
+Algorithm: Maximum Grid Product Over Four Directions
+Require: A rectangular grid G and a segment length 4.
+Ensure: The greatest product of four adjacent grid entries in any allowed direction.
+1: Initialize best ← 0.
+2: For each cell (i, j) of G and each direction v in {(0, 1), (1, 0), (1, 1), (1, -1)} do:
+3:     If the 4-term segment starting at (i, j) in direction v stays inside the grid, compute its product P.
+4:     If P > best, set best ← P.
+5: Return best.
 ```
 
 ## Complexity Analysis

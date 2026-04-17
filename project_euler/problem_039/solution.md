@@ -78,11 +78,13 @@ We examine only even perimeters, since odd perimeters cannot occur for Pythagore
 
 ```text
 Algorithm: Perimeter with the Most Integer Right Triangles
-Require: A perimeter bound P >= 2.
-Ensure: A value p* <= P maximizing the number of integer right triangles with perimeter p*.
-1: Initialize p* ← 0 and M ← 0.
-2: For each even perimeter p with 2 <= p <= P, compute the number of admissible sides a satisfying 1 <= a < p/3 for which b ← p(p - 2a)/(2(p - a)) is integral and b >= a; denote this count by N(p). If N(p) > M, update (p*, M) ← (p, N(p)).
-3: Return p*.
+Require: A perimeter bound P.
+Ensure: The perimeter p ≤ P for which the equation a^2 + b^2 = c^2 with a + b + c = p has the most integer solutions.
+1: Initialize best_p ← 0 and best_count ← 0.
+2: For each even perimeter p with 12 ≤ p ≤ P do:
+3:     Count the admissible values of a for which b ← p(p - 2a) / (2(p - a)) is integral and yields a valid Pythagorean triple.
+4:     If this count exceeds best_count, update best_count ← count and best_p ← p.
+5: Return best_p.
 ```
 
 ## Complexity Analysis

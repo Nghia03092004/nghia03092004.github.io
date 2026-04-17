@@ -71,12 +71,13 @@ We search the positive integers in increasing order and compare each candidate w
 ## Pseudocode
 
 ```text
-Algorithm: Smallest Permuted Multiple
-Require: The positive integers in increasing order.
-Ensure: The least x for which 2x, 3x, 4x, 5x, and 6x are digit permutations of x.
+Algorithm: Smallest Integer Whose First Six Multiples Are Digit Permutations
+Require: The positive integers.
+Ensure: The least x such that 2x, 3x, 4x, 5x, and 6x are permutations of the digits of x.
 1: Initialize x ← 1.
-2: Repeatedly compute the sorted-digit signature of x and compare it with the signatures of kx for k ∈ {2, 3, 4, 5, 6}.
-3: Return the first x for which all five signatures agree.
+2: Repeat:
+3:     Compute the canonical digit signature sigma(x).
+4:     If sigma(x) = sigma(2x) = sigma(3x) = sigma(4x) = sigma(5x) = sigma(6x), return x; otherwise update x ← x + 1.
 ```
 
 ## Complexity Analysis

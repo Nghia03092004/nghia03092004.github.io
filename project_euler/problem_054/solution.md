@@ -74,12 +74,14 @@ We read the file line by line, split each record into the two five-card hands, a
 ## Pseudocode
 
 ```text
-Algorithm: Count Player 1 Poker Wins
-Require: A list of poker deals, each containing two valid five-card hands.
-Ensure: The number of deals won by Player 1.
-1: Initialize w ← 0.
-2: For each deal, compute the comparison keys κ(H_1) and κ(H_2) by classifying the two hands and attaching the appropriate tiebreak tuple; if κ(H_1) > κ(H_2), update w ← w + 1.
-3: Return w.
+Algorithm: Counting Poker Hands Won by Player 1
+Require: A list of poker deals, each containing two five-card hands.
+Ensure: The number of deals for which Player 1 has the stronger hand.
+1: Read all game records and initialize wins ← 0.
+2: For each record, split the ten cards into hands H_1 and H_2.
+3: Evaluate each hand H into a comparison key kappa(H) determined by its category and the corresponding tie-break values.
+4: If kappa(H_1) > kappa(H_2), update wins ← wins + 1.
+5: Return wins.
 ```
 
 ## Complexity Analysis

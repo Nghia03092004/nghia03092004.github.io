@@ -59,12 +59,14 @@ We iterate over the possible first leg $a$ and use the linear relation derived f
 ## Pseudocode
 
 ```text
-Algorithm: Special Pythagorean Triplet with Prescribed Sum
-Require: A target sum s > 0.
-Ensure: The product abc for the unique triple a < b < c satisfying a^2 + b^2 = c^2 and a + b + c = s.
-1: For each a in {1, 2, ..., ⌊s/3⌋ - 1}, compute the candidate value b ← (s^2/2 - sa)/(s - a) whenever the quotient is integral.
-2: Set c ← s - a - b and test the ordering a < b < c.
-3: Return abc for the first admissible triple.
+Algorithm: Special Pythagorean Triple for a Fixed Perimeter
+Require: A target perimeter s.
+Ensure: The product abc for the unique Pythagorean triple with a + b + c = s.
+1: For each admissible value of a in increasing order do:
+2:     Compute nu ← s(s - 2a) and delta ← 2(s - a).
+3:     If delta divides nu, set b ← nu / delta and c ← s - a - b.
+4:     If a < b < c and a^2 + b^2 = c^2, return a · b · c.
+5: Return failure if no such triple exists.
 ```
 
 ## Complexity Analysis

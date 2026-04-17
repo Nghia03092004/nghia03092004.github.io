@@ -85,12 +85,13 @@ Therefore $104743$ is the $10001$-st prime. $\square$
 ## Pseudocode
 
 ```text
-Algorithm: n-th Prime via Sieving
-Require: An integer n >= 1.
-Ensure: The n-th prime number p_n.
-1: Choose an upper bound U that is guaranteed to satisfy p_n <= U.
-2: Apply the Sieve of Eratosthenes on {2, 3, ..., U} to identify the primes in increasing order.
-3: Return the n-th element of the resulting prime list.
+Algorithm: nth Prime by Sieve
+Require: An integer n ≥ 1.
+Ensure: The n-th prime number.
+1: Choose an upper bound U that is guaranteed to contain the n-th prime.
+2: Build a sieve on {2, 3, ..., U}, marking composites from p^2 onward for each prime base p.
+3: Scan the surviving primes in increasing order, maintaining a counter c.
+4: When c = n, return the current prime.
 ```
 
 ## Complexity Analysis

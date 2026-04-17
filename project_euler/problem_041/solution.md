@@ -55,11 +55,13 @@ By the divisibility argument, only $7$-pandigital and $4$-pandigital numbers nee
 
 ```text
 Algorithm: Largest Pandigital Prime
-Require: The admissible digit lengths {7, 4}.
+Require: The digit sets {1, 2, 3, 4} and {1, 2, ..., 7}.
 Ensure: The largest pandigital prime.
-1: For each n in {7, 4}, enumerate the permutations of {1, 2, ..., n} in descending lexicographic order.
-2: For each permutation P, let N be the integer whose decimal digits are given by P; if N is prime, return N.
-3: Return failure.
+1: For each admissible digit length m in the order 7, then 4, do:
+2:     Enumerate the m-digit pandigital permutations in descending lexicographic order.
+3:     Convert each permutation pi to its integer value p.
+4:     If p is prime, return p.
+5: Return failure if no candidate survives.
 ```
 
 ## Complexity Analysis

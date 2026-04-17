@@ -51,12 +51,14 @@ We precompute all primes below a search bound with the Sieve of Eratosthenes, th
 ## Pseudocode
 
 ```text
-Algorithm: Sum of Truncatable Primes
-Require: A bound N exceeding the largest truncatable prime.
-Ensure: The sum of all primes below N that are truncatable from both left to right and right to left.
-1: Construct a primality table for the interval {0, 1, ..., N - 1}, and initialize T ← 0 and m ← 0.
-2: For each prime p in {11, 12, ..., N - 1}, compute all right truncations and all left truncations of p; if every truncation remains prime, update T ← T + p and m ← m + 1, and stop once m = 11.
-3: Return T.
+Algorithm: Sum of Left- and Right-truncatable Primes
+Require: A prime search bound large enough to contain all 11 truncatable primes.
+Ensure: The sum of the eleven primes that remain prime under every left and right truncation.
+1: Build a sieve and prime lookup table on the search range.
+2: Initialize found ← 0 and total ← 0.
+3: For each prime p ≥ 11 in increasing order, generate all left truncations and all right truncations of p.
+4: If every truncation is prime, update found ← found + 1 and total ← total + p.
+5: When found = 11, return total.
 ```
 
 ## Complexity Analysis

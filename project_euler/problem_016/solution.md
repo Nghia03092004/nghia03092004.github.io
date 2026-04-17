@@ -46,12 +46,14 @@ We compute $b^n$ exactly and then sum its decimal digits. The reference pseudoco
 ## Pseudocode
 
 ```text
-Algorithm: Power-Digit Sum
-Require: Integers b >= 2 and n >= 0.
+Algorithm: Digit Sum of an Exact Power
+Require: Integers b ≥ 2 and n ≥ 1.
 Ensure: The sum of the decimal digits of b^n.
-1: Compute B ← b^n exactly.
-2: Compute S ← ∑_{d ∈ Digits(B)} d.
-3: Return S.
+1: Represent the current power by a decimal digit array A initialized to the value 1.
+2: Repeat n times:
+3:     Multiply A by b and normalize carries across its decimal digits.
+4: After the final multiplication, compute S ← the sum of the digits stored in A.
+5: Return S.
 ```
 
 ## Complexity Analysis

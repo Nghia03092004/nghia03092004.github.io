@@ -68,12 +68,14 @@ We process the spiral layer by layer. For each new side length $s = 2k+1$, only 
 ## Pseudocode
 
 ```text
-Algorithm: Spiral Side Length Below the 10% Prime Ratio
-Require: The square-spiral corner formulas for each layer k >= 1.
-Ensure: The first odd side length s for which the diagonal prime ratio is below 0.10.
-1: Initialize the diagonal counts by P ← 0 and T ← 1.
-2: For layers k = 1, 2, 3, ... with side length s ← 2k + 1, test the three non-square corner values for primality, update P and T ← T + 4, and compute the ratio P/T.
-3: Return the first side length s for which P/T < 0.10.
+Algorithm: Spiral Side Length at Which the Prime Ratio Falls Below One Tenth
+Require: Primality testing for the diagonal corner values of the spiral.
+Ensure: The first odd side length for which the ratio of prime numbers on the diagonals is less than 10%.
+1: Initialize prime_count ← 0, diagonal_count ← 1, and k ← 0.
+2: Repeat:
+3:     Set k ← k + 1 and s ← 2k + 1, then form the three non-square corner values on the layer of side length s.
+4:     Test those three corners for primality, update prime_count accordingly, and set diagonal_count ← diagonal_count + 4.
+5:     If prime_count / diagonal_count < 0.1, return s.
 ```
 
 ## Complexity Analysis

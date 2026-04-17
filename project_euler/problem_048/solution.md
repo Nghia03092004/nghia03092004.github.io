@@ -59,11 +59,12 @@ We carry out the entire computation modulo $10^{10}$, since only the last ten di
 
 ```text
 Algorithm: Last Ten Digits of the Self-power Sum
-Require: A positive integer N and the modulus M ← 10^10.
-Ensure: The value (∑_{k=1}^{N} k^k) mod M.
-1: Initialize S ← 0.
-2: For each k in {1, 2, ..., N}, compute t_k ← k^k mod M by modular exponentiation and update S ← (S + t_k) mod M.
-3: Return S.
+Require: The modulus M ← 10^10.
+Ensure: The final ten digits of ∑_{k=1}^1000 k^k.
+1: Initialize total ← 0.
+2: For each k in {1, 2, ..., 1000}, compute t ← k^k mod M by modular exponentiation.
+3: Update total ← (total + t) mod M.
+4: Return total.
 ```
 
 ## Complexity Analysis

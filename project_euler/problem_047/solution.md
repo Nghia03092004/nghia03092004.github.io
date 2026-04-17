@@ -53,12 +53,13 @@ We evaluate the function $\omega(n)$ for every integer up to a fixed bound by a 
 ## Pseudocode
 
 ```text
-Algorithm: First Run with Four Distinct Prime Factors
-Require: A bound N above the first qualifying run.
-Ensure: The smallest n such that ω(n) = ω(n + 1) = ω(n + 2) = ω(n + 3) = 4.
-1: Initialize an array ω on {0, 1, ..., N} with zeros.
-2: For each prime p <= N, increment ω(m) by 1 for every multiple m of p; then scan the array from left to right until the first index n with four consecutive values equal to 4 is found.
-3: Return n.
+Algorithm: First Run of Four Integers with Four Distinct Prime Factors
+Require: A search bound large enough to contain the first solution.
+Ensure: The first integer in the earliest block of four consecutive integers each having exactly four distinct prime factors.
+1: Initialize omega(n) ← 0 for every integer in the search range.
+2: For each prime p, increment omega(m) for every multiple m of p.
+3: Scan the integers in increasing order while maintaining the current streak length of values with omega(n) = 4.
+4: When the streak length first reaches 4, return the initial value of that block.
 ```
 
 ## Complexity Analysis

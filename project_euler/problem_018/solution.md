@@ -45,12 +45,14 @@ We solve the triangle with bottom-up dynamic programming. Starting from the last
 ## Pseudocode
 
 ```text
-Algorithm: Maximum Path Sum in a Triangle
-Require: A triangular array T with n rows.
-Ensure: The maximum total along an adjacent path from the apex to the base.
-1: Copy the final row of T into a working array A.
-2: For r descending from n - 2 to 0, replace each A[c] by T_{r,c} + max(A[c], A[c + 1]).
-3: Return A[0].
+Algorithm: Maximum Triangle Path Sum by Bottom-up Dynamic Programming
+Require: A triangle of integers.
+Ensure: The maximum total along a top-to-bottom path.
+1: Let best be a working copy of the last row of the triangle.
+2: For each higher row, processed from bottom to top, do:
+3:     Replace every entry by its value plus max(best_j, best_(j+1)) from the row immediately below.
+4:     Let best be the updated row.
+5: Return the unique entry remaining at the top.
 ```
 
 ## Complexity Analysis

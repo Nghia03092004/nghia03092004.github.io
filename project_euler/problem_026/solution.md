@@ -46,12 +46,14 @@ We test each denominator $d < N$ separately. After removing all factors of 2 and
 ## Pseudocode
 
 ```text
-Algorithm: Denominator with the Longest Recurring Cycle
-Require: An integer N > 2.
-Ensure: A denominator d < N for which 1/d has maximal recurring-cycle length in base 10.
-1: Initialize the best denominator and best cycle length.
-2: For each d in {2, 3, ..., N - 1}, remove all factors of 2 and 5 to obtain d'; if d' > 1, determine the period ord_{d'}(10) from the first repetition in the remainder sequence and update the best pair when necessary.
-3: Return the best denominator.
+Algorithm: Longest Recurring Cycle in a Unit Fraction
+Require: An integer N ≥ 2.
+Ensure: The denominator d < N for which 1 / d has the longest recurring decimal cycle.
+1: Initialize best_d ← 0 and best_period ← 0.
+2: For each denominator d in {2, 3, ..., N - 1}, remove all factors 2 and 5 to obtain d'.
+3: If d' = 1, continue; otherwise simulate the remainder sequence of long division, recording the first position at which each remainder appears.
+4: When a remainder repeats, compute the cycle length; if it exceeds best_period, update best_period ← cycle length and best_d ← d.
+5: Return best_d.
 ```
 
 ## Complexity Analysis

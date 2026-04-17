@@ -43,12 +43,14 @@ We read the word list, compute the value of each word by summing the alphabetica
 ## Pseudocode
 
 ```text
-Algorithm: Count Triangle Words
-Require: A finite word list W over the alphabet {A, B, ..., Z}.
-Ensure: The number of words in W whose word values are triangular.
-1: Initialize c ← 0.
-2: For each word w in W, compute v ← ∑_{x ∈ Letters(w)} pos(x); if 8v + 1 is a perfect square, update c ← c + 1.
-3: Return c.
+Algorithm: Counting Triangle Words
+Require: A finite word list over the alphabet {A, B, ..., Z}.
+Ensure: The number of words whose alphabetical values are triangular numbers.
+1: Read the word list and initialize count ← 0.
+2: For each word w in the list, compute its word value v ← sum of the letter positions in w.
+3: Test whether 8v + 1 is a perfect square.
+4: If the test succeeds, increment count.
+5: Return count.
 ```
 
 ## Complexity Analysis

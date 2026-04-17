@@ -66,20 +66,22 @@ We keep both the analytical and iterative viewpoints. The closed-form method use
 
 ```text
 Algorithm: First Fibonacci Index with D Digits by Formula
-Require: An integer D >= 1.
-Ensure: The least n such that F_n has at least D decimal digits.
-1: Set φ ← (1 + √5)/2.
-2: Compute n ← ⌈(D - 1 + log_10 5 / 2)/log_10 φ⌉.
-3: Return n.
+Require: An integer D ≥ 1.
+Ensure: The least index n such that F_n has at least D decimal digits.
+1: Compute phi ← (1 + sqrt(5)) / 2.
+2: Evaluate alpha ← (D - 1 + log_10(5) / 2) / log_10(phi).
+3: Set n ← ceil(alpha).
+4: Return n.
 ```
 
 ```text
 Algorithm: First Fibonacci Index with D Digits by Iteration
-Require: An integer D >= 1.
-Ensure: The least n such that F_n has at least D decimal digits.
-1: Initialize (F_1, F_2) ← (1, 1) and index ← 2.
-2: Repeatedly replace (F_{index-1}, F_index) by (F_index, F_{index-1} + F_index) until F_index has D decimal digits.
-3: Return index.
+Require: An integer D ≥ 1.
+Ensure: The least index n such that F_n has at least D decimal digits.
+1: Initialize (F_prev, F_curr, n) ← (1, 1, 2).
+2: While the decimal length of F_curr is less than D do:
+3:     Update (F_prev, F_curr, n) ← (F_curr, F_prev + F_curr, n + 1).
+4: Return n.
 ```
 
 ## Complexity Analysis

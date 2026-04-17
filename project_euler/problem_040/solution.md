@@ -66,23 +66,24 @@ We use the block decomposition of Champernowne's constant by digit length. For a
 ## Pseudocode
 
 ```text
-Algorithm: Digit of Champernowne's Constant
-Require: An integer n >= 1.
+Algorithm: Digit of Champernowne Constant
+Require: An integer n ≥ 1.
 Ensure: The digit d_n in the fractional part of Champernowne's constant.
-
-1: Determine the unique digit length k for which n lies inside the block of k-digit positive integers, and compute the residual offset r within that block.
-2: Compute q ← 10^(k - 1) + ⌊(r - 1) / k⌋ and j ← (r - 1) mod k.
-3: Return the j-th digit from the left in the decimal expansion of q.
+1: Initialize k ← 1, block ← 9, and offset ← n.
+2: While offset > k · block do:
+3:     Update offset ← offset - k · block, k ← k + 1, and block ← 9 · 10^(k - 1).
+4: Set q ← 10^(k - 1) + floor((offset - 1) / k) and j ← (offset - 1) mod k.
+5: Return the (j + 1)-st digit of q from the left.
 ```
 
 ```text
 Algorithm: Champernowne Digit Product
 Require: The target positions {10^0, 10^1, ..., 10^6}.
-Ensure: The product ∏_{i=0}^6 d_{10^i}.
-
+Ensure: The product ∏_{i=0}^6 d_(10^i).
 1: Initialize P ← 1.
-2: For each i in {0, 1, ..., 6}, update P ← P · DigitOfChampernowneConstant(10^i).
-3: Return P.
+2: For each i in {0, 1, ..., 6} do:
+3:     Compute d ← DigitOfChampernowneConstant(10^i) and update P ← P · d.
+4: Return P.
 ```
 
 ## Complexity Analysis

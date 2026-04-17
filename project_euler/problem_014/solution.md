@@ -51,12 +51,14 @@ We scan every starting value below $N$ while memoizing Collatz chain lengths tha
 ## Pseudocode
 
 ```text
-Algorithm: Longest Collatz Chain Below N
-Require: An integer N > 1.
-Ensure: A starting value s < N whose Collatz chain has maximal length among all starts below N.
-1: Initialize a cache c with c(1) ← 1, together with best_start ← 1 and best_length ← 1.
-2: For each s in {2, 3, ..., N - 1}, follow the Collatz trajectory until a cached length is reached, deduce c(s), and update the best pair whenever c(s) exceeds best_length.
-3: Return best_start.
+Algorithm: Longest Collatz Chain Below a Bound
+Require: An integer N ≥ 2.
+Ensure: The starting value below N that produces the longest Collatz chain.
+1: Initialize a memo table with length(1) ← 1, and set best_start ← 1 and best_len ← 1.
+2: For each start in {2, 3, ..., N - 1}, follow the Collatz map until a value with known chain length is reached, recording the unresolved trajectory.
+3: Propagate chain lengths backward along that recorded trajectory and store them in the memo table.
+4: If length(start) > best_len, update best_len ← length(start) and best_start ← start.
+5: Return best_start.
 ```
 
 ## Complexity Analysis

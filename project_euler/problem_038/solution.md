@@ -59,11 +59,13 @@ We enumerate every possible base integer $x$ for which the concatenated product 
 
 ```text
 Algorithm: Largest Pandigital Concatenated Product
-Require: The decimal digit set {1, 2, ..., 9}.
-Ensure: The largest 9-digit pandigital number of the form CP(x, n) with n > 1.
-1: Initialize B ← 0.
-2: For each integer x in {1, 2, ..., 9999}, form the concatenated product CP(x, n) by appending x, 2x, 3x, ... in order until the decimal length is at least 9; if n > 1, the final length is exactly 9, and the resulting string is 1-to-9 pandigital, update B ← max(B, CP(x, n)).
-3: Return B.
+Require: The decimal digits 1 through 9.
+Ensure: The largest 1-to-9 pandigital number that can be written as the concatenated product of an integer with (1, 2, ..., n).
+1: Initialize best ← 0.
+2: For each base x in {1, 2, ..., 9999}, initialize an empty concatenation C and a multiplier n ← 1.
+3: While the length of C is less than 9, append the decimal digits of n · x to C and update n ← n + 1.
+4: If C has length 9 and uses each digit 1 through 9 exactly once, update best ← max(best, value(C)).
+5: Return best.
 ```
 
 ## Complexity Analysis

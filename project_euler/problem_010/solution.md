@@ -63,12 +63,13 @@ By Theorem 3, this is exactly the required sum. $\square$
 ## Pseudocode
 
 ```text
-Algorithm: Sum of Primes Below a Bound
-Require: An integer N >= 2.
-Ensure: S = ∑_{p < N, p prime} p.
-1: Apply the Sieve of Eratosthenes on {2, 3, ..., N - 1}.
-2: Compute S as the sum of all integers that remain marked prime after sieving.
-3: Return S.
+Algorithm: Summation of Primes Below a Bound
+Require: An integer N ≥ 2.
+Ensure: The sum of all primes less than N.
+1: Build a sieve on {2, 3, ..., N - 1}.
+2: Mark every composite beginning from p^2 for each prime base p.
+3: Sum all indices that remain marked as prime.
+4: Return the resulting total.
 ```
 
 ## Complexity Analysis

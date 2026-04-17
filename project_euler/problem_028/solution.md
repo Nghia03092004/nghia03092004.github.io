@@ -62,20 +62,22 @@ We evaluate the closed-form expression obtained from summing the four corner val
 
 ```text
 Algorithm: Spiral Diagonal Sum by Closed Form
-Require: An odd integer N >= 1.
+Require: An odd integer N ≥ 1.
 Ensure: The sum of the diagonal entries in the N x N number spiral.
-1: Compute S ← (4N^3 + 3N^2 + 8N - 9)/6.
-2: Regard S as the closed-form sum of the center together with all ring-corner contributions.
-3: Return S.
+1: Set m ← (N - 1) / 2.
+2: Evaluate S ← 1 + ∑_{k=1}^m (16k^2 + 4k + 4).
+3: Equivalently evaluate the simplified closed form S ← (4N^3 + 3N^2 + 8N - 9) / 6.
+4: Return S.
 ```
 
 ```text
 Algorithm: Spiral Diagonal Sum by Ring Accumulation
-Require: An odd integer N >= 1.
+Require: An odd integer N ≥ 1.
 Ensure: The sum of the diagonal entries in the N x N number spiral.
 1: Initialize S ← 1.
-2: For each ring index k in {1, 2, ..., (N - 1)/2}, update S ← S + 16k^2 + 4k + 4.
-3: Return S.
+2: For each ring index k in {1, 2, ..., (N - 1) / 2} do:
+3:     Compute the corner contribution C_k ← 16k^2 + 4k + 4 and update S ← S + C_k.
+4: Return S.
 ```
 
 ## Complexity Analysis

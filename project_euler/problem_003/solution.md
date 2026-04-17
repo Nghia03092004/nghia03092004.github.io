@@ -117,10 +117,12 @@ Return $n = 6857$.
 ```text
 Algorithm: Largest Prime Factor
 Require: An integer n > 1.
-Ensure: The largest prime p such that p | n.
-1: Compute a prime-power factorization n = ∏_{i=1}^r p_i^{e_i} with p_1 < p_2 < ... < p_r.
-2: Set p_max ← p_r.
-3: Return p_max.
+Ensure: The largest prime divisor of n.
+1: Initialize m ← n, d ← 2, and p_max ← 1.
+2: While d^2 ≤ m do:
+3:     If d does not divide m, advance to the next divisor; otherwise set p_max ← d and remove the full power of d from m.
+4: If m > 1, set p_max ← m.
+5: Return p_max.
 ```
 
 ## Complexity Analysis

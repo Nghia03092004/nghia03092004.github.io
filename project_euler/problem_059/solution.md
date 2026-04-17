@@ -65,12 +65,14 @@ We exploit the period-3 structure of the repeating XOR key by splitting the ciph
 ## Pseudocode
 
 ```text
-Algorithm: Recover a Three-byte XOR Key by Frequency Analysis
-Require: A ciphertext sequence C encrypted by a repeating three-byte lowercase key.
+Algorithm: Recovering a Three-byte XOR Key by Frequency Analysis
+Require: A ciphertext encrypted by a repeating three-byte lowercase key.
 Ensure: The sum of the ASCII values in the decrypted plaintext.
-1: Partition C into the three residue subsequences G_0, G_1, and G_2 according to the index modulo 3.
-2: For each residue class j, determine the modal byte of G_j and set k_j ← mode(G_j) XOR 32; then decrypt each ciphertext byte by p_i ← c_i XOR k_{i mod 3}.
-3: Return ∑ p_i over the decrypted plaintext.
+1: Partition the ciphertext into the three residue classes of positions modulo 3.
+2: For each class j, identify its most frequent ciphertext byte m_j and set the key byte k_j ← m_j XOR 32.
+3: Form the repeating key (k_0, k_1, k_2) and decrypt each ciphertext byte c_i by p_i ← c_i XOR k_(i mod 3).
+4: Compute S ← ∑ p_i over the decrypted plaintext bytes.
+5: Return S.
 ```
 
 ## Complexity Analysis

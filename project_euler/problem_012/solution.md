@@ -48,12 +48,13 @@ We test triangle numbers in increasing order and compute their divisor counts fr
 ## Pseudocode
 
 ```text
-Algorithm: First Triangle Number with More Than K Divisors
-Require: A threshold K >= 1.
-Ensure: The least triangular number T_n such that τ(T_n) > K.
-1: For n ← 1, 2, 3, ..., form T_n ← n(n + 1)/2.
-2: Use the coprime decomposition of n and n + 1 to compute τ(T_n) from prime factorizations of n/2 and n + 1, or of n and (n + 1)/2, according to the parity of n.
-3: Return the first T_n for which τ(T_n) > K.
+Algorithm: First Triangle Number with More Than M Divisors
+Require: A divisor threshold M.
+Ensure: The least triangle number T_n with tau(T_n) > M.
+1: Initialize n ← 1.
+2: Repeat:
+3:     Factor the coprime pair n and n + 1, divide one factor by 2, and combine the resulting exponents to obtain tau(T_n).
+4:     If tau(T_n) > M, return T_n ← n(n + 1) / 2; otherwise set n ← n + 1.
 ```
 
 ## Complexity Analysis

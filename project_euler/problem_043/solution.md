@@ -76,12 +76,14 @@ We construct admissible pandigital numbers from right to left, using the overlap
 ## Pseudocode
 
 ```text
-Algorithm: Sum of Substring-divisible Pandigital Numbers
-Require: The digit set {0, 1, ..., 9} and the divisor sequence (17, 13, 11, 7, 5, 3, 2).
-Ensure: The sum of all 0-to-9 pandigital numbers satisfying the substring divisibility property.
-1: Initialize the candidate set with all distinct-digit three-digit multiples of 17, interpreted as possible suffixes (d_8, d_9, d_10).
-2: For each subsequent divisor p in (13, 11, 7, 5, 3, 2), extend every candidate one digit to the left by prepending each unused digit d for which the new three-digit prefix is divisible by p.
-3: For each surviving candidate, prepend the unique remaining digit, interpret the resulting 10-digit sequence as an integer, and return the sum of all such integers.
+Algorithm: Pandigital Numbers with Substring Divisibility
+Require: The decimal digits 0 through 9.
+Ensure: The sum of all 0-to-9 pandigital numbers satisfying the prescribed divisibility conditions.
+1: Initialize the search with all distinct-digit three-digit blocks divisible by 17, interpreted as suffixes d_8d_9d_10.
+2: For each divisor in the sequence 13, 11, 7, 5, 3, 2 do:
+3:     Extend every current suffix by prepending a digit d so that the new leading three-digit block is divisible by the current divisor and all digits remain distinct.
+4: After the last extension, prepend the unique missing digit to each 9-digit tail to obtain a full pandigital number.
+5: Return the sum of all numbers constructed in this way.
 ```
 
 ## Complexity Analysis

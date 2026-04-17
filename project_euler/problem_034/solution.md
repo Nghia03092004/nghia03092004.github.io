@@ -59,12 +59,14 @@ We perform a bounded exhaustive search using the upper bound established in the 
 ## Pseudocode
 
 ```text
-Algorithm: Sum of Digit Factorials
+Algorithm: Sum of Numbers Equal to the Sum of Factorials of Their Digits
 Require: The decimal digit set {0, 1, ..., 9}.
-Ensure: The sum of all integers n >= 3 satisfying n = ∑_{d ∈ Digits(n)} d!.
-1: Precompute the table F(d) ← d! for d ∈ {0, 1, ..., 9}, and set U ← 7 · 9!.
-2: For each integer n in {3, 4, ..., U}, compute s ← ∑_{d ∈ Digits(n)} F(d); if s = n, update T ← T + n.
-3: Return T.
+Ensure: The sum of all integers equal to the sum of the factorials of their decimal digits.
+1: Precompute f(d) ← d! for each digit d.
+2: Initialize total ← 0.
+3: For each candidate n in {3, 4, ..., 7 · 9!}, compute s ← sum of f(d) over the decimal digits d of n.
+4: If s = n, update total ← total + n.
+5: Return total.
 ```
 
 ## Complexity Analysis

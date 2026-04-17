@@ -77,12 +77,14 @@ We precompute the letter counts for the atomic words `one` through `nineteen` an
 ## Pseudocode
 
 ```text
-Algorithm: Number-Letter Count in British Usage
-Require: An integer N with 1 <= N <= 1000.
-Ensure: T = ∑_{n=1}^N ℓ(n), where ℓ(n) counts letters in the British English name of n.
-1: Prepare the lookup tables for ones, teens, and tens.
-2: For each n in {1, 2, ..., N}, evaluate ℓ(n) by decomposing n into its hundreds, tens, and units components according to the British “and” convention, and accumulate T ← T + ℓ(n).
-3: Return T.
+Algorithm: Letter Count for the Written Numbers from 1 to N
+Require: An integer N with 1 ≤ N ≤ 1000.
+Ensure: The total number of letters used when writing 1, 2, ..., N in words under British usage.
+1: Prepare lookup tables for the atomic words up to nineteen, the tens words, and the fixed words "hundred", "and", and "thousand".
+2: Initialize total ← 0.
+3: For each n in {1, 2, ..., N}, decompose n into its thousands, hundreds, tens, and units parts and evaluate its British letter count from the lookup tables.
+4: Update total ← total + letterCount(n).
+5: Return total.
 ```
 
 ## Complexity Analysis

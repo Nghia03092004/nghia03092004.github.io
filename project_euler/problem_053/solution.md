@@ -69,12 +69,14 @@ We examine every pair $(n,r)$ with $1 \leq n \leq 100$ and $0 \leq r \leq n$, de
 ## Pseudocode
 
 ```text
-Algorithm: Count Large Binomial Coefficients
-Require: A bound N ← 100 and a threshold T ← 10^6.
-Ensure: The number of pairs (n, r) with 1 <= n <= N, 0 <= r <= n, and C(n, r) > T.
-1: Initialize c ← 0.
-2: For each n in {1, 2, ..., N} and each r in {0, 1, ..., n}, determine the value of C(n, r); if C(n, r) > T, update c ← c + 1.
-3: Return c.
+Algorithm: Counting Large Binomial Coefficients
+Require: The range 1 ≤ n ≤ 100 and the threshold 10^6.
+Ensure: The number of binomial coefficients C(n, r) that exceed 10^6.
+1: Initialize count ← 0.
+2: For each n in {1, 2, ..., 100} do:
+3:     For each r in {0, 1, ..., n}, compute C(n, r) and test whether it exceeds 10^6.
+4:     If the test succeeds, increment count.
+5: Return count.
 ```
 
 ## Complexity Analysis

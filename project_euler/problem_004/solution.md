@@ -83,12 +83,14 @@ Therefore the algorithm never discards a pair that could beat the final answer, 
 ## Pseudocode
 
 ```text
-Algorithm: Largest Palindromic Product of Two 3-Digit Integers
-Require: The search domain {100, 101, ..., 999}.
-Ensure: The maximum palindromic value P representable as x · y with 100 <= x, y <= 999.
-1: Initialize P* ← 0.
-2: Examine all admissible pairs (x, y) with 100 <= x <= y <= 999 and 11 | x in descending product order; whenever P ← x · y is a decimal palindrome and P > P*, set P* ← P.
-3: Use the monotonicity of the descending search to discard the remaining pairs for a fixed x once no larger product can occur, and return P*.
+Algorithm: Largest Palindromic Product of Two Three-digit Numbers
+Require: The set of three-digit integers.
+Ensure: The largest palindromic product of two three-digit factors.
+1: Initialize best ← 0.
+2: For each three-digit multiple of 11, taken in descending order, denote it by a.
+3:     For each three-digit integer b in descending order with b ≥ a and a · b > best, compute P ← a · b.
+4:     If P is a palindrome, set best ← P and stop the inner scan for this a.
+5: Return best.
 ```
 
 ## Complexity Analysis

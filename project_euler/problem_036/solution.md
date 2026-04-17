@@ -49,11 +49,13 @@ We avoid scanning all integers below $10^6$ by generating only the decimal palin
 
 ```text
 Algorithm: Sum of Double-base Palindromes
-Require: A bound N > 1.
-Ensure: The sum of all integers n < N that are palindromic in both base 10 and base 2.
-1: Enumerate every decimal palindrome p with 1 <= p < N by constructing it from its free leading digits.
-2: For each such p, determine whether the binary expansion of p is also palindromic; if so, update T ← T + p.
-3: Return T.
+Require: The bound 10^6.
+Ensure: The sum of all numbers below 10^6 that are palindromic in both base 10 and base 2.
+1: Initialize total ← 0.
+2: Generate every decimal palindrome below 10^6 by mirroring a positive seed, considering both even and odd lengths.
+3: For each generated palindrome p, compute its binary expansion.
+4: If that binary expansion is also palindromic, update total ← total + p.
+5: Return total.
 ```
 
 ## Complexity Analysis

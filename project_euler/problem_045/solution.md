@@ -75,11 +75,12 @@ Since every hexagonal number is automatically triangular, it is enough to enumer
 
 ```text
 Algorithm: Next Triangular-Pentagonal-Hexagonal Number
-Require: The known common value H_143 = 40755.
-Ensure: The smallest number greater than 40755 that is triangular, pentagonal, and hexagonal.
-1: Set m ← 144.
-2: Repeatedly compute H_m ← m(2m - 1) and test whether 24H_m + 1 is a perfect square whose square root is congruent to 5 modulo 6.
-3: Return the first H_m that satisfies the pentagonal test.
+Require: The hexagonal sequence H_m = m(2m - 1).
+Ensure: The first value after 40755 that is simultaneously triangular, pentagonal, and hexagonal.
+1: Initialize m ← 144.
+2: Repeat:
+3:     Compute H ← m(2m - 1).
+4:     If H is pentagonal, return H; otherwise update m ← m + 1.
 ```
 
 ## Complexity Analysis

@@ -85,12 +85,14 @@ The outer loop visits every admissible starting position exactly once and keeps 
 ## Pseudocode
 
 ```text
-Algorithm: Largest Product in Consecutive Digits
-Require: A digit sequence d_0, d_1, ..., d_{N-1} and a window length k.
-Ensure: B = max_{0 <= i <= N-k} ∏_{j=0}^{k-1} d_{i+j}.
-1: Initialize B ← 0.
-2: For each starting index i in {0, 1, ..., N - k}, compute P_i ← ∏_{j=0}^{k-1} d_{i+j} and update B ← max(B, P_i).
-3: Return B.
+Algorithm: Maximum Product of Consecutive Digits
+Require: A digit string d_1 d_2 ... d_m and a window length k.
+Ensure: The maximum product of k consecutive digits in the string.
+1: Interpret the input as a sequence of decimal digits and initialize best ← 0.
+2: For each starting position i with i + k - 1 ≤ m do:
+3:     Compute P ← product of the k digits beginning at position i.
+4:     If P > best, set best ← P.
+5: Return best.
 ```
 
 ## Complexity Analysis

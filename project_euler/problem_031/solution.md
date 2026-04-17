@@ -52,12 +52,13 @@ We use one-dimensional dynamic programming over the available coin denominations
 ## Pseudocode
 
 ```text
-Algorithm: Coin Change Count
-Require: A target sum n >= 0 and an ordered list of coin denominations C = (c_1, c_2, ..., c_m).
-Ensure: W(n), the number of unordered representations of n using coins from C.
-1: Initialize W on {0, 1, ..., n} by W(0) ← 1 and W(t) ← 0 for 1 <= t <= n.
-2: For each coin denomination c in C and for each total t with c <= t <= n, update W(t) ← W(t) + W(t - c).
-3: Return W(n).
+Algorithm: Coin Change Count by One-dimensional Dynamic Programming
+Require: A target sum n ≥ 0 and an ordered list of coin denominations C = (c_1, c_2, ..., c_m).
+Ensure: The number of unordered representations of n using coins from C.
+1: Initialize an array dp on {0, 1, ..., n} with dp[0] ← 1 and dp[t] ← 0 for t > 0.
+2: For each coin denomination c in C do:
+3:     For each total t with c ≤ t ≤ n, update dp[t] ← dp[t] + dp[t - c].
+4: Return dp[n].
 ```
 
 ## Complexity Analysis

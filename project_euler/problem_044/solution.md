@@ -70,12 +70,14 @@ We iterate over the larger index $k$ in increasing order and compute $P_k$ on de
 ## Pseudocode
 
 ```text
-Algorithm: Minimum Pentagonal Difference
-Require: The pentagonal sequence P_n = n(3n - 1)/2.
-Ensure: The minimum positive difference D = P_k - P_j such that both D and P_k + P_j are pentagonal.
-1: Initialize D* ← ∞ and enumerate k = 2, 3, 4, ... in increasing order.
-2: For each k, if P_k - P_{k-1} >= D*, terminate; otherwise scan j from k - 1 down to 1, compute D ← P_k - P_j, and stop this inner scan once D >= D*. Whenever both D and P_k + P_j are pentagonal, update D* ← D.
-3: Return D*.
+Algorithm: Minimum Difference of Pentagonal Pairs
+Require: The pentagonal number sequence P_n = n(3n - 1) / 2.
+Ensure: The least difference P_k - P_j such that both P_k - P_j and P_k + P_j are pentagonal.
+1: Initialize best ← infinity.
+2: For k ← 2, 3, 4, ... do:
+3:     Compute P_k and, if the smallest possible difference at index k already satisfies 3k - 2 ≥ best, return best.
+4:     For j from k - 1 down to 1, set Delta ← P_k - P_j; if Delta ≥ best, stop the inner scan for this k.
+5:     If both Delta and P_k + P_j are pentagonal, update best ← Delta.
 ```
 
 ## Complexity Analysis

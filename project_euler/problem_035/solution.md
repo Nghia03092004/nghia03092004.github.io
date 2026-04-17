@@ -51,12 +51,14 @@ We first sieve all primes below the bound so that primality tests for rotations 
 ## Pseudocode
 
 ```text
-Algorithm: Count Circular Primes
-Require: A bound N >= 2.
-Ensure: The number of primes p < N such that every cyclic rotation of the decimal expansion of p is also prime and below N.
-1: Construct a primality table for the interval {0, 1, ..., N - 1}.
-2: For each prime p < N, form the set of all cyclic rotations of the decimal expansion of p; if every such rotation is marked prime, increment the running count.
-3: Return the final count.
+Algorithm: Counting Circular Primes Below a Bound
+Require: An integer N ≥ 2.
+Ensure: The number of primes below N whose every decimal rotation is also prime.
+1: Build a sieve and a prime lookup structure on {2, 3, ..., N - 1}.
+2: Initialize count ← 0.
+3: For each prime p < N, generate all cyclic rotations of the decimal expansion of p.
+4: If every rotation belongs to the prime set, increment count.
+5: Return count.
 ```
 
 ## Complexity Analysis

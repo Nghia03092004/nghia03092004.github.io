@@ -52,12 +52,13 @@ We sieve all primes below the limit and build prefix sums of the prime sequence,
 ## Pseudocode
 
 ```text
-Algorithm: Longest Consecutive Prime Sum
-Require: A bound N > 2.
-Ensure: The prime q < N representable as a sum of the most consecutive primes.
-1: Construct the list of primes below N together with its prefix-sum array.
-2: Examine candidate lengths L in decreasing order; for each L, evaluate each consecutive prime sum by a prefix-sum difference, stop when the sum reaches N, and test primality by lookup.
-3: Return the first prime found in this descending-length search.
+Algorithm: Prime Below the Limit Expressible as the Longest Consecutive Prime Sum
+Require: A prime bound L.
+Ensure: The prime below L that can be written as the sum of the longest run of consecutive primes.
+1: Sieve all primes below L and form the prime sequence p_0, p_1, ... together with prefix sums P_m.
+2: For candidate lengths ell, examined from longest to shortest, do:
+3:     For each admissible start index s, compute X ← P_(s + ell) - P_s.
+4:     If X < L and X is prime, return X.
 ```
 
 ## Complexity Analysis

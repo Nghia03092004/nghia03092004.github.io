@@ -63,12 +63,14 @@ We use the algebraic relation derived for non-trivial digit cancellation to avoi
 ## Pseudocode
 
 ```text
-Algorithm: Product of Non-trivial Digit-cancelling Fractions
-Require: Digits drawn from {1, 2, ..., 9}.
-Ensure: The denominator, in lowest terms, of the product of all non-trivial digit-cancelling fractions.
+Algorithm: Non-trivial Digit-cancelling Fractions
+Require: The nonzero decimal digits.
+Ensure: The denominator of the product of all non-trivial digit-cancelling fractions, written in lowest terms.
 1: Initialize N ← 1 and D ← 1.
-2: For each pair of digits (a, b) in {1, 2, ..., 9}^2, compute e ← 10ab/(9a + b) whenever the quotient is an integer digit in {1, 2, ..., 9}; if the resulting fraction (10a + b)/(10b + e) is proper, update N ← N · a and D ← D · e.
-3: Return D / gcd(N, D).
+2: For each ordered pair of nonzero digits (a, b), compute e ← 10ab / (9a + b) whenever this quotient is an integer digit.
+3: If e is a digit and 10a + b < 10b + e, record the fraction (10a + b) / (10b + e) = a / e by updating N ← N · a and D ← D · e.
+4: Reduce the fraction N / D to lowest terms.
+5: Return the reduced denominator.
 ```
 
 ## Complexity Analysis

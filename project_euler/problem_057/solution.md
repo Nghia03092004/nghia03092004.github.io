@@ -69,12 +69,14 @@ We generate the first 1000 convergents of $\sqrt{2}$ using the recurrence for su
 ## Pseudocode
 
 ```text
-Algorithm: Count Longer Numerators in sqrt(2) Convergents
-Require: An expansion count N ← 1000.
-Ensure: The number of the first N convergents of sqrt(2) whose numerators have more decimal digits than their denominators.
-1: Initialize (p, q) ← (3, 2) and c ← 0.
-2: For each expansion index from 1 to N, compare the decimal lengths of p and q, update c when the numerator is longer, and then replace (p, q) by (p + 2q, p + q).
-3: Return c.
+Algorithm: Counting Expansions of sqrt(2) with a Longer Numerator
+Require: The first 1000 convergents of the continued fraction for sqrt(2).
+Ensure: The number of convergents whose numerator has more decimal digits than the denominator.
+1: Initialize the first convergent after 1 as (p, q) ← (3, 2) and set count ← 0.
+2: For each expansion index in {1, 2, ..., 1000} do:
+3:     If the decimal length of p exceeds that of q, increment count.
+4:     Update (p, q) ← (p + 2q, p + q).
+5: Return count.
 ```
 
 ## Complexity Analysis

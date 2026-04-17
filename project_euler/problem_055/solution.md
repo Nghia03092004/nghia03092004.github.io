@@ -57,12 +57,14 @@ We inspect every starting value below 10,000 independently. For each candidate, 
 ## Pseudocode
 
 ```text
-Algorithm: Count Lychrel Candidates Below 10,000
-Require: A bound N ← 10,000 and an iteration limit L ← 50.
-Ensure: The number of integers n with 1 <= n < N that do not become palindromic within L reverse-and-add steps.
-1: Initialize c ← 0.
-2: For each n in {1, 2, ..., N - 1}, iterate x ← n + rev(n), then x ← x + rev(x), and so on for at most L steps; if no iterate is a palindrome, update c ← c + 1.
-3: Return c.
+Algorithm: Counting Lychrel Numbers Below Ten Thousand
+Require: The positive integers below 10^4.
+Ensure: The number of starting values that do not produce a decimal palindrome within 50 reverse-and-add steps.
+1: Initialize count ← 0.
+2: For each starting value n in {1, 2, ..., 9999}, set x ← n and perform at most 50 reverse-and-add iterations.
+3: After each iteration, if x has become a decimal palindrome, stop and classify n as non-Lychrel.
+4: If the 50-step limit is reached without producing a palindrome, increment count.
+5: Return count.
 ```
 
 ## Complexity Analysis

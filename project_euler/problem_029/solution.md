@@ -55,20 +55,22 @@ We keep two equivalent viewpoints. The direct method enumerates every pair $(a, 
 
 ```text
 Algorithm: Distinct Powers by Direct Enumeration
-Require: Positive integers A >= 2 and B >= 2.
-Ensure: The cardinality of {a^b : 2 <= a <= A, 2 <= b <= B}.
+Require: Positive integers A ≥ 2 and B ≥ 2.
+Ensure: The cardinality of {a^b : 2 ≤ a ≤ A, 2 ≤ b ≤ B}.
 1: Initialize an empty set S.
-2: For each pair (a, b) with 2 <= a <= A and 2 <= b <= B, insert a^b into S.
-3: Return |S|.
+2: For each base a in {2, 3, ..., A} do:
+3:     For each exponent b in {2, 3, ..., B}, insert a^b into S.
+4: Return |S|.
 ```
 
 ```text
 Algorithm: Distinct Powers by Canonical Exponents
-Require: Positive integers A >= 2 and B >= 2.
-Ensure: The cardinality of {a^b : 2 <= a <= A, 2 <= b <= B}.
-1: For each a in {2, 3, ..., A}, write a uniquely as c^p with primitive base c.
-2: For each canonical base c, collect the exponents pb arising from all admissible pairs (a, b) whose canonical representation is a = c^p.
-3: Return the total number of distinct exponents collected across the canonical bases.
+Require: Positive integers A ≥ 2 and B ≥ 2.
+Ensure: The cardinality of {a^b : 2 ≤ a ≤ A, 2 ≤ b ≤ B}.
+1: Initialize a map from primitive bases to sets of canonical exponents.
+2: For each base a in {2, 3, ..., A}, write a uniquely as c^p with primitive base c.
+3:     For each exponent b in {2, 3, ..., B}, insert p · b into the exponent set attached to c.
+4: Return the total size of all exponent sets.
 ```
 
 ## Complexity Analysis

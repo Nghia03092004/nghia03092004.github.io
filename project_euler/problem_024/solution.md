@@ -60,12 +60,14 @@ We construct the required permutation directly from the factoradic representatio
 ## Pseudocode
 
 ```text
-Algorithm: k-th Lexicographic Permutation
-Require: An ordered digit set D and an index k with 1 <= k <= |D|!.
+Algorithm: Lexicographic Permutation by Factoradic Selection
+Require: An ordered digit set D and an index k ≥ 1.
 Ensure: The k-th permutation of D in lexicographic order.
-1: Set k' ← k - 1 and let A be the current ordered list of available digits.
-2: For each remaining position, compute the relevant factorial block size, select the digit indexed by ⌊k'/block_size⌋ in A, append it to the output, remove it from A, and replace k' by the corresponding remainder.
-3: Return the resulting digit sequence.
+1: Set k' ← k - 1 and let R be the ordered list of available digits.
+2: For each position from most significant to least significant do:
+3:     Let m be the number of digits that will remain after this position, and compute q ← floor(k' / m!).
+4:     Append the q-th element of R to the output, remove it from R, and replace k' ← k' mod m!.
+5: Return the constructed permutation.
 ```
 
 ## Complexity Analysis

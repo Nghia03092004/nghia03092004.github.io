@@ -57,12 +57,13 @@ We first build a primality table up to a search limit using the Sieve of Eratost
 ## Pseudocode
 
 ```text
-Algorithm: Smallest Counterexample to Goldbach's Other Conjecture
-Require: A search limit L exceeding the first counterexample.
-Ensure: The smallest odd composite n <= L that cannot be written as p + 2k^2 with p prime.
-1: Construct a primality table on the interval {0, 1, ..., L}.
-2: Examine odd composites n in increasing order; for each n, determine whether there exists an integer k >= 1 with n - 2k^2 prime.
-3: Return the first n for which no such k exists.
+Algorithm: Smallest Odd Composite Violating Goldbach's Other Conjecture
+Require: A prime table on a search interval.
+Ensure: The smallest odd composite n that cannot be written as p + 2k^2.
+1: Build a primality table on the search interval.
+2: For each odd composite n in increasing order do:
+3:     For each k ≥ 1 with 2k^2 < n, test whether n - 2k^2 is prime.
+4:     If no such k succeeds, return n.
 ```
 
 ## Complexity Analysis
