@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 753: Fermat Quotients}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+For prime $p$, $F(p)$ counts solutions to $a^3+b^3\equiv c^3 \pmod p$ with $1\le a,b,c<p$. Given $F(5)=12, F(7)=0$. Find $\sum F(p)$ for primes $p < 6\times 10^6$.
+
+\section{Mathematical Analysis}
+The equation $a^3+b^3\equiv c^3 \pmod p$ is a projective cubic curve. By the Hasse-Weil bound, $|F(p) - p^2| \le C p^{3/2}$ for a constant $C$.
+
+For $p \equiv 2 \pmod 3$: every element has a unique cube root mod $p$, so the map $x \mapsto x^3$ is a bijection. Then $F(p) = p^2 - 3p + 3$ (counting solutions minus degenerate cases).
+
+For $p \equiv 1 \pmod 3$: cubing is 3-to-1, and the count depends on the number of points on the Fermat cubic $X^3+Y^3=Z^3$ over $\mathbb{F}_p$, which involves Jacobi sums and cubic residue characters.
+
+\section{Answer}
+
+\[
+\boxed{4714126766770661630}
+\]
+
+\end{document}

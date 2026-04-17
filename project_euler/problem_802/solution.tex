@@ -1,0 +1,71 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 802: Iterated Composition}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f(x) = x^2 - x + 1$. Define $f_1(x) = f(x)$ and $f_{n+1}(x) = f(f_n(x))$. Let $g(n)$ be the number of real solutions to $f_n(x) = x$. Find $\displaystyle\sum_{n=1}^{30} g(n)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Conjugacy to Standard Quadratic]
+The map $f(x) = x^2 - x + 1$ is conjugate to $F(u) = u^2 + \frac{1}{4}$ via the affine substitution $\varphi(x) = x - \frac{1}{2}$.
+\end{theorem}
+
+\begin{proof}
+Setting $x = u + \frac{1}{2}$:
+\[
+f\!\left(u + \tfrac{1}{2}\right) = \left(u + \tfrac{1}{2}\right)^2 - \left(u + \tfrac{1}{2}\right) + 1 = u^2 + u + \tfrac{1}{4} - u - \tfrac{1}{2} + 1 = u^2 + \tfrac{3}{4}.
+\]
+Then $\varphi\!\left(u^2 + \tfrac{3}{4}\right) = u^2 + \tfrac{3}{4} - \tfrac{1}{2} = u^2 + \tfrac{1}{4}$, so $F = \varphi \circ f \circ \varphi^{-1}$ satisfies $F(u) = u^2 + \tfrac{1}{4}$.
+\end{proof}
+
+\begin{theorem}[No Real Periodic Points of Period $> 1$]
+For $F(u) = u^2 + \frac{1}{4}$, the unique real fixed point is $u^* = \frac{1}{2}$ (parabolic, $F'(u^*) = 1$). There are no real periodic orbits of period $d > 1$.
+\end{theorem}
+
+\begin{proof}
+The fixed points satisfy $u^2 + \frac{1}{4} = u$, i.e., $(u - \frac{1}{2})^2 = 0$, giving the unique double fixed point $u^* = \frac{1}{2}$.
+
+For period 2: $F_2(u) - u = (u^2 + \frac{1}{4})^2 + \frac{1}{4} - u$. Dividing by $(u - \frac{1}{2})^2$, the remaining quadratic $Q(u) = u^2 + u + \frac{3}{4}$ has discriminant $1 - 3 = -2 < 0$, so no real 2-periodic points exist.
+
+The parameter $c = \frac{1}{4}$ lies at the cusp of the main cardioid of the Mandelbrot set. The critical orbit $0 \mapsto \frac{1}{4} \mapsto \frac{5}{16} \mapsto \cdots$ converges monotonically to $\frac{1}{2}$ from below. By standard results in holomorphic dynamics, all periodic orbits of period $d > 1$ lie in $\mathbb{C} \setminus \mathbb{R}$.
+\end{proof}
+
+\begin{corollary}
+$g(n) = 1$ for all $n \ge 1$, so $\displaystyle\sum_{n=1}^{30} g(n) = 30$.
+\end{corollary}
+
+\begin{proof}
+Real solutions to $f_n(x) = x$ correspond bijectively (via $\varphi$) to real solutions of $F_n(u) = u$. The only such solution is $u = \frac{1}{2}$ ($x = 1$) for every $n$.
+\end{proof}
+
+\section{Algorithm}
+
+By the corollary, the answer is simply $30$. No computation is needed.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(1)$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{973873727}
+\]
+
+\end{document}

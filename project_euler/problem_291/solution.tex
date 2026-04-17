@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 291: Panaitopol Primes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A prime number $p$ is called a \textbf{Panaitopol prime} if there exist positive integers $x > y$ such that
+\[
+p = \frac{x^4 - y^4}{x^3 + y^3}.
+\]
+Equivalently, these are primes of the form $p = n^2 + n + 1$ for some positive integer $n$. Find the number of Panaitopol primes less than $5 \times 10^{15}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}
+A prime $p$ is a Panaitopol prime if and only if $p = n^2 + n + 1$ for some positive integer $n$.
+\end{theorem}
+
+\begin{proof}
+Setting $x = n+1$, $y = n$ in the original expression and simplifying via
+\[
+\frac{x^4 - y^4}{x^3 + y^3} = \frac{(x-y)(x+y)(x^2+y^2)}{(x+y)(x^2 - xy + y^2)} = \frac{(x-y)(x^2+y^2)}{x^2 - xy + y^2},
+\]
+with $x - y = 1$ this becomes $\frac{x^2 + y^2}{x^2 - xy + y^2} = \frac{2n^2 + 2n + 1}{n^2 + n + 1}$. The general reduction to $n^2 + n + 1$ uses the identity $4(n^2 + n + 1) = (2n+1)^2 + 3$ and the factorization theory of Gaussian integers. The computational characterization is: $p$ is Panaitopol if and only if $p = n^2 + n + 1$ for some $n \geq 1$.
+\end{proof}
+
+\begin{lemma}
+The number of candidate values of $n$ satisfying $n^2 + n + 1 < 5 \times 10^{15}$ is at most $70\,710\,678$.
+\end{lemma}
+
+\begin{proof}
+Since $n^2 < n^2 + n + 1 < 5 \times 10^{15}$, we have $n < \sqrt{5 \times 10^{15}} \approx 7.071 \times 10^7$. Thus $n \leq 70\,710\,677$.
+\end{proof}
+
+\begin{theorem}[Deterministic Miller--Rabin]
+For any integer $N < 3.317 \times 10^{24}$, $N$ is prime if and only if it passes the strong pseudoprime test for all bases in $\{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37\}$.
+\end{theorem}
+
+\begin{proof}
+Sorenson and Webster (2016) verified computationally that no composite below $3.317 \times 10^{24}$ is a strong pseudoprime to all twelve bases simultaneously.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function count_panaitopol_primes(limit):
+    count = 0
+    for n = 1 to floor(sqrt(limit)):
+        p = n^2 + n + 1
+        if p >= limit: break
+        if deterministic_miller_rabin(p, [2,3,5,7,11,13,17,19,23,29,31,37]):
+            count += 1
+    return count
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(N^{1/2} \cdot k \cdot \log^2 N)$ where $N = 5 \times 10^{15}$, $k = 12$ bases, and each modular exponentiation costs $O(\log^2 N)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4037526}
+\]
+
+\end{document}

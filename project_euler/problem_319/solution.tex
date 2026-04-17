@@ -1,0 +1,100 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm, geometry, hyperref}
+\geometry{margin=1in}
+\title{Problem 319: Bounded Sequences}
+\author{Project Euler Solution}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $t(n)$ be the number of sequences $(x_1, \ldots, x_n)$ of positive integers with $x_i = \lfloor \alpha^i \rfloor$ for some $\alpha \in [2,3)$. Given $t(10) = 86195$ and $t(20) = 5227991891$, find $t(10^{10}) \bmod 10^9$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Counting Function $g$]
+Define $G(v,m) = \sum_{j=1}^{m} v^j = v\cdot\frac{v^m - 1}{v-1}$ and $g(m) = G(3,m) - G(2,m)$.
+\end{lemma}
+
+\begin{theorem}[M\"obius Inversion Formula]
+\[
+    t(n) = \sum_{k=1}^{n} \mu(k)\, g\!\left(\!\left\lfloor \frac{n}{k}\right\rfloor\!\right)
+\]
+\end{theorem}
+
+\begin{proof}
+Sequences of length $n$ may coincide with periodic extensions of shorter sequences. Inclusion-exclusion via M\"obius inversion removes overcounts:
+\[
+    t(n) = \sum_{d \mid n} \mu(n/d)\,g(d) = \sum_{k=1}^{n}\mu(k)\,g(\lfloor n/k\rfloor). \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Matrix Exponentiation]
+$G(v,m) \bmod M$ is computable in $O(\log m)$ via:
+\[
+    \begin{pmatrix} v & 1 \\ 0 & 1 \end{pmatrix}^m = \begin{pmatrix} v^m & \frac{v^m-1}{v-1} \\ 0 & 1 \end{pmatrix}
+\]
+so $G(v,m) = v \cdot [\text{matrix}^m]_{0,1}$.
+\end{lemma}
+
+\begin{proof}
+By induction on $m$. Base: $m=1$ gives $G(v,1) = v$. Step: multiplying on the right by $\begin{pmatrix} v & 1 \\ 0 & 1 \end{pmatrix}$ yields $v^m + \frac{v^m-1}{v-1} = \frac{v^{m+1}-1}{v-1}$.
+\end{proof}
+
+\begin{theorem}[Efficient Summation via Mertens Function]
+Since $\lfloor n/k \rfloor$ takes $O(\sqrt{n})$ distinct values, group terms:
+\[
+    t(n) = \sum_{\text{distinct }q} g(q)\bigl(M(k_2) - M(k_1-1)\bigr)
+\]
+where $M(x) = \sum_{i=1}^x \mu(i)$ is the Mertens function.
+\end{theorem}
+
+\begin{lemma}[Mertens Function]
+$M(n)$ satisfies:
+\[
+    M(n) = 1 - \sum_{k=2}^{n} M\!\left(\!\left\lfloor\frac{n}{k}\right\rfloor\!\right)
+\]
+Sieve $\mu$ for values $\le n^{2/3}$; compute $M$ recursively with memoization for larger values. Total: $O(n^{2/3})$.
+\end{lemma}
+
+\begin{proof}
+From $\sum_{d\mid n}\mu(d) = [n=1]$, summing: $\sum_{k=1}^n M(\lfloor n/k\rfloor) = 1$. Isolating $k=1$: $M(n) = 1 - \sum_{k\ge 2} M(\lfloor n/k\rfloor)$. Hyperbolic grouping plus sieving up to $n^{2/3}$ gives $O(n^{2/3})$ time.
+\end{proof}
+
+\subsection{Verification}
+
+$G(3,10) = 88572$, $G(2,10) = 2046$, $g(10) = 86526$.
+\[
+    t(10) = \sum_{k=1}^{10}\mu(k)\,g(\lfloor 10/k\rfloor) = 86195 \;\checkmark
+\]
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Sieve $\mu(k)$ for $k \le n^{2/3}$; compute prefix sums $M(k)$.
+    \item Compute $M(x)$ recursively with memoization for $x > n^{2/3}$.
+    \item For each distinct $q = \lfloor n/k \rfloor$: compute $g(q) \bmod 10^9$ via $2\times 2$ matrix exponentiation; multiply by $M(k_2) - M(k_1-1)$.
+    \item Sum all contributions modulo $10^9$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n^{2/3})$ for Mertens computation; $O(\sqrt{n}\log n)$ for matrix exponentiations. Overall: $O(n^{2/3})$.
+    \item \textbf{Space:} $O(n^{2/3})$ for sieve and memoization.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{268457129}
+\]
+
+\end{document}

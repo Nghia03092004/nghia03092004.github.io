@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 758: Buckets of Water}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Three buckets: capacities $a, b, a+b$. Start: S=$a$, M=$b$, L=empty. Pour between buckets. $P(a,b)$ = min pours to measure 1 liter. Find $\sum P(2^{{p^5}}-1, 2^{{q^5}}-1)$ for primes $p<q<1000$, mod $10^9+7$.
+
+\section{Mathematical Analysis}
+This is the **water jug problem** generalized. With coprime $a, b$, measuring 1 liter is always possible (Bezout's identity). The minimum number of pours $P(a,b)$ relates to the continued fraction expansion of $a/b$.
+
+Specifically, $P(a,b)$ equals the sum of partial quotients in the continued fraction of $a/(a+b)$ minus 1, or similar formula involving the extended Euclidean algorithm steps.
+
+The values $2^{{p^5}}-1$ for prime $p$ are Mersenne-like numbers. Their GCDs and continued fractions have special structure.
+
+\section{Answer}
+
+\[
+\boxed{331196954}
+\]
+
+\end{document}

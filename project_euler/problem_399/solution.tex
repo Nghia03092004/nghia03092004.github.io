@@ -1,0 +1,146 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{conjecture}{Conjecture}
+
+\title{Project Euler Problem 399:\\Squarefree Fibonacci Numbers}
+\author{Solution Writeup}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A Fibonacci number $F(n)$ is \emph{squarefree} if it is not divisible by any perfect square other than~1. Let $\mathrm{SF}(n)$ denote the $n$-th squarefree Fibonacci number (counting from $F(1) = 1$).
+
+\textbf{Find} $\mathrm{SF}(10^8)$. Give the answer as its last 16 digits, a comma, and the number in scientific notation rounded to one decimal place.
+
+\medskip
+\noindent\textbf{Example.} The 200th squarefree Fibonacci number is $F(263)$, with last 16 digits \texttt{1608739584170445} and scientific notation $9.7 \times 10^{53}$.
+
+\medskip
+\noindent\textbf{Answer:} \texttt{1508395636674243,6.5e27330467}
+
+\section{Mathematical Background}
+
+\begin{definition}[Rank of Apparition]
+For a prime $p$, the \emph{rank of apparition} (or entry point) $\alpha(p)$ is the smallest positive integer $k$ such that $p \mid F(k)$.
+\end{definition}
+
+Key properties of $\alpha(p)$:
+\begin{itemize}
+    \item $p \mid F(n)$ if and only if $\alpha(p) \mid n$.
+    \item If $p \equiv \pm 1 \pmod{5}$ (i.e., $5$ is a quadratic residue mod $p$), then $\alpha(p) \mid p - 1$.
+    \item If $p \equiv \pm 2 \pmod{5}$ (i.e., $5$ is a non-residue mod $p$), then $\alpha(p) \mid 2(p + 1)$.
+    \item Special cases: $\alpha(2) = 3$, $\alpha(3) = 4$, $\alpha(5) = 5$.
+\end{itemize}
+
+\begin{conjecture}[Wall's Conjecture, 1960]
+For every prime $p$, the rank of apparition of $p^2$ satisfies
+\[
+    \alpha(p^2) = p \cdot \alpha(p).
+\]
+Equivalently, $p^2 \nmid F(\alpha(p))$.
+\end{conjecture}
+
+This conjecture has been verified for all primes $p \leq 3 \times 10^{15}$ but remains unproven. The problem instructs us to assume it is true.
+
+\begin{theorem}
+Under Wall's conjecture, $F(n)$ is \textbf{not} squarefree if and only if there exists a prime $p$ such that
+\[
+    p \cdot \alpha(p) \mid n.
+\]
+\end{theorem}
+
+\begin{proof}
+$F(n)$ is not squarefree iff there exists a prime $p$ with $p^2 \mid F(n)$. By the divisibility property of Fibonacci numbers, $p^2 \mid F(n)$ iff $\alpha(p^2) \mid n$. Under Wall's conjecture, $\alpha(p^2) = p \cdot \alpha(p)$, giving the result.
+\end{proof}
+
+\section{Asymptotic Density}
+
+The density of squarefree Fibonacci numbers is
+\[
+    \delta = \prod_{p \text{ prime}} \left(1 - \frac{1}{p \cdot \alpha(p)}\right) \approx 0.7647,
+\]
+which is notably higher than the density of squarefree integers, $6/\pi^2 \approx 0.6079$.
+
+This is because the ``periods'' $p \cdot \alpha(p)$ grow roughly as $p^2$, whereas for squarefree integers the relevant quantity is simply $p^2$.
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find the $T$-th squarefree Fibonacci number}
+\begin{algorithmic}[1]
+\State $N \gets \lceil T / 0.76 \rceil + \text{margin}$ \Comment{Estimated sieve bound}
+\State $\text{primes} \gets \text{SieveOfEratosthenes}(N/2)$
+\State Initialize boolean array $\text{notSF}[1..N] \gets \text{false}$
+\For{each prime $p$ in primes}
+    \State Compute $\alpha(p)$ by iterating $F(k) \bmod p$
+    \State $q \gets p \cdot \alpha(p)$
+    \If{$q \leq N$}
+        \For{$j = q, 2q, 3q, \ldots, \leq N$}
+            \State $\text{notSF}[j] \gets \text{true}$
+        \EndFor
+    \EndIf
+\EndFor
+\State Count squarefree indices $i = 1, 2, \ldots$ until reaching the $T$-th one; call it $k$.
+\State Compute $F(k) \bmod 10^{16}$ using the \emph{doubling method}.
+\State Compute $\log_{10} F(k) = k \cdot \log_{10}\varphi - \tfrac{1}{2}\log_{10} 5$.
+\State Format and output the answer.
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Doubling Method for Fibonacci mod $m$}
+
+The doubling formulas allow computing $F(n) \bmod m$ in $O(\log n)$ time:
+\begin{align}
+    F(2k) &= F(k) \cdot \bigl(2F(k+1) - F(k)\bigr), \\
+    F(2k+1) &= F(k)^2 + F(k+1)^2.
+\end{align}
+
+\subsection{Scientific Notation via Binet's Formula}
+
+For large $n$, Binet's formula gives:
+\[
+    F(n) = \frac{\varphi^n - \psi^n}{\sqrt{5}} \approx \frac{\varphi^n}{\sqrt{5}},
+\]
+where $\varphi = \frac{1+\sqrt{5}}{2}$ and $|\psi| = |\frac{1-\sqrt{5}}{2}| < 1$. Therefore:
+\[
+    \log_{10} F(n) \approx n \cdot \log_{10}\varphi - \tfrac{1}{2} \log_{10} 5.
+\]
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Sieve of Eratosthenes:} $O(N \log \log N)$ time, $O(N)$ space.
+    \item \textbf{Rank of apparition:} Computing $\alpha(p)$ takes $O(\alpha(p))$ per prime. Summed over all primes $p \leq \sqrt{N}$, the total is $O(N)$.
+    \item \textbf{Marking multiples:} For each prime $p$, we mark $\lfloor N / (p \cdot \alpha(p)) \rfloor$ entries. The total number of markings is $O(N \log \log N)$.
+    \item \textbf{Fast Fibonacci:} $O(\log k)$ where $k \approx 1.3 \times 10^8$.
+    \item \textbf{Total:} $O(N \log \log N)$ time, $O(N)$ space, with $N \approx 1.32 \times 10^8$.
+\end{itemize}
+
+\section{Result}
+
+The $10^8$-th squarefree Fibonacci number is $F(k)$ for some index $k \approx 130{,}836{,}773$ (the exact index is determined by the sieve). Its last 16 digits are \texttt{1508395636674243} and in scientific notation it is $6.5 \times 10^{27330467}$.
+
+\[
+\boxed{\texttt{1508395636674243,6.5e27330467}}
+\]
+
+\section{Answer}
+
+\[
+\boxed{1508395636674243,6.5e27330467}
+\]
+
+\end{document}

@@ -1,0 +1,71 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 563: Robot Welders}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A company operates $n$ robot welders on a production line. Each robot~$i$ has position~$p_i$ and welding range $[a_i, b_i]$. Weld jobs arrive at positions on the line and must be assigned to robots whose range covers the job position. Compute the optimal scheduling cost $R(n)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Interval Scheduling as Bipartite Matching]
+The assignment of jobs to robots with interval constraints reduces to maximum bipartite matching. Let $G = (J \cup R, E)$ where $(j,r)\in E$ iff robot~$r$ can reach job~$j$. The optimal assignment is a maximum matching in~$G$.
+\end{theorem}
+
+\begin{proof}
+Each robot handles at most one job and each job is assigned to at most one robot, so a valid assignment is exactly a matching. Optimality corresponds to maximum matching.
+\end{proof}
+
+\begin{lemma}[Interval Structure Enables Greedy]
+When robots and jobs are ordered along the line, the feasible robots for any job form a contiguous subsequence. This interval structure admits a greedy or DP solution.
+\end{lemma}
+
+\begin{proof}
+Robot~$i$ can service job at position~$x$ iff $x \in [a_i, b_i]$. Since intervals respect positional ordering, the feasible set for each job is contiguous in the robot ordering. Interval-structured bipartite graphs admit greedy maximum matchings via a left-to-right sweep.
+\end{proof}
+
+\begin{theorem}[DP Recurrence]
+Let $\mathrm{dp}[i][j]$ be the minimum cost of scheduling the first~$i$ jobs using robots from the first~$j$. Then:
+\[
+\mathrm{dp}[i][j] = \min\!\Big\{\mathrm{dp}[i][j-1],\;\mathrm{dp}[i-1][j-1]+c(i,j)\Big\}
+\]
+where the second option applies only when robot~$j$ can service job~$i$, and $c(i,j)$ is the associated cost.
+\end{theorem}
+
+\begin{proof}
+Optimal substructure holds because the interval ordering ensures that assigning job~$i$ to robot~$j$ does not affect feasibility of earlier assignments.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sort jobs and robots by position.
+\item Initialize $\mathrm{dp}[0][j] = 0$ for all~$j$.
+\item Fill the DP table using the recurrence.
+\item Return $\mathrm{dp}[n][m]$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^2)$ where $N$ is the input size (jobs $\times$ robots).
+\item \textbf{Space:} $O(N)$ with rolling-array optimization.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{27186308211734760}
+\]
+
+\end{document}

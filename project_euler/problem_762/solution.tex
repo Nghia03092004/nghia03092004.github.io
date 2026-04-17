@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 762: Amoeba Colonies}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Amoeba at (0,0) in 4-row infinite grid. Division: $(x,y)\to (x+1,y)$ and $(x+1,(y+1)\bmod 4)$ if empty. $C(N)$ = distinct arrangements after $N$ divisions. Find last 9 digits of $C(100000)$.
+
+\section{Mathematical Analysis}
+The amoeba division creates a binary tree of arrangements on a $4\times\infty$ grid. The modular structure ($\bmod 4$) creates periodic patterns.
+
+$C(N)$ can be computed via DP on column profiles. Each column has at most 4 cells, each occupied or empty, giving $2^4=16$ possible column states. The transfer matrix between adjacent column states determines $C(N)$.
+
+\section{Answer}
+
+\[
+\boxed{285528863}
+\]
+
+\end{document}

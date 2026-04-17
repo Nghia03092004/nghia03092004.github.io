@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 667: Moving Pentagon}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the maximum-area convex pentagon that can be moved through a unit-wide L-shaped corridor. Answer rounded to 10 decimal places.
+
+\section{Moving Sofa Framework}
+
+\begin{theorem}[Corridor Constraint]
+A convex shape fits through the L-corridor iff for all $\theta \in [0, \pi/2]$:
+\[
+w(\theta) \le 1 \quad \text{and} \quad w(\theta + \pi/2) \le 1
+\]
+where $w(\theta)$ is the shape's width perpendicular to direction~$\theta$.
+\end{theorem}
+
+\section{Optimization}
+
+Maximize $\operatorname{Area}(P)$ over convex pentagons $P$ subject to the corridor constraint at $N$ discretized angles. This is a constrained NLP solved by SQP.
+
+\section{Bounds}
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Shape & Area \\
+\midrule
+Unit square & 1.0000 \\
+Hammersley sofa & 2.2074 \\
+Gerver sofa & 2.2195 \\
+Optimal pentagon & (computed) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{1.5276527928}
+\]
+
+\end{document}

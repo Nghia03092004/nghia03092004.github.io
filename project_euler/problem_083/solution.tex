@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{Problem 83: Path Sum: Four Ways}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given an $n \times n$ matrix $M$ (with $n = 80$) of positive integers, find the minimal path sum from the top-left to the bottom-right, where at each step you may move \textbf{up, down, left, or right}.
+
+\section{Mathematical Foundation}
+
+We model the problem as a shortest-path problem on a weighted directed graph $G = (V, E, w)$:
+\begin{itemize}
+    \item $V = \{(i,j) : 0 \leq i,j \leq n-1\}$, so $|V| = n^2$.
+    \item $E = \{((i_1,j_1),(i_2,j_2)) : |i_1-i_2| + |j_1-j_2| = 1\}$, so $|E| = O(n^2)$.
+    \item $w\bigl((i_1,j_1) \to (i_2,j_2)\bigr) = M[i_2][j_2]$.
+\end{itemize}
+
+\begin{lemma}[Failure of DP]
+There is no topological ordering of $V$ consistent with all possible optimal paths.
+\end{lemma}
+
+\begin{proof}
+With all four directions allowed, the graph contains cycles (e.g., $(0,0) \to (0,1) \to (1,1) \to (1,0) \to (0,0)$). Since a topological ordering exists only for directed acyclic graphs, no such ordering exists here, and standard DP is inapplicable.
+\end{proof}
+
+\begin{theorem}[Dijkstra's Correctness]
+Let $G = (V, E, w)$ be a directed graph with $w(e) \geq 0$ for all $e \in E$. Dijkstra's algorithm correctly computes single-source shortest paths.
+\end{theorem}
+
+\begin{proof}
+We prove the invariant: when vertex $v$ is extracted from the priority queue, $\mathrm{dist}[v] = \delta(s,v)$ (the true shortest-path distance).
+
+Suppose for contradiction that $v$ is the first vertex extracted with $\mathrm{dist}[v] > \delta(s,v)$. Let $P$ be a true shortest path from $s$ to $v$, and let $(x,y)$ be the first edge on $P$ where $y$ has not yet been extracted. Since $x$ was extracted correctly, $\mathrm{dist}[x] = \delta(s,x)$. Upon extraction of $x$, edge $(x,y)$ was relaxed, giving $\mathrm{dist}[y] \leq \delta(s,x) + w(x,y) = \delta(s,y)$. Since $y$ lies on a shortest path to $v$ and weights are non-negative, $\delta(s,y) \leq \delta(s,v) < \mathrm{dist}[v]$. Thus $\mathrm{dist}[y] < \mathrm{dist}[v]$, so $y$ would be extracted before $v$---a contradiction.
+\end{proof}
+
+\begin{corollary}
+Since all matrix entries are positive integers ($w(e) > 0$), Dijkstra's algorithm correctly solves the grid shortest-path problem.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Minimum Path Sum (Four Ways) via Dijkstra}
+\begin{algorithmic}[1]
+\STATE Initialize $\mathrm{dist}[i][j] \gets \infty$ for all $(i,j)$
+\STATE $\mathrm{dist}[0][0] \gets M[0][0]$
+\STATE Insert $(M[0][0], 0, 0)$ into min-priority queue $PQ$
+\WHILE{$PQ$ is not empty}
+    \STATE $(d, i, j) \gets PQ.\text{extract\_min}()$
+    \IF{$d > \mathrm{dist}[i][j]$}
+        \STATE \textbf{continue} \COMMENT{stale entry}
+    \ENDIF
+    \IF{$(i,j) = (n-1, n-1)$}
+        \RETURN $d$
+    \ENDIF
+    \FOR{each neighbor $(i', j')$ of $(i,j)$}
+        \STATE $d' \gets d + M[i'][j']$
+        \IF{$d' < \mathrm{dist}[i'][j']$}
+            \STATE $\mathrm{dist}[i'][j'] \gets d'$
+            \STATE $PQ.\text{insert}(d', i', j')$
+        \ENDIF
+    \ENDFOR
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n^2 \log n)$. The graph has $|V| = n^2$ vertices and $|E| = O(n^2)$ edges. With a binary heap, each extract-min costs $O(\log n^2) = O(\log n)$, and there are $O(n^2)$ such operations.
+    \item \textbf{Space:} $O(n^2)$ for the distance array and priority queue.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{425185}
+\]
+
+\end{document}

@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 627: Counting Products}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f(n)$ count the number of ordered factorizations of~$n$ into factors $\ge 2$. Define $F(N) = \sum_{n=2}^N f(n)$. Compute $F(N)$ for given~$N$.
+
+\section{Recurrence}
+
+\begin{theorem}
+$f(1) = 1$ and for $n \ge 2$:
+\[
+f(n) = \sum_{\substack{d \mid n \\ d < n}} f(d).
+\]
+\end{theorem}
+
+\begin{proof}
+Each ordered factorization of~$n$ begins with some factor $k = n/d$ where $d$ is a proper divisor. The remaining product $d$ has $f(d)$ ordered factorizations.
+\end{proof}
+
+\section{Dirichlet Series}
+
+\begin{proposition}
+\[
+\sum_{n=1}^{\infty} \frac{f(n)}{n^s} = \frac{1}{2 - \zeta(s)}.
+\]
+\end{proposition}
+
+\begin{proof}
+$f = f * \mathbf{1}_{>1}$ in Dirichlet convolution gives $F(s) = F(s)(\zeta(s)-1) + 1$, so $F(s)(2-\zeta(s)) = 1$.
+\end{proof}
+
+\section{Special Values}
+
+\begin{proposition}
+For prime~$p$ and $k \ge 1$: $f(p^k) = 2^{k-1}$.
+\end{proposition}
+
+\begin{proof}
+Ordered factorizations of $p^k$ into factors $\ge 2$ correspond to compositions of~$k$, of which there are $2^{k-1}$.
+\end{proof}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $f(n)$ & Note \\
+\midrule
+2  & 1 & prime \\
+4  & 2 & $4, 2\cdot2$ \\
+6  & 3 & $6, 2\cdot3, 3\cdot2$ \\
+8  & 4 & $2^3$: compositions of 3 \\
+12 & 8 & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Algorithm}
+
+Sieve-like DP: for each $d = 1, \ldots, N$, add $f[d]$ to all multiples $f[2d], f[3d], \ldots$ Time: $O(N\log N)$. Space: $O(N)$.
+
+\section{Answer}
+
+\[
+\boxed{220196142}
+\]
+
+\end{document}

@@ -1,0 +1,62 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Problem 87: Prime Power Triples}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many numbers below $50{,}000{,}000$ can be expressed as:
+\[
+n = p^2 + q^3 + r^4
+\]
+where $p$, $q$, and $r$ are prime numbers?
+
+\section{Solution}
+
+\subsection{Bounding the Primes}
+Since $n < 5 \times 10^7$:
+\begin{align}
+p^2 &< 5 \times 10^7 \implies p < \sqrt{5 \times 10^7} \approx 7071 \\
+q^3 &< 5 \times 10^7 \implies q < (5 \times 10^7)^{1/3} \approx 368 \\
+r^4 &< 5 \times 10^7 \implies r < (5 \times 10^7)^{1/4} \approx 84
+\end{align}
+
+\subsection{Enumeration}
+We generate primes using the Sieve of Eratosthenes up to $7071$, then:
+\begin{enumerate}
+\item For each prime $r$ with $r^4 < 5 \times 10^7$, compute $r^4$.
+\item For each prime $q$ with $q^3 < 5 \times 10^7 - r^4$, compute $q^3$.
+\item For each prime $p$ with $p^2 < 5 \times 10^7 - r^4 - q^3$, compute the sum.
+\item Record all distinct sums using a boolean array.
+\end{enumerate}
+
+\subsection{Complexity Analysis}
+Let $\pi(x)$ denote the prime counting function. By the Prime Number Theorem:
+\begin{itemize}
+\item $\pi(7071) \approx 908$
+\item $\pi(368) \approx 73$
+\item $\pi(84) \approx 23$
+\end{itemize}
+
+Total iterations: $\sim 908 \times 73 \times 23 \approx 1.5 \times 10^6$.
+
+\subsection{Result}
+The count of distinct expressible numbers is:
+\[
+\boxed{1{,}097{,}343}
+\]
+
+\section{Answer}
+
+\[
+\boxed{1097343}
+\]
+
+\end{document}

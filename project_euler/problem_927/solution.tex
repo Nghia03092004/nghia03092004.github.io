@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 927: Totient Sum Optimization}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find $\sum_{k=1}^{10^7}\varphi(k) \bmod 10^9+7$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Euler's Product Formula]
+For $n = p_1^{a_1}\cdots p_r^{a_r}$:
+\[
+\varphi(n) = n\prod_{p \mid n}\!\left(1 - \frac{1}{p}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+By inclusion-exclusion on multiples of primes dividing~$n$. Alternatively, $\varphi$ is multiplicative with $\varphi(p^a) = p^{a-1}(p-1)$.
+\end{proof}
+
+\begin{theorem}[Divisor Sum Identity]
+For all $n \geq 1$: $\sum_{d \mid n}\varphi(d) = n$.
+\end{theorem}
+
+\begin{proof}
+Partition $\{1,\ldots,n\}$ by $\gcd(k,n) = d$: the set $\{k : \gcd(k,n) = d\}$ has cardinality $\varphi(n/d)$. Summing over divisors and reindexing gives $\sum_{d \mid n}\varphi(d) = n$.
+\end{proof}
+
+\begin{theorem}[Sub-linear Recursion]
+Let $\Phi(N) = \sum_{k=1}^N\varphi(k)$. Then:
+\[
+\Phi(N) = \frac{N(N+1)}{2} - \sum_{k=2}^{N}\Phi\!\left(\left\lfloor\frac{N}{k}\right\rfloor\right).
+\]
+\end{theorem}
+
+\begin{proof}
+Sum the divisor identity over $n = 1,\ldots,N$:
+\[
+\frac{N(N+1)}{2} = \sum_{d=1}^N \varphi(d)\left\lfloor\frac{N}{d}\right\rfloor = \sum_{m=1}^N \Phi\!\left(\left\lfloor\frac{N}{m}\right\rfloor\right).
+\]
+Isolating the $m=1$ term yields the recursion.
+\end{proof}
+
+\begin{lemma}[Complexity of the Recursion]
+With memoization and a sieve for $m \leq N^{2/3}$, the recursion runs in $O(N^{2/3})$ time and space.
+\end{lemma}
+
+\begin{proof}
+$\{\lfloor N/k\rfloor : 1 \leq k \leq N\}$ has $O(\sqrt{N})$ distinct values. Pre-sieving $\Phi(m)$ for $m \leq N^{2/3}$ costs $O(N^{2/3})$, and the remaining $O(N^{1/3})$ recursive calls each cost $O(\sqrt{m})$.
+\end{proof}
+
+\begin{theorem}[Asymptotic Formula]
+$\Phi(N) = \frac{3N^2}{\pi^2} + O(N\log N)$.
+\end{theorem}
+
+\begin{proof}
+Since $\varphi = \mu * \mathrm{id}$, the Dirichlet series is $\zeta(s{-}1)/\zeta(s)$. By standard Tauberian arguments, $\Phi(N) = N^2/(2\zeta(2)) + O(N\log N) = 3N^2/\pi^2 + O(N\log N)$.
+\end{proof}
+
+\section{Algorithm}
+
+Sieve $\varphi(n)$ for $n = 1,\ldots,N$: initialize $\varphi(n) = n$; for each prime~$p$, update $\varphi(m) \gets \varphi(m)\cdot(p{-}1)/p$ for $p \mid m$. Accumulate $\sum\varphi(k) \bmod (10^9{+}7)$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time (sieve):} $O(N\log\log N)$.
+    \item \textbf{Time (sub-linear):} $O(N^{2/3})$.
+    \item \textbf{Space:} $O(N)$ for sieve; $O(N^{2/3})$ for sub-linear.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{207282955}
+\]
+
+\end{document}

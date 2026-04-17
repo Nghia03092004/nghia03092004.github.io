@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 375: Minimum of Subsequences}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define the pseudo-random sequence by $S_0 = 290797$ and $S_{n+1} = S_n^2 \bmod 50515093$. Let $A(i,j) = \min(S_i,\ldots,S_j)$ for $1 \le i \le j$. Compute
+\[
+M(N) = \sum_{1 \le i \le j \le N} A(i,j)
+\]
+for $N = 2\,000\,000\,000$. Verification: $M(10) = 432256955$, $M(10000) = 3264567774119$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Incremental Decomposition]
+Define $R(j) = \sum_{i=1}^{j} A(i,j)$. Then $M(N) = \sum_{j=1}^{N}R(j)$, and
+\[
+R(j{+}1) = R(j) - \sum_{\text{popped }(v,c)} v\cdot c + S_{j+1}\cdot(c_{\mathrm{total}}+1),
+\]
+where the popped elements are those removed from a monotone stack when inserting~$S_{j+1}$.
+\end{theorem}
+
+\begin{proof}
+For each starting index~$i$, $A(i,j{+}1) = \min(A(i,j),\,S_{j+1})$. If $A(i,j) \ge S_{j+1}$, the contribution changes from $A(i,j)$ to $S_{j+1}$. The monotone stack tracks groups of starting indices sharing the same minimum. Popping entries with $v \ge S_{j+1}$ and replacing them with a single entry $(S_{j+1},\,c_{\mathrm{total}}+1)$ effects exactly this update.
+\end{proof}
+
+\begin{lemma}[Monotone Stack Invariant]
+Maintain a stack of pairs $(v,c)$ in strictly increasing order of~$v$, where $c$ counts starting indices with current minimum~$v$. Then $R(j) = \sum_{(v,c)}v\cdot c$.
+\end{lemma}
+
+\begin{proof}
+By induction on~$j$. Base case: $j=1$, stack~$=\{(S_1,1)\}$, $R(1)=S_1$. Inductive step: popping entries with $v \ge S_{j+1}$ and pushing $(S_{j+1}, c_{\mathrm{total}}+1)$ maintains the identity.
+\end{proof}
+
+\begin{lemma}[Amortized Complexity]
+Each element is pushed exactly once and popped at most once, so the total number of stack operations over~$N$ steps is at most~$2N$.
+\end{lemma}
+
+\begin{proof}
+At most $N$ pushes occur (one per step). Each entry is popped at most once. Hence total operations $\le 2N$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(N):
+    S = 290797
+    stack = []
+    R = 0; T = 0
+    for j = 1 to N:
+        S = S * S mod 50515093
+        c = 0
+        while stack not empty and stack.top().value >= S:
+            (v, cnt) = stack.pop()
+            R -= v * cnt
+            c += cnt
+        stack.push((S, c + 1))
+        R += S * (c + 1)
+        T += R
+    return T
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N)$ amortized. Each element pushed and popped at most once.
+\item \textbf{Space:} $O(N)$ worst case for the stack. Note: $T$ can reach $\sim 10^{26}$, requiring 128-bit or arbitrary-precision integers.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{7435327983715286168}
+\]
+
+\end{document}

@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 715: Sextuplet Norms}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f$ be a multiplicative function related to norms of algebraic integers in a sextic number field. Define
+\[
+G(n) = \sum_{k=1}^{n} \frac{f(k)}{k^2 \,\varphi(k)},
+\]
+where $\varphi$ is Euler's totient. Given $G(10) = 3053$, find $G(10^5) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Euler Product]
+Since $f(k)/(k^2\,\varphi(k))$ is multiplicative, the associated Dirichlet series factors as
+\[
+\sum_{k=1}^{\infty} \frac{f(k)}{k^2\,\varphi(k)} = \prod_{p} \Biggl(\sum_{a=0}^{\infty} \frac{f(p^a)}{p^{2a}\,\varphi(p^a)}\Biggr).
+\]
+\end{lemma}
+
+\begin{proof}
+Both $f$ and $k^2\varphi(k)$ are multiplicative, so their ratio is multiplicative. The Euler product follows from the fundamental theorem of multiplicative arithmetic functions.
+\end{proof}
+
+\begin{theorem}[Local Factor]
+The local factor at prime~$p$ is
+\[
+F_p = 1 + \frac{1}{p-1}\sum_{a=1}^{\infty} \frac{f(p^a)}{p^{3a-1}}.
+\]
+\end{theorem}
+
+\begin{proof}
+Use $\varphi(p^a) = p^{a-1}(p-1)$ for $a \ge 1$ and simplify.
+\end{proof}
+
+\begin{lemma}[Modular Inverse Existence]
+For $k \le 10^5$ and $p = 10^9+7$ prime, $\gcd(k,p)=1$, so $k^{-1} \equiv k^{p-2} \pmod{p}$ exists.
+\end{lemma}
+
+\begin{proof}
+Since $k < p$ and $p$ is prime, Fermat's little theorem applies.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function G(n, mod):
+    spf = smallest_prime_factor_sieve(n)
+    result = 0
+    for k = 1 to n:
+        fk = compute_f(k, spf)
+        phik = euler_totient(k, spf)
+        denom = (k*k % mod) * phik % mod
+        inv_denom = pow(denom, mod-2, mod)
+        result = (result + fk * inv_denom) % mod
+    return result
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n \log p)$ where $p = 10^9+7$ (dominated by modular exponentiation for inverses). Batch inverse via prefix products reduces to $O(n + \log p)$.
+    \item \textbf{Space:} $O(n)$ for the sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{883188017}
+\]
+
+\end{document}

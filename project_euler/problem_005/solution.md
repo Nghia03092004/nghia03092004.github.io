@@ -5,13 +5,13 @@
 Determine the smallest positive integer divisible by every integer from 1 to 20. Formally, compute
 $$L = \operatorname{lcm}(1, 2, 3, \ldots, 20).$$
 
-## Definitions and Notation
+## Mathematical Development
+
+### Definitions and Notation
 
 **Definition 1.** For a prime $p$ and a positive integer $n$, the *$p$-adic valuation* $v_p(n)$ is the largest exponent $e \ge 0$ such that $p^e \mid n$. By convention, $v_p(0) = +\infty$.
 
 **Definition 2.** The *least common multiple* of positive integers $a_1, \ldots, a_k$ is the smallest positive integer $m$ such that $a_i \mid m$ for all $1 \le i \le k$. Equivalently, $v_p(\operatorname{lcm}(a_1, \ldots, a_k)) = \max_i v_p(a_i)$ for every prime $p$.
-
-## Mathematical Development
 
 **Theorem 1** (Prime factorization of the LCM). *For any positive integer $N$,*
 $$\operatorname{lcm}(1, 2, \ldots, N) = \prod_{\substack{p \le N \\ p \text{ prime}}} p^{\lfloor \log_p N \rfloor}.$$

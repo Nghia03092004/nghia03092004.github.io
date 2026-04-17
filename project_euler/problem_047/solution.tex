@@ -1,0 +1,88 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 47: Distinct Primes Factors}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the first four consecutive integers to have four distinct prime factors each. What is the first of these numbers?
+
+\section{Formal Development}
+
+\begin{definition}[Distinct Prime Factor Count]
+For $n = p_1^{a_1} \cdots p_r^{a_r}$ (canonical factorization), define $\omega(n) = r$.
+\end{definition}
+
+We seek $\min\{n : \omega(n) = \omega(n{+}1) = \omega(n{+}2) = \omega(n{+}3) = 4\}$.
+
+\begin{theorem}[Sieve Computation of $\omega$]\label{thm:sieve}
+The values $\omega(n)$ for all $n \in [2, N]$ can be computed in $O(N \log \log N)$ time and $O(N)$ space.
+\end{theorem}
+
+\begin{proof}
+Initialize $\omega[2..N] = 0$. For each $p$ with $\omega[p] = 0$ (i.e., $p$ is prime), increment $\omega[m]$ for every multiple $m$ of $p$ in $[p, N]$. Each prime divisor of $n$ contributes exactly one increment to $\omega[n]$. The total number of increments is
+\[
+\sum_{p \leq N,\, p \text{ prime}} \left\lfloor \frac{N}{p} \right\rfloor
+\leq N \sum_{p \leq N} \frac{1}{p}
+= N(\ln\ln N + M + o(1))
+= O(N \log \log N),
+\]
+where $M \approx 0.2615$ is the Meissel--Mertens constant.
+\end{proof}
+
+\begin{lemma}[Lower Bound]\label{lem:lower}
+If $\omega(n) = 4$ then $n \geq 210 = 2 \cdot 3 \cdot 5 \cdot 7$.
+\end{lemma}
+
+\begin{proof}
+The product of the four smallest primes is $210$, and any integer with four distinct prime factors is at least the product of its four smallest prime divisors.
+\end{proof}
+
+\begin{theorem}\label{thm:answer}
+The first four consecutive integers each with $\omega = 4$ are $134043, 134044, 134045, 134046$.
+\end{theorem}
+
+\begin{proof}
+Applying the sieve of Theorem~\ref{thm:sieve} with $N = 150\,000$, a linear scan yields the first run of four consecutive values of~$4$. The factorizations are:
+\begin{align*}
+134043 &= 3 \times 7 \times 13 \times 491, \\
+134044 &= 2^2 \times 23 \times 31 \times 47, \\
+134045 &= 5 \times 11 \times 41 \times 59, \\
+134046 &= 2 \times 3 \times 43 \times 521.
+\end{align*}
+Each has $\omega = 4$. The scan guarantees no earlier quadruple exists.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{proposition}[Time]
+$O(N \log \log N)$ where $N = 150\,000$.
+\end{proposition}
+
+\begin{proof}
+The sieve dominates at $O(N \log \log N)$ by Theorem~\ref{thm:sieve}; the subsequent scan is $O(N)$.
+\end{proof}
+
+\begin{proposition}[Space]
+$O(N)$ for the $\omega$ array.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{134043}
+\]
+
+\end{document}

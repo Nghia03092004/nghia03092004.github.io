@@ -1,0 +1,88 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 650: Divisors of Binomial Product}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $B(n) = \prod_{k=0}^{n} \binom{n}{k}$, a product of binomial coefficients.
+Let $D(n) = \sum_{d \mid B(n)} d = \sigma_1(B(n))$, the sum of divisors of $B(n)$.
+Let $S(n) = \sum_{k=1}^{n} D(k)$.
+
+Given $S(5) = 5736$, $S(10) = 141740594713218418$, $S(100) \bmod 10^9+7 = 332792866$.
+
+Find $S(20000) \bmod (10^9+7)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Prime Factorization of $B(n)$}
+
+We have:
+\[
+B(n) = \prod_{k=0}^{n} \binom{n}{k}
+\]
+
+The $p$-adic valuation of $B(n)$ is:
+\[
+v_p(B(n)) = \sum_{k=0}^{n} v_p\left(\binom{n}{k}\right) = (n+1) \cdot v_p(n!) - 2\sum_{k=0}^{n} v_p(k!)
+\]
+
+\subsection{Incremental Formula}
+
+Define $\text{cum}_p(n) = \sum_{k=0}^{n} v_p(k!)$. Then the change in exponent from $B(n-1)$ to $B(n)$ is:
+\begin{align}
+\Delta_p(n) &= v_p(B(n)) - v_p(B(n-1)) \\
+&= (n-1) \cdot v_p(n) - v_p((n-1)!)
+\end{align}
+
+\begin{proof}
+\begin{align}
+v_p(B(n)) &= (n+1) v_p(n!) - 2\,\text{cum}_p(n) \\
+v_p(B(n-1)) &= n \cdot v_p((n-1)!) - 2\,\text{cum}_p(n-1)
+\end{align}
+Subtracting and using $v_p(n!) = v_p((n-1)!) + v_p(n)$ and $\text{cum}_p(n) = \text{cum}_p(n-1) + v_p(n!)$:
+\begin{align}
+\Delta_p(n) &= (n+1)(v_p((n-1)!) + v_p(n)) - 2(v_p((n-1)!) + v_p(n)) \\
+&\quad - n \cdot v_p((n-1)!) + 2\,\text{cum}_p(n-1) - 2\,\text{cum}_p(n-1) \\
+&= (n-1)v_p(n) - v_p((n-1)!)
+\end{align}
+\end{proof}
+
+\subsection{Sum of Divisors}
+
+If $B(n) = \prod_{i} p_i^{a_i}$, then by the multiplicativity of $\sigma_1$:
+\[
+D(n) = \sigma_1(B(n)) = \prod_{i} \frac{p_i^{a_i+1} - 1}{p_i - 1}
+\]
+
+Each factor is computed modulo $10^9+7$ using Fermat's little theorem for the modular inverse.
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve smallest prime factors up to $N = 20000$.
+\item For each $n$ from 2 to $N$, update exponents using $\Delta_p(n) = (n-1)v_p(n) - v_p((n-1)!)$.
+\item Compute $D(n) = \prod_p \frac{p^{e_p+1}-1}{p-1} \pmod{10^9+7}$.
+\item Accumulate $S = \sum D(k)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \cdot \pi(N))$ where $\pi(N)$ is the number of primes up to $N$.
+\item \textbf{Space:} $O(N)$ for the sieve and exponent storage.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{538319652}
+\]
+
+\end{document}

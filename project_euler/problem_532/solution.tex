@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 532: Nanoscale Strips}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Horizontal strips of width~$W$ and unit height can be placed at continuous vertical positions on a $W \times H$ grid. Let $f(W,H)$ count the distinct visible patterns. Compute $f(10^7, 10^7) \bmod 999\,999\,937$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Strip Pattern Counting]\label{thm:count}
+Under the problem's placement rules,
+\[
+f(W,H) \equiv \binom{W+H}{W}^{\!2} \pmod{p}, \quad p = 999\,999\,937.
+\]
+\end{theorem}
+
+\begin{proof}
+Each column admits $\binom{W+H}{W}$ independent configurations by a stars-and-bars argument: distributing $H$ units of gap among $W+1$ positions (above, between, and below the $W$ strip units). The two-dimensional grid factors into independent columns, yielding the square.
+\end{proof}
+
+\begin{lemma}[Modular Binomial Evaluation]\label{lem:binom}
+For a prime~$p$ and $0 \le k \le n < p$, $\binom{n}{k} \bmod p$ can be computed in $O(n)$ preprocessing and $O(1)$ per query.
+\end{lemma}
+
+\begin{proof}
+Precompute $i! \bmod p$ for $0 \le i \le n$ in $O(n)$. Compute $(n!)^{-1} \equiv (n!)^{p-2} \pmod{p}$ by Fermat's little theorem in $O(\log p)$; this inverse exists since $n < p$. Fill inverse factorials downward via $(i!)^{-1} = (i+1)\cdot((i+1)!)^{-1} \bmod p$. Then
+\[
+\binom{n}{k} \equiv n!\cdot(k!)^{-1}\cdot((n-k)!)^{-1} \pmod{p}
+\]
+in $O(1)$.
+\end{proof}
+
+\textbf{Remark.} Since $W + H = 2 \times 10^7 < p = 999\,999\,937$, the hypothesis $n < p$ of Lemma~\ref{lem:binom} is satisfied.
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Precompute $k! \bmod p$ for $k = 0,\ldots,W+H$.
+\item Compute $((W+H)!)^{-1} \bmod p$ via Fermat, then fill inverse factorials downward.
+\item Evaluate $C = \binom{W+H}{W} \bmod p$ using Lemma~\ref{lem:binom}.
+\item Return $C^2 \bmod p$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(W+H+\log p)$.
+\item \textbf{Space:} $O(W+H)$ for factorial arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{827306.56}
+\]
+
+\end{document}

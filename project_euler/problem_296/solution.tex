@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 296: Angular Bisector and Tangent}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given an integer-sided triangle $ABC$ with $BC \leq AC \leq AB$:
+\begin{itemize}
+\item $k$: angular bisector of $\angle ACB$
+\item $m$: tangent at $C$ to the circumcircle of $ABC$
+\item $n$: line through $B$ parallel to $m$
+\item $E$: intersection of $n$ and $k$
+\end{itemize}
+Find the number of triangles with perimeter $\leq 100\,000$ such that $BE$ is an integer.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Formula for $BE$]
+Let $a = BC$, $b = AC$, $c = AB$ with $a \leq b \leq c$. Then
+\[
+BE = \frac{ca}{a+b}.
+\]
+\end{theorem}
+
+\begin{proof}
+By the tangent-chord angle theorem, the angle between tangent $m$ at $C$ and chord $CB$ equals $\angle BAC = \alpha$. The bisector $k$ of $\angle ACB = \gamma$ meets the parallel line $n$ through $B$ at point $E$.
+
+In triangle $BCE$, $\angle EBC = \alpha$ (by the parallel $n \| m$ and corresponding angles), and $\angle BCE = \gamma/2$. By the sine rule:
+\[
+\frac{BE}{\sin(\gamma/2)} = \frac{a}{\sin(\pi - \alpha - \gamma/2)}.
+\]
+Using $\alpha + \beta + \gamma = \pi$, the sine rule in the original triangle $\frac{a}{\sin\alpha} = \frac{c}{\sin\gamma} = \frac{c}{2\sin(\gamma/2)\cos(\gamma/2)}$, and algebraic simplification yields $BE = \frac{ca}{a+b}$.
+\end{proof}
+
+\begin{theorem}[Integrality Condition]
+Let $g = \gcd(a,b)$, $a = ga'$, $b = gb'$ with $\gcd(a',b') = 1$. Then $BE \in \mathbb{Z}$ iff $(a'+b') \mid c$.
+\end{theorem}
+
+\begin{proof}
+$BE = \frac{ca'}{a'+b'}$. Since $\gcd(a', a'+b') = \gcd(a', b') = 1$, divisibility requires $(a'+b') \mid c$.
+\end{proof}
+
+\begin{lemma}[Parametric Constraints]
+Writing $c = k(a'+b')$, the valid range is:
+\begin{enumerate}
+\item $a' \leq b'$ (ordering $a \leq b$)
+\item $k \geq \lceil gb'/(a'+b') \rceil$ (ordering $b \leq c$)
+\item $k < g$ (triangle inequality $a + b > c$)
+\item $(g+k)(a'+b') \leq 100\,000$ (perimeter bound)
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Direct substitution of $a = ga'$, $b = gb'$, $c = k(a'+b')$ into each constraint. The triangle inequality $a + b > c$ becomes $g(a'+b') > k(a'+b')$, i.e., $k < g$. The perimeter is $ga' + gb' + k(a'+b') = (g+k)(a'+b')$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+For each coprime pair (a', b') with 1 <= a' <= b':
+    s = a' + b'
+    For g = 1 to floor(P/s) - 1:
+        k_min = ceil(g * b' / s)
+        k_max = min(g - 1, floor(P/s) - g)
+        count += max(0, k_max - k_min + 1)
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(P \log P)$ where $P = 100\,000$, from iterating over coprime pairs and their associated $g$-values.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1137208419}
+\]
+
+\end{document}

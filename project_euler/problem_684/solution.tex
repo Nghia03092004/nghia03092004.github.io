@@ -1,0 +1,62 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 684: Inverse Digit Sum}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define $s(n)$ as the smallest number that has a digit sum of~$n$. For example, $s(10)=19$.
+Let $S(k)=\sum_{n=1}^{k}s(n)$, with $S(20)=1074$.
+The Fibonacci sequence satisfies $f_0=0$, $f_1=1$, $f_i=f_{i-2}+f_{i-1}$.
+Find $\displaystyle\sum_{i=2}^{90}S(f_i) \pmod{10^9+7}$.
+
+\section{Derivation of $s(n)$}
+Write $n=9q+r$ with $1\le r\le 9$ (taking $r=9,\,q' = q-1$ when $r=0$).
+Then $s(n)$ is the number with leading digit~$r$ followed by $q$~nines:
+\[
+  s(n) = (r+1)\cdot 10^q - 1, \quad \text{where } q=\lfloor n/9\rfloor,\; r = n\bmod 9 \text{ (with $r=9$ if $9\mid n$)}.
+\]
+More uniformly, let $q=\lfloor n/9\rfloor$ and $r = n\bmod 9$. If $r=0$, $s(n)=10^q-1$; otherwise $s(n)=(r+1)\cdot 10^q - 1$.
+
+\section{Closed-Form for $S(k)$}
+Let $Q=\lfloor k/9\rfloor$ and $R=k\bmod 9$. We sum in blocks of~9:
+
+A complete block from $9m+1$ to $9(m+1)$ contributes $54\cdot 10^m - 9$.
+
+Summing $Q$ complete blocks:
+\[
+  \sum_{m=0}^{Q-1}(54\cdot 10^m - 9) = 6(10^Q - 1) - 9Q.
+\]
+
+The remaining $R$ terms contribute:
+\[
+  10^Q\!\left(\frac{(R+1)(R+2)}{2}-1\right) - R.
+\]
+
+Combining:
+\[
+  \boxed{S(k) = 10^Q\!\left(5 + \frac{(R+1)(R+2)}{2}\right) - 9Q - R - 6.}
+\]
+
+\section{Algorithm}
+\begin{enumerate}
+  \item Compute $f_2,\ldots,f_{90}$ (fits in 64-bit integers).
+  \item For each $f_i$, compute $S(f_i)\bmod(10^9+7)$ using modular exponentiation for $10^Q$.
+  \item Sum all values modulo $10^9+7$.
+\end{enumerate}
+
+\section{Complexity}
+$O(89\cdot\log f_{90})=O(5340)$ modular multiplications.
+
+\section{Answer}
+
+\[
+\boxed{922058210}
+\]
+
+\end{document}

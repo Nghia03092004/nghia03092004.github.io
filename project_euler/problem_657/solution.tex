@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 657: Incomplete Words}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A word over alphabet $\Sigma$ of $\alpha$ letters is \textbf{incomplete} if it does not contain every letter. Define $I(\alpha, n)$ as the number of incomplete words of length $\leq n$.
+
+Examples: $I(3,0)=1$, $I(3,2)=13$, $I(3,4)=79$.
+
+Find $I(10^7, 10^{12}) \pmod{10^9+7}$.
+
+\section{Derivation}
+
+\subsection{Total Words}
+
+Total words of length $\leq n$:
+\[
+T(\alpha, n) = \sum_{k=0}^{n} \alpha^k = \frac{\alpha^{n+1}-1}{\alpha - 1}
+\]
+
+\subsection{Complete Words via Inclusion-Exclusion}
+
+Complete words of length exactly $k$:
+\[
+C(\alpha, k) = \sum_{j=0}^{\alpha}(-1)^j\binom{\alpha}{j}(\alpha-j)^k
+\]
+
+Sum of complete words of length $\leq n$:
+\[
+\sum_{k=0}^n C(\alpha,k) = \sum_{j=0}^{\alpha}(-1)^j\binom{\alpha}{j}\sum_{k=0}^n (\alpha-j)^k
+= \sum_{j=0}^{\alpha}(-1)^j\binom{\alpha}{j}\frac{(\alpha-j)^{n+1}-1}{(\alpha-j)-1}
+\]
+
+\subsection{Incomplete Words}
+
+\begin{align}
+I(\alpha, n) &= T(\alpha,n) - \sum_{k=0}^n C(\alpha,k) \\
+&= \sum_{j=1}^{\alpha}(-1)^{j+1}\binom{\alpha}{j}\frac{(\alpha-j)^{n+1}-1}{(\alpha-j)-1}
+\end{align}
+
+where the $j=0$ terms cancel.
+
+\subsection{Special Cases}
+
+When $\alpha - j = 0$ (i.e., $j = \alpha$): $\frac{0^{n+1}-1}{0-1} = 1$.
+
+When $\alpha - j = 1$ (i.e., $j = \alpha - 1$): $\frac{1^{n+1}-1}{1-1} = n+1$ (by L'H\^opital or direct computation).
+
+\section{Modular Computation}
+
+All computations are done modulo $p = 10^9 + 7$.
+
+\begin{itemize}
+\item Modular inverse via Fermat: $a^{-1} \equiv a^{p-2} \pmod{p}$
+\item Fast exponentiation: $a^b \bmod p$ in $O(\log b)$
+\item Binomial coefficients computed iteratively: $\binom{\alpha}{j} = \binom{\alpha}{j-1} \cdot \frac{\alpha-j+1}{j}$
+\end{itemize}
+
+Since $\alpha = 10^7 < p$, all $\alpha$ terms contribute.
+
+\section{Answer}
+
+\[
+\boxed{219493139}
+\]
+
+\end{document}

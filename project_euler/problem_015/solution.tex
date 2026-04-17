@@ -1,0 +1,101 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Project Euler Problem 15: Lattice Paths}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count the number of monotone lattice paths from $(0,0)$ to $(20,20)$ using unit steps right $(+1,0)$ and down $(0,+1)$.
+
+\section{Formal Development}
+
+\begin{definition}
+A \emph{monotone lattice path} from $(0,0)$ to $(m,n)$ is a sequence of $m+n$ unit steps, each $R = (+1,0)$ or $D = (0,+1)$, with exactly $m$ right-steps and $n$ down-steps.
+\end{definition}
+
+\begin{definition}
+Let $P(i,j)$ denote the number of monotone lattice paths from $(0,0)$ to $(i,j)$.
+\end{definition}
+
+\begin{theorem}[Closed Form]
+\label{thm:closed}
+$P(m,n) = \binom{m+n}{m}$.
+\end{theorem}
+
+\begin{proof}
+A path is determined by choosing which $m$ of the $m+n$ steps are rightward. There are $\binom{m+n}{m}$ such choices.
+\end{proof}
+
+\begin{theorem}[Pascal Recurrence]
+\label{thm:pascal}
+$P(i,0) = P(0,j) = 1$ for all $i, j \ge 0$, and $P(i,j) = P(i-1,j) + P(i,j-1)$ for $i, j \ge 1$.
+\end{theorem}
+
+\begin{proof}
+The boundary conditions hold since there is a unique all-$R$ path to $(i,0)$ and a unique all-$D$ path to $(0,j)$. For the recurrence: every path to $(i,j)$ arrives via its last step from either $(i-1,j)$ or $(i,j-1)$, and these cases are disjoint and exhaustive.
+\end{proof}
+
+\begin{lemma}[Consistency]
+\label{lem:consist}
+$P(i,j) = \binom{i+j}{i}$ satisfies Theorem~\ref{thm:pascal}.
+\end{lemma}
+
+\begin{proof}
+By induction on $i+j$. Base cases are immediate. The inductive step follows from Pascal's identity: $\binom{i+j-1}{i-1} + \binom{i+j-1}{i} = \binom{i+j}{i}$.
+\end{proof}
+
+\begin{theorem}[Telescoping Product]
+\label{thm:prod}
+\[
+\binom{2n}{n} = \prod_{k=1}^{n} \frac{n+k}{k}.
+\]
+Each partial product $\prod_{k=1}^{j} \frac{n+k}{k} = \binom{n+j}{j} \in \mathbb{Z}$.
+\end{theorem}
+
+\begin{proof}
+$\prod_{k=1}^{n} \frac{n+k}{k} = \frac{(n+1)(n+2)\cdots(2n)}{n!} = \frac{(2n)!}{n!\,n!}$. Integrality of partial products follows from $\binom{n+j}{j} \in \mathbb{Z}$.
+\end{proof}
+
+\begin{corollary}
+The multiplicative formula computes $\binom{2n}{n}$ using only integer arithmetic: each intermediate division is exact.
+\end{corollary}
+
+\begin{proposition}[Complexity]
+The multiplicative formula runs in $O(n)$ time and $O(1)$ auxiliary space (with machine-word arithmetic for $n = 20$, since $\binom{40}{20} < 2^{63}$).
+\end{proposition}
+
+\begin{proof}
+The loop has $n$ iterations. For $n = 20$, $\binom{40}{20} \approx 1.38 \times 10^{11} < 2^{63} \approx 9.2 \times 10^{18}$, so all intermediate values fit in a 64-bit integer.
+\end{proof}
+
+\section{Computation}
+
+\[
+\binom{40}{20} = \prod_{k=1}^{20} \frac{20+k}{k} = \frac{21}{1} \cdot \frac{22}{2} \cdot \frac{23}{3} \cdots \frac{40}{20} = 137{,}846{,}528{,}820.
+\]
+
+\section{Answer}
+
+\[
+\boxed{137846528820}
+\]
+
+\end{document}

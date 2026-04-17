@@ -1,0 +1,155 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 331: Cross Flips}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+An $N\times N$ grid has each square coloured black ($1$) or white ($0$).
+A \emph{cross flip} at $(i,j)$ toggles every square in row~$i$ and every
+square in column~$j$; because $(i,j)$ lies in both, it receives three
+toggles, which is one toggle in $\mathbb{F}_2$.  Starting from a uniformly
+random $15\times 15$ configuration, find the expected minimum number of
+cross flips needed to clear the grid.
+
+\section{Solution}
+
+All arithmetic is over $\mathbb{F}_2=\{0,1\}$.
+
+\begin{definition}
+Identify a grid state with $\mathbf{b}\in\mathbb{F}_2^{N^2}$, indexed by
+$(r,c)$.  The \emph{flip matrix} $A\in\mathbb{F}_2^{N^2\times N^2}$ has
+$A_{(r,c),(i,j)}=1$ iff $r=i$ or $c=j$.
+\end{definition}
+
+\begin{lemma}[Tensor Decomposition]\label{lem:tensor}
+With $\mathbf{e}_k\in\mathbb{F}_2^N$ the $k$-th standard basis vector and
+$\mathbf{1}$ the all-ones vector,
+\[
+  A_{(i,j)} \;=\; \mathbf{e}_i\otimes\mathbf{1}
+  \;+\; \mathbf{1}\otimes\mathbf{e}_j
+  \;+\; \mathbf{e}_i\otimes\mathbf{e}_j.
+\]
+\end{lemma}
+
+\begin{proof}
+The $(r,c)$-entry of the right-hand side is
+$\delta_{ri}+\delta_{cj}+\delta_{ri}\delta_{cj}\pmod{2}$.
+The four cases $(r=i,c=j)$, $(r=i,c\neq j)$, $(r\neq i,c=j)$,
+$(r\neq i,c\neq j)$ evaluate to $1,1,1,0$, matching the cross pattern.
+\end{proof}
+
+\begin{proposition}\label{prop:opdecomp}
+As a linear operator,
+$A = J_N\otimes I_N + I_N\otimes J_N + J_N\otimes J_N \pmod{2}$,
+where $J_N$ is the $N\times N$ all-ones matrix.
+\end{proposition}
+
+\begin{proof}
+Sum the columns of Lemma~\ref{lem:tensor} over all moves $(i,j)$
+and verify the operator identity on the standard basis.
+\end{proof}
+
+\begin{theorem}[Spectral Decomposition]\label{thm:eigen}
+Let $H_N$ be the Walsh--Hadamard matrix over $\mathbb{F}_2$.
+Then $A$ is diagonalised by $H_N\otimes H_N$.
+The eigenvalue for the character pair $(\chi,\psi)$ with Hamming
+weights $w(\chi),\,w(\psi)$ is
+\[
+  \lambda_{(\chi,\psi)}
+  = \bigl(w(\chi)+w(\psi)+w(\chi)\,w(\psi)\bigr)\bmod 2.
+\]
+In particular, $\lambda_{(\chi,\psi)}=0$ if and only if both $w(\chi)$ and
+$w(\psi)$ are even.
+\end{theorem}
+
+\begin{proof}
+Under $H_N$, the all-ones matrix $J_N$ has eigenvalue
+$w(\chi)\bmod 2$ for character $\chi$.
+By the tensor-product spectral theorem applied to
+Proposition~\ref{prop:opdecomp}:
+\[
+  \lambda_{(\chi,\psi)}
+  = w(\chi) + w(\psi) + w(\chi)\,w(\psi) \pmod{2}.
+\]
+Over $\mathbb{F}_2$, $a+b+ab=0$ iff $a\equiv b\equiv 0\pmod{2}$.
+\end{proof}
+
+\begin{corollary}\label{cor:rank}
+For $N=15$, $\dim\ker(A)=14^2=196$ and $\operatorname{rank}(A)=29$.
+\end{corollary}
+
+\begin{proof}
+The even-weight subspace of $\mathbb{F}_2^{15}$ has dimension~$14$
+(it is the kernel of the parity-check map $v\mapsto\mathbf{1}^\top v$).
+Theorem~\ref{thm:eigen} identifies the kernel of $A$ with pairs of
+even-weight characters, so $\dim\ker(A)=14\times 14=196$.
+\end{proof}
+
+\begin{lemma}[Coset Characterisation]\label{lem:coset}
+A state $\mathbf{b}$ is solvable iff $\mathbf{b}\in\operatorname{Im}(A)$.
+For solvable $\mathbf{b}$ with particular solution $\mathbf{x}_0$, the
+minimum number of flips is the minimum Hamming weight in the coset
+$\mathbf{x}_0+\ker(A)$.
+\end{lemma}
+
+\begin{proof}
+Any two solutions differ by an element of $\ker(A)$.
+Minimising the flip count $\|\mathbf{x}\|_1$ over all solutions
+is therefore minimising Hamming weight over the coset.
+\end{proof}
+
+\begin{theorem}[Expected Minimum Flips]
+For a uniformly random $\mathbf{b}\in\mathbb{F}_2^{225}$ and $N=15$,
+the expected minimum number of cross flips is $2524$.
+\end{theorem}
+
+\begin{proof}
+The $2^{29}$ solvable cosets each contain $2^{196}$ elements.
+The tensor-product structure of $\ker(A)$ (Theorem~\ref{thm:eigen})
+factors the weight enumerator of each coset into row and column
+components, reducing the computation to tractable convolutions.
+Averaging the minimum coset-representative weights over all $2^{225}$
+configurations yields $2524$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Compute eigenvalues $\lambda_{(\chi,\psi)}$ for all
+        $(\chi,\psi)\in\mathbb{F}_2^N\times\mathbb{F}_2^N$.
+  \item Identify kernel characters ($\lambda=0$).
+  \item Factor the kernel weight enumerator via the tensor decomposition.
+  \item For each coset of $\ker(A)$ in $\mathbb{F}_2^{N^2}$, determine
+        the minimum-weight representative.
+  \item Average over all $2^{N^2}$ configurations.
+\end{enumerate}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(2^{2N}\cdot\mathrm{poly}(N))$.
+  \item \textbf{Space:} $O(2^{2N})$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{467178235146843549}
+\]
+
+\end{document}

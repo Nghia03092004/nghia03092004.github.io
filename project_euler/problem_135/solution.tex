@@ -1,0 +1,67 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{Problem 135: Same Differences}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given positive integers $x, y, z$ in arithmetic progression, how many values of $n < 10^6$ have exactly ten solutions to $x^2 - y^2 - z^2 = n$?
+
+\section{Solution}
+
+\subsection{Algebraic Simplification}
+Let $x = y + d$, $z = y - d$ for common difference $d$. Then:
+\begin{align}
+x^2 - y^2 - z^2 &= (y+d)^2 - y^2 - (y-d)^2 \\
+&= 4yd - y^2 = y(4d - y)
+\end{align}
+
+\subsection{Constraints}
+For $x, y, z > 0$ and $n > 0$:
+\begin{itemize}
+    \item $y \geq 1$
+    \item $d \geq 1$ (and $d$ is a positive integer for the AP to have integer terms)
+    \item $z = y - d > 0 \Rightarrow d < y$
+    \item $n = y(4d - y) > 0 \Rightarrow d > y/4$
+\end{itemize}
+
+\subsection{Counting via Divisor Pairs}
+
+Set $u = y$ and $v = 4d - y$. Then $n = uv$ with:
+\begin{enumerate}
+    \item $u \geq 1$, $v \geq 1$
+    \item $v < 3u$ (from $d < y$)
+    \item $4 \mid (u + v)$ (so that $d = \frac{u+v}{4}$ is an integer)
+\end{enumerate}
+
+\begin{theorem}
+The number of solutions equals the number of divisor pairs $(u, v)$ of $n$ satisfying conditions (1)--(3) above.
+\end{theorem}
+
+\subsection{Algorithm}
+Iterate over all $y$ from 1 upward. For each $y$, iterate $d$ from $\lfloor y/4 \rfloor + 1$ to $\min(y-1, \lfloor(N-1)/y + y)/4\rfloor)$. Compute $n = y(4d - y)$ and increment a counter array. Finally, count entries equal to 10.
+
+\section{Result}
+The number of values of $n < 10^6$ with exactly 10 solutions is $\boxed{4989}$.
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$ amortized over all $(y, d)$ pairs.
+    \item \textbf{Space:} $O(N)$ for the counter array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4989}
+\]
+
+\end{document}

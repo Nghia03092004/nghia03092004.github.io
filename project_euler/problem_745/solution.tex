@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 745: Sum of Squares II}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer~$n$, define $g(n)$ to be the maximum perfect square dividing~$n$. Define $S(N) = \sum_{n=1}^{N} g(n)$. Given $S(10)=24$ and $S(100)=767$, find $S(10^{14}) \bmod 1\,000\,000\,007$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Unique Squarefree Decomposition]
+Every positive integer $n$ can be written uniquely as $n = a^2 b$ with $b$ squarefree, and $g(n) = a^2$.
+\end{theorem}
+
+\begin{proof}
+Write $n = \prod p_i^{e_i}$. Set $a = \prod p_i^{\lfloor e_i/2\rfloor}$ and $b = \prod p_i^{e_i \bmod 2}$. Then $n = a^2 b$, $b$ is squarefree, and $a^2$ is the largest perfect square dividing~$n$. Uniqueness follows from unique prime factorization.
+\end{proof}
+
+\begin{theorem}[Jordan Totient Reformulation]
+Define the Jordan totient function of order~$2$:
+\[
+J_2(e) = \sum_{a \mid e} a^2\,\mu(e/a) = e^2 \prod_{p \mid e}\!\left(1 - \frac{1}{p^2}\right).
+\]
+Then:
+\[
+S(N) = \sum_{e=1}^{\lfloor\sqrt{N}\rfloor} J_2(e)\left\lfloor\frac{N}{e^2}\right\rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+From the squarefree decomposition:
+\[
+S(N) = \sum_{a=1}^{\lfloor\sqrt{N}\rfloor} a^2 \sum_{\substack{b \le N/a^2 \\ b\text{ sqfree}}} 1 = \sum_{a=1}^{\lfloor\sqrt{N}\rfloor} a^2 \sum_{d=1}^{\lfloor\sqrt{N/a^2}\rfloor} \mu(d)\left\lfloor\frac{N}{a^2 d^2}\right\rfloor.
+\]
+Substituting $e = ad$:
+\[
+S(N) = \sum_{e=1}^{\lfloor\sqrt{N}\rfloor}\left\lfloor\frac{N}{e^2}\right\rfloor \underbrace{\sum_{a \mid e} a^2\,\mu(e/a)}_{= J_2(e)}.
+\]
+The multiplicative formula $J_2(e) = e^2\prod_{p \mid e}(1-1/p^2)$ follows from evaluating $J_2$ at prime powers: $J_2(p^k) = p^{2k} - p^{2(k-1)}$.
+\end{proof}
+
+\begin{lemma}[Sieve for $J_2$]
+The values $J_2(e)$ for $1 \le e \le L$ are computed by initializing $J_2(e) = e^2$ and, for each prime~$p \le L$, multiplying $J_2(m)$ by $(p^2-1)/p^2$ for every multiple~$m$ of~$p$. This runs in $O(L\log\log L)$ time.
+\end{lemma}
+
+\begin{proof}
+The sieve correctly accumulates $\prod_{p \mid e}(1-1/p^2)$ for each~$e$. The time bound follows from the standard prime-harmonic analysis.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Set $L = \lfloor\sqrt{N}\rfloor = 10^7$.
+\item Sieve $J_2(e) \bmod p$ for $1 \le e \le L$:
+  \begin{itemize}
+  \item Initialize $J_2(e) = e^2 \bmod p$.
+  \item For each prime $q \le L$, for each multiple~$m$: $J_2(m) \leftarrow J_2(m) \cdot (q^2-1) \cdot (q^2)^{-1} \bmod p$.
+  \end{itemize}
+\item Compute $S = \sum_{e=1}^{L} J_2(e) \cdot \lfloor N/e^2\rfloor \bmod p$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\sqrt{N}\log\log\sqrt{N})$ for the sieve, $O(\sqrt{N})$ for summation.
+\item \textbf{Space:} $O(\sqrt{N})$ for the $J_2$ array and prime sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{94586478}
+\]
+
+\end{document}

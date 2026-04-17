@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 361: Subsequence of Thue-Morse Sequence}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The \textbf{Thue-Morse sequence} $\{T(n)\}_{n \ge 0}$ is defined by $T(n) = s_2(n) \bmod 2$, where $s_2(n)$ is the number of 1-bits in the binary representation of~$n$. Define $A(n) = T(2^n - 1)$ and
+\[
+S(N) = \sum_{n=0}^{N} A(n) \cdot 2^n.
+\]
+Compute $S(10^{18}) \bmod (10^8 + 7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Thue-Morse Recurrence]
+The Thue-Morse sequence satisfies $T(2n) = T(n)$ and $T(2n+1) = 1 - T(n)$ for all $n \ge 0$.
+\end{theorem}
+
+\begin{proof}
+Writing $n$ in binary as $(b_k \cdots b_0)_2$, we have $2n = (b_k \cdots b_0\, 0)_2$ and $2n+1 = (b_k \cdots b_0\, 1)_2$. Thus $s_2(2n) = s_2(n)$ and $s_2(2n+1) = s_2(n) + 1$. Taking these modulo~2 yields the stated identities.
+\end{proof}
+
+\begin{lemma}[Subsequence Evaluation]
+For $n \ge 1$, $A(n) = T(2^n - 1) = n \bmod 2$.
+\end{lemma}
+
+\begin{proof}
+The binary representation of $2^n - 1$ consists of $n$ ones. Hence $s_2(2^n - 1) = n$ and $T(2^n - 1) = n \bmod 2$.
+\end{proof}
+
+\begin{theorem}[Closed-Form Summation]
+We have
+\[
+S(N) = 2 \cdot \frac{4^{\lfloor (N-1)/2 \rfloor + 1} - 1}{3}.
+\]
+\end{theorem}
+
+\begin{proof}
+By the lemma, $A(n) = n \bmod 2$, so only odd-indexed terms survive:
+\[
+S(N) = \sum_{\substack{k=0 \\ 2k+1 \le N}} 2^{2k+1} = 2\sum_{k=0}^{\lfloor(N-1)/2\rfloor} 4^k = 2 \cdot \frac{4^{\lfloor(N-1)/2\rfloor+1}-1}{3}.
+\]
+The geometric series formula applies since the common ratio is $4 \neq 1$.
+\end{proof}
+
+\begin{lemma}[Modular Inverse]
+Since $M = 10^8 + 7$ is prime and $\gcd(3, M) = 1$, by Fermat's little theorem $3^{-1} \equiv 3^{M-2} \pmod{M}$.
+\end{lemma}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve():
+    M = 10^8 + 7
+    N = 10^18
+    inv3 = pow(3, M - 2, M)
+    half = floor((N - 1) / 2)
+    power_of_4 = pow(4, half + 1, M)
+    S = (2 * (power_of_4 - 1) * inv3) mod M
+    return S
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log N)$ for modular exponentiation.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{178476944}
+\]
+
+\end{document}

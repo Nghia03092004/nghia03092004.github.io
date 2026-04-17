@@ -1,0 +1,64 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Problem 277: A Modified Collatz Sequence}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A modified Collatz sequence is defined by:
+\[
+a_{n+1} = \begin{cases}
+a_n / 3 & \text{if } a_n \equiv 0 \pmod{3} \quad (\text{`D'})\\
+(4a_n + 2) / 3 & \text{if } a_n \equiv 1 \pmod{3} \quad (\text{`U'})\\
+(2a_n - 1) / 3 & \text{if } a_n \equiv 2 \pmod{3} \quad (\text{`d'})
+\end{cases}
+\]
+
+Find the smallest $a_1 > 10^{15}$ whose sequence begins with \texttt{UDDDUdddDDUDDddDdDddDDUDDdUUDd}.
+
+\section{Solution}
+
+\subsection{Affine Representation}
+
+Each step is an affine map $a \mapsto \alpha a + \beta$:
+\begin{itemize}
+    \item \texttt{D}: $a \mapsto a/3$ (requires $a \equiv 0 \pmod{3}$)
+    \item \texttt{U}: $a \mapsto (4a+2)/3$ (requires $a \equiv 1 \pmod{3}$)
+    \item \texttt{d}: $a \mapsto (2a-1)/3$ (requires $a \equiv 2 \pmod{3}$)
+\end{itemize}
+
+After composing $k$ steps, $a_{k+1} = A \cdot a_1 + B$ for rational $A, B$. Each step also constrains $a_i \pmod{3}$.
+
+\subsection{Building the Congruence}
+
+We process steps left to right. Before step $i$, we have:
+\[
+a_i = A_i \cdot a_1 + B_i
+\]
+The required residue $a_i \bmod 3$ constrains $a_1 \bmod M_i$ for increasing moduli $M_i$.
+
+After processing all 31 steps, we obtain a single congruence:
+\[
+a_1 \equiv r \pmod{M}
+\]
+
+\subsection{Finding the Answer}
+
+The smallest $a_1 > 10^{15}$ satisfying the congruence is:
+\[
+a_1 = r + M \cdot \left\lceil \frac{10^{15} + 1 - r}{M} \right\rceil
+\]
+
+\section{Answer}
+
+\[
+\boxed{1125977393124310}
+\]
+
+\end{document}

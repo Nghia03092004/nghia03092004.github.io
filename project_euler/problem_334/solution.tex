@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 334: Spilling the Beans}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Beans in a row of bowls are redistributed by simultaneous adjacent transfers until the configuration is stable (non-decreasing). The initial configuration is derived from the input $n$ via triangular number representations. Define $T(n)$ as the total number of bean movements. Find $T(10^7)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+The $k$-th triangular number is $t_k = \frac{k(k+1)}{2}$.
+\end{definition}
+
+\begin{theorem}[Prefix-Sum Displacement]
+Let $(b_0, \ldots, b_{m-1})$ be the initial and $(b_0^*, \ldots, b_{m-1}^*)$ the stable configuration. With prefix sums $S_i = \sum_{j=0}^{i} b_j$ and $S_i^* = \sum_{j=0}^{i} b_j^*$:
+\[
+T = \sum_{i=0}^{m-1} |S_i - S_i^*|.
+\]
+\end{theorem}
+
+\begin{proof}
+Each bean transfer between adjacent bowls $i$ and $i+1$ changes the prefix sum $S_i$ by $\pm 1$. The process terminates when $S_i = S_i^*$ for all $i$. Since the process follows a shortest path in the prefix-sum lattice, the total movements equal $\sum_i |S_i - S_i^*|$.
+\end{proof}
+
+\begin{lemma}[Greedy Triangular Representation]
+Every non-negative integer $n$ has a unique representation as a sum of distinct triangular numbers via the greedy algorithm.
+\end{lemma}
+
+\begin{proof}
+The greedy algorithm terminates since each step strictly reduces $n$. Uniqueness follows from the growth rate of triangular numbers: for any $k$, $\sum_{j=1}^{k-1} t_j < t_k$ when $k$ is sufficiently large relative to the partial sums, preventing alternative representations.
+\end{proof}
+
+\begin{theorem}[Configuration Construction]
+The initial bowl configuration for input $n$ is determined by the indices appearing in the greedy triangular representation of $n$.
+\end{theorem}
+
+\begin{proof}
+By construction of the problem: each triangular number $t_k$ in the representation assigns beans to specific bowls, preserving the total count.
+\end{proof}
+
+\begin{lemma}[Efficient Computation]
+For a single input $n$, the greedy representation uses $O(\sqrt{n})$ triangular numbers, and $T(n)$ can be computed in $O(\sqrt{n} \log \sqrt{n})$ time.
+\end{lemma}
+
+\begin{proof}
+Since $t_k \sim k^2/2$, the number of terms is $O(\sqrt{n})$. Sorting the bowl configuration takes $O(\sqrt{n} \log \sqrt{n})$, and the prefix-sum computation is linear in the number of bowls.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Compute the greedy triangular representation of $n$.
+    \item Derive the initial bowl configuration.
+    \item Sort to obtain the stable configuration.
+    \item Compute prefix-sum differences and sum absolute values.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\sqrt{N} \log \sqrt{N})$ for a single evaluation of $T(N)$.
+    \item \textbf{Space:} $O(\sqrt{N})$ for the bowl configuration.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{150320021261690835}
+\]
+
+\end{document}

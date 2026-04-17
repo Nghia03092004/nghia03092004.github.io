@@ -1,0 +1,59 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 500: Problem 500!!!}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The number of divisors of 120 is 16. In fact, 120 is the smallest number having 16 divisors.
+
+Find the smallest number with $2^{500500}$ divisors. Give your answer modulo $500500507$.
+
+\section{Mathematical Analysis}
+
+\subsection{Divisor Count Formula}
+For $n = p_1^{a_1} \cdot p_2^{a_2} \cdots p_k^{a_k}$, the number of divisors is:
+\[
+\tau(n) = \prod_{i=1}^{k} (a_i + 1)
+\]
+We require $\tau(n) = 2^{500500}$. This forces each $(a_i + 1)$ to be a power of 2, i.e., each $a_i = 2^{j_i} - 1$ for some $j_i \geq 1$.
+
+\subsection{Minimization via Greedy}
+\begin{theorem}
+To minimize $n$ subject to $\tau(n) = 2^K$, assign larger exponents to smaller primes, choosing at each step the operation that increases $n$ by the smallest multiplicative factor.
+\end{theorem}
+
+\begin{proof}
+Suppose two primes $p < q$ and we assign exponent $a$ to $p$ and $b$ to $q$ with $a < b$. Swapping gives $p^b q^a < p^a q^b$ since $p < q$ and $b - a > 0$, so $(q/p)^{b-a} > 1$. Thus larger exponents on smaller primes yields a smaller product.
+\end{proof}
+
+\subsection{Priority Queue Algorithm}
+We maintain a min-heap of candidate multipliers. Initially, each prime $p$ is a candidate (multiplying by $p$ adds exponent 1). When we select $p^{2^j}$, the next candidate for that prime is $p^{2^{j+1}}$.
+
+After 500500 selections, $\tau(n) = 2^{500500}$.
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$ where $N = 500500$.
+    \item \textbf{Space:} $O(N)$ for the sieve and heap.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{35407281}
+\]
+
+\end{document}

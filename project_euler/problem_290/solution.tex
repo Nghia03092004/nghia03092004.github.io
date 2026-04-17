@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 290: Digital Signature}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+How many integers $0 \le n < 10^{18}$ satisfy $S(n) = S(137n)$, where $S(k)$ denotes the digit sum of $k$?
+
+\section{Analysis}
+
+\subsection{Divisibility Constraint}
+
+Since $S(k) \equiv k \pmod{9}$ for all non-negative integers $k$:
+\[
+S(n) = S(137n) \implies n \equiv 137n \pmod{9} \implies n \equiv 2n \pmod{9} \implies 9 \mid n
+\]
+
+\subsection{Digit DP Formulation}
+
+Process digits of $n$ from least significant to most significant. At each step, if the current digit is $y$ and the incoming carry from the multiplication $137n$ is $c$, then:
+\[
+137y + c = 10u + v, \quad u = \lfloor(137y + c)/10\rfloor, \quad v = (137y + c) \bmod 10
+\]
+
+The outgoing carry is $u$, and this digit contributes $y - v$ to the difference $S(n) - S(137n)$.
+
+\subsection{DP State}
+
+Define $f(\text{pos}, \text{carry}, \text{diff})$ = number of ways to choose the remaining digits (from position \texttt{pos} to 17) such that:
+\begin{itemize}
+    \item \texttt{carry} is the current carry in the multiplication by 137
+    \item \texttt{diff} is the accumulated digit-sum difference so far
+\end{itemize}
+
+\textbf{Base case:} $f(0, c, d) = [d = S(c)]$ where $S(c)$ is the digit sum of $c$.
+
+\textbf{Transition:} For each digit $y \in \{0, 1, \ldots, 9\}$:
+\[
+f(\text{pos}, \text{carry}, \text{diff}) \mathrel{+}= f(\text{pos}-1, u, \text{diff} + (y - v))
+\]
+where $137y + \text{carry} = 10u + v$.
+
+\textbf{Answer:} $f(18, 0, 0)$.
+
+\textbf{Final condition:} After all digits of $n$ are processed, the remaining carry $c$ produces additional upper digits in $137n$ whose digit sum $S(c)$ must equal the accumulated difference. Hence the answer is $\sum_{c=0}^{136} \text{dp}[c][\text{offset} + S(c)]$.
+
+\subsection{State Space Bounds}
+
+\begin{itemize}
+    \item Position: 0 to 18
+    \item Carry: $0 \le c \le 136$ (since $\max(137 \times 9 + c) / 10 \le 136$)
+    \item Diff: $-162 \le d \le 162$ (bounded by $\pm 9 \times 18$)
+\end{itemize}
+
+Total states: $19 \times 137 \times 325 \approx 846{,}000$.
+
+\subsection{Complexity}
+
+$O(\text{states} \times 10) \approx 8.5 \times 10^6$ --- runs in milliseconds.
+
+\section{Result}
+
+\[
+\boxed{20444710234716473}
+\]
+
+\section{Answer}
+
+\[
+\boxed{20444710234716473}
+\]
+
+\end{document}

@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 664: An Infinite Game}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+On an infinite checkerboard, tokens fill the left half. A token jumps over an adjacent token (removing it) to an empty square. With $n$~rows, let $F(n)$ be the maximum distance a token can reach rightward. Given $F(1)=6$, $F(11)=58$, $F(123)=1173$, find $F(1234567)$.
+
+\section{Conway's Potential Function}
+
+\begin{theorem}
+Assign weight $\varphi^{-(|x|+y)}$ to each square. Every valid move is non-increasing in total potential, where $\varphi = \frac{1+\sqrt{5}}{2}$.
+\end{theorem}
+
+\begin{proof}
+A jump removes two adjacent tokens and creates one. The potential change is
+\[
+\Delta\Phi = \varphi^{-(e+f)} - \varphi^{-(a+b)} - \varphi^{-(c+d)} \le 0
+\]
+using the identity $\varphi^{-2} + \varphi^{-1} = 1$.
+\end{proof}
+
+\begin{lemma}
+The total initial potential with $n$ rows is
+\[
+W(n) = \frac{1}{(\varphi-1)} \cdot \frac{1 - \varphi^{-n}}{1 - \varphi^{-1}}.
+\]
+Thus $F(n) \le \lfloor -\log_\varphi W(n) \rfloor$.
+\end{lemma}
+
+\section{Complexity}
+
+$O(1)$ using the analytic formula; $O(\log n)$ for the binary search on $d$.
+
+\section{Answer}
+
+\[
+\boxed{35295862}
+\]
+
+\end{document}

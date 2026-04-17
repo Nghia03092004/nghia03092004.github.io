@@ -1,0 +1,38 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 893: Steiner Systems}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Study Steiner systems $S(t,k,v)$: every $t$-subset in exactly one $k$-block.
+
+\section{Key Results}
+
+\begin{theorem}[Parameters]
+$b = \binom{v}{t}/\binom{k}{t}$, $r = \binom{v-1}{t-1}/\binom{k-1}{t-1}$.
+\end{theorem}
+
+\begin{theorem}[Fisher]
+$b \ge v$ for $t \ge 2$.
+\end{theorem}
+
+\begin{theorem}[Steiner Triple Systems]
+$S(2,3,v)$ exists iff $v \equiv 1$ or $3 \pmod{6}$.
+\end{theorem}
+
+\section{Notable Systems}
+Fano plane $S(2,3,7)$: 7 blocks. Witt design $S(5,8,24)$: 759 blocks.
+
+\section{Answer}
+
+\[
+\boxed{26688208}
+\]
+
+\end{document}

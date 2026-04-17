@@ -1,0 +1,74 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 440: GCD and Tiling}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Tile a board of length $n$ and height 1 with $1 \times 2$ blocks or $1 \times 1$ digit blocks. Let $T(n)$ be the number of ways. Define:
+\[
+S(L) = \sum_{a=1}^{L}\sum_{b=1}^{L}\sum_{c=1}^{L} \gcd(T(c^a), T(c^b))
+\]
+
+Find $S(2000) \bmod 987898789$.
+
+\section{Mathematical Analysis}
+
+\subsection{Recurrence}
+\[
+T(n) = 10 \cdot T(n-1) + T(n-2), \quad T(0) = 1,\; T(1) = 10
+\]
+
+\subsection{GCD Property}
+For sequences satisfying this type of recurrence with $T(0) = 1$:
+\[
+\gcd(T(m), T(n)) = T(\gcd(m, n))
+\]
+
+\subsection{Simplification}
+\[
+\gcd(T(c^a), T(c^b)) = T(c^{\min(a,b)})
+\]
+
+Thus:
+\[
+S(L) = \sum_{c=1}^{L} \sum_{k=1}^{L} T(c^k)(2L - 2k + 1)
+\]
+
+where the coefficient $2L - 2k + 1$ counts pairs $(a,b)$ with $\min(a,b) = k$.
+
+\subsection{Matrix Exponentiation}
+\[
+\begin{pmatrix} T(n+1) \\ T(n) \end{pmatrix} = \begin{pmatrix} 10 & 1 \\ 1 & 0 \end{pmatrix}^n \begin{pmatrix} 10 \\ 1 \end{pmatrix}
+\]
+
+To compute $T(c^k)$: let $M = A^{c}$. Then $A^{c^k} = M^{c^{k-1}}$. We iteratively compute $M_k = M_{k-1}^c$.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item For each $c = 1$ to $L$:
+    \begin{enumerate}
+        \item Compute base matrix $M_1 = A^c \bmod p$
+        \item For $k = 1$ to $L$: extract $T(c^k)$ from $M_k$, accumulate weighted sum
+        \item Update $M_{k+1} = M_k^c$
+    \end{enumerate}
+    \item All arithmetic modulo $987898789$
+\end{enumerate}
+
+\section{Result}
+\[
+\boxed{970746056}
+\]
+
+\section{Answer}
+
+\[
+\boxed{970746056}
+\]
+
+\end{document}

@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 956: Random Matrix Determinant}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider all $3 \times 3$ matrices with entries from $\{-1, 0, 1\}$. Let $S$ be the sum of the absolute values of the determinants over all such matrices. Find~$S$.
+
+\section{Enumeration Space}
+
+There are $3^9 = 19683$ such matrices. For each, we compute
+\[
+\det(A) = \sum_{\sigma \in S_3} \operatorname{sgn}(\sigma) \prod_{i=1}^{3} a_{i,\sigma(i)}.
+\]
+
+\section{Determinant Bounds}
+
+\begin{theorem}[Hadamard Inequality]
+For an $n \times n$ matrix with entries in $\{-1, 0, 1\}$,
+\[
+|\det(A)| \le \prod_{i=1}^{n} \|r_i\|_2 \le (\sqrt{n})^n = n^{n/2}.
+\]
+\end{theorem}
+
+\begin{proposition}
+For $3 \times 3$ matrices over $\{-1, 0, 1\}$, $|\det(A)| \le 4$.
+\end{proposition}
+
+\begin{proof}
+By Hadamard's bound, $|\det| \le 3^{3/2} \approx 5.196$, so $|\det| \le 5$. Achieving $|\det| = 5$ requires all entries nonzero and rows mutually orthogonal, which requires a Hadamard matrix of order~3. No such matrix exists (Hadamard matrices exist only for orders 1, 2, and multiples of~4). Hence $|\det| \le 4$.
+\end{proof}
+
+\section{Symmetry}
+
+\begin{proposition}
+The determinant distribution is symmetric: the number of matrices with $\det = d$ equals the number with $\det = -d$.
+\end{proposition}
+
+\begin{proof}
+Negating the first row maps $\det(A) \to -\det(A)$ and is a bijection on $\{-1,0,1\}$-matrices.
+\end{proof}
+
+\section{Algorithm}
+
+Exhaustive enumeration over all $3^9$ entry combinations, computing each determinant via the Sarrus/Leibniz formula.
+
+\section{Complexity}
+
+$O(3^{n^2})$ for $n \times n$ matrices. For $n = 3$: $O(19683)$ iterations, each $O(1)$.
+
+\section{Answer}
+
+\[
+\boxed{882086212}
+\]
+
+\end{document}

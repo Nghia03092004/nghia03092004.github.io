@@ -5,12 +5,12 @@
 Compute the difference between the square of the sum and the sum of the squares of the first 100 natural numbers:
 $$D(100) = \left(\sum_{i=1}^{100} i\right)^{\!2} - \sum_{i=1}^{100} i^2.$$
 
-## Notation
+## Mathematical Development
+
+### Notation
 
 Throughout, we write
 $$S_1(n) = \sum_{i=1}^{n} i, \qquad S_2(n) = \sum_{i=1}^{n} i^2, \qquad D(n) = S_1(n)^2 - S_2(n).$$
-
-## Mathematical Development
 
 **Lemma 1** (Sum of the first $n$ natural numbers). *For all $n \ge 1$,*
 $$S_1(n) = \frac{n(n+1)}{2}.$$

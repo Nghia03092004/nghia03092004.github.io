@@ -1,0 +1,62 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,algorithm,algpseudocode}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 456:\\Triangles Containing the Origin II}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define:
+\begin{align}
+x_n &= (1248n \bmod 32323) - 16161 \\
+y_n &= (8421n \bmod 30103) - 15051 \\
+P_n &= \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}
+\end{align}
+
+Let $C(n)$ be the number of triangles whose vertices are in $P_n$ which contain the origin in their interior. Find $C(2{,}000{,}000)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Origin Containment via Cross Products}
+A triangle with vertices $A$, $B$, $C$ contains the origin if and only if the cross products $A \times B$, $B \times C$, $C \times A$ all share the same sign, where $A \times B = a_x b_y - a_y b_x$.
+
+\subsection{Angular Sweep Method}
+For each point $P_i$, compute $\theta_i = \text{atan2}(y_i, x_i)$. Sort points by angle. A triangle does \textbf{not} contain the origin if and only if all three vertices lie within some open half-plane through the origin.
+
+\begin{theorem}
+Let $f(i)$ denote the number of points lying in the open semicircle $(\theta_i, \theta_i + \pi)$. Then:
+\[
+C(n) = \binom{n}{3} - \sum_{i=1}^{n} \binom{f(i)}{2}
+\]
+\end{theorem}
+
+\begin{proof}
+A triangle fails to contain the origin iff there exists a line through the origin with all three vertices on one side. Sweeping a half-plane, when the leading edge passes point $i$, point $i$ is the ``last'' point to enter. The points already inside form the set counted by $f(i)$. Each bad triangle is counted exactly once (by the point with the most clockwise position as boundary).
+\end{proof}
+
+\subsection{Two-Pointer Technique}
+After sorting angles, maintain pointers $i$ and $j$ such that $\theta_j - \theta_i < \pi$. As $i$ advances, $j$ advances monotonically, giving $f(i) = j - i - 1$ in the circular arrangement.
+
+\section{Complexity}
+\begin{itemize}
+\item Time: $O(n \log n)$ for sorting, $O(n)$ for sweep.
+\item Space: $O(n)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{333333208685971546}
+\]
+
+\end{document}

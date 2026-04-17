@@ -1,0 +1,94 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Problem 110: Diophantine Reciprocals II}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the least value of $n$ such that the number of distinct solutions of
+\[
+\frac{1}{x} + \frac{1}{y} = \frac{1}{n}
+\]
+exceeds $4{,}000{,}000$.
+
+\section{Mathematical Framework}
+
+As in Problem~108, from $(x-n)(y-n) = n^2$:
+\[
+f(n) = \left\lceil \frac{d(n^2)}{2} \right\rceil, \quad \text{where } d(n^2) = \prod_{i=1}^k (2a_i + 1)
+\]
+for $n = \prod_{i=1}^k p_i^{a_i}$.
+
+\subsection{Target}
+
+We need $f(n) > 4{,}000{,}000$, which requires:
+\[
+d(n^2) > 8{,}000{,}000 \quad \Longleftrightarrow \quad d(n^2) \geq 8{,}000{,}001
+\]
+
+\section{Optimization}
+
+\subsection{Objective}
+
+Minimize $n = \prod p_i^{a_i}$ subject to $\prod (2a_i + 1) \geq 8{,}000{,}001$ with $a_1 \geq a_2 \geq \cdots \geq a_k \geq 1$.
+
+\subsection{Equivalently}
+
+Minimize $\log n = \sum a_i \log p_i$ subject to $\sum \log(2a_i + 1) \geq \log(8{,}000{,}001)$.
+
+\subsection{Bounds}
+
+\begin{itemize}
+    \item Max primes needed: $3^{15} = 14{,}348{,}907 > 8{,}000{,}001$, so at most 15 primes.
+    \item Max exponent for 2: around $\frac{\log 8{,}000{,}001}{\log 3} \approx 14.5$.
+\end{itemize}
+
+\section{Algorithm}
+
+Recursively enumerate non-increasing exponent sequences with branch-and-bound pruning:
+
+\begin{enumerate}
+    \item At each step, try exponents from $\min(\text{max\_allowed}, \text{prev\_exponent})$ down to 1.
+    \item Prune when $\text{current\_n} \geq \text{best\_n}$.
+    \item Update best when the divisor product reaches the target.
+\end{enumerate}
+
+\section{Result}
+
+\[
+n = 2^3 \cdot 3^3 \cdot 5^2 \cdot 7^2 \cdot 11 \cdot 13 \cdot 17 \cdot 19 \cdot 23 \cdot 29 \cdot 31 \cdot 37
+\]
+\[
+= \boxed{9350130049860600}
+\]
+
+Verification:
+\[
+d(n^2) = 7^2 \cdot 5^2 \cdot 3^{8} = 8{,}037{,}225
+\]
+\[
+f(n) = \left\lceil \frac{8{,}037{,}225}{2} \right\rceil = 4{,}018{,}613 > 4{,}000{,}000 \; \checkmark
+\]
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time:} Bounded by the (small) number of non-increasing exponent sequences with effective pruning.
+    \item \textbf{Space:} $O(k)$ recursion depth, $k \leq 15$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{9350130049860600}
+\]
+
+\end{document}

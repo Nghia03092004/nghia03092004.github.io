@@ -1,0 +1,75 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 731: A Stoneham Number}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define the Stoneham number
+\[
+A = \sum_{i=1}^{\infty} \frac{1}{3^i \cdot 10^{3^i}}.
+\]
+Let $A(n)$ denote the 10 decimal digits starting from position $n$ in the decimal expansion of~$A$. Given $A(100) = 4938271604$ and $A(10^8) = 2584642393$, find $A(10^{16})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Isolated Term Structure]
+For all $i \ge 1$, the $i$-th term $T_i = \frac{1}{3^i \cdot 10^{3^i}}$ contributes nonzero digits only at decimal positions $\ge 3^i + 1$. Moreover, for $i \ge 2$, the digit blocks of consecutive terms $T_i$ and $T_{i+1}$ do not overlap.
+\end{theorem}
+
+\begin{proof}
+The term $T_i = 10^{-3^i} \cdot 3^{-i}$ has its first nonzero decimal digit at position $3^i + 1$. The decimal expansion of $1/3^i$ is purely periodic with period $\operatorname{ord}_{3^i}(10) \mid \phi(3^i) = 2 \cdot 3^{i-1}$. Hence $T_i$ occupies digits in $[3^i+1,\, 3^i + 2 \cdot 3^{i-1}]$. Since $3^i + 2 \cdot 3^{i-1} = 5 \cdot 3^{i-1} < 3^{i+1}$ for all $i \ge 1$, the blocks are isolated.
+\end{proof}
+
+\begin{lemma}[Digit Extraction]
+The $j$-th decimal digit of $1/3^i$ is $d_j = \lfloor 10\, r_j / 3^i \rfloor$ where $r_j = 10^{j-1} \bmod 3^i$, computable in $O(\log j)$ via modular exponentiation.
+\end{lemma}
+
+\begin{proof}
+By the long-division algorithm, $r_1 = 1$ and $r_{j+1} = 10\,r_j \bmod 3^i$ with $d_j = \lfloor 10\,r_j / 3^i \rfloor$. By induction, $r_j = 10^{j-1} \bmod 3^i$. The modular exponentiation $10^{j-1} \bmod 3^i$ requires $O(\log j)$ multiplications.
+\end{proof}
+
+\begin{theorem}[Digit Block Summation]
+The 10-digit block $A(n)$ equals the last 10 digits of
+\[
+\sum_{\substack{i \ge 1 \\ 3^i \le n+9}} B_i(n),
+\]
+where $B_i(n)$ is the integer formed by the 10 digits of $T_i$ at positions $n$ through $n+9$, with carries propagated.
+\end{theorem}
+
+\begin{proof}
+Since $A = \sum T_i$ and blocks are isolated (Theorem~1), only terms with $3^i \le n+9$ contribute at position $n$. Each such term's 10-digit block is extracted via Lemma~1 at offset $n - 3^i$. The sum with carry propagation yields $A(n)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Find all $i$ with $3^i \le n+9$ (about $\log_3 n$ terms).
+\item For each $i$, extract the 10-digit block of $1/3^i$ at offset $n - 3^i$ using modular exponentiation.
+\item Sum blocks as integers, take result modulo $10^{10}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log_3 n \cdot \log n)$ --- $O(\log_3 n)$ terms, each needing $O(\log n)$ modular exponentiation.
+\item \textbf{Space:} $O(\log n)$ for intermediate modular arithmetic.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{6086371427}
+\]
+
+\end{document}

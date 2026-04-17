@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 928: Catalan Number Variants}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find $\sum_{k=0}^{1000} C_k \bmod 10^9+7$, where $C_n = \frac{1}{n+1}\binom{2n}{n}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Ratio Recurrence]
+$C_0 = 1$ and $C_{n+1} = \frac{2(2n+1)}{n+2}\,C_n$ for $n \geq 0$.
+\end{theorem}
+
+\begin{proof}
+\[
+\frac{C_{n+1}}{C_n} = \frac{\binom{2n+2}{n+1}/(n+2)}{\binom{2n}{n}/(n+1)} = \frac{(2n+2)(2n+1)}{(n+1)^2}\cdot\frac{n+1}{n+2} = \frac{2(2n+1)}{n+2}. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Segner Convolution]
+For all $n \geq 0$: $C_{n+1} = \sum_{i=0}^{n} C_i\,C_{n-i}$.
+\end{theorem}
+
+\begin{proof}
+Dyck paths of semilength $n{+}1$ decompose at their first return to the $x$-axis at step $2(i{+}1)$: an up-step, a Dyck path of semilength~$i$ (shifted up), a down-step, and a Dyck path of semilength $n{-}i$. This gives $C_i \cdot C_{n-i}$ paths for each~$i$.
+\end{proof}
+
+\begin{theorem}[Generating Function]
+$C(x) = \sum_{n \geq 0} C_n x^n$ satisfies $C(x) = 1 + xC(x)^2$, with solution
+\[
+C(x) = \frac{1 - \sqrt{1-4x}}{2x}.
+\]
+\end{theorem}
+
+\begin{proof}
+The Segner recurrence gives $C(x) - 1 = xC(x)^2$. Solving the quadratic and choosing the branch with $C(0) = 1$ yields the formula.
+\end{proof}
+
+\begin{theorem}[Asymptotic Growth]
+$C_n \sim 4^n/(n^{3/2}\sqrt{\pi})$.
+\end{theorem}
+
+\begin{proof}
+Apply Stirling's approximation to $C_n = \frac{(2n)!}{(n+1)!\,n!}$.
+\end{proof}
+
+\begin{lemma}[Modular Inverse via Fermat]
+For prime~$p$ and $\gcd(a,p) = 1$: $a^{-1} \equiv a^{p-2}\pmod{p}$.
+\end{lemma}
+
+\begin{proof}
+By Fermat's little theorem, $a^{p-1} \equiv 1$, so $a \cdot a^{p-2} \equiv 1$.
+\end{proof}
+
+\section{Algorithm}
+
+Compute $C_k$ iteratively via the ratio recurrence: $C_{k+1} = C_k \cdot 2(2k{+}1) \cdot (k{+}2)^{-1} \bmod p$. Accumulate $\sum C_k$.
+
+Alternatively, precompute factorials and inverse factorials in $O(N)$, then evaluate $C_k = (2k)! / ((k{+}1)!\,k!)$ directly.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time (ratio):} $O(N\log p)$ --- one modular inverse per step.
+    \item \textbf{Time (factorial):} $O(N + \log p)$.
+    \item \textbf{Space:} $O(1)$ for ratio; $O(N)$ for factorial precomputation.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{81108001093}
+\]
+
+\end{document}

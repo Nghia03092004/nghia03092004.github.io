@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 520: Simbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer is a \emph{simber} if every decimal digit in its representation appears an even number of times. Let $Q(n)$ count simbers not exceeding $10^n$. Compute $Q(n)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Parity Bitmask Characterization]
+A positive integer $m$ with decimal digits $d_1 d_2 \cdots d_L$ is a simber if and only if
+\[
+\mathrm{mask} = \bigoplus_{i=1}^{L} e_{d_i} = \mathbf{0} \in \{0,1\}^{10},
+\]
+where $e_j$ is the standard basis vector with a 1 in position $j$ and $\oplus$ is componentwise XOR.
+\end{theorem}
+
+\begin{proof}
+The $j$-th component of $\mathrm{mask}$ is $\sum_{i=1}^{L}[d_i = j] \bmod 2$, which is 0 iff digit $j$ appears an even number of times. Thus $\mathrm{mask} = \mathbf{0}$ iff $m$ is a simber.
+\end{proof}
+
+\begin{theorem}[Digit DP Correctness]
+The DP with states $(\mathrm{pos}, \mathrm{mask}, \mathrm{tight}, \mathrm{started})$ correctly counts all simbers in $[1, N]$.
+\end{theorem}
+
+\begin{proof}
+The DP builds each integer $m \leq N$ digit-by-digit. The \texttt{tight} flag ensures $m \leq N$. The \texttt{started} flag handles leading zeros (which should not flip bit~0 in the mask). The \texttt{mask} tracks digit parities via XOR. At the terminal position, $\mathrm{mask} = 0$ with $\mathrm{started} = \mathrm{true}$ identifies simbers. Each integer corresponds to exactly one DP path.
+\end{proof}
+
+\begin{lemma}[State Space Bound]
+The number of distinct DP states is at most $4096L$, where $L$ is the number of digits of $N$.
+\end{lemma}
+
+\begin{proof}
+There are $L$ positions, $2^{10} = 1024$ masks, 2 values for \texttt{tight}, and 2 for \texttt{started}.
+\end{proof}
+
+\begin{lemma}[Simplification for $N = 10^n$]
+When $N = 10^n$, we can count simbers with exactly $\ell$ digits separately for $\ell = 1, \ldots, n$, since $10^n$ itself is not a simber.
+\end{lemma}
+
+\begin{proof}
+Since $10^n$ has digit~1 appearing once (odd), it is not a simber. Thus $Q(n)$ counts simbers in $[1, 10^n - 1]$, partitioned by digit length. For a fixed length~$\ell$, all $\ell$-digit numbers are below $10^n$, so no tight constraint is needed beyond the leading digit being nonzero.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For each digit length $L = 1, \ldots, n$:
+    \begin{enumerate}
+        \item Initialize: for each leading digit $d_1 \in \{1, \ldots, 9\}$, set $\mathrm{dp}[1 \ll d_1] \mathrel{+}= 1$.
+        \item For positions $2, \ldots, L$: for each mask and digit $d \in \{0, \ldots, 9\}$, transition $\mathrm{dp}[\mathrm{mask} \oplus (1 \ll d)] \mathrel{+}= \mathrm{dp}[\mathrm{mask}]$.
+        \item Add $\mathrm{dp}[0]$ to the total count.
+    \end{enumerate}
+    \item Return the total.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n^2 \cdot 2^{10} \cdot 10) = O(10240\,n^2)$. Optimizable to $O(n \cdot 10240)$ by processing all lengths simultaneously.
+    \item \textbf{Space:} $O(2^{10})$ with rolling arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{238413705}
+\]
+
+\end{document}

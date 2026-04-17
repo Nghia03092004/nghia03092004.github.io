@@ -1,0 +1,103 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 16: Power Digit Sum}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $S(m)$ denote the sum of the decimal digits of a positive integer~$m$. Compute~$S(2^{1000})$.
+
+\section{Formal Development}
+
+\begin{definition}
+For a positive integer $m$ with base-10 representation $m = \sum_{k=0}^{d-1} a_k \cdot 10^k$,
+where $0 \le a_k \le 9$ and $a_{d-1} \ne 0$, the \emph{digit sum} is $S(m) = \sum_{k=0}^{d-1} a_k$,
+and the \emph{digit length} is $d(m) = \lfloor \log_{10} m \rfloor + 1$.
+\end{definition}
+
+\begin{theorem}[Digit length of $2^n$]
+For all $n \ge 0$,
+\[
+d(2^n) = \lfloor n \log_{10} 2 \rfloor + 1.
+\]
+\end{theorem}
+
+\begin{proof}
+$d(2^n) = \lfloor \log_{10}(2^n) \rfloor + 1 = \lfloor n \log_{10} 2 \rfloor + 1.$
+\end{proof}
+
+\begin{corollary}
+$d(2^{1000}) = \lfloor 1000 \cdot 0.30103\ldots \rfloor + 1 = 302$.
+\end{corollary}
+
+\begin{theorem}[Digit sum congruence]
+For every positive integer $m$, $S(m) \equiv m \pmod{9}$.
+\end{theorem}
+
+\begin{proof}
+Write $m = \sum_{k=0}^{d-1} a_k \cdot 10^k$. Since $10 \equiv 1 \pmod{9}$, we have
+$10^k \equiv 1 \pmod{9}$ for all $k \ge 0$, so $m \equiv \sum a_k = S(m) \pmod{9}$.
+\end{proof}
+
+\begin{lemma}[Order of 2 modulo 9]
+$\mathrm{ord}_9(2) = 6$.
+\end{lemma}
+
+\begin{proof}
+Direct computation: $2^1 \equiv 2$, $2^2 \equiv 4$, $2^3 \equiv 8$, $2^4 \equiv 7$,
+$2^5 \equiv 5$, $2^6 \equiv 1 \pmod{9}$, and no smaller positive exponent yields~$1$.
+\end{proof}
+
+\begin{proposition}
+$2^{1000} \equiv 7 \pmod{9}$.
+\end{proposition}
+
+\begin{proof}
+Since $1000 = 166 \cdot 6 + 4$ and $\mathrm{ord}_9(2) = 6$, we have
+$2^{1000} \equiv 2^4 = 16 \equiv 7 \pmod{9}$.
+\end{proof}
+
+\begin{theorem}[Bounds]
+$1 \le S(2^n) \le 9\bigl(\lfloor n \log_{10} 2 \rfloor + 1\bigr)$ for all $n \ge 1$.
+\end{theorem}
+
+\begin{proof}
+The leading digit of $2^n$ is at least~$1$, giving the lower bound. Each of the
+$d(2^n)$ digits is at most~$9$, giving the upper bound.
+\end{proof}
+
+\paragraph{Verification.}
+The answer $S(2^{1000}) = 1366$ satisfies $1366 = 151 \cdot 9 + 7 \equiv 7 \pmod{9}$,
+consistent with $2^{1000} \equiv 7 \pmod{9}$.
+
+\section{Complexity}
+
+\begin{proposition}
+The iterative doubling algorithm runs in $\Theta(n^2)$ time and $\Theta(n)$ space.
+\end{proposition}
+
+\begin{proof}
+At iteration~$i$, the digit array has length $\Theta(i)$. The total work is
+$\sum_{i=1}^{n} \Theta(i) = \Theta(n^2)$. The array stores $O(n)$ digits.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{1366}
+\]
+
+\end{document}

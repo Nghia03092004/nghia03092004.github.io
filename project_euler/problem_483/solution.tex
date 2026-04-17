@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 483: Repeated Permutation}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $f(P)$ be the order of permutation $P$ (minimum positive $m$ with $P^m = \mathrm{id}$). Let $g(n)$ be the average of $f(P)^2$ over all $n!$ permutations of $\{1,\ldots,n\}$. Given $g(3)=31/6$, $g(5)=2081/120$, $g(20)\approx 5.106136147\times 10^3$, find $g(350)$ in scientific notation with 10 significant digits.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Order from cycle type]
+If permutation $P$ has cycle type $\lambda = (c_1^{m_1}, \ldots, c_k^{m_k})$, then $f(P) = \operatorname{lcm}(c_1, \ldots, c_k)$.
+\end{theorem}
+
+\begin{proof}
+Each cycle of length $c$ returns to identity after exactly $c$ applications. The permutation $P^m = \mathrm{id}$ iff $c_i \mid m$ for all $i$. The smallest such $m$ is $\operatorname{lcm}(c_1, \ldots, c_k)$.
+\end{proof}
+
+\begin{theorem}[Average of $f^2$]
+\[
+g(n) = \sum_{\lambda\vdash n} \frac{\operatorname{lcm}(\lambda)^2}{\prod_i c_i^{m_i}\cdot m_i!}
+\]
+where the sum is over all integer partitions of $n$.
+\end{theorem}
+
+\begin{proof}
+The number of permutations in $S_n$ with cycle type $\lambda$ is $n!/\prod_i c_i^{m_i}m_i!$. Therefore:
+\[
+g(n) = \frac{1}{n!}\sum_{\lambda\vdash n}\frac{n!}{\prod_i c_i^{m_i}m_i!}\cdot\operatorname{lcm}(\lambda)^2 = \sum_{\lambda\vdash n}\frac{\operatorname{lcm}(\lambda)^2}{\prod_i c_i^{m_i}m_i!}. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Prime decomposition]
+Since $\operatorname{lcm}(\lambda) = \prod_p p^{e_p(\lambda)}$ where $e_p(\lambda) = \max_i v_p(c_i)$:
+\[
+\operatorname{lcm}(\lambda)^2 = \prod_p p^{2e_p(\lambda)}.
+\]
+This multiplicative structure enables a prime-by-prime dynamic programming approach.
+\end{theorem}
+
+\begin{proof}
+The LCM of integers equals the product over primes of the maximal prime-power factor. Squaring preserves the product decomposition.
+\end{proof}
+
+\begin{lemma}[Cycle index normalization]
+\[
+\prod_{c=1}^{\infty}\exp\!\left(\frac{x^c}{c}\right) = \frac{1}{1-x},
+\]
+confirming $\sum_{\lambda\vdash n} \frac{1}{\prod_i c_i^{m_i}m_i!} = 1$ for all $n$.
+\end{lemma}
+
+\begin{proof}
+$\prod_{c\ge 1}\exp(x^c/c) = \exp\bigl(\sum_{c\ge 1}x^c/c\bigr) = \exp(-\ln(1-x)) = 1/(1-x)$. The coefficient of $x^n$ is~1.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Decompose the computation by primes $p \le 350$: for each prime, handle the contribution of $p$-powers to the LCM via a nested DP.
+\item The DP state tracks remaining elements $r \in \{0, \ldots, 350\}$.
+\item For each cycle length $c$, update the DP by considering $m = 0, 1, 2, \ldots$ cycles of length $c$.
+\item Combine prime contributions multiplicatively.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(n^2 \cdot \pi(n))$ where $\pi(350)\approx 70$, giving $\approx 8.6\times 10^6$ operations.
+\item \textbf{Space:} $O(n)$ for the DP array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4.993401567e22}
+\]
+
+\end{document}

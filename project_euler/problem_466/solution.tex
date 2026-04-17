@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+
+\title{Problem 466: Distinct Terms in a Multiplication Table}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $P(m, n)$ be the number of distinct terms in an $m \times n$ multiplication table. Given: $P(64, 64) = 1263$, $P(12, 345) = 1998$, $P(32, 10^{15}) = 13826382602124302$. Find $P(64, 10^{16})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Set-theoretic formulation]
+\label{thm:set}
+$P(m, n) = |\{v \in \mathbb{Z}^+ : \exists\, d \mid v,\; d \le m,\; v/d \le n\}|$.
+\end{theorem}
+
+\begin{proof}
+Entry $v = i \cdot j$ appears iff $i \le m$ and $j = v/i \le n$, so $v$ appears iff it has a divisor in $[1, m]$ with complementary quotient in $[1, n]$.
+\end{proof}
+
+\begin{theorem}[Row-by-row decomposition]
+\label{thm:row}
+$P(m, n) = \sum_{i=1}^{m} |S_i \setminus \bigcup_{k<i} S_k|$ where $S_i = \{ij : 1 \le j \le n\}$.
+\end{theorem}
+
+\begin{proof}
+Standard decomposition of a union into disjoint incremental contributions.
+\end{proof}
+
+\begin{lemma}[New element characterization]
+\label{lem:new}
+A value $v = ij$ in row~$i$ is new iff $i$ is the smallest divisor of~$v$ in $[1, m]$ with $v/i \le n$.
+\end{lemma}
+
+\begin{proof}
+If $v$ appeared in row $k < i$, then $k \mid v$ and $v/k \le n$. Conversely, if no such~$k$ exists, $v$ is new.
+\end{proof}
+
+\begin{theorem}[M\"obius inclusion-exclusion]
+\label{thm:mobius}
+For each row~$i$, the count of new elements is computed by M\"obius inversion over the divisor lattice of numbers up to~$m$:
+\[
+\mathrm{new}_i = \sum_{T} \mu(T) \cdot \left\lfloor \frac{n}{\mathrm{lcm}(i, T)/i} \right\rfloor
+\]
+where the sum ranges over subsets~$T$ of ``blocking'' rows $k < i$ that share multiples with row~$i$, and $\mu(T)$ is the M\"obius coefficient for the inclusion-exclusion.
+\end{theorem}
+
+\begin{proof}
+For each $j \in [1, n]$, the value $ij$ is old iff some $k < i$ divides $ij$ with $ij/k \le n$. Inclusion-exclusion over such~$k$ gives the stated formula. Each term reduces to a floor-division sum.
+\end{proof}
+
+\begin{lemma}[Hyperbola method]
+\label{lem:hyp}
+Sums of the form $\sum_{j=1}^{N} \lfloor N/j \rfloor$ are computable in $O(\sqrt{N})$ time.
+\end{lemma}
+
+\begin{proof}
+Split at $j = \lfloor \sqrt{N} \rfloor$: compute directly for $j \le \sqrt{N}$, and group by quotient value for $j > \sqrt{N}$. Both ranges contribute $O(\sqrt{N})$ terms.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For each row $i = 1, \ldots, m$:
+    \begin{enumerate}
+        \item Identify blocking rows $k < i$ sharing common multiples with row~$i$.
+        \item Apply M\"obius inclusion-exclusion to count new elements.
+        \item Use the hyperbola method for efficient floor-sum evaluation.
+    \end{enumerate}
+    \item Sum all $\mathrm{new}_i$ to get $P(m, n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(m \cdot \sqrt{n} \cdot 2^{\omega(m)})$ where $\omega(m)$ counts distinct prime factors of numbers up to~$m$. For $m = 64$, $n = 10^{16}$: feasible.
+    \item \textbf{Space:} $O(m)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{258381958195474745}
+\]
+
+\end{document}

@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 226: A Scoop of Blancmange}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The \textbf{Blancmange curve} (Takagi curve) is
+\[
+\operatorname{blanc}(x) = \sum_{n=0}^{\infty} \frac{s(2^n x)}{2^n},
+\]
+where $s(x) = \min_{k \in \mathbb{Z}} |x - k|$. Consider the circle
+\[
+C: \left(x - \tfrac{1}{4}\right)^2 + \left(y - \tfrac{1}{2}\right)^2 = \tfrac{1}{16}.
+\]
+Find the area under the Blancmange curve enclosed by $C$, to 8 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Uniform Convergence]
+The series $\operatorname{blanc}(x)$ converges uniformly on $\mathbb{R}$.
+\end{theorem}
+\begin{proof}
+Since $0 \leq s(t) \leq 1/2$, each term is bounded by $1/2^{n+1}$. The sum $\sum 1/2^{n+1} = 1$ converges, so by the Weierstrass $M$-test, convergence is uniform.
+\end{proof}
+
+\begin{theorem}[Continuity and Non-Differentiability]
+$\operatorname{blanc}(x)$ is continuous everywhere and differentiable nowhere on $[0,1]$.
+\end{theorem}
+\begin{proof}
+Continuity follows from the uniform limit of continuous functions. Nowhere-differentiability is the classical Takagi theorem (1903).
+\end{proof}
+
+\begin{lemma}[Truncation Error]
+Truncating at $N$ terms gives error at most $2^{-N}$.
+\end{lemma}
+\begin{proof}
+$\left|\sum_{n=N}^{\infty} s(2^n x)/2^n\right| \leq \sum_{n=N}^{\infty} 1/2^{n+1} = 1/2^N$.
+\end{proof}
+
+\begin{theorem}[Symmetry]
+$\operatorname{blanc}(x) = \operatorname{blanc}(1-x)$ for all $x$.
+\end{theorem}
+\begin{proof}
+$s(t) = s(1-t)$ for all $t$, and $s$ has period~1, so $s(2^n x) = s(2^n(1-x))$ for all $n$.
+\end{proof}
+
+\begin{lemma}[Circle Arcs]
+The lower arc of $C$ on $[0, 1/2]$ is $y_{\text{low}}(x) = 1/2 - \sqrt{1/16 - (x - 1/4)^2}$.
+\end{lemma}
+\begin{proof}
+Solve the circle equation for $y$, taking the negative branch.
+\end{proof}
+
+\begin{theorem}[Intersection and Area]
+The Blancmange curve intersects $C$ at $x_2 = 1/2$ and at $x_1 \approx 0.0789$. The enclosed area is
+\[
+A = \int_{x_1}^{x_2}\bigl[\operatorname{blanc}(x) - y_{\text{low}}(x)\bigr]\,dx.
+\]
+\end{theorem}
+\begin{proof}
+At $x = 1/2$: $\operatorname{blanc}(1/2) = 1/2$ and $(1/4)^2 + 0 = 1/16$, so the point lies on $C$. The left intersection $x_1$ is the unique root of $(x - 1/4)^2 + (\operatorname{blanc}(x) - 1/2)^2 = 1/16$ on $(0, 1/2)$. Between $x_1$ and $x_2$, the curve lies above $y_{\text{low}}$ and inside $C$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Truncate the Blancmange series at $N = 60$ terms (error $< 2^{-60} \approx 10^{-18}$).
+\item Find $x_1$ by Brent's root-finding method.
+\item Evaluate the integral by Simpson's rule with $M = 2 \times 10^6$ subdivisions.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(N \cdot M) \approx 1.2 \times 10^8$ operations.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.11316017}
+\]
+
+\end{document}

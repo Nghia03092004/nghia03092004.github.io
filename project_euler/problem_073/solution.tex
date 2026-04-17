@@ -1,0 +1,102 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 73: Counting Fractions in a Range}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+How many reduced proper fractions lie strictly between $1/3$ and $1/2$ in the Farey sequence $F_{12000}$?
+
+\section{Mathematical Analysis}
+
+\begin{theorem}[Range Bounds]
+For fixed $d \geq 2$, the integers $n$ with $1/3 < n/d < 1/2$ satisfy $\lfloor d/3 \rfloor + 1 \leq n \leq \lfloor (d-1)/2 \rfloor$.
+\end{theorem}
+
+\begin{proof}
+$n/d > 1/3 \Rightarrow n > d/3 \Rightarrow n \geq \lfloor d/3 \rfloor + 1$. Similarly, $n/d < 1/2 \Rightarrow n < d/2 \Rightarrow n \leq \lfloor (d-1)/2 \rfloor$.
+\end{proof}
+
+\begin{theorem}[M\"obius Identity for Coprimality]
+For positive integers $n, d$:
+\[
+[\gcd(n,d) = 1] = \sum_{k \mid \gcd(n,d)} \mu(k).
+\]
+\end{theorem}
+
+\begin{proof}
+Define $F(g) = \sum_{k \mid g} \mu(k)$. Since $\mu * \mathbf{1} = \varepsilon$ (the Dirichlet identity), $F(g) = \varepsilon(g) = [g = 1]$. Explicitly, for $g = p_1^{a_1} \cdots p_r^{a_r}$ with $g > 1$:
+\[
+F(g) = \prod_{i=1}^{r}\bigl(1 + (-1)\bigr) = 0,
+\]
+and $F(1) = 1$.
+\end{proof}
+
+\begin{theorem}[M\"obius Summation]
+The count of reduced fractions in $(1/3, 1/2)$ with denominator $\leq N$ is:
+\[
+C(N) = \sum_{k=1}^{N} \mu(k) \cdot G\!\left(\left\lfloor N/k \right\rfloor\right),
+\]
+where $G(M) = \sum_{d=2}^{M} \bigl(\lfloor (d-1)/2 \rfloor - \lfloor d/3 \rfloor\bigr)$.
+\end{theorem}
+
+\begin{proof}
+Expand the coprimality condition via Theorem~2:
+\[
+C(N) = \sum_{d=2}^{N} \sum_{\lfloor d/3 \rfloor < n < \lceil d/2 \rceil} \sum_{k \mid \gcd(n,d)} \mu(k).
+\]
+Substitute $d = kd'$, $n = kn'$ and exchange summation order. For fixed $k$, the inner sum counts integers $n'$ with $d'/3 < n' < d'/2$, which equals $\lfloor (d'-1)/2 \rfloor - \lfloor d'/3 \rfloor$ when non-negative. Summing over $d' = 2, \ldots, \lfloor N/k \rfloor$ gives $G(\lfloor N/k \rfloor)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count fractions in $(1/3, 1/2)$ via M\"obius summation}
+\begin{algorithmic}[1]
+\Require $N = 12000$
+\State Sieve $\mu[1..N]$
+\State $\text{count} \gets 0$
+\For{$k = 1$ \textbf{to} $N$}
+    \If{$\mu[k] = 0$} \textbf{continue} \EndIf
+    \State $M \gets \lfloor N/k \rfloor$
+    \State $c \gets 0$
+    \For{$d = 2$ \textbf{to} $M$}
+        \State $\text{lo} \gets \lfloor d/3 \rfloor + 1$,\quad $\text{hi} \gets \lfloor (d-1)/2 \rfloor$
+        \If{$\text{hi} \geq \text{lo}$}
+            \State $c \gets c + \text{hi} - \text{lo} + 1$
+        \EndIf
+    \EndFor
+    \State $\text{count} \gets \text{count} + \mu[k] \cdot c$
+\EndFor
+\State \Return count
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\textbf{M\"obius sieve:} $O(N \log \log N)$.
+
+\textbf{Double sum:} $\sum_{k=1}^{N} \lfloor N/k \rfloor = O(N \log N)$ iterations (harmonic sum).
+
+\textbf{Time:} $O(N \log N)$. \quad \textbf{Space:} $O(N)$.
+
+\section{Answer}
+
+\[
+\boxed{7295372}
+\]
+
+\end{document}

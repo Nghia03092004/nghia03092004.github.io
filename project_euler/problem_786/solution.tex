@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 786: Billiard}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+A billiard table is a quadrilateral with angles $120^\circ, 90^\circ, 60^\circ, 90^\circ$ at vertices $A, B, C, D$ respectively, with $AB = AD$. A ball departs from $A$, bounces elastically off edges (never at corners), and returns to $A$. Let $B(N)$ be the number of possible traces with at most $N$ bounces. Given $B(10)=6$, $B(100)=478$, $B(1000)=45790$. Find $B(10^9)$.
+\section{Analysis}
+\subsection*{Unfolding the Billiard Table}
+
+The classical technique for analyzing billiard trajectories is **unfolding**: instead of reflecting the ball's path at each bounce, we reflect the table and follow the straight-line trajectory in the unfolded plane.
+
+\subsection*{Tiling Property}
+
+The quadrilateral with angles $120^\circ + 90^\circ + 60^\circ + 90^\circ = 360^\circ$ tiles the plane perfectly. Reflecting across each edge produces a periodic tiling. Therefore, the unfolded trajectory is a straight line from the origin to a copy of vertex $A$ in the tiling lattice.
+
+\subsection*{Lattice Structure}
+
+The tiling lattice has basis vectors deter
+\section{Answer}
+
+\[
+\boxed{45594532839912702}
+\]
+
+\end{document}

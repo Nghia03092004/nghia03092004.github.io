@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 851: SOP and POS}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A Boolean function $f\colon \{0,1\}^n \to \{0,1\}$ can be represented in Sum of Products (SOP) form
+$f = \bigvee_{i} \bigwedge_{j} l_{ij}$, where each $l_{ij}$ is a literal.
+The \emph{minimal SOP} uses the fewest product terms.
+Compute the total number of minimal SOP representations for a given truth table.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Quine, 1952]
+Every minimal SOP of $f$ consists entirely of prime implicants.
+\end{theorem}
+\begin{proof}
+Let $S = \{p_1, \ldots, p_k\}$ be a minimal SOP. Suppose $p_i$ is not a prime implicant.
+Then there exists a product term $q$ with fewer literals such that $p_i \Rightarrow q \Rightarrow f$.
+Replacing $p_i$ by $q$ in $S$ preserves correctness, since every minterm covered by $p_i$
+is also covered by $q$, and $q$ introduces no minterm outside $f$. Repeating until all terms
+are prime yields a valid SOP with at most $k$ terms, contradicting minimality
+unless $p_i$ was already prime.
+\end{proof}
+
+\begin{theorem}[Minimum Cover Equivalence]
+The number of minimal SOP forms equals the number of minimum-cardinality covers
+of the on-set by prime implicants, after extracting essential prime implicants.
+\end{theorem}
+\begin{proof}
+By Theorem~1, every minimal SOP uses only PIs. An essential PI uniquely covers
+some minterm, so it appears in every minimal cover. After removing essential PIs and
+their covered minterms, each minimum cover of the residual chart, combined with
+the essential PIs, gives a distinct minimal SOP, and every minimal SOP arises this way.
+\end{proof}
+
+\begin{lemma}[Duality]
+The minimal POS of $f$ is the minimal SOP of $\overline{f}$ with all literals complemented.
+\end{lemma}
+\begin{proof}
+By De Morgan's laws, $\overline{\bigwedge_i \bigvee_j l_{ij}} = \bigvee_i \bigwedge_j \overline{l_{ij}}$,
+so minimizing the POS of $f$ is equivalent to minimizing the SOP of $\overline{f}$.
+\end{proof}
+
+\begin{theorem}[NP-Hardness]
+The minimum cover problem for the prime implicant chart is NP-hard.
+\end{theorem}
+\begin{proof}
+Reduce from minimum set cover: given $(\mathcal{U}, \mathcal{S})$, construct a Boolean
+function whose minterms correspond to $\mathcal{U}$ and whose PIs correspond to
+$\mathcal{S}$. A minimum SOP corresponds to a minimum set cover. Since set cover
+is NP-hard (Karp, 1972), so is PI chart covering.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Generate all prime implicants via Quine--McCluskey: iteratively merge minterms
+      differing in exactly one bit.
+\item Build the prime implicant chart.
+\item Extract essential PIs (those uniquely covering some minterm).
+\item Apply Petrick's method to find all minimum covers of the residual chart.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(3^n/n)$ for PI generation; NP-hard for the minimum cover step.
+\item \textbf{Space:} $O(3^n)$ to store all prime implicants.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{726358482}
+\]
+
+\end{document}

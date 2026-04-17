@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 703: Circular Logic II}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider a Boolean function on $B^n$ with circular shift dynamics. Define $f(b_1,\dots,b_n)=c_1,\dots,c_n$ where $c_i=b_{i+1}$ for $i<n$ and $c_n = b_1 \text{ AND } (b_2 \text{ XOR } b_3)$. Let $S(n)$ count maps $T:B^n\to B$ with $T(x) \text{ AND } T(f(x)) = \text{false}$ for all $x$. Given $S(3)=35$ and $S(4)=2118$, find $S(20)\bmod 1001001011$.
+
+\section{Mathematical Analysis}
+
+Independent-set counting on the functional graph of $f$, combined with a transfer matrix on the state graph.
+
+\section{Complexity Analysis}
+
+State enumeration is $O(2^n)$, with transfer-matrix optimizations available.
+
+\section{Answer}
+
+\[
+\boxed{843437991}
+\]
+
+\end{document}

@@ -1,10 +1,10 @@
 # Personal Website
 
-This repository contains a personal website built with Astro. It is the main long-term working repo for a broader personal web presence: essays, technical notes, engineering logs, and a large Project Euler archive.
+This repository is the main long-term working copy of a personal website built with Astro.
 
-Project Euler is an important section of the site, but it is not the whole identity of the repository.
+The site is intended to grow into a broader personal web presence with parallel major areas such as essays, code notes, mathematics, research, and Project Euler. Project Euler is currently the largest subsystem, but it is treated as one major website section rather than the whole identity of the repository.
 
-## Main source layout
+## Repository layout
 
 ```text
 .
@@ -12,27 +12,34 @@ Project Euler is an important section of the site, but it is not the whole ident
 |- project_euler/
 |  |- problem_XXX/
 |  |  |- solution.md
+|  |  |- solution.tex
 |  |  |- solution.cpp
 |  |  |- solution.py
-|  |  `- statement.html        # optional mirrored Project Euler statement
+|  |  `- statement.html
+|  |- metadata.json
+|  |- SOURCES.md
+|  |- STRUCTURE.md
+|  |- TAXONOMY.md
+|  `- taxonomy.json
 |- public/
-|  |- favicon.ico
-|  |- favicon.svg
-|  `- project-euler-media/     # optional mirrored statement media
+|  `- project-euler-media/
 |- src/
 |  |- components/
 |  |- data/
 |  |  |- code/
-|  |  |- essays/
-|  |  `- euler-solved-counts.json
+|  |  `- essays/
+|  |- features/
+|  |  `- project-euler/
+|  |     |- components/
+|  |     |- data/
+|  |     `- lib/
 |  |- layouts/
 |  |- lib/
 |  |- pages/
 |  |- site.config.ts
 |  `- styles/
 |- tools/
-|  |- project-euler-latex-fallback.mjs
-|  `- sync-project-euler-statements.mjs
+|  `- project-euler/
 |- astro.config.mjs
 |- package.json
 |- package-lock.json
@@ -53,13 +60,13 @@ Start the local development server:
 npm run dev
 ```
 
-Build the site for production:
+Build for production:
 
 ```bash
 npm run build
 ```
 
-Run Astro's checks:
+Run Astro checks:
 
 ```bash
 npm run check
@@ -71,84 +78,122 @@ General site metadata:
 
 - `src/site.config.ts`
 
-Key pages and layout:
+Shared layout and styling:
+
+- `src/layouts/BaseLayout.astro`
+- `src/layouts/PostLayout.astro`
+- `src/styles/global.css`
+
+Main routes:
 
 - `src/pages/index.astro`
 - `src/pages/about.astro`
 - `src/pages/project-euler/index.astro`
 - `src/pages/project-euler/[slug].astro`
-- `src/layouts/BaseLayout.astro`
-- `src/styles/global.css`
 
 Essay and code content:
 
 - `src/data/essays/`
 - `src/data/code/`
 
-Project Euler content:
+Project Euler feature logic:
+
+- `src/features/project-euler/lib/euler.ts`
+- `src/features/project-euler/lib/euler-markdown.ts`
+- `src/features/project-euler/lib/euler-statement.ts`
+- `src/features/project-euler/lib/euler-metadata.ts`
+- `src/features/project-euler/components/`
+
+Project Euler source content:
 
 - `project_euler/problem_XXX/solution.md`
+- `project_euler/problem_XXX/solution.tex`
 - `project_euler/problem_XXX/solution.cpp`
 - `project_euler/problem_XXX/solution.py`
+- `project_euler/problem_XXX/statement.html`
 
-Project Euler loading and metadata:
+Project Euler documentation:
 
-- `src/content.config.ts`
-- `src/lib/euler.ts`
-- `src/lib/euler-markdown.ts`
-- `src/lib/euler-statement.ts`
+- `project_euler/STRUCTURE.md`
+- `project_euler/SOURCES.md`
+- `project_euler/TAXONOMY.md`
+- `project_euler/metadata.json`
 
-## How Project Euler content works
+## How Project Euler works in the current site
 
 Project Euler pages are not loaded from `src/data/project-euler/`.
 
-The active implementation reads directly from the folder-based archive under:
+The active site implementation reads directly from the folder-based archive under:
 
 ```text
 project_euler/problem_XXX/
 ```
 
-Each problem directory contains the local solution sources:
+`src/content.config.ts` scans those problem folders, renders each `solution.md`, and builds the `/project-euler/problem-XXXX/` routes.
 
-- `solution.md`
-- `solution.cpp`
-- `solution.py`
+The current rendering model is:
 
-It may also contain:
+- `solution.md` is the active Astro-rendered page body.
+- `statement.html` is the mirrored official Project Euler statement when available.
+- `solution.cpp` and `solution.py` are rendered in the shared code section.
+- `solution.tex` is preserved as the editable mathematical source when a real LaTeX source exists.
 
-- `statement.html`
+If `statement.html` exists, the site injects it above the local write-up and suppresses the duplicated `## Problem Statement` section from `solution.md`.
 
-The custom Euler collection in `src/content.config.ts` scans `project_euler/`, renders each `solution.md`, and creates the `/project-euler/problem-XXXX/` routes.
+## Project Euler source model
 
-If `statement.html` exists, the site renders that mirrored statement above the local write-up and automatically suppresses the duplicated `## Problem Statement` section from `solution.md`.
+The Project Euler subsystem is documented inside the archive itself:
 
-## Syncing Project Euler statements
+- `project_euler/STRUCTURE.md` explains editorial structure expectations.
+- `project_euler/SOURCES.md` explains where the current sources came from and how they relate.
+- `project_euler/TAXONOMY.md` explains the controlled tag system.
+- `project_euler/metadata.json` stores per-problem tags.
 
-The repository includes an optional sync script:
+The current source policy is conservative:
+
+- do not rewrite mathematical content during structural maintenance
+- preserve rigorous presentation
+- keep Markdown, LaTeX, and code artifacts aligned in purpose
+
+## Project Euler maintenance scripts
+
+Restore canonical LaTeX sources from an external Project Euler archive:
+
+```bash
+npm run sync:project-euler-latex -- --from "C:\\path\\to\\project_euler_unified"
+```
+
+Generate controlled taxonomy metadata:
+
+```bash
+npm run generate:project-euler-metadata
+```
+
+Sync mirrored Project Euler statements:
 
 ```bash
 npm run sync:project-euler-statements -- --all
 ```
 
-You can also sync one problem or a range:
+You can also sync a single problem or a range:
 
 ```bash
 npm run sync:project-euler-statements -- --problem 96
 npm run sync:project-euler-statements -- --from 1 --to 100
 ```
 
-### What the sync script uses
+## Statement sync workflow
 
-`tools/sync-project-euler-statements.mjs` works from a local Project Euler TeX archive, not from the Astro content tree alone.
+The statement sync tooling lives under `tools/project-euler/`.
 
-It expects:
+`sync-statements.mjs` expects:
 
-- a local `../Project Euler/` directory, or `PROJECT_EULER_BOOK_ROOT`
+- a local Project Euler book workspace at `../Project Euler/`, or `PROJECT_EULER_BOOK_ROOT`
 - built statement books under `build_statement_books/`
 - `make4ht`
-- Playwright installed in this repo
+- Playwright installed in this repository
 
-The script:
+The statement sync pipeline:
 
 - builds book HTML with `make4ht`
 - extracts per-problem statement fragments
@@ -156,11 +201,13 @@ The script:
 - copies statement media into `public/project-euler-media/`
 - writes fragments to `project_euler/problem_XXX/statement.html`
 
-If no safe local fragment is available for a problem, the script keeps the existing `statement.html` as the fallback.
+If no safe local fragment is available for a problem, the existing `statement.html` is preserved.
 
-### Playwright requirement
+### Playwright
 
-Playwright is only needed for statement syncing. It is not required for normal editing, local page development, or a regular Astro build.
+Playwright is optional for normal website work.
+
+It is required only for the statement-sync workflow. It is not required for normal editing, `npm run dev`, or `npm run build`.
 
 If the browser binary is missing, run:
 
@@ -168,21 +215,13 @@ If the browser binary is missing, run:
 npx playwright install chromium
 ```
 
-`.tmp-playwright` is not part of the repo's normal workflow and is not required. The repo uses its own local `playwright` dependency.
-
-### Important deployment note
-
-Generated `statement.html` files and `public/project-euler-media/` assets are part of the site source once created. If you want mirrored statements on GitHub Pages, commit and push them like any other source file.
+`.tmp-playwright` is not part of the repository’s core structure and is not required by the current repo layout.
 
 ## Deployment
 
-GitHub Pages deployment is handled by:
+GitHub Pages deployment is handled by `.github/workflows/deploy.yml`.
 
-```text
-.github/workflows/deploy.yml
-```
-
-Pushes to `main` trigger the workflow.
+Pushes to `main` trigger deployment.
 
 The workflow supports both:
 
@@ -204,14 +243,15 @@ public/CNAME
 
 ## Generated and removable local items
 
-These are local/generated items, not long-term source files:
+These are local or generated items rather than long-term source files:
 
 - `dist/`
 - `.astro/`
 - `node_modules/`
+- `.cache/`
 - `build-*.log`
 
-They can be deleted safely. Recreate dependencies with `npm install`, and recreate build output with `npm run build`.
+They can be removed safely and recreated as needed.
 
 ## Project Euler copyright
 

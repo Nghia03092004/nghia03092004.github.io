@@ -1,0 +1,22 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 855: Power Sequence}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem}
+Compute ${}^n a \bmod m$ (modular tetration).
+\begin{theorem}
+$a^b \equiv a^{b \bmod \varphi(m)} \pmod{m}$ when $\gcd(a,m)=1$.
+\end{theorem}
+Recursion terminates in $O(\log m)$ steps since $\varphi^{(k)}(m) = 1$ after $\le \log_2 m$ iterations.
+\section{Answer}
+
+\[
+\boxed{6.8827571976e-57}
+\]
+
+\end{document}

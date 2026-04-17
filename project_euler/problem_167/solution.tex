@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 167: Investigating Ulam Sequences}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An \emph{Ulam sequence} $U(a,b)$ starts with $a, b$ and each subsequent term is the smallest integer greater than the last that can be written as the sum of two \emph{distinct} earlier terms in \emph{exactly one} way.
+
+For $2 \le n \le 10$, let $u_n = U(2, 2n+1)(10^{11})$ denote the $(10^{11})$-th term of $U(2, 2n+1)$. Find $\sum_{n=2}^{10} u_n$.
+
+\section{Key Structural Property}
+
+\begin{theorem}
+For $U(2, v)$ with odd $v \ge 5$, there are exactly two even members: $2$ and some value $e$. All subsequent members are odd.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+For an odd candidate $c$, the only possible representations as a sum of two distinct Ulam members involving even members are $(2, c-2)$ and $(e, c-e)$, since two odd numbers sum to an even number. After $e$ is added, every even candidate has multiple representations (from pairs of odd members), so no further even members are added.
+\end{proof}
+
+\section{XOR Rule for O(1) Generation}
+
+After identifying $e$, an odd number $c$ is Ulam if and only if exactly one of $\{c-2, c-e\}$ is Ulam:
+\[
+c \in U(2,v) \iff \mathbf{1}[c-2 \in U] \oplus \mathbf{1}[c-e \in U]
+\]
+This XOR condition enables constant-time generation per term, allowing us to produce millions of terms efficiently.
+
+\section{Periodicity and Extrapolation}
+
+The difference sequence $d_i = a_{i+1} - a_i$ is eventually periodic with period $P$ (from OEIS A100729). Once $P$ and the transient index $T$ are known, with period sum $D = \sum_{j=0}^{P-1} d_{T+j}$:
+\[
+a_{T + qP + r} = a_{T+r} + q \cdot D
+\]
+
+\begin{center}
+\begin{tabular}{|c|c|r|r|}
+\hline
+$n$ & $v=2n+1$ & Period $P$ & Period Sum $D$ \\
+\hline
+2 & 5 & 32 & 126 \\
+3 & 7 & 26 & 126 \\
+4 & 9 & 444 & 1\,778 \\
+5 & 11 & 1\,628 & 6\,510 \\
+6 & 13 & 5\,906 & 23\,622 \\
+7 & 15 & 80 & 510 \\
+8 & 17 & 126\,960 & 507\,842 \\
+9 & 19 & 380\,882 & 1\,523\,526 \\
+10 & 21 & 2\,097\,152 & 8\,388\,606 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Result}
+
+\[
+\sum_{n=2}^{10} U(2, 2n+1)(10^{11}) = \boxed{3916160068885}
+\]
+
+\section{Answer}
+
+\[
+\boxed{3916160068885}
+\]
+
+\end{document}

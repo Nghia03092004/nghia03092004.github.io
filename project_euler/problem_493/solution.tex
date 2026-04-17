@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 493: Under the Rainbow}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+70 colored balls are placed in an urn, 10 for each of the seven rainbow colors. What is the expected number of distinct colors in 20 randomly picked balls? Give the answer with nine digits after the decimal point.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Linearity of expectation for indicators]
+Let $X = \sum_{i=1}^{n} X_i$ where each $X_i$ is an indicator random variable. Then $E[X] = \sum_{i=1}^{n} P(X_i = 1)$, regardless of dependence.
+\end{theorem}
+
+\begin{proof}
+By linearity, $E[X] = \sum E[X_i]$. Since $X_i \in \{0,1\}$, $E[X_i] = P(X_i = 1)$.
+\end{proof}
+
+\begin{theorem}[Expected distinct colors]
+Let $D$ be the number of distinct colors in a draw of $20$ balls from $70$ ($10$ per color, $7$ colors). Then
+\[
+E[D] = 7\!\left(1 - \frac{\binom{60}{20}}{\binom{70}{20}}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+Define $X_i = \mathbf{1}[\text{color } i \text{ present}]$ for $i = 1, \ldots, 7$. Then $D = \sum X_i$ and by Theorem~1:
+\[
+E[D] = 7 \cdot P(X_1 = 1)
+\]
+by symmetry. The complement is
+\[
+P(X_1 = 0) = \frac{\binom{60}{20}}{\binom{70}{20}}
+\]
+since we choose all $20$ balls from the $60$ non-color-1 balls. Thus $E[D] = 7(1 - \binom{60}{20}/\binom{70}{20})$.
+\end{proof}
+
+\begin{lemma}[Product formula]
+\[
+\frac{\binom{60}{20}}{\binom{70}{20}} = \prod_{k=0}^{9}\frac{50-k}{70-k}.
+\]
+\end{lemma}
+
+\begin{proof}
+We have $\binom{60}{20}/\binom{70}{20} = 60!\cdot 50!/(70!\cdot 40!)$. Writing as falling factorials, the factors $51$ through $60$ cancel between numerator and denominator, leaving $\prod_{k=0}^{9}(50-k)/\prod_{k=0}^{9}(70-k)$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute $r = \prod_{k=0}^{9}(50-k)/(70-k)$.
+\item Return $7(1 - r)$ rounded to $9$ decimal places.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(1)$ --- a fixed product of $10$ terms.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{6.818741802}
+\]
+
+\end{document}

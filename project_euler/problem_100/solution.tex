@@ -1,0 +1,118 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 100: Arranged Probability}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A box contains $n$ discs, $b$ of which are blue. When two are drawn at random:
+\[
+\frac{b}{n} \cdot \frac{b-1}{n-1} = \frac{1}{2}.
+\]
+Find $b$ for the first arrangement with $n > 10^{12}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Diophantine formulation]
+The probability condition is equivalent to $2b^2 - 2b - n^2 + n = 0$.
+\end{theorem}
+\begin{proof}
+Cross-multiply: $2b(b-1) = n(n-1)$.
+\end{proof}
+
+\begin{theorem}[Reduction to Pell's equation]
+\label{thm:pell}
+Substituting $x = 2b - 1$, $y = 2n - 1$ transforms the equation to
+\[
+2x^2 - y^2 = 1. \tag{$*$}
+\]
+\end{theorem}
+\begin{proof}
+With $b = (x+1)/2$, $n = (y+1)/2$: $2 \cdot \frac{x^2-1}{4} = \frac{y^2-1}{4}$, giving $2(x^2-1) = y^2-1$, i.e., $2x^2 - y^2 = 1$.
+\end{proof}
+
+\begin{theorem}[Recurrence for Pell solutions]
+\label{thm:rec}
+Equation~$(*)$ has fundamental solution $(x_0, y_0) = (1, 1)$. All positive solutions satisfy
+\[
+x_{k+1} = 3x_k + 2y_k, \qquad y_{k+1} = 4x_k + 3y_k.
+\]
+\end{theorem}
+\begin{proof}
+If $2x_k^2 - y_k^2 = 1$, then
+\[
+2(3x_k + 2y_k)^2 - (4x_k + 3y_k)^2 = 2x_k^2 - y_k^2 = 1.
+\]
+This corresponds to multiplication by $(3 + 2\sqrt{2})$ in $\mathbb{Z}[\sqrt{2}]$, the square of the fundamental unit $1 + \sqrt{2}$. All solutions arise this way by the structure of the unit group of $\mathbb{Z}[\sqrt{2}]$.
+\end{proof}
+
+\begin{theorem}[Integrality]
+For every solution $(x_k, y_k)$, both $x_k$ and $y_k$ are odd, so $b = (x_k+1)/2$ and $n = (y_k+1)/2$ are integers.
+\end{theorem}
+\begin{proof}
+By induction: $(1,1)$ are odd; if $(x_k, y_k)$ are odd, then $3x_k + 2y_k = \text{odd}$ and $4x_k + 3y_k = \text{odd}$.
+\end{proof}
+
+\begin{theorem}[Second-order recurrence]
+\label{thm:bn}
+The sequences $b_k$, $n_k$ satisfy
+\[
+b_{k+1} = 6b_k - b_{k-1} - 2, \qquad n_{k+1} = 6n_k - n_{k-1} - 2,
+\]
+with $(b_0, n_0) = (1,1)$ and $(b_1, n_1) = (3, 4)$.
+\end{theorem}
+\begin{proof}
+The matrix $M = \bigl(\begin{smallmatrix} 3 & 2 \\ 4 & 3 \end{smallmatrix}\bigr)$ has characteristic polynomial $\lambda^2 - 6\lambda + 1 = 0$, yielding $x_{k+1} = 6x_k - x_{k-1}$. Substituting $x_k = 2b_k - 1$:
+\[
+2b_{k+1} - 1 = 6(2b_k - 1) - (2b_{k-1} - 1) \implies b_{k+1} = 6b_k - b_{k-1} - 2. \qedhere
+\]
+\end{proof}
+
+\paragraph{Verification.}
+\begin{center}
+\begin{tabular}{|c|c|c|l|}
+\hline
+$k$ & $b_k$ & $n_k$ & Check \\
+\hline
+2 & 15 & 21 & $\frac{15 \cdot 14}{21 \cdot 20} = \frac{210}{420} = \frac{1}{2}$ \\
+3 & 85 & 120 & $\frac{85 \cdot 84}{120 \cdot 119} = \frac{7140}{14280} = \frac{1}{2}$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find $b$ for first $n > T$}
+\begin{algorithmic}[1]
+\REQUIRE Threshold $T$
+\STATE $(b_0, n_0) \gets (1, 1)$, $(b_1, n_1) \gets (3, 4)$
+\WHILE{$n_1 \le T$}
+    \STATE $(b_0, b_1) \gets (b_1,\; 6b_1 - b_0 - 2)$
+    \STATE $(n_0, n_1) \gets (n_1,\; 6n_1 - n_0 - 2)$
+\ENDWHILE
+\RETURN $b_1$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\textbf{Time:} $n_k$ grows as $(3 + 2\sqrt{2})^k$, so the loop runs $O(\log T)$ times. Each iteration is $O(1)$.
+
+\textbf{Space:} $O(1)$.
+
+\section{Answer}
+
+\[
+\boxed{756872327473}
+\]
+
+\end{document}

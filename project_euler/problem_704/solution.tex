@@ -1,0 +1,51 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 704: Factors of Two in Binomial Coefficients}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define $g(n,m)$ as the largest $k$ with $2^k \mid \binom{n}{m}$. Let $F(n) = \max_{0 \le m \le n} g(n,m)$ and $S(N) = \sum_{n=1}^N F(n)$. Find $S(10^{16})$.
+
+\section{Mathematical Analysis}
+
+\subsection{Kummer's Theorem}
+By Kummer's theorem, $\nu_2\binom{n}{m}$ equals the number of carries when adding $m$ and $n-m$ in binary. The maximum number of carries for a given $n$ is:
+\[
+F(n) = \lfloor \log_2 n \rfloor - \nu_2(n)
+\]
+
+\begin{proof}
+Write $n$ in binary. The carries in $m + (n-m)$ correspond to positions where bits ``cascade.'' The maximum carry count is achieved when every bit position participates in a carry chain, except for the lowest set bit of $n$ (which cannot generate a carry below it) and the positions above the highest bit.
+\end{proof}
+
+\subsection{Summation Formula}
+\[
+S(N) = \underbrace{\sum_{n=1}^N \lfloor \log_2 n \rfloor}_{A(N)} - \underbrace{\sum_{n=1}^N \nu_2(n)}_{B(N)}
+\]
+
+\textbf{Part A:} Let $b = \lfloor \log_2 N \rfloor$. Then:
+\[
+A(N) = (b-2) \cdot 2^b + 2 + b(N - 2^b + 1)
+\]
+
+\textbf{Part B:} By Legendre's formula:
+\[
+B(N) = \sum_{k=1}^{b} \left\lfloor \frac{N}{2^k} \right\rfloor
+\]
+
+\section{Complexity}
+$O(\log N)$ time, $O(1)$ space.
+
+\section{Answer}
+
+\[
+\boxed{501985601490518144}
+\]
+
+\end{document}

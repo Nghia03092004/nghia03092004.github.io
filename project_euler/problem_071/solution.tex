@@ -1,0 +1,88 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 71: Ordered Fractions}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+By listing the set of reduced proper fractions for $d \le 1\,000\,000$ in ascending order, find the numerator of the fraction immediately to the left of $3/7$.
+
+\section{Mathematical Analysis}
+
+\begin{theorem}[Optimal Numerator]
+For a denominator $d$ with $7 \nmid d$, the largest integer $n$ satisfying $n/d < 3/7$ is $n = \lfloor (3d - 1)/7 \rfloor$. The gap $3/7 - n/d = (3d - 7n)/(7d)$ is minimized (equal to $1/(7d)$) precisely when $d \equiv 5 \pmod{7}$.
+\end{theorem}
+
+\begin{proof}
+The condition $n/d < 3/7$ gives $7n < 3d$. Since $7 \nmid 3d$ when $7 \nmid d$, we have $7n \leq 3d - 1$, so $n \leq \lfloor (3d-1)/7 \rfloor$.
+
+The gap numerator $3d - 7n \geq 1$ since $7n < 3d$. Equality $3d - 7n = 1$ requires $3d \equiv 1 \pmod{7}$, i.e., $d \equiv 5 \pmod{7}$ (since $3^{-1} \equiv 5 \pmod{7}$).
+\end{proof}
+
+\begin{lemma}[Automatic Coprimality]
+When $3d - 7n = 1$, we have $\gcd(n, d) = 1$.
+\end{lemma}
+
+\begin{proof}
+If $g = \gcd(n, d)$, then $g \mid 3d - 7n = 1$, so $g = 1$.
+\end{proof}
+
+\begin{theorem}[Left Neighbor of $3/7$ in $F_N$]
+The fraction immediately to the left of $3/7$ in $F_N$ ($N = 10^6$) has denominator $d = 999997$ (the largest $d \leq N$ with $d \equiv 5 \pmod{7}$) and numerator $n = (3d - 1)/7 = 428570$.
+\end{theorem}
+
+\begin{proof}
+Among all $a/b < 3/7$ with $b \leq N$, we minimize $(3b - 7a)/(7b)$. By Theorem~1, the minimum gap numerator for each $b$ is $\min(3b - 7a) \geq 1$, with equality when $b \equiv 5 \pmod{7}$.
+
+Among denominators achieving gap~1, the fraction $(3b-1)/(7b)$ is increasing in $b$:
+\[
+\frac{(3b_2 - 1)b_1 - (3b_1 - 1)b_2}{7b_1 b_2} = \frac{b_2 - b_1}{7b_1 b_2} > 0 \quad \text{for } b_2 > b_1.
+\]
+So we take the largest $b \leq N$ with $b \equiv 5 \pmod{7}$. Since $10^6 \equiv 1 \pmod{7}$, we get $d = 999997$.
+
+By Lemma~2, $\gcd(428570, 999997) = 1$. Any fraction with gap $\geq 2$ satisfies:
+\[
+\frac{3}{7} - \frac{a}{b} \geq \frac{2}{7 \times 10^6} > \frac{1}{7 \times 999997},
+\]
+confirming $428570/999997$ is the unique left neighbor.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Closed-form computation}
+\begin{algorithmic}[1]
+\Require $N = 10^6$
+\State $r \gets N \bmod 7$
+\State $d \gets N - ((r - 5) \bmod 7)$ \Comment{largest $d \leq N$ with $d \equiv 5 \pmod{7}$}
+\State $n \gets (3d - 1) / 7$
+\State \Return $n$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\textbf{Time:} $O(1)$ --- constant number of arithmetic operations.
+
+\textbf{Space:} $O(1)$.
+
+\section{Answer}
+
+\[
+\boxed{428570}
+\]
+
+\end{document}

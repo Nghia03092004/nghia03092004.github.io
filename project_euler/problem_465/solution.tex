@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+
+\title{Problem 465: Polar Polygons}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \emph{polar polygon} is a polygon whose kernel strictly contains the origin. Vertices have integer coordinates with $|x|, |y| \le n$. Polygons with different edge sets are distinct.
+
+Given: $P(1) = 131$, $P(2) = 1{,}648{,}531$, $P(343) \bmod (10^9+7) = 937{,}293{,}740$. Find $P(713) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Star-shaped characterization]
+\label{thm:star}
+A simple polygon is star-shaped with respect to the origin if and only if its vertices appear in strictly increasing angular order around the origin and every consecutive angular gap lies in $(0, \pi)$.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) If the origin lies in the kernel, every edge is visible from the origin, forcing consecutive angular increments to be positive and less than~$\pi$. ($\Leftarrow$) If all gaps are in $(0, \pi)$, then each edge defines a half-plane containing the origin (since the edge subtends an angle $< \pi$ from the origin). The kernel is the intersection of these half-planes, which contains the origin.
+\end{proof}
+
+\begin{lemma}[Ray decomposition]
+\label{lem:ray}
+Every non-zero lattice point $(x, y)$ with $|x|, |y| \le n$ lies on a unique primitive ray from the origin with direction $(a, b) = (x/g, y/g)$ where $g = \gcd(|x|, |y|)$. The number of lattice points on this ray within the grid is $c(r) = \lfloor n / \max(|a|, |b|) \rfloor$.
+\end{lemma}
+
+\begin{proof}
+The lattice points on ray $(a, b)$ are $\{(ka, kb) : k \ge 1\}$. Within $|x|, |y| \le n$, we require $k \le n / \max(|a|, |b|)$.
+\end{proof}
+
+\begin{theorem}[Counting formula]
+\label{thm:count}
+Let $R$ be the set of primitive rays sorted by angle, with multiplicity $c(r)$ each. Then
+\[
+P(n) = \mathrm{All}(\ge 3) - \mathrm{Bad}(\ge 3)
+\]
+where $\mathrm{All}(\ge 3) = \prod_r (1 + c(r)) - 1 - S_1 - e_2$ counts all weighted subsets of size $\ge 3$, and $\mathrm{Bad}(\ge 3)$ counts those fitting in a semicircle (max angular gap $\ge \pi$), computed via the anchor trick:
+\[
+\mathrm{Bad}(\ge 3) = \sum_{i=1}^{|R|} c(r_i) \bigl[\Pi(i) - 1 - \Sigma(i)\bigr]
+\]
+with $\Pi(i) = \prod_{r_j \in W(i)} (1 + c(r_j))$, $\Sigma(i) = \sum_{r_j \in W(i)} c(r_j)$, and $W(i)$ the window of rays in $(\theta_i, \theta_i + \pi]$.
+\end{theorem}
+
+\begin{proof}
+A polar polygon is determined by a subset of $\ge 3$ rays (with one lattice point chosen per ray) whose maximum angular gap is $< \pi$. The total of all $\ge 3$-element weighted subsets is $\mathrm{All}(\ge 3)$. Subtracting ``bad'' subsets (those with a gap $\ge \pi$, meaning they fit in a semicircle) gives $P(n)$.
+
+For bad subsets, the anchor trick assigns each to the ray $r_i$ at the CCW boundary of the maximal gap. The remaining chosen rays lie in $(\theta_i, \theta_i + \pi]$. Summing over anchors with appropriate window products gives $\mathrm{Bad}(\ge 3)$. The two-pointer sweep computes all $\Pi(i)$ and $\Sigma(i)$ incrementally in $O(|R|)$ using modular inverses.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Enumerate all primitive directions $(a, b)$ with $\gcd(|a|,|b|) = 1$ and $\max(|a|,|b|) \le n$. Compute $c(r)$ for each. Sort by angle.
+    \item Compute $\mathrm{All}(\ge 3) = \prod(1 + c(r)) - 1 - S_1 - e_2 \pmod{10^9+7}$.
+    \item Two-pointer sweep to compute $\mathrm{Bad}(\ge 3)$ using prefix products and modular inverses.
+    \item Return $P(n) = \mathrm{All}(\ge 3) - \mathrm{Bad}(\ge 3) \pmod{10^9+7}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n^2)$ for ray enumeration ($|R| \sim 12n^2/\pi^2$). $O(|R|)$ for the sweep.
+    \item \textbf{Space:} $O(|R|) = O(n^2)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{585965659}
+\]
+
+\end{document}

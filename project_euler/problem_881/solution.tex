@@ -1,0 +1,48 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 881: Divisor Graph Coloring}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define $G_n$ on $\{1,\ldots,n\}$ with edges $i \sim j$ when $i \mid j$ or $j \mid i$. Find $\chi(G_n)$.
+
+\section{Key Results}
+
+\begin{theorem}
+$\chi(G_n) = \lfloor \log_2 n \rfloor + 1$.
+\end{theorem}
+
+\begin{proof}
+The chain $1, 2, 4, \ldots, 2^{\lfloor\log_2 n\rfloor}$ is a clique of size $\lfloor\log_2 n\rfloor + 1$, so $\chi \ge \lfloor\log_2 n\rfloor + 1$.
+
+For the upper bound, assign $c(k) = \lfloor\log_2 k\rfloor$. If $i \mid j$ with $i < j$, then $j \ge 2i$, so $\lfloor\log_2 j\rfloor \ge \lfloor\log_2 i\rfloor + 1$, giving distinct colors.
+\end{proof}
+
+\begin{theorem}[Dilworth]
+In a finite poset, max chain length = min antichain partition size.
+\end{theorem}
+
+\section{Examples}
+\begin{center}
+\begin{tabular}{r|c|l}
+$n$ & $\chi(G_n)$ & Longest chain \\ \hline
+4 & 3 & $1,2,4$ \\
+8 & 4 & $1,2,4,8$ \\
+16 & 5 & $1,2,4,8,16$ \\
+100 & 7 & $1,2,4,8,16,32,64$
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{205702861096933200}
+\]
+
+\end{document}

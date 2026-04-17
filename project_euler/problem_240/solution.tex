@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 240: Top Dice}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+In how many ways can 20 twelve-sided dice (sides 1--12) be rolled so that the top 10 values sum to~70?
+
+Reference: 1111 ways for 5 six-sided dice with top 3 summing to~15.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Threshold Decomposition]
+Let $D = 12$, $N = 20$, $H = 10$, $S = 70$. The count of ordered $N$-tuples in $\{1,\ldots,D\}^N$ whose $H$ largest values sum to $S$ decomposes over the threshold $t = d_{(H)}$, the count $j$ of top dice equal to $t$, and the count $m$ of bottom dice equal to $t$. For each valid $(t, j, m)$:
+\begin{itemize}
+\item $H - j$ dice have values in $\{t{+}1,\ldots,D\}$ summing to $S - jt$.
+\item $N - H - m$ dice have values in $\{1,\ldots,t{-}1\}$.
+\item $j + m$ dice have value exactly~$t$.
+\end{itemize}
+The total is the sum of multinomial coefficients $\dfrac{N!}{\prod_{v=1}^{D} n_v!}$ over all valid frequency vectors $(n_1,\ldots,n_D)$.
+\end{theorem}
+
+\begin{proof}
+Sort the outcomes: $d_{(1)} \geq \cdots \geq d_{(N)}$. The threshold $t = d_{(H)}$ partitions the dice into three groups: above~$t$ (contributing to the top sum), equal to~$t$ (split between top and bottom), and below~$t$ (all in the bottom). Among the top $H$ dice, exactly $j \geq 1$ equal~$t$; the rest exceed~$t$ and sum to $S - jt$. Among the bottom $N{-}H$ dice, exactly $m \geq 0$ equal~$t$; the rest are strictly less than~$t$. Each frequency vector yields a multinomial coefficient counting ordered arrangements.
+\end{proof}
+
+\begin{lemma}[Multiset Count via DP]
+The count $R(h, a, b, s)$ of multisets of $h$ values from $\{a,\ldots,b\}$ summing to~$s$ satisfies:
+\[
+R(h, a, b, s) = \sum_{v=a}^{\min(b,s)} R(h{-}1, v, b, s{-}v)
+\]
+with $R(0, a, b, 0) = 1$ and $R(0, a, b, s) = 0$ for $s > 0$.
+\end{lemma}
+
+\begin{proof}
+Fix the smallest value $v$ in the multiset, subtract it from the target sum, and recurse on the remaining $h{-}1$ values (each $\geq v$). The base case handles the empty multiset.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(D, N, H, S):
+    total = 0
+    for t = 1 to D:
+        for j = 1 to H:
+            rem = S - j*t
+            if rem < 0: break
+            // enumerate multisets of (H-j) values from {t+1..D} summing to rem
+            // enumerate multisets of (N-H-m) values from {1..t-1} for m=0..N-H
+            // for each valid frequency vector, add N! / prod(n_v!)
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(D^2 \cdot N \cdot S)$ for the DP-based frequency enumeration.
+    \item \textbf{Space:} $O(N \cdot S)$ for DP tables.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{7448717393364181966}
+\]
+
+\end{document}

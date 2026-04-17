@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 32: Pandigital Products}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of all products whose multiplicand/multiplier/product identity can be written as a 1 through 9 pandigital. That is, the concatenation of the multiplicand, multiplier, and product uses each digit $1$--$9$ exactly once.
+
+\section{Mathematical Development}
+
+\begin{definition}
+A triple $(a, b, p) \in \mathbb{Z}_{>0}^3$ with $p = a \cdot b$ is a \emph{1-to-9 pandigital identity} if the concatenation of the decimal representations of $a$, $b$, and $p$ is a permutation of the string $123456789$. Let $d(x)$ denote the number of decimal digits of $x$.
+\end{definition}
+
+\begin{theorem}[Digit-count constraint]
+If $(a, b, p)$ is a 1-to-9 pandigital identity with $a \le b$, then $d(p) = 4$ and $(d(a), d(b)) \in \{(1, 4),\, (2, 3)\}$.
+\end{theorem}
+
+\begin{proof}
+The pandigital condition requires $d(a) + d(b) + d(p) = 9$. Let $\alpha = d(a)$, $\beta = d(b)$, $\gamma = d(p)$. Since $10^{\alpha-1} \le a < 10^\alpha$ and $10^{\beta-1} \le b < 10^\beta$, we have $10^{\alpha+\beta-2} \le p < 10^{\alpha+\beta}$, so $\gamma \in \{\alpha+\beta-1,\, \alpha+\beta\}$.
+
+\textbf{Case $\gamma = \alpha + \beta$:} Then $\alpha + \beta + (\alpha + \beta) = 9$, giving $\alpha + \beta = 9/2 \notin \mathbb{Z}$. Contradiction.
+
+\textbf{Case $\gamma = \alpha + \beta - 1$:} Then $\alpha + \beta + (\alpha + \beta - 1) = 9$, giving $\alpha + \beta = 5$ and $\gamma = 4$.
+
+Subject to $1 \le \alpha \le \beta$ and $\alpha + \beta = 5$, the admissible pairs are $(\alpha, \beta) \in \{(1,4),\, (2,3)\}$.
+\end{proof}
+
+\begin{lemma}[Search bounds]
+For case $(1,4)$: $a \in [1,9]$, $b \in [1234, 9876]$. For case $(2,3)$: $a \in [12, 98]$, $b \in [123, 987]$. In both cases $1000 \le p \le 9876$.
+\end{lemma}
+
+\begin{proof}
+Digits are drawn from $\{1, \ldots, 9\}$ without repetition. The smallest $k$-digit number is $12\ldots k$ and the largest uses the $k$ largest digits in decreasing order. The constraint $d(p) = 4$ forces $1000 \le p \le 9876$.
+\end{proof}
+
+\begin{theorem}[Exhaustive enumeration]
+The complete set of 1-to-9 pandigital products is $\{4396, 5346, 5796, 6952, 7254, 7632, 7852\}$.
+\end{theorem}
+
+\begin{proof}
+Enumerate all pairs $(a,b)$ in the two cases. For each pair, compute $p = ab$ and verify whether $d(p) = 4$ and the digit concatenation is a permutation of $\{1,\ldots,9\}$. The search examines fewer than $1.6 \times 10^5$ pairs, each tested in $O(1)$, yielding exactly the seven listed products. Distinct products are collected in a set.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(N)$ time and $O(1)$ space, where $N \approx 1.6 \times 10^5$ is the number of candidate pairs.
+\end{proposition}
+
+\begin{proof}
+The outer loops iterate over a fixed number of pairs from Lemma~2. Each pandigital test examines exactly 9 digits (constant work). The product set has $|P| = 7$ elements, so auxiliary space is $O(1)$.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{45228}
+\]
+
+\end{document}

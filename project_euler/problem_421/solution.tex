@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 421: Prime Factors of $n^{15}+1$}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For positive integers $n$ and $m$, let $s(n,m)$ be the sum of the distinct prime factors of $n^{15}+1$ not exceeding $m$. Find
+\[
+\sum_{n=1}^{10^{11}} s(n, 10^8).
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Summation Swap]
+Let $N = 10^{11}$ and $M = 10^8$. Then
+\[
+\sum_{n=1}^{N} s(n,M) = \sum_{\substack{p \le M \\ p \text{ prime}}} p \cdot f(p),
+\]
+where $f(p) = |\{n \in [1,N] : p \mid n^{15}+1\}|$.
+\end{theorem}
+
+\begin{proof}
+By definition, $s(n,M) = \sum_{\substack{p \le M,\; p \text{ prime} \\ p \mid n^{15}+1}} p$. Summing over $n$ and exchanging the order of summation yields the result.
+\end{proof}
+
+\begin{theorem}[Solution Count in $\mathbb{Z}/p\mathbb{Z}$]
+For an odd prime $p$, the number of solutions to $n^{15} \equiv -1 \pmod{p}$ in $\{0,\ldots,p-1\}$ is
+\[
+c(p) = \gcd(30, p-1) - \gcd(15, p-1)
+\]
+when $\frac{p-1}{\gcd(15,p-1)}$ is even, and $c(p)=0$ otherwise.
+\end{theorem}
+
+\begin{proof}
+The multiplicative group $(\mathbb{Z}/p\mathbb{Z})^*$ is cyclic of order $p-1$. The equation $x^{30} \equiv 1 \pmod{p}$ has exactly $\gcd(30,p-1)$ solutions. These partition into $\gcd(15,p-1)$ solutions of $x^{15} \equiv 1$ and the remaining solutions of $x^{15} \equiv -1$ (since $x^{30}=1$ implies $x^{15} = \pm 1$). Hence the count of solutions to $x^{15}\equiv -1$ is $\gcd(30,p-1) - \gcd(15,p-1)$.
+
+This is positive iff $-1$ is a 15th power. With $g$ a primitive root, $-1 = g^{(p-1)/2}$, which is a 15th power iff $(p-1)/\gcd(15,p-1)$ divides $(p-1)/2$, i.e., $\frac{p-1}{\gcd(15,p-1)}$ is even.
+\end{proof}
+
+\begin{lemma}[Periodic Counting]
+Since $n^{15} \bmod p$ is periodic with period $p$:
+\[
+f(p) = \left\lfloor \frac{N}{p} \right\rfloor \cdot c(p) + |\{r \in R : 1 \le r \le N \bmod p\}|,
+\]
+where $R = \{r \in \{0,\ldots,p-1\} : r^{15} \equiv -1 \pmod{p}\}$.
+\end{lemma}
+
+\begin{proof}
+The interval $[1,N]$ consists of $\lfloor N/p \rfloor$ complete periods plus a remainder $[1, N \bmod p]$. Each complete period contributes exactly $c(p)$ solutions; the partial period contributes those residues in $R$ not exceeding $N \bmod p$.
+\end{proof}
+
+\begin{lemma}[Residue Enumeration]
+Let $g$ be a primitive root modulo $p$. Then $n^{15} \equiv -1 \pmod{p}$ iff $n = g^k$ where
+\[
+15k \equiv \frac{p-1}{2} \pmod{p-1}.
+\]
+This has $\gcd(15, p-1)$ solutions modulo $p-1$ when solvable.
+\end{lemma}
+
+\begin{proof}
+Writing $n = g^k$, we have $n^{15} = g^{15k}$ and $-1 = g^{(p-1)/2}$. The congruence $15k \equiv (p-1)/2 \pmod{p-1}$ has solutions iff $\gcd(15,p-1) \mid (p-1)/2$, in which case there are exactly $\gcd(15,p-1)$ solutions modulo $p-1$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Sieve primes up to $M = 10^8$.
+    \item For each prime $p$: compute $c(p) = \gcd(30,p-1) - \gcd(15,p-1)$; skip if $c(p)=0$.
+    \item Find a primitive root $g$ of $p$; solve $15k \equiv (p-1)/2 \pmod{p-1}$ for all $k$.
+    \item Compute residues $R = \{g^k \bmod p\}$, sort them.
+    \item Compute $f(p) = \lfloor N/p \rfloor \cdot c(p) + |\{r \in R : r \le N \bmod p\}|$.
+    \item Accumulate $p \cdot f(p)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(M \log\log M)$ for the sieve; $O\!\left(\frac{M}{\ln M} \cdot \log^4 M\right)$ for per-prime computation (primitive roots, congruence solving, modular exponentiation).
+    \item \textbf{Space:} $O(M)$ for the sieve; $O(c(p)) \le O(30)$ per prime for residues.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2304215802083466198}
+\]
+
+\end{document}

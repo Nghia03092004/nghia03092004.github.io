@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 271: Modular Cubes, Part 1}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $N = 2 \times 3 \times 5 \times 7 \times 11 \times 13 \times 17 \times 19 \times 23 \times 29 \times 31 \times 37 \times 41 \times 43 = 13082761331670030$. Find the sum of all $n$ with $0 < n < N$ such that $n^3 \equiv 1 \pmod{N}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[CRT Factorisation of Cube Roots]
+Let $N = p_1 p_2 \cdots p_k$ be a product of distinct primes. Then $n^3 \equiv 1 \pmod{N}$ if and only if $n^3 \equiv 1 \pmod{p_i}$ for every $i = 1, \ldots, k$.
+\end{theorem}
+
+\begin{proof}
+Since the $p_i$ are pairwise coprime, $\mathbb{Z}/N\mathbb{Z} \cong \prod_{i=1}^{k} \mathbb{Z}/p_i\mathbb{Z}$ by the Chinese Remainder Theorem. Under this isomorphism, $n^3 \equiv 1 \pmod{N}$ corresponds to $n_i^3 \equiv 1 \pmod{p_i}$ for each component~$n_i$.
+\end{proof}
+
+\begin{lemma}[Cube Roots of Unity mod $p$]
+Let $p$ be a prime. The number of solutions to $x^3 \equiv 1 \pmod{p}$ is $\gcd(3, p-1)$.
+\end{lemma}
+
+\begin{proof}
+The multiplicative group $(\mathbb{Z}/p\mathbb{Z})^\times$ is cyclic of order $p-1$. Let $g$ be a generator and write $x = g^t$. Then $x^3 = 1$ iff $(p-1) \mid 3t$ iff $\frac{p-1}{\gcd(3,p-1)} \mid t$. The number of valid $t$ in $\{0, 1, \ldots, p-2\}$ is $\gcd(3, p-1)$.
+\end{proof}
+
+\begin{corollary}
+Among the 14 primes dividing $N$: six primes ($7, 13, 19, 31, 37, 43$) satisfy $p \equiv 1 \pmod{3}$ and each contributes 3 cube roots. The remaining eight primes each contribute only the trivial root $x \equiv 1$.
+\end{corollary}
+
+\begin{lemma}[Explicit Cube Roots]
+For a prime $p \equiv 1 \pmod{3}$, the three cube roots of unity modulo $p$ are $x = 1$ and $x = \frac{-1 \pm \sqrt{-3}}{2} \pmod{p}$, where $\sqrt{-3}$ exists since $\left(\frac{-3}{p}\right) = 1$.
+\end{lemma}
+
+\begin{proof}
+Factor $x^3 - 1 = (x-1)(x^2+x+1)$. The discriminant of $x^2+x+1$ is $\Delta = -3$. By quadratic reciprocity, $\left(\frac{-3}{p}\right) = 1$ iff $p \equiv 1 \pmod{3}$, so both roots exist.
+\end{proof}
+
+\begin{theorem}[Total Count]
+The number of solutions to $n^3 \equiv 1 \pmod{N}$ with $0 < n < N$ is $3^6 = 729$.
+\end{theorem}
+
+\begin{proof}
+The solution set is the direct product $\prod_{i=1}^{14} R_i$ where $|R_i| = \gcd(3, p_i - 1)$. The total is $3^6 \cdot 1^8 = 729$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item For each prime $p_i$, compute the cube roots of unity modulo $p_i$: one root if $p_i \not\equiv 1 \pmod{3}$, three roots otherwise (using the quadratic formula with $\sqrt{-3} \pmod{p_i}$).
+    \item Enumerate all $3^6 = 729$ combinations of roots.
+    \item For each combination, reconstruct $n \pmod{N}$ via the CRT and accumulate the sum.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(3^6 \cdot k)$ where $k = 14$, i.e., $O(10206)$ arithmetic operations.
+    \item \textbf{Space:} $O(k)$ for roots and CRT intermediates.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4617456485273129588}
+\]
+
+\end{document}

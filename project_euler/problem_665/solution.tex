@@ -1,0 +1,44 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 665: Proportionate Nim}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Nim variant: from pile~$n$, remove $\lfloor n/k \rfloor$ stones. Determine winning positions.
+
+\section{Sprague--Grundy Theory}
+
+\begin{theorem}[Sprague--Grundy, 1935/1939]
+$\mathcal{G}(n) = \operatorname{mex}\{\mathcal{G}(m) : m \in \mathcal{R}(n)\}$. A multi-pile position is P iff $\bigoplus_i \mathcal{G}(n_i) = 0$.
+\end{theorem}
+
+\begin{lemma}
+The number of distinct values of $\lfloor n/k \rfloor$ for $k = 1,\ldots,n$ is $O(\sqrt{n})$.
+\end{lemma}
+
+\begin{proof}
+For $k \le \sqrt{n}$, there are $\sqrt{n}$ values. For $k > \sqrt{n}$, $\lfloor n/k \rfloor < \sqrt{n}$, giving at most $\sqrt{n}$ distinct values.
+\end{proof}
+
+\section{Complexity}
+
+$O(N\sqrt{N})$ for computing all Grundy values up to~$N$.
+
+\section{Answer}
+
+\[
+\boxed{11541685709674}
+\]
+
+\end{document}

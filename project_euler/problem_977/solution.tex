@@ -1,0 +1,22 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 977: Dedekind Sum Computation}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\begin{theorem}
+For coprime $h,k$: $s(h,k) + s(k-h,k) = 0$.
+\end{theorem}
+\begin{proof}
+Since $((x)) + ((-x)) = 0$ for non-integer $x$, the terms pair up under $h \to k-h$.
+\end{proof}
+\section{Answer}
+
+\[
+\boxed{537945304}
+\]
+
+\end{document}

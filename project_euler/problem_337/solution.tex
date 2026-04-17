@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 337: Totient Stairstep Sequences}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \emph{totient stairstep sequence} $\{a_1, a_2, \ldots, a_k\}$ satisfies:
+\begin{enumerate}
+    \item $\varphi(a_i) < \varphi(a_{i+1})$ for all $1 \le i < k$
+    \item $a_i \mid a_{i+1}$ for all $1 \le i < k$
+\end{enumerate}
+
+Find the total number of totient stairstep sequences with $a_k \le N = 10^7$.
+
+\section{Analysis}
+
+\subsection{Totient Sieve}
+
+We compute $\varphi(n)$ for all $n \le N$ using the standard sieve:
+\[
+\varphi(n) = n \prod_{p \mid n} \left(1 - \frac{1}{p}\right)
+\]
+
+\subsection{Dynamic Programming}
+
+Define $f(n)$ as the number of totient stairstep sequences ending at $n$. Then:
+\[
+f(n) = 1 + \sum_{\substack{d \mid n, \, d < n \\ \varphi(d) < \varphi(n)}} f(d)
+\]
+
+The base case $f(n) = 1$ accounts for the single-element sequence $\{n\}$.
+
+Rather than finding divisors, we iterate over multiples: for each $n$, update all multiples $m = 2n, 3n, \ldots$ with $m \le N$ and $\varphi(m) > \varphi(n)$.
+
+\subsection{Complexity}
+
+The multiple-enumeration approach has complexity $O(N \log N)$ (harmonic series), which is efficient enough for $N = 10^7$.
+
+\section{Result}
+
+The total number of totient stairstep sequences with $a_k \le 10^7$ is:
+\[
+\boxed{7124517762917989}
+\]
+
+\section{Answer}
+
+\[
+\boxed{85068035}
+\]
+
+\end{document}

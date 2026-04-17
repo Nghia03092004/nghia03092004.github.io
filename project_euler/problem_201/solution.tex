@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 201: Subsets with a Unique Sum}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For any set $A$ of numbers, let $\operatorname{sum}(A)$ denote the sum of elements of $A$.
+Consider the set $S = \{1^2, 2^2, \ldots, 100^2\}$. Let $U$ be the set of all integers $v$
+such that exactly one 50-element subset of $S$ has sum equal to $v$. Find $\operatorname{sum}(U)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Sum Bounds]
+Let $S_{\min}$ and $S_{\max}$ denote the minimum and maximum possible sums of a 50-element
+subset of $S$. Then
+\[
+S_{\min} = \sum_{k=1}^{50} k^2 = \frac{50 \cdot 51 \cdot 101}{6} = 42925, \qquad
+S_{\max} = \sum_{k=51}^{100} k^2 = 295425.
+\]
+\end{theorem}
+
+\begin{proof}
+The minimum sum is achieved by choosing the 50 smallest elements $\{1^2, \ldots, 50^2\}$,
+and the maximum by choosing the 50 largest $\{51^2, \ldots, 100^2\}$. By the formula
+$\sum_{k=1}^{n} k^2 = n(n+1)(2n+1)/6$, we obtain $S_{\min} = 42925$. Then
+$S_{\max} = \sum_{k=1}^{100} k^2 - S_{\min} = 338350 - 42925 = 295425$.
+\end{proof}
+
+\begin{lemma}[Three-State Sufficiency]
+To determine whether a sum value $v$ is achieved by exactly one 50-element subset, it
+suffices to track for each $(j, s)$ pair whether the number of $j$-element subsets of the
+first $i$ elements summing to $s$ is $0$, $1$, or $\geq 2$.
+\end{lemma}
+
+\begin{proof}
+We seek values $v$ where the count $c(50, v)$ of 50-element subsets summing to $v$ equals
+exactly~1. Since we only need to distinguish among $c = 0$, $c = 1$, and $c \geq 2$,
+tracking counts clamped at~2 preserves all necessary information. The recurrence
+$c_i(j,s) = c_{i-1}(j,s) + c_{i-1}(j-1, s - a_i)$ is additive; clamping at~2 after each
+update is correct because $\min(x+y, 2) = x+y$ when $x+y \leq 1$, and
+$\min(x+y, 2) = 2$ when $x+y \geq 2$. Thus the three-state DP correctly identifies all
+values with count exactly~1.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State Compute $S_{\max} = 295425$
+\State Initialize $\mathrm{dp}[0 \ldots k][0 \ldots S_{\max}] \gets 0$; set $\mathrm{dp}[0][0] \gets 1$
+\For{$i = 1$ to $n$}
+    \State $a_i \gets i^2$
+    \For{$j = \min(i, k)$ \textbf{down to} $1$}
+        \For{$s = S_{\max}$ \textbf{down to} $a_i$}
+            \State $\mathrm{dp}[j][s] \gets \min(\mathrm{dp}[j][s] + \mathrm{dp}[j-1][s - a_i],\; 2)$
+        \EndFor
+    \EndFor
+\EndFor
+\State $\mathrm{result} \gets \sum_{s:\;\mathrm{dp}[k][s]=1} s$
+\State \Return result
+\end{algorithmic}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(n \cdot k \cdot S_{\max}) = O(100 \cdot 50 \cdot 295425) \approx 1.48 \times 10^9$.
+    \item \textbf{Space:} $O(k \cdot S_{\max}) = O(50 \cdot 295425) \approx 1.48 \times 10^7$ entries, each storing a value in $\{0,1,2\}$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{115039000}
+\]
+
+\end{document}

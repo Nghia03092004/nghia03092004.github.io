@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 286: Scoring Probabilities}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Barbara shoots from distances $x = 1, 2, \ldots, 50$ with success probability $1 - x/q$ ($q > 50$). The probability of scoring exactly 20 points is $0.02$. Find $q$, rounded to 10 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[DP Characterization]
+Define $\mathrm{dp}[i][j]$ as the probability of exactly $j$ successes in shots $1, \ldots, i$. Then $\mathrm{dp}[0][0] = 1$, $\mathrm{dp}[0][j] = 0$ for $j > 0$, and
+\[
+\mathrm{dp}[i][j] = \mathrm{dp}[i-1][j] \cdot \frac{i}{q} + \mathrm{dp}[i-1][j-1] \cdot \left(1 - \frac{i}{q}\right).
+\]
+The function $g(q) = \mathrm{dp}[50][20]$ is a polynomial of degree 50 in $1/q$.
+\end{theorem}
+
+\begin{proof}
+Each shot is an independent Bernoulli trial. The recurrence follows from conditioning on shot $i$. The resulting expression for $g(q)$ is a sum of products of $50$ factors, each linear in $1/q$, hence a polynomial of degree $50$ in $1/q$.
+\end{proof}
+
+\begin{theorem}[Existence and Uniqueness]
+The equation $g(q) = 0.02$ has a unique solution in $(50, \infty)$.
+\end{theorem}
+
+\begin{proof}
+At $q = 50$: the expected score is $\sum_{k=1}^{49}(1 - k/50) = 24.5$, and $g(50) > 0.02$. As $q \to \infty$, all success probabilities approach 1, so $P(X=20) \to 0$ and $g(q) < 0.02$.
+
+By continuity and the intermediate value theorem, at least one root exists. Uniqueness follows from the observation that as $q$ increases, the Poisson-binomial distribution shifts rightward monotonically, causing $g$ to cross the level $0.02$ exactly once.
+\end{proof}
+
+\begin{lemma}[Bisection Convergence]
+Bisection on $[q_{\mathrm{lo}}, q_{\mathrm{hi}}]$ converges to $d$ correct decimal places in $\lceil d \log_2 10 + \log_2(q_{\mathrm{hi}} - q_{\mathrm{lo}}) \rceil$ iterations.
+\end{lemma}
+
+\begin{proof}
+Standard: each iteration halves the interval width.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+lo = 50, hi = 100
+for 200 iterations:
+    mid = (lo + hi) / 2
+    if dp_eval(mid) > 0.02: lo = mid
+    else: hi = mid
+return round(lo, 10)
+
+dp_eval(q): 1D rolling DP over 50 shots, target 20
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(I \cdot n \cdot t)$ where $I \approx 200$, $n = 50$, $t = 20$. Total: $O(200000)$.
+\item \textbf{Space:} $O(t) = O(20)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{52.6494571953}
+\]
+
+\end{document}

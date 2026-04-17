@@ -1,0 +1,98 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 19: Counting Sundays}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given that 1~January 1900 was a Monday, determine the number of Sundays that fell on the
+first of the month during 1~January 1901 to 31~December 2000.
+
+\section{Formal Development}
+
+\begin{definition}[Day-of-week encoding]
+Encode weekdays in $\mathbb{Z}/7\mathbb{Z}$: Sunday $= 0$, Monday $= 1$, \ldots, Saturday $= 6$.
+\end{definition}
+
+\begin{definition}[Leap year]
+Year~$y$ is a leap year iff $(4 \mid y) \wedge (100 \nmid y \lor 400 \mid y)$.
+\end{definition}
+
+\begin{lemma}[Month lengths]
+\[
+D(m, y) = \begin{cases}
+31 & m \in \{1,3,5,7,8,10,12\}, \\
+30 & m \in \{4,6,9,11\}, \\
+28 + [L(y)] & m = 2.
+\end{cases}
+\]
+\end{lemma}
+
+\begin{theorem}[Day-of-week advancement]
+\label{thm:advance}
+If the 1st of month~$m$ in year~$y$ is weekday~$w$, then the 1st of the next month is
+weekday $w' \equiv w + D(m,y) \pmod{7}$.
+\end{theorem}
+
+\begin{proof}
+The 1st of the next month is $D(m,y)$ days later; each day advances the weekday by~$1$
+modulo~$7$.
+\end{proof}
+
+\begin{theorem}[Gregorian cycle]
+The Gregorian calendar repeats every 400 years ($146097 = 20871 \times 7$ days).
+\end{theorem}
+
+\begin{proof}
+In 400 years: $400 \times 365 + 97 = 146097$ days, where $97$ is the leap-year count
+($\lfloor 400/4 \rfloor - \lfloor 400/100 \rfloor + \lfloor 400/400 \rfloor = 100 - 4 + 1$).
+Since $7 \mid 146097$, the weekday pattern repeats exactly.
+\end{proof}
+
+\begin{corollary}
+There are $1200$ first-of-month dates in 1901--2000. Under uniform weekday distribution:
+$1200/7 \approx 171.4$, consistent with the exact answer~$171$.
+\end{corollary}
+
+\begin{theorem}[Sequential computation]
+Iterating Theorem~\ref{thm:advance} from the anchor $w_0 = 1$ (Mon, 1~Jan 1900) through
+all months up to December~2000, counting months in 1901--2000 with $w = 0$, yields the
+exact count.
+\end{theorem}
+
+\begin{proof}
+Each application of Theorem~\ref{thm:advance} is exact. The count records precisely
+those first-of-month dates falling on Sunday.
+\end{proof}
+
+\section{Complexity}
+
+\begin{proposition}
+$\Theta(Y)$ time, $\Theta(1)$ space, where $Y$ is the year span.
+\end{proposition}
+
+\begin{proof}
+$12Y$ constant-time iterations; only a fixed number of variables.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{171}
+\]
+
+\end{document}

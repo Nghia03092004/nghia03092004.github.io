@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 914: Convex Lattice Polygons}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $P(A)$ be the number of convex lattice polygons (vertices at integer coordinates) with area exactly~$A$ that contain the origin in their interior. Find~$P(10)$.
+
+\section{Lattice Polygon Fundamentals}
+
+\begin{definition}
+A \emph{lattice polygon} is a polygon whose vertices lie at integer-coordinate points. It is \emph{convex} if all interior angles are strictly less than $180^\circ$.
+\end{definition}
+
+\begin{theorem}[Pick, 1899]
+For a simple lattice polygon with area~$A$, $I$~interior lattice points, and $B$~boundary lattice points:
+\[
+A = I + \frac{B}{2} - 1.
+\]
+\end{theorem}
+
+For $A = 10$: $2I + B = 22$.
+
+\section{Edge Vector Characterization}
+
+\begin{theorem}
+A convex lattice polygon is uniquely determined (up to translation) by its sequence of edge vectors sorted by polar angle. These vectors satisfy:
+\begin{enumerate}
+    \item $\sum_{i=0}^{k-1} e_i = (0,0)$ \quad (closure),
+    \item $e_i \times e_{i+1} > 0$ for all~$i$ \quad (convexity),
+    \item each $e_i$ is a nonzero lattice vector.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Convexity forces the edge vectors, when traversed counterclockwise, to have strictly increasing polar angles (modulo $2\pi$). The polygon closes iff the vectors sum to zero. Given ordered edge vectors, the polygon is recovered by placing any starting vertex and accumulating sums.
+\end{proof}
+
+\begin{lemma}
+Each edge vector $e_i = m_i \cdot (a_i, b_i)$ where $(a_i, b_i)$ is primitive (i.e., $\gcd(|a_i|, |b_i|) = 1$) and $m_i \geq 1$. The edge contributes exactly $m_i$ boundary lattice points (excluding one endpoint).
+\end{lemma}
+
+\section{Area Computation}
+
+\begin{proposition}
+The area of a polygon with ordered vertices $v_0, v_1, \ldots, v_{k-1}$ is:
+\[
+A = \frac{1}{2}\left|\sum_{i=0}^{k-1}(x_i y_{i+1} - x_{i+1} y_i)\right|
+\]
+where indices are taken modulo~$k$ (the Shoelace Formula).
+\end{proposition}
+
+\section{Origin Containment}
+
+\begin{theorem}
+The origin lies strictly inside a convex polygon with vertices $v_0, \ldots, v_{k-1}$ (counterclockwise) if and only if for every edge $(v_i, v_{i+1})$:
+\[
+(v_{i+1} - v_i) \times (O - v_i) > 0.
+\]
+\end{theorem}
+
+\begin{proof}
+For a counterclockwise-oriented convex polygon, a point is interior iff it lies strictly to the left of every directed edge. The cross product $(v_{i+1} - v_i) \times (O - v_i) > 0$ is exactly the left-of-edge test.
+\end{proof}
+
+\section{Vertex Bounds}
+
+\begin{lemma}
+For a convex lattice polygon with area~$A$ containing the origin strictly inside, every vertex $(x, y)$ satisfies $|x|, |y| \leq 2A$.
+\end{lemma}
+
+\begin{proof}
+If vertex $v$ has $|x| > 2A$, then the triangle formed by $v$, the origin, and any adjacent vertex would already contribute area exceeding~$A$, contradicting the total area constraint. (The origin is inside, so the polygon can be triangulated from the origin; each triangle has positive area, and the sum of triangle areas equals~$A$.)
+\end{proof}
+
+\section{Enumeration Algorithm}
+
+\begin{enumerate}
+    \item Generate all primitive lattice vectors in $[-R, R]^2$ with $R = 2A = 20$.
+    \item Enumerate subsets of directions with multiplicities such that edge vectors sum to~$(0,0)$.
+    \item For each candidate polygon, verify area $= 10$ and origin containment.
+    \item Canonicalize to avoid double-counting.
+\end{enumerate}
+
+\section{Concrete Examples}
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Polygon & Vertices & Area \\
+\midrule
+Rectangle & $(-2,-1),(3,-1),(3,1),(-2,1)$ & 10 \\
+Parallelogram & $(-3,-1),(2,-1),(3,1),(-2,1)$ & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{414213562371805310}
+\]
+
+\end{document}

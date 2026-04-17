@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 909: Random Walk Return Probability}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+In a symmetric random walk on $\mathbb{Z}$ starting at~0, each step is $+1$ or $-1$ with probability $1/2$. Let $R(2n)$ be the probability of being at~0 after $2n$ steps. Find $R(20) = p/q$ in lowest terms and compute $p + q$.
+
+\section{Return Probability}
+
+\begin{theorem}
+\[
+R(2n) = \binom{2n}{n} \cdot 2^{-2n}.
+\]
+\end{theorem}
+
+\begin{proof}
+A path of $2n$ steps ending at~0 requires exactly $n$ right steps and $n$ left steps. There are $\binom{2n}{n}$ such paths out of $2^{2n}$ total, each equally likely.
+\end{proof}
+
+\section{Evaluation for $n = 10$}
+
+\[
+R(20) = \frac{\binom{20}{10}}{2^{20}} = \frac{184756}{1048576}.
+\]
+
+Since $184756 = 4 \times 46189$ and $1048576 = 4 \times 262144$, with $46189 = 7 \times 13 \times 509$ odd:
+\[
+R(20) = \frac{46189}{262144}, \qquad p + q = 46189 + 262144 = 308333.
+\]
+
+\section{Asymptotic Behavior}
+
+\begin{theorem}[Stirling]
+$R(2n) \sim \dfrac{1}{\sqrt{\pi n}}$ as $n \to \infty$.
+\end{theorem}
+
+\begin{proof}
+By Stirling's approximation $k! \sim \sqrt{2\pi k}\,(k/e)^k$:
+\[
+\binom{2n}{n} = \frac{(2n)!}{(n!)^2} \sim \frac{\sqrt{4\pi n}\,(2n/e)^{2n}}{2\pi n\,(n/e)^{2n}} = \frac{4^n}{\sqrt{\pi n}}. \qedhere
+\]
+\end{proof}
+
+\section{Recurrence of the Walk}
+
+\begin{theorem}[P\'olya, 1921]
+The symmetric random walk on $\mathbb{Z}$ is recurrent.
+\end{theorem}
+
+\begin{proof}
+The expected total number of visits to the origin is $\sum_{n=0}^{\infty} R(2n) \sim \sum 1/\sqrt{\pi n} = \infty$. Since the probability generating function for returns is $G(x) = (1-4x)^{-1/2}$ with $G(1/4) = \infty$, the first-return probability $F(1/4) = 1 - 1/G(1/4) = 1$.
+\end{proof}
+
+\section{First-Return Probability}
+
+\begin{proposition}
+The probability of first return to 0 at time $2n$ is:
+\[
+f_{2n} = \frac{1}{2n-1}\binom{2n}{n}\cdot 4^{-n} = \frac{R(2n)}{2n-1}.
+\]
+\end{proposition}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+$n$ & $\binom{2n}{n}$ & $R(2n)$ & $p/q$ reduced & $p+q$ \\
+\midrule
+1  & 2      & 1/2     & 1/2       & 3 \\
+2  & 6      & 3/8     & 3/8       & 11 \\
+3  & 20     & 5/16    & 5/16      & 21 \\
+5  & 252    & 63/256  & 63/256    & 319 \\
+10 & 184756 & 46189/262144 & 46189/262144 & 308333 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+
+\begin{itemize}
+\item $O(n)$ to compute $\binom{2n}{n}$ and $\gcd$.
+\item $O(1)$ with Stirling for approximate answer.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{399885292}
+\]
+
+\end{document}

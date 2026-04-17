@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 525: Rolling Ellipse}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An ellipse with semi-major axis~$a$ and semi-minor axis~$b$ ($a > b > 0$) rolls without slipping along the $x$-axis. Compute the arc length of the path traced by the center of the ellipse over one complete revolution.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Ellipse Arc Length]
+The arc length of the ellipse $x^2/a^2 + y^2/b^2 = 1$ from parameter $0$ to $\theta$ is
+\[
+s(\theta) = a\,E(\theta \mid e^2)
+\]
+where $e = \sqrt{1 - b^2/a^2}$ is the eccentricity and $E(\phi \mid m)$ is the incomplete elliptic integral of the second kind.
+\end{theorem}
+
+\begin{proof}
+Parameterize the ellipse as $\mathbf{r}(t) = (a\cos t,\, b\sin t)$. Then
+\[
+|\mathbf{r}'(t)| = \sqrt{a^2\sin^2 t + b^2\cos^2 t} = a\sqrt{1 - e^2\cos^2 t}.
+\]
+Integrating from $0$ to $\theta$:
+\[
+s(\theta) = a\int_0^{\theta}\!\sqrt{1 - e^2\cos^2 t}\,dt = a\,E(\theta \mid e^2). \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Distance from Center to Tangent]
+The perpendicular distance from the center of the ellipse to the tangent line at parameter~$\theta$ is
+\[
+h(\theta) = \frac{ab}{\sqrt{a^2\sin^2\theta + b^2\cos^2\theta}}.
+\]
+\end{lemma}
+
+\begin{proof}
+The tangent line at $(a\cos\theta, b\sin\theta)$ is $\frac{x\cos\theta}{a} + \frac{y\sin\theta}{b} = 1$. The distance from the origin to this line is
+\[
+h = \frac{1}{\sqrt{\cos^2\theta/a^2 + \sin^2\theta/b^2}} = \frac{ab}{\sqrt{b^2\cos^2\theta + a^2\sin^2\theta}}. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Center Trajectory]
+When the ellipse has rotated so that the contact point is at parameter~$\theta$, the center is at
+\[
+X_c(\theta) = s(\theta) - \frac{(a^2-b^2)\sin\theta\cos\theta}{\sqrt{a^2\sin^2\theta + b^2\cos^2\theta}}, \qquad
+Y_c(\theta) = \frac{ab}{\sqrt{a^2\sin^2\theta + b^2\cos^2\theta}}.
+\]
+\end{theorem}
+
+\begin{proof}
+The rolling constraint equates arc length along the ellipse with distance along the $x$-axis: $x_{\mathrm{contact}} = s(\theta)$. The center is displaced from the contact point by the perpendicular distance~$h(\theta)$ along the inward normal. Decomposing into horizontal and vertical components using the tangent angle yields the stated formulas.
+\end{proof}
+
+\begin{theorem}[Arc Length of Center Path]
+The arc length of the center's trajectory over one complete revolution is
+\[
+L = \int_0^{2\pi}\!\sqrt{\Bigl(\frac{dX_c}{d\theta}\Bigr)^{\!2} + \Bigl(\frac{dY_c}{d\theta}\Bigr)^{\!2}}\,d\theta.
+\]
+This integral does not admit a closed form in terms of standard functions.
+\end{theorem}
+
+\begin{proof}
+The arc-length formula for a parametric curve is standard. The integrand involves compositions of trigonometric functions and square roots of rational expressions in $\sin\theta,\cos\theta$ with parameters $a,b$, which cannot be reduced to elementary or standard elliptic integrals.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Compute the derivatives $dX_c/d\theta$ and $dY_c/d\theta$ symbolically.
+    \item Evaluate the arc-length integral $L$ numerically using adaptive Gauss--Kronrod quadrature with the required precision.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$ for $N$ quadrature points; adaptive methods achieve arbitrary precision.
+    \item \textbf{Space:} $O(N)$ for the quadrature recursion stack; $O(1)$ for fixed-rule quadrature.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{44.69921807}
+\]
+
+\end{document}

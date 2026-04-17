@@ -1,0 +1,55 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 324: Building a Tower}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many ways can a $3\times 3 \times n$ tower be built with $2\times 1\times 1$ bricks?
+Find $f(10^{10000}) \bmod (10^8+7)$.
+
+\section{Solution}
+
+\subsection{Transfer Matrix}
+Model the problem layer by layer. Each boundary between consecutive layers has a \emph{profile}: a bitmask of the $3\times 3 = 9$ cells indicating which are already occupied by bricks protruding from below.
+
+The transfer matrix $T$ is $2^9 \times 2^9 = 512 \times 512$, where $T[s_1][s_2]$ counts the number of valid tilings of one layer that transition from incoming profile $s_1$ to outgoing profile $s_2$.
+
+Then:
+\[
+f(n) = (T^n)_{0,0}
+\]
+
+\subsection{Minimal Polynomial Approach}
+The sequence $f(n) = (T^n)_{0,0}$ satisfies a linear recurrence whose characteristic polynomial divides the minimal polynomial of $T$.
+
+\begin{enumerate}
+\item Compute $f(0), f(1), \ldots, f(2d)$ by repeatedly multiplying the state vector by $T$.
+\item Use Berlekamp--Massey to find the minimal polynomial $m(x)$ of degree $d$.
+\item Compute $x^n \bmod m(x)$ in $\mathbb{F}_p[x]$ using repeated squaring ($n = 10^{10000}$).
+\item Evaluate $f(n) = \sum_i a_i \cdot f(i)$ where $x^n \equiv \sum a_i x^i \pmod{m(x)}$.
+\end{enumerate}
+
+\subsection{Handling the Huge Exponent}
+$n = 10^{10000}$ has about $33{,}220$ binary digits. Polynomial exponentiation modulo $m(x)$ in $\mathbb{F}_p[x]$ requires $O(\log n)$ polynomial multiplications, each of cost $O(d^2)$.
+
+\subsection{Result}
+\[
+f(10^{10000}) \bmod (10^8 + 7) = \boxed{96972774}
+\]
+
+\section{Complexity}
+$O(d^2 \log n)$ where $d$ is the degree of the minimal polynomial ($d \le 512$) and $\log n \approx 33{,}220$.
+
+\section{Answer}
+
+\[
+\boxed{96972774}
+\]
+
+\end{document}

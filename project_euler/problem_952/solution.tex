@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 952: Integer Points on Ellipses}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the number of integer solutions $(x, y)$ to $3x^2 + 5y^2 \le 10^6$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Generalized Gauss Circle Problem]
+The number of lattice points $(x, y) \in \mathbb{Z}^2$ inside the ellipse $Ax^2 + By^2 \le N$ satisfies
+\[
+L(N) = \frac{\pi N}{\sqrt{AB}} + O(N^{1/2+\varepsilon})
+\]
+for any $\varepsilon > 0$.
+\end{theorem}
+
+\begin{proof}
+The leading term equals the area of the ellipse, which has semi-axes $a = \sqrt{N/A}$, $b = \sqrt{N/B}$ and area $\pi ab = \pi N/\sqrt{AB}$. Each lattice point is associated with a unit square; discrepancies arise from squares straddling the boundary. The boundary has arc length $O(\sqrt{N})$, bounding the error by $O(\sqrt{N})$. Sharper estimates (e.g., $O(N^{131/416})$ via Huxley's method) require deeper analytic techniques.
+\end{proof}
+
+\begin{lemma}[Slice Counting]
+\label{lem:slice}
+For fixed~$x$ with $3x^2 \le N$, the number of integers~$y$ satisfying $3x^2 + 5y^2 \le N$ is
+\[
+2\left\lfloor\sqrt{\frac{N-3x^2}{5}}\right\rfloor + 1.
+\]
+\end{lemma}
+
+\begin{proof}
+The constraint $5y^2 \le N - 3x^2$ gives $|y| \le \sqrt{(N-3x^2)/5}$. The integer solutions are $y \in \{-M, \ldots, M\}$ where $M = \lfloor\sqrt{(N-3x^2)/5}\rfloor$, which is $2M+1$ values.
+\end{proof}
+
+\begin{theorem}[Exact Count via Slicing]
+The total lattice point count is
+\[
+L(N) = \sum_{x=-\lfloor\sqrt{N/3}\rfloor}^{\lfloor\sqrt{N/3}\rfloor} \Bigl(2\bigl\lfloor\sqrt{(N-3x^2)/5}\bigr\rfloor + 1\Bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+For each integer~$x$ with $|x| \le \lfloor\sqrt{N/3}\rfloor$, we have $3x^2 \le N$, so the slice is non-empty. Lemma~\ref{lem:slice} gives the count for each slice. Summing over all valid~$x$ counts every lattice point exactly once, since the slices partition by $x$-coordinate.
+\end{proof}
+
+\begin{lemma}[Symmetry Reduction]
+By the symmetry $(x,y) \mapsto (-x,y)$:
+\[
+L(N) = (2M_0+1) + 2\sum_{x=1}^{\lfloor\sqrt{N/3}\rfloor}\Bigl(2\bigl\lfloor\sqrt{(N-3x^2)/5}\bigr\rfloor + 1\Bigr)
+\]
+where $M_0 = \lfloor\sqrt{N/5}\rfloor$.
+\end{lemma}
+
+\begin{proof}
+The $x=0$ slice contributes $2M_0+1$ points. For $x \ne 0$, slices at $x$ and $-x$ have identical $y$-ranges since $3x^2 = 3(-x)^2$, so each pair contributes twice the count of a single slice.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function CountLatticePoints(N):
+    x_max = floor(sqrt(N / 3))
+    count = 0
+    for x = -x_max to x_max:
+        R = N - 3 * x * x
+        y_max = floor(sqrt(R / 5))
+        count = count + 2 * y_max + 1
+    return count
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\sqrt{N/3}) = O(\sqrt{N})$ iterations, each $O(1)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{794394453}
+\]
+
+\end{document}

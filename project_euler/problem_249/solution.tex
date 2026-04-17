@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 249: Prime Subset Sums}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $S$ be the set of all primes less than $5000$. Find the number of subsets of $S$ whose elements sum to a prime, modulo $10^{16}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[0/1 Knapsack DP]\label{thm:dp}
+Let $p_1<\cdots<p_K$ be the primes below $5000$ ($K=669$), and $\sigma=\sum p_i=1{,}548{,}136$. The recurrence
+\[
+dp[s]\leftarrow dp[s]+dp[s-p_j] \quad (s=\sigma,\sigma-1,\ldots,p_j)
+\]
+processed for $j=1,\ldots,K$ yields $dp[s]\equiv|\{T\subseteq S:\sum_{p\in T}p=s\}|\pmod{10^{16}}$.
+\end{theorem}
+
+\begin{proof}
+By induction on $j$. Base: $dp[0]=1$, $dp[s]=0$ for $s>0$ (empty set has sum 0).
+
+Inductive step: after processing $p_1,\ldots,p_{j-1}$, assume $dp[s]$ counts subsets of $\{p_1,\ldots,p_{j-1}\}$ summing to $s$. When processing $p_j$ with reverse iteration, the update $dp[s]\leftarrow dp[s]+dp[s-p_j]$ uses the pre-update value of $dp[s-p_j]$ (subsets of the first $j-1$ primes summing to $s-p_j$). The new $dp[s]$ counts subsets excluding $p_j$ (old $dp[s]$) plus those including $p_j$ ($dp[s-p_j]$), which is exactly the set of subsets of $\{p_1,\ldots,p_j\}$ summing to $s$.
+\end{proof}
+
+\begin{lemma}[Sieve correctness]\label{lem:sieve}
+The Sieve of Eratosthenes identifies all primes up to $N$ in $O(N\log\log N)$ time.
+\end{lemma}
+
+\begin{proof}
+Every composite $n\le N$ has a prime factor $p\le\sqrt{N}$, so it is struck during the sieve of $p$. No prime is struck.
+\end{proof}
+
+\begin{theorem}[Final summation]\label{thm:sum}
+The answer is $\sum_{\substack{2\le s\le\sigma\\s\text{ prime}}}dp[s]\bmod 10^{16}$.
+\end{theorem}
+
+\begin{proof}
+Each subset with prime sum $s$ contributes 1 to $dp[s]$. Summing over prime $s$ counts each qualifying subset exactly once.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function Solve():
+    is_prime = SieveOfEratosthenes(1548136)
+    primes = [p < 5000 : p prime]   # 669 primes
+    sigma = sum(primes)
+    dp[0] = 1; dp[1..sigma] = 0
+    for p in primes:
+        for s = sigma downto p:
+            dp[s] = (dp[s] + dp[s-p]) mod 10^16
+    return sum(dp[s] for prime s) mod 10^16
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(K\cdot\sigma)=O(669\times 1{,}548{,}136)\approx 10^9$ modular additions, plus $O(\sigma\log\log\sigma)$ for sieving.
+\item \textbf{Space:} $O(\sigma)\approx 12$\,MB for the DP array (64-bit entries).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{9275262564250418}
+\]
+
+\end{document}

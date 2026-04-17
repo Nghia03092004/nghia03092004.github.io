@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 175: Fractions Involving the Number of Different Ways a Number Can Be Expressed as a Sum of Powers of 2}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $f(n)$ as the number of ways to write $n$ as a sum of powers of 2, where each power is used at most twice. The ratio $f(n)/f(n-1)$ enumerates every positive rational exactly once via the Calkin--Wilf sequence. Given $p/q = 123456789/987654321$, find the shorthand representation (run-length encoding of the Calkin--Wilf tree path).
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Calkin--Wilf tree]
+The binary tree rooted at $1/1$ with left child $a/(a+b)$ and right child $(a+b)/b$ of node $a/b$ contains every positive rational number exactly once in lowest terms.
+\end{theorem}
+
+\begin{proof}
+By induction on $a + b$: the root $1/1$ is in lowest terms. If $\gcd(a, b) = 1$, then $\gcd(a, a+b) = \gcd(a, b) = 1$ and $\gcd(a+b, b) = \gcd(a, b) = 1$, so both children are in lowest terms. Every $a/b$ with $a + b > 2$ has a unique parent: if $a < b$ then the parent is $a/(b-a)$, and if $a > b$ then the parent is $(a-b)/b$. This defines a unique path from any rational to the root. \qed
+\end{proof}
+
+\begin{theorem}[Path recovery via Euclidean algorithm]
+The path from the root to $a/b$ in the Calkin--Wilf tree, expressed as run-length encoded L/R steps, is obtained by tracing from $a/b$ back to $1/1$, batching consecutive steps of the same direction using integer division.
+\end{theorem}
+
+\begin{proof}
+Each step from $a/b$ to its parent subtracts: if $a > b$, then $a \mapsto a - b$ (R-step); if $b > a$, then $b \mapsto b - a$ (L-step). Batching $\lfloor a/b \rfloor$ or $\lfloor b/a \rfloor$ steps is valid because consecutive steps have the same direction until the inequality reverses. This is the Euclidean algorithm on $(a, b)$, terminating in $O(\log \max(a, b))$ rounds. The path is then reversed to read root-to-leaf. \qed
+\end{proof}
+
+\begin{lemma}[Last-step adjustment]
+When tracing from $a/b$ to $1/1$, we use $\lfloor (a-1)/b \rfloor$ (or $\lfloor (b-1)/a \rfloor$) to ensure we stop at $1/1$ rather than overshoot to $0/b$.
+\end{lemma}
+
+\begin{proof}
+Taking $k = \lfloor (a-1)/b \rfloor$ R-steps leaves $a - kb \geq 1$. If $a$ is a multiple of $b$, this prevents reaching $0/b$. The final state is $1/1$ after one more step. \qed
+\end{proof}
+
+\begin{theorem}[Computation for $123456789/987654321$]
+We have $\gcd(123456789, 987654321) = 9$, so the reduced fraction is $13717421/109739369$.
+\end{theorem}
+
+\begin{proof}
+By the Euclidean algorithm: $987654321 = 8 \times 123456789 + 9$, and $123456789 = 13717421 \times 9$, so $\gcd = 9$. \qed
+\end{proof}
+
+Applying the path-recovery algorithm to $a/b = 13717421/109739369$:
+
+\begin{enumerate}
+    \item $b > a$: $k = \lfloor(109739369 - 1)/13717421\rfloor = 7$. After 7 L-steps: $b \leftarrow 13717422$.
+    \item $b > a$: $k = \lfloor(13717422 - 1)/13717421\rfloor = 1$. After 1 L-step: $b \leftarrow 1$.
+    \item $a > b$: $k = \lfloor(13717421 - 1)/1\rfloor = 13717420$. After 13717420 R-steps: $a \leftarrow 1$. Done.
+\end{enumerate}
+
+Reversed and merged: the shorthand is $1, 13717420, 8$.
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{CalkinWilfPath}{$p, q$}
+    \State $g \gets \gcd(p, q)$; $a \gets p/g$; $b \gets q/g$
+    \State $\text{runs} \gets []$
+    \While{$a \neq b$}
+        \If{$a > b$}
+            \State $k \gets \lfloor(a-1)/b\rfloor$; append $k$; $a \gets a - kb$
+        \Else
+            \State $k \gets \lfloor(b-1)/a\rfloor$; append $k$; $b \gets b - ka$
+        \EndIf
+    \EndWhile
+    \State Append 1; reverse the list
+    \State \Return runs
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\log \max(p, q))$ --- the Euclidean algorithm.
+    \item \textbf{Space:} $O(\log \max(p, q))$ for storing the run lengths.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1,13717420,8}
+\]
+
+\end{document}

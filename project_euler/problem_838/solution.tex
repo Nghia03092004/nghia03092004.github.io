@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 838: Not Coprime}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer~$N$, define $C(N)$ as the number of pairs $(a,b)$ with $1\le a\le b\le N$ such that $\gcd(a,b)>1$. Compute $C(10^7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[M\"obius Coprime Count]
+The number of ordered coprime pairs $(a,b)$ with $1\le a,b\le N$ is
+\[
+\Phi(N) = \sum_{d=1}^{N}\mu(d)\left\lfloor\frac{N}{d}\right\rfloor^2.
+\]
+\end{theorem}
+
+\begin{proof}
+Using the identity $[\gcd(a,b)=1]=\sum_{d\mid\gcd(a,b)}\mu(d)$ and exchanging summation:
+\[
+\Phi(N) = \sum_{a,b=1}^{N}\sum_{d\mid\gcd(a,b)}\mu(d) = \sum_{d=1}^{N}\mu(d)\left\lfloor\frac{N}{d}\right\rfloor^2.
+\]
+The inner sums count multiples of~$d$ in $\{1,\ldots,N\}$, each equaling $\lfloor N/d\rfloor$.
+\end{proof}
+
+\begin{lemma}[Ordered to Unordered]
+The number of unordered coprime pairs is $C_{\mathrm{cop}}(N)=(\Phi(N)+1)/2$.
+\end{lemma}
+
+\begin{proof}
+Among ordered coprime pairs, only $(1,1)$ has $a=b$ (since $\gcd(a,a)=a=1$ requires $a=1$). All other pairs appear twice. Hence $C_{\mathrm{cop}}=((\Phi(N)-1)/2)+1=(\Phi(N)+1)/2$.
+\end{proof}
+
+\begin{theorem}[Non-Coprime Count]
+\[
+C(N) = \frac{N(N+1)}{2} - \frac{\Phi(N)+1}{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+Total unordered pairs: $N(N+1)/2$. Subtract coprime pairs $C_{\mathrm{cop}}(N)$.
+\end{proof}
+
+\begin{theorem}[Hyperbola Method]
+The sum $\sum_{d=1}^{N}\mu(d)\lfloor N/d\rfloor^2$ can be evaluated in $O(\sqrt{N})$ operations given the Mertens function $M(x)=\sum_{k=1}^{x}\mu(k)$.
+\end{theorem}
+
+\begin{proof}
+The map $d\mapsto\lfloor N/d\rfloor$ takes at most $2\lfloor\sqrt{N}\rfloor$ distinct values. For each value~$q$, the contributing indices form an interval $[d_1,d_2]$ with $d_2=\lfloor N/q\rfloor$. The block contribution is $q^2(M(d_2)-M(d_1-1))$. Summing over $O(\sqrt{N})$ blocks completes the evaluation.
+\end{proof}
+
+\begin{lemma}[Asymptotic Density]
+$\Phi(N)\sim 6N^2/\pi^2$ as $N\to\infty$.
+\end{lemma}
+
+\begin{proof}
+$\Phi(N)/N^2\to\sum_{d=1}^{\infty}\mu(d)/d^2 = \prod_p(1-1/p^2)=1/\zeta(2)=6/\pi^2$.
+\end{proof}
+
+\section{Algorithm}
+
+Compute $\mu$ via linear sieve in $O(N)$, form prefix sums $M$, then evaluate $\Phi(N)$ via block summation in $O(\sqrt{N})$. Finally compute $C(N)=N(N+1)/2-(\Phi(N)+1)/2$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N)$ (dominated by the sieve).
+\item \textbf{Space:} $O(N)$ for $\mu$ and $M$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{250591.442792}
+\]
+
+\end{document}

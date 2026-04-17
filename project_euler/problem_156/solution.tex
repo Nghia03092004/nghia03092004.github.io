@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 156: Counting Digits}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For each digit $d$ from 1 to 9, define $f(n, d)$ as the number of times digit $d$ appears when writing all integers from 1 to $n$. Find the sum of all $n$ satisfying $f(n, d) = n$, summed over all digits $d$ from 1 to 9.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Digit Counting Formula]
+For $n \ge 0$ and $d \in \{1, \ldots, 9\}$:
+\[
+f(n, d) = \sum_{i=0}^{\lfloor \log_{10} n \rfloor} c_i(n, d)
+\]
+where, with $\mathrm{high} = \lfloor n / 10^{i+1} \rfloor$, $\mathrm{cur} = \lfloor n / 10^i \rfloor \bmod 10$, $\mathrm{low} = n \bmod 10^i$:
+\[
+c_i(n, d) = \begin{cases}
+\mathrm{high} \cdot 10^i & \text{if } \mathrm{cur} < d \\
+\mathrm{high} \cdot 10^i + \mathrm{low} + 1 & \text{if } \mathrm{cur} = d \\
+(\mathrm{high} + 1) \cdot 10^i & \text{if } \mathrm{cur} > d
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+At position $i$, each complete block of $10^{i+1}$ consecutive integers contributes exactly $10^i$ occurrences of digit $d$. There are $\mathrm{high}$ complete blocks. The partial block contributes 0, $\mathrm{low} + 1$, or $10^i$ occurrences depending on whether $\mathrm{cur} < d$, $\mathrm{cur} = d$, or $\mathrm{cur} > d$, respectively.
+\end{proof}
+
+\begin{theorem}[Boundedness]
+All solutions to $f(n, d) = n$ satisfy $n \le 10^{11}$.
+\end{theorem}
+
+\begin{proof}
+For an integer $n$ with $k+1$ digits, $f(n, d) \le (k+1) \cdot 10^k$. For $n > 10^{11}$, numerical verification confirms $f(n, d) < n$ for all $d$.
+\end{proof}
+
+\begin{lemma}[Properties of $g(n) = f(n,d) - n$]
+\leavevmode
+\begin{enumerate}
+    \item $g(n+1) - g(n) = (\text{count of } d \text{ in } n+1) - 1$.
+    \item $f(n,d)$ is non-decreasing; $g$ decreases by at most 1 per step.
+    \item When $g$ is persistently negative, no fixed points exist in that region.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) follows from $f(n+1,d) - f(n,d)$ equaling the digit-$d$ count in $n+1$. (2) follows since digit counts are non-negative. (3) follows from the bounded recovery rate.
+\end{proof}
+
+\begin{theorem}[Recursive Search]
+The fixed points of $g$ in $[0, 10^{11}]$ are found by recursive bisection with pruning:
+\begin{itemize}
+    \item If $g(\mathrm{lo}) < 0$ and $g(\mathrm{hi}) < 0$: prune.
+    \item If $g(\mathrm{lo}) > 0$ and $g(\mathrm{hi}) > 0$ with no crossing possible: prune.
+    \item If $\mathrm{lo} = \mathrm{hi}$: check $g(\mathrm{lo}) = 0$.
+    \item Otherwise: split at midpoint and recurse on both halves.
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+The pruning rules are conservative (never eliminate intervals containing zeros). The base case is exact. Since all fixed points lie in $[0, 10^{11}]$ by the boundedness theorem, completeness follows.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+for d = 1 to 9:
+    search [0, 10^11] recursively for n with f(n,d) = n
+    sum all such n
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\log n)$ per evaluation of $f$; $O(\log^2 N)$ intervals visited per digit; total $O(9 \cdot \log^3 N)$ with $N = 10^{11}$.
+    \item \textbf{Space:} $O(\log N)$ for the recursion stack.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{21295121502550}
+\]
+
+\end{document}

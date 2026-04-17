@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 113: Non-bouncy Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer is \textbf{increasing} if its digits are non-decreasing left to right, \textbf{decreasing} if non-increasing, and \textbf{bouncy} otherwise. How many numbers below $10^{100}$ are not bouncy?
+
+\section{Mathematical Development}
+
+\begin{theorem}[Increasing count]
+The number of positive increasing integers with at most $n$ digits is
+\[
+I(n) = \binom{n+9}{9} - 1.
+\]
+\end{theorem}
+
+\begin{proof}
+A non-decreasing sequence of $n$ digits from $\{0,\ldots,9\}$ (with leading zeros) corresponds bijectively to a multiset of size~$n$ from a 10-element alphabet. By stars and bars, the count is $\binom{n+9}{9}$. Subtracting the all-zeros sequence (representing 0) gives the result.
+\end{proof}
+
+\begin{theorem}[Decreasing count]
+The number of positive decreasing integers with at most $n$ digits is
+\[
+D(n) = \binom{n+10}{10} - 1 - n.
+\]
+\end{theorem}
+
+\begin{proof}
+For each length $k$, non-increasing sequences from $\{0,\ldots,9\}$ number $\binom{k+9}{9}$, of which one is all zeros. Thus the count of positive decreasing numbers of exactly $k$ digits is $\binom{k+9}{9} - 1$. Summing over $k = 1,\ldots,n$ and applying the hockey-stick identity $\sum_{k=1}^{n}\binom{k+9}{9} = \binom{n+10}{10} - 1$ yields
+\[
+D(n) = \binom{n+10}{10} - 1 - n.
+\]
+\end{proof}
+
+\begin{lemma}[Overlap]
+The number of positive integers with at most $n$ digits that are both increasing and decreasing is $9n$.
+\end{lemma}
+
+\begin{proof}
+Such numbers are repdigits. For each length $k \in \{1,\ldots,n\}$ and digit $d \in \{1,\ldots,9\}$, there is exactly one repdigit, giving $9n$ in total.
+\end{proof}
+
+\begin{theorem}[Non-bouncy formula]
+The number of non-bouncy positive integers below $10^n$ is
+\[
+\operatorname{NonBouncy}(n) = \binom{n+9}{9} + \binom{n+10}{10} - 10n - 2.
+\]
+\end{theorem}
+
+\begin{proof}
+By inclusion--exclusion:
+\begin{align*}
+\operatorname{NonBouncy}(n) &= I(n) + D(n) - 9n \\
+&= \bigl[\tbinom{n+9}{9} - 1\bigr] + \bigl[\tbinom{n+10}{10} - 1 - n\bigr] - 9n \\
+&= \binom{n+9}{9} + \binom{n+10}{10} - 10n - 2. \qedhere
+\end{align*}
+\end{proof}
+
+\begin{corollary}[Asymptotic vanishing]
+$\operatorname{NonBouncy}(n)/(10^n - 1) \to 0$ as $n \to \infty$, since $\operatorname{NonBouncy}(n) = O(n^{10})$.
+\end{corollary}
+
+\section{Algorithm}
+
+Evaluate $\binom{109}{9} + \binom{110}{10} - 1002$ using big-integer arithmetic (two binomial coefficients, each requiring $O(10)$ multiplications).
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(1)$ arithmetic operations (two binomial coefficients with constant-size lower parameters).
+\item \textbf{Space:} $O(1)$ big integers.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{51161058134250}
+\]
+
+\end{document}

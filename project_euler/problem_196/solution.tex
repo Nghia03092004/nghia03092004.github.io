@@ -1,0 +1,89 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 196: Prime Triplets}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Build a triangle of positive integers where row $n$ contains numbers from $T(n) = \frac{n(n-1)}{2}+1$ to $\frac{n(n+1)}{2}$. Two numbers are \textbf{neighbours} if they occupy adjacent positions. A \textbf{prime triplet} is three primes where one has the other two as neighbours. $S(n)$ is the sum of primes in row $n$ belonging to any prime triplet. Find $S(5678027) + S(7208785)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Triangle Indexing]
+Row $n$ starts at $T(n) = \frac{n(n-1)}{2} + 1$. Position $k$ (0-indexed) in row $n$ has value $T(n) + k$.
+\end{theorem}
+
+\begin{proof}
+Rows $1, \ldots, n-1$ contain $\sum_{i=1}^{n-1} i = \frac{n(n-1)}{2}$ elements total. \qed
+\end{proof}
+
+\begin{theorem}[Neighbour Structure]
+Position $(n, k)$ has at most 6 neighbours: $(n, k \pm 1)$ in the same row, $(n-1, k-1)$ and $(n-1, k)$ in the row above, $(n+1, k)$ and $(n+1, k+1)$ in the row below (when valid).
+\end{theorem}
+
+\begin{proof}
+Follows from the triangular geometry. Each position is adjacent to its left/right in the same row and to two positions each in the rows above and below. \qed
+\end{proof}
+
+\begin{lemma}[Parity Constraint]
+For $n \geq 4$, adjacent same-row positions hold consecutive integers, so at most one is prime. Prime triplets must therefore have the center's prime neighbours in adjacent rows.
+\end{lemma}
+
+\begin{proof}
+Adjacent positions have values $T(n)+k$ and $T(n)+k+1$, which are consecutive. \qed
+\end{proof}
+
+\begin{theorem}[Membership Criterion]
+A prime $p$ in row $n$ belongs to a prime triplet iff:
+\begin{enumerate}
+    \item $p$ has $\geq 2$ prime neighbours (center condition), or
+    \item $p$ has a prime neighbour with $\geq 2$ prime neighbours (spoke condition).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+In a triplet $\{p, q, r\}$ with center $q$: either $p = q$ (condition 1) or $p \in \{p, r\}$ and $q$ is a prime neighbour of $p$ with $\geq 2$ prime neighbours (condition 2). \qed
+\end{proof}
+
+\begin{lemma}[Search Radius]
+Evaluating both conditions for row $n$ requires primality data for rows $n-2$ through $n+2$.
+\end{lemma}
+
+\begin{proof}
+Neighbours span $\pm 1$ row; neighbours of neighbours span $\pm 2$ rows. \qed
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function S(n):
+    Segmented sieve for rows n-2 to n+2
+    For each prime p in row n:
+        If p has >= 2 prime neighbours: add p
+        Else if any prime neighbour has >= 2 prime neighbours: add p
+    Return sum
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n \log\log n)$ for the segmented sieve over $O(n)$ values, plus $O(n)$ for neighbour checks.
+    \item \textbf{Space:} $O(n)$ for the sieve bitmap and small primes up to $O(n)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{322303240771079935}
+\]
+
+\end{document}

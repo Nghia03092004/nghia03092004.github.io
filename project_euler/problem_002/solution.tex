@@ -1,0 +1,222 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 2: Even Fibonacci Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+By considering the terms in the Fibonacci sequence whose values do not exceed four million, find the sum of the even-valued terms. That is, compute
+\[
+S = \sum_{\substack{F_n \le 4\,000\,000 \\ 2 \mid F_n}} F_n
+\]
+where $F_1 = 1$, $F_2 = 1$, and $F_n = F_{n-1} + F_{n-2}$ for $n \ge 3$.
+
+\section{Mathematical Development}
+
+\subsection{Preliminaries}
+
+\begin{definition}[Fibonacci Sequence]
+The Fibonacci sequence $(F_n)_{n \ge 1}$ is defined by $F_1 = 1$, $F_2 = 1$, and $F_n = F_{n-1} + F_{n-2}$ for $n \ge 3$.
+\end{definition}
+
+\begin{lemma}[Fibonacci Addition Identity]
+\label{lem:add}
+For all integers $m \ge 2$ and $n \ge 1$,
+\[
+F_{m+n} = F_m F_{n+1} + F_{m-1} F_n.
+\]
+\end{lemma}
+
+\begin{proof}
+Fix $m \ge 2$ and proceed by induction on $n$.
+
+\emph{Base case.} $n = 1$: $F_{m+1} = F_m F_2 + F_{m-1} F_1 = F_m + F_{m-1}$, which is the defining recurrence.
+
+\emph{Inductive step.} Assume the identity holds for $n$ and $n-1$ (with $n \ge 2$). Then
+\begin{align*}
+F_{m+n+1} &= F_{m+n} + F_{m+n-1} \\
+           &= (F_m F_{n+1} + F_{m-1} F_n) + (F_m F_n + F_{m-1} F_{n-1}) \\
+           &= F_m(F_{n+1} + F_n) + F_{m-1}(F_n + F_{n-1}) \\
+           &= F_m F_{n+2} + F_{m-1} F_{n+1}. \qedhere
+\end{align*}
+\end{proof}
+
+\subsection{Parity Periodicity}
+
+\begin{theorem}[Pisano Period Modulo 2]
+\label{thm:parity}
+$F_n$ is even if and only if $3 \mid n$.
+\end{theorem}
+
+\begin{proof}
+The recurrence $F_n \equiv F_{n-1} + F_{n-2} \pmod{2}$ depends only on the pair $(F_{n-1} \bmod 2,\, F_{n-2} \bmod 2)$. Since there are at most $2^2 = 4$ distinct pairs, the sequence of pairs is eventually periodic. Computing:
+\[
+(F_n \bmod 2)_{n \ge 1} = (1,\, 1,\, 0,\, 1,\, 1,\, 0,\, \ldots)
+\]
+The pair $(F_4 \bmod 2,\, F_5 \bmod 2) = (1,1) = (F_1 \bmod 2,\, F_2 \bmod 2)$, so the parity sequence is periodic with period~3. Since $F_1 \bmod 2 = 1 \ne 0 = F_3 \bmod 2$, the minimal period is exactly~3. Hence $2 \mid F_n$ iff $3 \mid n$.
+\end{proof}
+
+\subsection{The Even Fibonacci Recurrence}
+
+\begin{definition}
+Let $E_k = F_{3k}$ for $k \ge 1$. By Theorem~\ref{thm:parity}, $(E_k)$ is the subsequence of all even Fibonacci numbers.
+\end{definition}
+
+\begin{theorem}[Even Fibonacci Recurrence]
+\label{thm:recurrence}
+For all $k \ge 3$, $E_k = 4E_{k-1} + E_{k-2}$, with $E_1 = 2$ and $E_2 = 8$.
+\end{theorem}
+
+\begin{proof}
+We show $F_{3k} = 4F_{3k-3} + F_{3k-6}$.
+
+Applying Lemma~\ref{lem:add} with $m=3$, $n=3k-3$:
+\begin{equation}
+F_{3k} = F_3 F_{3k-2} + F_2 F_{3k-3} = 2F_{3k-2} + F_{3k-3}. \tag{1}
+\end{equation}
+
+Since $F_{3k-2} = F_{3k-3} + F_{3k-4}$:
+\begin{equation}
+F_{3k} = 3F_{3k-3} + 2F_{3k-4}. \tag{2}
+\end{equation}
+
+Applying Lemma~\ref{lem:add} with $m=3$, $n=3k-6$ gives $F_{3k-3} = 2F_{3k-5} + F_{3k-6}$, so $F_{3k-5} = (F_{3k-3} - F_{3k-6})/2$. Since $F_{3k-4} = F_{3k-5} + F_{3k-6}$:
+\begin{equation}
+F_{3k-4} = \frac{F_{3k-3} + F_{3k-6}}{2}. \tag{3}
+\end{equation}
+
+Substituting (3) into (2):
+\[
+F_{3k} = 3F_{3k-3} + (F_{3k-3} + F_{3k-6}) = 4F_{3k-3} + F_{3k-6}.
+\]
+
+Initial conditions: $E_1 = F_3 = 2$, $E_2 = F_6 = 8$. Verification: $E_3 = F_9 = 34 = 4 \cdot 8 + 2$.
+\end{proof}
+
+\subsection{Growth Rate and Closed Form}
+
+\begin{theorem}[Closed Form]
+\label{thm:closed}
+\[
+E_k = \frac{\alpha^k - \beta^k}{\sqrt{5}}
+\]
+where $\alpha = 2 + \sqrt{5}$ and $\beta = 2 - \sqrt{5}$ are roots of $x^2 - 4x - 1 = 0$.
+\end{theorem}
+
+\begin{proof}
+The characteristic polynomial of $E_k = 4E_{k-1} + E_{k-2}$ is $x^2 - 4x - 1 = 0$ with roots $\alpha = 2+\sqrt{5}$ and $\beta = 2 - \sqrt{5}$. The general solution is $E_k = c_1 \alpha^k + c_2 \beta^k$. From initial conditions and using $\alpha\beta = -1$, $\alpha + \beta = 4$, $\alpha - \beta = 2\sqrt{5}$:
+
+From $E_1 = c_1\alpha + c_2\beta = 2$ and $E_2 = c_1\alpha^2 + c_2\beta^2 = 8$. Since $\alpha^2 = 4\alpha + 1$ and $\beta^2 = 4\beta + 1$, we get $E_2 = 4E_1 + (c_1 + c_2) = 8 + (c_1 + c_2)$, so $c_1 + c_2 = 0$. Then $E_1 = c_1(\alpha - \beta) = 2c_1\sqrt{5} = 2$, giving $c_1 = 1/\sqrt{5}$, $c_2 = -1/\sqrt{5}$.
+\end{proof}
+
+\begin{corollary}[Exponential Growth]
+$E_k = \Theta(\alpha^k)$ where $\alpha = 2 + \sqrt{5} \approx 4.236$. Equivalently, $\alpha = \phi^3$ where $\phi = (1+\sqrt{5})/2$.
+\end{corollary}
+
+\begin{proof}
+$|\beta| = |2-\sqrt{5}| < 1$, so $|\beta^k| \to 0$. Thus $E_k \sim \alpha^k/\sqrt{5}$. That $\alpha = \phi^3$ follows from $\phi^3 = \phi \cdot \phi^2 = \phi(\phi+1) = \phi^2 + \phi = 2\phi + 1 = 2 + \sqrt{5}$.
+\end{proof}
+
+\subsection{Summation Formula}
+
+\begin{theorem}[Partial Sum Identity]
+\label{thm:sum}
+$\displaystyle T_k = \sum_{j=1}^{k} E_j = \frac{E_{k+1} + E_k - 2}{4}$.
+\end{theorem}
+
+\begin{proof}
+By induction on $k$.
+
+\emph{Base case.} $T_1 = 2 = (8+2-2)/4$. \checkmark
+
+\emph{Inductive step.} Assume $T_{k-1} = (E_k + E_{k-1} - 2)/4$. Then
+\[
+T_k = T_{k-1} + E_k = \frac{E_k + E_{k-1} - 2 + 4E_k}{4} = \frac{5E_k + E_{k-1} - 2}{4}.
+\]
+We need $5E_k + E_{k-1} = E_{k+1} + E_k$, i.e., $E_{k+1} = 4E_k + E_{k-1}$, which is the recurrence of Theorem~\ref{thm:recurrence}.
+\end{proof}
+
+\subsection{Numerical Evaluation}
+
+\begin{proposition}
+$S = 4\,613\,732$.
+\end{proposition}
+
+\begin{proof}
+The even Fibonacci terms not exceeding $4\,000\,000$:
+\begin{center}
+\begin{tabular}{crr}
+\toprule
+$k$ & $E_k$ & $\sum_{j=1}^{k} E_j$ \\
+\midrule
+1  & 2 & 2 \\
+2  & 8 & 10 \\
+3  & 34 & 44 \\
+4  & 144 & 188 \\
+5  & 610 & 798 \\
+6  & 2\,584 & 3\,382 \\
+7  & 10\,946 & 14\,328 \\
+8  & 46\,368 & 60\,696 \\
+9  & 196\,418 & 257\,114 \\
+10 & 832\,040 & 1\,089\,154 \\
+11 & 3\,524\,578 & 4\,613\,732 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Since $E_{12} = 4 \cdot 3\,524\,578 + 832\,040 = 14\,930\,352 > 4\,000\,000$, the sum includes $k = 1, \ldots, 11$.
+
+Verification via Theorem~\ref{thm:sum}: $T_{11} = (14\,930\,352 + 3\,524\,578 - 2)/4 = 18\,454\,928/4 = 4\,613\,732$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{\textsc{SumEvenFibonacci}$(L)$}
+\begin{algorithmic}[1]
+\STATE $a \gets 2$, $b \gets 8$, $\mathrm{total} \gets 0$
+\WHILE{$a \le L$}
+    \STATE $\mathrm{total} \gets \mathrm{total} + a$
+    \STATE $(a, b) \gets (b,\; 4b + a)$
+\ENDWHILE
+\RETURN total
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Correctness]
+\textsc{SumEvenFibonacci}$(L)$ returns $\sum\{E_k : E_k \le L\}$ for all $L \ge 1$.
+\end{theorem}
+
+\begin{proof}
+Loop invariants at the start of iteration $i$: (1)~$a = E_i$, $b = E_{i+1}$ (by Theorem~\ref{thm:recurrence}); (2)~$\mathrm{total} = \sum_{j=1}^{i-1} E_j$. The loop terminates when $E_i > L$ (guaranteed since $E_k \to \infty$), at which point $\mathrm{total} = \sum_{j=1}^{i-1} E_j = \sum\{E_k : E_k \le L\}$.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{theorem}
+\textsc{SumEvenFibonacci}$(L)$ runs in $\Theta(\log L)$ time and $O(1)$ space.
+\end{theorem}
+
+\begin{proof}
+Each iteration performs $O(1)$ work. The loop executes $K = \max\{k : E_k \le L\}$ iterations. Since $E_k = \Theta(\alpha^k)$ with $\alpha > 1$, we have $K = \Theta(\log_\alpha L) = \Theta(\log L)$. The algorithm stores 3 integer variables, using $O(1)$ space.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{4613732}
+\]
+
+\end{document}

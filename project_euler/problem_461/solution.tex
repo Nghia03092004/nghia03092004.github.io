@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\title{Problem 461: Almost Pi}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f_n(k) = e^{k/n} - 1$ for all non-negative integers $k$. Define $g(n) = a^2 + b^2 + c^2 + d^2$ for the non-negative integers $a, b, c, d$ that minimize $\left|f_n(a) + f_n(b) + f_n(c) + f_n(d) - \pi\right|$. Given $g(200) = 64658$, find $g(10000)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+For fixed $n \in \mathbb{Z}^+$, define $f_n \colon \mathbb{Z}_{\ge 0} \to \mathbb{R}_{\ge 0}$ by $f_n(k) = e^{k/n} - 1$. Note that $f_n$ is strictly increasing with $f_n(0) = 0$.
+\end{definition}
+
+\begin{lemma}[Index upper bound]
+\label{lem:bound}
+If $(a, b, c, d)$ is an optimal quadruple for $g(n)$, then each index $k \in \{a,b,c,d\}$ satisfies $k \le k_{\max} := \lfloor n \ln(\pi + 1) \rfloor$.
+\end{lemma}
+
+\begin{proof}
+Since $f_n(k) \ge 0$ for all $k$ and the sum of four non-negative terms approximates $\pi$, no single term can exceed $\pi$ in an optimal solution. Hence $f_n(k) \le \pi$, giving $e^{k/n} \le \pi + 1$ and $k \le n \ln(\pi + 1)$.
+\end{proof}
+
+\begin{definition}
+The \emph{pair set} is
+\[
+\mathcal{P} = \bigl\{(s, a, b) : 0 \le a \le b \le k_{\max},\; s = f_n(a) + f_n(b),\; s \le \pi\bigr\},
+\]
+sorted in non-decreasing order of~$s$.
+\end{definition}
+
+\begin{proposition}[Early termination]
+\label{prop:prune}
+For fixed~$a$, the inner enumeration over~$b$ can be terminated at the first $b$ with $f_n(a) + f_n(b) > \pi$, since $f_n$ is strictly increasing.
+\end{proposition}
+
+\begin{proof}
+Monotonicity of $f_n$ gives $f_n(a) + f_n(b') > f_n(a) + f_n(b) > \pi$ for all $b' > b$.
+\end{proof}
+
+\begin{theorem}[Correctness of meet-in-the-middle]
+\label{thm:mitm}
+The optimal quadruple $(a^*, b^*, c^*, d^*)$ decomposes as $(s_1, a^*, b^*) \in \mathcal{P}$ and $(s_2, c^*, d^*) \in \mathcal{P}$ such that $|s_1 + s_2 - \pi|$ is minimized over $\mathcal{P} \times \mathcal{P}$.
+\end{theorem}
+
+\begin{proof}
+Without loss of generality, assume $a^* \le b^*$ and $c^* \le d^*$. We must verify that both half-sums satisfy $s_1, s_2 \le \pi$. Suppose $s_1 = f_n(a^*) + f_n(b^*) > \pi$. Then, since $s_2 \ge 0$, the total sum exceeds~$\pi$, and the error is $s_1 + s_2 - \pi \ge s_1 - \pi > 0$. But the tuple $(0,0,0,k)$ with $f_n(k)$ closest to $\pi$ achieves error $|f_n(k) - \pi|$, which for $n = 10000$ is extremely small. This contradicts optimality unless $s_2 = 0$, in which case $s_1 = f_n(a^*) + f_n(b^*) \le \pi + |f_n(k) - \pi| \approx \pi$, a borderline case still captured by the pair set with a small tolerance. By symmetry, $s_2 \le \pi$. Hence both half-sums lie in~$\mathcal{P}$, and the global minimum over $\mathcal{P} \times \mathcal{P}$ equals the global optimum.
+\end{proof}
+
+\begin{lemma}[Binary search]
+\label{lem:bsearch}
+For each $(s_1, a, b) \in \mathcal{P}$, set $\tau = \pi - s_1$. The element of~$\mathcal{P}$ closest to~$\tau$ in the first component is found at the binary-search insertion point or its predecessor, in $O(\log |\mathcal{P}|)$ time.
+\end{lemma}
+
+\begin{proof}
+The sorted order of $\mathcal{P}$ ensures that the two candidates straddling $\tau$ are the only possible minimizers of $|s - \tau|$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Meet-in-the-Middle for Almost Pi}
+\begin{algorithmic}[1]
+\State $k_{\max} \gets \lfloor n \ln(\pi + 1) \rfloor$
+\State Precompute $F[k] \gets e^{k/n} - 1$ for $k = 0, \ldots, k_{\max}$
+\State $\mathcal{P} \gets \emptyset$
+\ForAll{$0 \le a \le b \le k_{\max}$ with $F[a] + F[b] \le \pi$}
+    \State Append $(F[a] + F[b],\, a,\, b)$ to $\mathcal{P}$
+\EndFor
+\State Sort $\mathcal{P}$ by sum value
+\State $\text{best\_err} \gets +\infty$
+\ForAll{$(s_{ab}, a, b) \in \mathcal{P}$}
+    \State $\tau \gets \pi - s_{ab}$
+    \State $j \gets \text{BinarySearch}(\mathcal{P}, \tau)$
+    \For{$j' \in \{j-1, j\} \cap [0, |\mathcal{P}|-1]$}
+        \If{$|s_{ab} + \mathcal{P}[j'].s - \pi| < \text{best\_err}$}
+            \State Update best quadruple and error
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return $a^2 + b^2 + c^2 + d^2$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(|\mathcal{P}| \log |\mathcal{P}|)$ for sorting and the binary search sweep. For $n = 10000$, $|\mathcal{P}| \approx 7.2 \times 10^7$.
+    \item \textbf{Space:} $O(|\mathcal{P}|) \approx 600$~MB.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{159820276}
+\]
+
+\end{document}

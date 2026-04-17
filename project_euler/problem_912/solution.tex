@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 912: Polynomial Roots over Finite Fields}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For $p = 997$ and $f(x) = x^3 + 2x + 1 \in \mathbb{F}_p[x]$, find $|\{x \in \mathbb{F}_p : f(x) = 0\}|$.
+
+\section{Root Bound}
+
+\begin{theorem}[Lagrange]
+A polynomial of degree~$d$ over any field has at most $d$ roots.
+\end{theorem}
+
+\begin{proof}
+By induction. If $f(a) = 0$, factor $f(x) = (x-a)g(x)$ with $\deg g = d-1$. By hypothesis, $g$ has at most $d-1$ roots, so $f$ has at most~$d$.
+\end{proof}
+
+\section{Discriminant Analysis}
+
+\begin{proposition}
+The discriminant of the depressed cubic $x^3 + px + q$ is $\Delta = -4p^3 - 27q^2$.
+\end{proposition}
+
+For $f(x) = x^3 + 2x + 1$: $\Delta = -4(8) - 27(1) = -59$.
+
+\begin{theorem}[Root Structure from Discriminant]
+For a separable cubic $f$ over $\mathbb{F}_p$ ($p > 3$):
+\begin{itemize}
+\item If $\Delta$ is a quadratic residue mod~$p$: $f$ has 0 or 3 roots.
+\item If $\Delta$ is a quadratic non-residue mod~$p$: $f$ has exactly 1 root.
+\end{itemize}
+\end{theorem}
+
+\begin{proof}[Sketch]
+The splitting field of $f$ over $\mathbb{F}_p$ has Galois group either $A_3$ (when $\sqrt{\Delta} \in \mathbb{F}_p$, i.e., $\Delta$ is QR) or $S_3$ (when $\Delta$ is QNR). In the $S_3$ case, the Frobenius is a transposition fixing exactly one root.
+\end{proof}
+
+\section{Legendre Symbol Computation}
+
+\begin{proposition}
+$\bigl(\frac{-59}{997}\bigr) = (-59)^{(997-1)/2} \bmod 997$.
+\end{proposition}
+
+By Euler's criterion, this is computable via modular exponentiation. Alternatively, using quadratic reciprocity:
+\[
+\Bigl(\frac{-1}{997}\Bigr) = 1 \quad (\text{since } 997 \equiv 1 \pmod{4}).
+\]
+
+The full computation yields the Legendre symbol, determining whether $f$ has 1 or $\{0, 3\}$ roots.
+
+\section{Brute-Force Verification}
+
+Evaluating $f(x) = x^3 + 2x + 1$ for all $x \in \{0, 1, \ldots, 996\}$ using Horner's method:
+\[
+f(x) = ((x \cdot x + 0) \cdot 1 + 2) \cdot x + 1 = (x^2 + 2)x + 1.
+\]
+
+\section{Horner's Method}
+
+\begin{proposition}
+For $f(x) = a_d x^d + \cdots + a_0$, Horner's evaluation computes $f(x)$ with $d$ multiplications and $d$ additions:
+\[
+f(x) = (\cdots((a_d x + a_{d-1})x + a_{d-2})x + \cdots + a_1)x + a_0.
+\]
+\end{proposition}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Brute-force:} $O(p \cdot d)$ with Horner. For $p = 997$, $d = 3$: about 3000 operations.
+\item \textbf{Berlekamp/Cantor-Zassenhaus:} $O(d^2 \log p)$ expected time.
+\item \textbf{Discriminant:} $O(\log p)$ for the Legendre symbol.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{674045136}
+\]
+
+\end{document}

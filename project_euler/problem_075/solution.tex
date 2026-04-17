@@ -1,0 +1,103 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 75: Singular Integer Right Triangles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For how many values of $L \le 1\,500\,000$ can exactly one integer-sided right triangle be formed with perimeter~$L$?
+
+\section{Mathematical Analysis}
+
+\begin{theorem}[Euclid's Parametrization]
+Every primitive Pythagorean triple $(a, b, c)$ with $a^2 + b^2 = c^2$ and $\gcd(a,b,c) = 1$ can be written (up to swapping $a, b$) as:
+\[
+a = m^2 - n^2, \quad b = 2mn, \quad c = m^2 + n^2,
+\]
+where $m > n > 0$, $\gcd(m, n) = 1$, and $m \not\equiv n \pmod{2}$. Conversely, every such $(m,n)$ generates a primitive triple.
+\end{theorem}
+
+\begin{proof}
+\textbf{($\Leftarrow$)} Direct computation: $a^2 + b^2 = (m^2-n^2)^2 + 4m^2n^2 = (m^2+n^2)^2 = c^2$. Primitivity: if $p \mid \gcd(a,b)$, then $p \mid m^2-n^2$ and $p \mid 2mn$. Since $a$ is odd (opposite parity), $p \neq 2$, so $p \mid m$ or $p \mid n$, contradicting $\gcd(m,n)=1$.
+
+\textbf{($\Rightarrow$)} With $b$ even, factor $b^2 = (c-a)(c+a) = 4st$ where $s = (c-a)/2$, $t = (c+a)/2$. Since $\gcd(s,t) = 1$ (from $\gcd(a,c) = 1$) and $st$ is a perfect square, both $s = n^2$ and $t = m^2$ are perfect squares. Recovery: $a = m^2-n^2$, $b = 2mn$, $c = m^2+n^2$.
+\end{proof}
+
+\begin{theorem}[Perimeter Formula]
+The perimeter of a primitive triple with parameters $(m,n)$ is $L_0 = 2m(m+n)$.
+\end{theorem}
+
+\begin{proof}
+$L_0 = (m^2-n^2) + 2mn + (m^2+n^2) = 2m^2 + 2mn = 2m(m+n)$.
+\end{proof}
+
+\begin{theorem}[Scaling Principle]
+Every Pythagorean triple is uniquely $k \cdot (a_0, b_0, c_0)$ for $k \geq 1$ and a primitive triple $(a_0, b_0, c_0)$. Hence perimeter $L$ admits a triple iff $L = kL_0$ for some primitive perimeter $L_0$.
+\end{theorem}
+
+\begin{proof}
+With $g = \gcd(a,b,c)$, the triple $(a/g, b/g, c/g)$ is the unique primitive triple. Uniqueness of the scaling factor follows from $\gcd(a_0, b_0, c_0) = 1$.
+\end{proof}
+
+\begin{lemma}[Bound on $m$]
+For primitive perimeters $L_0 \leq L_{\max}$ with $n \geq 1$: $m < \sqrt{L_{\max}/2}$.
+\end{lemma}
+
+\begin{proof}
+$2m(m+1) \leq 2m(m+n) \leq L_{\max}$, so $m^2 < m(m+1) \leq L_{\max}/2$.
+\end{proof}
+
+\begin{definition}[Singular Perimeter]
+A perimeter $L$ is \textbf{singular} if exactly one Pythagorean triple has perimeter~$L$.
+\end{definition}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count singular perimeters $\leq L_{\max}$}
+\begin{algorithmic}[1]
+\Require $L_{\max} = 1\,500\,000$
+\State Initialize $\mathrm{count}[1..L_{\max}] \gets 0$
+\State $m_{\max} \gets \lfloor\sqrt{L_{\max}/2}\rfloor$
+\For{$m = 2$ \textbf{to} $m_{\max}$}
+    \For{$n = 1$ \textbf{to} $m - 1$}
+        \If{$(m - n)$ is even or $\gcd(m, n) \neq 1$} \textbf{continue} \EndIf
+        \State $L_0 \gets 2m(m + n)$
+        \If{$L_0 > L_{\max}$} \textbf{break} \EndIf
+        \For{$k = 1, 2, \ldots$ \textbf{while} $kL_0 \leq L_{\max}$}
+            \State $\mathrm{count}[kL_0] \gets \mathrm{count}[kL_0] + 1$
+        \EndFor
+    \EndFor
+\EndFor
+\State \Return $|\{L : \mathrm{count}[L] = 1\}|$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\textbf{Time:} The outer loop is $O(m_{\max}^2) = O(L_{\max})$ iterations. For each primitive $L_0$, marking multiples costs $L_{\max}/L_0$. Total: $O(L_{\max} \log \log L_{\max})$.
+
+\textbf{Space:} $O(L_{\max})$ for the counter array.
+
+\section{Answer}
+
+\[
+\boxed{161667}
+\]
+
+\end{document}

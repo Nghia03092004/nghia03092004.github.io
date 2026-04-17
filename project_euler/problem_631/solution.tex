@@ -1,0 +1,77 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 631: Constrained Permutations}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $A$ be an $n \times n$ 0-1 matrix where $A_{ij}=1$ means element~$j$ is allowed in position~$i$. The number of valid permutations equals
+\[
+\operatorname{perm}(A) = \sum_{\sigma \in S_n} \prod_{i=1}^{n} A_{i,\sigma(i)}.
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Ryser, 1963]
+For any $n \times n$ matrix $A$:
+\[
+\operatorname{perm}(A) = (-1)^n \sum_{S \subseteq [n]} (-1)^{|S|} \prod_{i=1}^{n} \sum_{j \in S} A_{ij}.
+\]
+\end{theorem}
+
+\begin{proof}
+Expand $\prod_{i=1}^{n}(\sum_{j \in S} A_{ij})$ as $\sum_{f:[n]\to S}\prod_i A_{i,f(i)}$. A bijection $\sigma \in S_n$ contributes $\prod_i A_{i,\sigma(i)}$ only when $S \supseteq \operatorname{range}(\sigma) = [n]$, i.e., only for $S = [n]$, giving net contribution $(-1)^n(-1)^n \prod_i A_{i,\sigma(i)} = \prod_i A_{i,\sigma(i)}$.
+
+For a non-injective $f$ with $|\operatorname{range}(f)|=r<n$, the alternating sum over all $S \supseteq \operatorname{range}(f)$ equals $(-1)^r \sum_{k=0}^{n-r}\binom{n-r}{k}(-1)^k = 0$ since $n-r \ge 1$. Only bijections survive.
+\end{proof}
+
+\begin{lemma}[Gray Code Update]
+When subsets are enumerated in Gray code order, consecutive subsets differ by one element. The row sums $r_i(S) = \sum_{j \in S}A_{ij}$ update in $O(n)$ per transition.
+\end{lemma}
+
+\begin{proof}
+If $S' = S \oplus \{j_0\}$, then $r_i(S') = r_i(S) \pm A_{i,j_0}$ for each $i$, costing $n$ operations. The product $\prod_i r_i$ takes another $O(n)$.
+\end{proof}
+
+\begin{lemma}[Bipartite Matching Equivalence]
+$\operatorname{perm}(A)$ equals the number of perfect matchings in the bipartite graph with adjacency matrix $A$.
+\end{lemma}
+
+\begin{proof}
+A perfect matching is a bijection $\sigma$ with $A_{i,\sigma(i)}=1$ for all $i$. Summing over all such $\sigma$ gives $\operatorname{perm}(A)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Initialize row sums $r_i \gets 0$ for all $i \in [n]$.
+\item Enumerate subsets $S \subseteq [n]$ in Gray code order.
+\item At each transition, update $r_i \gets r_i \pm A_{i,j_0}$ for the toggled column $j_0$.
+\item Accumulate $\operatorname{perm} \mathrel{+}= (-1)^{n+|S|}\prod_{i=1}^n r_i$.
+\item Return $\operatorname{perm}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(2^n \cdot n)$. There are $2^n$ subsets, each requiring $O(n)$ work.
+\item \textbf{Space:} $O(n)$ for row sums.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{869588692}
+\]
+
+\end{document}

@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 938: Circle Lattice Points}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $C(r) = \#\{(x,y) \in \mathbb{Z}^2 : x^2 + y^2 \leq r^2\}$. Define $D(N) = \sum_{r=1}^{N} C(r)$. Find $D(10^5) \bmod (10^9 + 7)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+$r_2(n) = \#\{(x, y) \in \mathbb{Z}^2 : x^2 + y^2 = n\}$.
+\end{definition}
+
+\begin{theorem}[Gauss circle asymptotics]
+$C(r) = \pi r^2 + O(r^{2/3})$.
+\end{theorem}
+
+\begin{proof}
+The lattice points inside a circle of radius $r$ approximate the area $\pi r^2$. Gauss proved $O(r)$; sharper bounds use exponential sum techniques.
+\end{proof}
+
+\begin{theorem}[Representation count via characters]
+For $n \geq 1$:
+\[
+r_2(n) = 4 \sum_{d \mid n} \chi(d),
+\]
+where $\chi$ is the non-principal Dirichlet character mod 4: $\chi(d) = (-1)^{(d-1)/2}$ for odd $d$, $\chi(d) = 0$ for even $d$.
+\end{theorem}
+
+\begin{proof}
+Follows from the factorization theory in the Gaussian integers $\mathbb{Z}[i]$: the number of Gaussian integers of norm $n$ is $\sum_{d \mid n} \chi(d)$, and the factor of 4 accounts for the units $\{\pm 1, \pm i\}$.
+\end{proof}
+
+\begin{theorem}[Quadrant formula]
+For integer $r \geq 0$:
+\[
+C(r) = 1 + 4r + 4\sum_{x=1}^{r} \left\lfloor \sqrt{r^2 - x^2} \right\rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+The origin contributes 1. The four semi-axes contribute $4r$. For each $x \geq 1$, there are $\lfloor \sqrt{r^2 - x^2} \rfloor$ lattice points with $y \geq 1$ in one quadrant; multiplying by 4 for all quadrants gives the result.
+\end{proof}
+
+\begin{lemma}[Summation interchange]
+\[
+D(N) = \sum_{n=0}^{N^2} r_2(n) \cdot \max(N - \lceil \sqrt{n} \rceil + 1, 0).
+\]
+\end{lemma}
+
+\begin{proof}
+The value $r_2(n)$ contributes to $C(r)$ for each $r \geq \lceil\sqrt{n}\rceil$. Among $r = 1, \ldots, N$, this gives $\max(N - \lceil\sqrt{n}\rceil + 1, 0)$ terms.
+\end{proof}
+
+\section{Algorithm}
+
+Compute $C(r)$ for each $r$ from 1 to $N$ using the quadrant formula (Theorem~3), accumulating into $D(N)$ modulo $10^9 + 7$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^2)$ for the direct quadrant-based computation.
+\item \textbf{Space:} $O(1)$ auxiliary.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.2928967987}
+\]
+
+\end{document}

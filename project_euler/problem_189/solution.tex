@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 189: Tri-colouring a Triangular Grid}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A triangular grid of side 8 is divided into $8^2 = 64$ small triangles. Each triangle must be coloured with one of 3 colours such that no two triangles sharing an edge have the same colour. How many valid colourings exist?
+
+\section{Mathematical Analysis}
+
+\subsection{Grid Structure}
+
+Row $k$ ($1 \le k \le 8$) contains $2k-1$ small triangles: $k$ upward-pointing and $k-1$ downward-pointing. Triangles within a row alternate between upward and downward.
+
+\subsection{Adjacency}
+
+Two triangles are adjacent if they share an edge. The adjacencies are:
+\begin{itemize}
+    \item Within a row: consecutive triangles share a vertical edge.
+    \item Between rows: each downward triangle in row $k+1$ shares its top edge with the upward triangle at the corresponding position in row $k$.
+\end{itemize}
+
+\subsection{Dynamic Programming}
+
+We process rows top to bottom. The \textbf{state} for row $k$ is the tuple $(c_1, c_2, \ldots, c_k)$ of colours assigned to the $k$ upward-pointing triangles.
+
+\textbf{Transition from row $k$ to row $k+1$:}
+
+Given the colours of upward triangles in row $k$, we must:
+\begin{enumerate}
+    \item Choose colours for the $k+1$ upward triangles of row $k+1$.
+    \item Choose colours for the $k$ downward triangles of row $k+1$.
+    \item Ensure all adjacency constraints are satisfied.
+\end{enumerate}
+
+Each downward triangle $j$ in row $k+1$ must differ from:
+\begin{itemize}
+    \item Upward triangle $j$ in row $k$ (top neighbor),
+    \item Upward triangle $j$ in row $k+1$ (left neighbor),
+    \item Upward triangle $j+1$ in row $k+1$ (right neighbor).
+\end{itemize}
+
+Additionally, consecutive upward triangles in row $k+1$ must not share the same colour as any intervening downward triangle (but these constraints are already captured by the downward triangle constraints combined with the within-row adjacency).
+
+\subsection{State Space}
+
+The number of states per row is at most $3^k$ for row $k$. Since $k \le 8$, this is at most $3^8 = 6561$, making the DP entirely feasible.
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time}: $O(n \cdot 3^{2n})$ for the transition computation, where $n = 8$.
+    \item \textbf{Space}: $O(3^n)$ for DP state storage.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{10834893628237824}
+\]
+
+\end{document}

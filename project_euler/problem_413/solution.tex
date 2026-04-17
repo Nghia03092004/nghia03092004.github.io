@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 413: One-child Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A $d$-digit positive number (no leading zeros) is a \textbf{one-child number} if exactly one of its substrings is divisible by~$d$. Let $F(N)$ count one-child numbers less than $N$.
+
+\textbf{Given:} $F(10) = 9$, $F(10^3) = 389$, $F(10^7) = 277674$.
+
+\textbf{Find:} $F(10^{19})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Suffix Remainder Update]
+For a $d$-digit number $a_1 a_2 \cdots a_d$, define the suffix remainder $S_k(j) = V(k,j) \bmod d$ where $V(k,j) = \sum_{i=k}^{j} a_i \cdot 10^{j-i}$. Then:
+\[
+S_k(j+1) = (S_k(j) \cdot 10 + a_{j+1}) \bmod d, \quad k \le j.
+\]
+\end{theorem}
+
+\begin{proof}
+From $V(k,j+1) = V(k,j) \cdot 10 + a_{j+1}$, we immediately obtain $S_k(j+1) = (S_k(j) \cdot 10 + a_{j+1}) \bmod d$.
+\end{proof}
+
+\begin{lemma}[Coprime Case Reduction]
+\label{lem:coprime}
+When $\gcd(10, d) = 1$, define $R(j) = V(1,j) \cdot 10^{d-j} \bmod d$. Then
+\[
+V(i,j) \equiv 0 \pmod{d} \iff R(j) \equiv R(i-1) \pmod{d}.
+\]
+The number of divisible substrings equals $\sum_{r=0}^{d-1} \binom{c_r}{2}$ where $c_r = |\{j \in \{0,\ldots,d\} : R(j) \equiv r\}|$.
+\end{lemma}
+
+\begin{proof}
+Since $\gcd(10,d)=1$, the factor $10^{d-j}$ is invertible modulo $d$. We have $V(i,j) \cdot 10^{d-j} \equiv R(j) - R(i-1) \pmod{d}$, so $V(i,j) \equiv 0 \pmod{d}$ iff $R(j) = R(i-1) \pmod{d}$. Each residue class with $c_r$ representatives contributes $\binom{c_r}{2}$ collisions.
+\end{proof}
+
+\begin{theorem}[Digit DP with Histogram]
+The count of $d$-digit one-child numbers is computable via digit DP with state $(h, Z)$ where $h[r]$ is the histogram of suffix remainders modulo $d$ and $Z$ is the cumulative count of divisible substrings. States with $Z \ge 2$ are pruned.
+\end{theorem}
+
+\begin{proof}
+The histogram $h$ determines how the suffix remainders transform when a digit is appended: $h'[(r \cdot 10 + x) \bmod d] \mathrel{+}= h[r]$, plus a new length-1 suffix $h'[x \bmod d] \mathrel{+}= 1$. The new zero-hits are $h'[0]$, and $Z$ updates additively. Since $Z$ is monotonically non-decreasing, pruning at $Z \ge 2$ is valid: such numbers can never be one-child.
+\end{proof}
+
+\begin{lemma}[Non-coprime Case via CRT]
+When $d = 2^a \cdot 5^b \cdot m$ with $\gcd(m,10) = 1$, divisibility by $d$ decomposes via the Chinese Remainder Theorem. Divisibility by $2^a$ depends on the last $a$ digits; by $5^b$ on the last $b$ digits; the $m$-component uses Lemma~\ref{lem:coprime}.
+\end{lemma}
+
+\begin{proof}
+By CRT, $V(i,j) \equiv 0 \pmod{d}$ iff all three congruences hold simultaneously. Since $10^a \equiv 0 \pmod{2^a}$, we have $V(i,j) \bmod 2^a$ depending only on the last $\min(a, j-i+1)$ digits. Similarly for $5^b$. The $m$-component follows from Lemma~\ref{lem:coprime}.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count $d$-digit one-child numbers}
+\begin{algorithmic}[1]
+\Procedure{CountOneChild}{$d$}
+  \If{$d = 1$} \Return 9 \EndIf
+  \State $\mathrm{dp} \gets \{(\text{empty histogram}, 0) \mapsto 1\}$
+  \For{$\mathrm{pos} = 1$ to $d$}
+    \State $\mathrm{new\_dp} \gets \{\}$
+    \For{each $(\mathrm{hist}, Z) \in \mathrm{dp}$ with count $w$}
+      \If{$Z \ge 2$} \textbf{continue} \EndIf
+      \For{$x = (\mathrm{pos} = 1\ ?\ 1 : 0)$ to $9$}
+        \State $h'[(r \cdot 10 + x) \bmod d] \mathrel{+}= h[r]$ for all $r$
+        \State $h'[x \bmod d] \mathrel{+}= 1$
+        \State $Z' \gets Z + h'[0]$
+        \If{$Z' \le 1$}
+          \State $\mathrm{new\_dp}[(h', Z')] \mathrel{+}= w$
+        \EndIf
+      \EndFor
+    \EndFor
+    \State $\mathrm{dp} \gets \mathrm{new\_dp}$
+  \EndFor
+  \State \Return $\sum_{(\mathrm{hist}, 1) \in \mathrm{dp}} \mathrm{dp}[(\mathrm{hist}, 1)]$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\noindent The final answer is $F(10^{19}) = \sum_{d=1}^{19} \textsc{CountOneChild}(d)$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(|\mathcal{S}| \cdot 10 \cdot d)$ per digit length $d$, where $|\mathcal{S}|$ is the active state count after pruning. For the coprime case, $|\mathcal{S}| = O(d \cdot 2^d)$. The total across $d = 1, \ldots, 19$ is dominated by $d = 19$.
+  \item \textbf{Space:} $O(|\mathcal{S}|)$ per digit length, stored in hash maps.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3079418648040719}
+\]
+
+\end{document}

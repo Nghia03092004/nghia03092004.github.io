@@ -1,0 +1,103 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 371: Licence Plates}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Oregon licence plates consist of three letters followed by a three-digit number (000 to 999). While driving to work you play a game: each plate you see gives you its three-digit number~$N$; if you have previously seen a plate with number~$M$ such that $N + M = 1000$, you win. Plates are observed independently and uniformly at random from the 1000 possible numbers. What is the expected number of plates you need to observe before winning? Give the answer rounded to 8 decimal places.
+
+\section{Mathematical Foundation}
+
+The plate numbers $\{0, 1, \ldots, 999\}$ partition into 499 \emph{complementary pairs} $\{i, 1000-i\}$ for $i=1,\ldots,499$, the self-complementary number 500 (since $500+500=1000$), and the inert number 000 (no complement exists in $\{0,\ldots,999\}$).
+
+We model the process as a Markov chain with state $(k,s)$ where $k \in \{0,\ldots,499\}$ counts pairs with exactly one element seen and $s \in \{0,1\}$ indicates whether 500 has been observed.
+
+\begin{theorem}[Transition Probabilities]
+From state $(k,s)$, the next plate (drawn uniformly from 1000 values) produces the following transitions.
+
+\textbf{Case $s=0$:}
+\begin{align}
+P(\text{win}) &= \frac{k}{1000}, \\
+P((k,0) \to (k,1)) &= \frac{1}{1000}, \\
+P((k,0) \to (k{+}1,0)) &= \frac{2(499-k)}{1000}, \\
+P(\text{stay at }(k,0)) &= \frac{k+1}{1000}.
+\end{align}
+
+\textbf{Case $s=1$:}
+\begin{align}
+P(\text{win}) &= \frac{k+1}{1000}, \\
+P((k,1) \to (k{+}1,1)) &= \frac{2(499-k)}{1000}, \\
+P(\text{stay at }(k,1)) &= \frac{k+1}{1000}.
+\end{align}
+\end{theorem}
+
+\begin{proof}
+Among the 1000 plate numbers: $k$ are complements of active singletons; when $s=1$, plate 500 is also a winning number (since $500+500=1000$); the $499-k$ untouched pairs contribute $2(499-k)$ fresh numbers; plate 000 is always inert. Verification of probability sums:
+
+Case $s=0$: $k + 1 + 2(499-k) + (k+1) = 1000$.
+
+Case $s=1$: $(k+1) + 2(499-k) + (k+1) = 1000$. \qedhere
+\end{proof}
+
+\begin{lemma}[Recurrence]
+Let $E(k,s)$ denote the expected additional plates from state $(k,s)$. Then:
+\[
+E(k,1) = \frac{1000 + 2(499-k)\,E(k{+}1,1)}{999-k},
+\]
+\[
+E(k,0) = \frac{1000 + E(k,1) + 2(499-k)\,E(k{+}1,0)}{999-k}.
+\]
+\end{lemma}
+
+\begin{proof}
+Condition on the next observation. For $s=1$:
+\[
+E(k,1) = 1 + \frac{k+1}{1000}\,E(k,1) + \frac{2(499-k)}{1000}\,E(k{+}1,1).
+\]
+Rearranging $(1 - \frac{k+1}{1000})\,E(k,1) = 1 + \frac{2(499-k)}{1000}\,E(k{+}1,1)$ gives the first formula. The derivation for $E(k,0)$ is analogous.
+\end{proof}
+
+\begin{lemma}[Base Case]
+$E(499,1) = 2$ and $E(499,0) = \tfrac{1002}{500}$.
+\end{lemma}
+
+\begin{proof}
+At $k=499$ all pairs are active. With $s=1$, win probability is $500/1000 = 1/2$ and no new pairs exist, so $E(499,1) = 1000/500 = 2$. With $s=0$: $E(499,0) = (1000 + E(499,1))/500 = 1002/500$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve():
+    E1[499] = 2.0
+    E0[499] = 1002.0 / 500.0
+    for k = 498 downto 0:
+        E1[k] = (1000 + 2*(499-k)*E1[k+1]) / (999 - k)
+        E0[k] = (1000 + E1[k] + 2*(499-k)*E0[k+1]) / (999 - k)
+    return E0[0]
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n)$ where $n = 499$, i.e., $O(1)$ for the fixed problem.
+\item \textbf{Space:} $O(n)$, reducible to $O(1)$ since we iterate downward and only need the successor value.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{40.66368097}
+\]
+
+\end{document}

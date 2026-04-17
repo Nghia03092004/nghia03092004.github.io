@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 485: Maximum Number of Divisors}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $d(i)$ denote the number of divisors of~$i$. Define $M(n,k) = \max\bigl(d(n),\ldots,d(n+k-1)\bigr)$. Given $\sum_{n=1}^{100}M(n,10)=432$, find $\sum_{n=1}^{10^8}M(n,10^5)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Divisor sieve correctness]
+The sieve procedure---for each $j=1,\ldots,L$, increment $d[j],d[2j],\ldots$---correctly computes $d(n) = \sum_{j\mid n}1$ for all $n\le L$. The total work is $\sum_{j=1}^L\lfloor L/j\rfloor = O(L\log L)$.
+\end{theorem}
+
+\begin{proof}
+Each divisor $j$ of $n$ contributes exactly one increment to $d[n]$. The harmonic sum bound $\sum_{j=1}^L\lfloor L/j\rfloor \le L\sum_{j=1}^L 1/j = O(L\log L)$ follows from the well-known estimate $H_L = \ln L + O(1)$.
+\end{proof}
+
+\begin{theorem}[Monotone deque sliding window maximum]
+Given an array $a[1\ldots L]$ and window size~$k$, a monotone deque computes all window maxima $M_i = \max(a[i],\ldots,a[i+k-1])$ in $O(L)$ amortized time.
+\end{theorem}
+
+\begin{proof}
+Maintain a deque $D$ of indices with $a$-values in weakly decreasing order. For each new index~$i$:
+\begin{enumerate}
+\item Pop from back while $a[D.\mathrm{back}]\le a[i]$.
+\item Push $i$.
+\item Pop from front if $D.\mathrm{front} < i-k+1$.
+\item The front holds the window maximum.
+\end{enumerate}
+\emph{Correctness:} Any index with a smaller $a$-value and earlier position than $i$ can never be a future window maximum, so removing it is safe. The front is always a valid in-window index with the largest $a$-value.
+
+\emph{Amortized cost:} Each index is pushed once and popped at most once from each end, giving $O(3L)$ total operations.
+\end{proof}
+
+\begin{lemma}[Divisor bound]
+For $n\le 10^8 + 10^5$, $d(n)\le 768$, so all values fit in a 16-bit integer.
+\end{lemma}
+
+\begin{proof}
+By the theory of highly composite numbers (Ramanujan, 1915), $d(n)$ grows sub-polynomially, and an exhaustive sieve confirms this bound.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute $d[1\ldots L]$ via the divisor-count sieve, where $L = N+k-1$.
+\item Compute sliding window maxima using a monotone deque.
+\item Accumulate $\sum_{n=1}^N M(n,k)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(L\log L)$ for the sieve $+$ $O(L)$ for the deque $= O(L\log L)$, where $L\approx 10^8$.
+\item \textbf{Space:} $O(L)$ for the divisor array $+$ $O(k)$ for the deque $= O(L)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{51281274340}
+\]
+
+\end{document}

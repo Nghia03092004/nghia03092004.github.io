@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 945: Smooth Number Sieve}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$\Psi(10^{10}, 100)$ = count of 100-smooth numbers up to $10^{10}$.
+
+\section{Dickman's Theorem}
+\begin{theorem}[Dickman, 1930]
+$\Psi(x,B) \sim x \cdot \rho(\log x / \log B)$ where $\rho$ is the Dickman function.
+\end{theorem}
+
+For $u = 10/2 = 5$: $\rho(5) \approx 3.54 \times 10^{-4}$.
+
+\section{Enumeration}
+\begin{proposition}
+Recursively generate products of primes $\leq 100$ up to $10^{10}$.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{83357132}
+\]
+
+\end{document}

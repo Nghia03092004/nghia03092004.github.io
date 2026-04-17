@@ -1,0 +1,130 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 38: Pandigital Multiples}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a fixed positive integer $x$, form the concatenated product of $x$ with $(1, 2, \ldots, n)$ for some $n > 1$. What is the largest 1-to-9 pandigital 9-digit number achievable?
+
+\section{Definitions}
+
+\begin{definition}
+The \emph{concatenated product} of $x$ with $(1, 2, \ldots, n)$ is
+\[
+    \mathrm{CP}(x, n) = \overline{(x \cdot 1) \| (x \cdot 2) \| \cdots \| (x \cdot n)},
+\]
+where $\|$ denotes decimal string concatenation.
+\end{definition}
+
+\begin{definition}
+An integer is \emph{1-to-9 pandigital} if its decimal digits are exactly $\{1,2,3,4,5,6,7,8,9\}$, each appearing once.
+\end{definition}
+
+\section{Theoretical Development}
+
+\begin{theorem}[Digit count constraint]
+\label{thm:digits}
+For $\mathrm{CP}(x,n)$ to be 9-digit pandigital with $n \ge 2$, we need $\sum_{k=1}^{n} (\lfloor \log_{10}(kx) \rfloor + 1) = 9$.
+\end{theorem}
+\begin{proof}
+The concatenation has $\sum_{k=1}^n d(kx)$ digits, which must equal~9 for pandigitality.
+\end{proof}
+
+\begin{theorem}[Feasible parameter space]
+\label{thm:space}
+The constraint restricts $(x,n)$ to finitely many families:
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+$n$ & Digit pattern & Range of $x$ \\
+\hline
+2 & $(4,5)$ & $5000 \le x \le 9999$ \\
+3 & $(3,3,3)$ & $100 \le x \le 333$ \\
+4 & $(2,2,2,3)$ & $25 \le x \le 33$ \\
+5 & $(1,2,2,2,2)$ & $5 \le x \le 9$ \\
+9 & $(1,1,\ldots,1)$ & $x = 1$ \\
+\hline
+\end{tabular}
+\end{center}
+\end{theorem}
+\begin{proof}
+For $n=2$: $d(x) + d(2x) = 9$. With $d(x)=4$, we need $d(2x)=5$, i.e., $2x \ge 10000$ so $x \ge 5000$. For $d(x) \ge 5$: total $\ge 10 > 9$. The other cases follow by analogous arithmetic. For $n \ge 10$, even $x=1$ yields $\ge 11$ digits.
+\end{proof}
+
+\begin{lemma}[Leading-digit maximization]
+\label{lem:leading}
+Since $\mathrm{CP}(x,n)$ begins with $x$, maximizing the result requires $x$ to begin with the digit~$9$.
+\end{lemma}
+\begin{proof}
+For two 9-digit numbers, the one with the lexicographically larger prefix is numerically larger. The first $d(x)$ digits of $\mathrm{CP}(x,n)$ equal~$x$.
+\end{proof}
+
+\begin{theorem}[Optimality]
+\label{thm:optimal}
+The maximum pandigital concatenated product is $\mathrm{CP}(9327, 2) = 932718654$.
+\end{theorem}
+\begin{proof}
+By Lemma~\ref{lem:leading} and Theorem~\ref{thm:space}, the $n=2$ family with $x \in [9000, 9999]$ dominates all other families (the best $n=5$ case gives $918273645 < 932\ldots$). At $x=9327$:
+\[
+    \mathrm{CP}(9327, 2) = \overline{9327 \| 18654} = 932718654.
+\]
+The digit multiset $\{9,3,2,7,1,8,6,5,4\} = \{1,\ldots,9\}$ confirms pandigitality. Exhaustive search over $x \in [9328, 9999]$ yields no pandigital result, and no other family produces a larger value.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{LargestPandigitalMultiple}{}
+    \State $\mathit{best} \gets 0$
+    \For{$x = 1$ to $9999$}
+        \State $s \gets \text{``''}$, $n \gets 0$
+        \While{$|s| < 9$}
+            \State $n \gets n + 1$
+            \State $s \gets s \| \mathrm{str}(x \cdot n)$
+        \EndWhile
+        \If{$n \ge 2$ \textbf{and} $|s| = 9$ \textbf{and} $s$ is pandigital}
+            \State $\mathit{best} \gets \max(\mathit{best},\; \mathrm{int}(s))$
+        \EndIf
+    \EndFor
+    \State \Return $\mathit{best}$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity}
+
+\begin{proposition}
+The algorithm runs in $O(9999 \times 9) = O(9 \times 10^4)$ time and $O(1)$ auxiliary space.
+\end{proposition}
+\begin{proof}
+The outer loop runs $9999$ times. Each inner loop performs at most $9$ concatenations. The pandigital check on a $9$-character string costs $O(1)$. No auxiliary data structures are needed.
+\end{proof}
+
+\section{Result}
+\[
+    \boxed{932718654}
+\]
+
+\section{Answer}
+
+\[
+\boxed{932718654}
+\]
+
+\end{document}

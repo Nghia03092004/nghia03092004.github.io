@@ -1,0 +1,156 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 10: Summation of Primes}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Compute $\displaystyle\sum_{\substack{p \text{ prime} \\ p < 2\,000\,000}} p$.
+
+\section{Mathematical Development}
+
+\subsection{Sieve of Eratosthenes}
+
+\begin{definition}
+The \emph{Sieve of Eratosthenes} on $[0,N)$ is the following procedure:
+\begin{enumerate}
+\item Initialize a Boolean array $A[0 \ldots N-1]$ with every entry set to \texttt{true}.
+\item Set $A[0] = A[1] = \texttt{false}$.
+\item For each integer $p$ from $2$ to $\lfloor \sqrt{N-1} \rfloor$, if $A[p] = \texttt{true}$ then mark every multiple
+\[
+p^2,\ p^2+p,\ p^2+2p,\ \ldots < N
+\]
+as composite by setting the corresponding array entries to \texttt{false}.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Sieve correctness]\label{thm:sieve}
+After the sieve terminates, $A[i] = \texttt{true}$ if and only if $i$ is prime, for every integer $0 \le i < N$.
+\end{theorem}
+
+\begin{proof}
+\emph{Completeness.} Let $m \in [2,N-1]$ be composite. Then $m = ab$ for some integers $2 \le a \le b$, so
+\[
+a \le \sqrt{m} \le \sqrt{N-1}.
+\]
+Let $p$ be the smallest prime factor of $m$. Then $p \le a \le \sqrt{N-1}$. During iteration $p$, the sieve marks every multiple of $p$ starting at $p^2$. Since $m$ is a multiple of $p$ and $m = p(m/p) \ge p^2$, the entry $A[m]$ is marked \texttt{false}.
+
+\emph{Soundness.} Let $q \in [2,N-1]$ be prime. The only numbers marked during iteration $p$ are multiples of $p$. If $p < q$, then $p \nmid q$ because $q$ is prime. If $p = q$, then marking begins at $q^2 > q$, so $q$ is not marked during its own iteration. Therefore no sieve step ever changes $A[q]$ from \texttt{true} to \texttt{false}.
+
+The entries $A[0]$ and $A[1]$ are explicitly set to \texttt{false}, so the theorem follows.
+\end{proof}
+
+\begin{theorem}[Summation correctness]\label{thm:sum}
+If
+\[
+S = \sum_{\substack{0 \le i < N \\ A[i] = \texttt{true}}} i,
+\]
+then
+\[
+S = \sum_{\substack{p < N \\ p \text{ prime}}} p.
+\]
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:sieve}, the set of indices $i$ with $A[i] = \texttt{true}$ is exactly the set of primes less than $N$. Summing over either description gives the same value.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Sum of all primes below $N$}
+\begin{algorithmic}[1]
+\REQUIRE $N \ge 2$
+\STATE Initialize $A[0..N{-}1] \gets \texttt{true}$; set $A[0] \gets A[1] \gets \texttt{false}$
+\FOR{$p = 2$ \textbf{to} $\lfloor\sqrt{N-1}\rfloor$}
+    \IF{$A[p]$}
+        \FOR{$k = p^2$ \textbf{to} $N-1$ \textbf{step} $p$}
+            \STATE $A[k] \gets \texttt{false}$
+        \ENDFOR
+    \ENDIF
+\ENDFOR
+\STATE $S \gets 0$
+\FOR{$i = 2$ \textbf{to} $N-1$}
+    \IF{$A[i]$}
+        \STATE $S \gets S + i$
+    \ENDIF
+\ENDFOR
+\RETURN $S$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Algorithm correctness]
+The algorithm returns the sum of all primes less than $N$.
+\end{theorem}
+
+\begin{proof}
+The sieve phase constructs an array $A$ satisfying Theorem~\ref{thm:sieve}. The final loop sums exactly those indices $i$ for which $A[i] = \texttt{true}$. By Theorem~\ref{thm:sum}, that sum is precisely the sum of all primes less than $N$.
+\end{proof}
+
+\subsection*{Numerical Evaluation}
+
+\begin{proposition}
+For $N = 2\,000\,000$, the algorithm returns
+\[
+142\,913\,828\,922.
+\]
+\end{proposition}
+
+\begin{proof}
+Running the sieve on $[0,2\,000\,000)$ identifies exactly $148\,933$ primes in this interval; the largest of them is $1\,999\,993$. Summing all marked prime indices yields
+\[
+142\,913\,828\,922.
+\]
+By the algorithm-correctness theorem, this is exactly the required sum.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Time complexity]
+The algorithm runs in $O(N \log\log N)$ time.
+\end{theorem}
+
+\begin{proof}
+The total number of marking operations satisfies
+\[
+\sum_{\substack{p \le \sqrt{N} \\ p \text{ prime}}} \left\lfloor \frac{N-p^2}{p} \right\rfloor + 1
+\le N \sum_{\substack{p \le N \\ p \text{ prime}}} \frac{1}{p}.
+\]
+By Mertens' second theorem,
+\[
+\sum_{p \le x} \frac{1}{p} = \ln\ln x + M + O\!\left(\frac{1}{\ln x}\right),
+\]
+where $M$ is the Meissel--Mertens constant. Hence the sieve phase uses $O(N \log\log N)$ time. The final summation pass is linear, so the overall complexity remains $O(N \log\log N)$.
+\end{proof}
+
+\begin{theorem}[Space complexity]
+The algorithm uses $O(N)$ space.
+\end{theorem}
+
+\begin{proof}
+The Boolean array $A$ has $N$ entries. The running sum and loop variables contribute only $O(1)$ additional space. For $N = 2\,000\,000$, a 64-bit signed integer is sufficient for the accumulator because
+\[
+142\,913\,828\,922 < 2^{63}.
+\]
+Thus the total space usage is $O(N)$.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{142913828922}
+\]
+
+\end{document}

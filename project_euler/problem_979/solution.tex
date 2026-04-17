@@ -1,0 +1,19 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 979: Josephus Problem Variant}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\begin{theorem}[Josephus Recurrence]
+$J_0(1)=0$, $J_0(n,k)=(J_0(n-1,k)+k)\bmod n$, $J(n,k)=J_0(n,k)+1$.
+\end{theorem}
+\section{Answer}
+
+\[
+\boxed{189306828278449}
+\]
+
+\end{document}

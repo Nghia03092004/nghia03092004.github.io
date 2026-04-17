@@ -1,0 +1,93 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 204: Generalised Hamming Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many 100-smooth numbers (positive integers with all prime factors $\leq 100$) do not
+exceed $10^9$?
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Smooth Number Decomposition]
+Every 100-smooth number $n \geq 1$ can be uniquely written as
+$n = p_1^{a_1} p_2^{a_2} \cdots p_{25}^{a_{25}}$ where $a_i \geq 0$ and
+$p_1 < p_2 < \cdots < p_{25}$ are the 25 primes at most 100.
+\end{theorem}
+
+\begin{proof}
+Immediate from the Fundamental Theorem of Arithmetic: a positive integer is 100-smooth
+iff all prime factors lie in $\{2, 3, 5, \ldots, 97\}$, and unique factorization gives
+the bijection with exponent tuples $(a_1, \ldots, a_{25}) \in \mathbb{Z}_{\geq 0}^{25}$.
+\end{proof}
+
+\begin{theorem}[Recursive Counting]
+Define $\Psi(N, i)$ as the count of positive integers $\leq N$ with all prime factors in
+$\{p_i, p_{i+1}, \ldots, p_{25}\}$. Then:
+\[
+\Psi(N, i) = \sum_{a=0}^{\lfloor \log_{p_i} N \rfloor}
+\Psi\!\left(\left\lfloor N/p_i^a \right\rfloor,\; i+1\right),
+\]
+with $\Psi(N, 26) = 1$ for $N \geq 1$ and $\Psi(N, i) = 0$ for $N < 1$. The answer is
+$\Psi(N, 1)$.
+\end{theorem}
+
+\begin{proof}
+Partition the smooth numbers by the exponent $a$ of $p_i$. For fixed $a$, write $n = p_i^a m$
+with $m \leq N/p_i^a$ and $m$ having all prime factors in $\{p_{i+1}, \ldots, p_{25}\}$.
+The count of such $m$ is $\Psi(\lfloor N/p_i^a\rfloor, i+1)$. Summing over valid $a$
+(from 0 to $\lfloor\log_{p_i} N\rfloor$) yields the recurrence. The base case holds because
+with no primes available, the only valid number is $m = 1$.
+\end{proof}
+
+\begin{lemma}[Exponent Bounds]
+For each prime $p_i$, the maximum exponent is $a_{\max}(p_i) = \lfloor \log_{p_i} 10^9\rfloor$.
+In particular: $a_{\max}(2) = 29$, $a_{\max}(3) = 18$, $a_{\max}(5) = 12$,
+$a_{\max}(7) = 10$, $a_{\max}(97) = 4$.
+\end{lemma}
+
+\begin{proof}
+Direct computation: $2^{29} = 536870912 < 10^9 < 2^{30}$, etc. For $p = 97$:
+$97^4 = 88529281 < 10^9 < 97^5$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{Count}{$\mathrm{idx}, \mathrm{limit}$}
+    \If{$\mathrm{idx} = 25$} \Return 1
+    \EndIf
+    \State $p \gets \mathrm{primes}[\mathrm{idx}]$, \quad $\mathrm{total} \gets 0$, \quad $\mathrm{power} \gets 1$
+    \While{$\mathrm{power} \leq \mathrm{limit}$}
+        \State $\mathrm{total} \mathrel{+}= \Call{Count}{\mathrm{idx}+1,\; \lfloor\mathrm{limit}/\mathrm{power}\rfloor}$
+        \State $\mathrm{power} \mathrel{*}= p$
+    \EndWhile
+    \State \Return total
+\EndFunction
+\State \Return \Call{Count}{$0, 10^9$}
+\end{algorithmic}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\Psi(N, 100)) \approx O(2.94 \times 10^6)$ recursive calls.
+    \item \textbf{Space:} $O(25)$ recursion stack depth.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2944730}
+\]
+
+\end{document}

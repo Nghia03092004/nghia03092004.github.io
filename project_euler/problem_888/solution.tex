@@ -1,0 +1,35 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 888: Multidimensional Sieve}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Apply M\"obius inversion in multiple dimensions.
+
+\section{Key Results}
+
+\begin{theorem}[M\"obius Inversion]
+If $g(n) = \sum_{d|n} f(d)$, then $f(n) = \sum_{d|n} \mu(n/d)\,g(d)$.
+\end{theorem}
+
+\begin{theorem}[Coprime Tuples]
+$C_k(N) = \sum_{d=1}^{N} \mu(d)\lfloor N/d\rfloor^k$.
+\end{theorem}
+
+\begin{theorem}[Asymptotic]
+$C_2(N)/N^2 \to \frac{6}{\pi^2} = \frac{1}{\zeta(2)}$ as $N \to \infty$.
+\end{theorem}
+
+\section{Answer}
+
+\[
+\boxed{227429102}
+\]
+
+\end{document}

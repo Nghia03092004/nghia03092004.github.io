@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 14: Longest Collatz Sequence}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define the Collatz map $C : \mathbb{Z}^+ \to \mathbb{Z}^+$ by
+\[
+C(n) = \begin{cases} n/2 & \text{if } 2 \mid n, \\ 3n + 1 & \text{if } 2 \nmid n. \end{cases}
+\]
+The chain length $L(n)$ is the number of terms in the sequence $(n, C(n), C^2(n), \ldots)$ up to and including the first~$1$. Find $\arg\max_{1 \le n < 10^6} L(n)$.
+
+\section{Formal Development}
+
+\begin{definition}
+The \emph{Collatz orbit} of $n$ is $(C^{(k)}(n))_{k \ge 0}$ where $C^{(0)}(n) = n$ and $C^{(k)}(n) = C(C^{(k-1)}(n))$. The \emph{chain length} is $L(n) = \min\{k \ge 0 : C^{(k)}(n) = 1\} + 1$.
+\end{definition}
+
+\begin{theorem}[Recursive Structure]
+\label{thm:recur}
+$L(1) = 1$, and for $n > 1$: $L(n) = 1 + L(C(n))$.
+\end{theorem}
+
+\begin{proof}
+Removing the first term $n$ from the orbit $(n, C(n), \ldots, 1)$ yields the orbit from $C(n)$, which has $L(C(n))$ terms.
+\end{proof}
+
+\begin{lemma}[Odd-Step Compression]
+\label{lem:odd}
+For odd $n > 1$: $C(C(n)) = \frac{3n+1}{2}$ and $L(n) = 2 + L\!\left(\frac{3n+1}{2}\right)$.
+\end{lemma}
+
+\begin{proof}
+If $n$ is odd, $C(n) = 3n+1$ is even (since $3n$ is odd), so $C(3n+1) = \frac{3n+1}{2}$. Applying Theorem~\ref{thm:recur} twice: $L(n) = 1 + L(3n+1) = 2 + L\!\left(\frac{3n+1}{2}\right)$.
+\end{proof}
+
+\begin{theorem}[Termination]
+The Collatz conjecture ($L(n) < \infty$ for all $n \ge 1$) has been verified computationally for all $n < 2^{68}$, which far exceeds $10^6$.
+\end{theorem}
+
+\begin{theorem}[Correctness of Memoized Search]
+\label{thm:memo}
+Processing starting values $n = 2, 3, \ldots, N-1$ in order, with $\text{cache}[1] = 1$, and computing $L(n) = k + \text{cache}[m]$ where $m$ is the first iterate with a known cache entry and $k$ is the number of steps from $n$ to $m$, correctly fills the cache.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:recur}, $L(n) = k + L(C^{(k)}(n))$ for any $k$. When $m = C^{(k)}(n)$ satisfies $\text{cache}[m] = L(m)$, we have $L(n) = k + L(m)$. Since we process values in increasing order and every orbit eventually reaches 1 (by verified termination), the base case $\text{cache}[1] = 1$ suffices.
+\end{proof}
+
+\begin{proposition}[Complexity]
+The algorithm uses $\Theta(N)$ space. The total time is $O(N \cdot \bar{L})$ in the worst case, empirically $O(N \log N)$ with memoization.
+\end{proposition}
+
+\begin{proof}
+Space: the cache array has $N$ entries. Time: for each starting value, the orbit is followed until a cached value is reached. With memoization, values below $N$ that have been previously computed terminate the chain immediately. The average number of uncached steps per starting value is empirically $O(\log N)$, motivated by the observation that each even step halves the value and each odd-even pair multiplies by $\sim 3/4$.
+\end{proof}
+
+\section{Result}
+
+$L(837799) = 525$, which is the maximum over all starting values below $10^6$.
+
+\section{Answer}
+
+\[
+\boxed{837799}
+\]
+
+\end{document}

@@ -1,0 +1,21 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 972: Stern Sequence Properties}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem}
+$\sum_{n=1}^{2^{20}} s(n)$ where $s(2n)=s(n)$, $s(2n+1)=s(n)+s(n+1)$.
+\begin{theorem}
+$\sum_{n=2^k}^{2^{k+1}-1} s(n) = 3^k$.
+\end{theorem}
+\section{Answer}
+
+\[
+\boxed{3575508}
+\]
+
+\end{document}

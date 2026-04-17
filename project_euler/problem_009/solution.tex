@@ -1,0 +1,116 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Problem 9: Special Pythagorean Triplet}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A Pythagorean triplet is a tuple of positive integers $(a, b, c)$ with $a < b < c$ and $a^2 + b^2 = c^2$. Find the unique such triplet satisfying $a + b + c = 1000$, and compute the product $abc$.
+
+\section{Mathematical Development}
+
+\subsection{Parametric Reduction}
+
+\begin{theorem}[Reduction to one variable]\label{thm:reduce}
+Suppose positive integers $a, b, c$ satisfy $a^2 + b^2 = c^2$ and $a + b + c = s$ for a given $s > 0$. Then
+\[
+b = \frac{s(s - 2a)}{2(s - a)}.
+\]
+\end{theorem}
+
+\begin{proof}
+Setting $c = s - a - b$ and substituting into $a^2 + b^2 = c^2$:
+\begin{align*}
+a^2 + b^2 &= (s - a - b)^2 = s^2 - 2s(a+b) + a^2 + 2ab + b^2.
+\end{align*}
+Cancel $a^2 + b^2$:
+\[
+0 = s^2 - 2sa - 2sb + 2ab \implies b(2s - 2a) = s(s - 2a),
+\]
+whence $b = s(s-2a)\,/\,[2(s-a)]$.
+\end{proof}
+
+\begin{corollary}\label{cor:formula}
+For $s = 1000$:
+\[
+b = \frac{500000 - 1000a}{1000 - a} = 1000 - \frac{500000}{1000 - a}.
+\]
+\end{corollary}
+
+\begin{theorem}[Integrality condition]\label{thm:int}
+With $s = 1000$, $b$ is a positive integer if and only if $(1000 - a) \mid 500000$.
+\end{theorem}
+
+\begin{proof}
+From Corollary~\ref{cor:formula}, $b \in \mathbb{Z}$ iff $(1000 - a) \mid 500000$. Furthermore $b > 0$ requires $500000/(1000 - a) < 1000$, i.e., $1000 - a > 500$, i.e., $a < 500$.
+\end{proof}
+
+\subsection{Existence and Uniqueness}
+
+\begin{theorem}[Unique solution]\label{thm:unique}
+The unique Pythagorean triplet $(a,b,c)$ with $a < b < c$ and $a+b+c=1000$ is $(200, 375, 425)$.
+\end{theorem}
+
+\begin{proof}
+We require $(1000 - a) \mid 500000$ with $1000 - a \in (500, 1000)$ and $a < b < c$. Since $500000 = 2^5 \cdot 5^6$, its divisors in $(500, 1000)$ are $625$ and $800$.
+
+\textbf{Case $d = 800$:} $a = 200$, $b = 1000 - 625 = 375$, $c = 425$. Check: $200 < 375 < 425$.
+
+\textbf{Case $d = 625$:} $a = 375$, $b = 200$, $c = 425$. Here $a > b$, so with the ordering constraint this is the same triplet as above.
+
+\textbf{Verification:} $200^2 + 375^2 = 40000 + 140625 = 180625 = 425^2$. \checkmark
+\end{proof}
+
+\begin{remark}
+The triplet $(200, 375, 425) = 25 \cdot (8, 15, 17)$, where $(8, 15, 17)$ is the primitive Pythagorean triple with parameters $m = 4$, $n = 1$ in Euclid's formula: $a = 2mn$, $b = m^2 - n^2$, $c = m^2 + n^2$.
+\end{remark}
+
+\subsection{Complexity}
+
+\begin{theorem}
+The algorithm runs in $O(s)$ time and $O(1)$ space.
+\end{theorem}
+
+\begin{proof}
+The loop iterates $a$ from $1$ to at most $s/3 - 1$ (since $a < b < c$ and $a+b+c = s$ force $a < s/3$). Each iteration performs $O(1)$ arithmetic. No auxiliary storage is needed.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find the Pythagorean triplet with $a+b+c=s$}
+\begin{algorithmic}[1]
+\REQUIRE $s > 0$
+\FOR{$a = 1$ \textbf{to} $\lfloor s/3 \rfloor - 1$}
+    \STATE $\mathrm{num} \gets s^2/2 - sa$
+    \STATE $\mathrm{den} \gets s - a$
+    \IF{$\mathrm{den} \mid \mathrm{num}$}
+        \STATE $b \gets \mathrm{num} / \mathrm{den}$
+        \STATE $c \gets s - a - b$
+        \IF{$a < b < c$}
+            \RETURN $a \cdot b \cdot c$
+        \ENDIF
+    \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\section{Answer}
+
+\[
+\boxed{31875000}
+\]
+
+\end{document}

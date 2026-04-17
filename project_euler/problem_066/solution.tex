@@ -1,0 +1,123 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 66: Diophantine Equation (Pell's Equation)}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider quadratic Diophantine equations of the form:
+\[
+x^2 - Dy^2 = 1
+\]
+Find the value of $D \le 1000$ in minimal solutions of $x$ for which the largest value of $x$ is obtained.
+
+\section{Theory: Pell's Equation and Continued Fractions}
+
+\subsection{Periodic Continued Fractions}
+
+\begin{theorem}[Lagrange]
+For any non-square positive integer $D$, the continued fraction expansion of $\sqrt{D}$ is eventually periodic:
+\[
+\sqrt{D} = [a_0; \overline{a_1, a_2, \ldots, a_{r-1}, 2a_0}]
+\]
+where $a_0 = \lfloor \sqrt{D} \rfloor$ and $r$ is the period length.
+\end{theorem}
+
+\subsection{Convergents}
+
+The $k$-th convergent $p_k / q_k$ of the continued fraction is computed via:
+\begin{align}
+p_{-1} &= 1, \quad p_{-2} = 0, \quad p_k = a_k p_{k-1} + p_{k-2} \\
+q_{-1} &= 0, \quad q_{-2} = 1, \quad q_k = a_k q_{k-1} + q_{k-2}
+\end{align}
+
+\subsection{Fundamental Solution}
+
+\begin{theorem}
+Let $r$ be the period of the continued fraction expansion of $\sqrt{D}$. The fundamental (minimal positive) solution $(x_1, y_1)$ of $x^2 - Dy^2 = 1$ is:
+\[
+(x_1, y_1) = \begin{cases}
+(p_{r-1}, q_{r-1}) & \text{if } r \text{ is even} \\
+(p_{2r-1}, q_{2r-1}) & \text{if } r \text{ is odd}
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+The convergents of $\sqrt{D}$ satisfy $p_k^2 - D q_k^2 = (-1)^{k+1} \cdot c_k$ where $c_k$ divides $2a_0$. At the end of the period ($k = r-1$), we have $p_{r-1}^2 - D q_{r-1}^2 = (-1)^r$.
+
+If $r$ is even, then $p_{r-1}^2 - D q_{r-1}^2 = 1$, giving the fundamental solution directly.
+
+If $r$ is odd, then $p_{r-1}^2 - D q_{r-1}^2 = -1$. We use the identity:
+\[
+(p_{r-1}^2 + D q_{r-1}^2)^2 - D(2 p_{r-1} q_{r-1})^2 = (p_{r-1}^2 - D q_{r-1}^2)^2 = 1
+\]
+This corresponds to the convergent at index $2r-1$, which can be verified by the periodicity of the continued fraction coefficients.
+\end{proof}
+
+\subsection{Continued Fraction Algorithm}
+
+To compute the continued fraction of $\sqrt{D}$, we use:
+\begin{align}
+m_0 &= 0, \quad d_0 = 1, \quad a_0 = \lfloor \sqrt{D} \rfloor \\
+m_{n+1} &= d_n a_n - m_n \\
+d_{n+1} &= \frac{D - m_{n+1}^2}{d_n} \\
+a_{n+1} &= \left\lfloor \frac{a_0 + m_{n+1}}{d_{n+1}} \right\rfloor
+\end{align}
+The algorithm terminates when $a_n = 2a_0$ (end of period).
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find $D \le 1000$ with largest minimal $x$}
+\begin{algorithmic}[1]
+\State $x_{\max} \gets 0$, $D_{\text{best}} \gets 0$
+\For{$D = 2$ to $1000$}
+    \If{$D$ is a perfect square} \textbf{continue} \EndIf
+    \State Compute continued fraction of $\sqrt{D}$
+    \State Compute convergents until $p_k^2 - D q_k^2 = 1$
+    \If{$p_k > x_{\max}$}
+        \State $x_{\max} \gets p_k$, $D_{\text{best}} \gets D$
+    \EndIf
+\EndFor
+\State \Return $D_{\text{best}}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time}: $O(N \cdot \sqrt{N} \log N)$ where $N = 1000$, since the period length of the continued fraction for $\sqrt{D}$ is $O(\sqrt{D} \log D)$.
+    \item \textbf{Space}: $O(1)$ auxiliary per $D$, since we only track two consecutive convergents.
+    \item We use arbitrary-precision integers (in Python/C++ with big integers) since $x$ can be extremely large (up to $\sim 10^{37}$).
+\end{itemize}
+
+\section{Result}
+
+The answer is $\boxed{D = 661}$.
+
+The minimal $x$ for $D = 661$ is:
+\[
+x = 16421658242965910275055840472270471049
+\]
+
+\section{Answer}
+
+\[
+\boxed{661}
+\]
+
+\end{document}

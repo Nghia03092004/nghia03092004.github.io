@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 827: Gaussian Primes}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Primes in Z[i]. See the accompanying solution.md for the full problem statement and mathematical analysis.
+
+\section{Mathematical Framework}
+
+\begin{theorem}[Gaussian Prime Classification]
+$\pi \in \mathbb{Z}[i]$ is prime iff: (1) $N(\pi) = 2$, or (2) $N(\pi) = p \equiv 1 \pmod{4}$, or (3) $\pi = p$ with $p \equiv 3 \pmod{4}$.
+\end{theorem}
+
+\begin{theorem}[Fermat Two-Square]
+A prime $p$ is $a^2+b^2$ iff $p = 2$ or $p \equiv 1 \pmod{4}$.
+\end{theorem}
+
+\section{Complexity}
+
+See solution.md for detailed complexity analysis.
+
+\section{Answer}
+
+\[
+\boxed{397289979}
+\]
+
+\end{document}

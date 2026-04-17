@@ -1,0 +1,45 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 883: Remarkable Representations}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Study irreducible representations of finite groups and the dimension identity.
+
+\section{Key Results}
+
+\begin{theorem}[Dimension Formula]
+$\sum_{i=1}^{h} (\dim \rho_i)^2 = |G|$.
+\end{theorem}
+
+\begin{proof}
+The regular representation has dimension $|G|$ and decomposes as $\bigoplus (\dim\rho_i)\cdot\rho_i$.
+\end{proof}
+
+\begin{theorem}[Orthogonality]
+$\frac{1}{|G|}\sum_{g} \chi_i(g)\overline{\chi_j(g)} = \delta_{ij}$.
+\end{theorem}
+
+\section{Examples}
+\begin{center}
+\begin{tabular}{l|c|l|c}
+Group & $|G|$ & Dims & $\sum d_i^2$ \\ \hline
+$S_3$ & 6 & 1,1,2 & 6 \\
+$S_4$ & 24 & 1,1,2,3,3 & 24 \\
+$A_4$ & 12 & 1,1,1,3 & 12
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{14854003484704}
+\]
+
+\end{document}

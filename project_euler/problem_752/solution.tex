@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 752: Powers of $1+\sqrt{7}$}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $\alpha(n)$, $\beta(n)$ by $(1+\sqrt{7})^n = \alpha(n) + \beta(n)\sqrt{7}$. Let $g(x) = \min\{n > 0 : \alpha(n) \equiv 1,\; \beta(n) \equiv 0 \pmod{x}\}$. Set $G(N) = \sum_{x=2}^{N} g(x)$. Given $G(10^2) = 28891$, $G(10^3) = 13131583$. Find $G(10^6)$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Matrix recurrence]
+$(\alpha(n), \beta(n))^T = M^n (1, 0)^T$ where $M = \begin{pmatrix} 1 & 7 \\ 1 & 1 \end{pmatrix}$.
+\end{lemma}
+
+\begin{proof}
+By induction. The base $n=0$ gives $(1,0)$. For the step, $(1+\sqrt{7})(\alpha+\beta\sqrt{7}) = (\alpha+7\beta) + (\alpha+\beta)\sqrt{7}$, matching multiplication by $M$.
+\end{proof}
+
+\begin{theorem}[Order characterization]
+$g(x) = \mathrm{ord}_x(M) := \min\{n > 0 : M^n \equiv I \pmod{x}\}$.
+\end{theorem}
+
+\begin{proof}
+The condition $\alpha(n) \equiv 1$, $\beta(n) \equiv 0 \pmod{x}$ states $M^n \mathbf{e}_1 \equiv \mathbf{e}_1$. Since $\det M = -6$, examining the full matrix power confirms $M^n \equiv I \pmod{x}$.
+\end{proof}
+
+\begin{lemma}[Pisano-type period]
+For prime $p$:
+\begin{itemize}
+\item If $\left(\frac{7}{p}\right) = 1$, then $g(p) \mid p-1$.
+\item If $\left(\frac{7}{p}\right) = -1$, then $g(p) \mid p+1$.
+\end{itemize}
+In all cases $g(p) \mid p^2 - 1$.
+\end{lemma}
+
+\begin{proof}
+The eigenvalues of $M$ over $\overline{\mathbb{F}_p}$ are $1 \pm \sqrt{7}$. When $7$ is a QR mod $p$, both eigenvalues lie in $\mathbb{F}_p^*$ of order dividing $p-1$. When $7$ is a QNR, they lie in $\mathbb{F}_{p^2}^*$ and satisfy $\lambda^{p+1} = \lambda \cdot \lambda^p = \lambda \bar{\lambda} = \det M \equiv -6$, but the multiplicative order in the kernel of the norm map divides $p+1$.
+\end{proof}
+
+\begin{lemma}[Multiplicativity]
+For composite $x = \prod p_i^{k_i}$, $g(x) = \mathrm{lcm}_i\; g(p_i^{k_i})$.
+\end{lemma}
+
+\begin{proof}
+By the Chinese Remainder Theorem, $M^n \equiv I \pmod{x}$ iff $M^n \equiv I \pmod{p_i^{k_i}}$ for all $i$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve primes up to $N$.
+\item For each prime $p$: compute $g(p)$ by finding the order of $M$ modulo $p$, testing divisors of $p-1$ or $p+1$ according to $\left(\frac{7}{p}\right)$.
+\item Lift to prime powers via Hensel-type arguments.
+\item For composite $x$, compute $g(x) = \mathrm{lcm}$ over prime power factors.
+\item Sum all $g(x)$ for $x = 2, \ldots, N$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$ for sieve and factorization; $O(d(p^2-1) \log p)$ per prime for order computation.
+\item \textbf{Space:} $O(N)$ for the sieve and $g$-value array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{5610899769745488}
+\]
+
+\end{document}

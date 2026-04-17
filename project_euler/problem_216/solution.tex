@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 216: Investigating the Primality of $2n^2-1$}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider $t(n) = 2n^2-1$ for $n \geq 1$. How many values of $t(n)$ are prime for $2 \leq n \leq 50{,}000{,}000$?
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Quadratic residue condition]
+If an odd prime $p$ divides $t(n) = 2n^2-1$, then $p \equiv \pm 1 \pmod{8}$.
+\end{theorem}
+
+\begin{proof}
+From $p \mid 2n^2-1$ we get $n^2 \equiv 2^{-1}\pmod{p}$, so $2^{-1}$ is a quadratic residue mod $p$. Since $\left(\frac{2^{-1}}{p}\right) = \left(\frac{2}{p}\right)$, we need $\left(\frac{2}{p}\right) = 1$. By the second supplement to quadratic reciprocity, $\left(\frac{2}{p}\right) = (-1)^{(p^2-1)/8} = 1$ iff $p \equiv \pm 1\pmod{8}$.
+\end{proof}
+
+\begin{theorem}[Root periodicity]
+If $p \mid t(n_0)$, then $p \mid t(n_0 + kp)$ for all $k \in \mathbb{Z}$. The two roots of $2x^2 \equiv 1\pmod{p}$ are $n_0$ and $p - n_0$.
+\end{theorem}
+
+\begin{proof}
+$t(n_0+kp) = 2(n_0+kp)^2 - 1 \equiv 2n_0^2-1 \equiv 0\pmod{p}$. Since $(p-n_0)^2 \equiv n_0^2\pmod{p}$, both $n_0$ and $p-n_0$ are roots. As $x^2-c$ has at most 2 roots over $\mathbb{F}_p$, these are all the roots.
+\end{proof}
+
+\begin{lemma}[Tonelli--Shanks]
+Given $a$ with $\left(\frac{a}{p}\right)=1$, the Tonelli--Shanks algorithm computes $r$ with $r^2 \equiv a\pmod{p}$ in $O(\log^2 p)$ time.
+\end{lemma}
+
+\begin{proof}
+Write $p-1 = 2^s q$ with $q$ odd. The algorithm maintains the invariant $R^2 \equiv a \cdot t\pmod{p}$ where $t$ converges to 1. The exponent $M$ (order of $t$ as a power of 2) decreases by at least 1 per iteration, giving termination in $\leq s \leq \log_2 p$ steps.
+\end{proof}
+
+\begin{theorem}[Sieve correctness]
+Initialize $T[n] = t(n)$. For each prime $p \leq \sqrt{2N^2}$ with $p \equiv \pm 1\pmod{8}$, find roots $r, p-r$ of $2x^2\equiv 1\pmod{p}$ and divide $T[n]$ by $p$ for all $n \equiv r$ or $n \equiv p-r\pmod{p}$. After completion, $t(n)$ is prime iff $T[n] > 1$.
+\end{theorem}
+
+\begin{proof}
+The sieve removes all prime factors $\leq \sqrt{2N^2}$ from $T[n]$. If $t(n)$ is composite, it has a factor $\leq \sqrt{t(n)} \leq \sqrt{2N^2}$, so $T[n]$ is reduced below $t(n)$. If $t(n)$ is prime, no factor divides it, so $T[n] = t(n) > 1$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Initialize $T[n] = 2n^2-1$ for $2 \leq n \leq N$.
+\item Sieve primes up to $\lfloor\sqrt{2N^2}\rfloor$.
+\item For each such prime $p \equiv \pm 1\pmod{8}$:
+  \begin{enumerate}
+  \item Compute $r = \sqrt{(p+1)/2}\pmod{p}$ via Tonelli--Shanks.
+  \item For $n \equiv r\pmod{p}$ and $n \equiv p-r\pmod{p}$ in $[2, N]$: divide out all factors of $p$ from $T[n]$.
+  \end{enumerate}
+\item Count $n$ with $T[n] > 1$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log\log N)$ (sieve-like), plus $O(\sqrt{N}\log^2 N)$ for root computations.
+\item \textbf{Space:} $O(N)$ for array $T$; $O(\sqrt{N})$ for the prime sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{5437849}
+\]
+
+\end{document}

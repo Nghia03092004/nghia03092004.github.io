@@ -1,0 +1,54 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Problem 255: Rounded Square Roots}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define the ``rounded square root'' algorithm for $n$:
+\begin{enumerate}
+    \item $d = $ number of digits of $n$.
+    \item $x_0 = 2 \cdot 10^{(d-1)/2}$ if $d$ odd, $x_0 = 7 \cdot 10^{(d-2)/2}$ if $d$ even.
+    \item Iterate: $x_{k+1} = \left\lfloor \frac{x_k + \lceil n/x_k \rceil}{2} \right\rfloor$.
+    \item Stop when $x_{k+1} = x_k$; return $x_k$.
+\end{enumerate}
+
+Find the average number of iterations for $n$ from $10^{13}$ to $10^{14}-1$, to 10 decimal places.
+
+\section{Approach}
+
+All numbers in $[10^{13}, 10^{14})$ have 14 digits (even), so $x_0 = 7 \times 10^6$.
+
+For each iteration, group values of $n$ by their current $x_k$ value. For a given $x_k$, the next value $x_{k+1}$ depends on $\lceil n/x_k \rceil$, which takes consecutive integer values as $n$ varies over an interval.
+
+This allows us to process all $n$ values efficiently by iterating over possible $x$ values and counting how many $n$ fall into each category.
+
+\section{Key Formula}
+
+For fixed $x_k$ and $q = \lceil n/x_k \rceil$:
+\[
+x_{k+1} = \left\lfloor \frac{x_k + q}{2} \right\rfloor
+\]
+
+The $n$ values giving $\lceil n/x_k \rceil = q$ are $n \in [(q-1) \cdot x_k + 1, \; q \cdot x_k]$.
+
+For each such range, if $x_{k+1} = x_k$, those $n$ values converge with $k+1$ iterations (from the current step). Otherwise, they continue with $x_{k+1}$ as the new iterate.
+
+\section{Result}
+\[
+\boxed{4.4474011180}
+\]
+
+\section{Answer}
+
+\[
+\boxed{4.4474011180}
+\]
+
+\end{document}

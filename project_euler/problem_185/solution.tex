@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\title{Problem 185: Number Mind}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the unique 16-digit number consistent with the given Number Mind clues, where each clue provides a 16-digit guess and the count of correctly positioned digits.
+
+\section{Mathematical Foundation}
+
+\textbf{Definition 1.} This is a constraint satisfaction problem (CSP) with variables $x_0, \ldots, x_{15}$, each with domain $D_i \subseteq \{0,\ldots,9\}$. Each clue $(g, c)$ imposes:
+\[
+\sum_{i=0}^{15} \mathbf{1}[x_i = g_i] = c.
+\]
+
+\textbf{Theorem 1 (Zero-Clue Elimination).} If $(g, 0)$ is a clue, then $g_i \notin D_i$ for all $i$ in any valid solution.
+
+\textbf{Proof.} If $s_i = g_i$ for any $i$, the match count would be $\geq 1$, contradicting $c = 0$. $\square$
+
+\medskip
+
+\textbf{Theorem 2 (Feasibility Pruning).} During backtracking with partial assignment $\sigma$ on positions $\{0, \ldots, k-1\}$, clue $(g, c)$ is infeasible if:
+\begin{enumerate}
+    \item[(a)] $|\{i < k : \sigma(x_i) = g_i\}| > c$, or
+    \item[(b)] $|\{i < k : \sigma(x_i) = g_i\}| + |\{i \geq k : g_i \in D_i\}| < c$.
+\end{enumerate}
+
+\textbf{Proof.} (a) The match count already exceeds the target and cannot decrease. (b) Even matching every remaining position cannot reach the target. $\square$
+
+\medskip
+
+\textbf{Lemma 1 (MRV Heuristic).} Selecting the unassigned variable with the smallest remaining domain minimizes the branching factor at each search node.
+
+\textbf{Proof.} Standard CSP result: a variable with $d$ candidates creates $d$ branches; choosing the smallest $d$ minimizes the tree width and enables earlier pruning. $\square$
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{SolveNumberMind}{clues}
+    \State Initialize $D[i] \gets \{0,\ldots,9\}$ for $i = 0, \ldots, 15$
+    \For{each clue $(g, c)$ with $c = 0$}
+        \For{$i = 0$ to $15$}
+            \State $D[i] \gets D[i] \setminus \{g_i\}$
+        \EndFor
+    \EndFor
+    \State \Return \Call{Backtrack}{$\emptyset$, initial match counts}
+\EndFunction
+\Statex
+\Function{Backtrack}{assignment, match\_counts}
+    \If{all 16 positions assigned}
+        \State \Return assignment if all counts match, else FAIL
+    \EndIf
+    \State $i \gets \arg\min_{j \text{ unassigned}} |D[j]|$ \Comment{MRV}
+    \For{each $d \in D[i]$}
+        \State Assign $x_i \gets d$; update match counts
+        \If{feasibility check passes (Theorem~2)}
+            \State result $\gets$ \Call{Backtrack}{updated assignment, updated counts}
+            \If{result $\neq$ FAIL} \Return result \EndIf
+        \EndIf
+        \State Undo assignment
+    \EndFor
+    \State \Return FAIL
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} Worst-case exponential, but zero-clue elimination reduces domains to $\sim$4--6 candidates per position. With MRV and feasibility pruning, the effective search is small.
+    \item \textbf{Space:} $O(16 \times |\text{clues}|)$ for constraint bookkeeping, $O(16)$ for recursion.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4640261571849533}
+\]
+
+\end{document}

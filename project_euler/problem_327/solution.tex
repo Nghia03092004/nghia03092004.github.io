@@ -1,0 +1,45 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\title{Problem 327: Rooms of Doom}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A series of $N+1$ rooms (numbered 0 to $N$) are connected in a line. You start in room 0 with an unlimited supply of cards. Each door from room $i$ to room $i+1$ consumes one card. You can carry at most $R$ cards at a time. Find $C(30, 100)$, the minimum number of cards needed to traverse all $N = 100$ rooms with capacity $R = 30$.
+
+\section{Approach}
+
+\subsection{Key Observation}
+To pass through $N$ doors, exactly $N$ cards must be consumed. The extra cost comes from trips back to room 0 to resupply.
+
+\subsection{Iterative Computation}
+Let $C(R, n)$ denote the minimum cards to traverse $n$ rooms. We compute:
+\begin{itemize}
+    \item For $n \leq R - 1$: a single trip suffices, so $C(R, n) = n$.
+    \item For $n > R - 1$: multiple trips are required.
+\end{itemize}
+
+At each step, the number of trips $t$ needed to push supplies from room $k-1$ to room $k$ depends on how many net cards can be delivered per round trip: $R - 2$ cards per trip (spending 1 to go forward, depositing cards, spending 1 to return), with the last trip being one-way (delivering $R - 1$ net cards minus what's needed ahead).
+
+The recurrence becomes:
+\[
+C(R, n) = \left\lceil \frac{C(R, n-1) + 2}{R} \right\rceil \cdot R
+\]
+but adjusted for the boundary conditions.
+
+More carefully:
+\[
+C(R, n) = (R - 2) + \left\lceil \frac{C(R, n-1) - (R - 2)}{R - 2} \right\rceil \cdot R
+\]
+
+\section{Answer}
+
+\[
+\boxed{34315549139516}
+\]
+
+\end{document}

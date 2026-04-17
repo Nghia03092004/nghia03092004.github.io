@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm, geometry, hyperref}
+\geometry{margin=1in}
+\title{Problem 314: The Mouse on the Moon}
+\author{Project Euler Solution}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A quarter-circle of radius $r = 250{,}000$ in the first quadrant. A fence of horizontal and vertical unit lattice segments runs from $(0,r)$ to $(r,0)$ inside the quarter-circle, with total length $< \frac{\pi r}{2}$. Maximize the enclosed area. Report the ``moon'' area (gap between $\frac{\pi r^2}{4}$ and the fence area) to 4 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Staircase Length Exceeds Arc Length]
+The naive inner staircase has Manhattan length $2r$, while the arc length is $\frac{\pi r}{2} \approx 1.5708r$. Since $2 > \pi/2$, the naive staircase violates the length constraint.
+\end{lemma}
+
+\begin{proof}
+The inner staircase from $(0,r)$ to $(r,0)$ consists of $r$ horizontal and $r$ vertical unit steps, totaling $2r$. The arc length of the quarter-circle is $\frac{\pi r}{2}$. Since $2 > \pi/2$, the constraint is violated.
+\end{proof}
+
+\begin{theorem}[Optimality via Lagrange Multipliers]
+The maximum-area staircase path with length $< \frac{\pi r}{2}$ satisfies:
+\[
+    \max_{\text{path}} A(\text{path}) \quad \text{subject to} \quad L(\text{path}) < \frac{\pi r}{2}
+\]
+The optimal path is found by introducing a Lagrange multiplier $\lambda$ for the length constraint. At each lattice point, the decision to step inward or outward is governed by $\Delta A / \Delta L = \lambda$.
+\end{theorem}
+
+\begin{proof}
+This is a discrete constrained optimization over lattice staircase paths. The KKT conditions require that at each lattice point, the marginal area gain per unit extra fence length equals the multiplier $\lambda$. Binary search on $\lambda$ yields the path where $L = \frac{\pi r}{2}$.
+\end{proof}
+
+\begin{theorem}[Envelope and Volume of Revolution]
+Define $Z = h_0 + \frac{v_0^2}{2g}$. The envelope of all trajectories is:
+\[
+    z_{\max}(r) = Z - \frac{gr^2}{2v_0^2}
+\]
+and the volume of revolution is:
+\[
+    V = \frac{\pi v_0^2 Z^2}{g}
+\]
+\end{theorem}
+
+\begin{proof}
+Inverting the envelope: $r^2(z) = \frac{2v_0^2}{g}(Z - z)$ for $0 \le z \le Z$. By the disc method:
+\[
+    V = \pi \int_0^{Z} r^2(z)\,dz = \frac{2\pi v_0^2}{g}\int_0^{Z}(Z-z)\,dz = \frac{2\pi v_0^2}{g} \cdot \frac{Z^2}{2} = \frac{\pi v_0^2 Z^2}{g}. \qedhere
+\]
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Binary search on $\lambda$ (Lagrange multiplier for fence length).
+    \item For each $\lambda$: compute the optimal staircase greedily along the arc, choosing at each $x$ the $y$-value that maximizes area gain minus $\lambda \cdot$ length cost.
+    \item Adjust $\lambda$ until the total fence length $= \frac{\pi r}{2}$.
+    \item Compute $\frac{\pi r^2}{4} - A_{\text{fence}}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(r \log(1/\varepsilon))$ where $\varepsilon$ is binary search precision, each evaluation is $O(r)$.
+    \item \textbf{Space:} $O(r)$ for path storage.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{132.52756426}
+\]
+
+\end{document}

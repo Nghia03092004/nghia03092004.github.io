@@ -1,0 +1,127 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Project Euler Problem 454:\\Diophantine Reciprocals III}
+\author{Solution Document}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+In the equation
+\[
+\frac{1}{x} + \frac{1}{y} = \frac{1}{n},
+\]
+where $x$, $y$, and $n$ are positive integers, define $F(L)$ as the number of
+solutions satisfying $x < y \leq L$.
+
+Given: $F(15) = 4$ and $F(1000) = 1069$.
+
+\textbf{Find $F(10^{12})$.}
+
+\section{Derivation}
+
+\subsection{Substitution}
+
+From $\tfrac{1}{x} + \tfrac{1}{y} = \tfrac{1}{n}$ with $x < y$ (hence $x > n$
+and $y > n$), set $x = n + a$, $y = n + b$ with $0 < a < b$. Then:
+\begin{align*}
+\frac{1}{n+a} + \frac{1}{n+b} &= \frac{1}{n} \\
+n(n+b) + n(n+a) &= (n+a)(n+b) \\
+n^2 &= ab.
+\end{align*}
+
+So each solution corresponds to an ordered factorization $n^2 = ab$ with $a < b$
+(equivalently $a < n$), subject to $y = n + b \leq L$.
+
+\subsection{Coprime Parametrization}
+
+\begin{proposition}
+Every solution $(x, y, n)$ is uniquely represented as
+\[
+x = k \, u \, (u+v), \quad y = k \, v \, (u+v), \quad n = k \, u \, v,
+\]
+where $k \geq 1$, $1 \leq u < v$, and $\gcd(u, v) = 1$.
+\end{proposition}
+
+\begin{proof}
+Given $n^2 = ab$ with $a < b$, write $n = k \cdot m$ where $m^2 \mid n^2$ extracts
+the coprime structure. Specifically, let $d = \gcd(a, b)$, $a = d u^2 / \gcd(u,v)^2$...
+
+More directly: set $g = \gcd(a, n)$. Write $a = g \alpha$, $n = g \gamma$ where $\gcd(\alpha, \gamma) = 1$. Then $ab = n^2$ gives $g \alpha \cdot b = g^2 \gamma^2$, so $b = g \gamma^2 / \alpha$. For $b$ to be an integer, $\alpha \mid g$. Set $g = \alpha k$, then $a = \alpha^2 k$, $n = \alpha \gamma k$, $b = \gamma^2 k$.
+
+With $u = \alpha$, $v = \gamma$: $\gcd(u, v) = \gcd(\alpha, \gamma) = 1$, $a < b$ gives $u < v$, and
+\[
+x = n + a = k\alpha\gamma + k\alpha^2 = ku(\underbrace{u+v}), \quad
+y = n + b = k\alpha\gamma + k\gamma^2 = kv(u+v).
+\]
+The map $(a, b, n) \mapsto (u, v, k)$ is bijective. \qed
+\end{proof}
+
+\subsection{Summation Formula}
+
+The constraint $y \leq L$ becomes $k \cdot v \cdot (u+v) \leq L$, giving
+$k \leq \lfloor L / (v(u+v)) \rfloor$. Summing over all valid triples:
+
+\begin{theorem}
+\[
+F(L) = \sum_{\substack{v=2}}^{V} \;\; \sum_{\substack{u=1 \\ \gcd(u,v)=1}}^{v-1} \left\lfloor \frac{L}{v(u+v)} \right\rfloor,
+\]
+where $V = \lfloor\sqrt{L}\rfloor$ (since $v(v+1) \leq L$ is needed for $u=1$).
+\end{theorem}
+
+\section{Computational Approach}
+
+\subsection{Direct Enumeration}
+
+For $L = 10^{12}$, $V \approx 10^6$. The outer loop runs $10^6$ iterations.
+For each $v$, the inner loop runs over $u < v$ with $\gcd(u,v) = 1$, totaling
+$\varphi(v)$ terms. The overall complexity is:
+\[
+\sum_{v=2}^{V} \varphi(v) \approx \frac{3V^2}{\pi^2} \approx 3 \times 10^{11}.
+\]
+
+In optimized C++ (fast GCD, branch prediction, early termination when
+$v(u+v) > L$), this completes within minutes.
+
+\subsection{Early Termination}
+
+For each $v$, as $u$ increases, $v(u+v)$ increases. Once $v(u+v) > L$, we can
+break. Since $u + v > v$, the effective upper bound on $u$ is
+$\lfloor L/v \rfloor - v$, which for large $v$ is much smaller than $v$.
+
+\subsection{Verification Data}
+
+\begin{center}
+\begin{tabular}{rl}
+\toprule
+$L$ & $F(L)$ \\
+\midrule
+15 & 4 \\
+100 & 60 \\
+1{,}000 & 1{,}069 \\
+10{,}000 & 15{,}547 \\
+100{,}000 & 203{,}931 \\
+1{,}000{,}000 & 2{,}524{,}207 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{5435004633092}
+\]
+
+\end{document}

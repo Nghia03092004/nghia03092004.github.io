@@ -1,0 +1,92 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+\title{Problem 363: B\'ezier Curves}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the cubic B\'ezier curve that best approximates a quarter circle from $(0,1)$ to $(1,0)$ in the minimax sense (minimizing the maximum radial deviation from the unit circle). Report the minimum possible maximum radial error to 10 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Symmetric Optimal B\'ezier]
+By the symmetry of the quarter circle under $(x,y) \mapsto (y,x)$, the optimal cubic B\'ezier has control points
+\[
+P_0 = (0,1),\quad P_1 = (k,1),\quad P_2 = (1,k),\quad P_3 = (1,0)
+\]
+for a unique $k > 0$.
+\end{theorem}
+
+\begin{proof}
+The quarter circle is invariant under reflection through $y = x$. If the optimal approximant lacked this symmetry, reflecting it would yield another approximant with the same error, and by strict convexity of the $L^\infty$ error functional restricted to the symmetric subspace, a symmetric curve with strictly smaller error would exist---a contradiction.
+\end{proof}
+
+\begin{lemma}[B\'ezier Parametrization]
+With the symmetric control points, the curve is $\mathbf{B}(t) = (x(t), y(t))$ where
+\begin{align*}
+x(t) &= 3k\,t(1-t)^2 + 3t^2(1-t) + t^3,\\
+y(t) &= (1-t)^3 + 3(1-t)^2 t + 3k(1-t)t^2.
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+Direct expansion of $\mathbf{B}(t) = \sum_{i=0}^{3}\binom{3}{i}(1-t)^{3-i}t^i P_i$.
+\end{proof}
+
+\begin{definition}[Radial Error]
+The radial error at parameter~$t$ is
+\[
+\varepsilon(t; k) = \sqrt{x(t)^2 + y(t)^2} - 1.
+\]
+\end{definition}
+
+\begin{theorem}[Chebyshev Equioscillation]
+The optimal $k^*$ satisfies the equioscillation property: $\varepsilon(t; k^*)$ attains its maximum absolute value at no fewer than 3 points in $[0,1]$ with alternating signs.
+\end{theorem}
+
+\begin{proof}
+This follows from the Chebyshev equioscillation theorem for best uniform approximation by a one-parameter family. At the optimum, if the error did not equioscillate, one could perturb~$k$ to strictly reduce $\|\varepsilon(\cdot;k)\|_\infty$, contradicting optimality.
+\end{proof}
+
+\begin{lemma}[Numerical Solution]
+Solving the equioscillation system via Newton's method yields $k^* \approx 0.5522847498$ and $\varepsilon^* \approx 0.0000372091$.
+\end{lemma}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve():
+    // Newton iteration: find k such that
+    //   max_t eps(t;k) + min_t eps(t;k) = 0
+    k = 0.5522847498  // initial guess
+    for i = 1 to 20:
+        find critical points of eps(t;k) on [0,1]
+        e_max = max(eps at critical points and endpoints)
+        e_min = min(eps at critical points and endpoints)
+        g = e_max + e_min
+        // finite-difference derivative of g w.r.t. k
+        k = k - g / g'
+    return |e_max|
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(1)$ --- a fixed number of Newton iterations, each involving polynomial root-finding of bounded degree.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.0000372091}
+\]
+
+\end{document}

@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 309: Integer Ladders}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Two ladders of integer lengths $a$ and $b$ lean against opposite walls of an alley of integer width $w$, crossing at an integer height $h$. Count the number of distinct configurations $(a, b, w)$ with $w \leq 10^6$.
+
+\section{Mathematical Analysis}
+
+\subsection{Geometric Relations}
+Let ladder 1 reach height $p$ on one wall, and ladder 2 reach height $q$ on the opposite wall. Then:
+\begin{align}
+    a^2 &= w^2 + p^2 \\
+    b^2 &= w^2 + q^2
+\end{align}
+
+By similar triangles, the crossing height satisfies:
+\begin{equation}
+    \frac{1}{h} = \frac{1}{p} + \frac{1}{q} \implies h = \frac{pq}{p+q}
+\end{equation}
+
+\subsection{Pythagorean Triple Condition}
+Both $(w, p, a)$ and $(w, q, b)$ must be Pythagorean triples. For each $w$, we enumerate all Pythagorean triples with $w$ as a leg.
+
+\subsection{Integer Height Condition}
+\begin{theorem}
+    Let $g = \gcd(p, q)$, $p = g\alpha$, $q = g\beta$ with $\gcd(\alpha, \beta) = 1$. Then $h \in \mathbb{Z}$ if and only if $(\alpha + \beta) \mid g$.
+\end{theorem}
+
+\begin{proof}
+    We have:
+    \[
+        h = \frac{g\alpha\beta}{\alpha + \beta}
+    \]
+    Since $\gcd(\alpha, \beta) = 1$, we have $\gcd(\alpha\beta, \alpha+\beta) = 1$. Therefore $h$ is an integer if and only if $(\alpha + \beta) \mid g$.
+\end{proof}
+
+\subsection{Enumeration Strategy}
+\begin{enumerate}
+    \item Generate all primitive Pythagorean triples $(m^2 - n^2, 2mn, m^2+n^2)$ with $m > n > 0$, $\gcd(m,n) = 1$, $m - n$ odd.
+    \item For each primitive triple and each multiplier $d$, record the ``other leg'' for each value of $w$.
+    \item For each $w$, consider all pairs of ``other legs'' $(p_1, p_2)$ with $p_1 \leq p_2$.
+    \item Check the integer height condition.
+\end{enumerate}
+
+\subsection{Counting}
+For each valid pair, we get a distinct configuration $(a_1, a_2, w)$ where the pair of ladders is unordered. The total count over all $w \leq 10^6$ gives the answer.
+
+\section{Result}
+\[
+    \boxed{210139}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(W\sqrt{W})$ for triple enumeration, plus pair checking.
+    \item \textbf{Space:} $O(W)$ for storing other-leg lists.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{210139}
+\]
+
+\end{document}

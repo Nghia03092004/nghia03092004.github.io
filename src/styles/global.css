@@ -1448,21 +1448,52 @@ h4 {
 	font-size: 1rem;
 }
 
-.toc ul {
+.toc__body {
+	display: block;
+}
+
+.toc__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	display: grid;
-	gap: 0.55rem;
+	gap: 0.5rem;
+}
+
+.toc__list .toc__list {
+	margin-top: 0.05rem;
+	padding-left: 0.95rem;
+	border-left: 1px solid rgba(22, 20, 18, 0.1);
+}
+
+.toc__item {
+	display: grid;
+	gap: 0.45rem;
 }
 
 .toc a {
+	display: block;
 	text-decoration: none;
 	color: var(--muted);
+	line-height: 1.35;
 }
 
 .toc a:hover {
 	color: var(--ink);
+}
+
+.toc__item--depth-2 > a {
+	font-weight: 700;
+	color: var(--ink);
+}
+
+.toc__item--depth-3 > a {
+	font-size: 0.95rem;
+}
+
+.toc__item--depth-4 > a {
+	font-size: 0.89rem;
+	color: rgba(94, 83, 72, 0.88);
 }
 
 .source-library {
@@ -1549,6 +1580,62 @@ h4 {
 
 .source-panel pre {
 	margin: 0;
+}
+
+.problem-pagination {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.9rem;
+	margin-top: 1.5rem;
+	padding: 1rem;
+	border-radius: 26px;
+	background:
+		linear-gradient(160deg, rgba(93, 114, 58, 0.08), rgba(255, 255, 255, 0.5)),
+		var(--surface);
+}
+
+.problem-pagination__link {
+	display: grid;
+	gap: 0.2rem;
+	padding: 1rem 1.05rem;
+	border-radius: 20px;
+	border: 1px solid rgba(22, 20, 18, 0.08);
+	background: rgba(255, 255, 255, 0.52);
+	text-decoration: none;
+	transition:
+		transform 180ms ease,
+		border-color 180ms ease,
+		box-shadow 180ms ease;
+}
+
+.problem-pagination__link:hover {
+	transform: translateY(-2px);
+	border-color: rgba(22, 20, 18, 0.16);
+	box-shadow: 0 14px 24px rgba(22, 20, 18, 0.08);
+}
+
+.problem-pagination__link strong {
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.86rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+}
+
+.problem-pagination__label {
+	font-size: 0.76rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+.problem-pagination__link--next {
+	text-align: right;
+	align-items: end;
+}
+
+.problem-pagination__link--empty {
+	visibility: hidden;
+	pointer-events: none;
 }
 
 .euler-card {
@@ -1689,6 +1776,15 @@ h4 {
 
 	.post-sidebar {
 		position: static;
+	}
+
+	.problem-pagination {
+		grid-template-columns: 1fr;
+	}
+
+	.problem-pagination__link--next {
+		text-align: left;
+		align-items: start;
 	}
 }
 

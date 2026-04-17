@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\title{Problem 900: Sum of Remainders}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define
+\[
+S(n) = \sum_{k=1}^{n} (n \bmod k) = \sum_{k=1}^{n} \left(n - k\left\lfloor \frac{n}{k} \right\rfloor\right).
+\]
+Compute $S(N)$ for large $N$ efficiently.
+
+\section{Key Results}
+
+\begin{theorem}[Remainder-to-Floor Reduction]
+\[
+S(n) = n^2 - \sum_{k=1}^{n} k\left\lfloor \frac{n}{k} \right\rfloor
+\]
+\end{theorem}
+
+\begin{proof}
+Since $n \bmod k = n - k\lfloor n/k \rfloor$, summing over $k=1,\ldots,n$:
+\[
+S(n) = \sum_{k=1}^n n - \sum_{k=1}^n k\left\lfloor \frac{n}{k}\right\rfloor = n^2 - \sum_{k=1}^n k\left\lfloor \frac{n}{k}\right\rfloor. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Block Structure]
+The function $k \mapsto \lfloor n/k \rfloor$ takes at most $2\lfloor\sqrt{n}\rfloor$ distinct values. For each value $v$, the indices $k$ with $\lfloor n/k\rfloor = v$ form a contiguous block
+\[
+k \in \left[\left\lfloor \frac{n}{v+1}\right\rfloor + 1,\; \left\lfloor \frac{n}{v}\right\rfloor\right].
+\]
+\end{theorem}
+
+\begin{proof}
+$\lfloor n/k \rfloor = v$ iff $v \le n/k < v+1$, iff $n/(v+1) < k \le n/v$. The distinct-value count is bounded: either $v \le \sqrt{n}$ or $k \le \sqrt{n}$, giving $\le 2\sqrt{n}$ total.
+\end{proof}
+
+\begin{lemma}[Block Sum]
+For a block $[a,b]$ with $\lfloor n/k \rfloor = v$ for all $k \in [a,b]$:
+\[
+\sum_{k=a}^{b} k \cdot v = v \cdot \frac{(b-a+1)(a+b)}{2}.
+\]
+\end{lemma}
+
+\section{Connection to Divisor Sums}
+
+\begin{theorem}
+$\displaystyle\sum_{k=1}^{n} k\left\lfloor \frac{n}{k}\right\rfloor = \sum_{m=1}^{n} \sigma(m)$, where $\sigma(m) = \sum_{d \mid m} d$.
+\end{theorem}
+
+\begin{proof}
+Write $\lfloor n/k \rfloor = \sum_{j=1}^{\lfloor n/k \rfloor} 1 = \sum_{\substack{m=1 \\ k \mid m}}^{n} 1$. Then
+\[
+\sum_{k=1}^{n} k\left\lfloor \frac{n}{k}\right\rfloor = \sum_{k=1}^{n} \sum_{\substack{m=1 \\ k \mid m}}^{n} k = \sum_{m=1}^{n} \sum_{k \mid m} k = \sum_{m=1}^{n} \sigma(m). \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Asymptotics]
+\[
+S(n) = \left(1 - \frac{\pi^2}{12}\right)n^2 + O(n \log n) \approx 0.17753\, n^2.
+\]
+\end{corollary}
+
+\section{Numerical Verification}
+
+\begin{center}
+\begin{tabular}{r|r|r|c}
+$n$ & $S(n)$ brute & $S(n)$ hyperbola & Match \\ \hline
+1 & 0 & 0 & \checkmark \\
+10 & 13 & 13 & \checkmark \\
+50 & 432 & 432 & \checkmark \\
+100 & 4049 & 4049 & \checkmark \\
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{646900900}
+\]
+
+\end{document}

@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 125: Palindromic Sums}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the sum of all positive integers less than $10^8$ that are palindromic and can be written as a sum of consecutive positive squares with at least two terms.
+
+\section{Mathematical Development}
+
+\begin{definition}
+A consecutive square sum is $S(a, k) = \sum_{i=0}^{k-1}(a+i)^2$ for $a \ge 1$, $k \ge 2$.
+\end{definition}
+
+\begin{theorem}[Closed form]
+\[
+S(a, k) = \frac{(a+k-1)(a+k)(2a+2k-1)}{6} - \frac{(a-1)a(2a-1)}{6}.
+\]
+\end{theorem}
+
+\begin{proof}
+Apply $\sum_{i=1}^{m} i^2 = m(m+1)(2m+1)/6$ telescopically.
+\end{proof}
+
+\begin{lemma}[Bound on $a$]
+For $k = 2$ and $L = 10^8$: $a \le 7071$.
+\end{lemma}
+
+\begin{proof}
+$S(a, 2) = 2a^2 + 2a + 1 \ge 2a^2$. Then $2a^2 < 10^8$ gives $a < 7072$.
+\end{proof}
+
+\begin{lemma}[Bound on $k$]
+For $a = 1$ and $L = 10^8$: $k \le 563$.
+\end{lemma}
+
+\begin{proof}
+$S(1, k) = k(k+1)(2k+1)/6 \ge k^3/3$. The exact formula yields $k \le 563$.
+\end{proof}
+
+\begin{lemma}[Deduplication]
+Distinct $(a, k)$ pairs may produce the same sum. A set is required to avoid double-counting.
+\end{lemma}
+
+\begin{proof}
+Verified computationally: collisions exist among consecutive square sums.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item For each $a = 1, 2, \ldots$ while $a^2 + (a+1)^2 < L$:
+\item \quad Accumulate $S = a^2 + (a+1)^2 + \cdots$, stopping when $S \ge L$.
+\item \quad If $S$ is palindromic, insert into a set.
+\item Return the sum of all elements in the set.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(L^{5/6} \log L)$. Outer loop: $O(\sqrt{L})$; inner loop: $O(L^{1/3})$ worst case; palindrome test: $O(\log L)$.
+\item \textbf{Space:} $O(P)$ where $P$ is the count of qualifying palindromes.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2906969179}
+\]
+
+\end{document}

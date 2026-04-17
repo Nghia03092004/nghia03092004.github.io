@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{a4paper,margin=1in}
+
+\title{Problem 847: Jack's Bean}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Jack faces three plates with $a$, $b$, and $c$ beans. One bean is magic. Jack asks yes/no questions about subsets. $h(a,b,c)$ is the minimum number of questions to guarantee finding the magic bean.
+
+Define $H(N) = \sum_{\substack{a,b,c \geq 0 \\ 1 \leq a+b+c \leq N}} h(a,b,c)$.
+
+Find $H(R_{19}) \bmod 10^9+7$ where $R_{19} = \underbrace{111\ldots1}_{19}$.
+
+\section{Analysis}
+
+\subsection{Optimal Questioning Strategy}
+
+Since Jack can ask about any subset of beans, the optimal strategy is binary search: each question eliminates half the candidates. Therefore:
+\[
+h(a,b,c) = \lceil \log_2(a+b+c) \rceil
+\]
+
+\subsection{Counting Triples}
+
+The number of non-negative integer triples $(a,b,c)$ with $a+b+c = n$ is:
+\[
+T(n) = \binom{n+2}{2} = \frac{(n+1)(n+2)}{2}
+\]
+
+\subsection{Sum Formula}
+
+\[
+H(N) = \sum_{n=1}^{N} \lceil \log_2 n \rceil \cdot \binom{n+2}{2}
+\]
+
+We group by the value $k = \lceil \log_2 n \rceil$. For $k \geq 1$, the range of $n$ is $[2^{k-1}+1, \min(2^k, N)]$ (with special handling for $n=1$ where $k=0$).
+
+Using the hockey-stick identity:
+\[
+\sum_{n=a}^{b} \binom{n+2}{2} = \binom{b+3}{3} - \binom{a+2}{3}
+\]
+
+This reduces computation to $O(\log N)$ groups.
+
+\section{Complexity}
+
+\begin{itemize}
+    \item Time: $O(\log^2 N)$ with modular arithmetic
+    \item Space: $O(1)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{381868244}
+\]
+
+\end{document}

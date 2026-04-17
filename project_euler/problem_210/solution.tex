@@ -1,0 +1,71 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 210: Obtuse Angled Triangles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $S(r)$ be the set of lattice points $(x,y)$ with $|x|+|y| \leq r$. With $O = (0,0)$ and $C = (r/4, r/4)$, count lattice points $B \in S(r)$ such that triangle $OBC$ is obtuse (largest angle strictly between $90^\circ$ and $180^\circ$). Given $N(4)=24$ and $N(8)=100$, find $N(10^9)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Obtuse Angle Classification}
+Using dot products at each vertex:
+
+\begin{itemize}
+    \item \textbf{Obtuse at $O$:} $\vec{OB} \cdot \vec{OC} < 0 \Leftrightarrow x + y < 0$.
+    \item \textbf{Obtuse at $C$:} $\vec{CO} \cdot \vec{CB} < 0 \Leftrightarrow x + y > r/2$.
+    \item \textbf{Obtuse at $B$:} $\vec{BO} \cdot \vec{BC} < 0 \Leftrightarrow \left(x - \frac{r}{8}\right)^2 + \left(y - \frac{r}{8}\right)^2 < \frac{r^2}{32}$.
+\end{itemize}
+
+These three regions are disjoint: Region O has $x+y<0$, Region C has $x+y>r/2$, and Region B has $0 < x+y < r/2$.
+
+\subsection{Excluding Degenerate Cases}
+Points $B$ on the line $y = x$ are collinear with $O$ and $C$, forming no triangle.
+
+\subsection{Region Counts}
+
+\textbf{Region O:} Lattice points in the diamond with $x+y < 0$, excluding $y = x$:
+\[
+|\text{Region O}| = r^2.
+\]
+
+\textbf{Region C:} Lattice points in the diamond with $x+y > r/2$, excluding $y = x$:
+\[
+|\text{Region C}| = \frac{r^2}{2}.
+\]
+
+\textbf{Region B:} Lattice points in the open disk of radius $r\sqrt{2}/8$ centered at $(r/8, r/8)$, excluding $y = x$. Setting $u = x - r/8$, $v = y - r/8$:
+\[
+|\text{Region B}| = \#\{(u,v) \in \mathbb{Z}^2 : u^2 + v^2 < r^2/32\} - \left(\frac{r}{4} - 1\right).
+\]
+
+\subsection{Final Formula}
+\[
+N(r) = \frac{3r^2}{2} + \text{circle\_count} - \frac{r}{4} + 1
+\]
+where $\text{circle\_count}$ is the number of lattice points in the open disk $u^2 + v^2 < r^2/32$.
+
+\section{Result}
+\[
+\boxed{N(10^9) = 1{,}598{,}174{,}770{,}174{,}689{,}458}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(r/8)$ for the circle lattice point enumeration.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1598174770174689458}
+\]
+
+\end{document}

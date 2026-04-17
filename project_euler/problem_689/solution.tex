@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 689: Binary Series}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For $x$ uniform on $[0,1)$, let $f(x)=\sum d_i(x)/i^2$ where $d_i$ is the $i$-th binary digit. Define $p(a)=P(f(x)>a)$. Find $p(0.5)$ to 8 decimal places.
+
+\section{Mathematical Analysis}
+
+Recursive probability: each binary digit is 0 or 1 with prob 1/2. Dynamic programming on partial sums.
+
+\section{Complexity Analysis}
+
+The truncated recursion uses $O(2^B)$ states, where $B$ is the number of significant binary digits.
+
+\section{Answer}
+
+\[
+\boxed{0.56565454}
+\]
+
+\end{document}

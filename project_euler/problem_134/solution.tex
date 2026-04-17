@@ -1,0 +1,65 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{Problem 134: Prime Pair Connection}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For consecutive primes $p_1, p_2$ with $5 \leq p_1 \leq 1{,}000{,}003$, find $S(p_1, p_2)$: the smallest positive integer whose last digits equal $p_1$ and which is divisible by $p_2$. Compute $\sum S(p_1, p_2)$.
+
+\section{Solution}
+
+Let $d$ be the number of digits of $p_1$, so $10^d > p_1$. We need:
+\[
+S \equiv p_1 \pmod{10^d}, \quad p_2 \mid S.
+\]
+
+Write $S = p_1 + k \cdot 10^d$ for $k \geq 0$.
+
+\begin{theorem}
+The unique solution with $0 \leq k < p_2$ is:
+\[
+k \equiv -p_1 \cdot (10^d)^{-1} \pmod{p_2}
+\]
+and $S = p_1 + k \cdot 10^d$.
+\end{theorem}
+
+\begin{proof}
+We need $p_2 \mid p_1 + k \cdot 10^d$, i.e., $k \cdot 10^d \equiv -p_1 \pmod{p_2}$. Since $\gcd(10, p_2) = 1$ (as $p_2 \geq 7$), the inverse $(10^d)^{-1} \bmod p_2$ exists. The solution is unique modulo $p_2$, and $k \neq 0$ since $p_2 \nmid p_1$.
+\end{proof}
+
+\section{Computation}
+For each consecutive prime pair $(p_1, p_2)$ with $5 \leq p_1 \leq 1{,}000{,}003$:
+\begin{enumerate}
+    \item Compute $d = \lfloor \log_{10} p_1 \rfloor + 1$.
+    \item Compute $(10^d)^{-1} \bmod p_2$ using Fermat's little theorem.
+    \item $k = (-p_1 \cdot (10^d)^{-1}) \bmod p_2$.
+    \item $S = p_1 + k \cdot 10^d$.
+\end{enumerate}
+
+\section{Result}
+\[
+\sum S(p_1, p_2) = \boxed{18613426663617118}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N + \pi(N) \log N)$ where $N \approx 10^6$.
+    \item \textbf{Space:} $O(N)$ for the prime sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{18613426663617118}
+\]
+
+\end{document}

@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 229: Four Representations Using Squares}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count integers $n \leq N = 2 \times 10^9$ simultaneously representable as
+\begin{align*}
+n &= a^2 + b^2, \\
+n &= a^2 + 7c^2, \\
+n &= a^2 + 11d^2, \\
+n &= a^2 + 13e^2,
+\end{align*}
+with non-negative integer variables (possibly different $a$ in each form).
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Sum of Two Squares]
+A positive integer $n$ is a sum of two squares iff every prime $p \equiv 3 \pmod{4}$ appears to an even power in the factorization of $n$.
+\end{theorem}
+\begin{proof}
+($\Rightarrow$) If $p \equiv 3 \pmod{4}$ and $p \mid a^2 + b^2$ with $p \nmid b$, then $(ab^{-1})^2 \equiv -1 \pmod{p}$, contradicting $\left(\frac{-1}{p}\right) = -1$. So $p \mid \gcd(a,b)$ and $p^2 \mid n$; by induction, $p$ appears to even power.
+
+($\Leftarrow$) Primes $p \equiv 1 \pmod{4}$ split in $\mathbb{Z}[i]$ as $p = \pi\bar{\pi}$ with $N(\pi) = p$, so $p$ is a sum of two squares. We have $2 = 1^2 + 1^2$. By the Brahmagupta--Fibonacci identity, the product of sums of two squares is a sum of two squares. Primes $p \equiv 3 \pmod{4}$ to even power give $p^{2k} = (p^k)^2 + 0^2$.
+\end{proof}
+
+\begin{theorem}[Sieve Correctness]
+For each $k \in \{1, 7, 11, 13\}$, the set of representable $n \leq N$ is exactly $\{a^2 + kb^2 : a, b \geq 0,\, a^2 + kb^2 \leq N\}$.
+\end{theorem}
+\begin{proof}
+By definition, exhaustive enumeration of all valid $(a,b)$ pairs.
+\end{proof}
+
+\begin{lemma}[Bit Array Intersection]
+The answer equals $\mathrm{popcount}(B_1 \wedge B_7 \wedge B_{11} \wedge B_{13})$, where $B_k[n] = 1$ iff $n$ is representable as $a^2 + kb^2$.
+\end{lemma}
+\begin{proof}
+Bitwise AND computes set intersection; popcount gives cardinality.
+\end{proof}
+
+\begin{lemma}[Pair Count]
+The number of pairs $(a,b)$ with $a^2 + kb^2 \leq N$ is $\Theta(N/\sqrt{k})$.
+\end{lemma}
+\begin{proof}
+The count approximates $\int_0^{\sqrt{N/k}} \sqrt{N - kt^2}\,dt = \frac{\pi N}{4\sqrt{k}}$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Divide $[0, N]$ into blocks of size $B = 10^7$.
+\item For each block, generate all representable numbers in that range for all four forms using bit arrays.
+\item AND the four bit arrays; accumulate the popcount.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(N)$ total across all forms.
+\item \textbf{Space:} $O(B/8)$ per bit array, $\sim 5$\,MB total with $B = 10^7$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{11325263}
+\]
+
+\end{document}

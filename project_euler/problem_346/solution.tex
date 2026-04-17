@@ -1,0 +1,80 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 346: Strong Repunits}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A positive integer is a \textbf{strong repunit} if it is a repunit in at least two bases $b \ge 2$. Find the sum of all strong repunits below $10^{12}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Repunit Formula]
+The repunit with $k$ digits in base $b$ is
+\[
+R(b,k) = \sum_{i=0}^{k-1} b^i = \frac{b^k - 1}{b - 1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Standard geometric series: $\sum_{i=0}^{k-1} b^i = (b^k - 1)/(b-1)$ for $b \ne 1$.
+\end{proof}
+
+\begin{theorem}[Trivial Repunit Property]
+Every integer $n \ge 2$ satisfies $R(n-1, 2) = n$, so $n$ is a 2-digit repunit in base $n-1$.
+\end{theorem}
+
+\begin{proof}
+$R(n-1,2) = 1 + (n-1) = n$.
+\end{proof}
+
+\begin{lemma}[Strong Repunit Characterization]
+An integer $n \ge 2$ is a strong repunit if and only if $n = R(b,k)$ for some $b \ge 2$, $k \ge 3$. The number $1$ is also a strong repunit.
+\end{lemma}
+
+\begin{proof}
+By the trivial property, every $n \ge 2$ is already a repunit in one base. A second representation requires $k \ge 3$ digits (two distinct 2-digit representations $b+1 = b'+1$ force $b = b'$). For $n = 1$: $R(b,1) = 1$ for all $b$.
+\end{proof}
+
+\begin{lemma}[Enumeration Bounds]
+For $R(b,k) < L = 10^{12}$ with $k \ge 3$: $b \le L^{1/(k-1)}$. The total number of pairs is $O\!\bigl(\sum_{k=3}^{40} L^{1/(k-1)}\bigr) = O(10^6)$.
+\end{lemma}
+
+\begin{proof}
+Since $R(b,k) \ge b^{k-1}$, we need $b \le L^{1/(k-1)}$. For $k = 3$, $b \le 10^6$. For $k \ge 40$, $R(2,k) > L$, so only $k \le 39$ contribute. The sum is dominated by the $k=3$ term.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+repunits = {}
+for k = 3 to 40:
+    for b = 2, 3, ...:
+        r = (b^k - 1) / (b - 1)
+        if r >= 10^12: break
+        repunits.add(r)
+repunits.add(1)
+return sum(repunits)
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(10^6)$ for enumeration and deduplication.
+    \item \textbf{Space:} $O(10^6)$ for the set of repunits.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{336108797689259276}
+\]
+
+\end{document}

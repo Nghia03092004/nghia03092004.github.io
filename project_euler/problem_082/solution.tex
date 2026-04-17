@@ -1,0 +1,98 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{Problem 82: Path Sum: Three Ways}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given an $n \times n$ matrix $M$ (with $n = 80$) of positive integers, find the minimal path sum from any cell in the leftmost column to any cell in the rightmost column, moving only \textbf{right}, \textbf{up}, or \textbf{down} (not left).
+
+\section{Mathematical Foundation}
+
+Define $D[i][j]$ as the minimal cost to reach cell $(i,j)$ from any cell in column~0.
+
+\begin{lemma}[No Vertical Reversal]
+In any optimal path, the portion within a single column is a monotone vertical segment (purely upward or purely downward).
+\end{lemma}
+
+\begin{proof}
+Suppose an optimal path within column $j$ visits rows $r_1, r_2, \ldots, r_m$ in order, and there exist indices $a < b < c$ such that $r_a < r_b > r_c$ (a down-then-up pattern). Then the path traverses extra cells with strictly positive cost that could be avoided by taking a direct vertical route from $r_a$ to $r_c$, contradicting optimality. The up-then-down case is symmetric.
+\end{proof}
+
+\begin{theorem}[Two-Pass Correctness]
+The following column-by-column procedure correctly computes $D[i][n-1]$ for all~$i$:
+
+\textbf{Initialization:} $D[i][0] = M[i][0]$ for all $i$.
+
+\textbf{For each column} $j = 1, \ldots, n-1$:
+\begin{enumerate}
+    \item Set $\mathrm{base}[i] = D[i][j-1] + M[i][j]$ for all $i$.
+    \item \textbf{Downward pass} ($i = 1, \ldots, n-1$):
+    \[ D[i][j] = \min\bigl(\mathrm{base}[i],\; D[i-1][j] + M[i][j]\bigr) \]
+    \item \textbf{Upward pass} ($i = n-2, \ldots, 0$):
+    \[ D[i][j] = \min\bigl(D[i][j],\; D[i+1][j] + M[i][j]\bigr) \]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By Lemma~1, any optimal path arriving at $(i,j)$ either enters from $(i,j-1)$ directly, or enters from $(k,j-1)$ for some $k \neq i$ and travels monotonically to row~$i$ within column~$j$. If $k < i$, the downward pass captures the accumulated cost. If $k > i$, the upward pass captures it. Since both directions are covered and reversals are suboptimal, the two passes yield the correct minimum for every cell in column~$j$.
+\end{proof}
+
+\begin{theorem}
+The answer is $\min_{0 \leq i \leq n-1} D[i][n-1]$.
+\end{theorem}
+
+\begin{proof}
+Any valid path terminates at some cell in column $n-1$. The global minimum is therefore the minimum over all possible ending rows.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Minimum Path Sum (Three Ways)}
+\begin{algorithmic}[1]
+\FOR{$i = 0$ \TO $n-1$}
+    \STATE $D[i] \gets M[i][0]$
+\ENDFOR
+\FOR{$j = 1$ \TO $n-1$}
+    \FOR{$i = 0$ \TO $n-1$}
+        \STATE $\text{base}[i] \gets D[i] + M[i][j]$
+    \ENDFOR
+    \STATE $D[0] \gets \text{base}[0]$
+    \FOR{$i = 1$ \TO $n-1$}
+        \STATE $D[i] \gets \min(\text{base}[i],\; D[i-1] + M[i][j])$
+    \ENDFOR
+    \FOR{$i = n-2$ \textbf{downto} $0$}
+        \STATE $D[i] \gets \min(D[i],\; D[i+1] + M[i][j])$
+    \ENDFOR
+\ENDFOR
+\RETURN $\min(D[0], D[1], \ldots, D[n-1])$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n^2)$. There are $n$ columns, each requiring $O(n)$ work for the two passes.
+    \item \textbf{Space:} $O(n)$. Only two arrays of length $n$ (current DP values and base array) are needed.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{260324}
+\]
+
+\end{document}

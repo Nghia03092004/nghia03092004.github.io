@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 641: A Flea on a Chess Board}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+An infinite chessboard has cells of width~$W$ and height~$H$, coloured in the standard alternating pattern: the cell containing $(x,y)$ is white if $\lfloor x/W\rfloor + \lfloor y/H\rfloor$ is even, black otherwise. A flea starts at $(0,0)$ and jumps by $(dx,dy)$ each step, visiting positions $(k\,dx,k\,dy)$ for $k=0,\ldots,N$. Determine how many white and black cells the flea visits.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Cell Colour]
+For $(x,y)\in\mathbb{R}^2$, define
+\[
+\chi(x,y) = \bigl(\lfloor x/W\rfloor + \lfloor y/H\rfloor\bigr)\bmod 2.
+\]
+\end{definition}
+
+\begin{theorem}[Orbit Period]
+The sequence $(k\,dx\bmod 2W,\;k\,dy\bmod 2H)_{k\ge 0}$ is periodic with exact period
+\[
+L = \operatorname{lcm}\!\left(\frac{2W}{\gcd(dx,2W)},\;\frac{2H}{\gcd(dy,2H)}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+The map $k\mapsto k\,dx\bmod 2W$ is the orbit of~$0$ under repeated addition of $dx$ in $\mathbb{Z}/2W\mathbb{Z}$. By the structure theorem for cyclic groups, the order of $dx$ in this group is $L_x = 2W/\gcd(dx,2W)$. Similarly, the $y$-coordinate has period $L_y = 2H/\gcd(dy,2H)$. The joint sequence returns to $(0,0)$ at the minimal common multiple $k = \operatorname{lcm}(L_x,L_y)$.
+\end{proof}
+
+\begin{lemma}[Colour Determination on the Torus]
+The colour at step~$k$ depends only on $(k\,dx\bmod 2W,\;k\,dy\bmod 2H)$.
+\end{lemma}
+
+\begin{proof}
+Write $k\,dx = 2Wq + r$ with $r = k\,dx\bmod 2W$. Then $\lfloor k\,dx/W\rfloor\bmod 2 = \lfloor r/W\rfloor\bmod 2$. The same holds for the $y$-coordinate, so $\chi(k\,dx,k\,dy)$ is determined by the residue pair.
+\end{proof}
+
+\begin{theorem}[Colour Counting]
+Let $w$ and $b$ denote the white and black counts in one full period $\{0,\ldots,L-1\}$. Then across all $N+1$ positions:
+\[
+W_N = \left\lfloor\frac{N+1}{L}\right\rfloor w + w_r, \qquad r = (N+1)\bmod L,
+\]
+where $w_r$ is the white count among positions $0,\ldots,r-1$.
+\end{theorem}
+
+\begin{proof}
+The colour sequence is periodic with period $L$. The $N+1$ positions decompose into $\lfloor(N+1)/L\rfloor$ complete periods of $w$ white cells each, plus a partial period of length~$r$.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(L)$ where $L\le 4WH/(\gcd(dx,2W)\cdot\gcd(dy,2H))$.
+\item \textbf{Space:} $O(L)$ for the prefix-sum array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{793525366}
+\]
+
+\end{document}

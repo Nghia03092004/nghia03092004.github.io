@@ -1,0 +1,84 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 127: abc-hits}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A triple $(a, b, c)$ is an \emph{abc-hit} if $\gcd(a,b) = 1$, $a < b$, $a + b = c$, and $\mathrm{rad}(abc) < c$. Find $\sum c$ for all abc-hits with $c < 120000$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Pairwise coprimality]
+If $\gcd(a,b) = 1$ and $a + b = c$, then $a$, $b$, $c$ are pairwise coprime.
+\end{theorem}
+
+\begin{proof}
+If $p \mid a$ and $p \mid c$, then $p \mid (c - a) = b$, contradicting $\gcd(a,b) = 1$. Similarly $\gcd(b,c) = 1$.
+\end{proof}
+
+\begin{theorem}[Radical factorization]
+If $a$, $b$, $c$ are pairwise coprime, then $\mathrm{rad}(abc) = \mathrm{rad}(a) \cdot \mathrm{rad}(b) \cdot \mathrm{rad}(c)$.
+\end{theorem}
+
+\begin{proof}
+Pairwise coprimality means the prime divisors of $a$, $b$, $c$ are disjoint. Hence $\prod_{p \mid abc} p = \prod_{p \mid a} p \cdot \prod_{p \mid b} p \cdot \prod_{p \mid c} p$.
+\end{proof}
+
+\begin{lemma}[Reformulated condition]
+The abc-hit condition becomes $\mathrm{rad}(a) \cdot \mathrm{rad}(b) < c / \mathrm{rad}(c)$.
+\end{lemma}
+
+\begin{proof}
+Divide $\mathrm{rad}(a) \cdot \mathrm{rad}(b) \cdot \mathrm{rad}(c) < c$ by $\mathrm{rad}(c) > 0$.
+\end{proof}
+
+\begin{lemma}[Coprimality via radicals]
+$\gcd(a,b) = 1$ iff $\gcd(\mathrm{rad}(a), \mathrm{rad}(b)) = 1$.
+\end{lemma}
+
+\begin{proof}
+A prime $p$ divides $\gcd(a,b)$ iff it divides both $\mathrm{rad}(a)$ and $\mathrm{rad}(b)$.
+\end{proof}
+
+\begin{theorem}[Early termination]
+Iterating $a$ in order of increasing $\mathrm{rad}(a)$, once $\mathrm{rad}(a) \ge c/\mathrm{rad}(c)$, no further $a$ can yield an abc-hit for that $c$.
+\end{theorem}
+
+\begin{proof}
+$\mathrm{rad}(a) \cdot \mathrm{rad}(b) \ge \mathrm{rad}(a) \ge c/\mathrm{rad}(c)$, violating the condition.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve $\mathrm{rad}(n)$ for $n < N = 120000$.
+\item Sort indices by radical.
+\item For each $c = 3, \ldots, N-1$: iterate $a$ by increasing radical, set $b = c - a$, check $a < b$, $\gcd(\mathrm{rad}(a), \mathrm{rad}(b)) = 1$, and $\mathrm{rad}(a) \cdot \mathrm{rad}(b) < c/\mathrm{rad}(c)$.
+\item Sum qualifying $c$ values.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log \log N)$ for sieve, $O(N \log N)$ for sort and main search (empirical).
+\item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{18407904}
+\]
+
+\end{document}

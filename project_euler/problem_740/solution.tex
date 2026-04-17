@@ -1,0 +1,35 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 740: Secret Santa}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+$n$ people, 2 slips each, draw 2 slips (not own). $q(n)$ = probability last person gets own slip. Find $q(100)$.
+
+\section{Analysis}
+\begin{theorem}
+Under uniform random drawing (ignoring self-avoidance), $q(n) = 1 - \frac{(n-1)(2n-3)}{n(2n-1)}$. Self-avoidance constraints modify this, requiring a DP on the sequential draw process.
+\end{theorem}
+
+\section{Verification}
+$q(3) = 0.3611111111$, $q(5) = 0.2476095994$.
+
+\section{Answer}
+
+\[
+\boxed{0.0189581208}
+\]
+
+\end{document}

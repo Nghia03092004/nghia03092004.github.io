@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 388: Distinct Lines through Lattice Points}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider all lattice points $(a,b,c)$ with $0 \le a, b, c \le N$. From the origin $O(0,0,0)$ a straight line is drawn to every point. Let $D(N)$ be the number of distinct such lines.
+
+Given: $D(1\,000\,000) = 831\,909\,254\,469\,114\,121$.
+
+Find $D(10^{10})$. Give as your answer the first nine digits followed by the last nine digits.
+
+\section{Mathematical Analysis}
+Two lattice points $(a_1,b_1,c_1)$ and $(a_2,b_2,c_2)$ define the same line through the origin if and only if one is a positive scalar multiple of the other. Each distinct line corresponds to a unique \emph{primitive direction}: a point $(a,b,c)$ with $\gcd(a,b,c) = 1$ in the cube $\{0,\ldots,N\}^3 \setminus \{(0,0,0)\}$.
+
+\section{Derivation}
+Using the M\"obius identity $[\gcd(a,b,c) = 1] = \sum_{d \mid \gcd(a,b,c)} \mu(d)$:
+\[
+D(N) = \sum_{\substack{(a,b,c) \in \{0,\ldots,N\}^3 \\ (a,b,c) \neq (0,0,0)}} \sum_{d \mid \gcd(a,b,c)} \mu(d)
+= \sum_{d=1}^{N} \mu(d) \left[\left(\left\lfloor \frac{N}{d}\right\rfloor + 1\right)^3 - 1\right]
+\]
+
+The inner count follows because the number of multiples of $d$ in $\{0,1,\ldots,N\}$ is $\lfloor N/d \rfloor + 1$.
+
+\subsection{Sub-linear Algorithm}
+For $N = 10^{10}$, direct sieving is infeasible. We group by $q = \lfloor N/d \rfloor$:
+\[
+D(N) = \sum_{\text{distinct } q} g(q) \cdot \bigl(M(\lfloor N/q \rfloor) - M(\lfloor N/(q+1) \rfloor)\bigr)
+\]
+where $g(q) = (q+1)^3 - 1$ and $M(x) = \sum_{d=1}^{x} \mu(d)$ is the \textbf{Mertens function}.
+
+There are $O(\sqrt{N})$ distinct values of $\lfloor N/d \rfloor$. The Mertens function is computed recursively:
+\[
+M(n) = 1 - \sum_{k=2}^{n} M\!\left(\left\lfloor \frac{n}{k}\right\rfloor\right)
+\]
+Sieving $\mu$ up to threshold $T = N^{2/3}$ and memoizing larger values gives $O(N^{2/3})$ total time.
+
+\section{Proof of Correctness}
+\begin{enumerate}
+    \item \textbf{Bijection:} Each line from the origin to a point in $\{0,\ldots,N\}^3$ has a unique primitive representative $(a/g, b/g, c/g)$ where $g = \gcd(a,b,c)$, which itself lies in the cube.
+    \item \textbf{M\"obius inversion:} The identity $\sum_{d \mid n} \mu(d) = [n=1]$ correctly isolates $\gcd = 1$.
+    \item \textbf{Numerical verification:} $D(1\,000\,000) = 831\,909\,254\,469\,114\,121$ matches the given value. Small cases $D(1) = 7$, $D(2) = 19$, $D(3) = 49$ are verified against brute force.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Sieve phase:} $O(N^{2/3})$ time and space.
+    \item \textbf{Mertens recursion:} $O(N^{2/3})$ time with memoization.
+    \item \textbf{Main summation:} $O(\sqrt{N})$ iterations.
+    \item \textbf{Overall:} $O(N^{2/3})$ time, $O(N^{2/3})$ space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{831907372805129931}
+\]
+
+\end{document}

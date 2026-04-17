@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 651: Patterned Cylinders}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A cylinder is formed by a ring of $n$ cells, each coloured with one of $k$ colours. Two colourings are considered identical if one can be obtained from the other by rotation of the cylinder. Determine the number $N(n,k)$ of distinct colourings.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Burnside's Lemma]
+Let a finite group $G$ act on a finite set $X$. The number of distinct orbits is
+\[
+|X/G| = \frac{1}{|G|}\sum_{g \in G} |X^g|,
+\]
+where $X^g = \{x \in X : g \cdot x = x\}$.
+\end{theorem}
+
+\begin{proof}
+Define the set $S = \{(g,x) \in G \times X : g \cdot x = x\}$. Counting by group elements gives $|S| = \sum_{g \in G}|X^g|$. Counting by set elements gives $|S| = \sum_{x \in X}|\mathrm{Stab}(x)|$. By the orbit-stabiliser theorem, $|\mathrm{Stab}(x)| = |G|/|\mathrm{Orb}(x)|$, so
+\[
+\sum_{x \in X} \frac{|G|}{|\mathrm{Orb}(x)|} = |G| \sum_{O \in X/G} \sum_{x \in O} \frac{1}{|O|} = |G| \cdot |X/G|.
+\]
+Dividing by $|G|$ yields the result.
+\end{proof}
+
+\begin{lemma}
+Let $G = \mathbb{Z}/n\mathbb{Z}$ act on $X = \{1,\ldots,k\}^n$ by cyclic rotation. Rotation by $d$ positions fixes exactly $k^{\gcd(d,n)}$ colourings.
+\end{lemma}
+
+\begin{proof}
+A colouring $(c_0, \ldots, c_{n-1})$ is fixed by rotation by $d$ iff $c_i = c_{i+d \bmod n}$ for all $i$. This forces $c_i = c_j$ whenever $i \equiv j \pmod{\gcd(d,n)}$. There are $\gcd(d,n)$ equivalence classes, each freely colourable, giving $k^{\gcd(d,n)}$ fixed colourings.
+\end{proof}
+
+\begin{theorem}[Necklace Formula]
+The number of distinct necklaces is
+\[
+N(n,k) = \frac{1}{n}\sum_{d \mid n} \varphi(n/d)\, k^d,
+\]
+where $\varphi$ is Euler's totient function.
+\end{theorem}
+
+\begin{proof}
+By Burnside's Lemma and Lemma~2:
+\[
+N(n,k) = \frac{1}{n}\sum_{d=0}^{n-1} k^{\gcd(d,n)}.
+\]
+Grouping by $e = \gcd(d,n)$: for each divisor $e \mid n$, there are $\varphi(n/e)$ integers $d \in \{0,\ldots,n-1\}$ with $\gcd(d,n)=e$. Hence
+\[
+N(n,k) = \frac{1}{n}\sum_{e \mid n} \varphi(n/e)\, k^e. \qedhere
+\]
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function NecklaceCount(n, k, mod):
+    divisors <- FindDivisors(n)
+    result <- 0
+    for each d in divisors:
+        phi_val <- EulerTotient(n / d)
+        result <- result + phi_val * ModPow(k, d, mod)
+    result <- result * ModInverse(n, mod) mod mod
+    return result
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\sqrt{n} \cdot \log k)$. Finding divisors costs $O(\sqrt{n})$; each of the $O(\sqrt{n})$ divisors requires $O(\sqrt{n})$ for $\varphi$ and $O(\log k)$ for modular exponentiation.
+\item \textbf{Space:} $O(\sqrt{n})$ for storing divisors.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{448233151}
+\]
+
+\end{document}

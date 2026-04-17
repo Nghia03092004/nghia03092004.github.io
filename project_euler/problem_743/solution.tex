@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 743: Window into a Matrix}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider a $2 \times n$ binary matrix where every $2 \times k$ contiguous submatrix has entry sum exactly~$k$. Let $A(k,n)$ count the number of such matrices.
+
+Given: $A(3,9) = 560$, $A(4,20) = 1\,060\,870$. Find $A(10^8, 10^{16}) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Column-Sum Periodicity]
+Let $c_j$ denote the column sum of column~$j$. The window constraint implies that $(c_j)$ is periodic with period dividing~$k$, and each period of $k$ consecutive sums totals~$k$.
+\end{theorem}
+
+\begin{proof}
+For any valid~$j$:
+\[
+\sum_{i=j}^{j+k-1} c_i = k \quad\text{and}\quad \sum_{i=j+1}^{j+k} c_i = k.
+\]
+Subtracting gives $c_{j+k} = c_j$, establishing periodicity. The sum over one period equals~$k$ by the window constraint applied to the first window.
+\end{proof}
+
+\begin{theorem}[Decomposition into Column Patterns]
+A valid matrix is determined by a column-sum pattern $(c_1,\ldots,c_k)$ with $c_i \in \{0,1,2\}$ and $\sum c_i = k$, together with a binary choice for each column having $c_i = 1$.
+\end{theorem}
+
+\begin{proof}
+Given column sums, columns with sum~$0$ or~$2$ are forced. Columns with sum~$1$ have exactly two arrangements. The window constraint imposes no further coupling beyond the column sums.
+\end{proof}
+
+\begin{theorem}[Closed-Form for $A(k,n)$]
+When $k \mid n$:
+\[
+A(k,n) = \sum_{\substack{m=0 \\ k-m \text{ even}}}^{k} \binom{k}{m}\binom{k-m}{(k-m)/2} \cdot 2^{mn/k}.
+\]
+\end{theorem}
+
+\begin{proof}
+Choose $m$ positions for columns with sum~$1$: $\binom{k}{m}$ ways. The remaining $k-m$ positions split into $(k-m)/2$ zeros and $(k-m)/2$ twos: $\binom{k-m}{(k-m)/2}$ ways (requiring $k-m$ even). Each such pattern over $n/k$ complete periods contributes $2^{mn/k}$ matrices.
+\end{proof}
+
+\begin{lemma}[Modular Evaluation]
+For $k = 10^8$ and $p = 10^9+7$ (prime, $k < p$), all binomial coefficients are computed via precomputed factorials modulo~$p$, and powers of~$2$ via fast exponentiation.
+\end{lemma}
+
+\begin{proof}
+Since $k < p$, no factorial vanishes modulo~$p$, so modular inverses exist. Fast exponentiation computes $2^{mn/k} \bmod p$ in $O(\log(mn/k))$ time.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Precompute $\mathrm{fact}[0..k]$ and $\mathrm{inv\_fact}[0..k]$ modulo~$p$.
+\item For each $m$ from $0$ to $k$ with $k - m$ even:
+  \begin{enumerate}
+  \item Compute $\binom{k}{m}\binom{k-m}{(k-m)/2} \bmod p$.
+  \item Compute $2^{m \cdot n/k} \bmod p$.
+  \item Accumulate the product.
+  \end{enumerate}
+\item Return the accumulated sum modulo~$p$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(k)$ for precomputation and summation. For $k = 10^8$, this is feasible.
+\item \textbf{Space:} $O(k)$ for factorial tables.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{259158998}
+\]
+
+\end{document}

@@ -1,0 +1,40 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 705: Total Inversion Count of Digit Strings}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a digit string $d_1 d_2 \cdots d_k$, the inversion count is the number of pairs $(i,j)$ with $i < j$ and $d_i > d_j$. Let $T(n)$ be the total inversion count over all $n$-digit strings (digits 0--9). Find $T(10^{16}) \bmod 10^9 + 7$.
+
+\section{Mathematical Analysis}
+Each $n$-digit string uses digits $\{0,1,\ldots,9\}$. For a fixed pair of positions $(i,j)$ with $i<j$, the expected number of inversions is the probability that a random digit is greater than another random digit.
+
+For two independent uniform digits from $\{0,\ldots,9\}$, the probability of inversion is $\frac{45}{100}$ (there are $\binom{10}{2}=45$ ordered pairs with $d_i > d_j$ out of $100$ total).
+
+\section{Derivation}
+The number of position pairs is $\binom{n}{2}$. Each pair contributes $45$ inversions on average across all $10^n$ strings (since there are $45 \cdot 10^{n-2}$ strings where that specific pair is inverted). The total inversion count is:
+
+$$T(n) = \binom{n}{2} \cdot 45 \cdot 10^{n-2}$$
+
+$$= \frac{n(n-1)}{2} \cdot 45 \cdot 10^{n-2} = \frac{45 \cdot n(n-1)}{2} \cdot 10^{n-2}$$
+
+For $n = 10^{16}$, compute modulo $10^9+7$.
+
+\section{Proof of Correctness}
+By linearity of summation, the total inversions across all strings equals the number of (string, position-pair) combinations where an inversion occurs. Each position pair $(i,j)$ sees exactly $45 \cdot 10^{n-2}$ inversions (choose the ordered pair of digits in 45 ways, and the remaining $n-2$ digits in $10^{n-2}$ ways).
+
+\section{Complexity Analysis}
+$O(\log n)$ using modular exponentiation.
+
+\section{Answer}
+
+\[
+\boxed{480440153}
+\]
+
+\end{document}

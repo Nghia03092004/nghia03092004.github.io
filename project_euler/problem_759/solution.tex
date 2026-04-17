@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 759: A Squared Recurrence}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+$f(1)=1, f(2n)=2f(n), f(2n+1)=2n+1+2f(n)+f(n)/n$. $S(n)=\sum f(i)^2$. Given $S(10)=1530, S(100)=4798445$. Find $S(10^{{16}}) \bmod 10^9+7$.
+
+\section{Mathematical Analysis}
+The recurrence suggests $f$ is related to a divide-and-conquer structure on binary representations. Since $f(2n)=2f(n)$, the function doubles with even arguments, similar to ruler functions.
+
+For the sum of squares, we can decompose based on even/odd indices and use the binary structure to compute $S(N)$ in $O(\log N)$ recursive calls, each doing $O(1)$ work.
+
+\section{Answer}
+
+\[
+\boxed{282771304}
+\]
+
+\end{document}

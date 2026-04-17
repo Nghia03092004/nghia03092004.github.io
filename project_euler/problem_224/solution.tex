@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 224: Almost Right-angled Triangles II}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count ordered triples $(a, b, c)$ with $a \leq b \leq c$, $a^2 + b^2 = c^2 - 1$, and $a + b + c \leq L = 75{,}000{,}000$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Factorization]
+The equation $a^2 + b^2 = c^2 - 1$ is equivalent to $(c-b)(c+b) = a^2 + 1$.
+\end{theorem}
+\begin{proof}
+$c^2 - b^2 = a^2 + 1$ factors as $(c-b)(c+b) = a^2 + 1$.
+\end{proof}
+
+\begin{theorem}[Only Even $a$]
+No solutions exist with $a$ odd.
+\end{theorem}
+\begin{proof}
+Let $d = c - b$, $e = c + b$. For $b, c \in \mathbb{Z}$, $d$ and $e$ must share parity. For odd $a$, $de = a^2 + 1 \equiv 2 \pmod{4}$. If both $d, e$ are odd, $de$ is odd --- contradiction. If both are even, $4 \mid de$ --- contradiction. Hence no integer solution exists.
+\end{proof}
+
+\begin{theorem}[Parametrization for Even $a = 2m$]
+Set $n = 4m^2 + 1$ (odd). Each divisor $d \mid n$ with $d \leq \sqrt{n}$ yields $e = n/d$, $b = (e-d)/2$, $c = (e+d)/2$.
+\end{theorem}
+\begin{proof}
+Since $n$ is odd, both $d$ and $e$ are odd, ensuring $b, c \in \mathbb{Z}$.
+\end{proof}
+
+\begin{lemma}[Validity Constraints]
+A divisor pair $(d, e)$ gives a valid triple iff $e - d \geq 4m$ and $2m + e \leq L$.
+\end{lemma}
+\begin{proof}
+$b \geq a$ requires $(e-d)/2 \geq 2m$. The perimeter is $2m + e$.
+\end{proof}
+
+\begin{theorem}[Sieve Factorization]
+A prime $p$ divides $4m^2 + 1$ iff $p \equiv 1 \pmod{4}$.
+\end{theorem}
+\begin{proof}
+$p \mid 4m^2 + 1$ iff $(2m)^2 \equiv -1 \pmod{p}$, which has solutions iff $-1$ is a QR mod $p$, iff $p \equiv 1 \pmod{4}$ by the first supplement to quadratic reciprocity.
+\end{proof}
+
+\begin{lemma}[Square Root of $-1$]
+For $p \equiv 1 \pmod{4}$ with primitive root $g$, $r = g^{(p-1)/4}$ satisfies $r^2 \equiv -1 \pmod{p}$.
+\end{lemma}
+\begin{proof}
+$r^2 = g^{(p-1)/2} \equiv -1 \pmod{p}$ by Euler's criterion.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item For each prime $p \equiv 1 \pmod{4}$, compute $r = \sqrt{-1} \bmod p$ and find residue classes $m_0, m_1$ with $p \mid 4m^2+1$.
+\item Sieve $n(m) = 4m^2 + 1$ for $m = 1, \ldots, L/6$.
+\item For each $m$, enumerate divisors $d$ of $n(m)$ with $d \leq \sqrt{n}$, check constraints, and count.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(M \log\log M + M\bar{d})$ where $M = L/6$ and $\bar{d}$ is the average divisor count.
+\item \textbf{Space:} $O(M)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4137330}
+\]
+
+\end{document}

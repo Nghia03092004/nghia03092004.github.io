@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 287: Quadtree Encoding}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Encode a $2^N \times 2^N$ image via a quadtree. Pixel $(x,y)$ is black iff $(x - 2^{N-1})^2 + (y - 2^{N-1})^2 \le 2^{2(N-1)}$. Find the encoding length for $N = 24$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Encoding Length Recurrence]
+Let $L(x_0, y_0, s)$ be the encoding length of region $[x_0, x_0+s) \times [y_0, y_0+s)$:
+\[
+L(x_0, y_0, s) = \begin{cases} 2 & \text{if uniform,} \\ 1 + \sum_{i=1}^{4} L(Q_i) & \text{if mixed.} \end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+Directly from the encoding specification: 2 bits for uniform regions, 1 bit prefix plus four sub-encodings for mixed regions.
+\end{proof}
+
+\begin{lemma}[Uniform Region Tests]
+For the disk $\{(x,y): (x-c)^2+(y-c)^2 \le r^2\}$:
+\begin{enumerate}
+\item \textbf{All-black:} All four corner pixels satisfy the disk inequality.
+\item \textbf{All-white:} The pixel in the region closest to center $(c,c)$ fails the inequality.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) The disk is convex. Every pixel in the square lies in the convex hull of the four corners. If the corners are in a convex set, so is every convex combination thereof.
+
+(2) The closest-point test: if $(\mathrm{clamp}(c, x_0, x_0\!+\!s\!-\!1),\, \mathrm{clamp}(c, y_0, y_0\!+\!s\!-\!1))$ is outside the disk, then every point in the region, being at least as far from center, is also outside.
+\end{proof}
+
+\begin{theorem}[Quadtree Complexity for a Disk]
+The quadtree for a disk of radius $r = 2^{N-1}$ on a $2^N \times 2^N$ grid has $O(2^N)$ nodes.
+\end{theorem}
+
+\begin{proof}
+At depth $d$ (squares of side $2^{N-d}$), the circle boundary intersects $O(2^d)$ squares (boundary length $O(2^N)$ divided by side length $2^{N-d}$). Total internal nodes: $\sum_{d=0}^{N} O(2^d) = O(2^N)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function encode(x0, y0, s, c, r_sq):
+    if all_inside(corners): return 2
+    if closest_outside(x0, y0, s): return 2
+    h = s / 2
+    return 1 + encode(4 quadrants of size h)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(2^N)$ with $N = 24$. Each node requires $O(1)$ work.
+\item \textbf{Space:} $O(N) = O(24)$ for the recursion stack.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{313135496}
+\]
+
+\end{document}

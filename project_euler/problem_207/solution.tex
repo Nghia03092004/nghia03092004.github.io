@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 207: Integer Partition Equations}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For the equation $4^t = 2^t + k$, substituting $x = 2^t$ gives $k = x(x-1)$. Each integer $x \geq 2$ produces a valid partition. A partition is \emph{perfect} if $t$ is a positive integer (i.e., $x$ is a power of 2). Let $P(k)$ be the ratio of perfect to total partitions among all valid $k$-values up to $k$. Find the least $k$ with $P(k) < 1/12345$.
+
+\section{Mathematical Analysis}
+
+\subsection{Setup}
+The valid $k$-values form the sequence $k_x = x(x-1)$ for $x = 2, 3, 4, \ldots$, giving $k = 2, 6, 12, 20, 30, \ldots$.
+
+\begin{itemize}
+    \item \textbf{Total partitions} up to $k = x(x-1)$: exactly $x - 1$.
+    \item \textbf{Perfect partitions} up to $k = x(x-1)$: $\lfloor \log_2 x \rfloor$, since perfect means $x = 2^m$.
+\end{itemize}
+
+\subsection{Ratio at Boundary Points}
+At $k = x(x-1)$:
+\[
+P(k) = \frac{\lfloor \log_2 x \rfloor}{x - 1}.
+\]
+Between consecutive boundary points, $P$ can only stay constant or increase (if a perfect partition falls in the gap). Hence $P$ achieves its minimum at left endpoints.
+
+\subsection{Threshold Condition}
+We need:
+\[
+\frac{\lfloor \log_2 x \rfloor}{x - 1} < \frac{1}{12345} \iff x - 1 > 12345 \cdot \lfloor \log_2 x \rfloor.
+\]
+
+For $\lfloor \log_2 x \rfloor = 17$ (i.e., $131072 \leq x < 262144$):
+\[
+x - 1 > 12345 \times 17 = 209865 \implies x \geq 209867.
+\]
+
+We verify that no smaller $x$ with $\lfloor \log_2 x \rfloor \leq 16$ satisfies the condition:
+for $\lfloor \log_2 x \rfloor = 16$, we'd need $x > 12345 \times 16 + 1 = 197521$, but $x < 131072$ in that range (since $\lfloor \log_2 x \rfloor = 16$ means $x < 2^{17} = 131072$). Since $131071 < 197521$, this is impossible. So $x = 209867$ is indeed the first.
+
+\subsection{Final Answer}
+\[
+k = 209867 \times 209866 = 44{,}043{,}947{,}822.
+\]
+
+\section{Result}
+\[
+\boxed{44{,}043{,}947{,}822}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(x^*) \approx O(2 \times 10^5)$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{44043947822}
+\]
+
+\end{document}

@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 659: Largest Prime}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $P(k)$ as the largest prime dividing two successive terms of $n^2 + k^2$.
+Find the last 18 digits of $\displaystyle\sum_{k=1}^{10^7} P(k)$.
+
+\section{Key Theorem}
+
+\begin{theorem}
+$P(k)$ equals the largest prime factor of $4k^2 + 1$.
+\end{theorem}
+
+\begin{proof}
+If $p \mid \gcd(n^2+k^2, (n+1)^2+k^2)$, then $p \mid (2n+1)$ and $p \mid (n^2+k^2)$.
+
+From $2n+1 \equiv 0 \pmod{p}$: $n \equiv \frac{p-1}{2} \pmod{p}$.
+
+Then $n^2 + k^2 \equiv \frac{(p-1)^2}{4} + k^2 \equiv \frac{1+4k^2}{4} \pmod{p}$.
+
+So $p \mid (4k^2+1)$.
+
+Conversely, for any prime $p \mid (4k^2+1)$, set $n = \frac{p-1}{2}$ to verify $p$ divides two successive terms.
+
+Hence $P(k) = \max\{p : p \text{ prime}, p \mid (4k^2+1)\}$.
+\end{proof}
+
+\section{Properties of $4k^2+1$}
+
+\begin{proposition}
+Every prime factor $p$ of $4k^2+1$ satisfies $p \equiv 1 \pmod{4}$ or $p = 4k^2+1$ itself is prime.
+\end{proposition}
+
+\begin{proof}
+$4k^2 \equiv -1 \pmod{p}$ means $-1$ is a quadratic residue mod $p$, so $p \equiv 1 \pmod{4}$ by Euler's criterion (for odd $p > 2$).
+\end{proof}
+
+\section{Sieve Algorithm}
+
+\begin{enumerate}
+\item Sieve primes $p \equiv 1 \pmod{4}$ up to $\sqrt{4\cdot(10^7)^2+1} \approx 2\times 10^7$.
+\item For each prime $p$, find $r$ with $r^2 \equiv -1 \pmod{p}$ (using Tonelli-Shanks).
+\item Mark $k$ values: $2k \equiv \pm r \pmod{p}$, i.e., $k \equiv \frac{\pm r}{2} \pmod{p}$.
+\item Track $P[k] = \max$ prime factor found.
+\item For remaining $k$ where $4k^2+1$ is not fully factored, do primality test.
+\end{enumerate}
+
+\section{Answer}
+
+\[
+\boxed{238518915714422000}
+\]
+
+\end{document}

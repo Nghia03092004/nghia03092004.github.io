@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 250: 250250}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the number of non-empty subsets of $\{1^1,2^2,\ldots,250250^{250250}\}$ whose element sum is divisible by $250$, modulo $10^{16}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Residue reduction]\label{thm:res}
+A subset $T$ has $\sum_{i\in T}i^i\equiv 0\pmod{250}$ iff $\sum_{i\in T}r_i\equiv 0\pmod{250}$, where $r_i=i^i\bmod 250$.
+\end{theorem}
+
+\begin{proof}
+$\sum a_i\equiv\sum(a_i\bmod m)\pmod{m}$ for any integers $a_i$ and modulus $m$.
+\end{proof}
+
+\begin{theorem}[DP on residue classes]\label{thm:dp}
+Let $dp[j]$ count subsets (including empty) with sum $\equiv j\pmod{250}$. Processing element $i$ with residue $r_i$:
+\[
+dp'[j]=dp[j]+dp[(j-r_i)\bmod 250].
+\]
+After all $N=250250$ elements, $dp[j]$ is correct modulo $10^{16}$.
+\end{theorem}
+
+\begin{proof}
+Induction on elements processed. Base: $dp[0]=1$, else $0$ (empty set). For element $i$: subsets of $\{1,\ldots,i\}$ with sum $\equiv j$ either exclude $i$ (old $dp[j]$) or include $i$ (old $dp[(j-r_i)\bmod 250]$). The transition is exhaustive and mutually exclusive.
+\end{proof}
+
+\begin{lemma}[Periodicity]\label{lem:period}
+$r_i=i^i\bmod 250$ has period dividing $500$.
+\end{lemma}
+
+\begin{proof}
+By CRT, $250=2\times 125$. Mod~2: period~2. Mod~125: $i^i\bmod 125$ depends on $i\bmod\mathrm{lcm}(125,\varphi(125))=\mathrm{lcm}(125,100)=500$. Combined: $\mathrm{lcm}(2,500)=500$.
+\end{proof}
+
+\begin{theorem}[Final answer]\label{thm:final}
+The count of non-empty qualifying subsets is $(dp[0]-1)\bmod 10^{16}$.
+\end{theorem}
+
+\begin{proof}
+$dp[0]$ includes the empty subset (sum $0\equiv 0$). Subtract~1 to exclude it.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function Solve():
+    dp[0..249] = 0; dp[0] = 1
+    for i = 1 to 250250:
+        r = pow(i, i, 250)
+        new_dp = copy(dp)
+        for j = 0 to 249:
+            new_dp[(j+r) % 250] += dp[j]
+            new_dp[(j+r) % 250] %= 10^16
+        dp = new_dp
+    return (dp[0] - 1) % 10^16
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\times 250)=O(250250\times 250)\approx 6.25\times 10^7$ modular additions.
+\item \textbf{Space:} $O(250)$ for the DP array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1425480602091519}
+\]
+
+\end{document}

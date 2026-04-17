@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 267: Billionaire}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+You start with \$1. You toss a fair coin 1000 times. Before each toss, you choose a fixed fraction $f \in (0,1)$ of your current wealth to bet. If heads, you gain $2f$ times your wealth (multiply by $1+2f$); if tails, you lose $f$ times your wealth (multiply by $1-f$). Find the value of $f$ that maximizes the probability of having at least \$1,000,000,000 after 1000 tosses. Give this probability to 12 decimal places.
+
+\section{Mathematical Analysis}
+
+\subsection{Wealth Model}
+After $n = 1000$ tosses with $k$ heads and $n-k$ tails:
+\[ W(k) = (1+2f)^k \cdot (1-f)^{n-k} \]
+
+We need $W(k) \geq 10^9$, i.e.:
+\[ k \cdot \ln(1+2f) + (n-k) \cdot \ln(1-f) \geq 9\ln 10 \]
+
+\subsection{Optimal Fraction for Given $k$}
+For a fixed number of heads $k$, the wealth $W(k)$ is maximized over $f$ at:
+\[ \frac{\partial}{\partial f}\left[k\ln(1+2f) + (n-k)\ln(1-f)\right] = \frac{2k}{1+2f} - \frac{n-k}{1-f} = 0 \]
+Solving: $f^* = \frac{3k - n}{2n}$, valid when $k > n/3$.
+
+\subsection{Minimum Heads Required}
+Substituting $f^*$, the maximum wealth for $k$ heads is:
+\[ W_{\max}(k) = \left(\frac{3k}{n}\right)^k \cdot \left(\frac{3(n-k)}{2n}\right)^{n-k} \]
+
+The minimum $k$ (call it $k_{\min}$) satisfying $W_{\max}(k) \geq 10^9$ is found numerically. For $n = 1000$, $k_{\min} = 432$.
+
+\subsection{Probability Calculation}
+The probability of at least $k_{\min}$ heads out of $n$ fair coin tosses:
+\[ P = \sum_{k=k_{\min}}^{n} \binom{n}{k} \cdot 2^{-n} = \frac{1}{2^{1000}} \sum_{k=432}^{1000} \binom{1000}{k} \]
+
+This is computed exactly using integer arithmetic for $\binom{1000}{k}$ and arbitrary precision division.
+
+\subsection{Proof of Optimality}
+For any $f$, the minimum number of heads needed is:
+\[ k_{\min}(f) = \left\lceil \frac{9\ln 10 - n\ln(1-f)}{\ln(1+2f) - \ln(1-f)} \right\rceil \]
+
+The continuous function $g(f)$ being minimized achieves its minimum at the $f^*$ corresponding to the boundary $k = k_{\min}$. Since the probability $P$ depends only on $k_{\min}$ (through the binomial CDF), the optimal $f$ is any value achieving the minimum $k_{\min}$.
+
+\section{Complexity}
+\begin{itemize}
+    \item Finding $k_{\min}$: $O(n)$ evaluations of logarithmic expressions.
+    \item Computing probability: $O(n)$ binomial coefficient computations.
+    \item Total: $O(n)$ where $n = 1000$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.999992836187}
+\]
+
+\end{document}

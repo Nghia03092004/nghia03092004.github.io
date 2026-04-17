@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 788: Dominating Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer with exactly $n$ digits is called dominating if some digit appears more than $n/2$ times. Let $D(N)$ be the number of dominating positive integers with at most $N$ digits. Compute
+\[
+  D(2022) \bmod 1{,}000{,}000{,}007.
+\]
+
+\section{Mathematical Foundation}
+
+For a fixed length $n$, define
+\[
+  T(n) = \sum_{k=\lfloor n/2 \rfloor + 1}^{n} \binom{n}{k} 9^{n-k}.
+\]
+
+\begin{lemma}
+For fixed $n$ and fixed digit $d$, the number of length-$n$ strings in which $d$ appears exactly $k$ times is
+\[
+  \binom{n}{k}9^{n-k}.
+\]
+\end{lemma}
+
+\begin{proof}
+Choose the $k$ positions occupied by $d$, then fill the remaining positions with any of the $9$ digits different from $d$.
+\end{proof}
+
+\begin{lemma}
+For a fixed length $n$, at most one digit can appear more than $n/2$ times.
+\end{lemma}
+
+\begin{proof}
+If two different digits each appeared more than $n/2$ times, the total number of digit occurrences would exceed $n$.
+\end{proof}
+
+\begin{theorem}
+The number of dominating positive integers with exactly $n$ digits is
+\[
+  9T(n).
+\]
+\end{theorem}
+
+\begin{proof}
+By the previous lemma there is no overlap between different dominating digits, so we may count by the dominating digit.
+
+For a fixed nonzero digit $d \in \{1,\dots,9\}$ and fixed $k>n/2$:
+\begin{itemize}
+  \item total strings with exactly $k$ copies of $d$: $\binom{n}{k}9^{n-k}$,
+  \item among them, those with leading zero: $\binom{n-1}{k}9^{n-1-k}$.
+\end{itemize}
+So the count for $d \neq 0$ is
+\[
+  \binom{n}{k}9^{n-k} - \binom{n-1}{k}9^{n-1-k}.
+\]
+For $d=0$, the leading digit cannot be zero, so the count is
+\[
+  \binom{n-1}{k}9^{n-k}.
+\]
+Summing over $d=1,\dots,9$ and then adding the $d=0$ contribution gives
+\[
+  9\left(\binom{n}{k}9^{n-k} - \binom{n-1}{k}9^{n-1-k}\right)
+  + \binom{n-1}{k}9^{n-k}
+  = 9\binom{n}{k}9^{n-k}.
+\]
+Now sum over all $k>n/2$.
+\end{proof}
+
+Therefore
+\[
+  D(N) = 9 \sum_{n=1}^{N} \sum_{k=\lfloor n/2 \rfloor + 1}^{n} \binom{n}{k} 9^{n-k}.
+\]
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Precompute factorials and inverse factorials modulo $10^9+7$ up to $N=2022$.
+  \item Precompute powers of $9$.
+  \item For each $n=1,\dots,2022$, evaluate
+  \[
+    T(n) = \sum_{k=\lfloor n/2 \rfloor + 1}^{n} \binom{n}{k} 9^{n-k},
+  \]
+  then add $9T(n)$ to the total.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item Time: $O(N^2)$.
+  \item Space: $O(N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{471745499}
+\]
+
+\end{document}

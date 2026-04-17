@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 407: Idempotents}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $M(n)$ be the largest value of $a < n$ such that $a^2 \equiv a \pmod{n}$.
+
+\textbf{Find:} $\displaystyle\sum_{n=1}^{10^7} M(n)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Idempotent Equation}
+
+The condition $a^2 \equiv a \pmod{n}$ is equivalent to $n \mid a(a-1)$.
+Since $\gcd(a, a-1) = 1$, by the Chinese Remainder Theorem, if
+$n = p_1^{e_1} \cdot p_2^{e_2} \cdots p_k^{e_k}$,
+then each $p_i^{e_i}$ must divide either $a$ or $a - 1$.
+
+\begin{theorem}
+The number of solutions to $a^2 \equiv a \pmod{n}$ with $0 \le a < n$ is exactly $2^k$,
+where $k$ is the number of distinct prime divisors of $n$.
+\end{theorem}
+
+\begin{proof}
+For each prime power $p_i^{e_i}$, there are exactly two choices: $a \equiv 0$ or $a \equiv 1 \pmod{p_i^{e_i}}$.
+By CRT, each combination of choices yields a unique solution modulo $n$.
+\end{proof}
+
+\subsection{Finding $M(n)$}
+
+We enumerate all $2^k$ solutions and take the maximum less than $n$.
+Since one solution is always $a = 0$ and another is $a = 1$,
+$M(n) \ge 1$ for $n \ge 2$.
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Build a smallest-prime-factor sieve up to $N = 10^7$.
+  \item For each $n$: factorize, enumerate $2^k$ CRT idempotents, record the maximum.
+  \item Sum all $M(n)$.
+\end{enumerate}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item Sieve: $O(N \log \log N)$.
+  \item Per $n$: $O(2^k)$ where $k \le 8$ (since $2 \cdot 3 \cdot 5 \cdot 7 \cdot 11 \cdot 13 \cdot 17 \cdot 19 > 10^7$).
+  \item Total: $O(N \cdot \overline{2^k})$, very efficient in practice.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{39782849136421}
+\]
+
+\end{document}

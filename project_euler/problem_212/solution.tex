@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 212: Combined Volume of Cuboids}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+An axis-aligned cuboid with parameters $\{(x_0, y_0, z_0), (\delta x, \delta y, \delta z)\}$ occupies all points $(X,Y,Z)$ with $x_0 \leq X \leq x_0+\delta x$, $y_0 \leq Y \leq y_0+\delta y$, $z_0 \leq Z \leq z_0+\delta z$. A lagged Fibonacci-like sequence defines $50{,}000$ cuboids. Find the volume of their union.
+
+\section{Mathematical Development}
+
+\begin{definition}
+For a collection $\mathcal{C} = \{C_1, \ldots, C_n\}$ of axis-aligned cuboids in $\mathbb{R}^3$, the \emph{combined volume} is $\operatorname{vol}\bigl(\bigcup_{i=1}^{n} C_i\bigr)$.
+\end{definition}
+
+\begin{theorem}[Cavalieri decomposition]
+Let $z_1 < z_2 < \cdots < z_M$ be the distinct $z$-coordinates of all cuboid faces. Then
+\[
+\operatorname{vol}\!\left(\bigcup_{i=1}^{n} C_i\right) = \sum_{j=1}^{M-1} (z_{j+1} - z_j) \cdot A_j,
+\]
+where $A_j$ is the area of the 2D union of the $xy$-projections of all cuboids active in the slab $[z_j, z_{j+1})$.
+\end{theorem}
+
+\begin{proof}
+By Cavalieri's principle, $\operatorname{vol}(U) = \int \operatorname{Area}(U \cap \{z=t\})\,dt$. For $t \in (z_j, z_{j+1})$, no cuboid face lies at height $t$, so the active set is constant and the cross-sectional area equals~$A_j$. Integrating over each slab gives $(z_{j+1}-z_j)\cdot A_j$; summing yields the total.
+\end{proof}
+
+\begin{theorem}[2D area via $x$-sweep]
+For a fixed $z$-slab with active rectangles $\mathcal{R}$, let $x_1 < \cdots < x_K$ be the distinct $x$-boundaries. Then
+\[
+A_j = \sum_{\ell=1}^{K-1}(x_{\ell+1}-x_\ell)\cdot L_\ell,
+\]
+where $L_\ell$ is the total length of the union of $y$-intervals from rectangles covering the strip $[x_\ell, x_{\ell+1})$.
+\end{theorem}
+
+\begin{proof}
+Apply Cavalieri's principle in dimension 2. Between consecutive $x$-boundaries the active rectangle set is constant, so the $y$-union length $L_\ell$ is constant on each strip.
+\end{proof}
+
+\begin{lemma}[Greedy interval merge]
+Given intervals $[a_1,b_1],\ldots,[a_m,b_m]$ sorted by left endpoint, the union length is computed by the greedy merge algorithm in $\Theta(m)$ time: maintain a current interval $[c,d]$; for each subsequent $[a_k,b_k]$, either close $[c,d]$ and start anew (if $a_k \geq d$) or extend ($d \leftarrow \max(d,b_k)$).
+\end{lemma}
+
+\begin{proof}
+Since the intervals are sorted by left endpoint, any new interval either overlaps or follows the current merged interval. By induction on $m$, the algorithm correctly identifies all maximal merged components and sums their lengths.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Collect all distinct $z$-boundaries; sort to obtain $z_1 < \cdots < z_M$.
+\item For each $z$-slab $[z_j, z_{j+1})$:
+  \begin{enumerate}
+  \item Identify cuboids whose $z$-range covers the slab.
+  \item Collect distinct $x$-boundaries of active cuboids.
+  \item For each $x$-strip, collect $y$-intervals, sort, merge, and compute $L_\ell$.
+  \item $A_j = \sum_\ell (x_{\ell+1}-x_\ell) \cdot L_\ell$.
+  \end{enumerate}
+\item $V = \sum_j (z_{j+1}-z_j) \cdot A_j$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n^2 k \log k)$ worst case, where $n=50{,}000$. The pseudorandom distribution yields average $O(n^2)$ behavior.
+\item \textbf{Space:} $O(n)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{328968937309}
+\]
+
+\end{document}

@@ -1,0 +1,130 @@
+---
+import type { EulerMirroredStatement } from '../lib/euler-statement';
+
+interface Props {
+	problem: number;
+	statement: EulerMirroredStatement;
+}
+
+const { problem, statement } = Astro.props;
+const basePath = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+const statementHtml = statement.html.replaceAll('="/project-euler-media/', `="${basePath}/project-euler-media/`);
+---
+
+<section class="project-euler-statement panel" id="problem-statement" data-project-euler-statement>
+	<div class="project-euler-statement__header">
+		<span class="section-label">Problem statement</span>
+		<h2>Problem Statement</h2>
+		<p>This archive keeps the full statement, math, and original media on the page.</p>
+	</div>
+
+	<div class="project-euler-statement__body" set:html={statementHtml} />
+
+	<div class="project-euler-statement__footer">
+		<p class="project-euler-statement__credit">
+			Problem {problem} content is attributed to Project Euler and included here under the
+			<a href={statement.licenseUrl}>CC BY-NC-SA 4.0</a> license.
+		</p>
+		<div class="project-euler-statement__links">
+			<a class="button button--ghost" href={statement.sourceUrl}>Open official problem</a>
+			<a class="button button--ghost" href={statement.licenseUrl}>License details</a>
+		</div>
+	</div>
+</section>
+
+<script is:inline>
+	const ensureMathJax = () => {
+		if (window.MathJax?.typesetPromise) {
+			return Promise.resolve(window.MathJax);
+		}
+
+		if (window.__eulerStatementMathJaxPromise) {
+			return window.__eulerStatementMathJaxPromise;
+		}
+
+		window.MathJax = {
+			tex: {
+				tags: 'ams',
+				inlineMath: [
+					['\\(', '\\)'],
+					['$', '$'],
+				],
+				displayMath: [
+					['\\[', '\\]'],
+					['$$', '$$'],
+				],
+				processEscapes: true,
+				processEnvironments: true,
+			},
+			options: {
+				skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+			},
+			startup: {
+				typeset: false,
+			},
+		};
+
+		window.__eulerStatementMathJaxPromise = new Promise((resolve, reject) => {
+			const existingScript = document.getElementById('mathjax-script');
+			if (existingScript) {
+				existingScript.addEventListener('load', () => resolve(window.MathJax), { once: true });
+				existingScript.addEventListener('error', reject, { once: true });
+				return;
+			}
+
+			const script = document.createElement('script');
+			script.id = 'mathjax-script';
+			script.async = true;
+			script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js';
+			script.addEventListener('load', () => resolve(window.MathJax), { once: true });
+			script.addEventListener('error', reject, { once: true });
+			document.head.appendChild(script);
+		});
+
+		return window.__eulerStatementMathJaxPromise;
+	};
+
+	const renderEulerStatements = async () => {
+		const roots = Array.from(document.querySelectorAll('[data-project-euler-statement]'));
+		if (!roots.length) {
+			return;
+		}
+
+		try {
+			await ensureMathJax();
+			for (const root of roots) {
+				if (root.dataset.mathRendered === 'true') {
+					continue;
+				}
+
+				await window.MathJax.typesetPromise([root]);
+				root.dataset.mathRendered = 'true';
+			}
+		} catch (error) {
+			console.error('Failed to render Project Euler statement math.', error);
+		}
+	};
+
+	const resetEulerStatements = () => {
+		document.querySelectorAll('[data-project-euler-statement]').forEach((root) => {
+			if (root instanceof HTMLElement) {
+				root.dataset.mathRendered = 'false';
+			}
+		});
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', () => {
+			resetEulerStatements();
+			void renderEulerStatements();
+		}, { once: true });
+	} else {
+		resetEulerStatements();
+		void renderEulerStatements();
+	}
+
+	document.addEventListener('astro:page-load', () => {
+		resetEulerStatements();
+		void renderEulerStatements();
+	});
+</script>

@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 661: A Long Chess Match}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Two players $A$ and $B$ play an infinitely long chess match. In each game, $A$ wins with probability~$p_A$, $B$~wins with probability~$p_B$, and the game draws with probability $1 - p_A - p_B$. After each game the match terminates independently with probability~$p$. Define $\mathbb{E}_A(p_A, p_B, p)$ as the expected number of completed games during which $A$ holds a strictly positive cumulative lead. Compute
+\[
+H(n) = \sum_{k=3}^{n} \mathbb{E}_A\!\left(\frac{1}{\sqrt{k+3}},\; \frac{1}{\sqrt{k+3}} + \frac{1}{k^2},\; \frac{1}{k^3}\right).
+\]
+Find $H(50)$ to 4 decimal places.
+
+\section{Mathematical Foundation}
+
+Let $d_t = s_A(t) - s_B(t)$ be the score difference after game~$t$, with $d_0 = 0$.
+
+\begin{theorem}[Closed Form via Wiener--Hopf Factorization]
+\label{thm:closedform}
+Let $r_+$ be the smaller root of $p_B r^2 - r + p_A = 0$:
+\[
+r_+ = \frac{1 - \sqrt{1 - 4p_A p_B}}{2p_B}.
+\]
+Then with $z = 1 - p$:
+\[
+\mathbb{E}_A(p_A, p_B, p) = \frac{r_+ z}{(1 - z)(1 - r_+ z)}.
+\]
+\end{theorem}
+
+\begin{proof}
+By linearity of expectation and geometric killing,
+\[
+\mathbb{E}_A = \sum_{t=0}^{\infty} (1-p)^t \Pr[d_t > 0] = \sum_{t=0}^{\infty} z^t \Pr[d_t > 0].
+\]
+The Wiener--Hopf factorization of the random walk yields
+\[
+\sum_{t=0}^{\infty} \Pr[d_t > 0]\, z^t = \frac{1}{1 - z} \cdot \frac{r_+ z}{1 - r_+ z},
+\]
+where $r_+$ is the unique root in $(0,1)$ of the ascending ladder height equation $p_B r^2 - r + p_A = 0$. Evaluating at $z = 1 - p$ gives the stated formula.
+\end{proof}
+
+\begin{lemma}[Root Bounds]
+\label{lem:root}
+If $p_A, p_B > 0$ and $p_A + p_B \le 1$, then $0 < r_+ < 1$.
+\end{lemma}
+
+\begin{proof}
+Set $f(r) = p_B r^2 - r + p_A$. Then $f(0) = p_A > 0$ and $f(1) = p_A + p_B - 1 \le 0$. By the Intermediate Value Theorem, $f$ has a root in $(0,1]$. The discriminant $\Delta = 1 - 4p_Ap_B \ge 0$ by AM--GM (since $4p_Ap_B \le (p_A+p_B)^2 \le 1$), so both roots are real. The smaller root satisfies $r_+ \le 1$, with strict inequality when $p_A + p_B < 1$.
+\end{proof}
+
+\begin{lemma}[Absolute Convergence]
+For $0 < p < 1$, the series $\sum_{t=0}^{\infty}(1-p)^t\Pr[d_t > 0]$ converges absolutely.
+\end{lemma}
+
+\begin{proof}
+Since $\Pr[d_t > 0] \le 1$, the series is bounded by $\sum_{t=0}^{\infty}(1-p)^t = 1/p < \infty$.
+\end{proof}
+
+\section{Algorithm}
+
+For each $k = 3, \ldots, n$: compute $p_A, p_B, p$; solve the quadratic for~$r_+$; evaluate $\mathbb{E}_A = r_+ z / ((1-z)(1-r_+z))$ with $z = 1-p$; accumulate.
+
+\section{Complexity Analysis}
+
+$O(n)$ time ($O(1)$ per summand); $O(1)$ space.
+
+\section{Answer}
+
+\[
+\boxed{646231.2177}
+\]
+
+\end{document}

@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 670: Colouring a Strip}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Tile a $2 \times n$ strip with $1\times 1$, $1\times 2$, $1\times 3$ tiles in 4 colours. No 4 tiles meet at a point; adjacent tiles differ. Find $F(10^{16}) \bmod 1{,}000{,}004{,}321$.
+
+\section{Transfer Matrix}
+
+\begin{theorem}
+$F(n) = \mathbf{v}_0^T T^{n-1} \mathbf{v}_f \pmod{p}$ where $T$ is the transfer matrix over valid column profiles.
+\end{theorem}
+
+\begin{proof}
+Each column profile encodes the state of overhang and colours. The transfer matrix counts valid one-column extensions. By induction, $T^{n-1}$ accumulates all valid tilings.
+\end{proof}
+
+\section{Matrix Exponentiation}
+
+$T^{n-1}$ computed via repeated squaring: $O(s^3 \log n)$ where $s = |\mathcal{S}|$.
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{rr}
+\toprule
+$n$ & $F(n)$ \\
+\midrule
+2 & 120 \\
+5 & 45876 \\
+100 & $53275818 \pmod{p}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{551055065}
+\]
+
+\end{document}

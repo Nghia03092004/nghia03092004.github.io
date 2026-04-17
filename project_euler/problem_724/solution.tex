@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 724: Drone Delivery}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A depot manages $n$ drones. Each second, a random drone is selected: if stationary it starts at 1~cm/s, if moving its speed increases by 1~cm/s. The process ends when the last drone starts. All drones then drop packages after traveling 1 more cm. Find $E(10^8)$ rounded to the nearest integer.
+
+\section{Coupon Collector Framework}
+
+\begin{theorem}
+The time $T$ until all $n$ drones are activated follows the coupon collector distribution:
+\[
+T = \sum_{k=1}^{n} X_k, \quad X_k \sim \mathrm{Geom}\!\left(\frac{n-k+1}{n}\right),
+\]
+with $E[T] = nH_n$ and $\mathrm{Var}[T] = \sum_{k=1}^{n} \frac{n(k-1)}{(n-k+1)^2}$.
+\end{theorem}
+
+\begin{lemma}[Total Distance]
+The sum of distances over all drones at drop time equals $\frac{T(T+1)}{2}$.
+\end{lemma}
+
+\begin{proof}
+At each second $s \in \{1,\ldots,T+1\}$, one drone gains 1 unit of speed. That speed contributes $(T+1-s)$ cm of distance by drop time. Summing: $\sum_{s=1}^{T+1}(T+1-s) = T(T+1)/2$.
+\end{proof}
+
+\section{Expected Value Computation}
+
+\[
+E(n) = \frac{E[T^2] + E[T]}{2}, \quad E[T^2] = \mathrm{Var}[T] + (E[T])^2.
+\]
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+$n$ & $E(n)$ \\
+\midrule
+2 & $7/2$ \\
+5 & $12019/720$ \\
+100 & $\approx 1427.193470$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{18128250110}
+\]
+
+\end{document}

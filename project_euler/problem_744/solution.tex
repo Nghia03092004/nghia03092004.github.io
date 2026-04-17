@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 744: What? Where? When?}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+In a game with $2n+1$ envelopes ($2n$ questions, $1$ RED card), an Expert answers correctly with probability~$p$. The game ends normally when one side reaches $n$~points. Let $f(n,p)$ be the probability of normal ending. Find $f(10^{11}, 0.4999)$ to 10 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Probability of Normal Ending]
+Conditioning on the RED card's position~$j$ (uniform on $\{1,\ldots,2n+1\}$):
+\[
+f(n,p) = \frac{1}{2n+1}\sum_{j=1}^{2n+1} P(\text{one side reaches } n \text{ in first } j-1 \text{ questions}).
+\]
+\end{theorem}
+
+\begin{proof}
+The RED card is equally likely at any of the $2n+1$ positions. Given position~$j$, the game has $j-1$ questions before the RED card. The game ends normally iff one side accumulates $n$~points within these $j-1$ rounds.
+\end{proof}
+
+\begin{theorem}[Negative Binomial Formulation]
+The probability the game ends in exactly $r$ rounds ($n \le r \le 2n-1$) is:
+\[
+P(T = r) = \binom{r-1}{n-1}\bigl[p^n(1-p)^{r-n} + (1-p)^n p^{r-n}\bigr].
+\]
+\end{theorem}
+
+\begin{proof}
+The game ends in round~$r$ when either side wins their $n$-th point in that round, requiring exactly $n-1$ points in the first $r-1$ rounds. The two events are mutually exclusive for $r < 2n$. The formula follows from the negative binomial distribution.
+\end{proof}
+
+\begin{lemma}[Tail-Sum Reformulation]
+Let $F(m) = P(T \le m)$. Since $F(m) = 1$ for $m \ge 2n-1$:
+\[
+f(n,p) = 1 - \frac{1}{2n+1}\sum_{m=0}^{2n-2}\bigl(1 - F(m)\bigr).
+\]
+\end{lemma}
+
+\begin{proof}
+Direct rearrangement of the sum $\frac{1}{2n+1}\sum_{j=1}^{2n+1} F(j-1)$.
+\end{proof}
+
+\begin{lemma}[Asymptotic Approximation]
+For $n \to \infty$ with $p = 1/2 - \varepsilon$ ($\varepsilon = 10^{-4}$), the game duration concentrates around $n/(1-p)$ with Gaussian fluctuations of order $O(\sqrt{n})$. The normal approximation with continuity correction yields $f(n,p)$ to the required precision.
+\end{lemma}
+
+\begin{proof}
+The negative binomial distribution for large~$n$ is well-approximated by a Gaussian. The tail probabilities decay exponentially away from the mean, and the sum in the tail-sum reformulation is evaluable via the Gaussian CDF with exponentially small error.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Model the game-ending time $T = \min(T_{\text{expert}}, T_{\text{viewer}})$ where each follows a negative binomial distribution.
+\item For large~$n$, apply the Gaussian approximation to evaluate the tail-sum formula.
+\item Use high-precision arithmetic (12+ digits) and round to 10 decimal places.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(1)$ using the asymptotic Gaussian approximation.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.0001999600}
+\]
+
+\end{document}

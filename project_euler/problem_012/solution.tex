@@ -1,0 +1,103 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Project Euler Problem 12: Highly Divisible Triangular Number}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the smallest triangular number $T_n = \frac{n(n+1)}{2}$ with more than 500 positive divisors.
+
+\section{Formal Development}
+
+\begin{definition}
+For $m \in \mathbb{Z}^+$ with canonical factorization $m = \prod_{i=1}^{k} p_i^{a_i}$, the \emph{divisor function} is $\tau(m) = \#\{d \in \mathbb{Z}^+ : d \mid m\}$.
+\end{definition}
+
+\begin{theorem}[Divisor Count Formula]
+\label{thm:tau}
+$\tau(m) = \prod_{i=1}^{k}(a_i + 1)$.
+\end{theorem}
+
+\begin{proof}
+Each divisor of $m$ has the form $\prod_i p_i^{b_i}$ with $0 \le b_i \le a_i$. The $b_i$ are chosen independently, yielding $\prod_i (a_i+1)$ divisors.
+\end{proof}
+
+\begin{theorem}[Multiplicativity]
+\label{thm:mult}
+If $\gcd(a,b) = 1$, then $\tau(ab) = \tau(a)\,\tau(b)$.
+\end{theorem}
+
+\begin{proof}
+Coprimality ensures the prime factorizations of $a$ and $b$ involve disjoint prime sets, so the exponents in $ab$ are the union of those in $a$ and $b$. The product formula (Theorem~\ref{thm:tau}) then factors.
+\end{proof}
+
+\begin{lemma}[Coprimality of Consecutive Integers]
+\label{lem:consec}
+For all $n \ge 1$, $\gcd(n, n+1) = 1$.
+\end{lemma}
+
+\begin{proof}
+If $d \mid n$ and $d \mid (n+1)$, then $d \mid 1$.
+\end{proof}
+
+\begin{theorem}[Coprime Factorization of $T_n$]
+\label{thm:main}
+For all $n \ge 1$:
+\[
+\tau(T_n) = \begin{cases}
+\tau\!\left(\dfrac{n}{2}\right) \cdot \tau(n+1) & \text{if } 2 \mid n, \\[8pt]
+\tau(n) \cdot \tau\!\left(\dfrac{n+1}{2}\right) & \text{if } 2 \nmid n.
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+Write $T_n = A \cdot B$ where the factor of $\frac{1}{2}$ is absorbed into the even factor of $n(n+1)$. By Lemma~\ref{lem:consec}, $\gcd(n, n+1)=1$, so every prime dividing $A = n/2$ (when $n$ is even) divides $n$ but not $n+1=B$. Hence $\gcd(A,B) = 1$, and the result follows from Theorem~\ref{thm:mult}.
+\end{proof}
+
+\begin{remark}
+This decomposition reduces the factoring problem from a single number of magnitude $\sim n^2/2$ to two numbers of magnitude $\sim n$.
+\end{remark}
+
+\begin{proposition}[Complexity]
+The search algorithm runs in $O(N\sqrt{N})$ time and $O(1)$ auxiliary space, where $N$ is the answer index.
+\end{proposition}
+
+\begin{proof}
+Each of the $N$ iterations requires trial division of two numbers bounded by $n+1$, costing $O(\sqrt{n})$ each. Summing: $\sum_{n=1}^{N} O(\sqrt{n}) = O(N^{3/2})$.
+\end{proof}
+
+\section{Verification}
+
+At $n = 12375$:
+\[
+T_{12375} = \frac{12375 \times 12376}{2} = 76{,}576{,}500 = 2^2 \cdot 3^2 \cdot 5^3 \cdot 7 \cdot 11 \cdot 13 \cdot 17.
+\]
+\[
+\tau(76{,}576{,}500) = 3 \cdot 3 \cdot 4 \cdot 2 \cdot 2 \cdot 2 \cdot 2 = 576 > 500.
+\]
+
+\section{Answer}
+
+\[
+\boxed{76576500}
+\]
+
+\end{document}

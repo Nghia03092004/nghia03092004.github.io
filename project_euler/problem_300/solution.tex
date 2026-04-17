@@ -1,0 +1,95 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+\title{Problem 300: Protein Folding}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A protein of length $n$ is a string over $\{H, P\}$. It folds as a self-avoiding walk (SAW) on the 2D square lattice. An \textbf{H-H contact}: two H residues at non-consecutive positions that are lattice-adjacent. Each protein folds optimally (maximizing contacts).
+
+Reference: $n = 8$ gives average $850/256 = 3.3203125$. Find the average for $n = 15$ (exact decimal).
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+A \emph{self-avoiding walk} of length $n-1$ on $\mathbb{Z}^2$ is an injective sequence $(v_0, \ldots, v_{n-1})$ with $|v_{i+1} - v_i|_1 = 1$. Its \emph{contact topology} is $\mathcal{C} = \{(i,j) : |i-j| > 1,\, |v_i - v_j|_1 = 1\}$.
+\end{definition}
+
+\begin{theorem}[Decomposition of Contacts]
+Total contacts $= \mathrm{consec}(p) + \mathrm{non\text{-}consec}(p, w)$, where $\mathrm{consec}(p) = |\{i : p_i = p_{i+1} = H\}|$ depends only on $p$, and $\mathrm{non\text{-}consec}$ depends on the walk.
+\end{theorem}
+
+\begin{proof}
+Consecutive residues are always lattice-adjacent in any SAW, so their contacts depend only on the protein string. Non-consecutive contacts depend on the walk geometry via the contact topology.
+\end{proof}
+
+\begin{theorem}[Optimality via Topology Enumeration]
+\[
+\mathrm{opt}(p) = \mathrm{consec}(p) + \max_{\mathcal{C} \in \mathcal{T}} \sum_{(i,j) \in \mathcal{C}} \mathbf{1}[p_i = H \wedge p_j = H]
+\]
+where $\mathcal{T}$ is the set of all realizable contact topologies.
+\end{theorem}
+
+\begin{proof}
+Since $\mathrm{consec}(p)$ is constant across walks, optimization reduces to maximizing non-consecutive contacts. These depend only on the contact topology, so we enumerate distinct topologies.
+\end{proof}
+
+\begin{lemma}[Bitmask Evaluation]
+With protein bitmask $B$ (bit $i = 0$ iff $p_i = H$) and contact mask $M_{ij} = (1 \ll i) | (1 \ll j)$, the pair $(i,j)$ contributes iff $(B \;\&\; M_{ij}) = 0$.
+\end{lemma}
+
+\begin{proof}
+Both $p_i = H$ and $p_j = H$ iff bits $i$ and $j$ of $B$ are both 0, i.e., $B \;\&\; M_{ij} = 0$.
+\end{proof}
+
+\begin{lemma}[Symmetry Reduction]
+The dihedral group $D_4$ of the square lattice preserves contact topologies. Fixing the first step to go rightward reduces enumeration by a factor of 4.
+\end{lemma}
+
+\begin{proof}
+Rotation by $90^\circ$ maps SAWs to SAWs with identical contact topologies (lattice adjacency is rotation-invariant). Fixing the first step direction eliminates 4 rotational equivalences.
+\end{proof}
+
+\begin{theorem}[Exact Rationality]
+$E[\mathrm{opt}(p)] = \frac{1}{2^n} \sum_p \mathrm{opt}(p) \in \frac{1}{2^n}\mathbb{Z}$, hence the answer is an exact terminating decimal.
+\end{theorem}
+
+\begin{proof}
+Each of the $2^n$ proteins is equally likely, and each $\mathrm{opt}(p)$ is a non-negative integer. Thus the expectation has denominator dividing $2^n = 2^{15} = 32768$, which is a power of 2, ensuring a terminating decimal.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Enumerate SAWs of 14 steps (first step fixed rightward)
+2. Extract contact topologies, deduplicate
+3. For each protein bitmask B in {0, ..., 2^15 - 1}:
+   a. Compute consec(B)
+   b. For each topology C, count non-consec contacts via bitmask
+   c. opt(B) = consec(B) + max over C
+4. Return sum of opt(B) / 2^15
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(W + |\mathcal{T}| \cdot 2^n)$ where $W \sim 10^6$ (SAWs after symmetry), $|\mathcal{T}| \sim 5000$ topologies, $2^{15} = 32768$ proteins. Total $\approx 1.6 \times 10^8$ operations.
+\item \textbf{Space:} $O(|\mathcal{T}| \cdot \bar{c})$ for topologies ($\bar{c}$ = avg contacts per topology), plus $O(n)$ for backtracking.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{8.0540771484375}
+\]
+
+\end{document}

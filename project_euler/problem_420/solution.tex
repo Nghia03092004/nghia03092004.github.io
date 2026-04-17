@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 420: $2 \times 2$ Positive Integer Matrix}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$F(N)$ counts 2$\times$2 positive integer matrices with trace $< N$ expressible as $A^2$ for at least two distinct positive integer matrices $A$. Find $F(10^7)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Matrix Square}
+If $A = \begin{pmatrix} p & q \\ r & s \end{pmatrix}$, then
+\[
+A^2 = \begin{pmatrix} p^2 + qr & q(p+s) \\ r(p+s) & s^2 + qr \end{pmatrix}
+\]
+
+\subsection{Parameterization}
+Let $t = p + s$ (trace of $A$) and $\delta = qr$ (product of off-diagonal). Then:
+\begin{align}
+\mathrm{tr}(A^2) &= p^2 + s^2 + 2\delta = t^2 - 2ps + 2\delta \\
+b &= qt, \quad c = rt \\
+a - d &= (p^2 - s^2) = (p-s) \cdot t
+\end{align}
+
+\subsection{Multiple Square Roots}
+Matrix $M$ has two distinct square roots if there exist $(p_1, s_1, q_1, r_1)$ and $(p_2, s_2, q_2, r_2)$ with:
+\[
+A_1^2 = A_2^2 = M, \quad A_1 \neq A_2
+\]
+
+This occurs when different parameterizations yield the same matrix $M$.
+
+\subsection{Counting}
+For each valid tuple $(p, s, q, r)$ with all entries $\geq 1$ and $\mathrm{tr}(A^2) < N$:
+\begin{enumerate}
+    \item Compute $M = A^2$
+    \item Track $M$ in a hash map with its square root count
+    \item Count matrices $M$ with $\geq 2$ distinct roots
+\end{enumerate}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Enumerate $t = p + s$ from 2 upward
+    \item For each $t$, enumerate $p \in [1, t-1]$, set $s = t - p$
+    \item Enumerate $q, r \geq 1$ with $p^2 + s^2 + 2qr < N$
+    \item Compute and hash $M = A^2$
+    \item Count matrices with multiple square roots
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N^{3/2})$
+    \item \textbf{Space:} $O(N)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{145159332}
+\]
+
+\end{document}

@@ -1,0 +1,106 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem*{remark}{Remark}
+
+\title{Problem 571: Super Pandigital Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A positive number is \textbf{pandigital in base~$b$} if it contains all digits from $0$ to $b-1$ when written in base~$b$. An \textbf{$n$-super-pandigital number} is a number that is simultaneously pandigital in all bases from $2$ to~$n$ inclusively. Find the sum of the 10 smallest 12-super-pandigital numbers.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+A positive integer $N$ is \emph{pandigital in base~$b$} if the multiset of digits in the base-$b$ representation of~$N$ contains every element of $\{0,1,\ldots,b-1\}$ at least once.
+\end{definition}
+
+\begin{theorem}[Minimum digit count]\label{thm:mindigits}
+If $N$ is pandigital in base~$b$, then $N$ has at least $b$ digits in base~$b$, and consequently $N \geq b^{b-1}$.
+\end{theorem}
+
+\begin{proof}
+The base-$b$ representation of $N$ must include each of the $b$ distinct symbols $\{0,1,\ldots,b-1\}$ at least once, so it has at least $b$~digits. Since $N > 0$, the leading digit is nonzero, giving $N \geq 1 \cdot b^{b-1}$.
+\end{proof}
+
+\begin{lemma}[Base-12 structure]\label{lem:base12}
+A 12-super-pandigital number $N$ that has exactly 12 base-12 digits satisfies $12^{11} \leq N < 12^{12}$, and its base-12 representation is a permutation of $\{0,1,\ldots,11\}$ with leading digit $\geq 1$.
+\end{lemma}
+
+\begin{proof}
+By Theorem~\ref{thm:mindigits}, $N$ has at least 12 base-12 digits. With exactly 12 digits, $12^{11} \leq N < 12^{12}$. Each of the 12 required symbols must appear at least once among the 12 digit positions. By the pigeonhole principle, each symbol appears exactly once. The leading digit is nonzero since $N \geq 12^{11}$.
+\end{proof}
+
+\begin{remark}
+A number with 13 or more base-12 digits satisfies $N \geq 12^{12} \approx 8.9 \times 10^{12}$, far exceeding the smallest 12-super-pandigital numbers (which are $\sim 1.8 \times 10^{11}$). Hence the 10 smallest all have exactly 12 base-12 digits.
+\end{remark}
+
+\begin{lemma}[Bitmask pandigitality test]\label{lem:bitmask}
+$N$ is pandigital in base~$b$ if and only if
+\[
+\bigl\{\lfloor N/b^i \rfloor \bmod b : i = 0, 1, \ldots, \lfloor \log_b N \rfloor\bigr\} \supseteq \{0,1,\ldots,b-1\}.
+\]
+This is verifiable in $O(\log_b N)$ time using a $b$-bit mask.
+\end{lemma}
+
+\begin{proof}
+The digits of $N$ in base~$b$ are $d_i = \lfloor N/b^i \rfloor \bmod b$. Maintain a bitmask $m$ (initially $0$) updated by $m \leftarrow m \mathbin{|} (1 \ll d_i)$. After all digits, pandigitality holds iff $m = 2^b - 1$. Each step is $O(1)$; there are $\lfloor \log_b N \rfloor + 1$ digits.
+\end{proof}
+
+\begin{proposition}[Early termination]\label{prop:early}
+Testing base~11 first maximizes the rejection rate. A random 12-digit base-12 permutation is pandigital in base~11 with probability $\approx 1.4 \times 10^{-3}$.
+\end{proposition}
+
+\begin{proof}
+A 12-digit base-12 number has $\sim 13$ base-11 digits. By inclusion-exclusion on missing symbols among 11 required symbols in $\sim 13$ positions, the pandigitality probability is $\sum_{k=0}^{11}(-1)^k\binom{11}{k}(1 - k/11)^{13} \approx 0.0014$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{FindSuperPandigital}{$B = 12$, $K = 10$}
+    \State $\textit{results} \gets []$
+    \For{$d_0 = 1$ \textbf{to} $B - 1$} \Comment{leading base-12 digit}
+        \For{each permutation $P$ of $\{0,\ldots,B-1\} \setminus \{d_0\}$}
+            \State $N \gets d_0 \cdot B^{11} + \sum_{i=0}^{10} P[i] \cdot B^{10-i}$
+            \State $\textit{valid} \gets \textsc{true}$
+            \For{$b = B - 1$ \textbf{downto} $2$} \Comment{check hardest base first}
+                \If{\textbf{not} \Call{IsPandigital}{$N, b$}}
+                    \State $\textit{valid} \gets \textsc{false}$; \textbf{break}
+                \EndIf
+            \EndFor
+            \If{$\textit{valid}$} append $N$ to $\textit{results}$ \EndIf
+        \EndFor
+        \If{$d_0 = 1$ \textbf{and} $|\textit{results}| \geq K$} \textbf{break} \EndIf
+    \EndFor
+    \State Sort $\textit{results}$; \Return $\sum_{i=1}^{K} \textit{results}[i]$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(11 \cdot 11! \cdot \log_{11} N)$ worst case, with $\log_{11} N \approx 13$. The base-11 filter rejects $\sim 99.86\%$ of candidates, reducing the effective cost to ${\sim}\, 5 \times 10^8$ operations for leading digit~1.
+    \item \textbf{Space:} $O(B) = O(12)$ auxiliary (permutation array and bitmask), effectively $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{30510390701978}
+\]
+
+\end{document}

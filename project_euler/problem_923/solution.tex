@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 923: Combinatorial Game Values}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+In the game of Nim with heaps $1, 2, \ldots, n$, let $G(n) = 1 \oplus 2 \oplus \cdots \oplus n$. Find the number of $n \leq 10^6$ with $G(n) = 0$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Sprague--Grundy]
+In any impartial combinatorial game, every position has a non-negative integer Grundy value. A position is a loss for the player to move iff its Grundy value is~$0$. For a disjunctive sum of games, the Grundy value is the XOR of the individual values.
+\end{theorem}
+
+\begin{proof}[Proof (sketch)]
+Define $\mathcal{G}(P) = \mathrm{mex}\{\mathcal{G}(Q) : Q \text{ reachable from } P\}$. By strong induction, $\mathcal{G}(P) = 0$ iff every move leads to $\mathcal{G} > 0$, and $\mathcal{G}(P) > 0$ iff some move leads to $\mathcal{G} = 0$. The XOR property for disjunctive sums follows from verifying the mex condition via binary representations.
+\end{proof}
+
+\begin{theorem}[XOR Prefix Sum]
+For all $n \geq 0$:
+\[
+\bigoplus_{k=1}^{n} k = \begin{cases}
+n & n \equiv 0 \pmod{4}, \\ 1 & n \equiv 1 \pmod{4}, \\
+n+1 & n \equiv 2 \pmod{4}, \\ 0 & n \equiv 3 \pmod{4}.
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+First, for every $m \geq 0$:
+\[
+4m \oplus (4m{+}1) \oplus (4m{+}2) \oplus (4m{+}3) = 0, \tag{$*$}
+\]
+since $4m \oplus (4m{+}1) = 1$ and $(4m{+}2) \oplus (4m{+}3) = 1$, giving $1 \oplus 1 = 0$.
+
+Write $n = 4q + r$ with $r \in \{0,1,2,3\}$. By~$(*)$, $\bigoplus_{k=0}^{4q-1} k = 0$. Then:
+\begin{itemize}
+    \item $r = 0$: $0 \oplus 4q = n$.
+    \item $r = 1$: $n \oplus (4q{+}1) = 4q \oplus (4q{+}1) = 1$.
+    \item $r = 2$: $1 \oplus (4q{+}2) = 4q{+}3 = n{+}1$.
+    \item $r = 3$: $(n{+}1) \oplus n = 0$. \qedhere
+\end{itemize}
+\end{proof}
+
+\begin{theorem}[Counting Second-Player Wins]
+The number of $n \leq N$ with $G(n) = 0$ is $\lfloor(N-3)/4\rfloor + 1$ for $N \geq 3$.
+\end{theorem}
+
+\begin{proof}
+By the XOR Prefix Sum theorem, $G(n) = 0$ iff $n \equiv 3 \pmod{4}$. The values $n \leq N$ with $n \equiv 3 \pmod{4}$ form the arithmetic progression $3, 7, 11, \ldots$. The count is $\lfloor(N-3)/4\rfloor + 1$.
+\end{proof}
+
+For $N = 10^6$: $\lfloor 999997/4 \rfloor + 1 = 249999 + 1 = 250000$.
+
+\section{Algorithm}
+
+Closed-form: return $\lfloor(N-3)/4\rfloor + 1$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(1)$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{740759929}
+\]
+
+\end{document}

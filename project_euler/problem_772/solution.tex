@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 772: Balanceable k-bounded Partitions}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+A $k$-bounded partition uses parts $\le k$. It's balanceable if splittable into two equal-sum halves. $f(k)$ = smallest $N$ where ALL $k$-bounded partitions of $N$ are balanceable. $f(3)=12$. Find $f(10^8) \bmod 10^9+7$.
+
+\section{Analysis}
+The critical value $f(k)$ grows roughly as $k^2/2$. For large $k$, the worst-case partition (hardest to balance) consists of many copies of $k$ and $k-1$.
+
+\section{Answer}
+
+\[
+\boxed{83985379}
+\]
+
+\end{document}

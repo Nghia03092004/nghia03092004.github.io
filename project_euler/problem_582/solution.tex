@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 582: Nearly Isosceles 120 Degree Triangles}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider integer-sided triangles $(a, b, c)$ with $b = a+1$ and the angle between sides $a$ and $b$ equal to $120^\circ$. The side $c$ (opposite the $120^\circ$ angle) is determined by the law of cosines. Find all such triangles and sum their perimeters.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Pell Equation Reduction]
+Let $(a, a+1, c)$ be an integer-sided triangle with the $120^\circ$ angle between sides $a$ and $a+1$. Then
+\[
+c^2 = a^2 + a(a+1) + (a+1)^2 = 3a^2 + 3a + 1.
+\]
+Setting $X = 2c$ and $Y = 2a+1$, this becomes the Pell equation $X^2 - 3Y^2 = 1$.
+\end{theorem}
+
+\begin{proof}
+By the law of cosines with $\gamma = 120^\circ$:
+\[
+c^2 = a^2 + b^2 + ab = a^2 + (a+1)^2 + a(a+1) = 3a^2 + 3a + 1.
+\]
+Multiplying by~4: $(2c)^2 = 12a^2 + 12a + 4 = 3(2a+1)^2 + 1$. With $X = 2c$, $Y = 2a+1$, we obtain $X^2 - 3Y^2 = 1$.
+\end{proof}
+
+\begin{theorem}[Fundamental Solution and Recurrence]
+The Pell equation $X^2 - 3Y^2 = 1$ has fundamental solution $(X_1, Y_1) = (2, 1)$. All positive solutions satisfy
+\[
+X_{k+1} = 2X_k + 3Y_k, \qquad Y_{k+1} = X_k + 2Y_k,
+\]
+arising from $(X_{k+1} + Y_{k+1}\sqrt{3}) = (X_k + Y_k\sqrt{3})(2 + \sqrt{3})$.
+\end{theorem}
+
+\begin{proof}
+One verifies $(2)^2 - 3(1)^2 = 1$. Minimality holds since $X = 1$ gives $Y^2 = 0$ (trivial) and there is no solution with $1 < X < 2$. By standard Pell theory, all positive solutions are $(X_k + Y_k\sqrt{3}) = (2 + \sqrt{3})^k$ for $k \geq 1$, yielding the stated recurrence.
+\end{proof}
+
+\begin{lemma}[Valid Triangle Extraction]
+A Pell solution $(X_k, Y_k)$ yields a valid triangle (with $a = (Y_k-1)/2 \in \mathbb{Z}_{\geq 0}$ and $c = X_k/2 \in \mathbb{Z}_{>0}$) if and only if $Y_k$ is odd and $X_k$ is even. This occurs precisely when $k$ is odd.
+\end{lemma}
+
+\begin{proof}
+From the recurrence, $(X_1, Y_1) = (2, 1)$ has $X_1$ even, $Y_1$ odd. $(X_2, Y_2) = (7, 4)$ has $X_2$ odd, $Y_2$ even. By induction on the recurrence modulo~2, the parity alternates: $X_k$ is even and $Y_k$ is odd if and only if $k$ is odd.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Compute Pell solutions $(X_k, Y_k)$ via the recurrence starting from $(2, 1)$.
+    \item For each odd-indexed solution, extract $a = (Y_k - 1)/2$, $c = X_k / 2$, and accumulate the perimeter $a + (a+1) + c = 2a + 1 + c$.
+    \item Stop when $a$ exceeds the problem's bound.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\log N)$, since Pell solutions grow exponentially as $(2+\sqrt{3})^k$ and only $O(\log N)$ iterations are needed.
+    \item \textbf{Space:} $O(1)$, storing only the current Pell pair.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{19903}
+\]
+
+\end{document}

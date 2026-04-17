@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 436: Unfair Wager}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Julie proposes a wager to her sister Louise using i.i.d.\ $\mathrm{Uniform}(0,1)$ random numbers. Starting with $S = 0$:
+\begin{itemize}
+    \item Louise adds numbers to $S$ until $S > 1$, recording her last number as $x$.
+    \item Julie continues until $S > 2$, recording her last number as $y$.
+    \item Julie wins if $y > x$.
+\end{itemize}
+Find $P(y > x)$ to 10 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Irwin--Hall Distribution]
+Let $S_n = \sum_{i=1}^n U_i$ with $U_i \overset{\mathrm{iid}}{\sim} \mathrm{Uniform}(0,1)$. Then
+\[
+P(S_n \leq t) = \frac{1}{n!} \sum_{k=0}^{\lfloor t \rfloor} (-1)^k \binom{n}{k}(t-k)^n.
+\]
+\end{theorem}
+
+\begin{proof}
+By induction on $n$. The base case $n = 1$ is immediate. The inductive step uses $f_{S_{n+1}}(t) = \int_0^1 f_{S_n}(t - u)\,du$ and termwise integration.
+\end{proof}
+
+\begin{lemma}[First Passage]
+$P(S_n \leq 1) = 1/n!$ for all $n \geq 0$.
+\end{lemma}
+
+\begin{proof}
+Set $t = 1$ in Theorem~1. For $n \geq 1$, only the $k = 0$ term survives: $P(S_n \leq 1) = 1^n/n! = 1/n!$.
+\end{proof}
+
+\begin{theorem}[Stopping Time Distribution]
+Let $N_1 = \min\{n : S_n > 1\}$. Then $P(N_1 = n) = \frac{n-1}{n!}$ for $n \geq 2$.
+\end{theorem}
+
+\begin{proof}
+$P(N_1 = n) = P(S_{n-1} \leq 1) - P(S_n \leq 1) = 1/(n-1)! - 1/n! = (n-1)/n!$.
+\end{proof}
+
+\begin{theorem}[Joint Density of $(S_{N_1}, x)$]
+The joint density of the stopping sum $S_{N_1}$ and Louise's last draw $x = U_{N_1}$ is:
+\[
+f_{S_{N_1}, x}(s, u) = \sum_{n=2}^{\infty} f_{S_n, U_n}(s, u \mid N_1 = n) \cdot P(N_1 = n),
+\]
+where $s \in (1, 2)$, $u \in (0, 1)$, and $u > s - 1$.
+\end{theorem}
+
+\begin{proof}
+For fixed $n$, the conditional density of $(S_n, U_n)$ given $N_1 = n$ is derived from the Irwin--Hall density of $S_{n-1}$ restricted to $[0, 1]$, convolved with the uniform draw $U_n$. Summing over $n$ yields the marginal density.
+\end{proof}
+
+\begin{theorem}[Winning Probability]
+\[
+P(y > x) = \int P(y > x \mid S_{N_1} = s,\, x = u)\, f_{S_{N_1}, x}(s, u)\, ds\, du.
+\]
+The inner probability is an Irwin--Hall stopping problem starting from $s$, targeting threshold $2$.
+\end{theorem}
+
+\begin{proof}
+By the law of total probability, conditioning on $(S_{N_1}, x)$ and computing Julie's stopping distribution from the shifted state $s$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Truncate the series at $N_{\max} = 20$.
+    \item For each pair $(n_1, n_2)$ with $2 \leq n_1 < n_2 \leq N_{\max}$, evaluate the multi-dimensional integral over valid draw configurations with $U_{n_2} > U_{n_1}$.
+    \item Sum all contributions using high-precision adaptive quadrature.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N_{\max}^2 \cdot Q)$ where $Q$ is the quadrature cost. Effectively $O(1)$ with bounded truncation.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.5276662759}
+\]
+
+\end{document}

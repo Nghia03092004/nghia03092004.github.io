@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 541: Divisibility of Harmonic Number Numerators}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The $n$-th harmonic number $H_n$ is defined as
+\[
+H_n = \sum_{k=1}^{n} \frac{1}{k}.
+\]
+When expressed in lowest terms as $H_n = a_n / b_n$, we define $f(n)$ to be the number of integers $k$, $1 \le k \le n$, such that the numerator $a_k$ is divisible by the largest prime factor of $k$ (with $f(1) = 0$ since $H_1 = 1$). The problem asks to determine $f(N)$ for a specified large $N$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Wolstenholme's Theorem]
+For any prime $p \ge 5$, the numerator of $H_{p-1}$ (in lowest terms) is divisible by $p^2$. Equivalently,
+\[
+\sum_{k=1}^{p-1} \frac{1}{k} \equiv 0 \pmod{p^2}.
+\]
+\end{theorem}
+
+\begin{proof}
+We pair terms $k$ and $p - k$ for $k = 1, \ldots, (p-1)/2$:
+\[
+\frac{1}{k} + \frac{1}{p-k} = \frac{p}{k(p-k)}.
+\]
+Since $\gcd(k, p) = 1$ for $1 \le k \le p-1$, each pair contributes $p \cdot (k(p-k))^{-1} \pmod{p^2}$. Now $k(p-k) \equiv -k^2 \pmod{p}$, so
+\[
+H_{p-1} \equiv -p \sum_{k=1}^{(p-1)/2} k^{-2} \pmod{p^2}.
+\]
+By the identity $\sum_{k=1}^{p-1} k^{-2} \equiv 0 \pmod{p}$ (since $k \mapsto k^{-1}$ permutes $\{1, \ldots, p-1\}$ and $\sum_{k=1}^{p-1} k^2 \equiv 0 \pmod{p}$ for $p \ge 5$), and the symmetric splitting yields $2 \sum_{k=1}^{(p-1)/2} k^{-2} \equiv 0 \pmod{p}$. Therefore $H_{p-1} \equiv 0 \pmod{p^2}$.
+\end{proof}
+
+\begin{lemma}[Numerator divisibility criterion]
+Let $P(n)$ denote the largest prime factor of $n$, with $p = P(n)$ and $p \ge 5$. Then $p \mid a_n$ if and only if $H_n \equiv 0 \pmod{p}$, which can be checked by evaluating the harmonic sum modulo $p$ using the incremental relation $H_n \equiv H_{n-1} + n^{-1} \pmod{p}$ with modular inverses via Fermat's little theorem.
+\end{lemma}
+
+\begin{proof}
+Since $b_n$ is coprime to $p$ when $p$ divides the numerator $a_n$ (the denominator of $H_n$ in lowest terms is never divisible by a prime $p$ when $p \le n$ by well-known properties of harmonic denominators), we have $p \mid a_n$ if and only if $H_n \equiv 0 \pmod{p}$.
+\end{proof}
+
+\begin{theorem}[Counting function]
+For each prime $p$, define $C(p, N) = \#\{n \le N : P(n) = p \text{ and } p \mid a_n\}$. Then
+\[
+f(N) = \sum_{p \le N} C(p, N),
+\]
+where the sum runs over all primes $p \le N$. The values $C(p, N)$ are computed by iterating over integers $n$ with $P(n) = p$ and testing $H_n \pmod{p}$.
+\end{theorem}
+
+\begin{proof}
+This follows directly from partitioning the set $\{2, \ldots, N\}$ by largest prime factor.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve primes and compute the largest prime factor $P(n)$ for all $n \le N$.
+\item For each $n = 1, \ldots, N$, maintain $H_n \pmod{p}$ for $p = P(n)$ incrementally using $n^{-1} \equiv n^{p-2} \pmod{p}$.
+\item Count the number of $n$ with $P(n) \ge 2$ and $H_n \equiv 0 \pmod{P(n)}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$ for sieve operations and modular inverse computations.
+\item \textbf{Space:} $O(N)$ for the sieve and largest-prime-factor arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4580726482872451}
+\]
+
+\end{document}

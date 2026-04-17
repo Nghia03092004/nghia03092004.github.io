@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 77: Prime Summations}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+What is the first value which can be written as the sum of primes in over five thousand different ways?
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Prime Partition Function]
+Let $q(n)$ denote the number of partitions of $n$ into prime parts (unordered, with repetition). By convention, $q(0) = 1$.
+\end{definition}
+
+\begin{theorem}[Generating Function]
+\[
+\sum_{n=0}^{\infty} q(n)\,x^n = \prod_{p \;\text{prime}} \frac{1}{1 - x^p}.
+\]
+\end{theorem}
+
+\begin{proof}
+Each prime $p$ contributes the factor $\frac{1}{1-x^p} = \sum_{c_p=0}^{\infty} x^{c_p \cdot p}$, encoding $c_p$ copies of~$p$. The Cauchy product over all primes yields the coefficient of $x^n$ as the number of non-negative integer solutions to $\sum_p c_p \cdot p = n$, which is $q(n)$. Convergence for $|x| < 1$: $\sum_p |x|^p \leq \sum_{k=2}^{\infty} |x|^k < \infty$.
+\end{proof}
+
+\begin{definition}[Restricted Prime Partition]
+Let $q_{\le p_i}(n)$ denote the number of partitions of $n$ using only primes from $\{p_1, \ldots, p_i\}$, where $p_1 < p_2 < \cdots$ is the prime sequence.
+\end{definition}
+
+\begin{theorem}[DP Correctness]
+Initialize $\mathrm{dp}[0] = 1$, $\mathrm{dp}[j] = 0$ for $j \geq 1$. For each prime $p \leq N$ in order, update $\mathrm{dp}[j] \mathrel{+}= \mathrm{dp}[j-p]$ for $j = p, \ldots, N$. Then $\mathrm{dp}[n] = q(n)$ for all $n \leq N$.
+\end{theorem}
+
+\begin{proof}
+By induction on the prime index~$i$. After processing $p_1, \ldots, p_i$, the identity $q_{\le p_i}(j) = \sum_{m=0}^{\lfloor j/p_i \rfloor} q_{\le p_{i-1}}(j - m \cdot p_i)$ holds by conditioning on the multiplicity of $p_i$. The forward-iteration update (increasing~$j$) permits unbounded repetition of $p_i$, since $\mathrm{dp}[j - p_i]$ already reflects earlier uses of $p_i$ in the same pass. After all primes $\leq N$ are processed, $\mathrm{dp}[n] = q(n)$ since no prime exceeding~$n$ can appear in a partition of~$n$.
+\end{proof}
+
+\begin{lemma}[Sufficient Bound]
+There exists $n \leq 100$ with $q(n) > 5000$.
+\end{lemma}
+
+\begin{proof}
+Direct computation: $q(71) = 5007 > 5000$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find first $n$ with $q(n) > 5000$}
+\begin{algorithmic}[1]
+\STATE $N \gets 100$
+\STATE $\text{primes} \gets \text{sieve}(N)$
+\STATE $\mathrm{dp}[0..N] \gets 0$; $\mathrm{dp}[0] \gets 1$
+\FOR{each prime $p$ in primes}
+    \FOR{$j = p$ \TO $N$}
+        \STATE $\mathrm{dp}[j] \gets \mathrm{dp}[j] + \mathrm{dp}[j - p]$
+    \ENDFOR
+\ENDFOR
+\FOR{$n = 2$ \TO $N$}
+    \IF{$\mathrm{dp}[n] > 5000$}
+        \RETURN $n$
+    \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} Sieve: $O(N \log \log N)$. DP: $\sum_{p \leq N}(N - p + 1) \leq \pi(N) \cdot N = O(N^2 / \log N)$. For $N = 100$: $\pi(100) = 25$, yielding $\leq 2500$ operations.
+
+\textbf{Space:} $O(N)$ for the DP array and prime list.
+
+\section{Answer}
+
+\[
+\boxed{71}
+\]
+
+\end{document}

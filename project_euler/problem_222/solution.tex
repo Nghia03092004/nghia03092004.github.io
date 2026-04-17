@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 222: Sphere Packing}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the minimum length of a tube of internal radius $R = 50$\,mm that can contain 21 spheres with radii $r = 30, 31, \ldots, 50$\,mm. Answer in micrometers, rounded to the nearest integer.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Sphere Center Offset]
+A sphere of radius $r$ inside a cylinder of internal radius $R$ ($r < R$), touching the wall, has its center at distance $R - r$ from the axis.
+\end{theorem}
+\begin{proof}
+The contact point lies on the inner surface at distance $R$ from the axis. The center is displaced inward by $r$, giving offset $R - r$.
+\end{proof}
+
+\begin{theorem}[Vertical Gap Formula]
+Two tangent spheres of radii $r_i, r_j$, both touching the cylinder wall, placed on opposite sides of the axis, have vertical separation
+\[
+\Delta z(r_i, r_j) = 2\sqrt{R(r_i + r_j - R)},
+\]
+provided $r_i + r_j > R$.
+\end{theorem}
+\begin{proof}
+The horizontal distance between centers is $d_h = (R - r_i) + (R - r_j) = 2R - r_i - r_j$. Since they are tangent, the center distance is $r_i + r_j$. By the Pythagorean theorem:
+\[
+\Delta z^2 = (r_i + r_j)^2 - (2R - r_i - r_j)^2 = 4R(r_i + r_j - R). \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Validity]
+For all pairs among $\{30, \ldots, 50\}$, we have $r_i + r_j \geq 61 > 50 = R$, so the formula always applies.
+\end{lemma}
+\begin{proof}
+Immediate from $\min(r_i + r_j) = 30 + 31 = 61$.
+\end{proof}
+
+\begin{theorem}[Total Tube Length]
+For a permutation $\sigma$ of the 21 spheres:
+\[
+L(\sigma) = r_{\sigma(1)} + r_{\sigma(21)} + \sum_{k=1}^{20} \Delta z(r_{\sigma(k)}, r_{\sigma(k+1)}).
+\]
+\end{theorem}
+\begin{proof}
+The first and last spheres each require their radius as end clearance. Between consecutive spheres, the vertical space is given by $\Delta z$.
+\end{proof}
+
+\begin{theorem}[Optimality via Bitmask DP]
+The minimum of $L(\sigma)$ over all permutations is computed by dynamic programming with state $(S, j)$ where $S \subseteq \{1,\ldots,21\}$ is the set of placed spheres and $j$ is the last.
+\end{theorem}
+\begin{proof}
+Define $\mathrm{dp}[S][j]$ as the minimum partial length with set $S$ placed, ending at $j$. Initialize $\mathrm{dp}[\{j\}][j] = r_j$. Transition:
+\[
+\mathrm{dp}[S \cup \{k\}][k] = \min_{j \in S}\bigl(\mathrm{dp}[S][j] + \Delta z(r_j, r_k)\bigr).
+\]
+By Bellman's principle of optimality, this yields $L^* = \min_j(\mathrm{dp}[\text{all}][j] + r_j)$.
+\end{proof}
+
+\section{Algorithm}
+Precompute $\Delta z(r_i, r_j)$ for all pairs. Run bitmask DP over $2^{21} \times 21$ states. Extract minimum and convert mm to $\mu$m.
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(2^n \cdot n^2)$ with $n = 21$, i.e., $\approx 9.2 \times 10^8$.
+\item \textbf{Space:} $O(2^n \cdot n) \approx 4.4 \times 10^7$ entries.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1590933}
+\]
+
+\end{document}

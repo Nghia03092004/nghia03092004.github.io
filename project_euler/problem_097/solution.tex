@@ -1,0 +1,74 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 97: Large Non-Mersenne Prime}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the last ten digits of the non-Mersenne prime
+\[
+N = 28433 \times 2^{7830457} + 1.
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Ring homomorphism]
+\label{thm:hom}
+The map $\pi_m : \mathbb{Z} \to \mathbb{Z}/m\mathbb{Z}$, $a \mapsto a \bmod m$, is a surjective ring homomorphism:
+\[
+(a+b) \bmod m = ((a \bmod m) + (b \bmod m)) \bmod m, \qquad
+(ab) \bmod m = ((a \bmod m)(b \bmod m)) \bmod m.
+\]
+\end{theorem}
+\begin{proof}
+Standard quotient-ring construction. Write $a = q_1 m + r_1$, $b = q_2 m + r_2$. Then $(a+b) \bmod m = (r_1 + r_2) \bmod m$ and $(ab) \bmod m = (r_1 r_2) \bmod m$.
+\end{proof}
+
+\begin{corollary}
+$N \bmod 10^{10} = \bigl(28433 \cdot (2^{7830457} \bmod 10^{10}) + 1\bigr) \bmod 10^{10}$.
+\end{corollary}
+
+\begin{theorem}[Binary exponentiation]
+\label{thm:binexp}
+Let $e = \sum_{i=0}^{k} e_i 2^i$. Initializing $r \gets 1$, $g \gets b$, and for each bit $i$: if $e_i = 1$ set $r \gets rg \bmod m$, then $g \gets g^2 \bmod m$, produces $r = b^e \bmod m$.
+\end{theorem}
+\begin{proof}
+By induction on the bit index~$i$. After processing bit~$i$, the invariants are $r \equiv b^{\sum_{j \le i} e_j 2^j} \pmod{m}$ and $g \equiv b^{2^{i+1}} \pmod{m}$. Both follow from Theorem~\ref{thm:hom} and the multiplicativity of the modular reduction.
+\end{proof}
+
+\begin{theorem}[Complexity]
+Binary exponentiation performs $\lfloor \log_2 e \rfloor + 1$ squarings and at most as many multiplications, each modulo~$m$. For $e = 7830457$ ($23$ bits) and $m = 10^{10} < 2^{34}$, this is $23$ iterations of $O(1)$ cost each.
+\end{theorem}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Last ten digits of $28433 \times 2^{7830457} + 1$}
+\begin{algorithmic}[1]
+\STATE $m \gets 10^{10}$
+\STATE $r \gets \textsc{ModPow}(2,\; 7830457,\; m)$ \COMMENT{Binary exponentiation}
+\RETURN $(28433 \cdot r + 1) \bmod m$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\textbf{Time:} $O(\log e) = O(23) = O(1)$.
+
+\textbf{Space:} $O(1)$.
+
+\section{Answer}
+
+\[
+\boxed{8739992577}
+\]
+
+\end{document}

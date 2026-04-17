@@ -1,0 +1,75 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 813: XOR Power}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The \textbf{XOR-product} $n \otimes m$ is carryless multiplication: polynomial multiplication in $\mathrm{GF}(2)[x]$ where integers are identified with polynomials via binary representation. Define $P(n) = n^{\otimes n} \bmod (n^{\otimes 2} \oplus n \oplus 1)$. Compute $\sum_{n=2}^{N} P(n)$.
+
+\section{GF(2) Polynomial Ring}
+
+\begin{theorem}[Freshman's Dream]
+In $\mathrm{GF}(2)[x]$, for any polynomial~$f$:
+\[
+f(x)^{2^k} = f(x^{2^k}).
+\]
+\end{theorem}
+
+\begin{proof}
+In characteristic~2, $(a+b)^2 = a^2 + b^2$. Applied inductively to $f = \sum a_i x^i$ with $a_i \in \{0,1\}$: $f^{2^k} = \sum a_i x^{i \cdot 2^k} = f(x^{2^k})$.
+\end{proof}
+
+\begin{lemma}
+$\mathrm{GF}(2)[x]$ is a Euclidean domain. Division with remainder is performed using XOR (addition in $\mathrm{GF}(2)$) instead of subtraction.
+\end{lemma}
+
+\section{Algorithm}
+
+For each $n \ge 2$:
+\begin{enumerate}
+\item Compute $m = n^{\otimes 2} \oplus n \oplus 1$. By Freshman's Dream, $n(x)^2 = n(x^2)$, so $m(x) = n(x^2) + n(x) + 1$.
+\item Compute $n^{\otimes n} \bmod m$ using repeated squaring in $\mathrm{GF}(2)[x]/(m)$.
+\item Each multiplication is $O(B^2)$ where $B = \deg m \approx 2\log_2 n$.
+\end{enumerate}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+$n$ & $n(x)$ & Modulus & $n^{\otimes n}$ & $P(n)$ \\
+\midrule
+2 & $x$ & $x^2+x+1$ & $x^2$ & $3$ \\
+3 & $x+1$ & $x^2+x+1$ & $(x+1)^3$ & $0$ \\
+4 & $x^2$ & $x^4+x^2+1$ & $x^8$ & varies \\
+5 & $x^2+1$ & $x^4+x^2+x$ & $(x^2+1)^5$ & varies \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+
+\begin{itemize}
+\item Per value of $n$: $O(B^2 \log n)$ where $B = 2\lceil\log_2 n\rceil$.
+\item Total: $O(N \log^3 N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{14063639}
+\]
+
+\end{document}

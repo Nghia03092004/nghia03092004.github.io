@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{a4paper,margin=1in}
+
+\title{Problem 846: Magic Bracelets}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A bracelet is made by connecting at least three numbered beads in a circle. Each bead can display either $1$, $2$, or a number of the form $p^k$ or $2p^k$ where $p$ is an odd prime. A bracelet is \emph{magic} if:
+\begin{enumerate}
+    \item No two beads display the same number.
+    \item The product of any two adjacent beads is of the form $x^2 + 1$ for some integer $x$.
+\end{enumerate}
+
+The \emph{potency} of a magic bracelet is the sum of numbers on its beads. Define $F(N)$ as the sum of potencies of all magic bracelets using integers $\leq N$, where rotations and reflections are equivalent.
+
+Given: $F(20) = 258$, $F(10^2) = 538768$. Find $F(10^6)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Representability as $x^2 + 1$}
+
+A positive integer $m$ can be written as $x^2 + 1$ for some non-negative integer $x$ if and only if every prime factor $p \equiv 3 \pmod{4}$ appears to an even power in $m$, with the additional constraint that $m \geq 1$.
+
+More precisely, $m = x^2 + 1$ requires finding $x$ such that $x^2 = m - 1$, so $m - 1$ must be a perfect square (when checking directly) or we can use the Gaussian integer factorization approach.
+
+\subsection{Graph Model}
+
+We construct a graph $G = (V, E)$ where:
+\begin{itemize}
+    \item $V = \{n \in \mathbb{Z}^+ : n \leq N, \; n \in \{1, 2\} \cup \{p^k : p \text{ odd prime}\} \cup \{2p^k : p \text{ odd prime}\}\}$
+    \item $(a,b) \in E \iff ab = x^2 + 1$ for some non-negative integer $x$
+\end{itemize}
+
+\subsection{Counting Bracelets}
+
+A magic bracelet corresponds to a simple cycle in $G$ of length $\geq 3$. Under the dihedral group $D_n$, a cycle of length $n$ has $2n$ equivalent representations (rotations and reflections). Therefore:
+\[
+F(N) = \sum_{\text{cycles } C} \frac{\sum_{v \in C} v}{|D_{|C|}|} = \sum_{\text{cycles } C} \frac{\text{potency}(C)}{2|C|}
+\]
+
+where the sum is over all directed simple cycles and we divide by $2|C|$ to get distinct bracelets.
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Generate all valid bead values up to $N$.
+    \item For each pair, check if their product equals $x^2 + 1$ for some $x$.
+    \item Enumerate all simple cycles of length $\geq 3$ using DFS-based backtracking.
+    \item Apply the Burnside correction factor $\frac{1}{2n}$ for each cycle of length $n$.
+\end{enumerate}
+
+\section{Answer}
+
+\[
+\boxed{9851175623}
+\]
+
+\end{document}

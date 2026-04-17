@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 561: Divisor Pairs}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $\mathrm{Pairs}(n)$ denote the number of ordered pairs $(d_1,d_2)$ of positive divisors of~$n$ with $d_1 \le d_2$ and $n = d_1 \cdot d_2$. Define
+\[
+S(N) = \sum_{n=1}^{N}\mathrm{Pairs}(n).
+\]
+We seek $S(10^{10})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Reduction to Divisor Counting]
+For every positive integer~$n$,
+\[
+\mathrm{Pairs}(n) = \left\lceil \frac{\tau(n)}{2}\right\rceil = \frac{\tau(n) + [n \text{ is a perfect square}]}{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+The divisors of~$n$ partition into pairs $(d, n/d)$ with $d < n/d$, plus a singleton $\{d\}$ when $d^2 = n$. Each pair yields one ordered pair $(d_1,d_2)$ with $d_1 < d_2$; the singleton yields $(d,d)$. Hence
+$\mathrm{Pairs}(n) = \lfloor\tau(n)/2\rfloor + [n \text{ is a perfect square}] = \lceil\tau(n)/2\rceil$.
+\end{proof}
+
+\begin{lemma}[Summatory Formula]
+\[
+S(N) = \frac{1}{2}\!\left(\sum_{n=1}^{N}\tau(n) + \lfloor\sqrt{N}\rfloor\right).
+\]
+\end{lemma}
+
+\begin{proof}
+Summing over $n$, the Iverson bracket $[n\text{ is a perfect square}]$ contributes $\lfloor\sqrt{N}\rfloor$.
+\end{proof}
+
+\begin{theorem}[Hyperbola Method]
+\[
+\sum_{n=1}^{N}\tau(n) = 2\sum_{d=1}^{\lfloor\sqrt{N}\rfloor}\left\lfloor\frac{N}{d}\right\rfloor - \lfloor\sqrt{N}\rfloor^2.
+\]
+\end{theorem}
+
+\begin{proof}
+Write $\sum_{n=1}^{N}\tau(n) = \#\{(a,b): ab \le N\}$. The Dirichlet hyperbola method splits the lattice points below the hyperbola $ab = N$ into those with $a \le \sqrt{N}$, those with $b \le \sqrt{N}$, and subtracts the doubly-counted square $a,b \le \sqrt{N}$.
+\end{proof}
+
+\begin{theorem}[Sublinear Evaluation]
+The sum $\sum_{d=1}^{M}\lfloor N/d\rfloor$ can be computed in $O(\sqrt{N})$ time by grouping consecutive~$d$ with the same quotient $\lfloor N/d\rfloor$.
+\end{theorem}
+
+\begin{proof}
+There are $O(\sqrt{N})$ distinct values of $\lfloor N/d\rfloor$ for $d \in \{1,\ldots,N\}$: if $q \le \sqrt{N}$ or $d \le \sqrt{N}$. Each block of consecutive~$d$ sharing the same quotient is processed in $O(1)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Compute $M = \lfloor\sqrt{N}\rfloor$.
+\item Using the block decomposition, compute $T = \sum_{d=1}^{M}\lfloor N/d\rfloor$ in $O(\sqrt{N})$.
+\item Set $\mathrm{sum\_tau} = 2T - M^2$.
+\item Return $(\mathrm{sum\_tau} + M)/2$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\sqrt{N})$. The block decomposition visits $O(\sqrt{N})$ quotient classes.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{452480999988235494}
+\]
+
+\end{document}

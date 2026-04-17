@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 601: Divisibility Streaks}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For every positive integer $n$, define $\operatorname{streak}(n) = k$ as the smallest positive integer $k$ such that $n + k$ is not divisible by $k + 1$. Define $P(s, N)$ as the number of integers $n$ with $1 < n < N$ for which $\operatorname{streak}(n) = s$. Given $P(3, 14) = 1$ and $P(6, 10^6) = 14286$, find
+\[
+\sum_{i=1}^{31} P(i, 4^i).
+\]
+
+\section{Mathematical Foundation}
+
+Let $M_s = \operatorname{lcm}(2, 3, \ldots, s+1)$ for $s \geq 1$.
+
+\begin{theorem}
+For all positive integers $n$ and $s \geq 1$, $\operatorname{streak}(n) \geq s$ if and only if $n \equiv 1 \pmod{M_s}$.
+\end{theorem}
+
+\begin{proof}
+The condition $\operatorname{streak}(n) \geq s$ means $(j+1) \mid (n+j)$ for all $j = 1, 2, \ldots, s$. Since $n + j = (n-1) + (j+1)$, we have $(j+1) \mid (n+j) \iff (j+1) \mid (n-1)$. Thus the condition becomes $m \mid (n-1)$ for every $m \in \{2, 3, \ldots, s+1\}$, which is equivalent to $\operatorname{lcm}(2,3,\ldots,s+1) \mid (n-1)$, i.e., $n \equiv 1 \pmod{M_s}$.
+\end{proof}
+
+\begin{lemma}
+The number of integers $n$ with $1 < n < N$ satisfying $n \equiv 1 \pmod{M}$ is $\lfloor (N-2)/M \rfloor$.
+\end{lemma}
+
+\begin{proof}
+Substituting $k = n - 1$, we count $k \in \{1, 2, \ldots, N-2\}$ with $M \mid k$. The number of positive multiples of $M$ up to $N - 2$ is $\lfloor (N-2)/M \rfloor$.
+\end{proof}
+
+\begin{theorem}[Counting Formula]
+\[
+P(s, N) = \left\lfloor \frac{N-2}{M_s} \right\rfloor - \left\lfloor \frac{N-2}{M_{s+1}} \right\rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+$\operatorname{streak}(n) = s$ requires $\operatorname{streak}(n) \geq s$ and $\operatorname{streak}(n) \not\geq s+1$, i.e., $M_s \mid (n-1)$ and $M_{s+1} \nmid (n-1)$. By the lemma, $P(s,N) = \lfloor(N-2)/M_s\rfloor - \lfloor(N-2)/M_{s+1}\rfloor$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Compute $M_k = \operatorname{lcm}(2, 3, \ldots, k+1)$ iteratively for $k = 1, \ldots, 32$.
+\item For each $i = 1, \ldots, 31$, evaluate $P(i, 4^i)$ via the counting formula.
+\item Sum all terms.
+\end{enumerate}
+
+Note: By the Prime Number Theorem, $\log M_s \sim s$, so for large $i$, $M_{i+1} > 4^i - 2$ and the second floor term vanishes.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(31)$ big-integer divisions, each on numbers with $O(i)$ digits. Total: $O(1)$ (bounded constant).
+\item \textbf{Space:} $O(1)$ (bounded by the digit count of $M_{32}$).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1617243}
+\]
+
+\end{document}

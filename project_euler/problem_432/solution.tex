@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 432: Totient Stairstep Sequences}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define the iterated Euler totient function: $\phi^{(0)}(n) = n$, $\phi^{(k)}(n) = \phi(\phi^{(k-1)}(n))$. Let $f(n) = \min\{k : \phi^{(k)}(n) = 1\}$ with $f(1) = 0$. Find $\sum_{n=2}^{N} f(n)$ for $N = 5 \times 10^8$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Strict Decrease of Totient]
+For every integer $n \geq 2$, $\phi(n) < n$.
+\end{theorem}
+
+\begin{proof}
+Since $n \geq 2$, there exists a prime $p \mid n$. Among $\{1, \ldots, n\}$, the $n/p$ multiples of $p$ are not coprime to $n$, so $\phi(n) \leq n - n/p < n$.
+\end{proof}
+
+\begin{lemma}[Well-Definedness of $f$]
+The function $f(n)$ is well-defined for all $n \geq 1$.
+\end{lemma}
+
+\begin{proof}
+By Theorem~1, $\phi^{(k)}(n)$ is a strictly decreasing sequence of positive integers for $n \geq 2$. Every such sequence is finite, so $\phi^{(k)}(n) = 1$ for some $k$.
+\end{proof}
+
+\begin{theorem}[Recurrence]
+For $n \geq 2$, $f(n) = 1 + f(\phi(n))$.
+\end{theorem}
+
+\begin{proof}
+One application of $\phi$ advances the chain by one step. The remaining steps from $\phi(n)$ to $1$ number $f(\phi(n))$ by definition.
+\end{proof}
+
+\begin{theorem}[Euler's Product Formula]
+For $n = p_1^{a_1} \cdots p_k^{a_k}$,
+\[
+\phi(n) = n \prod_{p \mid n} \left(1 - \frac{1}{p}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+Follows from the Chinese Remainder Theorem and $\phi(p^a) = p^{a-1}(p-1)$.
+\end{proof}
+
+\begin{lemma}[Sieve Correctness]
+Initializing $\phi(n) = n$ and, for each prime $p$, multiplying $\phi(kp)$ by $(1 - 1/p)$ for all multiples $kp \leq N$ yields the correct totient for every $n \leq N$.
+\end{lemma}
+
+\begin{proof}
+Each prime factor $p$ of $n$ contributes exactly one factor of $(1 - 1/p)$ to the product formula. The sieve visits each prime and applies this factor to all its multiples, producing the correct result.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Compute $\phi(n)$ for all $n \leq N$ via the Euler sieve.
+    \item Compute $f(n) = 1 + f(\phi(n))$ for $n = 2, \ldots, N$ with $f(1) = 0$.
+    \item Return $\sum_{n=2}^{N} f(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log\log N)$ for the sieve; $O(N)$ for computing $f$ and summation. Total: $O(N \log\log N)$.
+    \item \textbf{Space:} $O(N)$ for arrays $\phi$ and $f$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{754862080}
+\]
+
+\end{document}

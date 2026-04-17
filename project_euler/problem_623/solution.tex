@@ -1,0 +1,132 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 623: Lambda Count}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $\Lambda(n)$ count the number of permutations of $\{1, 2, \ldots, n\}$ consisting of exactly two disjoint cycles. Compute $\Lambda(n) \bmod p$ for given parameters.
+
+\section{Identification with Stirling Numbers}
+
+\begin{theorem}[Closed Form]
+\label{thm:closed}
+For $n \ge 2$,
+\[
+\Lambda(n) = \genfrac{[}{]}{0pt}{}{n}{2} = (n-1)!\,H_{n-1}
+\]
+where $\genfrac{[}{]}{0pt}{}{n}{2}$ is the unsigned Stirling number of the first kind and $H_m = \sum_{k=1}^m \frac{1}{k}$ is the $m$-th harmonic number.
+\end{theorem}
+
+\begin{proof}
+Fix element~$n$ in a cycle of length~$j$ ($1 \le j \le n-1$). Choose $j-1$ companions: $\binom{n-1}{j-1}$ ways. Arrange them cyclically: $(j-1)!$ ways. The remaining $n-j$ elements form the other cycle: $(n-j-1)!$ ways. Summing:
+\[
+\genfrac{[}{]}{0pt}{}{n}{2} = \sum_{j=1}^{n-1} \binom{n-1}{j-1}(j-1)!(n-j-1)! = \sum_{j=1}^{n-1} \frac{(n-1)!}{j} = (n-1)!\,H_{n-1}. \qedhere
+\]
+\end{proof}
+
+\section{Recurrence}
+
+\begin{proposition}
+The Stirling numbers satisfy
+\[
+\genfrac{[}{]}{0pt}{}{n}{k} = (n-1)\genfrac{[}{]}{0pt}{}{n-1}{k} + \genfrac{[}{]}{0pt}{}{n-1}{k-1}.
+\]
+\end{proposition}
+
+\begin{proof}
+Element~$n$ either inserts into one of $n-1$ positions in an existing cycle (preserving cycle count), or forms a new fixed point (increasing cycle count by~1).
+\end{proof}
+
+\begin{corollary}
+For $k=2$: $\genfrac{[}{]}{0pt}{}{n}{2} = (n-1)\genfrac{[}{]}{0pt}{}{n-1}{2} + (n-2)!$
+\end{corollary}
+
+\section{Exponential Generating Function}
+
+\begin{proposition}
+\[
+\sum_{n=2}^{\infty} \genfrac{[}{]}{0pt}{}{n}{2}\,\frac{x^n}{n!} = \frac{1}{2}\!\left(\ln\frac{1}{1-x}\right)^{\!2}.
+\]
+\end{proposition}
+
+\begin{proof}
+The EGF for cycles is $\ln\frac{1}{1-x}$. The EGF for permutations with exactly $k$ cycles is $\frac{1}{k!}\bigl(\ln\frac{1}{1-x}\bigr)^k$ by the exponential formula.
+\end{proof}
+
+\section{Modular Computation}
+
+\subsection{Method 1: Fermat Inverses}
+
+Compute $H_{n-1} \bmod p = \sum_{k=1}^{n-1} k^{p-2} \bmod p$ using Fermat's little theorem. Cost: $O(n \log p)$.
+
+\subsection{Method 2: Inverse Recurrence}
+
+\begin{lemma}
+For prime~$p$ and $1 \le k < p$:
+\[
+k^{-1} \equiv -\!\left\lfloor\frac{p}{k}\right\rfloor \cdot (p \bmod k)^{-1} \pmod{p}.
+\]
+\end{lemma}
+
+\begin{proof}
+$p = k\lfloor p/k\rfloor + (p \bmod k)$, so $0 \equiv k\lfloor p/k\rfloor + (p\bmod k) \pmod{p}$. Dividing by $k(p\bmod k)$: $k^{-1} \equiv -\lfloor p/k\rfloor \cdot (p\bmod k)^{-1}$.
+\end{proof}
+
+This computes all inverses $1^{-1}, \ldots, (n-1)^{-1}$ in $O(n)$ total time.
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$n$ & $H_{n-1}$ & $(n-1)!$ & $\Lambda(n)$ \\
+\midrule
+2  & 1       & 1      & 1       \\
+3  & 3/2     & 2      & 3       \\
+4  & 11/6    & 6      & 11      \\
+5  & 25/12   & 24     & 50      \\
+6  & 137/60  & 120    & 274     \\
+7  & 49/20   & 720    & 1764    \\
+8  & 363/140 & 5040   & 13068   \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Proof of Correctness}
+
+\begin{theorem}
+$(n-1)!\,H_{n-1}$ is always a positive integer.
+\end{theorem}
+
+\begin{proof}
+By induction. Base: $1!\cdot H_1 = 1$. Step: $(n-1)!\,H_{n-1} = (n-1)(n-2)!\,H_{n-2} + (n-2)!$, a sum of integers.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Inverse recurrence:} $O(n)$ time, $O(n)$ space.
+\item \textbf{Fermat inverses:} $O(n \log p)$ time, $O(1)$ space.
+\item \textbf{Recurrence:} $O(n)$ time, $O(1)$ space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3679796}
+\]
+
+\end{document}

@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 843: Periodic Tilings}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count the number of domino tilings $T(m,n)$ of an $m \times n$ grid.
+
+\section{Kasteleyn's Formula}
+
+\begin{theorem}[Kasteleyn, 1961]
+\[
+T(m,n) = \prod_{j=1}^{\lceil m/2\rceil}\prod_{k=1}^{\lceil n/2\rceil}\left(4\cos^2\frac{\pi j}{m+1} + 4\cos^2\frac{\pi k}{n+1}\right).
+\]
+\end{theorem}
+
+\begin{theorem}[Transfer Matrix]
+$T(m,n) = \mathbf{e}^T M^n \mathbf{e}_0$ where $M$ is the $2^m \times 2^m$ profile transition matrix.
+\end{theorem}
+
+\begin{lemma}
+$T(2,n) = F_{n+1}$ (Fibonacci), since $T(2,n) = T(2,n-1) + T(2,n-2)$.
+\end{lemma}
+
+\section{Asymptotic}
+$\frac{\log T(n,n)}{n^2} \to G/\pi \approx 0.29156$ where $G$ is Catalan's constant.
+
+\section{Examples}
+\begin{center}
+\begin{tabular}{ccc}
+\toprule $m$ & $n$ & $T(m,n)$ \\ \midrule
+2 & 3 & 3 \\ 4 & 4 & 36 \\ 8 & 8 & 12988816 \\ \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{2816775424692}
+\]
+
+\end{document}

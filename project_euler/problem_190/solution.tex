@@ -1,0 +1,67 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 190: Maximising a Weighted Product}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $S_m = \{(x_1, \ldots, x_m) : x_i > 0,\; \sum_{i=1}^m x_i = m\}$ and
+\[
+P_m = \max_{S_m} \prod_{i=1}^m x_i^i.
+\]
+Find $\displaystyle\sum_{m=2}^{15} \lfloor P_m \rfloor$.
+
+\section{Mathematical Analysis}
+
+\subsection{Lagrange Multiplier Method}
+
+Maximize $\ln f = \sum_{i=1}^m i \ln x_i$ subject to $\sum_{i=1}^m x_i = m$.
+
+The Lagrangian is:
+\[
+\mathcal{L} = \sum_{i=1}^m i \ln x_i - \lambda \left(\sum_{i=1}^m x_i - m\right)
+\]
+
+Setting $\partial \mathcal{L}/\partial x_i = 0$:
+\[
+\frac{i}{x_i} = \lambda \implies x_i = \frac{i}{\lambda}
+\]
+
+\subsection{Determining $\lambda$}
+
+From the constraint:
+\[
+\sum_{i=1}^m \frac{i}{\lambda} = m \implies \frac{1}{\lambda} \cdot \frac{m(m+1)}{2} = m \implies \lambda = \frac{m+1}{2}
+\]
+
+\subsection{Optimal Solution}
+
+\[
+x_i^* = \frac{2i}{m+1}
+\]
+
+\subsection{Maximum Value}
+
+\[
+P_m = \prod_{i=1}^m \left(\frac{2i}{m+1}\right)^i
+\]
+
+\subsection{Proof of Global Maximum}
+
+\begin{proof}
+The objective $\sum_{i=1}^m i \ln x_i$ is strictly concave on the positive orthant (the Hessian is diagonal with entries $-i/x_i^2 < 0$). The feasible set defined by the linear constraint $\sum x_i = m$ with $x_i > 0$ is convex. A strictly concave function on a convex set has at most one maximum, so the critical point found via Lagrange multipliers is the unique global maximum.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{371048281}
+\]
+
+\end{document}

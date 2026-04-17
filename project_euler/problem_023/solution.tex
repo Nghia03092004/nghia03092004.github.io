@@ -1,0 +1,115 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Project Euler Problem 23: Non-Abundant Sums}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer $n$ is \emph{abundant} if the sum of its proper divisors exceeds~$n$. Find the sum of all positive integers that cannot be written as the sum of two abundant numbers, given that every integer greater than $28123$ admits such a representation.
+
+\section{Definitions}
+
+\begin{definition}[Abundant Number]
+A positive integer $n$ is \emph{abundant} if $s(n) > n$, where $s(n) = \sigma_1(n) - n$.
+\end{definition}
+
+\begin{definition}[Abundant-Sum Representability]
+A positive integer $m$ is \emph{abundant-sum representable} if there exist abundant numbers $a, b$ with $m = a + b$. Denote the set of such integers by $\mathcal{A}_2$.
+\end{definition}
+
+\section{Theorems and Proofs}
+
+\begin{theorem}[Smallest Abundant Number]
+The smallest abundant number is $12$.
+\end{theorem}
+
+\begin{proof}
+Exhaustive verification shows $s(n) \leq n$ for all $n \leq 11$ (with $s(6) = 6$ being perfect). For $n = 12$: $s(12) = 1 + 2 + 3 + 4 + 6 = 16 > 12$.
+\end{proof}
+
+\begin{theorem}[Closure Under Scaling]
+If $n$ is abundant and $k \geq 2$, then $kn$ is abundant.
+\end{theorem}
+
+\begin{proof}
+For each $d \mid n$, the integer $kd$ divides $kn$, so $\{kd : d \mid n\} \subseteq \{d : d \mid kn\}$. Hence
+\[
+\sigma_1(kn) \geq \sum_{d \mid n} kd = k\,\sigma_1(n) > 2kn,
+\]
+where the last inequality uses $\sigma_1(n) > 2n$. Thus $s(kn) > kn$.
+\end{proof}
+
+\begin{corollary}
+Every positive multiple of $12$ that is at least $24$ is abundant.
+\end{corollary}
+
+\begin{theorem}[Finite Complement of $\mathcal{A}_2$]
+Every integer greater than $28123$ belongs to $\mathcal{A}_2$.
+\end{theorem}
+
+\begin{proof}
+By the preceding corollary, all multiples of $12$ from $24$ onward are abundant. Since abundant numbers have positive asymptotic density (Davenport, 1933: density $\approx 0.2477$), the sumset $\mathcal{A}_2$ contains all sufficiently large integers. The bound $28123$ has been verified computationally.
+\end{proof}
+
+\begin{remark}
+The largest integer not in $\mathcal{A}_2$ is $20161$, so $28123$ is a conservative upper bound.
+\end{remark}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Sum of Non-Abundant Sums}
+\begin{algorithmic}[1]
+\REQUIRE Upper bound $N = 28123$
+\ENSURE $\displaystyle\sum_{\substack{n=1 \\ n \notin \mathcal{A}_2}}^{N} n$
+\STATE Sieve: for $i = 1$ to $N$, add $i$ to $\mathrm{spd}[j]$ for each multiple $j = 2i, 3i, \ldots \leq N$
+\STATE $A \gets \{i \in [1, N] : \mathrm{spd}[i] > i\}$
+\STATE Initialize $\mathrm{repr}[1..N] \gets \mathrm{false}$
+\FOR{$i = 1$ \TO $|A|$}
+    \FOR{$j = i$ \TO $|A|$}
+        \IF{$A[i] + A[j] > N$}
+            \STATE \textbf{break}
+        \ENDIF
+        \STATE $\mathrm{repr}[A[i] + A[j]] \gets \mathrm{true}$
+    \ENDFOR
+\ENDFOR
+\RETURN $\sum_{n=1}^{N} n \cdot [\neg\,\mathrm{repr}[n]]$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(N \log N + A^2)$ time and $O(N)$ space, where $A \approx 0.2477\,N$.
+\end{proposition}
+
+\begin{proof}
+The sieve in Step~1 performs $\sum_{i=1}^{N}(\lfloor N/i\rfloor - 1) = N H_N - N = O(N \log N)$ operations. The double loop over abundant numbers executes at most $\binom{A}{2} + A = O(A^2)$ iterations. The boolean and divisor-sum arrays each require $O(N)$ space.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{4179871}
+\]
+
+\end{document}

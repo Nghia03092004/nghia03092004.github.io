@@ -1,0 +1,52 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 725: Digit Sum Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A number where one digit equals the sum of all other digits is called a \textbf{digit sum number} (DS-number). Define $S(n)$ as the sum of all DS-numbers with at most $n$ digits. Given $S(3) = 63270$ and $S(7) = 85499991450$, find $S(2020) \bmod 10^{16}$.
+
+\section{Analysis}
+
+\subsection{Counting Compositions}
+
+Let $f(s, k)$ denote the number of ways to choose $k$ digits (each $0$--$9$) summing to $s$. By inclusion-exclusion:
+\[
+f(s, k) = \sum_{j=0}^{\lfloor s/10 \rfloor} (-1)^j \binom{k}{j} \binom{s - 10j + k - 1}{k - 1}
+\]
+
+Since $s \le 9$, we always have $j = 0$, giving:
+\[
+f(s, k) = \binom{s + k - 1}{k - 1} \quad \text{for } s \le 9
+\]
+
+\subsection{Value Contributions}
+
+For an $m$-digit DS-number with special digit $d$ at position $p$:
+
+\textbf{Special digit contribution:} $d \cdot 10^p \cdot (\text{number of valid fillings})$
+
+\textbf{Other digits contribution:} By symmetry, across all valid fillings of $k = m-1$ positions summing to $d$, each position contributes equally. The average digit value at each position is $d/k$. The total weighted sum contribution of the other digits is:
+\[
+\frac{d}{k} \cdot f(d, k) \cdot \sum_{\substack{q=0 \\ q \neq p}}^{m-1} 10^q
+\]
+
+\subsection{Leading Zero Correction}
+
+When the special digit is not in the leading position ($p \neq m-1$), we must ensure the leading digit is nonzero. We subtract cases where the leading position has digit 0, which means the remaining $k-1$ non-leading, non-special positions sum to $d$.
+
+\section{Answer}
+
+\[
+\boxed{4598797036650685}
+\]
+
+\end{document}

@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 526: Largest Prime Factors of Consecutive Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $f(n)$ be the largest prime factor of~$n$. Define
+\[
+g(n) = \sum_{i=0}^{8} f(n+i), \qquad h(n) = \max_{2 \le k \le n} g(k).
+\]
+Given $h(10^9) = 4896292593$, find $h(10^{16})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Maximality Near Prime Clusters]
+The function $g(n)$ is maximized when the nine consecutive integers $n, n+1, \ldots, n+8$ contain as many primes as possible. The trivial upper bound is
+\[
+g(n) \le \sum_{i=0}^{8}(n+i) = 9n + 36,
+\]
+with equality if and only if all nine integers are prime (impossible for $n > 5$).
+\end{theorem}
+
+\begin{proof}
+Since $f(m) \le m$ for all~$m$, with equality iff $m$ is prime, the bound follows. Among nine consecutive integers with $n > 5$, at least four are even (hence composite for $n > 2$), so the bound is never achieved.
+\end{proof}
+
+\begin{lemma}[Admissible Prime Patterns]
+Among the residues $\{n, n+1, \ldots, n+8\} \pmod{30}$, an admissible pattern is one where no prime $p \le 8$ eliminates all candidates. By the Hardy--Littlewood $k$-tuples conjecture, the densest prime clusters near~$N$ occur at positions matching admissible patterns, with frequency $\Theta(1/(\ln N)^k)$ for $k$ simultaneous primes.
+\end{lemma}
+
+\begin{proof}
+The $k$-tuples conjecture predicts that any admissible pattern occurs infinitely often among primes. For nine consecutive integers, the admissible patterns with the most prime positions determine where $g(n)$ is maximized.
+\end{proof}
+
+\begin{theorem}[Segmented Sieve Correctness]
+For integers in a segment $[L, L+S)$, the largest prime factor of each integer can be determined by trial division with all primes $p \le \sqrt{N}$: after dividing out all such primes, any remaining cofactor greater than~$1$ is itself a prime exceeding $\sqrt{N}$.
+\end{theorem}
+
+\begin{proof}
+If $n = L + j$ has a prime factor $q > \sqrt{N}$, then $n/q < \sqrt{N}$, so all prime factors of $n/q$ are $\le \sqrt{N}$ and are removed during the sieve. The cofactor after removing all small primes is exactly~$q$. Since $n$ can have at most one prime factor exceeding~$\sqrt{N}$, the algorithm correctly identifies the largest prime factor.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Sieve all primes up to $\sqrt{10^{16}} = 10^8$ using the Sieve of Eratosthenes.
+    \item Identify candidate intervals near $10^{16}$ with high prime density.
+    \item For each candidate interval $[L, L+S)$, apply the segmented sieve to compute $f(n)$ for every $n$ in the interval.
+    \item Compute $g(k)$ via a sliding window of width~9, tracking the global maximum.
+    \item Return the maximum $g$ value found.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\sqrt{N})$ for the prime sieve, plus $O(L_{\mathrm{total}} \log\log N)$ for the segmented sieve over total search length $L_{\mathrm{total}}$.
+    \item \textbf{Space:} $O(\sqrt{N} + S)$ where $S$ is the segment size.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{49601160286750947}
+\]
+
+\end{document}

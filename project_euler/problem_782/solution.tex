@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 782: Distinct Rows and Columns}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A binary matrix is \emph{distinct} if all rows are different and all columns are different. Let $D(n,m)$ be the number of distinct $n \times m$ binary matrices. Find $\sum_{m=1}^{20} D(20, m)$ modulo $1\,000\,000\,007$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Row Distinctness]
+The number of $n \times m$ binary matrices with all $n$ rows distinct is the falling factorial
+\[
+R(n,m) = (2^m)_n = 2^m(2^m - 1)(2^m - 2)\cdots(2^m - n + 1)
+\]
+when $2^m \ge n$, and $0$ otherwise.
+\end{theorem}
+
+\begin{proof}
+Each row is a binary vector in $\{0,1\}^m$, giving $2^m$ possible row values. Choosing $n$ distinct rows in order is the falling factorial $(2^m)_n$.
+\end{proof}
+
+\begin{lemma}[Column Partition Reduction]
+The computation reduces to:
+\[
+D(n,m) = \sum_{p=0}^{m} (-1)^{m-p}\, S(m,p)\, (2^p)_n
+\]
+where $S(m,p)$ is the Stirling number of the second kind (partitioning $m$ columns into $p$ nonempty groups), and $(2^p)_n$ is the falling factorial.
+\end{lemma}
+
+\begin{proof}
+Apply M\"obius inversion on the partition lattice of columns. When columns are partitioned into $p$ equivalence classes (identical columns), the effective matrix has $p$ distinct column-types. The row-distinctness count for binary vectors of length $p$ is $(2^p)_n$. Summing over all partitions with the appropriate sign from inclusion-exclusion over column coincidences yields the stated formula.
+\end{proof}
+
+\begin{theorem}[Full Formula]
+Let $D(n,m)$ count $n \times m$ binary matrices where all rows are distinct and all columns are distinct. Then
+\[
+D(n,m) = \sum_{p=0}^{m} (-1)^{m-p}\, S(m,p)\, (2^p)_n.
+\]
+\end{theorem}
+
+\begin{proof}
+Combine Theorem~1 and Lemma~1. The inclusion-exclusion over column equalities partitions the column set. Each partition into $p$ parts contributes $S(m,p)$ terms with sign $(-1)^{m-p}$ (from the M\"obius function of the partition lattice), and each such configuration admits $(2^p)_n$ row-distinct matrices.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function D(n, m):
+    Precompute Stirling numbers S(m, p) for p = 0..m
+    using S(i,p) = p*S(i-1,p) + S(i-1,p-1)
+
+    result = 0
+    for p = 0 to m:
+        ff = falling_factorial(2^p, n) mod MOD
+        sign = (-1)^(m - p)
+        result += sign * S[m][p] * ff
+    return result mod MOD
+
+function solve():
+    total = sum of D(20, m) for m = 1 to 20
+    return total mod 10^9+7
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(m^2)$ per call to $D(n,m)$ for Stirling numbers, plus $O(m \cdot n)$ for falling factorials. Total over all $m$: $O(m_{\max}^3 + m_{\max}^2 \cdot n)$.
+    \item \textbf{Space:} $O(m^2)$ for the Stirling number table.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{318313204}
+\]
+
+\end{document}

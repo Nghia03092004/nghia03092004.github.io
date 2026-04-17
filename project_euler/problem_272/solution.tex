@@ -1,0 +1,91 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 272: Modular Cubes, Part 2}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a positive integer $n$, define $C(n)$ as the number of integers $x$ with $1 < x < n$ such that $x^3 \equiv 1 \pmod{n}$. Find the sum of all positive integers $n \le 10^{11}$ for which $C(n) = 242$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Multiplicativity]
+Define $c(n) = |\{x \in \{0,\ldots,n{-}1\} : x^3 \equiv 1 \pmod{n}\}|$. Then $c$ is multiplicative.
+\end{theorem}
+
+\begin{proof}
+By the CRT, $\mathbb{Z}/mn\mathbb{Z} \cong \mathbb{Z}/m\mathbb{Z} \times \mathbb{Z}/n\mathbb{Z}$ when $\gcd(m,n)=1$, so the solution set to $x^3 \equiv 1$ decomposes as a direct product.
+\end{proof}
+
+\begin{lemma}[Prime-Power Values]
+For prime $p$ and $a \ge 1$:
+\begin{enumerate}
+    \item $c(2^a) = 1$ for all $a$.
+    \item $c(3) = 1$; \; $c(3^a) = 3$ for $a \ge 2$.
+    \item $c(p^a) = 3$ for $p \equiv 1 \pmod{3}$, all $a$.
+    \item $c(p^a) = 1$ for $p \equiv 2 \pmod{3}$, $p \neq 3$, all $a$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+In the cyclic group $(\mathbb{Z}/p^a\mathbb{Z})^\times$ of order $\phi(p^a)$, the equation $x^3 = 1$ has $\gcd(3, \phi(p^a))$ solutions. For $p=2$: $\gcd(3, 2^{a-1})=1$. For $p=3$, $a=1$: $\gcd(3,2)=1$; for $a\ge 2$: $\gcd(3, 2\cdot 3^{a-1})=3$. For $p\equiv 1\pmod{3}$: $3\mid\phi(p^a)$. For $p\equiv 2\pmod{3}$, $p\neq 3$: $3\nmid\phi(p^a)$.
+\end{proof}
+
+\begin{theorem}[Structure]
+$c(n) = 3^{k(n)}$ where $k(n) = |\{p \mid n : p \equiv 1 \pmod{3}\}| + [v_3(n) \ge 2]$.
+\end{theorem}
+
+\begin{proof}
+Immediate from the multiplicativity of $c$ and the prime-power values.
+\end{proof}
+
+\begin{corollary}
+$C(n) = 242$ iff $c(n) = 243 = 3^5$ iff $k(n) = 5$. Two cases arise:
+\begin{itemize}
+    \item \textbf{Case A:} exactly 5 prime factors $\equiv 1\pmod{3}$, $9 \nmid n$.
+    \item \textbf{Case B:} exactly 4 prime factors $\equiv 1\pmod{3}$, $9 \mid n$.
+\end{itemize}
+\end{corollary}
+
+\begin{lemma}[Inclusion--Exclusion]
+For active set $S$ with product $P$ and $L = \lfloor N/P \rfloor$, the sum of valid multipliers $t \in [1,L]$ with no forbidden type-A factor is
+\[
+\mathrm{SumValid}(L) = \sum_{T \subseteq F} (-1)^{|T|}\, d_T \cdot \frac{f_T(f_T+1)}{2},
+\]
+where $F$ is the forbidden prime set, $d_T = \prod_{p\in T} p$, and $f_T = \lfloor L/d_T \rfloor$.
+\end{lemma}
+
+\begin{proof}
+Standard inclusion--exclusion. The sum of multiples of $d$ in $[1,L]$ is $d \cdot f(f+1)/2$ where $f = \lfloor L/d \rfloor$. Alternating signs correct for overcounting.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Enumerate type-A primes ($p \equiv 1 \pmod{3}$) up to $N$.
+    \item DFS over active subsets of size 5 (Case~A) or 4 (Case~B, with mandatory factor~9).
+    \item At each leaf, apply inclusion--exclusion to sum valid multipliers.
+    \item For Case~A, subtract the sub-contribution where $9 \mid t$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O\!\bigl(\binom{\pi_A}{5} \cdot 2^{|F|_{\mathrm{eff}}}\bigr)$, manageable since products grow rapidly. Under one minute in practice.
+    \item \textbf{Space:} $O(\pi_A)$ for the prime list.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{8495585919506151122}
+\]
+
+\end{document}

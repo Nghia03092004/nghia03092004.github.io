@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 808: Reversible Prime Squares}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Both 169 and 961 are the square of a prime. 169 is the reverse of 961. A number is called a \textbf{reversible prime square} if:
+\begin{enumerate}
+    \item It is not a palindrome.
+    \item It is the square of a prime.
+    \item Its digit-reversal is also the square of a prime.
+\end{enumerate}
+
+Find the sum of the first 50 reversible prime squares.
+
+\section{Mathematical Analysis}
+
+\subsection{Pairing Property}
+
+\begin{theorem}
+If $n = p^2$ is a reversible prime square, then $\mathrm{rev}(n) = q^2$ is also a reversible prime square.
+\end{theorem}
+
+\begin{proof}
+Let $n = p^2$ be a reversible prime square. Then $n$ is not a palindrome, $p$ is prime, and $\mathrm{rev}(n) = q^2$ for some prime $q$. We need to show $q^2$ is also a reversible prime square:
+\begin{itemize}
+    \item $q^2$ is the square of a prime $q$. \checkmark
+    \item $\mathrm{rev}(q^2) = \mathrm{rev}(\mathrm{rev}(p^2)) = p^2$ (assuming no leading zeros), which is the square of the prime $p$. \checkmark
+    \item Since $n = p^2$ is not a palindrome, $p^2 \neq q^2$, so $q^2$ is not a palindrome either. \checkmark
+\end{itemize}
+\end{proof}
+
+\subsection{Search Space}
+
+For primes $p$ up to $10^8$, the squares $p^2$ can be up to $10^{16}$. This provides a sufficient range to find at least 50 reversible prime squares.
+
+\subsection{Digit Constraints}
+
+For $p^2$ to satisfy the conditions:
+\begin{itemize}
+    \item The leading digit of $p^2$ must be a valid last digit of a perfect square, i.e., one of $\{0, 1, 4, 5, 6, 9\}$.
+    \item The last digit of $p^2$ cannot be 0 (to avoid leading zeros in the reversal).
+\end{itemize}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State Sieve all primes up to $N = 10^8$
+\For{each prime $p$ in the sieve}
+    \State $s \gets p^2$
+    \If{$s$ is a palindrome} \textbf{continue} \EndIf
+    \State $r \gets \mathrm{rev}(s)$
+    \State $q \gets \lfloor\sqrt{r}\rfloor$
+    \If{$q^2 \neq r$} \textbf{continue} \EndIf
+    \If{$q$ is not prime} \textbf{continue} \EndIf
+    \State Add $s$ to results
+\EndFor
+\State Sort results and sum the first 50
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time}: $O(N \log \log N)$ for the sieve, $O(\pi(N))$ for the main loop.
+    \item \textbf{Space}: $O(N)$ for the prime sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3807504276997394}
+\]
+
+\end{document}

@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 392: Enmeshed Unit Circle}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A rectilinear grid of $(N+2)$ vertical and $(N+2)$ horizontal lines has outer boundaries at $x = \pm 1$ and $y = \pm 1$. Grid cells overlapping the unit circle $x^2 + y^2 = 1$ are colored \emph{red}. Position the $N$ inner gridlines to minimize the total area of red cells. For $N = 10$, the answer is $3.3469640797$. Find the answer for $N = 400$.
+
+\section{Symmetry Reduction}
+By fourfold symmetry, the optimal grid is symmetric about both axes. In the first quadrant we place $N/2 = 200$ inner vertical lines:
+\[
+0 = x_0 < x_1 < x_2 < \cdots < x_{200} < x_{201} = 1
+\]
+and the same partition for horizontal lines.
+
+\section{Staircase Objective}
+The red cells in the first quadrant form an outer staircase under $y = \sqrt{1 - x^2}$. For strip $[x_i, x_{i+1}]$, the topmost red cell reaches height $\sqrt{1 - x_i^2}$. The quarter-area to minimize is:
+\[
+A_{Q_1} = \sum_{i=0}^{m} (x_{i+1} - x_i)\,\sqrt{1 - x_i^2}, \qquad m = N/2.
+\]
+The total red area is $A = 4\,A_{Q_1}$.
+
+\section{Optimality Conditions}
+Setting $\partial A_{Q_1}/\partial x_k = 0$ for each inner point:
+\[
+\sqrt{1 - x_{k-1}^2} - \sqrt{1 - x_k^2} + \frac{x_k\,(x_{k+1} - x_k)}{\sqrt{1 - x_k^2}} = 0
+\]
+yields the recurrence:
+\[
+x_{k+1} = x_k - \frac{\bigl(\sqrt{1 - x_k^2} - \sqrt{1 - x_{k-1}^2}\bigr)\;\sqrt{1 - x_k^2}}{x_k}
+\]
+
+Given $x_0 = 0$, the entire sequence is determined by the choice of $x_1$. We binary-search on $x_1 \in (0,1)$ until $x_{m+1} = 1$.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \cdot \log(1/\varepsilon))$ where $\varepsilon$ is the binary-search precision. Extremely fast for $N = 400$.
+    \item \textbf{Space:} $O(1)$ --- only three consecutive values are maintained.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3.1486734435}
+\]
+
+\end{document}

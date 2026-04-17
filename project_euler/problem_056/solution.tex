@@ -1,0 +1,124 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Problem 56: Powerful Digit Sum}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Considering natural numbers of the form $a^b$, where $a, b < 100$, find the maximum digital sum.
+
+\section{Mathematical Development}
+
+\begin{definition}[Digital Sum]
+Let $n$ be a positive integer with decimal representation $n = \sum_{i=0}^{k} d_i \cdot 10^i$, where $0 \leq d_i \leq 9$ and $d_k \neq 0$. The \emph{digital sum} of $n$ is
+\[
+S(n) = \sum_{i=0}^{k} d_i.
+\]
+\end{definition}
+
+\begin{theorem}[Digital Sum Congruence]
+For every positive integer $n$, $S(n) \equiv n \pmod{9}$.
+\end{theorem}
+
+\begin{proof}
+Since $10 \equiv 1 \pmod{9}$, we have $10^i \equiv 1 \pmod{9}$ for all $i \geq 0$. Therefore
+\[
+n = \sum_{i=0}^{k} d_i \cdot 10^i \equiv \sum_{i=0}^{k} d_i = S(n) \pmod{9}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Digit Count]
+For $a \geq 2$ and $b \geq 1$, the number of decimal digits of $a^b$ is $D(a,b) = \lfloor b \log_{10} a \rfloor + 1$.
+\end{lemma}
+
+\begin{proof}
+A positive integer $m$ has $\lfloor \log_{10} m \rfloor + 1$ digits. Since $\log_{10}(a^b) = b \log_{10} a$, the result follows.
+\end{proof}
+
+\begin{theorem}[Upper Bound]
+For $a, b < 100$, we have $S(a^b) \leq 9 \times 198 = 1782$.
+\end{theorem}
+
+\begin{proof}
+Each digit satisfies $d_i \leq 9$, so $S(n) \leq 9D$. The maximum digit count is
+\[
+D(99, 99) = \lfloor 99 \cdot \log_{10} 99 \rfloor + 1 = \lfloor 99 \times 1.99564\ldots \rfloor + 1 = 198. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Degenerate Cases]
+\leavevmode
+\begin{enumerate}
+    \item $S(1^b) = 1$ for all $b \geq 1$.
+    \item If $a = 10^m$ for some $m \geq 1$, then $S(a^b) = 1$ for all $b \geq 1$.
+    \item $S(a^1) \leq 18$ for all $a < 100$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Part~(1): $1^b = 1$. Part~(2): $(10^m)^b = 10^{mb}$, which has digit sum~1. Part~(3): $a < 100$ has at most 2 digits, each $\leq 9$.
+\end{proof}
+
+\begin{proposition}[Search Sufficiency]
+The set $\{(a,b) : 2 \leq a \leq 99, 1 \leq b \leq 99\}$ contains $9702$ pairs. Exhaustive evaluation of $S(a^b)$ for each pair suffices to find the maximum.
+\end{proposition}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find Maximum Digital Sum}
+\begin{algorithmic}[1]
+\State $\textit{maxSum} \gets 0$
+\For{$a = 2$ \textbf{to} $99$}
+    \State $\textit{power} \gets 1$
+    \For{$b = 1$ \textbf{to} $99$}
+        \State $\textit{power} \gets \textit{power} \times a$
+        \State $s \gets S(\textit{power})$
+        \State $\textit{maxSum} \gets \max(\textit{maxSum}, s)$
+    \EndFor
+\EndFor
+\State \Return $\textit{maxSum}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Time Complexity]
+The algorithm runs in $O(N^2 \cdot D_{\max})$ digit-level operations, where $N = 98$ and $D_{\max} = 198$.
+\end{theorem}
+
+\begin{proof}
+There are $98 \times 98$ loop iterations. Each iteration performs one multiplication of a $D$-digit number by a constant $a < 100$ in $O(D)$ time, plus digit sum extraction in $O(D)$ time. Since $D \leq 198$, the total is $O(98^2 \times 198) \approx 1.9 \times 10^6$.
+\end{proof}
+
+\noindent\textbf{Space:} $O(D_{\max})$ for the current big integer.
+
+\section{Result}
+
+The maximum digital sum is $\boxed{972}$, achieved at $a = 99$, $b = 95$.
+
+\section{Answer}
+
+\[
+\boxed{972}
+\]
+
+\end{document}

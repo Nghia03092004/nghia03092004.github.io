@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 169: Sum of Powers of 2 Representations}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define $f(n)$ as the number of ways to express $n$ as a sum of powers of 2, where each power of 2 is used at most twice. Find $f(10^{25})$.
+
+\section{Recursive Formula}
+
+\begin{theorem}
+The function $f(n)$ satisfies:
+\[
+f(n) = \begin{cases}
+1 & \text{if } n = 0, \\
+f\!\left(\lfloor n/2 \rfloor\right) & \text{if } n \text{ is odd}, \\
+f\!\left(n/2\right) + f\!\left(n/2 - 1\right) & \text{if } n \text{ is even and } n > 0.
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+Consider the coefficient $c_0$ of $2^0$ in a representation $n = \sum_{i \ge 0} c_i \cdot 2^i$ with $c_i \in \{0,1,2\}$.
+
+\textbf{Case $n$ odd:} We must have $c_0 = 1$ (the only odd choice). The remaining sum $\sum_{i \ge 1} c_i \cdot 2^i = n - 1$, so $\sum_{i \ge 1} c_i \cdot 2^{i-1} = (n-1)/2 = \lfloor n/2 \rfloor$. This gives $f(\lfloor n/2 \rfloor)$ representations.
+
+\textbf{Case $n$ even:} We have $c_0 \in \{0, 2\}$.
+\begin{itemize}
+    \item $c_0 = 0$: remaining sum gives $\sum_{i \ge 1} c_i \cdot 2^{i-1} = n/2$, contributing $f(n/2)$.
+    \item $c_0 = 2$: remaining sum gives $\sum_{i \ge 1} c_i \cdot 2^{i-1} = (n-2)/2 = n/2 - 1$, contributing $f(n/2 - 1)$.
+\end{itemize}
+\end{proof}
+
+\section{Complexity}
+The recursion depth is $O(\log n)$. With memoization, the total number of distinct subproblems is $O(\log^2 n)$, since at each halving step we generate at most one new subproblem.
+
+\section{Result}
+\[
+f(10^{25}) = \boxed{178653872807}
+\]
+
+\section{Answer}
+
+\[
+\boxed{178653872807}
+\]
+
+\end{document}

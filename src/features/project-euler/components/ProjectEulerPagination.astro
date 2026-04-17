@@ -1,0 +1,43 @@
+---
+import { formatProblemNumber } from '../lib/euler';
+import { withBase } from '../../../lib/paths';
+
+interface LinkItem {
+	id: string;
+	problem: number;
+	title: string;
+}
+
+interface Props {
+	previous?: LinkItem;
+	next?: LinkItem;
+}
+
+const { previous, next } = Astro.props;
+---
+
+{
+	previous || next ? (
+		<nav class="problem-pagination panel" aria-label="Problem navigation">
+			{previous ? (
+				<a class="problem-pagination__link" href={withBase(`/project-euler/${previous.id}`)} rel="prev">
+					<span class="problem-pagination__label">Previous Problem</span>
+					<strong>{formatProblemNumber(previous.problem)}</strong>
+					<span>{previous.title}</span>
+				</a>
+			) : (
+				<div class="problem-pagination__link problem-pagination__link--empty" aria-hidden="true"></div>
+			)}
+
+			{next ? (
+				<a class="problem-pagination__link problem-pagination__link--next" href={withBase(`/project-euler/${next.id}`)} rel="next">
+					<span class="problem-pagination__label">Next Problem</span>
+					<strong>{formatProblemNumber(next.problem)}</strong>
+					<span>{next.title}</span>
+				</a>
+			) : (
+				<div class="problem-pagination__link problem-pagination__link--empty" aria-hidden="true"></div>
+			)}
+		</nav>
+	) : null
+}

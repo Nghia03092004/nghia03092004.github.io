@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\title{Problem 895: Arithmetic Derivative}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The arithmetic derivative $n'$ is defined by $p'=1$ for primes, $1'=0'=0$, and the Leibniz rule $(ab)' = a'b + ab'$. Compute $\sum_{n=1}^{N} n'$.
+
+\section{Key Results}
+
+\begin{theorem}[Prime Power Formula]
+$(p^a)' = a \cdot p^{a-1}$.
+\end{theorem}
+
+\begin{proof}
+Induction on $a$. Base: $p' = 1 = 1 \cdot p^0$. Step:
+$(p^{a+1})' = (p \cdot p^a)' = p^a + p \cdot a p^{a-1} = (a+1)p^a$.
+\end{proof}
+
+\begin{theorem}[General Formula]
+For $n = \prod p_i^{a_i}$:
+\[
+n' = n \sum_{i=1}^{k} \frac{a_i}{p_i}
+\]
+\end{theorem}
+
+\begin{proof}
+The Leibniz rule gives $\frac{(AB)'}{AB} = \frac{A'}{A} + \frac{B'}{B}$. Inductively:
+\[
+\frac{n'}{n} = \sum_i \frac{(p_i^{a_i})'}{p_i^{a_i}} = \sum_i \frac{a_i}{p_i}. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Fixed Points]
+$n' = n$ iff $\sum a_i/p_i = 1$, which holds iff $n = p^p$ for prime $p$. The fixed points are $4, 27, 3125, 823543, \ldots$
+\end{corollary}
+
+\section{Examples}
+\begin{center}
+\begin{tabular}{r|l|r|l}
+$n$ & Factorization & $n'$ & Check \\ \hline
+6 & $2 \cdot 3$ & 5 & $6(\tfrac{1}{2}+\tfrac{1}{3}) = 5$ \\
+12 & $2^2 \cdot 3$ & 16 & $12(\tfrac{2}{2}+\tfrac{1}{3}) = 16$ \\
+30 & $2\cdot 3\cdot 5$ & 31 & $30(\tfrac{1}{2}+\tfrac{1}{3}+\tfrac{1}{5})=31$
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{670785433}
+\]
+
+\end{document}

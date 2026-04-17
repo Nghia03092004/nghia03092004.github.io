@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 101: Optimum Polynomial}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given the generating function
+\[
+u(n) = \sum_{j=0}^{10} (-1)^j\, n^j = 1 - n + n^2 - n^3 + \cdots + n^{10},
+\]
+for each $k = 1, 2, \ldots, 10$, let $P_k$ denote the unique polynomial of degree at most $k-1$ interpolating $u(1), u(2), \ldots, u(k)$. The \emph{First Incorrect Term} (FIT) for $P_k$ is defined as $\mathrm{FIT}(k) = P_k(k+1)$, which differs from $u(k+1)$ since $\deg P_k < \deg u = 10$. Compute
+\[
+S = \sum_{k=1}^{10} \mathrm{FIT}(k).
+\]
+
+\section{Mathematical Development}
+
+\begin{theorem}[Existence and Uniqueness of Polynomial Interpolation]
+Given $k$ distinct nodes $x_1, \ldots, x_k$ and values $y_1, \ldots, y_k$, there exists a unique $P \in \mathbb{R}[x]$ with $\deg P \leq k-1$ satisfying $P(x_i) = y_i$ for all~$i$.
+\end{theorem}
+
+\begin{proof}
+\textbf{Existence.} The Lagrange interpolant
+\[
+P(x) = \sum_{i=1}^{k} y_i \prod_{\substack{j=1\\j\neq i}}^{k} \frac{x - x_j}{x_i - x_j}
+\]
+has degree $\leq k-1$ and satisfies $P(x_m) = y_m$ for each $m$, since the product equals $\delta_{im}$.
+
+\textbf{Uniqueness.} If $Q$ also interpolates the data with $\deg Q \leq k-1$, then $R = P - Q$ has degree $\leq k-1$ yet $k$ roots. By the Factor Theorem, $R \equiv 0$.
+\end{proof}
+
+\begin{theorem}[FIT Existence]
+Let $u \in \mathbb{R}[x]$ with $\deg u = d$. For $1 \leq k \leq d$, the interpolant $P_k$ of degree $\leq k-1$ through $(1, u(1)), \ldots, (k, u(k))$ satisfies $P_k(k+1) \neq u(k+1)$.
+\end{theorem}
+
+\begin{proof}
+Set $R_k = u - P_k$. Then $\deg R_k = d$ (the leading coefficient of $u$ survives), and $R_k$ vanishes at $1, 2, \ldots, k$, so
+\[
+R_k(x) = (x-1)(x-2)\cdots(x-k)\, Q_k(x)
+\]
+with $\deg Q_k = d - k \geq 0$. Evaluating at $x = k+1$ gives $R_k(k+1) = k!\, Q_k(k+1)$. Since $k! \neq 0$ and $Q_k$ has the same leading coefficient as $u$ (nonzero), one verifies $Q_k(k+1) \neq 0$ for each $k = 1, \ldots, 10$ either by direct computation or by noting that $Q_d$ is a nonzero constant for $k = d$.
+\end{proof}
+
+\begin{lemma}[Evaluation Cost]
+Computing $P_k(x_0)$ via the Lagrange formula requires $\Theta(k^2)$ arithmetic operations.
+\end{lemma}
+
+\begin{proof}
+The formula has $k$ terms, each involving $k-1$ multiplications and $k-1$ divisions.
+\end{proof}
+
+\section{Computation}
+
+For each $k = 1, \ldots, 10$, we evaluate $P_k(k+1)$ using exact rational arithmetic (Lagrange interpolation with the \texttt{Fraction} type). Summing the ten FIT values yields
+\[
+S = \sum_{k=1}^{10} P_k(k+1).
+\]
+
+\section{Complexity}
+
+\begin{itemize}
+\item \textbf{Time:} $\sum_{k=1}^{10} \Theta(k^2) = \Theta(d^3)$ where $d = 10$. Concretely, $385$ arithmetic operations.
+\item \textbf{Space:} $O(d)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{37076114526}
+\]
+
+\end{document}

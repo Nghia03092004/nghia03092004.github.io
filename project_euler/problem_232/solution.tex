@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 232: The Race}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Two players alternate turns in a race to 100 points (Player~1 first). Player~1 flips one fair coin: heads scores 1 point, tails nothing. Player~2 chooses $T \geq 1$, flips $T$ fair coins: all heads (probability $1/2^T$) scores $2^{T-1}$ points, otherwise nothing. First to 100 wins. Player~2 picks $T$ optimally. Find $\Pr[\text{Player 2 wins}]$ to 8 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Optimal Strategy Characterization]
+Define $P(a,b)$ as the probability Player~2 wins on her turn when Player~1 needs $a$ points and Player~2 needs $b$ points, and $Q(a,b)$ similarly on Player~1's turn. Then:
+\[
+Q(a,b) = \tfrac{1}{2}\,P(a{-}1,b) + \tfrac{1}{2}\,P(a,b)
+\]
+\[
+P(a,b) = \max_{T \geq 1}\!\left[\frac{1}{2^T}\,W(T) + \left(1 - \frac{1}{2^T}\right)Q(a,b)\right]
+\]
+where $W(T) = 1$ if $b \leq 2^{T-1}$, and $W(T) = Q(a,\, b-2^{T-1})$ otherwise.
+\end{theorem}
+
+\begin{proof}
+On Player~1's turn, the fair coin yields heads (scoring 1, reducing deficit to $a-1$) or tails (no score) with equal probability; in both cases play passes to Player~2. This gives the recurrence for $Q$. On Player~2's turn, choosing $T$ yields success probability $p_T = 1/2^T$ scoring $2^{T-1}$ points, and failure probability $1-p_T$ returning to Player~1. Player~2 maximizes over $T$, establishing the recurrence for~$P$.
+\end{proof}
+
+\begin{lemma}[Elimination of $Q$]
+Substituting $Q$ into $P$ and solving:
+\[
+P(a,b) = \max_{T \geq 1} \frac{2\,p_T\,W(T) + (1-p_T)\,P(a{-}1,b)}{1+p_T}, \quad p_T = \frac{1}{2^T}.
+\]
+\end{lemma}
+
+\begin{proof}
+Substituting $Q(a,b) = \frac{1}{2}P(a{-}1,b) + \frac{1}{2}P(a,b)$ into $P(a,b) = p_T W(T) + (1-p_T)Q(a,b)$ gives $P(a,b) = p_T W(T) + \frac{1-p_T}{2}[P(a{-}1,b) + P(a,b)]$. Collecting $P(a,b)$: $P(a,b)\cdot\frac{1+p_T}{2} = p_T W(T) + \frac{1-p_T}{2}P(a{-}1,b)$. Solving yields the stated formula.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(N):
+    P[0..N][0..N] = 0   // P(0,b)=0 for b>0
+    for a = 1 to N:
+        for b = 1 to N:
+            best = 0
+            for T = 1 to ceil(log2(N))+1:
+                p_T = 1/2^T
+                if b <= 2^(T-1): W = 1
+                else: W = 0.5*P[a-1][b-2^(T-1)] + 0.5*P[a][b-2^(T-1)]
+                candidate = (2*p_T*W + (1-p_T)*P[a-1][b]) / (1+p_T)
+                best = max(best, candidate)
+            P[a][b] = best
+    return 0.5*P[N-1][N] + 0.5*P[N][N]
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N^2 \log N)$ where $N = 100$.
+    \item \textbf{Space:} $O(N^2)$ for the DP table.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.83648556}
+\]
+
+\end{document}

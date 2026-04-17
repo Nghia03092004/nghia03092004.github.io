@@ -1,0 +1,146 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 822: Square the Smallest}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Start with the list
+\[
+[2,3,4,\dots,10000].
+\]
+At each step, replace the smallest element by its square. If several elements are tied for the minimum, choosing any one of them gives the same multiset after re-sorting. After $10^{16}$ steps, let $S(10000,10^{16})$ be the sum of the final list. Find
+\[
+S(10000,10^{16}) \bmod 1234567891.
+\]
+
+\section{Mathematical Analysis}
+
+Let $K=n-1$, so here $K=9999$. At any moment write the sorted list as
+\[
+a_1 \le a_2 \le \cdots \le a_K.
+\]
+
+\begin{lemma}
+If several elements are equal to the minimum, then squaring any one of them produces the same multiset after re-sorting.
+\end{lemma}
+
+\begin{proof}
+Equal elements have the same square. Replacing one copy of the minimum value $m$ by $m^2$ therefore removes one copy of $m$ and inserts one copy of $m^2$, independently of which copy was chosen.
+\end{proof}
+
+\begin{lemma}
+Suppose the current sorted list satisfies
+\[
+a_1^2 \ge a_K.
+\]
+Then during the next $K$ operations the elements are squared in the order
+\[
+a_1,\ a_2,\ \dots,\ a_K,
+\]
+and after these $K$ steps the multiset becomes
+\[
+\{a_1^2,a_2^2,\dots,a_K^2\}.
+\]
+\end{lemma}
+
+\begin{proof}
+After squaring $a_1$, the new value $a_1^2$ is at least $a_K$, so it is no longer smaller than any unsquared element. Hence the next minimum is $a_2$. Since $a_2 \ge a_1$, we also have
+\[
+a_2^2 \ge a_1^2 \ge a_K,
+\]
+so after squaring $a_2$ it again moves to the top end of the sorted list. Continuing inductively proves the claim.
+\end{proof}
+
+\begin{theorem}
+Once the condition $a_1^2 \ge a_K$ is first reached, the process enters a periodic regime of block length $K$: every full block of $K$ operations squares each current element exactly once.
+\end{theorem}
+
+\begin{proof}
+By the previous lemma, one full block maps the current multiset to
+\[
+\{a_1^2,\dots,a_K^2\}.
+\]
+Its new minimum squared is
+\[
+(a_1^2)^2=a_1^4 \ge a_K^2,
+\]
+so the same condition holds again for the next block. Induction proves the statement for every later block.
+\end{proof}
+
+If an original value $b$ has been squared $e$ times, its current value is $b^{2^e}$. To compare such values, it is enough to compare
+\[
+\log\!\bigl(b^{2^e}\bigr)=2^e \log b,
+\]
+so a min-heap on the logarithmic weights exactly reproduces the greedy rule.
+
+\begin{theorem}
+Assume the periodic regime begins after $T$ transient steps, leaving the sorted current values
+\[
+b_1 \le b_2 \le \cdots \le b_K.
+\]
+Write the remaining number of steps as
+\[
+10^{16}-T = qK+r,\qquad 0 \le r < K.
+\]
+Then the final multiset is
+\[
+\{b_1^{2^{q+1}},\dots,b_r^{2^{q+1}},b_{r+1}^{2^q},\dots,b_K^{2^q}\}.
+\]
+\end{theorem}
+
+\begin{proof}
+Each complete block adds one squaring to every current element, so $q$ complete blocks add $q$ squarings to each $b_i$. The final $r$ operations square the first $r$ elements of the current sorted list once more.
+\end{proof}
+
+The modulus $P=1234567891$ is prime, so by Fermat's little theorem,
+\[
+b^{2^t} \equiv b^{\,2^t \bmod (P-1)} \pmod P
+\]
+for every base $b<P$. Thus the final modular sum is obtained by fast exponentiation after reducing the exponents modulo $P-1$.
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Initialize a min-heap with the logarithmic weights $\log 2,\log 3,\dots,\log 10000$.
+\item Simulate the greedy process until the critical condition $a_1^2 \ge a_K$ is met, recording the transient length $T$.
+\item Sort the current values $b_1,\dots,b_K$.
+\item Decompose the remaining steps as $qK+r$.
+\item Apply the previous theorem to determine the final exponent of each current value.
+\item Evaluate the final sum modulo $1234567891$ using Fermat reduction of the exponents.
+\end{enumerate}
+
+\begin{theorem}
+The algorithm computes $S(10000,10^{16}) \bmod 1234567891$.
+\end{theorem}
+
+\begin{proof}
+The heap ordering is correct because the logarithm is strictly increasing. Lemma 1 removes tie ambiguity. Lemma 2 and the first theorem prove the exact periodic behavior after the transient. The second theorem gives the exact number of remaining squarings applied to each current element. Fermat reduction then evaluates those exact final values modulo the prime $1234567891$. Therefore the returned residue is precisely $S(10000,10^{16}) \bmod 1234567891$.
+\end{proof}
+
+\section{Complexity}
+
+If $T$ denotes the transient length, the heap simulation costs $O(T\log K)$ and the remaining arithmetic costs $O(K\log K)$.
+
+\begin{itemize}
+\item Time: $O(T\log K + K\log K)$.
+\item Space: $O(K)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{950591530}
+\]
+
+\end{document}

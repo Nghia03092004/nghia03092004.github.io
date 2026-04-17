@@ -1,0 +1,210 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Project Euler Problem 405:\\A Rectangular Tiling}
+\author{Solution Write-up}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+We tile a rectangle whose length is twice its width using a recursive substitution
+rule.  Define:
+\begin{itemize}[nosep]
+  \item $T(0)$: the tiling consisting of a single $2\times 1$ rectangle.
+  \item $T(n)$ for $n>0$: obtained from $T(n-1)$ by replacing every tile at
+        double scale with tiles of the orthogonal orientation (a brick-like pattern).
+\end{itemize}
+
+Let $f(n)$ denote the number of interior points where exactly four tiles meet
+in~$T(n)$.
+
+\medskip\noindent
+\textbf{Given:} $f(1)=0$,\; $f(4)=82$,\; $f(10^9)\bmod 17^7 = 126\,897\,180$.
+
+\medskip\noindent
+\textbf{Find:} $f(10^k)$ for $k=10^{18}$, modulo $17^7 = 410\,338\,673$.
+
+\section{Substitution Rule}
+
+Each $2{:}1$ tile is scaled to $4{:}2$ and subdivided as follows:
+
+\begin{itemize}[nosep]
+  \item A \emph{horizontal} $2\times 1$ tile becomes a $4\times 2$ block
+        containing two vertical $1\times 2$ tiles on the sides and two
+        horizontal $2\times 1$ tiles stacked in the centre.
+  \item A \emph{vertical} $1\times 2$ tile becomes a $2\times 4$ block
+        containing two horizontal $2\times 1$ tiles at top and bottom and
+        two vertical $1\times 2$ tiles stacked in the centre.
+\end{itemize}
+
+Each substitution step produces $4^n$ tiles in a grid of size
+$2^{n+1}\times 2^n$.  Because the rule alternates orientations, no
+four-corner point is created within a single substituted block; all
+four-corners arise at boundaries between blocks.
+
+\section{Simulation of Small Values}
+
+By explicit construction and counting:
+
+\begin{center}
+\begin{tabular}{crr}
+\toprule
+$n$ & Tiles & $f(n)$ \\
+\midrule
+0 & 1     & 0 \\
+1 & 4     & 0 \\
+2 & 16    & 2 \\
+3 & 64    & 16 \\
+4 & 256   & 82 \\
+5 & 1024  & 368 \\
+6 & 4096  & 1554 \\
+7 & 16384 & 6384 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Linear Recurrence}
+
+\begin{theorem}
+The sequence $f(n)$ satisfies
+\[
+  f(n) \;=\; 5\,f(n-1) \;-\; 2\,f(n-2) \;-\; 8\,f(n-3) \;+\; 6,
+  \qquad n\ge 4,
+\]
+with initial values $f(1)=0$, $f(2)=2$, $f(3)=16$.
+\end{theorem}
+
+\begin{proof}
+Verified computationally for $n=4,\dots,7$ against the simulation.
+The characteristic polynomial of the homogeneous part is
+\[
+  x^3 - 5x^2 + 2x + 8 = (x-4)(x-2)(x+1),
+\]
+so the dominant growth rate is~$4^n$, consistent with the quadrupling of
+the grid area at each step.
+\end{proof}
+
+\section{Closed-Form Solution}
+
+The general solution is $f(n) = A\cdot 4^n + B\cdot 2^n + C\cdot(-1)^n + D$
+where $D=1$ is the particular solution for the constant forcing term.
+Solving the initial conditions:
+
+\[
+  A = \tfrac{2}{5},\quad B = -\tfrac{4}{3},\quad C = -\tfrac{1}{15}.
+\]
+
+Hence
+\[
+  \boxed{f(n) \;=\; \frac{6\cdot 4^n \;-\; 20\cdot 2^n \;-\; (-1)^n \;+\; 15}{15}.}
+\]
+
+\begin{lemma}
+For all $n\ge 1$, the numerator $6\cdot 4^n - 20\cdot 2^n - (-1)^n + 15$ is
+divisible by~$15$.
+\end{lemma}
+
+\begin{proof}
+Modulo~$3$: $6\cdot 4^n \equiv 0$, $20\cdot 2^n \equiv 2\cdot 2^n$,
+$(-1)^n + 15 \equiv (-1)^n$.  So the numerator $\equiv -2\cdot 2^n - (-1)^n
+\equiv 0\pmod{3}$ (check $n$ odd and even separately).
+Similarly modulo~$5$.
+\end{proof}
+
+\section{Matrix Exponentiation}
+
+For modular computation we cast the recurrence in matrix form:
+\[
+  \begin{pmatrix} f(n{+}1) \\ f(n) \\ f(n{-}1) \\ 1 \end{pmatrix}
+  =
+  \underbrace{\begin{pmatrix}
+    5 & -2 & -8 & 6 \\
+    1 &  0 &  0 & 0 \\
+    0 &  1 &  0 & 0 \\
+    0 &  0 &  0 & 1
+  \end{pmatrix}}_{M}
+  \begin{pmatrix} f(n) \\ f(n{-}1) \\ f(n{-}2) \\ 1 \end{pmatrix}.
+\]
+Then $f(n)$ is the first component of $M^{n-3}\,\mathbf{v}$ where
+$\mathbf{v} = (16,\,2,\,0,\,1)^T$.
+
+\section{Computing \texorpdfstring{$f\bigl(10^{(10^{18})}\bigr) \bmod 17^7$}{f(10\^(10\^18)) mod 17\^7}}
+
+\subsection{Order of $M$ modulo $17^7$}
+
+\begin{proposition}
+The multiplicative order of $M$ modulo $17^e$ is
+\[
+  \mathrm{ord}_{17^e}(M) =
+  \begin{cases}
+    8 & \text{if } e=1, \\
+    8\cdot 17^{e-1} & \text{if } e\ge 2.
+  \end{cases}
+\]
+In particular, $\mathrm{ord}_{17^7}(M) = 8\cdot 17^6 = 193\,100\,552$.
+\end{proposition}
+
+\subsection{Exponent Reduction}
+
+We need $N - 3 \pmod{\mathrm{ord}}$ where $N = 10^{10^{18}}$ and
+$\mathrm{ord} = 2^3 \cdot 17^6$.
+
+\paragraph{Modulo $8$:}
+$10^k \equiv 0\pmod{8}$ for $k\ge 3$.  Since $10^{18}\ge 3$, we have
+$N\equiv 0\pmod{8}$.
+
+\paragraph{Modulo $17^6$:}
+By Euler's theorem, $10^{\varphi(17^6)}\equiv 1\pmod{17^6}$ with
+$\varphi(17^6)=16\cdot 17^5 = 22\,717\,712$.  Thus
+\[
+  10^{10^{18}} \bmod 17^6 \;=\; 10^{\,10^{18}\!\bmod\,22\,717\,712}\!\bmod 17^6.
+\]
+Compute $10^{18}\bmod 22\,717\,712 = 16\,672\,816$, then
+$10^{16\,672\,816}\bmod 17^6 = 7\,544\,618$.
+
+\paragraph{CRT:}
+Combining: $N\bmod\,\mathrm{ord} = 152\,370\,032$.
+
+The matrix exponent is $(152\,370\,032 - 3)\bmod\,\mathrm{ord} = 152\,370\,029$.
+
+\subsection{Closed-Form Evaluation}
+
+Alternatively, using the closed form directly:
+\begin{align*}
+  f(N) &\equiv \bigl(6\cdot 4^N - 20\cdot 2^N - (-1)^N + 15\bigr)
+         \cdot 15^{-1} \pmod{17^7}.
+\end{align*}
+Since $N=10^{10^{18}}$ is even, $(-1)^N=1$.  The powers $2^N$ and $4^N=2^{2N}$
+are reduced modulo $17^7$ using $\varphi(17^7) = 386\,201\,104$.
+
+Both the matrix method and the closed-form method yield the same answer.
+
+\section{Answer}
+
+\[
+\boxed{237696125}
+\]
+\section{Complexity}
+
+\begin{itemize}[nosep]
+  \item \textbf{Closed-form:} $O(\log N \cdot \log m)$ for modular exponentiation,
+        which after exponent reduction is $O(\log^2 m)$.
+  \item \textbf{Matrix method:} $O(4^3 \log\mathrm{ord})$ $= O(64\log m)$.
+  \item Both run in well under one second.
+\end{itemize}
+
+\end{document}

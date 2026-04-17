@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 408: Admissible Paths Through a Grid}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A lattice point $(x, y)$ is \emph{inadmissible} if $x$, $y$, and $x + y$ are all positive perfect squares.
+A path from $(0,0)$ to $(n,n)$ using unit north/east steps is \emph{admissible} if it avoids all inadmissible points.
+
+Let $P(n)$ be the number of admissible paths. Find $P(10^7) \bmod (10^9 + 7)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Inadmissible Points as Pythagorean Triples}
+
+$(x,y)$ is inadmissible iff $x = a^2$, $y = b^2$, $x + y = c^2$ for positive integers $a, b, c$.
+This means $a^2 + b^2 = c^2$: a Pythagorean triple.
+
+\subsection{Inclusion-Exclusion DP}
+
+Sort all inadmissible points $(x_i, y_i)$ with $x_i, y_i \le n$ in lexicographic order compatible
+with the path partial order ($x_j \le x_i$ and $y_j \le y_i$).
+
+Define $f(i)$ = number of paths from $(0,0)$ to $(x_i, y_i)$ avoiding all other inadmissible points:
+\[
+  f(i) = \binom{x_i + y_i}{x_i}
+       - \sum_{\substack{j < i \\ x_j \le x_i,\, y_j \le y_i}}
+         f(j) \cdot \binom{x_i - x_j + y_i - y_j}{x_i - x_j}.
+\]
+
+Then:
+\[
+  P(n) = \binom{2n}{n}
+       - \sum_{i} f(i) \cdot \binom{2n - x_i - y_i}{n - x_i}.
+\]
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Generate Pythagorean triples $(a, b, c)$ with $a^2 \le n$ and $b^2 \le n$.
+  \item Collect inadmissible points, sort appropriately.
+  \item Precompute factorials modulo $10^9 + 7$ up to $2n$.
+  \item Run inclusion-exclusion DP.
+\end{enumerate}
+
+\section{Complexity}
+
+Number of inadmissible points $m = O(\sqrt{n})$. DP is $O(m^2)$.
+Factorial precomputation: $O(n)$.
+
+\section{Answer}
+
+\[
+\boxed{299742733}
+\]
+
+\end{document}

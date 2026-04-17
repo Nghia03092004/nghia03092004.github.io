@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 835: Supernatural Triangles}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A Heronian triangle has integer sides and integer area. A supernatural triangle is a Heronian triangle satisfying additional constraints. Count or sum supernatural triangles with perimeter up to~$N$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Heron's Formula]
+A triangle with sides $a,b,c$ and semi-perimeter $s=(a+b+c)/2$ has area
+\[
+A = \sqrt{s(s-a)(s-b)(s-c)}.
+\]
+Equivalently, $16A^2 = 2a^2b^2+2b^2c^2+2c^2a^2-a^4-b^4-c^4$.
+\end{theorem}
+
+\begin{proof}
+By the law of cosines, $\cos C=(a^2+b^2-c^2)/(2ab)$. Then $A=\tfrac{1}{2}ab\sin C$ gives $16A^2=4a^2b^2-(a^2+b^2-c^2)^2$. Factoring:
+\[
+16A^2 = (c^2-(a-b)^2)((a+b)^2-c^2) = (c-a+b)(c+a-b)(a+b-c)(a+b+c).
+\]
+This equals $16\,s(s-a)(s-b)(s-c)$, completing the proof.
+\end{proof}
+
+\begin{lemma}[Integer Area Criterion]
+A triangle with integer sides has integer area only if $a+b+c$ is even. In that case, $A\in\mathbb{Z}$ iff $s(s-a)(s-b)(s-c)$ is a perfect square.
+\end{lemma}
+
+\begin{proof}
+If $a+b+c$ is odd, all four factors $(a+b+c),(b+c-a),(a+c-b),(a+b-c)$ are odd, so their product is odd and not divisible by~16, making $A$ non-integer. When $a+b+c$ is even, $s,s-a,s-b,s-c\in\mathbb{Z}$ and $A\in\mathbb{Z}$ iff their product is a perfect square.
+\end{proof}
+
+\begin{theorem}[Brahmagupta Parametrization]
+Every primitive Heronian triangle decomposes as the union of two right triangles sharing a common rational altitude.
+\end{theorem}
+
+\begin{proof}
+Dropping the altitude~$h$ from vertex~$C$ to side~$c$ gives $d=(c^2+b^2-a^2)/(2c)\in\mathbb{Q}$ and $h=\sqrt{b^2-d^2}\in\mathbb{Q}$ (since $A=ch/2\in\mathbb{Z}$). Each resulting right triangle has rational sides, hence arises from a scaled Pythagorean triple.
+\end{proof}
+
+\begin{corollary}[Pythagorean Triangles are Heronian]
+Every Pythagorean triple gives a Heronian triangle, since at least one leg is even.
+\end{corollary}
+
+\begin{proof}
+In a primitive triple $(m^2-n^2,2mn,m^2+n^2)$, the leg $2mn$ is even, so $A=mn(m^2-n^2)\in\mathbb{Z}$.
+\end{proof}
+
+\section{Algorithm}
+
+Enumerate triples $(a,b,c)$ with $a\le b\le c$, $a+b>c$, $a+b+c\le N$, and $a+b+c$ even. Check whether $s(s-a)(s-b)(s-c)$ is a perfect square and the supernatural condition holds. Alternatively, use parametric generation for $O(N^{3/2})$ runtime.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^3)$ direct; $O(N^{3/2})$ parametric.
+\item \textbf{Space:} $O(1)$ streaming, or $O(N)$ with deduplication.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1050923942}
+\]
+
+\end{document}

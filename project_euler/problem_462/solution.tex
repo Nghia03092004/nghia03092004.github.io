@@ -1,0 +1,116 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+
+\title{Problem 462: Permutation of 3-smooth Numbers}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \emph{3-smooth number} is an integer whose only prime factors are 2 and 3. For an integer $N$, let $S(N)$ be the set of 3-smooth numbers $\le N$. Define $F(N)$ as the number of permutations of $S(N)$ in which each element appears after all of its proper divisors.
+
+Given: $F(6) = 5$, $F(8) = 9$, $F(20) = 450$, $F(1000) \approx 8.8521816557 \times 10^{21}$.
+
+Find $F(10^{18})$ in scientific notation rounded to ten decimal digits.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Poset isomorphism]
+\label{thm:poset}
+The set of 3-smooth numbers under divisibility is isomorphic as a poset to $\mathbb{Z}_{\ge 0}^2$ under componentwise~$\le$, via $2^a \cdot 3^b \mapsto (a, b)$.
+\end{theorem}
+
+\begin{proof}
+The map is bijective. For divisibility: $2^{a_1} 3^{b_1} \mid 2^{a_2} 3^{b_2}$ iff $a_1 \le a_2$ and $b_1 \le b_2$, which is precisely the componentwise partial order.
+\end{proof}
+
+\begin{lemma}[Young diagram structure]
+\label{lem:young}
+The set $\{(a, b) : 2^a \cdot 3^b \le N\}$ forms a Young diagram $\lambda = (\lambda_0, \lambda_1, \ldots, \lambda_m)$ with $\lambda_i = \lfloor \log_2(N/3^i) \rfloor + 1$ and $m = \lfloor \log_3 N \rfloor$. The row lengths are non-increasing.
+\end{lemma}
+
+\begin{proof}
+Row $i$ (corresponding to $b = i$) has cells for $a = 0, 1, \ldots, \lfloor \log_2(N/3^i) \rfloor$, giving $\lambda_i = \lfloor \log_2(N/3^i) \rfloor + 1$ cells. Since $N/3^{i+1} < N/3^i$, we have $\lambda_{i+1} \le \lambda_i$, so the row lengths are weakly decreasing and form a valid Young diagram.
+\end{proof}
+
+\begin{theorem}[Frame--Robinson--Thrall hook-length formula]
+\label{thm:hlf}
+The number of standard Young tableaux of shape $\lambda$ with $n = |\lambda|$ cells is
+\[
+f^\lambda = \frac{n!}{\displaystyle\prod_{(i,j) \in \lambda} h(i,j)}
+\]
+where $h(i,j) = (\lambda_i - j) + (\lambda'_j - i) - 1$ is the hook length at cell $(i,j)$, and $\lambda'$ is the conjugate partition.
+\end{theorem}
+
+\begin{proof}
+Classical result of Frame, Robinson, and Thrall (1954). The proof proceeds by induction on $n$: removing any corner cell reduces to a smaller diagram, and the hook-length product satisfies the same branching recurrence as the count of standard tableaux. See \emph{Canadian J.\ Math.}\ 6 (1954), 316--324.
+\end{proof}
+
+\begin{lemma}[Logarithmic computation]
+\label{lem:log}
+For large $n$, $F(N)$ is computed as
+\[
+\log_{10} F(N) = \sum_{k=1}^{n} \log_{10} k \;-\; \sum_{(i,j) \in \lambda} \log_{10} h(i,j).
+\]
+Extracting the integer and fractional parts gives the scientific notation.
+\end{lemma}
+
+\begin{proof}
+Immediate from taking $\log_{10}$ of the hook-length formula. Writing $\log_{10} F = e + m$ with $e \in \mathbb{Z}$ and $0 \le m < 1$ gives $F = 10^m \times 10^e$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute $F(N)$ via hook-length formula}
+\begin{algorithmic}[1]
+\State $m \gets \lfloor \log_3 N \rfloor$
+\For{$i = 0$ to $m$}
+    \State $\lambda_i \gets \lfloor \log_2(N/3^i) \rfloor + 1$
+\EndFor
+\State $n \gets \sum_{i} \lambda_i$
+\State Compute conjugate $\lambda'_j = |\{i : \lambda_i > j\}|$
+\State $\log F \gets \sum_{k=1}^{n} \log_{10} k - \sum_{(i,j) \in \lambda} \log_{10} h(i,j)$
+\State Extract mantissa and exponent from $\log F$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n)$ where $n = |S(N)| \sim \frac{(\ln N)^2}{2 \ln 2 \cdot \ln 3}$. For $N = 10^{18}$, $n \approx 1107$.
+    \item \textbf{Space:} $O(n)$ for storing $\lambda$ and $\lambda'$.
+\end{itemize}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{crl}
+\toprule
+$N$ & $|S(N)|$ & $F(N)$ \\
+\midrule
+6 & 5 & 5 \\
+8 & 6 & 9 \\
+20 & 10 & 450 \\
+1000 & 30 & $\approx 8.8521816557 \times 10^{21}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{5.5350769703e1512}
+\]
+
+\end{document}

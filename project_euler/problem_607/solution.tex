@@ -1,0 +1,52 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 607: Marsh Crossing}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Frodo and Sam travel 100 leagues East from $A$ to $B$. A 50-league-wide marsh crosses their path at 45\textdegree, consisting of 5 strips of width 10 leagues with speeds 9, 8, 7, 6, 5 leagues/day. Normal terrain speed is 10 leagues/day. Find the minimum travel time rounded to 10 decimal places.
+
+\section{Mathematical Analysis}
+
+\subsection{Coordinate Transformation}
+Rotate 45\textdegree\ so marsh boundaries are vertical. In the rotated frame:
+\[
+A = \left(-\frac{50}{\sqrt{2}}, -\frac{50}{\sqrt{2}}\right), \quad
+B = \left(\frac{50}{\sqrt{2}}, \frac{50}{\sqrt{2}}\right)
+\]
+
+\subsection{Snell's Law}
+The optimal path through layered media with different speeds satisfies Snell's law:
+\[
+\frac{\sin\theta_1}{v_1} = \frac{\sin\theta_2}{v_2} = \cdots = \frac{\sin\theta_7}{v_7}
+\]
+where $\theta_i$ is the angle of incidence in region $i$ and $v_i$ is the speed.
+
+\subsection{Time Function}
+Let $y_0, y_7$ be the $y$-coordinates of $A$ and $B$, and $y_1, \ldots, y_6$ be crossing points. The speeds are $v = (10, 9, 8, 7, 6, 5, 10)$.
+
+\[
+T(y_1, \ldots, y_6) = \sum_{i=0}^{6} \frac{\sqrt{(\Delta x_i)^2 + (y_{i+1} - y_i)^2}}{v_i}
+\]
+
+\subsection{Optimization}
+Setting $\nabla T = 0$ and solving numerically (gradient descent or Newton's method) yields the optimal crossing points.
+
+\section{Result}
+\[
+T_{\min} = \boxed{13.1265108586} \text{ days}
+\]
+
+\section{Answer}
+
+\[
+\boxed{13.1265108586}
+\]
+
+\end{document}

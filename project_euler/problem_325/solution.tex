@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 325: Stone Game II}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Two piles of stones $(a, b)$, $a < b$. On each turn, remove $k \cdot a$ stones from pile $b$, $k \ge 1$. Emptying a pile wins. Find $S(10^{16}) \bmod 7^{10}$, where $S(N) = \sum (a+b)$ over all losing positions with $0 < a < b \le N$.
+
+\section{Solution}
+
+\subsection{Characterizing Losing Positions}
+
+\begin{theorem}
+All losing positions satisfy $a < b < 2a$.
+\end{theorem}
+\begin{proof}
+If $q = \lfloor b/a \rfloor \ge 2$, the current player can reach both $(r, a)$ and $(a, a+r)$ where $r = b \bmod a$. Since $(a, a+r)$ is losing iff $(r, a)$ is winning, exactly one of these is losing, so the current player wins.
+\end{proof}
+
+\begin{theorem}
+$(a, a+r)$ is losing iff $r \le L(a) := \left\lfloor \frac{a(\sqrt{5}-1)}{2} \right\rfloor = \left\lfloor \frac{a}{\varphi} \right\rfloor$.
+\end{theorem}
+
+The losing ratios $r/a$ form the union of Fibonacci intervals:
+\[
+\bigcup_{k=0}^{\infty} \left(\frac{F_{2k}}{F_{2k+1}}, \frac{F_{2k+2}}{F_{2k+3}}\right] = \left(0, \frac{1}{\varphi}\right)
+\]
+
+\subsection{Sum Decomposition}
+
+\[
+S(N) = \sum_{a=1}^{N-1} \sum_{r=1}^{R(a)} (2a + r), \qquad R(a) = \min\!\left(L(a),\, N-a\right)
+\]
+
+Split at $a^* = \max\{a : L(a) \le N - a\} \approx N/\varphi$:
+
+\textbf{Range 1} ($a \le a^*$): $R(a) = L(a)$. Contribution:
+\[
+2\sum_{a=1}^{a^*} a \cdot L(a) + \frac{1}{2}\sum_{a=1}^{a^*} L(a)^2 + \frac{1}{2}\sum_{a=1}^{a^*} L(a)
+\]
+
+\textbf{Range 2} ($a > a^*$): $R(a) = N - a$. Closed-form via substitution $j = N - a$.
+
+\subsection{Quadratic Floor Sum Algorithm}
+
+For $\alpha = (\sqrt{5}-1)/2 \approx F_{79}/F_{80}$, compute simultaneously:
+\begin{align}
+f_0 &= \sum_{x=0}^{A} \lfloor x\alpha \rfloor, &
+f_1 &= \sum_{x=0}^{A} x \lfloor x\alpha \rfloor, &
+f_2 &= \sum_{x=0}^{A} \lfloor x\alpha \rfloor^2
+\end{align}
+using a Euclidean reciprocal transformation in $O(\log A)$ steps:
+\begin{align}
+f_0 &= (N-1)M - g_0 \\
+f_1 &= M \cdot \tfrac{N(N-1)}{2} - \tfrac{g_2 + g_0}{2} \\
+f_2 &= (N-1)M^2 - 2g_1 - g_0
+\end{align}
+
+\subsection{Result}
+\[
+S(10^{16}) \bmod 7^{10} = \boxed{54672965}
+\]
+
+\section{Complexity}
+$O(\log N)$ arithmetic operations modulo $7^{10}$.
+
+\section{Answer}
+
+\[
+\boxed{54672965}
+\]
+
+\end{document}

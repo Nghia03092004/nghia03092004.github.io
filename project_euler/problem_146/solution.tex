@@ -1,0 +1,114 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm, algorithmicx, algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 146: Investigating a Prime Pattern}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of all integers $n$, $0 < n < 150\,000\,000$, such that $n^2+1$, $n^2+3$, $n^2+7$, $n^2+9$, $n^2+13$, and $n^2+27$ are consecutive primes.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Parity]
+$n$ must be even.
+\end{theorem}
+
+\begin{proof}
+If $n$ is odd, $n^2+1$ is even and greater than 2, hence composite.
+\end{proof}
+
+\begin{theorem}[Mod 3]
+$n \not\equiv 0 \pmod{3}$.
+\end{theorem}
+
+\begin{proof}
+If $3 \mid n$, then $3 \mid n^2+3$, making it composite (since $n^2+3 > 3$).
+\end{proof}
+
+\begin{theorem}[Mod 5]
+$n \equiv 0 \pmod{5}$.
+\end{theorem}
+
+\begin{proof}
+Quadratic residues mod~5 are $\{0,1,4\}$. For $n^2 \equiv 1$: $n^2+9 \equiv 0 \pmod{5}$. For $n^2 \equiv 4$: $n^2+1 \equiv 0 \pmod{5}$. Only $n^2 \equiv 0$ avoids all six offsets being divisible by~5.
+\end{proof}
+
+\begin{lemma}[Combined sieve]
+From the above: $n \equiv 10$ or $20 \pmod{30}$.
+\end{lemma}
+
+\begin{proof}
+$n \equiv 0 \pmod{10}$ (from $2 \mid n$ and $5 \mid n$) combined with $3 \nmid n$ gives $n \bmod 30 \in \{10, 20\}$.
+\end{proof}
+
+\begin{theorem}[Mod 7]
+$n^2 \equiv 2 \pmod{7}$, i.e., $n \equiv 3$ or $4 \pmod{7}$.
+\end{theorem}
+
+\begin{proof}
+Checking each quadratic residue mod~7:
+\begin{itemize}
+\item $n^2 \equiv 0$: $n^2+7 \equiv 0$. Invalid.
+\item $n^2 \equiv 1$: $n^2+13 \equiv n^2+27 \equiv 0$. Invalid.
+\item $n^2 \equiv 2$: no offset is $\equiv 0$. Valid.
+\item $n^2 \equiv 4$: $n^2+3 \equiv 0$. Invalid.
+\end{itemize}
+\end{proof}
+
+\begin{theorem}[Consecutive primes]
+$n^2+k$ must be composite for $k \in \{5,11,15,17,19,21,23,25\}$.
+\end{theorem}
+
+\begin{proof}
+``Consecutive'' means no prime exists between $n^2+1$ and $n^2+27$ other than the six listed. Even offsets yield even (hence composite) values since $n$ is even. The odd offsets to exclude are $\{5,11,15,17,19,21,23,25\}$.
+\end{proof}
+
+\begin{lemma}[Miller--Rabin sufficiency]
+Deterministic Miller--Rabin with witnesses $\{2,3,5,7,11,13\}$ is correct for all integers below $3.317 \times 10^{24}$, covering our range $n^2+27 < 2.25 \times 10^{16}$.
+\end{lemma}
+
+\begin{proof}
+Follows from the result of Jaeschke (1993) and subsequent verification.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State Precompute valid residues mod $210 = \mathrm{lcm}(2,3,5,7)$
+\State $\text{total} \gets 0$
+\For{each valid residue $r$}
+    \For{$n = r, r+210, r+420, \ldots$ while $n < 150\,000\,000$}
+        \If{$n = 0$} \textbf{continue} \EndIf
+        \If{all $n^2+k$ prime for $k \in \{1,3,7,9,13,27\}$}
+            \If{all $n^2+k$ composite for $k \in \{5,11,15,17,19,21,23,25\}$}
+                \State $\text{total} \gets \text{total} + n$
+            \EndIf
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return total
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(B \log^2 B / C)$ where $B = 1.5 \times 10^8$ and $C \approx 50$ is the sieve reduction factor. Each candidate requires $O(14)$ Miller--Rabin tests at $O(\log^2 n)$ each.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{676333270}
+\]
+
+\end{document}

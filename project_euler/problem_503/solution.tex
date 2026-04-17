@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 503: Compromise or Persist}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Alice draws uniformly at random from $n$ bowls. She collects marbles from non-empty bowls; drawing an empty bowl triggers a reset. The expected number of draws and related aggregates are sought under optimal or specified protocols.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Backward-Induction Recurrence]
+Let $E_j$ be the expected additional draws to collect $k$ marbles when currently holding $j$. With reset probability $j/n$ and advance probability $(n-j)/n$:
+\[
+E_j = 1 + \frac{n-j}{n}\,E_{j+1} + \frac{j}{n}\,E_1, \qquad E_k = 0.
+\]
+This linear system has a unique solution.
+\end{theorem}
+
+\begin{proof}
+From state $j$, one draw is consumed. With probability $(n-j)/n$ a new marble is collected (state $j+1$); with probability $j/n$ a reset occurs (state~1). The system is linear in $E_1, \ldots, E_{k-1}$ with $E_k = 0$ as boundary. Substituting $E_{k-1}, E_{k-2}, \ldots$ into $E_1$ yields a single linear equation in $E_1$, which has a unique solution since the coefficient of $E_1$ is strictly less than~1.
+\end{proof}
+
+\begin{lemma}[Harmonic Structure]
+The solution involves partial harmonic sums. Unrolling the recurrence:
+\[
+E_1 = n \sum_{j=1}^{k-1} \frac{1}{n-j} \cdot \prod_{\ell=1}^{j-1} \frac{n}{n - \ell}.
+\]
+\end{lemma}
+
+\begin{proof}
+Substituting $E_j$ from $j = k-1$ downward, each step introduces a factor $n/(n-j)$, producing the product-sum form. Collecting $E_1$ terms and solving gives the stated expression.
+\end{proof}
+
+\begin{theorem}[Harmonic Summation Identity]
+\[
+\sum_{n=1}^{N} \frac{H_n}{n} = \frac{1}{2}\left(H_N^2 + H_N^{(2)}\right)
+\]
+where $H_N = \sum_{k=1}^{N} 1/k$ and $H_N^{(2)} = \sum_{k=1}^{N} 1/k^2$.
+\end{theorem}
+
+\begin{proof}
+Write
+\[
+\sum_{n=1}^{N} \frac{H_n}{n} = \sum_{1 \le k \le n \le N} \frac{1}{kn}.
+\]
+Separate diagonal terms ($k = n$) contributing $H_N^{(2)}$ from off-diagonal terms ($k \ne n$). By symmetry in $k$ and $n$, the off-diagonal sum equals $\frac{1}{2}(H_N^2 - H_N^{(2)})$. Adding:
+\[
+H_N^{(2)} + \frac{1}{2}(H_N^2 - H_N^{(2)}) = \frac{H_N^2 + H_N^{(2)}}{2}. \qedhere
+\]
+\end{proof}
+
+\section{Algorithm}
+\begin{verbatim}
+1. Compute H_n, H_n^(2) incrementally mod p.
+2. Accumulate sum of H_n / n mod p.
+3. Or use closed form: (H_N^2 + H_N^(2)) / 2 mod p.
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log p)$ for iterative computation with modular inverses.
+    \item \textbf{Space:} $O(1)$ for on-the-fly computation; $O(N)$ if storing all prefixes.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3.8694550145}
+\]
+
+\end{document}

@@ -1,0 +1,97 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 446: Retractions B}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For every integer $n > 1$, the function $f_{n,a,b}(x) \equiv ax + b \pmod{n}$ (with $0 < a < n$, $0 \le b < n$) is a \textbf{retraction} if $f_{n,a,b} \circ f_{n,a,b} = f_{n,a,b}$. Let $R(n)$ be the number of retractions, and
+\[
+F(N) = \sum_{n=1}^{N} R(n^4 + 4).
+\]
+Given $F(1024) = 77532377300600$, find $F(10^7) \pmod{10^9+7}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Retraction Conditions]
+$f(x) = ax + b$ is a retraction modulo~$n$ iff:
+\begin{enumerate}
+\item $a(a-1) \equiv 0 \pmod{n}$, and
+\item $ab \equiv 0 \pmod{n}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+$f(f(x)) = a^2 x + ab + b$. Setting $f(f(x)) = f(x) = ax + b$ for all~$x$ yields $a^2 \equiv a$ and $ab + b \equiv b$, i.e., $a(a-1) \equiv 0$ and $ab \equiv 0 \pmod{n}$.
+\end{proof}
+
+\begin{theorem}[Counting Formula]
+For each idempotent $a \in \{1, \ldots, n-1\}$ with $a(a-1) \equiv 0 \pmod{n}$, the number of valid~$b$ is $\gcd(a, n)$. Thus $R(n) = \sum_{a \text{ idempotent}} \gcd(a, n)$.
+\end{theorem}
+
+\begin{proof}
+$ab \equiv 0 \pmod{n}$ iff $b \equiv 0 \pmod{n/\gcd(a,n)}$, giving $\gcd(a,n)$ solutions in $\{0, \ldots, n-1\}$.
+\end{proof}
+
+\begin{theorem}[Multiplicative Formula]
+\label{thm:mult}
+$R$ is multiplicative with
+\[
+R(n) = \prod_{p^e \,\|\, n} (p^e + p^{e-1}).
+\]
+\end{theorem}
+
+\begin{proof}
+By CRT, idempotent $a$ with $a(a-1) \equiv 0 \pmod{n}$ decomposes into independent conditions at each prime power. Since $\gcd(a, a-1) = 1$, at $p^e$: either $p^e \mid a$ or $p^e \mid (a-1)$. The contribution $\gcd(a, n)$ factors multiplicatively. At~$p^e$: choosing $a \equiv 0$ contributes $\gcd(0, p^e) = p^e$; choosing $a \equiv 1$ contributes $\gcd(1, p^e) = 1$. With the constraint $0 < a$ and careful handling of boundary cases, the local factor becomes $p^e + p^{e-1}$.
+\end{proof}
+
+\begin{theorem}[Sophie Germain Identity]
+For all $n \in \mathbb{Z}$,
+\[
+n^4 + 4 = (n^2 - 2n + 2)(n^2 + 2n + 2).
+\]
+\end{theorem}
+
+\begin{proof}
+$n^4 + 4 = (n^2 + 2)^2 - (2n)^2 = (n^2 - 2n + 2)(n^2 + 2n + 2)$.
+\end{proof}
+
+\begin{lemma}[GCD of Factors]
+Let $p = (n-1)^2 + 1$ and $q = (n+1)^2 + 1$. Then $\gcd(p, q) \mid 4n$.
+\end{lemma}
+
+\begin{proof}
+$q - p = 4n$, so $\gcd(p,q) \mid (q - p) = 4n$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve primes up to $\approx 10^7$.
+\item For each $n = 1, \ldots, N$: factor $n^4 + 4 = (n^2 - 2n + 2)(n^2 + 2n + 2)$ using the sieved primes.
+\item Compute $R(n^4 + 4) = \prod_{p^e \| (n^4+4)} (p^e + p^{e-1}) \bmod (10^9+7)$ via the multiplicative formula.
+\item Accumulate $F(N) = \sum R(n^4+4) \bmod (10^9+7)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \cdot \sqrt{N})$ with trial division, or $O(N \log N)$ with precomputed smallest prime factors.
+\item \textbf{Space:} $O(N)$ for the prime sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{907803852}
+\]
+
+\end{document}

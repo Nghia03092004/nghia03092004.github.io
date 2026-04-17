@@ -1,0 +1,107 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 199: Iterative Circle Packing}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Three mutually tangent unit circles are inscribed in a larger circle. Iteratively fill each curvilinear gap with a new tangent circle, for 10 iterations. Find the fraction of the outer circle's area not covered, to 8 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Descartes' Circle Theorem]
+For four mutually tangent circles with curvatures $k_1, k_2, k_3, k_4$:
+\[
+(k_1 + k_2 + k_3 + k_4)^2 = 2(k_1^2 + k_2^2 + k_3^2 + k_4^2).
+\]
+\end{theorem}
+
+\begin{proof}
+Express the mutual tangency conditions $|z_i - z_j| = r_i + r_j$ (or $|r_i - r_j|$ for internal tangency) algebraically. Eliminating the center coordinates from these four distance equations yields the stated curvature relation. \qed
+\end{proof}
+
+\begin{lemma}[Fourth Curvature]
+Given three mutually tangent circles with curvatures $k_1, k_2, k_3$, the inscribed fourth circle has curvature:
+\[
+k_4 = k_1 + k_2 + k_3 + 2\sqrt{k_1 k_2 + k_2 k_3 + k_3 k_1}.
+\]
+\end{lemma}
+
+\begin{proof}
+From Descartes' equation, solving for $k_4$:
+\[
+k_4^2 - 2(k_1+k_2+k_3)k_4 + (2(k_1^2+k_2^2+k_3^2) - (k_1+k_2+k_3)^2) = 0.
+\]
+The discriminant simplifies to $4(k_1 k_2 + k_2 k_3 + k_3 k_1)$, giving:
+\[
+k_4 = (k_1+k_2+k_3) + 2\sqrt{k_1 k_2 + k_2 k_3 + k_3 k_1}.
+\]
+The $+$ root corresponds to the smaller (inscribed) circle. \qed
+\end{proof}
+
+\begin{theorem}[Outer Circle Radius]
+Three mutually tangent unit circles inscribed in a larger circle yield outer radius:
+\[
+R = 1 + \frac{2}{\sqrt{3}} = 1 + \frac{2\sqrt{3}}{3}.
+\]
+\end{theorem}
+
+\begin{proof}
+The three unit-circle centers form an equilateral triangle of side 2, with circumradius $2/\sqrt{3}$. The outer circle passes through points at unit distance beyond each center: $R = 2/\sqrt{3} + 1$. \qed
+\end{proof}
+
+\begin{lemma}[Initial Gaps]
+The outer circle has curvature $k_0 = -1/R$ (negative for internal tangency). Initial gaps: 3 outer gaps $(k_0, 1, 1)$ and 1 inner gap $(1, 1, 1)$.
+\end{lemma}
+
+\begin{proof}
+By the threefold symmetry of the configuration. \qed
+\end{proof}
+
+\begin{theorem}[Gap Splitting]
+Inscribing a circle of curvature $k_{\text{new}}$ in gap $(a, b, c)$ creates three sub-gaps: $(a, b, k_{\text{new}})$, $(a, c, k_{\text{new}})$, $(b, c, k_{\text{new}})$.
+\end{theorem}
+
+\begin{proof}
+The new circle, tangent to all three bounding circles, partitions the curvilinear triangle into three smaller curvilinear triangles. \qed
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+R = 1 + 2/sqrt(3); k0 = -1/R
+gaps = [(k0,1,1), (k0,1,1), (k0,1,1), (1,1,1)]
+area = 3*pi
+for iter = 1 to 10:
+    new_gaps = []
+    for (a,b,c) in gaps:
+        k = a + b + c + 2*sqrt(a*b + b*c + c*a)
+        area += pi/k^2
+        append (a,b,k), (a,c,k), (b,c,k) to new_gaps
+    gaps = new_gaps
+answer = 1 - area / (pi*R^2)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(3^I)$ where $I = 10$ iterations. Total gap operations: $\sim 118000$.
+    \item \textbf{Space:} $O(3^I) = O(236196)$ gap triples at the final iteration.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.00396087}
+\]
+
+\end{document}

@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Problem 276: Primitive Triangles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count primitive triangles (with $\gcd(a,b,c)=1$, $a \le b \le c$) having perimeter not exceeding $10^7$.
+
+\section{Solution}
+
+\subsection{Alcuin Sequence}
+The number of triangles with perimeter exactly $s$ is given by OEIS A005044, with generating function:
+\[
+G(x) = \frac{x^3}{(1-x^2)(1-x^3)(1-x^4)}
+\]
+
+This yields the recurrence for $n \ge 12$:
+\[
+t(n) = t(n{-}2) + t(n{-}3) + t(n{-}4) - t(n{-}5) - t(n{-}6) - t(n{-}7) + t(n{-}9)
+\]
+
+\subsection{Proof of Recurrence}
+Expanding the denominator:
+\[
+(1-x^2)(1-x^3)(1-x^4) = 1 - x^2 - x^3 - x^4 + x^5 + x^6 + x^7 - x^9
+\]
+Multiplying $G(x)$ by this polynomial leaves only $x^3$, giving the recurrence.
+
+\subsection{M\"obius Sieve}
+Since $t(n) = \sum_{d \mid n} \mathrm{prim}(n/d)$, we apply the sieve:
+\begin{enumerate}
+    \item Initialize $f[n] = t(n)$ for all $n$.
+    \item For $n = 1, 2, \ldots, N/2$: subtract $f[n]$ from $f[kn]$ for all $k \ge 2$.
+    \item After sieving, $f[n] = \mathrm{prim}(n)$ (primitive count at perimeter $n$).
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item Recurrence computation: $O(N)$
+    \item M\"obius sieve: $O(N \log N)$
+    \item Total: $O(N \log N)$ with $N = 10^7$
+\end{itemize}
+
+\section{Verification}
+$P(100) = 6{,}033$ and $P(1{,}000) = 5{,}803{,}431$ both match brute-force computation.
+
+\section{Answer}
+
+\[
+\boxed{5777137137739632912}
+\]
+
+\end{document}

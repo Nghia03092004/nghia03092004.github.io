@@ -1,0 +1,48 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 842: Irregular Clocking}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Analyze the LCG sequence $x_{n+1} = (ax_n + c) \bmod m$: find its period, tail length, and values at large indices.
+
+\section{Theory}
+
+\begin{theorem}[Hull--Dobell]
+The LCG has full period~$m$ iff: (1)~$\gcd(c,m)=1$, (2)~$a \equiv 1 \pmod{p}$ for all primes $p \mid m$, (3)~if $4 \mid m$ then $a \equiv 1 \pmod{4}$.
+\end{theorem}
+
+\begin{lemma}[Closed Form]
+For $a \ne 1$: $x_n = a^n x_0 + c\frac{a^n-1}{a-1} \pmod{m}$.
+\end{lemma}
+
+\begin{proof}
+By induction using the geometric series.
+\end{proof}
+
+\section{Matrix Exponentiation}
+The recurrence is captured by $\binom{x_{n+1}}{1} = \begin{pmatrix} a & c \\ 0 & 1\end{pmatrix}\binom{x_n}{1}$. Hence $x_n$ is computed in $O(\log n)$ via matrix power.
+
+\section{Cycle Detection}
+\begin{itemize}
+\item \textbf{Floyd:} $O(\tau + \rho)$ time, $O(1)$ space.
+\item \textbf{Brent:} Same asymptotic, better constant.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{885226002}
+\]
+
+\end{document}

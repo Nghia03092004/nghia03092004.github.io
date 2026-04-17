@@ -1,0 +1,64 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\title{Problem 356: Largest Roots of Cubic Polynomials}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $a_n$ be the largest real root of the polynomial $g(x) = x^3 - 2^n \cdot x^2 + n$.
+
+Find $\displaystyle \sum_{n=1}^{30} \lfloor a_n^{987654321} \rfloor \pmod{10^8}$.
+
+\section{Solution}
+
+\subsection{Perturbation of the Root}
+For the cubic $g(x) = x^3 - 2^n x^2 + n$, the sum of roots equals $2^n$ (by Vieta's formulas).
+The largest root $a_n$ satisfies $a_n \approx 2^n$ for large $n$. Writing $a_n = 2^n - \epsilon_n$
+and substituting:
+\[
+(2^n - \epsilon_n)^3 - 2^n(2^n - \epsilon_n)^2 + n = 0
+\]
+
+Expanding to leading order in $\epsilon_n$:
+\[
+\epsilon_n \approx \frac{n}{2^{2n}}
+\]
+
+\subsection{Large Power Computation}
+We compute $a_n^{987654321}$. Let $k = 987654321$. Then:
+\[
+a_n^k = \left(2^n - \frac{n}{2^{2n}} + O(n^2 / 2^{5n})\right)^k
+\]
+\[
+= 2^{nk}\left(1 - \frac{n}{2^{3n}} + \cdots\right)^k
+\]
+\[
+\approx 2^{nk} \exp\left(-\frac{kn}{2^{3n}}\right)
+\]
+
+For $n \geq 2$, the correction $kn/2^{3n}$ is extremely small, so the result is just below
+$2^{nk}$, giving $\lfloor a_n^k \rfloor = 2^{nk} - 1$.
+
+For $n = 1$, the root must be handled with more care since the perturbation approximation
+is less accurate.
+
+\subsection{Modular Arithmetic}
+We compute $\lfloor a_n^k \rfloor \pmod{10^8}$ using fast modular exponentiation for
+$2^{nk} \pmod{10^8}$ and subtract 1 as appropriate, then sum over $n = 1, \ldots, 30$.
+
+\subsection{Result}
+\[
+\boxed{28010159}
+\]
+
+\section{Answer}
+
+\[
+\boxed{28010159}
+\]
+
+\end{document}

@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 374: Maximum Integer Partition Product}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer~$n$, let $f(n)$ be the maximum product over all integer partitions of~$n$. Define $S(N) = \sum_{n=1}^{N} f(n)$. Compute $S(10^{14}) \bmod 982451653$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Optimal Partition Structure]
+For $n \ge 5$, the product-maximizing partition uses only parts of size 2 and 3, with at most two~2s:
+\[
+f(n) = \begin{cases}
+3^{n/3} & \text{if } n \equiv 0 \pmod{3}, \\[4pt]
+4 \cdot 3^{(n-4)/3} & \text{if } n \equiv 1 \pmod{3}, \\[4pt]
+2 \cdot 3^{(n-2)/3} & \text{if } n \equiv 2 \pmod{3}.
+\end{cases}
+\]
+Base cases: $f(1)=1$, $f(2)=2$, $f(3)=3$, $f(4)=4$.
+\end{theorem}
+
+\begin{proof}
+We establish five claims.
+
+\emph{Claim~1: No part equals~1.} Replacing $(a,1)$ with $(a{+}1)$ increases the product since $a+1 > a$.
+
+\emph{Claim~2: No part exceeds~4.} For $k \ge 5$, split $k = 3 + (k{-}3)$; then $3(k{-}3) = 3k-9 \ge k$ iff $2k \ge 9$, which holds.
+
+\emph{Claim~3: Parts of 4 can be replaced by $2+2$.} Since $2 \cdot 2 = 4$, the product is unchanged.
+
+\emph{Claim~4: At most two 2s.} Three 2s give $8 < 9 = 3 \cdot 3$, and $2+2+2 = 3+3$.
+
+\emph{Claim~5.} The optimal partition uses $k$ threes and $r \in \{0,1,2\}$ twos with $3k + 2r = n$, giving $f(n) = 3^k \cdot 2^r$.
+\end{proof}
+
+\begin{lemma}[Geometric Series Summation]
+Grouping by residue modulo~3, each group forms a geometric series with ratio~3:
+\[
+\sum_{k=0}^{K} a \cdot 3^k = a \cdot \frac{3^{K+1}-1}{2},
+\]
+computed modulo~$M$ using $2^{-1} \pmod{M}$.
+\end{lemma}
+
+\begin{proof}
+For $n \equiv 0\pmod{3}$: terms are $3^1, 3^2, \ldots, 3^{\lfloor N/3\rfloor}$, which is $3\cdot(3^{\lfloor N/3\rfloor}-1)/2$. The groups $n\equiv 1$ and $n\equiv 2$ are analogous with prefactors 4 and 2.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(N, M):
+    inv2 = modular_inverse(2, M)
+    K0 = floor(N / 3)
+    sum0 = 3 * (pow(3, K0, M) - 1) * inv2 mod M
+    K2 = floor((N-2)/3) + 1
+    sum2 = 2 * (pow(3, K2, M) - 1) * inv2 mod M
+    K1 = floor((N-4)/3) + 1
+    sum1 = 4 * (pow(3, K1, M) - 1) * inv2 mod M
+    return (sum0 + sum1 + sum2 + base_cases) mod M
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log N)$ for modular exponentiation (three calls). Geometric sums are closed-form.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{334420941}
+\]
+
+\end{document}

@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 487: Sums of Power Sums}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define $f_k(n) = \sum_{i=1}^n i^k$ and $S_k(p) = \sum_{i=1}^{p-1}f_k(i)\bmod p$ for prime~$p$. Compute sums of $S_k(p)$ for specified $k$ and ranges of primes.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Faulhaber's formula]
+For non-negative integer $k$ and positive integer $n$:
+\[
+f_k(n) = \frac{1}{k+1}\sum_{j=0}^k\binom{k+1}{j}B_j\,n^{k+1-j}
+\]
+where $B_j$ are Bernoulli numbers with $B_0=1$ and $\sum_{j=0}^m\binom{m+1}{j}B_j=0$ for $m\ge 1$.
+\end{theorem}
+
+\begin{proof}
+From the generating function $t/(e^t-1) = \sum B_n t^n/n!$, multiply by $(e^{nt}-1)/(e^t-1) = \sum_{i=0}^{n-1}e^{it}$. Comparing coefficients of $t^k/k!$ yields:
+\[
+\sum_{i=0}^{n-1}i^k = \frac{1}{k+1}\sum_{j=0}^k\binom{k+1}{j}B_j\,n^{k+1-j}.
+\]
+Since $f_k(n)=\sum_{i=1}^n i^k = \sum_{i=0}^n i^k$ for $k\ge 1$, the formula follows. The Bernoulli recurrence is obtained by setting $n=1$.
+\end{proof}
+
+\begin{theorem}[Power sums modulo a prime]
+For prime $p$ and $m>0$:
+\[
+\sum_{i=1}^{p-1}i^m \equiv \begin{cases} -1\pmod{p} & \text{if }(p-1)\mid m,\\ 0\pmod{p} & \text{otherwise.}\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+$\mathbb{F}_p^*$ is cyclic of order $p-1$ with generator $g$. If $(p-1)\mid m$, each $i^m=1$, so the sum is $p-1\equiv -1$. Otherwise $g^m\ne 1$ and $\sum_{j=0}^{p-2}g^{jm} = (g^{(p-1)m}-1)/(g^m-1) = 0$.
+\end{proof}
+
+\begin{theorem}[Sparse evaluation of $S_k(p)$]
+\[
+S_k(p) \equiv \frac{-1}{k+1}\sum_{\substack{0\le j\le k+1\\(p-1)\mid(k+1-j)}}\binom{k+1}{j}B_j \pmod{p}.
+\]
+Only those $j$ with $(p-1)\mid(k+1-j)$ contribute, making the sum sparse.
+\end{theorem}
+
+\begin{proof}
+Substitute Faulhaber's formula into $S_k(p) = \sum_{i=1}^{p-1}f_k(i)$, exchange summation order, and apply Theorem~2 to evaluate each inner sum $\sum_{i=1}^{p-1}i^{k+1-j}$.
+\end{proof}
+
+\begin{lemma}[Bernoulli recurrence mod $p$]
+$B_0=1$ and for $m\ge 1$:
+\[
+B_m \equiv -\frac{1}{m+1}\sum_{j=0}^{m-1}\binom{m+1}{j}B_j \pmod{p}.
+\]
+Division by $m+1$ uses the modular inverse in $\mathbb{F}_p$ (valid when $p\nmid m+1$).
+\end{lemma}
+
+\begin{proof}
+Rearrange the defining relation $\sum_{j=0}^m\binom{m+1}{j}B_j = 0$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute Bernoulli numbers $B_0,\ldots,B_k$ modulo each prime $p$ using the recurrence ($O(k^2)$ per prime).
+\item For each prime $p$, evaluate $S_k(p)$ using the sparse formula ($O(k/(p-1))$ non-zero terms).
+\item Accumulate the required sum over primes.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(P\cdot k^2)$ total for $P$ primes, or $O(k^2 + P\cdot k)$ if Bernoulli numbers are precomputed over $\mathbb{Q}$.
+\item \textbf{Space:} $O(k)$ for the Bernoulli array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{106650212746}
+\]
+
+\end{document}

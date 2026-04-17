@@ -1,0 +1,83 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{Problem 137: Fibonacci Golden Nuggets}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider the infinite polynomial series $A_F(x) = xF_1 + x^2F_2 + x^3F_3 + \cdots$, where $F_k$ is the $k$-th Fibonacci number ($F_1 = F_2 = 1$). Find the 15th golden nugget: a positive integer value of $A_F(x)$ attained at some positive rational $x$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}
+The generating function has closed form $A_F(x) = \frac{x}{1 - x - x^2}$ for $|x| < 1/\varphi$ where $\varphi = (1+\sqrt{5})/2$.
+\end{theorem}
+
+\begin{proof}
+Let $S = \sum_{k=1}^\infty F_k x^k$. Using the Fibonacci recurrence $F_k = F_{k-1} + F_{k-2}$ for $k \geq 3$:
+\[
+S = x + x^2 + \sum_{k=3}^\infty (F_{k-1} + F_{k-2}) x^k = x + xS + x^2 S.
+\]
+Solving: $S(1 - x - x^2) = x$, hence $S = x/(1 - x - x^2)$.
+\end{proof}
+
+\begin{theorem}
+Setting $A_F(x) = n$ for a positive integer $n$, the value $x$ is a positive real if and only if $5n^2 + 2n + 1$ is a perfect square.
+\end{theorem}
+
+\begin{proof}
+From $n = x/(1 - x - x^2)$: $nx^2 + (n+1)x - n = 0$. The quadratic formula gives $x = \frac{-(n+1) + \sqrt{5n^2 + 2n + 1}}{2n}$. For $x$ to be real and positive, the discriminant $D = 5n^2 + 2n + 1$ must be a perfect square (and $\sqrt{D} > n + 1$, which holds since $D - (n+1)^2 = 4n^2 > 0$).
+\end{proof}
+
+\begin{theorem}
+The equation $5n^2 + 2n + 1 = m^2$ reduces to the generalized Pell equation $a^2 - 5m^2 = -4$ via $a = 5n + 1$.
+\end{theorem}
+
+\begin{proof}
+Multiply by 5: $25n^2 + 10n + 5 = 5m^2$, i.e., $(5n+1)^2 + 4 = 5m^2$. Setting $a = 5n + 1$: $a^2 - 5m^2 = -4$.
+\end{proof}
+
+\begin{theorem}
+The $k$-th golden nugget is $n_k = F_{2k} \cdot F_{2k+1}$.
+\end{theorem}
+
+\begin{proof}
+The generalized Pell equation $a^2 - 5b^2 = -4$ has solutions linked to Fibonacci and Lucas numbers. The solutions with $a \equiv 1 \pmod{5}$ (required for $n = (a-1)/5$ to be a positive integer) form a subsequence. One can verify by induction that $a_k = 5F_{2k}F_{2k+1} + 1$ and $b_k$ satisfy the Pell equation. Equivalently:
+
+Verification of the first cases:
+\begin{itemize}
+\item $k = 1$: $n_1 = F_2 \cdot F_3 = 1 \cdot 2 = 2$. Check: $5(4) + 4 + 1 = 25 = 5^2$. \checkmark
+\item $k = 2$: $n_2 = F_4 \cdot F_5 = 3 \cdot 5 = 15$. Check: $5(225) + 30 + 1 = 1156 = 34^2$. \checkmark
+\item $k = 3$: $n_3 = F_6 \cdot F_7 = 8 \cdot 13 = 104$. Check: $5(10816) + 208 + 1 = 54289 = 233^2$. \checkmark
+\end{itemize}
+
+The inductive step uses the Fibonacci identity and the Pell solution recurrence $(a_{k+1}, b_{k+1}) = (9a_k + 20b_k, 4a_k + 9b_k)$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Compute Fibonacci numbers $F_1, F_2, \ldots, F_{31}$ iteratively.
+    \item Return $n_{15} = F_{30} \cdot F_{31}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(k)$ arithmetic operations to compute Fibonacci numbers up to index $2k + 1$. With big-integer arithmetic, total bit complexity is $O(k^2)$.
+    \item \textbf{Space:} $O(k)$ bits to store Fibonacci numbers (which grow as $\varphi^{2k}$).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1120149658760}
+\]
+
+\end{document}

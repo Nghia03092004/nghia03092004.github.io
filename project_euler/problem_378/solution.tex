@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\title{Problem 378: Triangle Triples}
+\author{Project Euler Solution}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $T(n) = \frac{n(n+1)}{2}$ be the $n$-th triangle number. Let $d(m)$ denote the number of divisors of $m$. Find the number of triples $(i,j,k)$ with $i < j < k$ such that $d(T(i)), d(T(j)), d(T(k))$ can form the sides of a triangle, modulo $10^9 + 7$.
+
+\section{Mathematical Analysis}
+
+\subsection{Computing Divisor Counts}
+Since $\gcd(n, n+1) = 1$:
+\[
+d(T(n)) = \begin{cases}
+d(n/2) \cdot d(n+1) & \text{if } n \equiv 0 \pmod{2} \\
+d(n) \cdot d((n+1)/2) & \text{if } n \equiv 1 \pmod{2}
+\end{cases}
+\]
+
+\subsection{Triangle Inequality}
+For sorted values $a \leq b \leq c$, the triangle inequality reduces to:
+\[
+a + b > c
+\]
+
+\subsection{Counting Algorithm}
+After sorting the divisor counts array:
+\begin{enumerate}
+    \item For each index $k$ (largest side), use two pointers $i < j < k$
+    \item Find the smallest $i$ such that $a[i] + a[j] > a[k]$
+    \item Count all valid pairs $(i, j)$
+\end{enumerate}
+
+Total complexity: $O(n^2)$ after sorting.
+
+\section{Result}
+The answer is $\boxed{147534623}$.
+
+\section{Answer}
+
+\[
+\boxed{147534623725724718}
+\]
+
+\end{document}

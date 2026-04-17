@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 206: Concealed Square}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the unique positive integer whose square has the form
+\[
+1\_2\_3\_4\_5\_6\_7\_8\_9\_0
+\]
+where each underscore represents a single unknown digit.
+
+\section{Mathematical Analysis}
+
+\subsection{Bounding the Search Space}
+The number $n^2$ has 19 digits matching the pattern. The smallest such number is
+\[
+1020304050607080900
+\]
+and the largest is
+\[
+1929394959697989990.
+\]
+Therefore:
+\[
+n_{\min} = \lceil \sqrt{1020304050607080900} \rceil \approx 1{,}010{,}101{,}010
+\]
+\[
+n_{\max} = \lfloor \sqrt{1929394959697989990} \rfloor \approx 1{,}389{,}019{,}170
+\]
+
+\subsection{Modular Constraints}
+Since $n^2$ ends in 0, we require $10 \mid n$. Write $n = 10m$, so $n^2 = 100m^2$.
+
+The pattern requires the second-to-last digit of $n^2$ to fit $\_9\_0$, meaning $m^2 \bmod 10 = 9$. This forces $m \equiv 3 \pmod{10}$ or $m \equiv 7 \pmod{10}$.
+
+Equivalently, $n \bmod 100 \in \{30, 70\}$.
+
+\subsection{Algorithm}
+We iterate $n$ from $n_{\min}$ to $n_{\max}$, checking only values where $n \bmod 100 \in \{30, 70\}$. For each candidate, we verify whether $n^2$ matches the pattern $1\_2\_3\_4\_5\_6\_7\_8\_9\_0$.
+
+The number of candidates is approximately:
+\[
+\frac{1{,}389{,}019{,}170 - 1{,}010{,}101{,}010}{50} \approx 7{,}578{,}363
+\]
+
+\subsection{Digit Verification}
+Given $s = n^2$ as a 19-digit string, we check:
+\begin{align}
+s[0] &= 1, \quad s[2] = 2, \quad s[4] = 3, \quad s[6] = 4, \quad s[8] = 5, \\
+s[10] &= 6, \quad s[12] = 7, \quad s[14] = 8, \quad s[16] = 9, \quad s[18] = 0.
+\end{align}
+
+\section{Result}
+The unique solution is:
+\[
+\boxed{n = 1{,}389{,}019{,}170}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O\!\left(\dfrac{n_{\max} - n_{\min}}{50}\right) \approx O(7.6 \times 10^6)$
+    \item \textbf{Space:} $O(1)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1389019170}
+\]
+
+\end{document}

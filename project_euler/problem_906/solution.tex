@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 906: Fibonacci Modular Properties}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $F_n$ denote the $n$-th Fibonacci number with $F_1 = F_2 = 1$. Find $\sum_{k=1}^{10^7} F_k \bmod 10^9+7$.
+
+\section{Matrix Formulation}
+
+\begin{theorem}[Fibonacci Matrix Identity]
+\[
+\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^n = \begin{pmatrix} F_{n+1} & F_n \\ F_n & F_{n-1} \end{pmatrix}.
+\]
+\end{theorem}
+
+\begin{proof}
+By induction. The base case $n=1$ is immediate. For the inductive step, multiply:
+\[
+\begin{pmatrix} F_{n+1} & F_n \\ F_n & F_{n-1} \end{pmatrix} \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} = \begin{pmatrix} F_{n+2} & F_{n+1} \\ F_{n+1} & F_n \end{pmatrix}. \qedhere
+\]
+\end{proof}
+
+\section{Telescoping Sum}
+
+\begin{theorem}
+\label{thm:telescope}
+$\displaystyle\sum_{k=1}^{n} F_k = F_{n+2} - 1$.
+\end{theorem}
+
+\begin{proof}
+Rewrite $F_k = F_{k+2} - F_{k+1}$ (from the recurrence). Then:
+\[
+\sum_{k=1}^{n} F_k = \sum_{k=1}^{n}(F_{k+2} - F_{k+1}) = F_{n+2} - F_2 = F_{n+2} - 1. \qedhere
+\]
+\end{proof}
+
+\section{Binet's Formula}
+
+\begin{theorem}[Binet]
+\[
+F_n = \frac{\phi^n - \psi^n}{\sqrt{5}}, \qquad \phi = \frac{1+\sqrt{5}}{2}, \quad \psi = \frac{1-\sqrt{5}}{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+$\phi$ and $\psi$ are roots of $x^2 = x + 1$. The general solution to the recurrence $a_n = a_{n-1} + a_{n-2}$ is $a_n = A\phi^n + B\psi^n$. Initial conditions $F_1 = F_2 = 1$ give $A = 1/\sqrt{5}$, $B = -1/\sqrt{5}$.
+\end{proof}
+
+\section{Fast Doubling}
+
+\begin{proposition}[Doubling Formulas]
+\begin{align*}
+F_{2n} &= F_n(2F_{n+1} - F_n), \\
+F_{2n+1} &= F_n^2 + F_{n+1}^2.
+\end{align*}
+\end{proposition}
+
+\begin{proof}
+From the matrix identity, $Q^{2n} = (Q^n)^2$, expanding the product:
+\[
+F_{2n+1} = F_{n+1}^2 + F_n^2, \quad F_{2n} = F_n(F_{n+1} + F_{n-1}) = F_n(2F_{n+1} - F_n). \qedhere
+\]
+\end{proof}
+
+These formulas compute $F_n \bmod p$ in $O(\log n)$ time without matrix overhead.
+
+\section{Pisano Period}
+
+\begin{proposition}
+The sequence $(F_n \bmod m)$ is periodic with period $\pi(m)$ (the Pisano period). For prime $p \ne 5$:
+\[
+\pi(p) \mid \begin{cases} p - 1 & \text{if } p \equiv \pm 1 \pmod{5}, \\ 2(p+1) & \text{if } p \equiv \pm 2 \pmod{5}. \end{cases}
+\]
+\end{proposition}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $F_n$ & $\sum_{k=1}^n F_k = F_{n+2}-1$ \\
+\midrule
+1  & 1    & 1 \\
+5  & 5    & 12 \\
+10 & 55   & 143 \\
+20 & 6765 & 17710 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Matrix exponentiation:} $O(\log N)$ multiplications of $2 \times 2$ matrices.
+\item \textbf{Fast doubling:} $O(\log N)$ with smaller constant factor.
+\item \textbf{Iterative:} $O(N)$ time, $O(1)$ space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.0195868911}
+\]
+
+\end{document}

@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 652: Distinct Values of a Proto-logarithmic Function}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define a completely additive arithmetic function $f$ by $f(p^a) = g(a)$ for every prime $p$ and positive integer $a$. Determine $S(N) = |\{f(n) : 1 \le n \le N\}|$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+The \emph{prime signature} of $n = p_1^{a_1}\cdots p_r^{a_r}$ is the partition $\lambda(n) = (\lambda_1 \ge \cdots \ge \lambda_r)$ obtained by sorting the exponents $\{a_1,\ldots,a_r\}$ in non-increasing order.
+\end{definition}
+
+\begin{theorem}
+Two positive integers $m$ and $n$ satisfy $f(m)=f(n)$ if and only if $\lambda(m)=\lambda(n)$.
+\end{theorem}
+
+\begin{proof}
+Since $f(n) = \sum_i g(a_i)$ depends only on the multiset of exponents, integers with the same prime signature yield the same $f$-value. Conversely, for generic (injective) $g$, distinct multisets produce distinct sums, so distinct $f$-values are in bijection with distinct prime signatures.
+\end{proof}
+
+\begin{lemma}
+The number of distinct prime signatures for $n \le N$ equals the number of partitions $\lambda = (\lambda_1 \ge \cdots \ge \lambda_r \ge 1)$ satisfying
+\[
+\prod_{i=1}^{r} p_i^{\lambda_i} \le N,
+\]
+where $p_i$ is the $i$-th prime.
+\end{lemma}
+
+\begin{proof}
+The minimal integer with signature $\lambda$ is $\prod_i p_i^{\lambda_i}$ (assigning largest exponents to smallest primes). A signature is realisable for $n \le N$ iff this minimal representative does not exceed $N$.
+\end{proof}
+
+\begin{corollary}
+$S(N)$ equals the number of integer partitions $\lambda$ with $\prod_i p_i^{\lambda_i} \le N$.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function CountSignatures(N):
+    primes <- [2, 3, 5, 7, 11, ...]
+    return Backtrack(N, 1, infinity, 0)
+
+function Backtrack(N, product, max_exp, prime_idx):
+    count <- 1
+    p <- primes[prime_idx]
+    for exp <- 1 to max_exp:
+        new_product <- product * p^exp
+        if new_product > N: break
+        count <- count + Backtrack(N, new_product, exp, prime_idx+1)
+    return count
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O\!\left(\exp\!\left(C\sqrt{\frac{\log N}{\log\log N}}\right) \cdot \log N\right)$, subpolynomial in $N$.
+\item \textbf{Space:} $O(\log N / \log 2)$ for the recursion stack.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{983924497}
+\]
+
+\end{document}

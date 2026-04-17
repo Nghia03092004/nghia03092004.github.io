@@ -1,0 +1,48 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 697: Randomly Decaying Sequence}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $X_0 = c$ and $X_n = U_n X_{n-1}$ where $U_n \sim \text{Uniform}(0,1)$ independently. Find $\log_{10} c$ (rounded to 2 decimal places) such that $P(X_{10^7} < 1) = 0.25$.
+
+\section{Mathematical Analysis}
+
+\subsection{Reduction to Chi-Squared}
+We have $X_n = c \prod_{i=1}^n U_i$, so $\ln X_n = \ln c + \sum_{i=1}^n \ln U_i$.
+
+Since $-\ln U_i \sim \text{Exp}(1)$, the sum $S = -2\sum_{i=1}^n \ln U_i$ follows a $\chi^2(2n)$ distribution.
+
+\subsection{Deriving the Equation}
+\begin{align}
+P(X_n < 1) &= P(\ln X_n < 0) = P\left(\sum \ln U_i < -\ln c\right) \\
+&= P(S > 2\ln c) = 1 - F_{\chi^2(2n)}(2\ln c) = 0.25
+\end{align}
+
+Therefore $2\ln c = F_{\chi^2(2n)}^{-1}(0.75)$, the 75th percentile of $\chi^2(2n)$.
+
+\subsection{Wilson--Hilferty Approximation}
+For $\nu = 2n = 2 \times 10^7$, the chi-squared quantile is well approximated by:
+\[
+\chi^2_{\nu,p} \approx \nu \left(1 - \frac{2}{9\nu} + z_p \sqrt{\frac{2}{9\nu}}\right)^3
+\]
+where $z_p = \Phi^{-1}(p)$ is the standard normal quantile. For $p = 0.75$, $z_{0.75} \approx 0.6745$.
+
+\subsection{Final Computation}
+\[
+\log_{10} c = \frac{\chi^2_{\nu,0.75}}{2 \ln 10}
+\]
+
+\section{Answer}
+
+\[
+\boxed{4343871.06}
+\]
+
+\end{document}

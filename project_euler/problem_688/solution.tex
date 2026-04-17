@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 688: Piles of Plates}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Stack $n$ plates into $k$ non-empty piles of distinct sizes. Let $f(n,k)$ be the maximum possible smallest pile, $F(n)=\sum f(n,k)$ over valid $k$, and $S(N)=\sum_{n=1}^{N} F(n)$. Given $S(100)=12656$, find $S(10^{16})\bmod 10^9+7$.
+
+\section{Mathematical Analysis}
+
+$f(n,k) = \left\lfloor \frac{n - k(k-1)/2}{k} \right\rfloor$ when $n \ge k(k+1)/2$. Sum via number-theoretic techniques.
+
+\section{Complexity Analysis}
+
+The floor-sum approach runs in $O(\sqrt{N})$.
+
+\section{Answer}
+
+\[
+\boxed{110941813}
+\]
+
+\end{document}

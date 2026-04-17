@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 303: Multiples with Small Digits}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a positive integer $n$, let $f(n)$ be the smallest positive multiple of $n$ whose decimal representation uses only the digits $\{0, 1, 2\}$.
+
+Compute
+\[
+\sum_{n=1}^{10000} \frac{f(n)}{n}.
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Existence]\label{thm:existence}
+For every positive integer $n$, $f(n)$ exists and is finite.
+\end{theorem}
+
+\begin{proof}
+The BFS algorithm below explores residue classes modulo~$n$, starting from residues corresponding to leading digits 1 and 2. Since there are only $n$ residue classes and each is visited at most once, the search terminates. The transition function $(10r + d) \bmod n$ for $d \in \{0,1,2\}$ generates a connected graph over $\mathbb{Z}/n\mathbb{Z}$ (since $\gcd(10, n)$ divides $10$ and the digit set $\{0,1,2\}$ spans all residues modulo any divisor of~10). Thus residue~0 is eventually reached, proving existence.
+\end{proof}
+
+\begin{lemma}[BFS correctness]\label{lem:bfs}
+A breadth-first search building numbers digit-by-digit from $\{0,1,2\}$, tracking residues modulo~$n$, finds $f(n)$ correctly.
+\end{lemma}
+
+\begin{proof}
+The state space is $\{0, 1, \ldots, n-1\}$. BFS starts with residues $1 \bmod n$ and $2 \bmod n$. At each step, from residue~$r$, we transition to $(10r + d) \bmod n$ for $d \in \{0,1,2\}$. BFS explores states in order of increasing digit count (and lexicographically within the same length). Each residue is visited at most once, so the first time residue~0 is reached yields the smallest qualifying multiple. The search visits at most $n$ residues.
+\end{proof}
+
+\begin{lemma}[Digit bound]\label{lem:digits}
+For $n \le 10000$, $f(n)$ has at most $\sim 30$ digits. The hardest case is $n = 9999$, where $f(9999)$ has 28 digits.
+\end{lemma}
+
+\begin{proof}
+Since $9999 = 3^2 \times 11 \times 101$, the smallest multiple of $9999$ using only digits $\{0,1,2\}$ is $f(9999) = \underbrace{1\cdots1}_{24}1112$, a 28-digit number. For all other $n \le 10000$, $f(n)$ has fewer digits, as verified computationally.
+\end{proof}
+
+\section{Algorithm}
+\begin{verbatim}
+function solve():
+    total = 0
+    for n = 1 to 10000:
+        total += bfs_find_quotient(n)
+    return total
+
+function bfs_find_quotient(n):
+    visited[0..n-1] = false
+    queue = empty
+    for d in {1, 2}:
+        r = d mod n
+        if r == 0: return d / n
+        visited[r] = true; enqueue(r, bigint(d))
+    while queue not empty:
+        (r, value) = dequeue
+        for d in {0, 1, 2}:
+            nr = (10*r + d) mod n
+            nv = 10*value + d
+            if nr == 0: return nv / n
+            if not visited[nr]:
+                visited[nr] = true; enqueue(nr, nv)
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O\!\left(\sum_{n=1}^{10000} n\right) = O(5 \times 10^7)$ residue transitions. Each transition costs $O(D)$ for big-integer updates where $D \le 30$.
+    \item \textbf{Space:} $O(n)$ per query for the visited array and BFS queue.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1111981904675169}
+\]
+
+\end{document}

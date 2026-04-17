@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 833: Square Triangular Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A square triangular number satisfies $n(n+1)/2 = m^2$ for non-negative integers $n,m$. Compute a function of these numbers modulo $10^9+7$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Reduction to Pell's Equation]
+The equation $n(n+1)/2 = m^2$ holds if and only if $(x,y)=(2n+1,2m)$ satisfies $x^2 - 2y^2 = 1$.
+\end{theorem}
+
+\begin{proof}
+From $n(n+1)=2m^2$, multiply by~4: $(2n+1)^2-1=8m^2$, hence $(2n+1)^2-2(2m)^2=1$. Conversely, any solution with $x$ odd and $y$ even yields valid $n=(x-1)/2$ and $m=y/2$.
+\end{proof}
+
+\begin{theorem}[Structure of Pell Solutions]
+The equation $x^2-2y^2=1$ has fundamental solution $(3,2)$. All positive solutions satisfy $(x_k+y_k\sqrt{2})=(3+2\sqrt{2})^k$ for $k\ge 1$.
+\end{theorem}
+
+\begin{proof}
+Verify $3^2-2\cdot 2^2=1$. The norm $N(x+y\sqrt{2})=x^2-2y^2$ is multiplicative. Since $3+2\sqrt{2}$ is the fundamental unit of $\mathbb{Z}[\sqrt{2}]$ exceeding~1, every solution with $x+y\sqrt{2}>1$ is a positive power of $3+2\sqrt{2}$ by repeated division.
+\end{proof}
+
+\begin{lemma}[Recurrence]
+The Pell solutions satisfy $x_{k+1}=6x_k-x_{k-1}$ and $y_{k+1}=6y_k-y_{k-1}$, with $(x_0,y_0)=(1,0)$ and $(x_1,y_1)=(3,2)$.
+\end{lemma}
+
+\begin{proof}
+The minimal polynomial of $\alpha=3+2\sqrt{2}$ is $t^2-6t+1=0$, so $\alpha^{k+1}=6\alpha^k-\alpha^{k-1}$. Equating rational and irrational parts gives the result.
+\end{proof}
+
+\begin{theorem}[Parity Preservation]
+For all $k\ge 1$, $x_k$ is odd and $y_k$ is even.
+\end{theorem}
+
+\begin{proof}
+By induction using the coupled recurrence $x_{k+1}=3x_k+4y_k$, $y_{k+1}=2x_k+3y_k$: odd $x_k$ and even $y_k$ yield odd $x_{k+1}$ and even $y_{k+1}$.
+\end{proof}
+
+\section{Algorithm}
+
+Use the matrix formulation
+$\begin{pmatrix}x_{k+1}\\y_{k+1}\end{pmatrix}=\begin{pmatrix}3&4\\2&3\end{pmatrix}\begin{pmatrix}x_k\\y_k\end{pmatrix}$
+with matrix exponentiation modulo~$p$ to compute the $K$-th solution in $O(\log K)$ time, then extract $\mathrm{ST}_K = (y_K/2)^2 \bmod p$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log K)$ via $2\times 2$ matrix exponentiation; $O(K)$ via iteration.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{43884302}
+\]
+
+\end{document}

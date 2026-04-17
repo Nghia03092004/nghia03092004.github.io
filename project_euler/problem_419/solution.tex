@@ -1,0 +1,72 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 419: Look and Say Sequence}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The look-and-say sequence begins 1, 11, 21, 1211, 111221, 312211, \ldots
+
+Define $A(n)$, $B(n)$, $C(n)$ as the count of ones, twos, and threes in the $n$-th term. Find $A(n), B(n), C(n)$ for $n = 10^{12}$, modulo $2^{30}$.
+
+\section{Mathematical Analysis}
+
+\subsection{Conway's Cosmological Theorem}
+\begin{theorem}[Conway, 1986]
+Every look-and-say string eventually splits into a compound of exactly 92 ``elements'' (atoms), each evolving independently under the look-and-say operation.
+\end{theorem}
+
+\subsection{Transition Matrix}
+Let $M$ be the $92 \times 92$ transition matrix where $M_{ij}$ counts how many copies of element $j$ appear in the decay of element $i$. Then the element composition vector evolves as:
+\[
+\mathbf{v}(n) = M^{n-k} \cdot \mathbf{v}(k)
+\]
+
+\subsection{Digit Counting}
+Define weight vectors $\mathbf{w}_d$ ($d = 1, 2, 3$) where $(\mathbf{w}_d)_i$ counts occurrences of digit $d$ in element $i$. Then:
+\[
+A(n) = \mathbf{w}_1^T \cdot \mathbf{v}(n), \quad
+B(n) = \mathbf{w}_2^T \cdot \mathbf{v}(n), \quad
+C(n) = \mathbf{w}_3^T \cdot \mathbf{v}(n)
+\]
+
+\subsection{Matrix Exponentiation}
+Since $n = 10^{12}$, we compute $M^n \pmod{2^{30}}$ via repeated squaring:
+\begin{itemize}
+    \item $\log_2(10^{12}) \approx 40$ squarings
+    \item Each squaring multiplies two $92 \times 92$ matrices
+\end{itemize}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Define Conway's 92 elements and the transition matrix $M$.
+    \item Compute initial composition vector $\mathbf{v}(k)$ for small $k$.
+    \item Compute $M^{n-k} \pmod{2^{30}}$ via matrix exponentiation.
+    \item Extract $A(n), B(n), C(n)$ using digit-weight vectors.
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(92^3 \cdot \log n)$
+    \item \textbf{Space:} $O(92^2)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{998567458,1046245404,43363922}
+\]
+
+\end{document}

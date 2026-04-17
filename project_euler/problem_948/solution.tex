@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 948: Counting Squarefree Numbers in Range}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find $Q(10^{12})$, count of squarefree numbers up to $10^{12}$.
+
+\section{Inclusion-Exclusion}
+\begin{theorem}
+$Q(n) = \sum_{d=1}^{\lfloor\sqrt{n}\rfloor} \mu(d) \lfloor n/d^2 \rfloor$.
+\end{theorem}
+
+\begin{proof}
+$\sum_{d^2|m} \mu(d) = [m \text{ squarefree}]$ by M\"obius inversion. Sum over $m \leq n$.
+\end{proof}
+
+\section{Asymptotics}
+\begin{theorem}
+$Q(n) = 6n/\pi^2 + O(\sqrt{n})$.
+\end{theorem}
+
+\section{Answer}
+
+\[
+\boxed{1033654680825334184}
+\]
+
+\end{document}

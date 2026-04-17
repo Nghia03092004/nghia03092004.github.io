@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs}
+
+\title{Problem 308: An Amazing Prime-generating Automaton}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Conway's PRIMEGAME is the FRACTRAN program:
+\[
+    \frac{17}{91},\; \frac{78}{85},\; \frac{19}{51},\; \frac{23}{38},\; \frac{29}{33},\; \frac{77}{29},\; \frac{95}{23},\; \frac{77}{19},\; \frac{1}{17},\; \frac{11}{13},\; \frac{13}{11},\; \frac{15}{2},\; \frac{1}{7},\; \frac{55}{1}
+\]
+
+Starting with $n = 2$, repeatedly multiply by the first fraction that yields an integer result. The powers of~2 that appear generate the primes: $2^2, 2^3, 2^5, 2^7, 2^{11}, \ldots$
+
+Find the number of FRACTRAN iterations to produce $2^{p_{10001}}$.
+
+\section{Register Machine Encoding}
+
+The working number's prime factorization encodes registers:
+\[
+    n = 2^a \cdot 3^b \cdot 5^c \cdot 7^d \cdot 11^e \cdot 13^f \cdot 17^g \cdot 19^h \cdot 23^i \cdot 29^j
+\]
+
+Each fraction corresponds to a conditional register operation. The encoded algorithm performs \textbf{trial division} to test primality of each candidate.
+
+\section{Macro-Step Optimization}
+
+The key insight is that the FRACTRAN program's inner loops can be analytically counted.
+
+\subsection{State Representation}
+At each ``subtraction round'' entry, the relevant state is $(a_{\mathrm{acc}}, B, C, D)$ with $e=1$.
+
+\subsection{Three Outcomes per Round}
+\begin{enumerate}
+    \item \textbf{Full round} ($D+B \leq C$): Cost $= 2B + 2(D+B) + 2$ steps. Continue.
+    \item \textbf{Overflow} ($D+B > C$, $C > 0$): Cost $= 2B + 2C + 2a_{\mathrm{acc}} + 4$ steps. Next divisor.
+    \item \textbf{End of candidate} ($D+B > C$, $C = 0$):
+    \begin{itemize}
+        \item If $D+B = 1$: candidate is \textbf{prime}.
+        \item Otherwise: candidate is \textbf{composite}.
+    \end{itemize}
+\end{enumerate}
+
+Each macro-step runs in $O(1)$ time, making the simulation practical.
+
+\section{Result}
+\[
+    \boxed{1539669807660924}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O\!\left(\sum_{m=1}^{p_{10001}} m\right)$ macro-steps.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1539669807660924}
+\]
+
+\end{document}

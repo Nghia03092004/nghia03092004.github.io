@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 139: Pythagorean Tiles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many Pythagorean triples $(a, b, c)$ with perimeter $\leq 10^8$ have the property that a $c \times c$ square can be tiled by the right triangle? The tiling condition is $c \bmod |b - a| = 0$.
+
+\section{Derivation}
+
+\subsection{Primitive Triples}
+Every primitive Pythagorean triple is parameterized by:
+\[
+a = m^2 - n^2, \quad b = 2mn, \quad c = m^2 + n^2
+\]
+with $m > n > 0$, $\gcd(m, n) = 1$, $m - n$ odd.
+
+Perimeter: $p = 2m(m + n)$.
+
+\subsection{Tiling Condition}
+For a primitive triple, check whether $c \bmod |b - a| = 0$. If it holds for the primitive triple, it holds for all multiples $k(a, b, c)$.
+
+The number of valid triples from a primitive one with perimeter $p_0$ is:
+\[
+\left\lfloor \frac{10^8}{p_0} \right\rfloor
+\]
+
+\subsection{Enumeration Bound}
+Since $p = 2m(m+n) \geq 2m(m+1)$, we need $m \leq \sqrt{P/2} \approx 7071$.
+
+\section{Algorithm}
+\begin{enumerate}
+\item For each valid $(m, n)$ pair, compute the primitive triple.
+\item Check the divisibility condition.
+\item Sum $\lfloor P / p \rfloor$ for passing triples.
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(\sqrt{P} \cdot \sqrt{P}) = O(P)$ in the worst case, but much less in practice.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{10057761}
+\]
+
+\end{document}

@@ -1,0 +1,96 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 72: Counting Fractions}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+How many elements are in the set of reduced proper fractions $n/d$ (with $\gcd(n,d) = 1$ and $0 < n < d$) for $d \leq 1\,000\,000$?
+
+\section{Mathematical Analysis}
+
+\begin{theorem}[Fractions Per Denominator]
+The number of reduced proper fractions with denominator exactly $d$ is $\varphi(d)$.
+\end{theorem}
+
+\begin{proof}
+A fraction $n/d$ with $1 \leq n < d$ is in lowest terms iff $\gcd(n, d) = 1$. For $d \geq 2$, since $\gcd(d,d) = d > 1$, the count of such $n$ is exactly $\varphi(d)$.
+\end{proof}
+
+\begin{theorem}[Euler's Product Formula]
+For $n = p_1^{a_1} \cdots p_k^{a_k}$:
+\[
+\varphi(n) = n \prod_{p \mid n} \left(1 - \frac{1}{p}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+Two properties suffice:
+
+\textbf{(i) Multiplicativity.} If $\gcd(m,n) = 1$, the CRT isomorphism $\mathbb{Z}/mn\mathbb{Z} \cong \mathbb{Z}/m\mathbb{Z} \times \mathbb{Z}/n\mathbb{Z}$ restricts to $(\mathbb{Z}/mn\mathbb{Z})^\times \cong (\mathbb{Z}/m\mathbb{Z})^\times \times (\mathbb{Z}/n\mathbb{Z})^\times$, so $\varphi(mn) = \varphi(m)\varphi(n)$.
+
+\textbf{(ii) Prime powers.} Among $\{1, \ldots, p^a\}$, exactly $p^{a-1}$ are divisible by $p$, so $\varphi(p^a) = p^a - p^{a-1} = p^a(1 - 1/p)$.
+
+Induction on the number of prime factors yields the formula.
+\end{proof}
+
+\begin{theorem}[Answer Formula]
+The total count of reduced proper fractions with denominator $\leq N$ is $\sum_{d=2}^{N} \varphi(d)$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~1, the count is $\sum_{d=2}^{N} \varphi(d)$. We start at $d = 2$ since $d = 1$ admits no proper fractions ($n < 1$ has no positive solutions).
+\end{proof}
+
+\begin{lemma}[Sieve Correctness]
+The Euler totient sieve correctly computes $\varphi(d)$ for all $d \leq N$.
+\end{lemma}
+
+\begin{proof}
+After processing all primes $p \leq N$, each entry is $\varphi[d] = d \cdot \prod_{p \mid d} (p-1)/p = \varphi(d)$ by Theorem~2. Primes are identified as those $d$ with $\varphi[d] = d$ at first encounter, which is correct because any composite $d$ has a prime factor $p < d$ that has already modified $\varphi[d]$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count reduced proper fractions with denominator $\leq N$}
+\begin{algorithmic}[1]
+\Require $N = 10^6$
+\State Initialize $\varphi[d] \gets d$ for $d = 1, \ldots, N$
+\For{$d = 2$ \textbf{to} $N$}
+    \If{$\varphi[d] = d$} \Comment{$d$ is prime}
+        \For{$m = d, 2d, \ldots \leq N$}
+            \State $\varphi[m] \gets \varphi[m] \cdot (d-1) / d$
+        \EndFor
+    \EndIf
+\EndFor
+\State \Return $\sum_{d=2}^{N} \varphi[d]$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\textbf{Time:} By Mertens' second theorem, $\sum_{p \leq N} N/p = N(\ln\ln N + M + O(1/\ln N)) = O(N \log \log N)$.
+
+\textbf{Space:} $O(N)$ for the array $\varphi[1..N]$.
+
+\section{Answer}
+
+\[
+\boxed{303963552391}
+\]
+
+\end{document}

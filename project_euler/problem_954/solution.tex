@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 954: Prime Counting Function}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $\pi(x)$ denote the number of primes not exceeding~$x$. Compute
+\[
+S = \sum_{k=1}^{10^4} \pi(k^2).
+\]
+
+\section{The Prime Number Theorem}
+
+\begin{theorem}[Prime Number Theorem, Hadamard--de la Vall\'ee-Poussin 1896]
+\[
+\pi(x) \sim \frac{x}{\ln x} \quad \text{as } x \to \infty.
+\]
+More precisely, $\pi(x) = \operatorname{Li}(x) + O(x \exp(-c\sqrt{\ln x}))$ for some $c > 0$.
+\end{theorem}
+
+\begin{corollary}
+$\pi(k^2) \approx k^2 / (2\ln k)$, so $S \approx \sum_{k=1}^{N} k^2/(2\ln k) \approx N^3/(6\ln N)$.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{theorem}[Sieve Correctness]
+The Sieve of Eratosthenes correctly identifies all primes up to~$M$.
+\end{theorem}
+
+\begin{proof}
+If $n \le M$ is composite, write $n = ab$ with $a \le \sqrt{M}$. The sieve crosses out~$n$ when processing the smallest prime factor of~$a$, which is at most~$\sqrt{M}$.
+\end{proof}
+
+The algorithm proceeds in three steps:
+\begin{enumerate}
+\item Sieve primes up to $M = (10^4)^2 = 10^8$.
+\item Build prefix sums: $P[n] = P[n-1] + [n\text{ is prime}]$.
+\item Compute $S = \sum_{k=1}^{10^4} P[k^2]$.
+\end{enumerate}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$k$ & $k^2$ & $\pi(k^2)$ \\
+\midrule
+1   & 1         & 0 \\
+2   & 4         & 2 \\
+3   & 9         & 4 \\
+10  & 100       & 25 \\
+100 & 10000     & 1229 \\
+1000 & $10^6$   & 78498 \\
+10000 & $10^8$  & 5761455 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Sieve:} $O(M \log\log M)$ time, $O(M)$ space.
+\item \textbf{Prefix sum:} $O(M)$ time.
+\item \textbf{Final sum:} $O(\sqrt{M})$ lookups.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{736463823}
+\]
+
+\end{document}

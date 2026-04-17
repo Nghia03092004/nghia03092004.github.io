@@ -1,0 +1,58 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 739: Summation of Summations}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Take a sequence of length $n$. Discard the first term then make a sequence of partial sums. Repeat until one term remains, defining $f(n)$.
+
+Starting with the Lucas-like sequence $1,3,4,7,11,18,29,47,\ldots$, find $f(10^8)\bmod 10^9+7$.
+
+Given: $f(8)=2663$, $f(20)\equiv 742296999\pmod{10^9+7}$.
+
+\section{Derivation}
+
+\subsection{Linear Coefficients}
+The final value is a linear combination:
+\[
+f(n) = \sum_{k=1}^{n} c_k \cdot a_k
+\]
+Since the first term is discarded at the first step, $c_1=0$. For $k\ge 2$:
+\[
+c_k = \binom{2(n-1)-k}{n-k}
+\]
+
+This can be shown by induction on the number of steps.
+
+\subsection{Proof Sketch}
+At each step, discarding position 1 and taking partial sums transforms coefficient vectors. After $n-1$ iterations on $n$ elements, the coefficient of the $k$-th original element involves a product of ``choosing paths'' through the triangular reduction, yielding the binomial coefficient formula.
+
+\subsection{Computation}
+For the Lucas sequence $L_k$ with $L_1=1$, $L_2=3$, $L_k=L_{k-1}+L_{k-2}$:
+\[
+f(n) = \sum_{k=2}^{n}\binom{2n-2-k}{n-k}\cdot L_k \pmod{10^9+7}
+\]
+
+\section{Algorithm}
+\begin{enumerate}
+\item Precompute factorials and inverse factorials modulo $10^9+7$ up to $2n$.
+\item Iterate $k=2,\ldots,n$, computing $L_k$ and the binomial coefficient.
+\item Accumulate the sum modulo $10^9+7$.
+\end{enumerate}
+
+\section{Complexity}
+$O(n)$ time and space.
+
+\section{Answer}
+
+\[
+\boxed{711399016}
+\]
+
+\end{document}

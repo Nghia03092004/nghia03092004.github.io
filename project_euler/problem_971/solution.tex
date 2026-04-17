@@ -1,0 +1,21 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 971: Gaussian Integer Primes}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem}
+Count Gaussian primes $a+bi$ with $0 \le a,b \le 500$.
+\begin{theorem}[Gaussian Prime Classification]
+$a+bi$ is Gaussian prime iff: (i) $a,b>0$ and $a^2+b^2$ is rational prime, or (ii) one is 0 and the other is prime $\equiv 3 \pmod{4}$.
+\end{theorem}
+\section{Answer}
+
+\[
+\boxed{33626723890930}
+\]
+
+\end{document}

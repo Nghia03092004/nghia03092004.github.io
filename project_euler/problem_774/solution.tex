@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 774: Conjunctive Sequences}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Sequence of non-negative integers where consecutive terms have nonzero bitwise AND. $c(n,b)$ = count of length-$n$ sequences with terms $\le b$. Find $c(123, 123456789) \bmod 998244353$.
+
+\section{Analysis}
+Model as a graph: nodes are integers $0,\ldots,b$, edges between $i,j$ if $i \& j \ne 0$. $c(n,b)$ counts walks of length $n-1$ in this graph. The adjacency matrix has structure based on bit patterns, enabling eigenvalue decomposition or subset convolution.
+
+\section{Answer}
+
+\[
+\boxed{459155763}
+\]
+
+\end{document}

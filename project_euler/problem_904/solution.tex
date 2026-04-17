@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 904: Integer Partition Asymptotics}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $p(n)$ denote the number of integer partitions of~$n$. Find $p(200) \bmod 10^9+7$.
+
+\section{Generating Function}
+
+\begin{theorem}[Euler]
+\[
+\sum_{n=0}^{\infty} p(n)\,x^n = \prod_{k=1}^{\infty} \frac{1}{1-x^k}.
+\]
+\end{theorem}
+
+\begin{proof}
+Each factor $(1-x^k)^{-1} = \sum_{j \ge 0} x^{jk}$ generates the choice of~$j$ copies of part~$k$. Multiplying over all~$k$ generates all multisets of positive integers, i.e., all partitions.
+\end{proof}
+
+\section{Pentagonal Number Theorem}
+
+\begin{theorem}[Euler's Pentagonal Number Theorem]
+\[
+\prod_{k=1}^{\infty}(1-x^k) = \sum_{j=-\infty}^{\infty} (-1)^j\, x^{j(3j-1)/2} = 1 - x - x^2 + x^5 + x^7 - x^{12} - \cdots
+\]
+\end{theorem}
+
+\begin{proof}[Sketch (Franklin's involution)]
+For a partition~$\lambda$ of~$n$ into distinct parts, define an involution by comparing the smallest part~$s$ with the number of consecutive parts ending at the largest part~$t$. If $s \le t$, move~$s$ to extend the ``staircase''; if $s > t$, peel off the staircase to create a new smallest part. This involution pairs partitions with opposite signs except when $s = t$ or $s = t+1$, leaving exactly the pentagonal-number terms.
+\end{proof}
+
+\begin{corollary}[Recurrence]
+\label{cor:recurrence}
+For $n \ge 1$:
+\[
+p(n) = \sum_{\substack{j \ge 1}} (-1)^{j+1}\bigl[p(n - \omega_j^+) + p(n - \omega_j^-)\bigr]
+\]
+where $\omega_j^+ = j(3j-1)/2$ and $\omega_j^- = j(3j+1)/2$, with $p(m) = 0$ for $m < 0$.
+\end{corollary}
+
+\section{Hardy-Ramanujan Formula}
+
+\begin{theorem}[Hardy--Ramanujan, 1918]
+\[
+p(n) \sim \frac{1}{4n\sqrt{3}} \exp\!\Bigl(\pi\sqrt{\tfrac{2n}{3}}\Bigr) \quad \text{as } n \to \infty.
+\]
+\end{theorem}
+
+The proof uses the circle method applied to the generating function, analyzing the behavior of $\prod (1-e^{2\pi i \tau + k})^{-1}$ near rational points on the unit circle.
+
+\begin{proposition}[Rademacher's Exact Formula]
+\[
+p(n) = \frac{1}{\pi\sqrt{2}} \sum_{k=1}^{\infty} A_k(n)\,\sqrt{k}\;\frac{d}{dn}\!\left(\frac{\sinh\!\bigl(\frac{\pi}{k}\sqrt{\frac{2}{3}(n-\frac{1}{24})}\bigr)}{\sqrt{n - \frac{1}{24}}}\right)
+\]
+where $A_k(n)$ involves Dedekind sums. This series converges and gives the exact integer value.
+\end{proposition}
+
+\section{DP Algorithm}
+
+The standard coin-change dynamic programming computes $p(n)$ in $O(n^2)$:
+
+\begin{enumerate}
+\item Initialize $dp[0] = 1$, $dp[j] = 0$ for $j \ge 1$.
+\item For $k = 1, 2, \ldots, n$: for $j = k, k+1, \ldots, n$: $dp[j] \mathrel{+}= dp[j-k]$.
+\item Return $dp[n]$.
+\end{enumerate}
+
+\begin{lemma}
+After processing part size~$k$, $dp[j]$ equals the number of partitions of~$j$ using parts in $\{1, \ldots, k\}$.
+\end{lemma}
+
+\begin{proof}
+Induction on~$k$. For $k=1$, $dp[j] = 1$ for all~$j$ (only one partition using 1s). The update $dp[j] \mathrel{+}= dp[j-k]$ adds partitions that include at least one copy of~$k$, counted correctly by the remaining sum $j-k$.
+\end{proof}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$n$ & $p(n)$ & Hardy--Ramanujan & Ratio \\
+\midrule
+5   & 7           & 5.45       & 1.28 \\
+10  & 42          & 37.3       & 1.13 \\
+50  & 204226      & 200686     & 1.02 \\
+100 & 190569292   & 189904147  & 1.004 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Coin-change DP:} $O(n^2)$ time, $O(n)$ space.
+\item \textbf{Pentagonal recurrence:} $O(n^{3/2})$ time (each $p(m)$ sums $O(\sqrt{m})$ terms).
+\item \textbf{Rademacher series:} $O(n^{1/2+\epsilon})$ with multiprecision arithmetic.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{880652522278760}
+\]
+
+\end{document}

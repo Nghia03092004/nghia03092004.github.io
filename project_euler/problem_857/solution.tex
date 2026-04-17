@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 857: Beautiful Graphs}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count ``beautiful'' graphs on $n$ labeled vertices where edges are red/blue directed pairs, green undirected, or brown undirected. Beautiful means: (1) cycles contain red iff they contain blue, and (2) no monochromatic green or brown triangle.
+
+Find $G(10^7) \bmod (10^9+7)$.
+
+\section{Analysis}
+
+\subsection{Structure Decomposition}
+Condition (1) forces the red/blue pairs to form a transitive tournament. This means vertices can be linearly ordered into blocks $B_1, B_2, \ldots, B_m$ where:
+\begin{itemize}
+    \item Within each block, all edges are undirected (green or brown)
+    \item Between blocks, edges are directed consistently with the ordering
+\end{itemize}
+
+\subsection{Ramsey Constraint}
+Within each block of size $k$, condition (2) requires that the 2-coloring of $\binom{k}{2}$ edges by green/brown contains no monochromatic triangle.
+
+Let $r(k)$ denote the number of such valid 2-colorings of $K_k$. By Ramsey theory $R(3,3)=6$, so $r(k)=0$ for $k \geq 6$.
+
+Known values:
+\begin{align}
+r(1) &= 1 \\
+r(2) &= 2 \\
+r(3) &= 6 \quad (\text{out of } 8, \text{ minus 2 monochromatic}) \\
+r(4) &= 18 \\
+r(5) &= 12
+\end{align}
+
+\subsection{Generating Function}
+\[
+G(n) = \sum_{\substack{k_1+\cdots+k_m=n \\ k_i \geq 1}} \frac{n!}{\prod k_i!} \prod r(k_i)
+\]
+
+The EGF is:
+\[
+\sum_{n \geq 0} G(n) \frac{x^n}{n!} = \frac{1}{1 - f(x)}
+\]
+where $f(x) = \sum_{k=1}^{5} r(k) \frac{x^k}{k!}$.
+
+\section{Result}
+$G(10^7) \bmod (10^9+7) = \boxed{966332096}$.
+
+\section{Answer}
+
+\[
+\boxed{966332096}
+\]
+
+\end{document}

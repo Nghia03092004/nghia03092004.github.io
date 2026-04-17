@@ -1,0 +1,106 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 305: Reflexive Position}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $S$ be the infinite string formed by concatenating all positive integers in base~10:
+\[
+S = 123456789101112131415\ldots
+\]
+Define $f(n)$ as the starting position (1-indexed) of the $n$-th occurrence of $n$ (as a substring) in~$S$.
+
+Find $\displaystyle\sum_{k=1}^{13} f(3^k)$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Position formula]\label{lem:pos}
+The starting position of the digits of $m$ in $S$ is
+\[
+\mathrm{pos}(m) = 1 + \sum_{d=1}^{D-1} 9d \cdot 10^{d-1} + D(m - 10^{D-1})
+\]
+where $D = \lfloor\log_{10} m\rfloor + 1$.
+\end{lemma}
+
+\begin{proof}
+The $d$-digit numbers ($10^{d-1}$ to $10^d - 1$) total $9 \times 10^{d-1}$ numbers, contributing $9d \times 10^{d-1}$ digits. Summing over $d < D$ gives all digits before the first $D$-digit number. Among $D$-digit numbers, $m$ is the $(m - 10^{D-1})$-th, contributing $D(m-10^{D-1})$ more digits. Adding~1 for 1-indexing yields the formula.
+\end{proof}
+
+\begin{theorem}[Occurrence decomposition]\label{thm:count}
+Let $s = \mathrm{str}(n)$ with $|s| = L$. The occurrence count $C(p, s)$ of $s$ in $S[1..p]$ decomposes as
+\[
+C(p, s) = C_{\mathrm{internal}}(p, s) + C_{\mathrm{boundary}}(p, s),
+\]
+where internal occurrences lie within one number's digits, and boundary occurrences span the junction between consecutive numbers.
+\end{theorem}
+
+\begin{proof}
+Each occurrence starts at a unique position in $S$. Since $S$ is partitioned into digit blocks of consecutive integers, each occurrence either lies entirely within one block (internal) or crosses a block boundary (boundary). These cases are exhaustive and mutually exclusive.
+\end{proof}
+
+\begin{lemma}[Internal count]\label{lem:internal}
+For $d$-digit numbers with $d \ge L$, the count of those containing $s$ as a substring at offset $j$ ($0 \le j \le d-L$) is obtained by fixing $L$ digits and allowing the remaining $d - L$ digits to vary freely (leading digit $\ge 1$).
+\end{lemma}
+
+\begin{proof}
+The digits at positions $j, j+1, \ldots, j+L-1$ are determined by $s$. The remaining $d-L$ digits are free, subject to the constraint that the leading digit is nonzero. This gives a product of digit-range sizes, computable in $O(d)$.
+\end{proof}
+
+\begin{lemma}[Boundary count]\label{lem:boundary}
+An occurrence of $s$ spans the boundary between $m$ and $m+1$ when the last $i$ digits of $\mathrm{str}(m)$ concatenated with the first $L-i$ digits of $\mathrm{str}(m+1)$ equal $s$, for some $1 \le i \le L-1$.
+\end{lemma}
+
+\begin{proof}
+The concatenation of $\mathrm{str}(m)$ and $\mathrm{str}(m+1)$ in $S$ produces a junction of length $\le 2D$. A substring of length $L$ crossing this junction uses $i$ digits from $m$ and $L-i$ from $m+1$ for some valid $i$.
+\end{proof}
+
+\begin{theorem}[Binary search]\label{thm:bsearch}
+Since $C(p,s)$ is non-decreasing in $p$, the smallest $p$ with $C(p,s) \ge n$ equals $f(n)$.
+\end{theorem}
+
+\begin{proof}
+$C(p,s)$ increases by exactly~1 at each occurrence start. The smallest $p$ achieving count $n$ is the start of the $n$-th occurrence.
+\end{proof}
+
+\section{Algorithm}
+\begin{verbatim}
+function solve():
+    total = 0
+    for k = 1 to 13:
+        n = 3^k
+        total += find_nth_occurrence(n, str(n))
+    return total
+
+function find_nth_occurrence(n, s):
+    lo = 1, hi = 10^15
+    while lo < hi:
+        mid = (lo + hi) / 2
+        if count_occurrences(mid, s) >= n:
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(13 \cdot \log N \cdot D^2)$ where $N \sim 10^{15}$ and $D \sim 15$. Approximately $O(10^5)$ operations.
+    \item \textbf{Space:} $O(D)$ for digit arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{18174995535140}
+\]
+
+\end{document}

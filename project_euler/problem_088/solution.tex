@@ -1,0 +1,66 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 88: Product-sum Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A natural number $N$ can be written as both the sum and product of a multiset $\{a_1, a_2, \ldots, a_k\}$ (each $a_i \ge 1$, $k \ge 2$):
+\[
+N = a_1 + a_2 + \cdots + a_k = a_1 \cdot a_2 \cdots a_k
+\]
+For each $k$, the minimal such $N$ is denoted $N_k$. Find $\displaystyle\sum_{k=2}^{12000} N_k$ where distinct values are summed once each.
+
+\section{Solution}
+
+\subsection{Reduction to Factorizations}
+\begin{theorem}
+For any factorization $N = f_1 \cdot f_2 \cdots f_m$ with each $f_i \ge 2$, the value $N$ is a product-sum number for:
+\[
+k = N - (f_1 + f_2 + \cdots + f_m) + m
+\]
+\end{theorem}
+
+\begin{proof}
+Consider the multiset $\{f_1, f_2, \ldots, f_m, \underbrace{1, 1, \ldots, 1}_{N - \sum f_i}\}$. The product is $f_1 \cdots f_m = N$. The sum is $\sum f_i + (N - \sum f_i) = N$. The cardinality is $m + (N - \sum f_i) = k$.
+
+Note $N - \sum f_i \ge 0$ since $f_1 \cdots f_m \ge f_1 + \cdots + f_m$ for $m \ge 2$ and each $f_i \ge 2$ (by AM-GM type argument).
+\end{proof}
+
+\subsection{Upper Bound}
+\begin{lemma}
+$N_k \le 2k$ for all $k \ge 2$.
+\end{lemma}
+\begin{proof}
+The multiset $\{2, k, 1, 1, \ldots, 1\}$ with $k-2$ ones has product $2k$ and sum $2 + k + (k-2) = 2k$.
+\end{proof}
+
+\subsection{Algorithm}
+For each $N$ from 2 to 24000, enumerate all ordered factorizations (factors non-decreasing, each $\ge 2$) recursively. For each factorization, compute $k$ and update the minimum $N$ for that $k$.
+
+\subsection{Result}
+\[
+\sum_{\substack{k=2 \\ \text{distinct } N_k}}^{12000} N_k = \boxed{7{,}587{,}457}
+\]
+
+\section{Answer}
+
+\[
+\boxed{7587457}
+\]
+
+\end{document}

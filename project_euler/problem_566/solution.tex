@@ -1,0 +1,59 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\title{Project Euler Problem 566: Cake Icing Puzzle}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Adam plays a game with his birthday cake. He cuts circular sectors of different angles and flips them upside down. Three cutting angles are used cyclically:
+\[
+x = \frac{360}{a}, \quad y = \frac{360}{b}, \quad z = \frac{360}{\sqrt{c}}
+\]
+Define $F(a,b,c)$ as the minimum number of flips to restore all icing to the top. Define:
+\[
+G(n) = \sum_{\substack{9 \le a < b < c \le n}} F(a,b,c)
+\]
+Find $G(53)$.
+
+\section{Mathematical Analysis}
+
+\subsection{State Representation}
+Model the cake as the circle $[0, 360)$. Each point has state $+1$ (icing up) or $-1$ (icing down). A flip of sector $[\theta_0, \theta_0 + \alpha)$ negates states in that arc, followed by rotation by $\alpha$.
+
+\subsection{Simulation Approach}
+The state is tracked by a sorted list of breakpoints on the circle. Between consecutive breakpoints, the icing state is uniform. Each flip operation:
+\begin{enumerate}
+    \item Introduces at most 2 new breakpoints (at the sector boundaries)
+    \item Toggles the state of intervals within the sector
+    \item Rotates all breakpoints by the angle
+\end{enumerate}
+
+\subsection{Termination}
+The process terminates when all intervals have state $+1$. For the combination of rational and irrational angles, the Poincar\'e recurrence theorem guarantees eventual return to the initial state.
+
+\section{Algorithm}
+For each triple $(a,b,c)$:
+\begin{enumerate}
+    \item Initialize circle with uniform state $+1$
+    \item Cyclically apply flips with angles $360/a$, $360/b$, $360/\sqrt{c}$
+    \item Track state changes using interval breakpoints with high-precision arithmetic
+    \item Count total flips until restoration
+\end{enumerate}
+
+\section{Complexity}
+$O\!\left(\binom{n-8}{3} \cdot L\right)$ where $L$ is the average number of flips per triple.
+
+\section{Answer}
+
+\[
+\boxed{329569369413585}
+\]
+
+\end{document}

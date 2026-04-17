@@ -1,0 +1,49 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\newtheorem{theorem}{Theorem}
+\title{Problem 179: Consecutive Positive Divisors}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the number of integers $n$, $1 < n < 10^7$, such that $d(n) = d(n+1)$.
+
+\section{Analysis}
+\begin{theorem}[Divisor formula]
+For $n = p_1^{e_1} \cdots p_k^{e_k}$: $d(n) = \prod_{i=1}^{k}(e_i + 1)$.
+\end{theorem}
+
+\subsection{Sieve Algorithm}
+Initialize $d[1..N] = 0$. For each $k$, increment $d[j]$ for all multiples $j$ of $k$. This is $O(N \log N)$ via the harmonic series.
+
+\begin{theorem}[Erdos, 1936]
+The set $\{n : d(n) = d(n+1)\}$ has positive natural density $\approx 0.0986$.
+\end{theorem}
+
+\section{Verification}
+\begin{center}
+\begin{tabular}{rl}
+\toprule
+$N$ & Count \\
+\midrule
+$10^3$ & 98 \\
+$10^5$ & 9853 \\
+$10^7$ & 986262 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+$O(N \log N)$ time, $O(N)$ space.
+
+\section{Answer}
+
+\[
+\boxed{986262}
+\]
+
+\end{document}

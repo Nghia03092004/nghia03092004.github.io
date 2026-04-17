@@ -10,7 +10,7 @@ import {
 	getEulerDifficultyInk,
 	getEulerProblemUrl,
 	getEulerRecords,
-} from '../../lib/euler';
+} from '../../features/project-euler/lib/euler';
 import { withBase } from '../../lib/paths';
 
 const entries = await getEulerRecords();
@@ -37,7 +37,7 @@ const getBand = (problem: number) => {
 };
 
 const getSearchText = (entry: (typeof entriesByProblem)[number]) =>
-	`${formatProblemNumber(entry.problem)} ${entry.title} ${entry.description} ${entry.answer ?? ''}`
+	`${formatProblemNumber(entry.problem)} ${entry.title} ${entry.description} ${entry.answer ?? ''} ${entry.tags.join(' ')}`
 		.toLowerCase()
 		.trim();
 ---

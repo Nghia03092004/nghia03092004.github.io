@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 116: Red, Green or Blue Tiles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A row of 50 black square tiles is to have some tiles replaced with coloured oblong tiles chosen from: red (length~2), green (length~3), or blue (length~4). Colours cannot be mixed and at least one coloured tile must be used. How many ways can this be done?
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Single-color recurrence]
+Let $f_L(n)$ denote the number of tilings of a row of length~$n$ using unit black tiles and colored tiles of length~$L$ (including the all-black option). Then:
+\[
+f_L(n) = f_L(n-1) + f_L(n-L), \quad n \ge L,
+\]
+with $f_L(k) = 1$ for $0 \le k < L$.
+\end{theorem}
+
+\begin{proof}
+The rightmost position is covered by either a black tile (leaving $f_L(n-1)$ tilings) or the end of a colored tile of length~$L$ (leaving $f_L(n-L)$ tilings). These cases are mutually exclusive and exhaustive. For rows shorter than $L$, only the all-black tiling exists.
+\end{proof}
+
+\begin{theorem}[Color independence]
+Since colors cannot be mixed, the total count with at least one colored tile is:
+\[
+\text{Answer} = \sum_{L \in \{2,3,4\}} \bigl(f_L(n) - 1\bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+For each color, $f_L(n) - 1$ counts tilings with at least one colored tile of length~$L$. Since exactly one color is used per tiling, the three contributions are disjoint.
+\end{proof}
+
+\begin{theorem}[Fibonacci connection]
+$f_2(n) = F_{n+1}$, the $(n+1)$-st Fibonacci number.
+\end{theorem}
+
+\begin{proof}
+$f_2(n) = f_2(n-1) + f_2(n-2)$ with $f_2(0) = f_2(1) = 1$ is the Fibonacci recurrence shifted by one index.
+\end{proof}
+
+\section{Computed Values}
+
+\begin{align*}
+f_2(50) - 1 &= 20365011073 \\
+f_3(50) - 1 &= 127600833 \\
+f_4(50) - 1 &= 959023
+\end{align*}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute answer for Problem 116}
+\begin{algorithmic}[1]
+\State $\text{total} \gets 0$
+\For{$L \in \{2, 3, 4\}$}
+    \State Initialize $f[0] = f[1] = \cdots = f[L-1] = 1$
+    \For{$k = L$ to $n$}
+        \State $f[k] \gets f[k-1] + f[k-L]$
+    \EndFor
+    \State $\text{total} \gets \text{total} + f[n] - 1$
+\EndFor
+\State \Return total
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n)$ per color, $O(n)$ total.
+\item \textbf{Space:} $O(L)$ with a rolling window, or $O(n)$ with a full table.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{20492570929}
+\]
+
+\end{document}

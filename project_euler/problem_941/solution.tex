@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 941: Binary Palindrome Sums}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \textbf{binary palindrome} is a positive integer whose binary representation (with no leading zeros) is a palindrome. Find the sum of all binary palindromes less than~$2^{30}$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+A positive integer $n$ is a \emph{binary palindrome} if its binary representation $b_{k-1} b_{k-2} \cdots b_1 b_0$ satisfies $b_i = b_{k-1-i}$ for all $0 \le i \le k-1$, where $b_{k-1}=1$.
+\end{definition}
+
+\begin{theorem}
+The number of $k$-bit binary palindromes is $2^{\lfloor(k-1)/2\rfloor}$ for $k \ge 1$.
+\end{theorem}
+
+\begin{proof}
+A $k$-bit binary palindrome is determined by its first $\lceil k/2 \rceil$ bits. The leading bit $b_{k-1}=1$ is fixed. The remaining $\lceil k/2\rceil - 1 = \lfloor(k-1)/2\rfloor$ bits are free, each independently 0 or~1. The second half is determined by the palindrome constraint $b_i = b_{k-1-i}$. Hence there are exactly $2^{\lfloor(k-1)/2\rfloor}$ palindromes of bit-length~$k$.
+\end{proof}
+
+\begin{lemma}
+Every $k$-bit binary palindrome with $k \le 30$ satisfies $n < 2^{30}$, and every $n$ with $1 \le n < 2^{30}$ has bit-length at most~30.
+\end{lemma}
+
+\begin{proof}
+A $k$-bit number $n$ satisfies $2^{k-1} \le n < 2^k$. For $k \le 30$, $n < 2^{30}$. Conversely, $n < 2^{30}$ implies $n$ has at most 30 bits.
+\end{proof}
+
+\begin{theorem}[Sum Formula]
+Let $f = \lfloor(k-1)/2\rfloor$. The sum of all $k$-bit binary palindromes is
+\[
+S_k = 2^f(2^{k-1}+1) + \sum_{i=1}^{f} 2^{f-1}(2^{k-1-i}+2^i)
+\]
+for even~$k$, and
+\[
+S_k = 2^f \cdot 2^{k-1} + 2^{f-1}\cdot 2^{(k-1)/2} + \sum_{i=1}^{f} 2^{f-1}(2^{k-1-i}+2^i)
+\]
+for odd $k \ge 3$ (with $S_1 = 1$).
+\end{theorem}
+
+\begin{proof}
+Each palindrome has a fixed leading bit $b_{k-1}=1$ contributing $2^{k-1}$. For even~$k$, the trailing bit $b_0 = b_{k-1}=1$ always contributes~1. Each free bit $b_i$ at position $k-1-i$ is mirrored at position~$i$, contributing $2^{k-1-i}+2^i$ when~$b_i=1$. Over all $2^f$ palindromes, each free bit is~1 in exactly half, giving factor~$2^{f-1}$. The odd-$k$ case is analogous, with the middle bit at position $(k-1)/2$ being its own mirror.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function SumBinaryPalindromes(max_bits):
+    total = 0
+    for k = 1 to max_bits:
+        for half = 2^(ceil(k/2)-1) to 2^ceil(k/2) - 1:
+            palindrome = BuildPalindrome(half, k)
+            total += palindrome
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O\!\bigl(\sum_{k=1}^{30} 2^{\lfloor(k-1)/2\rfloor}\bigr) = O(2^{15})$. With $O(k)$ per palindrome, total is $O(30 \cdot 2^{15}) \approx O(10^6)$.
+\item \textbf{Space:} $O(1)$ auxiliary.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1068765750}
+\]
+
+\end{document}

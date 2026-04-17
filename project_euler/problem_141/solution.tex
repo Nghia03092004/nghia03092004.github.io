@@ -1,0 +1,101 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm, algorithmicx, algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 141: Investigating Progressive Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A positive integer $n$ is called \textbf{progressive} if, when dividing $n$ by some positive integer $d$, the quotient $q$ and remainder $r$ satisfy: $q$, $d$, $r$ form a geometric sequence with $q > d > r \geq 0$.
+
+Find the sum of all progressive perfect squares below $10^{12}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}
+The case $r = 0$ yields no progressive numbers.
+\end{theorem}
+
+\begin{proof}
+If $r = 0$, the geometric sequence condition requires $d^2 = q \cdot r = 0$, forcing $d = 0$. This contradicts $q > d > r \geq 0$.
+\end{proof}
+
+\begin{theorem}
+Every progressive number $n$ with $r \geq 1$ admits a unique representation
+\[
+n = a^3 b c^2 + b^2 c
+\]
+where $a > b \geq 1$, $\gcd(a, b) = 1$, and $c \geq 1$, corresponding to $q = a^2 c$, $d = abc$, $r = b^2 c$.
+\end{theorem}
+
+\begin{proof}
+Given $q > d > r \geq 1$ with $d^2 = qr$ and $n = qd + r$, let $g = \gcd(d, r)$ and write $d = g\alpha$, $r = g\beta$ with $\gcd(\alpha, \beta) = 1$.
+
+From $d^2 = qr$:
+\[
+q = \frac{d^2}{r} = \frac{g^2\alpha^2}{g\beta} = \frac{g\alpha^2}{\beta}
+\]
+
+Since $\gcd(\alpha, \beta) = 1$, integrality of $q$ requires $\beta \mid g$. Write $g = \beta c$ for positive integer $c$. Then:
+\begin{align*}
+r &= g\beta = \beta^2 c, \\
+d &= g\alpha = \alpha\beta c, \\
+q &= \alpha^2 c.
+\end{align*}
+
+Setting $a = \alpha$, $b = \beta$:
+\[
+n = qd + r = a^2 c \cdot abc + b^2 c = a^3 bc^2 + b^2 c = bc(a^3 c + b).
+\]
+
+\textbf{Ordering:} $q > d \iff a^2 c > abc \iff a > b$ and $d > r \iff abc > b^2 c \iff a > b$, both satisfied.
+
+\textbf{Uniqueness:} The ratio $a/b = d/r$ in lowest terms and $c = r/b^2$ are both uniquely determined by $(q,d,r)$.
+\end{proof}
+
+\begin{lemma}[Search bounds]
+We have $a \leq \lfloor (10^{12})^{1/3} \rfloor$ and for each $(a,b)$, $c \leq \lfloor \sqrt{10^{12}/(a^3 b)} \rfloor$.
+\end{lemma}
+
+\begin{proof}
+Since $n \geq a^3 bc^2$, the constraint $n < 10^{12}$ with $b \geq 1$, $c \geq 1$ gives $a^3 < 10^{12}$, so $a < 10^4$. For fixed $(a,b)$: $c < \sqrt{10^{12}/(a^3 b)}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State $\mathcal{S} \gets \emptyset$
+\For{$a = 2, 3, \ldots, \lfloor N^{1/3} \rfloor$}
+    \For{$b = 1, 2, \ldots, a-1$ with $\gcd(a,b)=1$}
+        \For{$c = 1, 2, \ldots$}
+            \State $n \gets a^3 b c^2 + b^2 c$
+            \If{$n \geq N$} \textbf{break} \EndIf
+            \If{$\lfloor\sqrt{n}\rfloor^2 = n$} $\mathcal{S} \gets \mathcal{S} \cup \{n\}$ \EndIf
+        \EndFor
+    \EndFor
+\EndFor
+\State \Return $\sum_{n \in \mathcal{S}} n$
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^{1/2})$. The outer loop runs $O(N^{1/3})$ times; the inner loop for $c$ runs $O(\sqrt{N/(a^3 b)})$ times per $(a,b)$ pair. The aggregate is $O(N^{1/2})$.
+\item \textbf{Space:} $O(K)$ where $K$ is the number of progressive perfect squares found (constant in practice).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{878454337159}
+\]
+
+\end{document}

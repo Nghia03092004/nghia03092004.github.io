@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 225: Tribonacci Non-divisors}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The Tribonacci sequence is defined by $T_1 = T_2 = T_3 = 1$ and $T_n = T_{n-1} + T_{n-2} + T_{n-3}$ for $n > 3$. Find the 124th odd number that does not divide any Tribonacci number.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[All Tribonacci Numbers Are Odd]
+For all $n \geq 1$, $T_n$ is odd.
+\end{theorem}
+\begin{proof}
+Base cases: $T_1 = T_2 = T_3 = 1$. Inductive step: if $T_{n-3}, T_{n-2}, T_{n-1}$ are odd, then $T_n = T_{n-1} + T_{n-2} + T_{n-3}$ is odd (sum of three odd numbers). By induction, all $T_n$ are odd.
+\end{proof}
+
+\begin{theorem}[Pure Periodicity Modulo $m$]
+For any positive integer $m$, the sequence $(T_n \bmod m)$ is purely periodic.
+\end{theorem}
+\begin{proof}
+There are $m^3$ possible triples $(T_n, T_{n+1}, T_{n+2}) \bmod m$, so by pigeonhole some triple repeats. The recurrence is invertible ($T_{n-1} = T_{n+2} - T_{n+1} - T_n$), so backward uniqueness implies pure periodicity.
+\end{proof}
+
+\begin{lemma}[Period Bound]
+The period of $(T_n \bmod m)$ is at most $m^3$.
+\end{lemma}
+\begin{proof}
+There are $m^3$ possible triples, so repetition occurs within $m^3 + 1$ steps.
+\end{proof}
+
+\begin{theorem}[Divisibility Criterion]
+An odd number $m$ divides some $T_n$ if and only if $0$ appears in one complete period of $(T_n \bmod m)$.
+\end{theorem}
+\begin{proof}
+By pure periodicity, $0$ appears in the sequence iff it appears in a single period.
+\end{proof}
+
+\begin{lemma}[Cycle Detection]
+Starting from $(1,1,1)$, compute successive triples modulo $m$. If $T_n \equiv 0$ is encountered, $m$ is a divisor. If $(1,1,1)$ recurs without $0$, $m$ is a non-divisor.
+\end{lemma}
+\begin{proof}
+The sequence is purely periodic with initial triple $(1,1,1)$, so the first recurrence of $(1,1,1)$ marks one complete period.
+\end{proof}
+
+\section{Algorithm}
+For each odd $m = 1, 3, 5, \ldots$:
+\begin{enumerate}
+\item Compute $T_n \bmod m$ starting from $(1,1,1)$.
+\item If $0$ appears, skip. If $(1,1,1)$ recurs, increment counter.
+\item Stop when counter reaches 124.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(m^3)$ worst-case per candidate, but $O(m)$ in practice. Total: $O(m_{\max}^2)$ empirically.
+\item \textbf{Space:} $O(1)$ per candidate.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2009}
+\]
+
+\end{document}

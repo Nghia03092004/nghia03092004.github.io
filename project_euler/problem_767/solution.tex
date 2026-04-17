@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry}
+\geometry{a4paper,margin=1in}
+
+\title{Project Euler Problem 767: Window into a Matrix II}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider a $16 \times n$ matrix with binary entries. Define $B(k, n)$ as the total number of such matrices where the sum of entries in every $2 \times k$ window equals $k$.
+
+Given that $B(2, 4) = 65550$ and $B(3, 9) \equiv 87273560 \pmod{10^9+7}$, find $B(10^5, 10^{16}) \bmod (10^9+7)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Column State Model}
+Each column is a binary vector $\mathbf{c} \in \{0,1\}^{16}$. The $2 \times k$ window constraint requires that for every pair of adjacent rows $(r, r+1)$ and every set of $k$ consecutive columns, exactly $k$ of the $2k$ entries equal 1.
+
+\subsection{Decomposition by Row Pairs}
+For a fixed pair of adjacent rows $(r, r+1)$, define the pair-column value at position $j$ as:
+\[
+    p_j = (c_{r,j}, c_{r+1,j}) \in \{0,1\}^2
+\]
+The constraint becomes: in any $k$ consecutive positions, the sum $\sum_{i=j}^{j+k-1}(c_{r,i} + c_{r+1,i}) = k$.
+
+\subsection{Transfer Matrix}
+Let the state encode the last $k-1$ pair-column values. The transfer matrix $T$ describes valid transitions when appending a new column. The answer is:
+\[
+    B(k, n) = \mathbf{1}^T \cdot T^{n-k+1} \cdot \mathbf{v}_0 \pmod{10^9+7}
+\]
+where $\mathbf{v}_0$ encodes valid initial windows.
+
+\subsection{Matrix Exponentiation}
+For $n = 10^{16}$, we compute $T^{n-k+1}$ via repeated squaring in $O(|S|^3 \log n)$ time.
+
+\section{Answer}
+
+\[
+\boxed{783976175}
+\]
+
+\end{document}

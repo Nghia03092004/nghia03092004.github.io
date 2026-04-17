@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 332: Spherical Triangles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the sum of the areas of all spherical triangles on a unit sphere whose three sides have integer arc-lengths and whose perimeter does not exceed $100$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Girard's Theorem]
+The area of a spherical triangle on a unit sphere with interior angles $\alpha, \beta, \gamma$ is
+\[
+A = \alpha + \beta + \gamma - \pi.
+\]
+\end{theorem}
+
+\begin{proof}
+Each pair of great circles determines a lune. The lune with dihedral angle $\alpha$ has area $2\alpha$. The three lunes cover the sphere ($4\pi$), covering the triangle and its antipodal image three times each, and the rest once. Thus $2(2\alpha + 2\beta + 2\gamma) = 4\pi + 4A$, yielding $A = \alpha + \beta + \gamma - \pi$.
+\end{proof}
+
+\begin{theorem}[Spherical Law of Cosines]
+For sides $a, b, c$ opposite angles $\alpha, \beta, \gamma$:
+\[
+\cos a = \cos b \cos c + \sin b \sin c \cos \alpha.
+\]
+\end{theorem}
+
+\begin{proof}
+Place vertex $C$ at the north pole. Express $A$ and $B$ in Cartesian coordinates on the unit sphere at angular distances $b$ and $a$ from $C$, separated by angle $\gamma$. The dot product $\vec{OA} \cdot \vec{OB}$ gives $\cos c = \cos a \cos b + \sin a \sin b \cos \gamma$. Relabeling yields the result.
+\end{proof}
+
+\begin{lemma}[L'Huilier's Formula]
+With $s = (a+b+c)/2$, the spherical excess $E = A$ satisfies
+\[
+\tan\frac{E}{4} = \sqrt{\tan\frac{s}{2}\,\tan\frac{s-a}{2}\,\tan\frac{s-b}{2}\,\tan\frac{s-c}{2}}.
+\]
+\end{lemma}
+
+\begin{proof}
+From the spherical law of cosines, express each half-angle $\alpha/2$ in terms of the sides. Using the identity $\tan^2(\alpha/2) = \frac{1-\cos\alpha}{1+\cos\alpha}$ and the product formula for $\tan(E/4)$ derived from the half-angle expressions, algebraic manipulation yields the stated product of tangent factors.
+\end{proof}
+
+\begin{lemma}[Validity Conditions]
+A spherical triangle with sides $a, b, c$ exists on a unit sphere iff:
+\begin{enumerate}
+    \item $a + b > c$, $b + c > a$, $c + a > b$,
+    \item $a + b + c < 2\pi$,
+    \item $0 < a, b, c < \pi$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Conditions (1) and (3) ensure the arcs form a closed figure. Condition (2) prevents degeneration: if the perimeter equals or exceeds $2\pi$, the three arcs cannot enclose a proper region.
+\end{proof}
+
+\begin{corollary}
+Since $\pi \approx 3.14159$, valid integer side lengths are $a, b, c \in \{1, 2, 3\}$. The perimeter bound of $100$ is automatically satisfied.
+\end{corollary}
+
+\section{Algorithm}
+
+Enumerate all unordered triples $(a,b,c)$ with $1 \le a \le b \le c \le 3$ satisfying the triangle inequality and $a+b+c < 2\pi$. For each, compute the area via L'Huilier's formula, multiply by the number of ordered permutations, and sum.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(1)$ --- only finitely many (at most $10$) triples to check.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2717.751525}
+\]
+
+\end{document}

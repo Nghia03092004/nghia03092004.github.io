@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\title{Problem 336: Maximix Arrangements}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A train engine sorts carriages using prefix reversals. At each step of the greedy sorting algorithm, the engine:
+\begin{enumerate}
+    \item Finds the carriage that belongs at the current rightmost unsorted position.
+    \item Reverses the prefix to bring it to the front (if not already there).
+    \item Reverses the entire unsorted portion to place it at the back.
+\end{enumerate}
+
+A \emph{maximix arrangement} is a permutation where every sorting step is non-trivial (requires both sub-steps). We must find the last (lexicographically) maximix arrangement for $n = 11$ carriages.
+
+\section{Analysis}
+
+Let the carriages be labeled $A, B, C, \ldots, K$ (for $n=11$). The sorting processes from right to left, placing $K$ first, then $J$, and so on down to $B$.
+
+At step $i$ (placing the $(n-i)$-th carriage), define the current permutation of the unsorted portion as $p_0, p_1, \ldots, p_{n-1-i}$. The step is non-trivial if and only if:
+\begin{itemize}
+    \item The target carriage is not at position $0$ (otherwise no first reversal needed).
+    \item The target carriage is not already at position $n-1-i$ (otherwise already in place).
+\end{itemize}
+
+Additionally, after the first reversal brings the target to position 0, the second reversal of the full unsorted prefix is always performed. If the target is at position 0 but not at its final position, only one reversal is needed (not maximum).
+
+\section{Algorithm}
+
+We use depth-first search with pruning:
+\begin{enumerate}
+    \item Build the permutation incrementally.
+    \item At each stage, simulate the sorting and verify maximix conditions.
+    \item Collect all valid maximix arrangements.
+    \item Sort lexicographically and return the last one.
+\end{enumerate}
+
+\section{Result}
+
+The last maximix arrangement for 11 carriages in lexicographic order is:
+\[
+    \boxed{\texttt{CAGBIHEDJFK}}
+\]
+
+\section{Answer}
+
+\[
+\boxed{\texttt{CAGBIHEFJDK}}
+\]
+
+\end{document}

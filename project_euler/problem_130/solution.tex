@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 130: Composites with Prime Repunit Property}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $R(k)$ as the repunit of length $k$ and $A(n)$ as the least $k$ such that $n \mid R(k)$. For all primes $p > 5$, $A(p) \mid (p-1)$. Find the sum of the first 25 composite $n$ with $\gcd(n,10) = 1$ and $A(n) \mid (n-1)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Prime repunit property]
+For any prime $p > 5$, $A(p) \mid (p-1)$.
+\end{theorem}
+
+\begin{proof}
+By Fermat's Little Theorem, $10^{p-1} \equiv 1 \pmod{p}$. Since $\gcd(9, p) = 1$:
+\[
+R(p-1) = \frac{10^{p-1} - 1}{9} \equiv 0 \pmod{p}.
+\]
+Thus $p \mid R(p-1)$. Since $A(p) = \mathrm{ord}_p(10)$ and $\mathrm{ord}_p(10) \mid (p-1)$, we get $A(p) \mid (p-1)$.
+\end{proof}
+
+\begin{theorem}[Pseudoprime connection]
+If $n$ is composite with $\gcd(n, 10) = 1$, $\gcd(n, 9) = 1$, and $10^{n-1} \equiv 1 \pmod{n}$, then $A(n) \mid (n-1)$.
+\end{theorem}
+
+\begin{proof}
+Since $\gcd(n,9) = 1$, $A(n) = \mathrm{ord}_n(10)$. If $10^{n-1} \equiv 1 \pmod{n}$, then $\mathrm{ord}_n(10) \mid (n-1)$.
+\end{proof}
+
+\begin{lemma}[Divisibility]
+If $n \mid R(k)$, then $A(n) \mid k$.
+\end{lemma}
+
+\begin{proof}
+The sequence $R(k) \bmod n$ is periodic with period $A(n)$, and $R(A(n)) \equiv 0$. Thus $R(k) \equiv 0 \pmod{n}$ iff $A(n) \mid k$.
+\end{proof}
+
+\begin{lemma}[Iterative computation]
+$A(n)$ is computed via $r_1 = 1 \bmod n$, $r_k = (10r_{k-1} + 1) \bmod n$. The first $k$ with $r_k = 0$ is $A(n)$.
+\end{lemma}
+
+\begin{proof}
+Follows from $R(k) = 10R(k-1) + 1$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item For $n = 2, 3, 4, \ldots$:
+\begin{enumerate}
+\item Skip if $\gcd(n, 10) \ne 1$ or $n$ is prime.
+\item Compute $A(n)$ via the recurrence.
+\item If $(n-1) \bmod A(n) = 0$, add $n$ to the list.
+\end{enumerate}
+\item Stop after 25 composites. Return their sum.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(A(n)) \le O(n)$ per candidate for computing $A(n)$. $O(\sqrt{n})$ for primality test. The 25 composites are found among small values, so total work is modest.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{149253}
+\]
+
+\end{document}

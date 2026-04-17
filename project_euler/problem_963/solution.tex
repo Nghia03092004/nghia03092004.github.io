@@ -1,0 +1,44 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 963: Palindromic Primes in Bases}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count primes below $10^6$ that are palindromes in at least 2 bases from $\{2, 3, \ldots, 16\}$.
+
+\section{Palindrome Definition}
+\begin{proposition}
+$n$ is a palindrome in base~$b$ iff its base-$b$ digit sequence $(d_k, \ldots, d_0)$ satisfies $d_i = d_{k-i}$ for all~$i$.
+\end{proposition}
+
+\begin{proposition}
+Every $n < b$ is trivially a palindrome in base~$b$ (single digit).
+\end{proposition}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Sieve primes below $10^6$.
+\item For each prime, check palindromicity in each base $b \in \{2, \ldots, 16\}$.
+\item Count primes palindromic in $\ge 2$ bases.
+\end{enumerate}
+
+\section{Complexity}
+$O(N \log\log N + \pi(N) \cdot B \cdot \log N)$ where $B = 15$.
+
+\section{Answer}
+
+\[
+\boxed{55129975871328418}
+\]
+
+\end{document}

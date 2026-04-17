@@ -1,0 +1,115 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 29: Distinct Powers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+How many distinct terms are in the sequence $\{a^b : 2 \leq a \leq 100, \; 2 \leq b \leq 100\}$?
+
+\section{Mathematical Development}
+
+\begin{definition}[Primitive Base]
+An integer $c \geq 2$ is a \emph{primitive base} if there do not exist $d \geq 2$ and $k \geq 2$ with $c = d^k$.
+\end{definition}
+
+\begin{definition}[Canonical Representation]
+For $a \geq 2$, the \emph{canonical representation} is the unique pair $(c, p)$ with $c$ primitive, $p \geq 1$, and $a = c^p$.
+\end{definition}
+
+\begin{theorem}[Collision Criterion]\label{thm:collision}
+$a_1^{b_1} = a_2^{b_2}$ if and only if $a_1, a_2$ share the same primitive base~$c$ (say $a_i = c^{p_i}$) and $p_1 b_1 = p_2 b_2$.
+\end{theorem}
+
+\begin{proof}
+$(\Leftarrow)$ Immediate: $c^{p_1 b_1} = c^{p_2 b_2}$.
+
+$(\Rightarrow)$ Let $a_i = c_i^{p_i}$ canonically. Then $c_1^{p_1 b_1} = c_2^{p_2 b_2}$. By the fundamental theorem of arithmetic and primitivity of $c_1, c_2$, we obtain $c_1 = c_2$ and $p_1 b_1 = p_2 b_2$.
+\end{proof}
+
+\begin{theorem}[Reduction to Exponent Counting]\label{thm:reduction}
+Let $K_c = \max\{p : c^p \leq 100\}$ for each primitive base~$c$, and define
+\[
+E_c = \{p \cdot b : 1 \leq p \leq K_c, \; 2 \leq b \leq 100\}.
+\]
+The number of distinct terms equals $\displaystyle\sum_{c \text{ primitive}} |E_c|$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:collision}, terms from different base groups are always distinct, and terms within the same base group are distinct if and only if their effective exponents differ.
+\end{proof}
+
+\begin{lemma}[Base Groups with Collisions]\label{lem:groups}
+The primitive bases with $K_c \geq 2$ are: $c \in \{2, 3, 5, 6, 7, 10\}$ with $K_c \in \{6, 4, 2, 2, 2, 2\}$ respectively. All other primitive bases have $K_c = 1$ and contribute exactly $99$ distinct terms each.
+\end{lemma}
+
+\begin{lemma}[Exponent Count for $K_c = 2$]\label{lem:k2}
+For $K_c = 2$: $|E_c| = |[2,100] \cup [4,200]| = 99 + 99 - 49 = 149$.
+\end{lemma}
+
+\begin{proof}
+$[2,100] \cap [4,200] = \{4, 6, 8, \ldots, 100\}$ has $49$ elements. Apply inclusion-exclusion.
+\end{proof}
+
+\begin{theorem}[Answer]\label{thm:answer}
+The number of distinct terms is $9183$.
+\end{theorem}
+
+\begin{proof}
+Sum $|E_c|$ over all primitive bases. The six non-trivial groups ($K_c \geq 2$) are computed by explicit exponent-set enumeration. All remaining bases contribute $99$ each. The total is verified by direct computation with arbitrary-precision arithmetic.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Distinct Powers via Canonical Representation}
+\begin{algorithmic}[1]
+\REQUIRE Upper bounds $A$, $B$
+\ENSURE Number of distinct terms in $\{a^b : 2 \leq a \leq A, \; 2 \leq b \leq B\}$
+\FOR{$a = 2$ \TO $A$}
+    \STATE Compute canonical $(c, p)$ such that $a = c^p$
+\ENDFOR
+\STATE Initialize map $M : \text{base} \to \text{set of integers}$
+\FOR{$a = 2$ \TO $A$}
+    \STATE Let $(c, p) = \text{canonical}(a)$
+    \FOR{$b = 2$ \TO $B$}
+        \STATE Insert $p \cdot b$ into $M[c]$
+    \ENDFOR
+\ENDFOR
+\RETURN $\sum_{c} |M[c]|$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The canonical-representation method runs in $O(N^2)$ time and $O(N^2)$ space, where $N = A - 1$.
+\end{proposition}
+
+\begin{proof}
+The double loop performs $N^2 = 9801$ set insertions. Each effective exponent is at most $K_c \cdot B \leq 600$, so all arithmetic is $O(1)$.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{9183}
+\]
+
+\end{document}

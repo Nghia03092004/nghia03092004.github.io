@@ -5,13 +5,13 @@
 Find the largest palindrome made from the product of two 3-digit numbers. That is, determine
 $$M = \max\bigl\{xy : 100 \le x,y \le 999,\; xy \text{ is a palindrome in base 10}\bigr\}.$$
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** A non-negative integer $n$ is a *palindrome in base 10* if its decimal representation $d_k d_{k-1} \cdots d_1 d_0$ satisfies $d_i = d_{k-i}$ for all $0 \le i \le k$.
 
 **Definition 2.** A *6-digit palindrome* is an integer $P$ with $100{,}000 \le P \le 999{,}999$ that is a palindrome. Its decimal form is $\overline{abccba}$ where $a \in \{1,\dots,9\}$ and $b,c \in \{0,\dots,9\}$.
-
-## Mathematical Development
 
 **Theorem 1** (Structure of 6-digit palindromes). *Every 6-digit palindrome $P = \overline{abccba}$ admits the representation*
 $$P = 11(9091a + 910b + 100c).$$

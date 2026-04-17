@@ -1,0 +1,104 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 172: Investigating Numbers with Few Repeated Digits}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+How many 18-digit numbers $n$ (without leading zeros) are there such that no digit occurs more than three times in $n$?
+
+\section{Mathematical Development}
+
+\begin{theorem}[Multinomial counting]
+The number of strings of length $L$ over $\{0,1,\ldots,9\}$ in which digit $i$ appears exactly $c_i$ times ($\sum c_i = L$) is
+\[
+\binom{L}{c_0,c_1,\ldots,c_9} = \frac{L!}{c_0!\,c_1!\,\cdots\,c_9!}.
+\]
+\end{theorem}
+
+\begin{proof}
+There are $L!$ orderings of $L$ labelled positions. The $c_i$ positions assigned to each digit $i$ are indistinguishable, yielding a $\prod c_i!$ overcounting factor.
+\end{proof}
+
+\begin{theorem}[Exponential generating function]
+The number of length-$L$ strings where each of the 10 digits appears at most $m$ times is
+\[
+T(L,m) = L!\,[x^L]\left(\sum_{k=0}^{m}\frac{x^k}{k!}\right)^{\!10}.
+\]
+\end{theorem}
+
+\begin{proof}
+The EGF for a single symbol with at most $m$ copies is $g(x)=\sum_{k=0}^m x^k/k!$. For 10 independent symbols the EGFs multiply (product formula for labelled species). Extracting $[x^L]$ and scaling by $L!$ gives the ordinary count.
+\end{proof}
+
+\begin{lemma}[Leading-zero subtraction]
+Let $T(L,\mathbf{m})$ count length-$L$ strings with digit $i$ appearing at most $m_i$ times. The count of valid $L$-digit positive integers (no leading zero) with uniform cap $m$ is
+\[
+A(L,m) = T\bigl(L,(m,\ldots,m)\bigr) - T\bigl(L{-}1,(m{-}1,m,\ldots,m)\bigr).
+\]
+\end{lemma}
+
+\begin{proof}
+Strings with a leading zero fix position 1 to digit~0, consuming one of its $m$ allowed occurrences. The remaining $L-1$ positions form a string with digit~0 capped at $m-1$ and all other digits at $m$.
+\end{proof}
+
+\begin{theorem}[Sequential digit DP]
+Process digits $0,1,\ldots,9$ sequentially. Maintain $\mathrm{dp}[j]$ = number of ways to fill $j$ of the $L$ positions using digits processed so far. Initialize $\mathrm{dp}[0]=1$. The transition for digit $i$ with cap $m_i$ is
+\[
+\mathrm{dp}'[j+c] \mathrel{+}= \mathrm{dp}[j]\cdot\binom{L-j}{c},\quad c=0,1,\ldots,m_i.
+\]
+After all 10 digits, $\mathrm{dp}[L] = T(L,\mathbf{m})$.
+\end{theorem}
+
+\begin{proof}
+Placing $c$ copies of digit $i$ into $L-j$ unfilled positions requires choosing $c$ positions from $L-j$. By the multiplication principle and the telescoping identity $\prod_i \binom{L-\sum_{j<i}c_j}{c_i} = L!/\prod c_i!$, the final value $\mathrm{dp}[L]$ equals the sum of multinomial coefficients over all valid frequency vectors.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{CountStrings}{$L,\,\text{max\_freq}[0\ldots 9]$}
+    \State $\mathrm{dp}[0\ldots L] \gets 0$;\; $\mathrm{dp}[0] \gets 1$
+    \For{$i = 0$ to $9$}
+        \State $\mathrm{dp}'[0\ldots L] \gets 0$
+        \For{$j = 0$ to $L$}
+            \If{$\mathrm{dp}[j] = 0$} \textbf{continue} \EndIf
+            \For{$c = 0$ to $\text{max\_freq}[i]$}
+                \If{$j+c > L$} \textbf{break} \EndIf
+                \State $\mathrm{dp}'[j{+}c] \mathrel{+}= \mathrm{dp}[j]\cdot\binom{L-j}{c}$
+            \EndFor
+        \EndFor
+        \State $\mathrm{dp} \gets \mathrm{dp}'$
+    \EndFor
+    \State \Return $\mathrm{dp}[L]$
+\EndFunction
+\State $T \gets \Call{CountStrings}{18,\,[3,3,3,3,3,3,3,3,3,3]}$
+\State $T_0 \gets \Call{CountStrings}{17,\,[2,3,3,3,3,3,3,3,3,3]}$
+\State $\text{answer} \gets T - T_0$
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(10 \cdot L \cdot (m{+}1))$. For $L=18$, $m=3$: approximately 1480 operations total (two calls).
+    \item \textbf{Space:} $O(L)$ for the rolling DP array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{227485267000992000}
+\]
+
+\end{document}

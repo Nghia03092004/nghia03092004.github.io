@@ -1,0 +1,129 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+
+\geometry{margin=2.5cm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+
+\title{Problem 453: Lattice Quadrilaterals}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \emph{simple quadrilateral} is a polygon with four distinct vertices, no straight angles, and no self-intersections.
+
+Let $Q(m, n)$ be the number of simple quadrilaterals whose vertices are lattice points $(x, y)$ with $0 \le x \le m$ and $0 \le y \le n$.
+
+Given: $Q(3, 7) = 39590$, $Q(12, 3) = 309000$, $Q(123, 45) = 70542215894646$.
+
+\textbf{Find} $Q(12345, 6789) \bmod 135707531$.
+
+\section{Mathematical Foundation}
+
+Let $N = (m+1)(n+1)$ denote the total number of lattice points in the grid.
+
+\begin{lemma}[Convex case]\label{lem:convex}
+For any 4 points in convex position with no 3 collinear, exactly 1 of the 3 possible cyclic orderings yields a simple quadrilateral.
+\end{lemma}
+
+\begin{proof}
+Let $A, B, C, D$ be in convex position with hull order $ABCD$. The three pairings of opposite edges give orderings $ABCD$, $ABDC$, $ACBD$. For $ABCD$, edges follow the convex hull, so no crossing occurs. For the other two orderings, a pair of ``opposite'' edges consists of diagonals of the convex hull, which must intersect by the convexity of the quadrilateral. Hence exactly one ordering is simple.
+\end{proof}
+
+\begin{lemma}[Concave case]\label{lem:concave}
+For any 4 points in concave position (one strictly inside the triangle of the other 3), with no 3 collinear, all 3 cyclic orderings yield simple quadrilaterals.
+\end{lemma}
+
+\begin{proof}
+Let $D$ lie strictly inside $\triangle ABC$. In any cyclic ordering, edges incident to $D$ are contained in the interior of $\triangle ABC$, while the edge connecting two of $\{A, B, C\}$ lies on or outside the triangle. A case analysis of the three orderings confirms no pair of non-adjacent edges can intersect.
+\end{proof}
+
+\begin{lemma}[No double-counting]\label{lem:nocross}
+If a 4-point set contains two distinct collinear triples, then all 4 points are collinear.
+\end{lemma}
+
+\begin{proof}
+Two 3-element subsets of a 4-element set share exactly 2 points, which determine a unique line. Both collinear triples lie on this line, so all 4 points are collinear.
+\end{proof}
+
+\begin{theorem}[Main formula]\label{thm:main}
+\[
+Q(m,n) = \binom{N}{4} - D + 2 \sum_T I(T),
+\]
+where $D$ is the number of degenerate 4-subsets, and $\sum_T I(T)$ sums the interior lattice points over all non-degenerate lattice triangles~$T$.
+\end{theorem}
+
+\begin{proof}
+Let $S = \binom{N}{4} - D$ be the count of non-degenerate 4-subsets. Partition into convex ($S_{\text{cvx}}$) and concave ($S_{\text{ccv}}$). By Lemmas~\ref{lem:convex} and~\ref{lem:concave}:
+\[
+Q = S_{\text{cvx}} + 3 S_{\text{ccv}} = S + 2 S_{\text{ccv}}.
+\]
+Each concave 4-subset $\{A,B,C,D\}$ with $D$ inside $\triangle ABC$ corresponds uniquely to the pair $(\triangle ABC, D)$, so $S_{\text{ccv}} = \sum_T I(T)$. Thus $Q = \binom{N}{4} - D + 2\sum_T I(T)$.
+\end{proof}
+
+\begin{theorem}[Degenerate count]\label{thm:degen}
+\[
+D = \sum_{L} \left[\binom{k_L}{4} + \binom{k_L}{3}(N - k_L)\right],
+\]
+where the sum runs over all lines $L$ with $k_L \ge 3$ grid points.
+\end{theorem}
+
+\begin{proof}
+$\binom{k_L}{4}$ counts 4-subsets entirely on~$L$; $\binom{k_L}{3}(N-k_L)$ counts those with exactly 3 on~$L$ and 1 off. By Lemma~\ref{lem:nocross}, no double-counting occurs.
+\end{proof}
+
+\begin{theorem}[Interior sum via Pick's theorem]\label{thm:pick}
+By Pick's theorem, $I(T) = A(T) - B(T)/2 + 1$. Summing over non-degenerate triangles:
+\[
+\sum_T I(T) = \sum_T A(T) - \frac{1}{2}\sum_T B(T) + T_{\mathrm{count}},
+\]
+where $T_{\mathrm{count}} = \binom{N}{3} - \sum_L \binom{k_L}{3}$.
+\end{theorem}
+
+\begin{proof}
+Sum Pick's theorem $I(T) = A(T) - B(T)/2 + 1$ over all non-degenerate triangles; the constant~$1$ sums to $T_{\mathrm{count}}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute $Q(m, n) \bmod p$}
+\begin{algorithmic}[1]
+\State Enumerate all primitive directions $(a, b)$ with $\gcd(a, |b|) = 1$, $a \ge 0$.
+\For{each direction $(a, b)$}
+    \State Compute line counts $k_L$ for each parallel line through the grid.
+    \State Accumulate $D$: $\sum \binom{k_L}{4} + \binom{k_L}{3}(N - k_L)$.
+    \State Accumulate $\sum_T B(T)$ via GCD sums: for a line with $k$ points, the pair-GCD sum is $k(k^2-1)/6$.
+    \State Accumulate $\sum_T A(T)$ via signed-distance sums $F(c) = \sum_{(x,y)} |bx - ay - c|$, computed with prefix sums.
+\EndFor
+\State Combine: $Q = \binom{N}{4} - D + 2\bigl[\sum_T A(T) - \tfrac{1}{2}\sum_T B(T) + T_{\mathrm{count}}\bigr] \pmod{p}$
+\State \Return $Q$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(mn(m+n))$. There are $O(mn)$ primitive directions, each requiring $O(m+n)$ work for line statistics and prefix-sum area computation.
+    \item \textbf{Space:} $O(m+n)$ for prefix sums per direction.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{104354107}
+\]
+
+\end{document}

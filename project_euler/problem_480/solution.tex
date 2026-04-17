@@ -1,0 +1,53 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\title{Project Euler Problem 480: The Last Question}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider all words formed by selecting letters from ``thereisasyetinsufficientdataforameaningfulanswer'', with at most 15 letters, listed alphabetically.
+
+Define $P(w)$ = position of word $w$, and $W(p)$ = word at position $p$.
+
+Find:
+\[
+W\bigl(P(\text{legionary}) + P(\text{calorimeters}) - P(\text{annihilate}) + P(\text{orchestrated}) - P(\text{fluttering})\bigr)
+\]
+
+\section{Mathematical Analysis}
+
+\subsection{Available Letters}
+From the phrase, the letter frequencies are:
+\begin{center}
+\begin{tabular}{cccccccccc}
+a:5 & c:1 & d:1 & e:4 & f:2 & g:1 & h:1 & i:4 & l:1 & m:1 \\
+n:4 & o:1 & r:2 & s:3 & t:3 & u:2 & w:1 & y:1 & &
+\end{tabular}
+\end{center}
+Total: 42 letters.
+
+\subsection{Position Calculation}
+For a word $w = w_1 w_2 \ldots w_m$, $P(w)$ counts:
+\begin{enumerate}
+    \item All valid words shorter than $w$
+    \item All valid words of length $m$ that are lexicographically smaller
+\end{enumerate}
+
+The number of distinct words of length $\ell$ from a multiset with counts $c_1, \ldots, c_k$ (total $N$) is:
+\[
+\sum_{\substack{s_1+\cdots+s_k = \ell \\ 0 \le s_i \le c_i}} \frac{\ell!}{s_1! \cdots s_k!}
+\]
+
+\subsection{Efficient Counting}
+We use dynamic programming over the letter counts to efficiently compute the number of words of each length from a given multiset.
+
+\section{Answer}
+
+\[
+\boxed{\texttt{turnthestarson}}
+\]
+
+\end{document}

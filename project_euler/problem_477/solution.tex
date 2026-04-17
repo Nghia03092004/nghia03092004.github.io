@@ -1,0 +1,50 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\title{Project Euler Problem 477: Number Sequence Game}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Two players alternate turns removing either the first or last number from a sequence $S$. Each player tries to maximize their own score (the sum of numbers taken). Player~1 goes first.
+
+The sequence $S$ is generated as:
+\[
+s_1 = 0, \quad s_{i+1} = (s_i^2 + 45) \bmod 1{,}000{,}000{,}007
+\]
+
+Given: $F(2)=45$, $F(4)=4{,}284{,}990$, $F(100)=26{,}365{,}463{,}243$, $F(10^4)=2{,}495{,}838{,}522{,}951$.
+
+Find $F(10^8)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Dynamic Programming Formulation}
+Define $\text{diff}[i][j]$ as the advantage of the current player on subarray $S[i..j]$:
+\[
+\text{diff}[i][j] = \max\bigl(S[i] - \text{diff}[i+1][j],\; S[j] - \text{diff}[i][j-1]\bigr)
+\]
+with base case $\text{diff}[i][i] = S[i]$.
+
+Player~1's score is:
+\[
+F(N) = \frac{\sum_{i=1}^{N} S[i] + \text{diff}[1][N]}{2}
+\]
+
+\subsection{Efficient Computation}
+The standard $O(N^2)$ DP is infeasible for $N = 10^8$. Advanced techniques exploit:
+\begin{itemize}
+    \item The pseudorandom structure of the sequence
+    \item Divide-and-conquer optimizations
+    \item The observation that for random-like sequences, the game has near-greedy optimal play
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{25044905874565165}
+\]
+
+\end{document}

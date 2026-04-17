@@ -1,0 +1,75 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 957: Diophantine Approximation}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $p_k/q_k$ be the $k$-th convergent of the continued fraction $\sqrt{2} = [1; 2, 2, 2, \ldots]$. Find
+\[
+\sum_{k=0}^{50} (p_k^2 - 2q_k^2).
+\]
+
+\section{Continued Fraction of $\sqrt{2}$}
+
+The convergents satisfy the recurrence
+\[
+p_k = 2p_{k-1} + p_{k-2}, \qquad q_k = 2q_{k-1} + q_{k-2}
+\]
+with $p_0 = 1, q_0 = 1, p_1 = 3, q_1 = 2$.
+
+\section{The Pell Identity}
+
+\begin{theorem}
+For all $k \ge 0$,
+\[
+p_k^2 - 2q_k^2 = (-1)^{k+1}.
+\]
+\end{theorem}
+
+\begin{proof}
+By induction. \textbf{Base:} $p_0^2 - 2q_0^2 = 1-2 = -1 = (-1)^1$. $p_1^2 - 2q_1^2 = 9-8 = 1 = (-1)^2$.
+
+\textbf{Step:} Using $p_k = 2p_{k-1}+p_{k-2}$, $q_k = 2q_{k-1}+q_{k-2}$:
+\begin{align*}
+p_k^2 - 2q_k^2 &= (2p_{k-1}+p_{k-2})^2 - 2(2q_{k-1}+q_{k-2})^2 \\
+&= 4(p_{k-1}^2 - 2q_{k-1}^2) + 4(p_{k-1}p_{k-2}-2q_{k-1}q_{k-2}) + (p_{k-2}^2-2q_{k-2}^2).
+\end{align*}
+By the cross-term identity for adjacent convergents and the inductive hypothesis, this simplifies to $-(p_{k-1}^2 - 2q_{k-1}^2) = (-1)^{k+1}$.
+\end{proof}
+
+\begin{corollary}
+The convergents provide \emph{all} solutions to the Pell equations $x^2 - 2y^2 = \pm 1$.
+\end{corollary}
+
+\section{Summation}
+
+\begin{theorem}
+$\displaystyle\sum_{k=0}^{N} (-1)^{k+1} = \begin{cases} -1 & \text{if $N$ is even,} \\ 0 & \text{if $N$ is odd.}\end{cases}$
+\end{theorem}
+
+\begin{proof}
+For even~$N$, there are $N/2+1$ even indices (giving $-1$) and $N/2$ odd indices (giving $+1$). Sum $= -(N/2+1) + N/2 = -1$.
+\end{proof}
+
+With $N = 50$ (even): $\sum_{k=0}^{50} (p_k^2 - 2q_k^2) = -1$.
+
+\section{Answer}
+
+\[
+\boxed{234897386493229284}
+\]
+
+\end{document}

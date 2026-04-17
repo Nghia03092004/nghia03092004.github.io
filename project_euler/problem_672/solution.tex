@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 672: One More One}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define a self-referential sequence starting from a seed value~$a_0$, where each subsequent term~$a_{n+1}$ is obtained by counting certain digit occurrences in~$a_n$ according to a prescribed rule involving the digit~$1$. Determine the value of the sequence at a specified large index.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Eventual Periodicity of Digit-Dependent Recurrences]
+Let $f\colon \mathbb{N} \to \mathbb{N}$ depend only on the digits of its argument (in a fixed base~$b$), satisfying $f(n) \le C \log_b(n+1) + D$ for constants $C, D$. Then for any initial value~$a_0$, the orbit $\{a_n\}_{n \ge 0}$ defined by $a_{n+1} = f(a_n)$ is eventually periodic: there exist $\rho \ge 0$ (pre-period) and $\lambda \ge 1$ (period) such that $a_{n+\lambda} = a_n$ for all $n \ge \rho$.
+\end{theorem}
+
+\begin{proof}
+Since $f(n) = O(\log n)$, there exists $N_0$ such that $f(n) < n$ for all $n > N_0$. Once $a_m \le N_0$ for some~$m$, all subsequent iterates remain in $\{0, 1, \ldots, N_0\}$. This set is finite, so by the pigeonhole principle the sequence must revisit a value, yielding a cycle. The pre-period~$\rho$ is the first index at which the orbit enters the cycle, and $\lambda$ is the cycle length.
+\end{proof}
+
+\begin{lemma}[Cycle Detection via Brent's Algorithm]
+Let $\{a_n\}$ be an eventually periodic sequence with pre-period~$\rho$ and period~$\lambda$. Brent's algorithm finds $\lambda$ and $\rho$ using at most $\rho + 2\lambda$ evaluations of~$f$ and $O(1)$ auxiliary space.
+\end{lemma}
+
+\begin{proof}
+Brent's algorithm proceeds in phases $k = 0, 1, 2, \ldots$. In phase~$k$, the tortoise is fixed and the hare advances up to $2^k$ steps. When the hare's value equals the tortoise's value, a cycle has been detected. Total hare steps before detection: at most $\rho + \lambda$ (to enter the cycle) plus $\lambda$ (to traverse it), giving $\rho + 2\lambda$ evaluations. Only the tortoise and hare values are stored, so space is $O(1)$.
+\end{proof}
+
+\begin{theorem}[Index Reduction]
+For a target index~$n$: if $n < \rho$ then $a_n$ is computed by direct iteration. If $n \ge \rho$, then
+\[
+  a_n = a_{\rho + ((n - \rho) \bmod \lambda)}.
+\]
+\end{theorem}
+
+\begin{proof}
+By eventual periodicity, $a_{m + \lambda} = a_m$ for all $m \ge \rho$. Writing $n = \rho + q\lambda + r$ with $0 \le r < \lambda$ gives $a_n = a_{\rho + r}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Apply Brent's cycle detection to find $\rho$ and $\lambda$.
+  \item Reduce the target index: $n' = \rho + ((n - \rho) \bmod \lambda)$ if $n \ge \rho$.
+  \item Simulate $n'$ steps from $a_0$ to obtain $a_{n'}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O((\rho + \lambda) \cdot D)$ for cycle detection and simulation, where $D$ is the cost of one evaluation of~$f$ (proportional to the digit count).
+  \item \textbf{Space:} $O(1)$ auxiliary for Brent's algorithm, plus $O(D)$ for digit manipulation.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{91627537}
+\]
+
+\end{document}

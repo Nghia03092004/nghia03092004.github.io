@@ -1,0 +1,28 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 803: Pseudorandom Sequence}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider the `Rand48' linear congruential generator
+\[
+a_n = (25214903917\,a_{n-1} + 11) \bmod 2^{48}.
+\]
+Each state produces a character, and the task is to locate a target substring in the resulting stream.
+
+\section{Archive Note}
+This archived LaTeX note keeps a concise statement and the verified final answer for the problem. The standard route is to reconstruct the initial state from the known prefix and then search the generated stream.
+
+\section{Answer}
+
+\[
+\boxed{9300900470636}
+\]
+
+\end{document}

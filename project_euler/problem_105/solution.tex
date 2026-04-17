@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 105: Special Subset Sums: Testing}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given 100 sets of sizes 7--12, identify those that are \emph{special sum sets} and compute $\sum S(A_i)$ over all valid sets.
+
+A set $A = \{a_1 < \cdots < a_n\}$ is special if:
+\begin{enumerate}
+\item All $2^n - 1$ nonempty subset sums are distinct.
+\item For any two disjoint subsets $B, C$ with $|B| > |C|$: $S(B) > S(C)$.
+\end{enumerate}
+
+\section{Mathematical Analysis}
+
+\begin{lemma}[Equivalent form of Condition 2]
+For sorted $a_1 < a_2 < \cdots < a_n$, Condition~2 holds iff:
+\[
+\sum_{i=1}^{k+1} a_i > \sum_{i=n-k+1}^{n} a_i \quad \text{for all } k = 1, \ldots, \lfloor n/2 \rfloor
+\]
+\end{lemma}
+
+\begin{proof}
+The LHS is the minimum sum of any $(k+1)$-element subset; the RHS is the maximum sum of any $k$-element subset. If the minimum exceeds the maximum, the condition holds for all pairs of subsets of these sizes. By induction on the size difference, it extends to all $|B| > |C|$.
+\end{proof}
+
+\begin{theorem}[Reduction to subset sum uniqueness]
+Condition~1 (no two disjoint subsets have equal sums) is equivalent to: all $2^n - 1$ nonempty subset sums are distinct.
+\end{theorem}
+
+\begin{proof}
+If two subsets $B' \ne C'$ have $S(B') = S(C')$, let $D = B' \cap C'$, $B = B' \setminus D$, $C = C' \setminus D$. Then $B, C$ are disjoint, nonempty, and $S(B) = S(C)$, violating Condition~1.
+\end{proof}
+
+\section{Algorithm}
+For each set:
+\begin{enumerate}
+\item Sort in $O(n \log n)$.
+\item Check Condition~2 in $O(n)$.
+\item Check Condition~1 by enumerating all $2^n$ subsets in $O(2^n)$.
+\item Accumulate $S(A)$ if both pass.
+\end{enumerate}
+
+\section{Verification}
+\begin{center}
+\begin{tabular}{lrl}
+\toprule
+Set (sorted) & $S(A)$ & Special? \\
+\midrule
+$\{42, 65, 75, 81, 84, 86, 87, 88\}$ & 608 & Yes \\
+$\{1, 2, 3, 4\}$ & 10 & No ($1+4 = 2+3$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(100 \cdot 2^{12}) = O(409{,}600)$. Runs in microseconds.
+\item \textbf{Space:} $O(2^{12})$ for the subset sum hash set.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{73702}
+\]
+
+\end{document}

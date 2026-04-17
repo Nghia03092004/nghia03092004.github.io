@@ -1,0 +1,89 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 98: Anagramic Squares}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given a list of English words, find anagram pairs $(w_1, w_2)$ admitting an injective letter-to-digit substitution $\varphi$ such that both $\varphi(w_1)$ and $\varphi(w_2)$ are perfect squares (with no leading zeros). Return the largest such square.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Anagram equivalence]
+Words $w_1, w_2$ are anagrams if $\operatorname{sort}(w_1) = \operatorname{sort}(w_2)$.
+\end{definition}
+
+\begin{definition}[Substitution]
+For a word $w = \ell_1 \cdots \ell_n$ with distinct letter set $\Lambda$, a \emph{substitution} is an injection $\varphi: \Lambda \to \{0,\ldots,9\}$. It maps $w$ to $\overline{\varphi(\ell_1)\cdots\varphi(\ell_n)}$.
+\end{definition}
+
+\begin{definition}[Character pattern]
+The pattern $\operatorname{pat}(s)$ of string $s = s_1 \cdots s_n$ replaces each character by its first-appearance index: e.g., $\operatorname{pat}(\texttt{CARE}) = (0,1,2,3)$, $\operatorname{pat}(\texttt{NOON}) = (0,1,1,0)$.
+\end{definition}
+
+\begin{lemma}[Pattern criterion]
+\label{lem:pat}
+A consistent injective substitution from word $w$ to number $m$ (as length-$n$ strings) exists if and only if $\operatorname{pat}(w) = \operatorname{pat}(m)$.
+\end{lemma}
+\begin{proof}
+$(\Rightarrow)$ Injectivity and consistency of $\varphi$ imply that identical letters map to identical digits and distinct letters to distinct digits, preserving the first-occurrence ordering.
+
+$(\Leftarrow)$ Equal patterns define $\varphi$ by positional correspondence. Consistency and injectivity follow from the definition of the pattern.
+\end{proof}
+
+\begin{theorem}[Correctness]
+Grouping words by sorted letters, enumerating $n$-digit squares matching each word's pattern, and checking the induced mapping on the anagram partner correctly finds all square anagram pairs.
+\end{theorem}
+\begin{proof}
+Sorted-letter grouping captures exactly the anagram equivalence classes. By Lemma~\ref{lem:pat}, pattern matching enumerates all valid substitutions. Checking the partner square and the no-leading-zero condition completes the verification. All pairs and all compatible squares are considered, so no valid pair is missed.
+\end{proof}
+
+\begin{proposition}[Search space]
+For word length $n$, there are $\Theta(10^{n/2})$ perfect squares with $n$ digits. With maximum word length $L \le 14$, the total work is manageable.
+\end{proposition}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find largest anagramic square}
+\begin{algorithmic}[1]
+\STATE Group words by $\operatorname{sort}(w)$; keep groups of size $\ge 2$
+\STATE Precompute $n$-digit squares grouped by $(\text{length}, \operatorname{pat})$
+\STATE $\text{best} \gets 0$
+\FOR{each anagram pair $(w_1, w_2)$ of length $n$}
+    \FOR{each square $s$ with $\operatorname{pat}(s) = \operatorname{pat}(w_1)$}
+        \STATE Extract substitution $\varphi$ from $w_1 \leftrightarrow s$
+        \STATE $s' \gets \varphi(w_2)$
+        \IF{$s'$ has no leading zero and $s'$ is a perfect square}
+            \STATE $\text{best} \gets \max(\text{best},\, s,\, s')$
+        \ENDIF
+    \ENDFOR
+\ENDFOR
+\RETURN best
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\textbf{Time:} $O(W L \log L)$ for grouping, plus $O(10^{L/2})$ for square enumeration per length, times the number of pairs and pattern matches.
+
+\textbf{Space:} $O(W + 10^{L/2})$.
+
+\section{Answer}
+
+\[
+\boxed{18769}
+\]
+
+\end{document}

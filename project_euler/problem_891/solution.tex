@@ -1,0 +1,37 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 891: Pentagon Tilings}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Study Euler's pentagonal number theorem and the partition function recurrence.
+
+\section{Key Results}
+
+\begin{theorem}[Pentagonal Theorem]
+$\prod_{n=1}^{\infty}(1-x^n) = \sum_{k=-\infty}^{\infty}(-1)^k x^{k(3k-1)/2}$.
+\end{theorem}
+
+\begin{theorem}[Partition Recurrence]
+$p(n) = \sum_{k=1}^{\infty} (-1)^{k+1}[p(n-\omega_k) + p(n-\omega_{-k})]$
+where $\omega_k = k(3k-1)/2$.
+\end{theorem}
+
+\section{Values}
+$p(0)=1, p(5)=7, p(10)=42, p(50)=204226, p(100)=190569292$.
+
+Hardy--Ramanujan: $p(n) \sim \frac{1}{4n\sqrt{3}} e^{\pi\sqrt{2n/3}}$.
+
+\section{Answer}
+
+\[
+\boxed{1541414}
+\]
+
+\end{document}

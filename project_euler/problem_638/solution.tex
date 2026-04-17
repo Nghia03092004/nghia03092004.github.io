@@ -1,0 +1,62 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 638: Weighted Lattice Paths}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For lattice paths from $(0,0)$ to $(a,b)$ with unit right/up moves, define the area $A(P)$ under path $P$, and $G(P,k) = k^{A(P)}$. Let $C(a,b,k) = \sum_P G(P,k)$.
+
+Find $\displaystyle\sum_{k=1}^{7} C(10^k+k,\, 10^k+k,\, k) \pmod{1{,}000{,}000{,}007}$.
+
+\section{Mathematical Analysis}
+
+\subsection{Connection to $q$-Binomial Coefficients}
+
+\begin{theorem}
+For any positive integers $a, b$ and parameter $q$:
+\[
+C(a,b,q) = \binom{a+b}{a}_q = \prod_{i=1}^{\min(a,b)} \frac{q^{a+b-i+1}-1}{q^i - 1}
+\]
+\end{theorem}
+
+\begin{proof}
+The area under a lattice path from $(0,0)$ to $(a,b)$ equals the number of inversions in the corresponding binary sequence of $a$ R-moves and $b$ U-moves. Specifically, if we encode the path as a sequence $w = w_1 w_2 \ldots w_{a+b}$ with $w_i \in \{R, U\}$, then $A(P) = \text{inv}(w)$ where $\text{inv}(w)$ counts the pairs $(i,j)$ with $i < j$, $w_i = U$, $w_j = R$.
+
+The generating function $\sum_w q^{\text{inv}(w)}$ over all such binary sequences is precisely the Gaussian binomial coefficient $\binom{a+b}{a}_q$.
+\end{proof}
+
+\subsection{Computation}
+
+For $k = 1$:
+\[
+C(n,n,1) = \binom{2n}{n}
+\]
+
+For $k \ge 2$:
+\[
+C(n,n,k) = \prod_{i=1}^{n} \frac{k^{n+i} - 1}{k^i - 1} \pmod{10^9+7}
+\]
+
+Each term requires modular exponentiation and modular inverse.
+
+\section{Answer}
+
+\[
+\boxed{18423394}
+\]
+
+\end{document}

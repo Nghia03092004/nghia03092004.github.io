@@ -1,0 +1,122 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 70: Totient Permutation}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the value of $n$, $1 < n < 10^7$, for which $\varphi(n)$ is a permutation of $n$ and the ratio $n/\varphi(n)$ produces a minimum.
+
+\section{Mathematical Analysis}
+
+\begin{theorem}[Ratio Formula]
+For $n = p_1^{a_1} \cdots p_k^{a_k}$:
+\[
+\frac{n}{\varphi(n)} = \prod_{i=1}^{k} \frac{p_i}{p_i - 1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Immediate from $\varphi(n) = n \prod_{p \mid n}(1 - 1/p)$.
+\end{proof}
+
+\begin{theorem}[Minimization Principles]
+To minimize $n/\varphi(n)$:
+\begin{enumerate}
+    \item Use as few distinct prime factors as possible.
+    \item Use primes as large as possible.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) Each distinct prime $p$ contributes a factor $p/(p-1) > 1$, so fewer factors yield a smaller product. (2) Since $p/(p-1) = 1 + 1/(p-1)$ is strictly decreasing in $p$, larger primes contribute factors closer to~1.
+\end{proof}
+
+\begin{theorem}[Exclusion of Primes]
+If $p$ is prime, then $\varphi(p) = p - 1$ is never a digit permutation of $p$.
+\end{theorem}
+
+\begin{proof}
+Two integers are digit permutations only if they are congruent modulo~9 (since digit sums are preserved). But $p - (p-1) = 1 \not\equiv 0 \pmod{9}$, so $p \not\equiv p-1 \pmod{9}$.
+\end{proof}
+
+\begin{corollary}[Semiprimes Are Optimal]
+The candidates with fewest prime factors are semiprimes $n = pq$ ($p, q$ distinct primes). For these:
+\[
+\varphi(pq) = (p-1)(q-1), \quad \frac{pq}{\varphi(pq)} = \frac{pq}{(p-1)(q-1)}.
+\]
+This ratio is minimized when $p$ and $q$ are large and close to $\sqrt{10^7} \approx 3162$.
+\end{corollary}
+
+\begin{proof}
+By Theorem~3, primes are excluded. If $n$ has $\geq 3$ distinct prime factors, then $n/\varphi(n) \geq (2/1)(3/2)(5/4) = 3.75$, which far exceeds the semiprime optimum near~1. Hence semiprimes suffice.
+\end{proof}
+
+\begin{proposition}[Search Sufficiency]
+It suffices to search all pairs $(p,q)$ with $p \leq q$ prime and $pq < 10^7$.
+\end{proposition}
+
+\begin{proof}
+By Theorem~3, primes are excluded. By the Corollary, numbers with $\geq 3$ prime factors are dominated. Hence only semiprimes (and prime squares $p^2$, which are included when $p = q$) need be checked.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find $n < 10^7$ minimizing $n/\varphi(n)$ with $\varphi(n)$ a digit permutation of $n$}
+\begin{algorithmic}[1]
+\State Sieve primes up to $10^7$
+\State $r_{\min} \gets \infty$, $n_{\text{best}} \gets 0$
+\For{each prime $p$ with $p^2 < 10^7$}
+    \For{each prime $q \ge p$ with $pq < 10^7$}
+        \State $\phi \gets (p-1)(q-1)$
+        \If{$\text{sorted\_digits}(pq) = \text{sorted\_digits}(\phi)$ \textbf{and} $pq / \phi < r_{\min}$}
+            \State $r_{\min} \gets pq / \phi$, $n_{\text{best}} \gets pq$
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return $n_{\text{best}}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time}: $O(N \log \log N)$ for the sieve, plus $O(\pi(\sqrt{N})^2) = O(N/\log^2 N)$ for the search.
+    \item \textbf{Space}: $O(N)$ for the sieve.
+\end{itemize}
+
+\section{Result}
+
+The answer is $\boxed{8319823}$.
+
+\begin{itemize}
+    \item $n = 8319823 = 2339 \times 3557$
+    \item $\varphi(8319823) = 2338 \times 3556 = 8313928$
+    \item Sorted digits of $8319823$: $\{1, 2, 3, 3, 8, 8, 9\}$
+    \item Sorted digits of $8313928$: $\{1, 2, 3, 3, 8, 8, 9\}$ \checkmark
+    \item $n / \varphi(n) \approx 1.000709$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{8319823}
+\]
+
+\end{document}

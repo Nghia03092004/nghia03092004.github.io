@@ -1,0 +1,215 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+
+\begin{document}
+
+\section*{Problem 777: Lissajous Curves}
+
+\section{Problem Statement}
+
+For coprime positive integers $a$ and $b$, define
+\[
+x=\cos(at),\qquad
+y=\cos\!\left(b\left(t-\frac{\pi}{10}\right)\right),
+\qquad 0\le t\le 2\pi.
+\]
+Let $d(a,b)$ be the sum of $x^2+y^2$ over all self-intersection points of the curve, and let
+\[
+s(m)=\sum d(a,b),
+\]
+where the sum runs over all coprime pairs $2\le a,b\le m$.
+
+The checks given in the statement are
+\[
+d(2,5)=0.75,\quad d(2,3)=4.5,\quad d(7,4)=39.5,\quad d(7,5)=52,\quad d(10,7)=23.25,
+\]
+and
+\[
+s(10)=1602.5,\qquad s(100)=24256505.
+\]
+
+\section{Repeated Points}
+
+Suppose the same point is obtained at two parameters $t_1\ne t_2$. Since
+\[
+\cos u=\cos v \iff u\equiv \pm v \pmod{2\pi},
+\]
+we must have
+\[
+at_1\equiv \pm at_2 \pmod{2\pi},
+\qquad
+b\left(t_1-\frac{\pi}{10}\right)\equiv \pm b\left(t_2-\frac{\pi}{10}\right)\pmod{2\pi}.
+\]
+
+The $(+,+)$ case is trivial because $\gcd(a,b)=1$ implies $t_1\equiv t_2\pmod{2\pi}$.
+The nontrivial cases are
+
+\paragraph{Case B}
+\[
+a(t_1-t_2)=2\pi m,\qquad
+b\left(t_1+t_2-\frac{\pi}{5}\right)=2\pi n.
+\]
+
+\paragraph{Case C}
+\[
+a(t_1+t_2)=2\pi m,\qquad
+b(t_1-t_2)=2\pi n.
+\]
+
+The $(-,-)$ case contributes only when the whole curve is retraced; this happens exactly when $10\mid ab$.
+
+\section{Coordinates and Crossing Condition}
+
+In Case B one obtains
+\[
+x^2=\cos^2\!\left(\pi\left(\frac{a}{10}+\frac{an}{b}\right)\right),
+\qquad
+y^2=\cos^2\!\left(\pi\frac{bm}{a}\right).
+\]
+Since multiplication by $a$ permutes residues modulo $b$, and multiplication by $b$ permutes residues modulo $a$, the Case-B values are exactly
+\[
+x^2\in \left\{\cos^2\!\left(\pi\left(\frac{a}{10}+\frac{k}{b}\right)\right):0\le k<b\right\},
+\qquad
+y^2\in \left\{\cos^2\!\left(\pi\frac{j}{a}\right):1\le j<a\right\}.
+\]
+
+Similarly, Case C gives
+\[
+x^2\in \left\{\cos^2\!\left(\pi\frac{k}{b}\right):1\le k<b\right\},
+\qquad
+y^2\in \left\{\cos^2\!\left(\pi\left(\frac{j}{a}-\frac{b}{10}\right)\right):0\le j<a\right\}.
+\]
+
+At a repeated point, the two tangent vectors are:
+\[
+(x'(t_1),y'(t_1)),\ (x'(t_1),-y'(t_1)) \quad\text{in Case B},
+\]
+and
+\[
+(x'(t_1),y'(t_1)),\ (-x'(t_1),y'(t_1)) \quad\text{in Case C}.
+\]
+Therefore the point is a genuine crossing iff neither derivative component vanishes, i.e.
+\[
+x^2\ne 1,\qquad y^2\ne 1.
+\]
+
+\section{Formula for \texorpdfstring{$d(a,b)$}{d(a,b)}}
+
+\subsection*{Case 1: $10\nmid ab$}
+
+There is no retracing, so each valid Case-B and Case-C point is counted exactly once.
+Using
+\[
+\sum_{j=1}^{a-1}\cos^2\!\left(\pi\frac{j}{a}\right)=\frac{a}{2}-1,
+\qquad
+\sum_{k=0}^{b-1}\cos^2\!\left(\alpha+\pi\frac{k}{b}\right)=\frac{b}{2},
+\]
+we obtain
+\[
+\text{Case B}=b\left(\frac{a}{2}-1\right)+(a-1)\frac{b}{2}=ab-\frac{3b}{2},
+\]
+and
+\[
+\text{Case C}=a\left(\frac{b}{2}-1\right)+(b-1)\frac{a}{2}=ab-\frac{3a}{2}.
+\]
+Hence
+\[
+d(a,b)=2ab-\frac{3(a+b)}{2}.
+\]
+
+\subsection*{Case 2: $10\mid ab$}
+
+Now the omitted $(-,-)$ congruence is solvable, so the entire curve is traced twice. Each non-tangential crossing coming from Cases B and C is counted four times in the raw parameter count.
+
+The tangential raw points are exactly the ones with $x^2=1$ in Case B and $y^2=1$ in Case C. Their total raw contribution is
+\[
+\left((a-1)+\left(\frac{a}{2}-1\right)\right)
++
+\left((b-1)+\left(\frac{b}{2}-1\right)\right)
+=\frac{3(a+b)}{2}-4.
+\]
+
+Therefore
+\[
+d(a,b)
+=
+\frac{1}{4}
+\left(
+2ab-\frac{3(a+b)}{2}
+-\left(\frac{3(a+b)}{2}-4\right)
+\right)
+=
+\frac{2ab-3a-3b+4}{4}.
+\]
+
+Thus
+\[
+d(a,b)=
+\begin{cases}
+2ab-\dfrac{3(a+b)}{2}, & 10\nmid ab,\\[1.2ex]
+\dfrac{2ab-3a-3b+4}{4}, & 10\mid ab.
+\end{cases}
+\]
+
+\section{Summing over All Coprime Pairs}
+
+Define, over all coprime pairs $2\le a,b\le m$,
+\[
+C=\sum 1,\qquad A=\sum a,\qquad M=\sum ab.
+\]
+Let $C_{10},A_{10},M_{10}$ be the same sums restricted to $10\mid ab$.
+By symmetry, $\sum b=A$, so
+\[
+4s(m)=8M-12A+4C_{10}-6M_{10}+6A_{10}.
+\]
+
+To compute these totals, use Möbius inversion. For any filter $P(n)$, let
+\[
+c_P(d)=\#\{n\le m: d\mid n,\ P(n)\},
+\qquad
+s_P(d)=\sum_{\substack{n\le m\\ d\mid n,\ P(n)}} n.
+\]
+Then over $1\le a,b\le m$,
+\[
+\sum_{\substack{P(a),P(b)\\ \gcd(a,b)=1}} 1
+=\sum_{d=1}^{m}\mu(d)c_P(d)^2,
+\]
+\[
+\sum_{\substack{P(a),P(b)\\ \gcd(a,b)=1}} a
+=\sum_{d=1}^{m}\mu(d)s_P(d)c_P(d),
+\]
+\[
+\sum_{\substack{P(a),P(b)\\ \gcd(a,b)=1}} ab
+=\sum_{d=1}^{m}\mu(d)s_P(d)^2.
+\]
+Subtracting the boundary pairs with $a=1$ or $b=1$ converts these totals to the required range $2\le a,b\le m$.
+
+We use the four filters
+\[
+\text{all},\qquad \text{odd},\qquad \text{non5},\qquad \text{coprime10}.
+\]
+Their counts and sums are closed-form, and inclusion-exclusion gives
+\[
+1_{10\mid ab}
+=1-1_{\text{both odd}}-1_{\text{both non5}}+1_{\text{both coprime10}},
+\]
+so for each of $X\in\{C,A,M\}$,
+\[
+X_{10}=X_{\text{all}}-X_{\text{odd}}-X_{\text{non5}}+X_{\text{coprime10}}.
+\]
+
+\section{Complexity}
+
+After a linear sieve for $\mu$, the whole computation is $O(m)$ time and $O(m)$ memory.
+For $m=10^6$, this is easily fast enough.
+
+\section{Answer}
+
+The result is
+\[
+\boxed{2.533018434e23}
+\]
+
+\end{document}

@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,algorithm,algpseudocode}
+\geometry{a4paper,margin=1in}
+
+\title{Project Euler Problem 766: Sliding Block Puzzle}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A sliding block puzzle confines pieces to a grid where they can be slid in multiples of one unit in the four cardinal directions. A \textbf{reachable configuration} is any arrangement achievable by sliding pieces from the initial configuration. The red L-shaped pieces are considered different from the green L-shaped pieces.
+
+Find the number of reachable configurations for the given puzzle.
+
+\section{Mathematical Analysis}
+
+\subsection{Graph Model}
+We model the puzzle as a graph $G = (V, E)$ where:
+\begin{itemize}
+    \item $V$ = set of all valid configurations (states)
+    \item $E = \{(u, v) : v \text{ is reachable from } u \text{ by a single unit slide}\}$
+\end{itemize}
+
+The number of reachable configurations equals $|V|$, the number of vertices reachable from the initial state via BFS.
+
+\subsection{State Representation}
+Each state is encoded as a tuple:
+\[
+    s = ((x_1, y_1), (x_2, y_2), \ldots, (x_k, y_k))
+\]
+where $(x_i, y_i)$ is the reference position of piece $i$. Pieces of different colors but identical shapes are tracked separately.
+
+\subsection{Move Validity}
+A move sliding piece $i$ by direction $d \in \{(0,1),(0,-1),(1,0),(-1,0)\}$ is valid if:
+\begin{enumerate}
+    \item All cells of the moved piece remain within the grid boundaries.
+    \item No cell of the moved piece overlaps with any cell of another piece.
+\end{enumerate}
+
+\section{Algorithm}
+\begin{algorithm}[H]
+\caption{BFS for Reachable Configurations}
+\begin{algorithmic}[1]
+\State $Q \gets \{s_0\}$, $V \gets \{s_0\}$
+\While{$Q \neq \emptyset$}
+    \State $s \gets Q.\text{dequeue}()$
+    \For{each piece $i$ in $s$}
+        \For{each direction $d$}
+            \State $s' \gets \text{slide}(s, i, d)$
+            \If{$s'$ is valid and $s' \notin V$}
+                \State $V \gets V \cup \{s'\}$
+                \State $Q.\text{enqueue}(s')$
+            \EndIf
+        \EndFor
+    \EndFor
+\EndWhile
+\State \Return $|V|$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(|V| \cdot P \cdot 4)$ where $P$ is the number of pieces
+    \item \textbf{Space:} $O(|V|)$ for the visited set
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2613742}
+\]
+
+\end{document}

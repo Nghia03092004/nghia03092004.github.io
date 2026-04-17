@@ -1,0 +1,95 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm, algorithmicx, algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 142: Perfect Square Collection}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the smallest $x+y+z$ with $x > y > z > 0$ such that $x+y$, $x-y$, $x+z$, $x-z$, $y+z$, $y-z$ are all perfect squares.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}
+Let $a^2 = x+y$, $b^2 = x-y$, $c^2 = x+z$, $d^2 = x-z$, $e^2 = y+z$, $f^2 = y-z$. Then the following Pythagorean-type identities hold:
+\begin{enumerate}
+    \item $a^2 = c^2 + f^2$
+    \item $a^2 = d^2 + e^2$
+    \item $c^2 = b^2 + e^2$
+    \item $d^2 = b^2 + f^2$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each identity follows from subtraction of the original definitions:
+\begin{enumerate}
+    \item $a^2 - c^2 = (x+y) - (x+z) = y - z = f^2$.
+    \item $a^2 - e^2 = (x+y) - (y+z) = x - z = d^2$.
+    \item $c^2 - e^2 = (x+z) - (y+z) = x - y = b^2$.
+    \item $d^2 - b^2 = (x-z) - (x-y) = y - z = f^2$.
+\end{enumerate}
+\end{proof}
+
+\begin{theorem}
+The variables are recovered as:
+\[
+x = \frac{a^2 + b^2}{2}, \quad y = \frac{a^2 - b^2}{2}, \quad z = \frac{c^2 - d^2}{2}
+\]
+For $x,y,z$ to be positive integers, $a \equiv b \pmod{2}$, and $x > y > z > 0$ requires $a > b > 0$, $c > d > 0$.
+\end{theorem}
+
+\begin{proof}
+From $x+y = a^2$ and $x-y = b^2$: $x = (a^2+b^2)/2$, $y = (a^2-b^2)/2$. Integrality requires $a \equiv b \pmod{2}$. Positivity of $y$ requires $a > b$. The formula for $z$ follows from $x+z = c^2$ and $x-z = d^2$.
+\end{proof}
+
+\begin{lemma}[Redundancy]
+Identity~(4) follows from identities~(1)--(3).
+\end{lemma}
+
+\begin{proof}
+$d^2 - b^2 = (a^2 - e^2) - (c^2 - e^2) = a^2 - c^2 = f^2$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State $\text{best} \gets \infty$
+\For{$a = 3, 4, 5, \ldots$}
+    \If{$3a^2/2 \geq \text{best}$} \textbf{break} \EndIf
+    \State Compute all pairs $(p,q)$ with $p^2 + q^2 = a^2$, $p > q > 0$
+    \ForAll{pairs $(d,e)$ from decompositions} \Comment{Identity (2)}
+        \ForAll{pairs $(c,f)$ from decompositions} \Comment{Identity (1)}
+            \If{$c \leq e$} \textbf{continue} \EndIf
+            \State $b^2 \gets c^2 - e^2$ \Comment{Identity (3)}
+            \If{$b^2$ is not a perfect square} \textbf{continue} \EndIf
+            \If{$a \not\equiv b \pmod{2}$} \textbf{continue} \EndIf
+            \State $x \gets (a^2+b^2)/2$, $y \gets (a^2-b^2)/2$, $z \gets (c^2-d^2)/2$
+            \If{$x > y > z > 0$} $\text{best} \gets \min(\text{best}, x+y+z)$ \EndIf
+        \EndFor
+    \EndFor
+\EndFor
+\State \Return best
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(A^{1+\epsilon})$ where $A$ is the value of $a$ at termination. The number of sum-of-two-squares representations of $a^2$ is $O(a^\epsilon)$.
+\item \textbf{Space:} $O(A^\epsilon)$ per value of $a$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1006193}
+\]
+
+\end{document}

@@ -1,0 +1,64 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 536: Modulo Power Identity}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $S(n)$ be the sum of all positive integers $m$ not exceeding $n$ having the following property:
+\[
+a^{m+4} \equiv a \pmod{m} \quad \text{for all integers } a.
+\]
+
+The values of $m \leq 100$ that satisfy this property are 1, 2, 3, 5, and 21, thus $S(100) = 32$.
+
+Given $S(10^6) = 22868117$, find $S(10^{12})$.
+
+\section{Mathematical Analysis}
+
+\subsection{Characterization of Valid $m$}
+The condition $a^{m+4} \equiv a \pmod{m}$ for all $a$ is equivalent to requiring that for every prime power $p^k \| m$:
+\begin{enumerate}
+    \item $(p-1) \mid (m+3)$ (from Fermat's little theorem)
+    \item $p^{k-1} \mid (m+3)$ when $k \geq 2$ (from lifting the exponent)
+\end{enumerate}
+
+\subsection{Squarefree Case}
+For squarefree $m = p_1 p_2 \cdots p_r$, the condition reduces to:
+\[
+(p_i - 1) \mid (m+3) \quad \text{for all } i = 1, \ldots, r.
+\]
+
+\subsection{Prime $m$}
+For $m = p$ prime, $(p-1) \mid (p+3)$. Since $(p-1) \mid (p+3) - (p-1) = 4$, we need $(p-1) \mid 4$, giving $p \in \{2, 3, 5\}$.
+
+\subsection{Composite $m$}
+For composite $m$, we use a DFS approach. Given a partial product $m_0$ and a set of prime factors, we look for additional primes $p$ such that:
+\begin{itemize}
+    \item $p \nmid m_0$
+    \item $(p-1) \mid (m_0 \cdot p + 3)$
+    \item All existing conditions remain satisfied
+\end{itemize}
+
+Since $(p-1) \mid (m_0 p + 3)$ and $(p-1) \mid (p-1)m_0$, we get $(p-1) \mid (m_0 + 3)$.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Start with $m = 1$.
+    \item For each valid starting configuration, perform DFS adding primes $p$ where $(p-1) \mid (m+3)$.
+    \item For each candidate $m$, verify the full Korselt-like condition.
+    \item Sum all valid $m \leq 10^{12}$.
+\end{enumerate}
+
+\section{Answer}
+
+\[
+\boxed{3557005261906288}
+\]
+
+\end{document}

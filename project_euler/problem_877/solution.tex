@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\title{Problem 877: XOR-Equation A}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The XOR-product $x \otimes y$ is carry-less multiplication in base~2. Consider:
+\[
+(a \otimes a) \oplus (2 \otimes a \otimes b) \oplus (b \otimes b) = 5.
+\]
+Let $X(N)$ be the XOR of all $b$ for solutions with $0 \le a \le b \le N$. Given $X(10)=5$, find $X(10^{18})$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[$\operatorname{GF}(2)$ Polynomial Ring]
+$n = \sum_i b_i 2^i \longleftrightarrow n(x) = \sum_i b_i x^i \in \operatorname{GF}(2)[x]$. XOR $=$ addition; XOR-product $=$ multiplication; left-shift by 1 $=$ multiplication by $x$.
+\end{definition}
+
+\begin{theorem}[Frobenius Endomorphism]
+In $\operatorname{GF}(2)[x]$: $a(x)^2 = a(x^2)$.
+\end{theorem}
+
+\begin{proof}
+In characteristic~2, $(c+d)^2 = c^2+d^2$. By induction, $(\sum_i b_i x^i)^2 = \sum_i b_i x^{2i} = a(x^2)$ since $b_i^2 = b_i$ for $b_i \in \{0,1\}$.
+\end{proof}
+
+\begin{theorem}[Equation Reformulation]
+The equation becomes, in $\operatorname{GF}(2)[x]$:
+\[
+a(x^2) + x \cdot a(x) \cdot b(x) + b(x^2) = k(x),
+\]
+where $k=5$ gives $k(x) = x^2 + 1$.
+\end{theorem}
+
+\begin{proof}
+$a \otimes a \leftrightarrow a(x)^2 = a(x^2)$ by Frobenius. $2 \otimes a \otimes b \leftrightarrow x \cdot a(x) \cdot b(x)$ since $2 \leftrightarrow x$. Similarly for $b \otimes b$. Addition in $\operatorname{GF}(2)[x]$ is XOR.
+\end{proof}
+
+\begin{lemma}[Bit Decomposition]
+Writing $a(x) = a_0(x^2) + x\,a_1(x^2)$, $b(x) = b_0(x^2) + x\,b_1(x^2)$, the equation separates into constraints on even- and odd-degree coefficients of $k(x)$.
+\end{lemma}
+
+\begin{proof}
+Substitute and expand. The $x^4$ terms and cross-products separate by parity, yielding a system in $a_0, a_1, b_0, b_1$ solvable recursively.
+\end{proof}
+
+\begin{theorem}[Recursive Structure]
+Solutions have a binary-tree structure: lowest bits are determined by lowest-degree coefficients of $k(x)$, and remaining bits satisfy a reduced equation. This yields $O(\log N)$-depth enumeration.
+\end{theorem}
+
+\begin{proof}
+After fixing parity bits to match constant and linear terms, higher-order terms satisfy an analogous equation with halved degree. The process terminates in $O(\log N)$ steps.
+\end{proof}
+
+\section{Algorithm}
+
+Digit DP on binary representations of $a$ and $b$. At each bit position, the $\operatorname{GF}(2)$ constraints determine valid bit choices. Track tightness (whether $b \le N$) and ordering ($a \le b$).
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log^2 N)$. The DP has $O(\log N)$ levels with $O(1)$ branching per state.
+\item \textbf{Space:} $O(\log N)$ for recursion stack.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{336785000760344621}
+\]
+
+\end{document}

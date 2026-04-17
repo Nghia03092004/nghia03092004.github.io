@@ -1,0 +1,113 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 448: Average Least Common Multiple}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define $f(n) = \frac{1}{n}\sum_{k=1}^{n} \operatorname{lcm}(k, n)$. Compute $S(N) = \sum_{n=1}^{N} f(n) \pmod{10^9 + 7}$ for $N = 10^8$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Closed Form]
+\label{thm:closed}
+For all $n \geq 1$,
+\[
+f(n) = \frac{1 + \displaystyle\sum_{d \mid n} d\,\varphi(d)}{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+Using $\operatorname{lcm}(k,n) = kn/\gcd(k,n)$:
+\[
+f(n) = \sum_{k=1}^{n} \frac{k}{\gcd(k,n)}.
+\]
+Group by $g = \gcd(k,n)$ with $k = gj$, $\gcd(j, d) = 1$, $d = n/g$:
+\[
+f(n) = \sum_{d \mid n} \Phi(d), \quad \Phi(d) := \sum_{\substack{j=1\\\gcd(j,d)=1}}^{d} j.
+\]
+For $d \geq 2$, the coprime residues pair as $j \leftrightarrow d - j$ (both coprime to~$d$, with $j \neq d-j$ for $d \geq 3$; for $d = 2$, $\Phi(2) = 1$). Each pair sums to~$d$, and there are $\varphi(d)/2$ pairs, so $\Phi(d) = d\,\varphi(d)/2$. Since $\Phi(1) = 1 = 1 \cdot \varphi(1)/2 + 1/2$:
+\[
+f(n) = \frac{1 + \sum_{d \mid n} d\,\varphi(d)}{2}.\qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Summation Formula]
+\[
+S(N) = \frac{N + \displaystyle\sum_{d=1}^{N} d\,\varphi(d)\,\lfloor N/d \rfloor}{2}.
+\]
+\end{corollary}
+
+\begin{proof}
+Sum Theorem~\ref{thm:closed} over $n = 1, \ldots, N$ and swap the order of summation:
+\[
+\sum_{n=1}^{N}\sum_{d \mid n} d\,\varphi(d) = \sum_{d=1}^{N} d\,\varphi(d)\,\lfloor N/d \rfloor.\qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Multiplicativity]
+$h(n) = n\,\varphi(n)$ is multiplicative with $h(p^a) = p^{2a} - p^{2a-1}$.
+\end{lemma}
+
+\begin{proof}
+$\operatorname{Id}$ and~$\varphi$ are both multiplicative, so their product is multiplicative. For prime powers: $h(p^a) = p^a \cdot p^{a-1}(p-1) = p^{2a-1}(p-1)$.
+\end{proof}
+
+\begin{lemma}[Coprime Residue Pairing]
+For $d \geq 2$ and $\gcd(j,d) = 1$ with $1 \leq j \leq d$: $\gcd(d-j, d) = 1$ and $j + (d-j) = d$, with $j \neq d - j$ for $d \geq 3$.
+\end{lemma}
+
+\begin{proof}
+$\gcd(d-j, d) = \gcd(j, d) = 1$. For $j = d/2$: $\gcd(d/2, d) = d/2 = 1$ requires $d = 2$.
+\end{proof}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$n$ & $\sum_{d \mid n} d\varphi(d)$ & $f(n)$ & $S(n)$ \\
+\midrule
+1 & 1  & 1  & 1 \\
+2 & 3  & 2  & 3 \\
+3 & 7  & 4  & 7 \\
+4 & 11 & 6  & 13 \\
+5 & 21 & 11 & 24 \\
+6 & 21 & 11 & 35 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item \textbf{Totient sieve:} Compute $\varphi(n)$ for $n = 1, \ldots, N$ in $O(N \log\log N)$.
+\item \textbf{Prefix sums:} Compute $H(k) = \sum_{d=1}^{k} d\,\varphi(d) \bmod p$ for $k = 1, \ldots, N$.
+\item \textbf{Grouped summation:} Evaluate $\sum_{d=1}^{N} d\,\varphi(d)\,\lfloor N/d \rfloor$ by grouping the $O(\sqrt{N})$ distinct values of $\lfloor N/d \rfloor$.
+\item \textbf{Final:} $S(N) = (N + \text{sum}) \cdot 2^{-1} \bmod p$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N)$ for the totient sieve and prefix sums; $O(\sqrt{N})$ for the grouped summation. Total: $O(N)$.
+\item \textbf{Space:} $O(N)$ for the $\varphi$ and prefix-sum arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{106467648}
+\]
+
+\end{document}

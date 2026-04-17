@@ -1,0 +1,51 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 498: Remainder of Polynomial Division}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For positive integers $n$ and $m$, define $F_n(x) = x^n$ and $G_m(x) = (x-1)^m$. Let $R_{n,m}(x)$ be the remainder when dividing $F_n(x)$ by $G_m(x)$, and $C(n,m,d)$ the absolute value of the coefficient of the $d$-th degree term.
+
+Find $C(10^{13}, 10^{12}, 10^4) \bmod 999999937$.
+
+\section{Mathematical Analysis}
+
+\subsection{Change of Variables}
+Let $t = x - 1$:
+\[
+R_{n,m}(x) = \sum_{i=0}^{m-1} \binom{n}{i}(x-1)^i
+\]
+
+\subsection{Coefficient Extraction}
+\[
+[x^d]\, R_{n,m}(x) = \sum_{i=d}^{m-1} \binom{n}{i}\binom{i}{d}(-1)^{i-d}
+\]
+
+\subsection{Simplification via Identity}
+Using $\binom{n}{i}\binom{i}{d} = \binom{n}{d}\binom{n-d}{i-d}$:
+\[
+C(n,m,d) = \left|\binom{n}{d} \sum_{k=0}^{m-d-1}\binom{n-d}{k}(-1)^k\right|
+\]
+
+\subsection{Lucas' Theorem}
+Since $p = 999999937$ is prime and $n > p$, we apply Lucas' theorem to compute binomial coefficients modulo $p$ via base-$p$ digit decomposition.
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(p)$ for factorial precomputation.
+    \item \textbf{Space:} $O(p)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{472294837}
+\]
+
+\end{document}

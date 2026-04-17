@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 817: Digits in Squares}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Study digit patterns in perfect squares. The last $k$ digits of $n^2$ are determined by $n \bmod 10^k$. Classify and count quadratic residues modulo $10^k$, and compute the required sum.
+
+\section{Quadratic Residues mod $10^k$}
+
+\begin{theorem}[CRT Decomposition]
+Since $10^k = 2^k \cdot 5^k$ with $\gcd(2^k, 5^k) = 1$:
+\[
+x^2 \equiv r \pmod{10^k} \iff x^2 \equiv r \pmod{2^k} \text{ and } x^2 \equiv r \pmod{5^k}.
+\]
+\end{theorem}
+
+\begin{theorem}[Hensel's Lemma]
+If $a^2 \equiv r \pmod{p^k}$ with $2a \not\equiv 0 \pmod{p}$, then there is a unique $a' \equiv a \pmod{p^k}$ with ${a'}^2 \equiv r \pmod{p^{k+1}}$, given by
+\[
+a' = a - \frac{a^2 - r}{2a} \pmod{p^{k+1}}.
+\]
+\end{theorem}
+
+\begin{lemma}[Square Root Counts]
+For odd prime $p$ and $\gcd(r, p) = 1$: $r$ is a QR mod $p^k$ iff it is a QR mod~$p$, and then has exactly 2 roots. For $p = 2$, $k \ge 3$: odd $r$ is a QR mod $2^k$ iff $r \equiv 1 \pmod{8}$, yielding 4 roots.
+\end{lemma}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$k$ & $|QR \bmod 10^k|$ & Density \\
+\midrule
+1 & 6 & 0.600 \\
+2 & 22 & 0.220 \\
+3 & 140 & 0.140 \\
+4 & 950 & 0.095 \\
+5 & 6576 & 0.066 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For $k=1$: the possible last digits of a perfect square are $\{0, 1, 4, 5, 6, 9\}$.
+
+\section{Complexity}
+
+\begin{itemize}
+\item Hensel lifting: $O(2^k + 5^k)$ per level, $k$ levels total.
+\item CRT combination: $O(|QR(2^k)| \cdot |QR(5^k)|)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{93158936107011}
+\]
+
+\end{document}

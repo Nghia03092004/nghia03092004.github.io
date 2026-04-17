@@ -1,0 +1,59 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 706: 3-Like Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a positive integer $n$, define $f(n)$ as the number of non-empty substrings of $n$ that are divisible by 3. A number $n$ is called \textbf{3-like} if $f(n)$ is divisible by 3. Define $F(d)$ to be how many $d$-digit numbers are 3-like.
+
+Given $F(2) = 30$, $F(6) = 290898$, find $F(10^5) \bmod 1\,000\,000\,007$.
+
+\section{Mathematical Analysis}
+
+\subsection{Substring Divisibility}
+A substring from position $i$ to position $j$ is divisible by 3 iff its digit sum is divisible by 3. Using prefix sums $S_k = \sum_{l=1}^{k} d_l \pmod{3}$ with $S_0 = 0$, the substring from $i$ to $j$ is divisible by 3 iff $S_j \equiv S_{i-1} \pmod{3}$.
+
+\subsection{Counting Formula}
+Let $c_r = |\{k \in \{0,1,\ldots,d\} : S_k \equiv r \pmod{3}\}|$ for $r = 0,1,2$.
+
+Then:
+\[
+f(n) = \binom{c_0}{2} + \binom{c_1}{2} + \binom{c_2}{2}
+\]
+
+We need $f(n) \equiv 0 \pmod{3}$.
+
+\subsection{Reduction Modulo 3}
+Since $\binom{c}{2} = \frac{c(c-1)}{2}$, we compute $\binom{c}{2} \bmod 3$:
+\begin{itemize}
+    \item $c \equiv 0 \pmod{3}$: $\binom{c}{2} \equiv 0 \pmod{3}$
+    \item $c \equiv 1 \pmod{3}$: $\binom{c}{2} \equiv 0 \pmod{3}$
+    \item $c \equiv 2 \pmod{3}$: $\binom{c}{2} \equiv 1 \pmod{3}$
+\end{itemize}
+
+\subsection{State Space and Matrix Exponentiation}
+The state is $(c_0 \bmod 3, c_1 \bmod 3, c_2 \bmod 3)$, giving $3^3 = 27$ states. The current prefix sum modulo 3 determines which counter to increment upon adding a digit.
+
+Each digit $d \in \{0,\ldots,9\}$ shifts the prefix sum by $d \bmod 3$. Since there are 4 digits with residue 0, 3 with residue 1, and 3 with residue 2, the transition counts are $(4, 3, 3)$.
+
+We build a $27 \times 27$ transition matrix and use matrix exponentiation to compute $M^{d}$ in $O(27^3 \log d)$ time.
+
+\section{Complexity}
+\begin{itemize}
+    \item Time: $O(27^3 \cdot \log d)$
+    \item Space: $O(27^2)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{884837055}
+\]
+
+\end{document}

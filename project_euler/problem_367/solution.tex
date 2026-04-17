@@ -1,0 +1,61 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 367: Bozo Sort}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Bozo sort randomly swaps two positions in an array and then checks if the array is sorted (using $n-1$ comparisons for $n$ elements). If not sorted, repeat. Compute the expected number of comparisons to sort a random permutation.
+
+\section{Solution}
+
+\subsection{Markov Chain Model}
+The process is a random walk on $S_n$ driven by random transpositions. At each step:
+\begin{itemize}
+\item Choose $i, j \in \{1, \ldots, n\}$ uniformly at random.
+\item If $i \neq j$, swap positions $i$ and $j$.
+\item Check if the permutation is the identity (costs $n-1$ comparisons).
+\end{itemize}
+
+\subsection{State Space Reduction}
+Since the transition kernel commutes with conjugation (random transpositions are a conjugacy-invariant process), the expected hitting time to the identity depends only on the \textbf{cycle type} of the current permutation.
+
+The number of distinct cycle types of $S_n$ equals $p(n)$, the number of partitions of $n$. This is far smaller than $n!$.
+
+\subsection{Transition Probabilities}
+For a permutation $\sigma$ with cycle type $\lambda$, applying a random transposition $(i,j)$:
+\begin{itemize}
+\item If $i$ and $j$ are in the same cycle of length $k$, the cycle splits into two cycles.
+\item If $i$ and $j$ are in different cycles of lengths $k_1$ and $k_2$, they merge into one cycle of length $k_1 + k_2$.
+\end{itemize}
+
+The exact probabilities depend on the cycle type $\lambda$ and can be computed combinatorially.
+
+\subsection{Linear System}
+Let $E_\lambda$ be the expected number of rounds from cycle type $\lambda$ to the identity. Then:
+\[
+E_\lambda = 1 + \sum_{\mu} P(\lambda \to \mu) \cdot E_\mu
+\]
+with $E_{(1^n)} = 0$ (identity permutation).
+
+This gives a system of $p(n) - 1$ linear equations that we solve to find $E_\lambda$ for each cycle type.
+
+\subsection{Final Answer}
+The expected number of comparisons starting from a random permutation is:
+\[
+E(n) = (n-1) \cdot \sum_{\lambda \vdash n} \frac{|C_\lambda|}{n!} \cdot E_\lambda
+\]
+where $|C_\lambda|$ is the number of permutations of cycle type $\lambda$.
+
+\section{Answer}
+
+\[
+\boxed{48271207}
+\]
+
+\end{document}

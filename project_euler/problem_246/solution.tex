@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 246: Tangents to an Ellipse}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given points $M(-2000,1500)$, $G(8000,1500)$, and circle $c$ centred at $M$ with radius $15000$, the locus of points equidistant from $G$ and $c$ forms an ellipse $e$. From an external point $P$, tangent lines touch $e$ at $R$ and $S$. Find the number of lattice points $P$ with $\angle RPS>45^\circ$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Ellipse from equidistance]
+The equidistance condition $d(Q,G)=r-d(Q,M)$ gives $d(Q,M)+d(Q,G)=r=15000$, defining an ellipse with foci $M,G$ and semi-major axis $a=r/2=7500$.
+\end{theorem}
+
+\begin{proof}
+Distance from $Q$ to circle $c$ (for $Q$ inside) is $r-d(Q,M)$. Setting equal to $d(Q,G)$ yields $d(Q,M)+d(Q,G)=r$.
+\end{proof}
+
+\begin{lemma}[Ellipse parameters]\label{lem:params}
+Centre $(3000,1500)$, $a=7500$, $c=5000$, $b=\sqrt{a^2-c^2}=2500\sqrt{5}$.
+\end{lemma}
+
+\begin{proof}
+$d(M,G)=10000$, so $c=5000$. Then $b^2=a^2-c^2=56250000-25000000=31250000$.
+\end{proof}
+
+\begin{theorem}[Isoptic curve]\label{thm:isoptic}
+The $\alpha$-isoptic of $X^2/a^2+Y^2/b^2=1$ satisfies
+\[
+(X^2+Y^2-a^2-b^2)^2=4\cot^2\!\alpha\,(a^2Y^2+b^2X^2-a^2b^2).
+\]
+For $\alpha=45^\circ$ ($\cot^2=1$):
+\[
+f(X,Y)=(X^2+Y^2-a^2-b^2)^2-4(a^2Y^2+b^2X^2-a^2b^2)=0.
+\]
+\end{theorem}
+
+\begin{proof}
+From an external point, the tangent slopes satisfy a quadratic. The angle between them equals $\alpha$ iff $\tan\alpha=|m_1-m_2|/(1+m_1m_2)$. Algebraic manipulation of the discriminant yields the stated quartic.
+\end{proof}
+
+\begin{lemma}[Counting criterion]\label{lem:count}
+$\angle RPS>45^\circ$ iff $P=(X,Y)$ (centred coordinates) is strictly outside the ellipse and strictly inside the $45^\circ$-isoptic: $X^2/a^2+Y^2/b^2>1$ and $f(X,Y)<0$.
+\end{lemma}
+
+\begin{proof}
+The subtended angle decreases with distance from the ellipse. At $f=0$ the angle is exactly $45^\circ$; inside the isoptic it exceeds $45^\circ$.
+\end{proof}
+
+\section{Algorithm}
+
+For each integer $y$-coordinate within the isoptic's vertical range, solve $f(X,Y)=0$ as a quadratic in $X^2$ to find the isoptic boundary, and compute the ellipse boundary. Count integer $x$-values strictly between the ellipse and the isoptic using exact arithmetic.
+
+\begin{verbatim}
+for y in range(cy - Y_max, cy + Y_max + 1):
+    Y = y - cy
+    Solve f(X, Y) = 0 for X_iso (outer boundary)
+    Compute X_ell (ellipse boundary at this Y)
+    Count integers x with X_ell < |x - cx| < X_iso
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(H)$ where $H\approx 2(a+b)\approx 26000$ rows. Each row: $O(1)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{810834388}
+\]
+
+\end{document}

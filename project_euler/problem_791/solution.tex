@@ -1,0 +1,107 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm2e}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 791: Average and Variance}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find ordered quadruples $(a,b,c,d)$ with $1 \le a \le b \le c \le d \le n$ where the arithmetic mean equals twice the population variance. Define $S(n) = \sum (a+b+c+d)$ over all qualifying quadruples. Given $S(5) = 48$ and $S(10^3) = 37048340$, find $S(10^8) \bmod 433494437$.
+
+\section{Mathematical Foundation}
+
+Let $s = a + b + c + d$ and $q = a^2 + b^2 + c^2 + d^2$.
+
+\begin{theorem}
+The constraint $\bar{x} = 2\sigma^2$ is equivalent to $q = s(s+2)/4$, and valid solutions exist only when $s$ is even.
+\end{theorem}
+
+\begin{proof}
+The mean is $\bar{x} = s/4$ and the population variance is
+\[
+\sigma^2 = \frac{1}{4}\sum_{i}(x_i - \bar{x})^2 = \frac{q}{4} - \frac{s^2}{16}.
+\]
+Setting $\bar{x} = 2\sigma^2$:
+\[
+\frac{s}{4} = 2\!\left(\frac{q}{4} - \frac{s^2}{16}\right) = \frac{q}{2} - \frac{s^2}{8}.
+\]
+Multiplying by 8 yields $2s = 4q - s^2$, hence $4q = s^2 + 2s = s(s+2)$, so $q = s(s+2)/4$.
+
+For $q \in \mathbb{Z}$, we need $4 \mid s(s+2)$. Since $s$ and $s+2$ share parity, if $s$ is odd then $s(s+2)$ is odd. If $s = 2m$, then $s(s+2) = 4m(m+1) \equiv 0 \pmod{4}$.
+\end{proof}
+
+\begin{lemma}
+For even $s = 2m$, the constraint reduces to $a^2 + b^2 + c^2 + d^2 = m(m+1)$ with $a + b + c + d = 2m$, $1 \le a \le b \le c \le d \le n$.
+\end{lemma}
+
+\begin{proof}
+Direct substitution: $q = s(s+2)/4 = 2m(2m+2)/4 = m(m+1)$.
+\end{proof}
+
+\begin{lemma}
+Let $u_i = x_i - m/2$ be deviations from the mean. Then $\sum u_i = 0$ and $\sum u_i^2 = m$.
+\end{lemma}
+
+\begin{proof}
+We have $\sum u_i = \sum x_i - 4(m/2) = 2m - 2m = 0$ and
+\[
+\sum u_i^2 = q - 2 \cdot \frac{m}{2} \cdot s + 4 \cdot \frac{m^2}{4} = m(m+1) - 2m^2 + m^2 = m. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Enumeration]
+For a given even sum $s = 2m$, fix $a$ and $b$ with $a \le b$. Set $\sigma = 2m - a - b$ and $\pi = m(m+1) - a^2 - b^2$. Then $c$ and $d$ are determined as roots of $t^2 - \sigma t + (\sigma^2 - \pi)/2 = 0$, yielding at most one valid ordered pair per $(a,b)$.
+\end{theorem}
+
+\begin{proof}
+From $c + d = \sigma$ and $c^2 + d^2 = \pi$, we get $cd = (\sigma^2 - \pi)/2$. The discriminant is $\Delta = \sigma^2 - 2(\sigma^2 - \pi) = 2\pi - \sigma^2$. For integral solutions we need $\Delta$ to be a perfect square. Then $c = (\sigma - \sqrt{\Delta})/2$, $d = (\sigma + \sqrt{\Delta})/2$, and we verify $b \le c \le d \le n$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function S(n, MOD):
+    total = 0
+    for m = 2 to 2n:
+        target_q = m * (m + 1)
+        for a = 1 to min(m/2, n):
+            for b = a to (2m - 2a) / 3:
+                sigma = 2*m - a - b
+                pi = target_q - a*a - b*b
+                disc = 2*pi - sigma*sigma
+                if disc < 0: continue
+                sqrt_disc = isqrt(disc)
+                if sqrt_disc^2 != disc: continue
+                if (sigma - sqrt_disc) mod 2 != 0: continue
+                c = (sigma - sqrt_disc) / 2
+                d = (sigma + sqrt_disc) / 2
+                if c < b or d > n: continue
+                total = (total + 2*m) mod MOD
+    return total
+\end{verbatim}
+
+For $n = 10^8$, a sieve-based approach exploiting the $r_4(m)$ representation counts reduces the computation to $O(n \log n)$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n \log n)$ via sieve-based enumeration.
+    \item \textbf{Space:} $O(n)$ for sieve arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{404890862}
+\]
+
+\end{document}

@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 295: Lenticular Holes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A \textbf{lenticular hole} is a lens-shaped convex region between two circles where both centers are lattice points, the circles intersect at exactly two lattice points, and the lens interior contains no lattice points.
+
+Define $L(N)$ as the number of distinct pairs $(r_1, r_2)$ with $0 < r_1 \leq r_2 \leq N$ that form a lenticular hole. Given $L(10) = 30$, $L(100) = 3442$. Find $L(100\,000)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Perpendicular Bisector Characterization]
+If two circles with lattice-point centers $O_1, O_2$ intersect at two lattice points $P, Q$, then both $O_1$ and $O_2$ lie on the perpendicular bisector of segment $PQ$.
+\end{theorem}
+
+\begin{proof}
+Since $|O_i P| = |O_i Q| = r_i$, each center $O_i$ is equidistant from $P$ and $Q$, hence lies on the perpendicular bisector of $PQ$.
+\end{proof}
+
+\begin{lemma}[Lattice Points on the Bisector]
+Let $P, Q$ be lattice points with $\Delta = Q - P = (dx, dy)$ and midpoint $M = (P+Q)/2$. The perpendicular bisector is $\{M + t(-dy, dx) : t \in \mathbb{R}\}$. The set of values $t$ yielding lattice points forms a 1-dimensional lattice (arithmetic progression).
+\end{lemma}
+
+\begin{proof}
+For $M + t(-dy, dx) \in \mathbb{Z}^2$, we need $M_x - t\,dy \in \mathbb{Z}$ and $M_y + t\,dx \in \mathbb{Z}$. Since $M$ has coordinates in $\frac{1}{2}\mathbb{Z}$, the valid $t$-values form a discrete subgroup of $\mathbb{R}$, i.e., an arithmetic progression.
+\end{proof}
+
+\begin{theorem}[Lenticular Condition]
+The lens between two intersecting circles contains no interior lattice points if and only if the two centers are ``adjacent'' lattice points on the perpendicular bisector of $PQ$ (no lattice point of the lens lies strictly between them).
+\end{theorem}
+
+\begin{proof}
+The lens is the intersection of two open disks, symmetric about line $O_1O_2$ and line $PQ$. Any interior lattice point projects onto the segment between $O_1$ and $O_2$ along the bisector. The adjacency condition ensures the lens is sufficiently narrow to exclude all such points.
+\end{proof}
+
+\begin{lemma}[Radius via Pythagorean Theorem]
+For a center $O_i$ on the perpendicular bisector at distance $d_i$ from $M$, the radius satisfies $r_i^2 = |PM|^2 + d_i^2$, since $PM \perp MO_i$.
+\end{lemma}
+
+\begin{proof}
+The midpoint $M$ of $PQ$ lies on the bisector, and $PM$ is perpendicular to the bisector direction. By the Pythagorean theorem applied to right triangle $PMO_i$: $r_i^2 = |PO_i|^2 = |PM|^2 + |MO_i|^2$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Enumerate primitive vectors (dx, dy) with dx^2 + dy^2 <= 4N^2
+2. For each, find lattice points on perpendicular bisector of PQ
+3. For adjacent center pairs, compute radii r1, r2
+4. Verify lenticular condition (no interior lattice points)
+5. Collect distinct (r1, r2) pairs with r1 <= r2 <= N
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(N^2)$ for enumerating primitive vectors, with $O(N/\sqrt{dx^2+dy^2})$ center pairs per vector.
+\item \textbf{Space:} $O(|\text{result set}|)$ for storing distinct lenticular pairs.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4884650818}
+\]
+
+\end{document}

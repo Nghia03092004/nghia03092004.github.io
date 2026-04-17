@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 921: Divisor Chain Lengths}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \textbf{divisor chain} starting from~$n$ is a sequence $n = a_1 > a_2 > \cdots > a_k = 1$ where each $a_{i+1} \mid a_i$. The \textbf{length} is $k-1$. Let $L(n)$ denote the maximum chain length. Compute $\sum_{n=1}^{10^5} L(n) \pmod{10^9+7}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Maximum Divisor Chain Length]
+For every positive integer~$n$, $L(n) = \Omega(n)$, where $\Omega(n) = \sum_{p^k \| n} k$ denotes the number of prime factors of~$n$ counted with multiplicity.
+\end{theorem}
+
+\begin{proof}
+We establish matching upper and lower bounds.
+
+\textbf{Upper bound.} Let $n = a_1 > a_2 > \cdots > a_k = 1$ be any divisor chain. At each step, $a_{i+1} \mid a_i$ and $a_{i+1} < a_i$, so $a_i / a_{i+1} \geq 2$. Hence $\Omega(a_i) \geq \Omega(a_{i+1}) + 1$. Summing telescopically:
+\[
+k - 1 \leq \Omega(a_1) - \Omega(a_k) = \Omega(n).
+\]
+
+\textbf{Lower bound.} Write $n = p_1^{e_1} p_2^{e_2} \cdots p_r^{e_r}$. Construct the chain by removing one prime factor at a time:
+\[
+n \to n/p_1 \to n/p_1^2 \to \cdots \to n/p_1^{e_1} \to n/(p_1^{e_1}p_2) \to \cdots \to 1.
+\]
+This chain has exactly $e_1 + e_2 + \cdots + e_r = \Omega(n)$ steps.
+\end{proof}
+
+\begin{theorem}[Summation Formula]
+For all $N \geq 1$:
+\[
+\sum_{n=1}^{N} \Omega(n) = \sum_{\substack{p \leq N \\ p \textup{ prime}}} \sum_{k=1}^{\lfloor \log_p N \rfloor} \left\lfloor \frac{N}{p^k} \right\rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+By definition, $\Omega(n) = \sum_{\substack{p^k \mid n,\; p \textup{ prime},\; k \geq 1}} 1$. Exchanging the order of summation:
+\[
+\sum_{n=1}^{N} \Omega(n) = \sum_{n=1}^{N} \sum_{p^k \mid n} 1 = \sum_{\substack{p \textup{ prime},\; k \geq 1 \\ p^k \leq N}} \bigl|\{n \leq N : p^k \mid n\}\bigr| = \sum_{p,k} \left\lfloor \frac{N}{p^k} \right\rfloor. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Asymptotic Behavior]
+$\displaystyle\sum_{n=1}^{N} \Omega(n) = N \ln\ln N + M_1 N + O\!\left(\frac{N}{\ln N}\right)$, where $M_1 = \gamma + \sum_{p}\!\left(\ln\frac{p}{p-1} - \frac{1}{p}\right)$ and $\gamma$ is the Euler--Mascheroni constant.
+\end{lemma}
+
+\begin{proof}
+From the summation formula, the dominant contribution is $\sum_{p \leq N} N/p$. By Mertens' second theorem, $\sum_{p \leq N} 1/p = \ln\ln N + M + O(1/\ln N)$ where $M$ is the Meissel--Mertens constant. The higher prime-power terms contribute $O(N)$, yielding the stated asymptotic.
+\end{proof}
+
+\section{Algorithm}
+
+Sieve $\Omega(n)$ for $n = 1, \ldots, N$: for each prime $p \leq N$ and each power $p^k \leq N$, increment $\Omega(m)$ for all multiples~$m$ of~$p^k$. Accumulate $\sum \Omega(n) \bmod (10^9+7)$.
+
+Alternatively, apply the summation formula directly: sieve primes, then compute $\sum_{p,k} \lfloor N/p^k \rfloor$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log\log N)$ for both approaches.
+    \item \textbf{Space:} $O(N)$ for the sieve array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{378401935}
+\]
+
+\end{document}

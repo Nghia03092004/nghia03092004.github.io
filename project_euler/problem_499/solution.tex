@@ -1,0 +1,63 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 499: St.\ Petersburg Lottery}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+In the St.\ Petersburg game, a fair coin is flipped until tails appears. If tails appears on flip $k$, the payout is $2^k$. With a finite casino bankroll $B$, the actual payout is $\min(2^k, B)$. Find the fair entry fee $F$ such that the expected profit is zero.
+
+\section{Mathematical Analysis}
+
+\subsection{Classical Paradox}
+The expected payout with infinite bankroll is:
+\[
+E[\text{payout}] = \sum_{k=1}^{\infty} \frac{1}{2^k} \cdot 2^k = \sum_{k=1}^{\infty} 1 = \infty
+\]
+
+\subsection{Finite Bankroll}
+With bankroll $B$, let $m = \lfloor \log_2 B \rfloor$. The expected payout is:
+\[
+E_{\text{pay}}(B) = \sum_{k=1}^{m} \frac{2^k}{2^k} + \sum_{k=m+1}^{\infty} \frac{B}{2^k}
+= m + B \sum_{k=m+1}^{\infty} 2^{-k}
+\]
+
+\section{Derivation}
+The geometric series tail evaluates to:
+\[
+\sum_{k=m+1}^{\infty} 2^{-k} = \frac{2^{-(m+1)}}{1 - 1/2} = 2^{-m}
+\]
+
+Therefore:
+\[
+E_{\text{pay}}(B) = m + \frac{B}{2^m}
+\]
+
+The fair entry fee is $F = m + B / 2^m$.
+
+\subsection{Example: $B = 10^{10}$}
+We have $m = \lfloor \log_2(10^{10}) \rfloor = 33$ since $2^{33} = 8{,}589{,}934{,}592 < 10^{10} < 2^{34}$.
+\[
+F = 33 + \frac{10^{10}}{2^{33}} = 33 + \frac{10{,}000{,}000{,}000}{8{,}589{,}934{,}592} \approx 34.16415322
+\]
+
+\section{Proof of Correctness}
+The split at $m = \lfloor \log_2 B \rfloor$ correctly separates the cases $2^k \le B$ (where $k \le m$) from $2^k > B$ (where $k > m$). The geometric series formula is exact.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\log B)$ to compute $m$ and the result.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.8660312}
+\]
+
+\end{document}

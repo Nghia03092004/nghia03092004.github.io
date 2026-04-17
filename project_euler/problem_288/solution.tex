@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 288: An Enormous Factorial}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a prime $p$, define $N(p,q) = \sum_{n=0}^{q} T_n \cdot p^n$ where $S_0 = 290797$, $S_{n+1} = S_n^2 \bmod 50515093$, $T_n = S_n \bmod p$. Let $\mathrm{NF}(p,q) = v_p(N(p,q)!)$.
+
+Find $\mathrm{NF}(61, 10^7) \bmod 61^{10}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Legendre's Formula]
+For any prime $p$ and positive integer $n$:
+\[
+v_p(n!) = \sum_{k=1}^{\infty} \left\lfloor \frac{n}{p^k} \right\rfloor = \frac{n - s_p(n)}{p-1},
+\]
+where $s_p(n)$ is the base-$p$ digit sum of $n$.
+\end{theorem}
+
+\begin{proof}
+The quantity $\lfloor n/p^k \rfloor$ counts multiples of $p^k$ in $\{1,\ldots,n\}$. Summing over $k$ gives the total exponent of $p$ in $n!$, since each multiple of $p^k$ (but not $p^{k+1}$) contributes exactly $k$ factors of $p$.
+
+Writing $n = \sum_{i=0}^{m} d_i p^i$ in base $p$:
+\[
+\sum_{k=1}^{m} \lfloor n/p^k \rfloor = \sum_{k=1}^{m} \sum_{i=k}^{m} d_i p^{i-k} = \sum_{i=1}^{m} d_i \cdot \frac{p^i - 1}{p-1} = \frac{n - s_p(n)}{p-1}. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Base-$p$ Digits of $N(p,q)$]
+Since $0 \le T_n < p$, the base-$p$ digits of $N(p,q)$ are exactly $(T_0, T_1, \ldots, T_q)$. Hence:
+\[
+\lfloor N(p,q) / p^k \rfloor = \sum_{j=k}^{q} T_j \cdot p^{j-k}.
+\]
+\end{theorem}
+
+\begin{proof}
+Each coefficient satisfies $T_n \in \{0, \ldots, p-1\}$, so the representation $\sum T_n p^n$ is the standard base-$p$ expansion (no carries occur). Division by $p^k$ shifts digits right by $k$ positions.
+\end{proof}
+
+\begin{theorem}[Efficient Modular Computation]
+Define $G(j) = \sum_{i=0}^{j-1} p^i = \frac{p^j - 1}{p-1}$. Then:
+\[
+v_p(N!) = \sum_{j=1}^{q} T_j \cdot G(j).
+\]
+Modulo $p^e$:
+\[
+v_p(N!) \bmod p^e = \sum_{j=1}^{q} T_j \cdot G(\min(j,e)) \bmod p^e.
+\]
+\end{theorem}
+
+\begin{proof}
+Substituting the floor formula into Legendre's:
+\[
+v_p(N!) = \sum_{k=1}^{q} \sum_{j=k}^{q} T_j p^{j-k} = \sum_{j=1}^{q} T_j \sum_{k=1}^{j} p^{j-k} = \sum_{j=1}^{q} T_j \cdot G(j).
+\]
+For $j \ge e$, the terms $p^e, p^{e+1}, \ldots$ in $G(j)$ vanish modulo $p^e$, so $G(j) \equiv G(e) \pmod{p^e}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+Precompute G(1), ..., G(e) mod p^e
+S = 290797
+result = 0
+for n = 0 to q:
+    T = S mod p
+    if n >= 1: result += T * G(min(n, e)) mod p^e
+    S = S^2 mod 50515093
+return result
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(q)$ with $q = 10^7$.
+\item \textbf{Space:} $O(e) = O(10)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{605857431263981935}
+\]
+
+\end{document}

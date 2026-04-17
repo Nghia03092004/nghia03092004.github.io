@@ -1,0 +1,77 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 815: Random Digit Sum}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Choose $k$ digits independently and uniformly from $\{0, 1, \ldots, 9\}$. Let $S = d_1 + d_2 + \cdots + d_k$. Compute a specified functional of the distribution of~$S$, modulo $10^9+7$.
+
+\section{Probability Generating Function}
+
+\begin{theorem}
+The PGF of a single uniform digit is $G(z) = \frac{1-z^{10}}{10(1-z)}$. For $k$ i.i.d.\ digits:
+\[
+G_S(z) = \left(\frac{1-z^{10}}{10(1-z)}\right)^{\!k}.
+\]
+\end{theorem}
+
+\begin{theorem}[Explicit Formula]
+\[
+P(S = s) = \frac{1}{10^k} \sum_{j=0}^{\lfloor s/10 \rfloor} (-1)^j \binom{k}{j} \binom{s - 10j + k - 1}{k - 1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Expand $(1-z^{10})^k = \sum_j (-1)^j \binom{k}{j} z^{10j}$ and $(1-z)^{-k} = \sum_m \binom{m+k-1}{k-1} z^m$. The coefficient $[z^s]$ of their product gives the result.
+\end{proof}
+
+\section{Moments}
+
+\begin{lemma}
+For $d \sim \mathrm{Uniform}\{0,\ldots,9\}$: $E[d] = 4.5$, $\mathrm{Var}(d) = 8.25$.
+\end{lemma}
+
+\begin{corollary}
+$E[S] = 4.5k$, $\mathrm{Var}(S) = 8.25k$. By the CLT, $S \approx \mathcal{N}(4.5k, 8.25k)$ for large~$k$.
+\end{corollary}
+
+\section{Concrete Values ($k=2$)}
+
+\begin{center}
+\begin{tabular}{cccccccc}
+\toprule
+$s$ & 0 & 1 & 5 & 9 & 10 & 14 & 18 \\
+\midrule
+Count & 1 & 2 & 6 & 10 & 9 & 6 & 1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Verification: total $= \sum_{s=0}^{18} \text{count}(s) = 100 = 10^2$. Mean $= 900/100 = 9.0 = 4.5 \times 2$.
+
+\section{Complexity}
+
+\begin{itemize}
+\item Direct formula: $O(k)$ per target value~$s$.
+\item Convolution: $O(k^2)$ to compute full distribution, $O(k^2 \log(k))$ with FFT.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{54.12691621}
+\]
+
+\end{document}

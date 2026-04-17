@@ -1,0 +1,118 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\title{Problem 79: Passcode Derivation}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given 50 successful login attempts, each revealing a 3-character subsequence of an unknown passcode, determine the shortest possible secret passcode.
+
+The login attempts are:
+\begin{center}
+\begin{tabular}{cccccccccc}
+319 & 680 & 180 & 690 & 129 & 620 & 762 & 689 & 762 & 318 \\
+368 & 710 & 720 & 710 & 629 & 168 & 160 & 689 & 716 & 731 \\
+736 & 729 & 316 & 729 & 729 & 710 & 769 & 290 & 719 & 680 \\
+318 & 389 & 162 & 289 & 162 & 718 & 729 & 319 & 790 & 680 \\
+890 & 362 & 319 & 760 & 316 & 729 & 380 & 319 & 728 & 716
+\end{tabular}
+\end{center}
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Precedence Graph]
+The \emph{precedence graph} $G = (V, E)$ is a directed graph where $V$ is the set of distinct digits in the login data and $(u, v) \in E$ if some attempt contains~$u$ before~$v$.
+\end{definition}
+
+\begin{assumption}[No Repeated Digits]
+The passcode contains each digit at most once. This is justified a~posteriori: the resulting DAG admits a topological ordering of length $|V|$ satisfying all constraints.
+\end{assumption}
+
+\begin{theorem}[Acyclicity]
+Under the no-repetition assumption, $G$ is a directed acyclic graph.
+\end{theorem}
+
+\begin{proof}
+A cycle $v_1 \to v_2 \to \cdots \to v_k \to v_1$ would require $v_1$ to precede itself in the passcode, which is impossible when each digit appears exactly once.
+\end{proof}
+
+\begin{theorem}[Minimality]
+Any topological ordering of the DAG on $|V|$ vertices yields a passcode of length $|V|$ respecting all constraints. No shorter string containing all $|V|$ distinct digits exists.
+\end{theorem}
+
+\begin{proof}
+A topological ordering satisfies all edge constraints $(u, v)$ by definition. Any string containing $|V|$ distinct characters has length $\geq |V|$.
+\end{proof}
+
+\begin{theorem}[Uniqueness via Hamiltonian Path]
+A DAG has a unique topological ordering if and only if it contains a Hamiltonian path.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) If the unique order is $v_1, \ldots, v_n$ and some edge $(v_i, v_{i+1}) \notin E$, then swapping $v_i, v_{i+1}$ yields another valid topological order, contradicting uniqueness. Hence $(v_i, v_{i+1}) \in E$ for all $i$, forming a Hamiltonian path.
+
+($\Leftarrow$) A Hamiltonian path $v_1 \to \cdots \to v_n$ ensures each step of Kahn's algorithm has a unique vertex with in-degree~0, producing a unique ordering.
+\end{proof}
+
+\begin{theorem}[Kahn's Algorithm Correctness]
+Kahn's algorithm produces a valid topological ordering of any DAG.
+\end{theorem}
+
+\begin{proof}
+Suppose edge $(u,w) \in E$ but $w$ precedes $u$ in the output. Then $w$ was dequeued with in-degree~0 before~$u$, meaning all predecessors of $w$ (including~$u$) were already removed. But $u$ has not been dequeued, a contradiction.
+\end{proof}
+
+\begin{lemma}[Extracted Graph]
+The distinct digits are $V = \{0,1,2,3,6,7,8,9\}$ ($|V| = 8$, digits $4$ and $5$ absent). The DAG has a unique topological order: $7, 3, 1, 6, 2, 8, 9, 0$.
+\end{lemma}
+
+\begin{proof}
+At each step of Kahn's algorithm, exactly one vertex has in-degree~0: first~$7$, then~$3$, then~$1$, then~$6$, then~$2$, then~$8$, then~$9$, then~$0$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Derive shortest passcode via topological sort}
+\begin{algorithmic}[1]
+\STATE Build precedence graph $G = (V, E)$ from login attempts
+\STATE Compute in-degree for each vertex
+\STATE Initialize queue with vertices of in-degree~0
+\STATE $\text{result} \gets []$
+\WHILE{queue is not empty}
+    \STATE $v \gets$ dequeue (assert $|\text{queue}| = 1$ for uniqueness)
+    \STATE Append $v$ to result
+    \FOR{each neighbor $w$ of $v$}
+        \STATE Decrement in-degree of $w$
+        \IF{in-degree of $w = 0$}
+            \STATE Enqueue $w$
+        \ENDIF
+    \ENDFOR
+\ENDWHILE
+\RETURN concatenation of result
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} Graph construction: $O(50 \times 3) = O(1)$. Kahn's algorithm: $O(|V| + |E|)$ with $|V| = 8$, $|E| \leq 56$.
+
+\textbf{Space:} $O(|V| + |E|)$.
+
+\section{Answer}
+
+\[
+\boxed{73162890}
+\]
+
+\end{document}

@@ -1,0 +1,72 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 99: Largest Exponential}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given 1000 lines, each containing a pair $(a_i, b_i)$ of positive integers, determine which line number~$i$ maximizes $a_i^{b_i}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Logarithmic comparison]
+\label{thm:logcmp}
+For positive reals $a, c$ and positive integers $b, d$:
+\[
+a^b > c^d \iff b \ln a > d \ln c.
+\]
+\end{theorem}
+\begin{proof}
+The function $\ln : (0,\infty) \to \mathbb{R}$ has derivative $1/x > 0$, hence is strictly increasing. Therefore $u > v > 0$ if and only if $\ln u > \ln v$. Applying this with $u = a^b$ and $v = c^d$ (both positive):
+\[
+a^b > c^d \iff \ln(a^b) > \ln(c^d) \iff b \ln a > d \ln c. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}
+$i^* = \arg\max_i\, b_i \ln a_i$ identifies the line with the greatest exponential value.
+\end{corollary}
+
+\begin{theorem}[Numerical sufficiency]
+IEEE 754 double precision (52-bit mantissa) suffices for correct comparison. The values $v_i = b_i \ln a_i \in [0, 1.4 \times 10^7]$ incur absolute errors $< 10^{-8}$, far smaller than the gap between the top values.
+\end{theorem}
+\begin{proof}
+Double-precision relative error $\varepsilon_{\text{mach}} = 2^{-52} \approx 2.2 \times 10^{-16}$. Each $v_i$ involves one $\ln$ evaluation and one multiplication, accumulating relative error $\le 3\varepsilon_{\text{mach}}$. Absolute error: $|v_i| \cdot 3\varepsilon_{\text{mach}} < 1.4 \times 10^7 \times 6.7 \times 10^{-16} < 10^{-8}$. Since the top values in the dataset differ by $\gg 10^{-8}$, the ordering is correctly determined.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find line with largest exponential}
+\begin{algorithmic}[1]
+\REQUIRE Pairs $(a_1, b_1), \ldots, (a_n, b_n)$
+\STATE $v^* \gets -\infty$, $i^* \gets 0$
+\FOR{$i = 1$ \TO $n$}
+    \STATE $v \gets b_i \cdot \ln(a_i)$
+    \IF{$v > v^*$} \STATE $v^* \gets v$, $i^* \gets i$ \ENDIF
+\ENDFOR
+\RETURN $i^*$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\textbf{Time:} $O(n)$ with $n = 1000$. One logarithm and one multiplication per line, each $O(1)$.
+
+\textbf{Space:} $O(1)$.
+
+\section{Answer}
+
+\[
+\boxed{709}
+\]
+
+\end{document}

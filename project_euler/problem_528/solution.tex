@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 528: Constrained Sums}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $S(n,k,b)$ denote the number of solutions to
+\[
+x_1 + x_2 + \cdots + x_k \le n
+\]
+where $0 \le x_m \le b^m$ for all $1 \le m \le k$. Find
+\[
+\left(\sum_{k=10}^{15} S(10^k, k, k)\right) \bmod (10^9+7).
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Inclusion-Exclusion for Bounded Compositions]
+The number of solutions to $x_1 + \cdots + x_k \le n$ with $0 \le x_m \le u_m$ is
+\[
+\sum_{T \subseteq \{1,\ldots,k\}} (-1)^{|T|} \binom{n - \sum_{m \in T}(u_m+1) + k}{k}
+\]
+where $\binom{a}{k} = 0$ when $a < 0$.
+\end{theorem}
+
+\begin{proof}
+Introduce a slack variable $x_0 \ge 0$, converting the inequality to the equality $x_0 + x_1 + \cdots + x_k = n$. Without upper bounds, the count of non-negative integer solutions is $\binom{n+k}{k}$ by stars and bars.
+
+For each $m$, let $A_m$ be the set of solutions with $x_m > u_m$. Substituting $x_m' = x_m - (u_m+1) \ge 0$, we have $|A_m| = \binom{n-(u_m+1)+k}{k}$. For a general subset~$T$, the simultaneous violation $\bigcap_{m \in T} A_m$ has cardinality $\binom{n - \sum_{m \in T}(u_m+1)+k}{k}$. By inclusion-exclusion:
+\[
+\bigl|A_1^c \cap \cdots \cap A_k^c\bigr| = \sum_{T \subseteq \{1,\ldots,k\}} (-1)^{|T|}\binom{n - \sum_{m \in T}(u_m+1)+k}{k}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Exponential Pruning]
+For $u_m = k^m$, a subset $T$ contributes a nonzero term only if $\sum_{m \in T}(k^m+1) \le n$. The exponential growth of $k^m$ ensures that the number of contributing subsets is manageable: for $k \le 15$ and $n = 10^k$, brute-force enumeration of all $2^k$ subsets with early termination suffices.
+\end{lemma}
+
+\begin{proof}
+If $\sum_{m \in T}(k^m+1) > n$, then $n - \sum_{m \in T}(k^m+1) + k < k$, making the binomial coefficient zero. The geometric sum $\sum_{m=1}^{k} k^m = k(k^k-1)/(k-1)$ bounds the total, and including any index~$m$ consumes at least $k^m$ of the budget~$n$. For $k \le 15$, we enumerate $2^{15} = 32768$ subsets, pruning those exceeding the budget.
+\end{proof}
+
+\begin{lemma}[Modular Binomial Coefficient]
+For $n$ up to $10^{15}+15$ and $k \le 15$, the binomial coefficient is computed as
+\[
+\binom{n}{k} \equiv \frac{n(n-1)\cdots(n-k+1)}{k!} \pmod{p}
+\]
+using the modular inverse of $k!$.
+\end{lemma}
+
+\begin{proof}
+Since $p = 10^9+7$ is prime and $k! < p$, we have $\gcd(k!,p)=1$, so $(k!)^{-1} \bmod p$ exists. The falling factorial involves $k \le 15$ terms, each reduced modulo~$p$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For each $k$ from 10 to 15, set $n = 10^k$ and $b = k$.
+    \item Enumerate all subsets $T \subseteq \{1,\ldots,k\}$; prune if $\sum_{m \in T}(k^m+1) > n$.
+    \item For valid subsets, compute $(-1)^{|T|}\binom{n - \sum_{m\in T}(k^m+1)+k}{k} \bmod p$.
+    \item Sum over all subsets and all~$k$ modulo~$p$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O\!\left(\sum_{k=10}^{15} 2^k \cdot k\right) = O(2^{15} \cdot 15) \approx 5 \times 10^5$.
+    \item \textbf{Space:} $O(k)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{779027989}
+\]
+
+\end{document}

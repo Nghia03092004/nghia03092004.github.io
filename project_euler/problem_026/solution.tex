@@ -1,0 +1,123 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 26: Reciprocal Cycles}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the value of $d < 1000$ for which $1/d$ contains the longest recurring cycle in its decimal fraction part.
+
+\section{Mathematical Development}
+
+\begin{definition}[Multiplicative Order]
+Let $a, n \in \mathbb{Z}$ with $n \geq 2$ and $\gcd(a, n) = 1$. The \emph{multiplicative order} of $a$ modulo~$n$, denoted $\operatorname{ord}_n(a)$, is the smallest positive integer $k$ such that $a^k \equiv 1 \pmod{n}$.
+\end{definition}
+
+\begin{definition}[Full Reptend Prime]
+A prime $p$ with $\gcd(p, 10) = 1$ is a \emph{full reptend prime} in base~10 if $\operatorname{ord}_p(10) = p - 1$.
+\end{definition}
+
+\begin{theorem}[Cycle Length of Unit Fractions]\label{thm:cycle}
+Let $d \geq 2$ and write $d = 2^\alpha \cdot 5^\beta \cdot d'$ where $\gcd(d', 10) = 1$. The length of the repeating block in the decimal expansion of $1/d$ is $\operatorname{ord}_{d'}(10)$ if $d' > 1$, and $0$ if $d' = 1$.
+\end{theorem}
+
+\begin{proof}
+The long division of $1 \div d$ produces the remainder sequence $r_0 = 1$, $r_{k+1} = 10 r_k \bmod d$. After $s = \max(\alpha, \beta)$ non-repeating digits, the problem reduces to $1/d'$ with $\gcd(d', 10) = 1$. The decimal expansion of $1/d'$ is purely repeating with period equal to the smallest $m > 0$ satisfying $10^m \equiv 1 \pmod{d'}$, which is $\operatorname{ord}_{d'}(10)$.
+\end{proof}
+
+\begin{theorem}[Fermat's Little Theorem]\label{thm:fermat}
+If $p$ is prime and $\gcd(a, p) = 1$, then $a^{p-1} \equiv 1 \pmod{p}$.
+\end{theorem}
+
+\begin{proof}
+The group $(\mathbb{Z}/p\mathbb{Z})^*$ has order $p - 1$. By Lagrange's theorem, $a^{p-1} \equiv 1 \pmod{p}$.
+\end{proof}
+
+\begin{lemma}[Divisibility of the Order]\label{lem:div}
+For a prime $p \nmid 10$, $\operatorname{ord}_p(10) \mid (p - 1)$.
+\end{lemma}
+
+\begin{proof}
+Let $k = \operatorname{ord}_p(10)$ and write $p - 1 = qk + r$ with $0 \leq r < k$. By Theorem~\ref{thm:fermat}, $10^{p-1} \equiv 1 \pmod{p}$, so $10^r \equiv 1 \pmod{p}$. Minimality of $k$ forces $r = 0$.
+\end{proof}
+
+\begin{theorem}[Maximality of Cycle Length]\label{thm:max}
+For composite $d$ with $\gcd(d, 10) = 1$, $\operatorname{ord}_d(10) \leq \lambda(d) \leq \phi(d) < d - 1$, where $\lambda$ is the Carmichael function.
+\end{theorem}
+
+\begin{proof}
+Since $10^{\lambda(d)} \equiv 1 \pmod{d}$, we have $\operatorname{ord}_d(10) \mid \lambda(d)$. The inequality $\lambda(d) \leq \phi(d)$ holds for all $d$. For composite $d \geq 4$, $\phi(d) \leq d - \sqrt{d} < d - 1$.
+\end{proof}
+
+\begin{corollary}\label{cor:prime}
+The maximum cycle length among all $d < N$ is achieved at a full reptend prime.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:max}, composite $d$ yields cycle length $< d - 1$. A full reptend prime $p$ achieves $p - 1$, which exceeds the cycle length of any $d < p$.
+\end{proof}
+
+\begin{theorem}[Answer]\label{thm:answer}
+The value $d < 1000$ maximizing the cycle length of $1/d$ is $d = 983$, with cycle length~$982$.
+\end{theorem}
+
+\begin{proof}
+We search for the largest full reptend prime below~1000. Checking primes in decreasing order: $\operatorname{ord}_{997}(10) = 166 \neq 996$; $\operatorname{ord}_{991}(10) \neq 990$; $\operatorname{ord}_{983}(10) = 982 = 983 - 1$. Since $982 = 2 \cdot 491$ with $491$ prime, we verify $10^{491} \not\equiv 1$ and $10^{2} \not\equiv 1 \pmod{983}$, confirming $\operatorname{ord}_{983}(10) = 982$. No smaller $d$ can exceed this cycle length.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find $d < N$ with Longest Reciprocal Cycle}
+\begin{algorithmic}[1]
+\REQUIRE Upper bound $N$
+\ENSURE $d$ with longest cycle in $1/d$
+\STATE $\text{max\_len} \gets 0$, $\text{best\_d} \gets 0$
+\FOR{$d = 2$ \TO $N - 1$}
+    \STATE $d' \gets d$ with all factors of 2 and 5 removed
+    \IF{$d' = 1$}
+        \STATE \textbf{continue}
+    \ENDIF
+    \STATE Compute $\ell = \operatorname{ord}_{d'}(10)$ via long-division simulation
+    \IF{$\ell > \text{max\_len}$}
+        \STATE $\text{max\_len} \gets \ell$, $\text{best\_d} \gets d$
+    \ENDIF
+\ENDFOR
+\RETURN $\text{best\_d}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(N^2)$ time and $O(N)$ space.
+\end{proposition}
+
+\begin{proof}
+For each $d$, the long-division loop runs at most $d$ iterations (since remainders lie in $\{0, \ldots, d-1\}$). Summing: $\sum_{d=2}^{N-1} d = O(N^2)$. The hash map stores at most $d - 1 < N$ entries per invocation.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{983}
+\]
+
+\end{document}

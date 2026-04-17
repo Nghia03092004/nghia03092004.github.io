@@ -1,0 +1,98 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm, geometry, hyperref}
+\geometry{margin=1in}
+\title{Problem 318: 2011 Nines}
+\author{Project Euler Solution}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For integers $1 \le p < q$ with $p+q \le 2011$, let $C(p,q,n)$ be the count of consecutive nines at the start of the fractional part of $(\sqrt{p}+\sqrt{q})^{2n}$. Let $N(p,q)$ be the minimal $n$ with $C(p,q,n) \ge 2011$. Find $\sum N(p,q)$ over all valid pairs where $N(p,q)$ is finite.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Conjugate Pair]
+Define $\alpha = (\sqrt{p}+\sqrt{q})^2 = p+q+2\sqrt{pq}$ and $\beta = (\sqrt{p}-\sqrt{q})^2 = p+q-2\sqrt{pq}$. They are roots of:
+\[
+    x^2 - 2(p+q)x + (p-q)^2 = 0.
+\]
+\end{lemma}
+
+\begin{proof}
+$\alpha + \beta = 2(p+q)$ and $\alpha\beta = (p+q)^2 - 4pq = (p-q)^2$, both integers.
+\end{proof}
+
+\begin{theorem}[Integer Power Sums]
+For all $n \ge 0$, $S_n := \alpha^n + \beta^n \in \mathbb{Z}^+$.
+\end{theorem}
+
+\begin{proof}
+$S_n$ satisfies:
+\[
+    S_0 = 2,\quad S_1 = 2(p+q),\quad S_n = 2(p+q)S_{n-1} - (p-q)^2 S_{n-2}.
+\]
+By induction, each $S_n \in \mathbb{Z}$. Since $\alpha > 0$ and $\beta \ge 0$, $S_n > 0$.
+\end{proof}
+
+\begin{lemma}[Finiteness Condition]
+$N(p,q)$ is finite iff $0 < \beta < 1$ (equivalently $q < (\sqrt{p}+1)^2$) and $pq$ is not a perfect square.
+\end{lemma}
+
+\begin{proof}
+If $pq$ is a perfect square, $\alpha,\beta \in \mathbb{Z}$ and $\alpha^n$ is an integer. If $pq$ is not a perfect square and $0 < \beta < 1$, then $\{\alpha^n\} = 1 - \beta^n \to 1$, giving arbitrarily many nines. If $\beta \ge 1$ or $\beta = 0$, the fractional part does not approach 1.
+\end{proof}
+
+\begin{theorem}[Counting Consecutive Nines]
+When $0 < \beta < 1$ and $\beta \notin \mathbb{Z}$:
+\[
+    C(p,q,n) = \lfloor -n\log_{10}\beta \rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+$\{\alpha^n\} = 1 - \beta^n$, so the count of leading nines is $\lfloor -\log_{10}\beta^n \rfloor = \lfloor -n\log_{10}\beta \rfloor$.
+\end{proof}
+
+\begin{corollary}[Formula for $N(p,q)$]
+\[
+    N(p,q) = \left\lceil \frac{2011}{-\log_{10}\beta} \right\rceil = \left\lceil \frac{-2011}{\log_{10}(p+q-2\sqrt{pq})} \right\rceil.
+\]
+\end{corollary}
+
+\begin{proof}
+$C(p,q,n) \ge 2011$ iff $n \ge 2011/(-\log_{10}\beta)$. The smallest such integer is the ceiling.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For $p = 1$ to 1005, for $q = p+1$ to $\min(2011-p, \lfloor(\sqrt{p}+1)^2\rfloor)$:
+    \begin{itemize}
+        \item Skip if $pq$ is a perfect square.
+        \item Compute $\beta = p+q-2\sqrt{pq}$; if $0 < \beta < 1$, compute $N = \lceil -2011/\log_{10}\beta \rceil$.
+        \item Accumulate $N$.
+    \end{itemize}
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(P^{3/2})$ where $P \le 2011$, approximately $O(10^{4.5})$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{709313889}
+\]
+
+\end{document}

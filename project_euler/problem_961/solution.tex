@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm2e}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 961: Repunit Divisibility}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \textbf{repunit} $R_n$ is a number consisting of $n$ ones: $R_n = \underbrace{11\ldots1}_n = (10^n-1)/9$. Find the sum of all $n \le 1000$ such that $n \mid R_n$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Divisibility Criterion]
+Let $\gcd(n, 10) = 1$. Then $n \mid R_n$ if and only if $10^n \equiv 1 \pmod{9n}$.
+\end{theorem}
+
+\begin{proof}
+We have $R_n = (10^n - 1)/9$. Since $10 \equiv 1 \pmod{9}$, we always have $9 \mid (10^n - 1)$, so
+\[
+n \mid R_n \iff n \mid \frac{10^n - 1}{9} \iff 9n \mid (10^n - 1) \iff 10^n \equiv 1 \pmod{9n}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Even and 5-divisible exclusion]
+If $n > 1$ and $2 \mid n$ or $5 \mid n$, then $n \nmid R_n$.
+\end{lemma}
+
+\begin{proof}
+Every repunit has last digit~1, so $R_n$ is odd and $R_n \equiv 1 \pmod{5}$. Hence $2 \nmid R_n$ and $5 \nmid R_n$, so if $2 \mid n$ or $5 \mid n$ with $n > 1$, then $n \nmid R_n$.
+\end{proof}
+
+\begin{theorem}[Powers of 3]
+For all $k \ge 1$, $3^k \mid R_{3^k}$.
+\end{theorem}
+
+\begin{proof}
+By induction on $k$. The base case $k = 1$: $R_3 = 111 = 3 \times 37$. For the inductive step, assume $3^{k-1} \mid R_{3^{k-1}}$. Using the factorization $R_{3m} = R_m \cdot (10^{2m} + 10^m + 1)$ with $m = 3^{k-1}$: since $10 \equiv 1 \pmod{3}$, the cofactor $10^{2m} + 10^m + 1 \equiv 3 \equiv 0 \pmod{3}$. Combined with the inductive hypothesis, $3^k \mid R_{3^k}$.
+\end{proof}
+
+\begin{lemma}[Multiplicative order characterization]
+For $\gcd(n, 10) = 1$, let $d = \operatorname{ord}_{9n}(10)$. Then $n \mid R_n$ if and only if $d \mid n$.
+\end{lemma}
+
+\begin{proof}
+By Theorem~1, $n \mid R_n \iff 10^n \equiv 1 \pmod{9n}$. By definition of multiplicative order, $10^n \equiv 1 \pmod{9n}$ iff $\operatorname{ord}_{9n}(10) \mid n$.
+\end{proof}
+
+\section{Algorithm}
+
+For each $n$ from 1 to $N$ with $\gcd(n, 10) = 1$, compute $10^n \bmod 9n$ via binary modular exponentiation. If the result is 1, add $n$ to the running total.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$. Each of the $O(N)$ candidates requires $O(\log n)$ multiplications.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{166666666689036288}
+\]
+
+\end{document}

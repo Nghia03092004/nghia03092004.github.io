@@ -1,0 +1,84 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 126: Cuboid Layers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $C(n)$ as the number of cuboids that have exactly $n$ cubes in one of its layers. Find the least $n$ for which $C(n) = 1000$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Layer formula]
+For a cuboid $a \times b \times c$, the $k$-th layer contains:
+\[
+f(a,b,c,k) = 2(ab + bc + ac) + 4(a+b+c)(k-1) + 4(k-1)(k-2).
+\]
+\end{theorem}
+
+\begin{proof}
+The total volume enclosed by $k$ layers is $V(k) = (a+2k)(b+2k)(c+2k) - abc$. Layer $k$ alone has $f = V(k) - V(k-1)$. Expanding and simplifying:
+\begin{align*}
+f &= (a+2k)(b+2k)(c+2k) - (a+2k-2)(b+2k-2)(c+2k-2) \\
+  &= 2(ab+bc+ac) + 4(a+b+c)(k-1) + 4(k-1)(k-2).
+\end{align*}
+Verification: $f(3,2,1,1) = 2(6+2+3) = 22$ and $f(3,2,1,2) = 22 + 24 = 46$, matching the problem.
+\end{proof}
+
+\begin{lemma}[Monotonicity]
+For fixed $(a,b,c)$, $f(a,b,c,k)$ is strictly increasing in $k$.
+\end{lemma}
+
+\begin{proof}
+$f(a,b,c,k+1) - f(a,b,c,k) = 4(a+b+c) + 4(2k-1) > 0$.
+\end{proof}
+
+\begin{lemma}[Enumeration bounds]
+To enumerate all tuples with $f \le N$: $a$ ranges while $2a^2 \le N$; $b \ge a$ while $2(ab+b^2) \le N$; $c \ge b$ while $2(ab+bc+ac) \le N$; $k$ increments while $f \le N$.
+\end{lemma}
+
+\begin{proof}
+These follow from $f(a,b,c,k) \ge f(a,a,a,1) = 6a^2$ and monotonicity in each variable.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Set $N = 20000$. Initialize $C[1 \ldots N] = 0$.
+\item For $a = 1, 2, \ldots$ while $2a^2 \le N$:
+\begin{enumerate}
+\item For $b = a, a+1, \ldots$ while $2(ab + b^2) \le N$:
+\begin{enumerate}
+\item For $c = b, b+1, \ldots$ while $2(ab+bc+ac) \le N$:
+\begin{enumerate}
+\item For $k = 1, 2, \ldots$ while $f(a,b,c,k) \le N$: increment $C[f]$.
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+\item Return the smallest $n$ with $C[n] = 1000$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$ empirically (total number of valid tuples).
+\item \textbf{Space:} $O(N)$ for the counting array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{18522}
+\]
+
+\end{document}

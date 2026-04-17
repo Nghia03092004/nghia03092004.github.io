@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{conjecture}{Conjecture}
+
+\title{Problem 845: Prime Pairs}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Compute $\pi_2(N) = |\{p \le N : p, p+2 \in \mathbb{P}\}|$.
+
+\section{Theory}
+
+\begin{theorem}[Brun, 1919]
+$\displaystyle\sum_{\substack{p,p+2\in\mathbb{P}}} \left(\frac{1}{p}+\frac{1}{p+2}\right) < \infty.$
+\end{theorem}
+
+\begin{conjecture}[Hardy--Littlewood]
+$\pi_2(N) \sim 2C_2 \frac{N}{(\ln N)^2}$ where $C_2 = \prod_{p\ge3}\frac{p(p-2)}{(p-1)^2} \approx 0.66016$.
+\end{conjecture}
+
+\section{Values}
+\begin{center}
+\begin{tabular}{cc}
+\toprule $N$ & $\pi_2(N)$ \\ \midrule
+$10^3$ & 35 \\ $10^5$ & 1224 \\ $10^7$ & 58980 \\ \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{45009328011709400}
+\]
+
+\end{document}

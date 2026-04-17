@@ -1,0 +1,130 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+
+\begin{document}
+
+\section*{Problem 628: Open Chess Positions}
+
+\section{Problem Statement}
+
+Place one pawn in every row and every column of an $n \times n$ board. Let $f(n)$ be the number of such positions for which a rook can move from the lower-left square to the upper-right square using only right and up moves while never stepping on a pawn. The task is to compute
+\[
+f(10^8) \bmod 1008691207.
+\]
+
+\section{Mathematical Foundation}
+
+Every position is a permutation matrix. Write $\pi(c)$ for the row of the pawn in column $c$, counted from bottom to top.
+
+For each anti-diagonal
+\[
+D_s = \{(c,r) : c+r=s\},
+\qquad 2 \le s \le 2n,
+\]
+every monotone rook path visits exactly one square of $D_s$, because each move increases $c+r$ by $1$.
+
+\textbf{Lemma 1.} If an anti-diagonal is completely occupied by pawns, then the position is closed.
+
+\textbf{Proof.} Every legal path must hit one square on that anti-diagonal, and all of them are occupied. $\square$
+
+\textbf{Lemma 2.} If the position is closed, then the pawns contain a complete anti-diagonal.
+
+\textbf{Proof.} In the planar grid graph of empty squares, the lower-left corner is disconnected from the upper-right corner. By planar duality, there is a connected barrier of occupied squares separating them. Since there is exactly one pawn in each row and each column, consecutive squares in such a barrier cannot share a row or a column, so they must differ by $(+1,-1)$. Hence $c+r$ stays constant along the barrier, and the barrier is a complete anti-diagonal. $\square$
+
+Therefore a position is closed if and only if it contains a complete anti-diagonal of pawns.
+
+For $1 \le k \le n$, let:
+\begin{itemize}
+\item $A_k$ be the set of permutations whose first $k$ columns are $k,k-1,\dots,1$;
+\item $B_k$ be the set of permutations whose last $k$ columns are $n,n-1,\dots,n-k+1$.
+\end{itemize}
+These are exactly the complete anti-diagonals near the start and near the end of the board.
+
+Each such set has size
+\[
+|A_k| = |B_k| = (n-k)!.
+\]
+The families $\{A_k\}$ and $\{B_k\}$ are internally disjoint. Also:
+\begin{itemize}
+\item if $k+l \le n$, then $|A_k \cap B_l| = (n-k-l)!$;
+\item there is one extra overlap $A_n \cap B_n$, namely the reverse permutation $n,n-1,\dots,1$.
+\end{itemize}
+
+Hence the number $C_n$ of closed positions is
+\[
+C_n
+= 2\sum_{k=1}^{n}(n-k)!
+ - \left(
+1 + \sum_{\substack{k,l \ge 1 \\ k+l \le n}} (n-k-l)!
+\right).
+\]
+
+Define the left factorial
+\[
+!n = \sum_{i=0}^{n-1} i!.
+\]
+Then
+\[
+\sum_{k=1}^{n}(n-k)! = !n.
+\]
+
+For the double sum, put $t=n-k-l$. Then $0 \le t \le n-2$, and for fixed $t$ there are $n-1-t$ pairs $(k,l)$. Therefore
+\[
+\sum_{\substack{k,l \ge 1 \\ k+l \le n}} (n-k-l)!
+= \sum_{t=0}^{n-2}(n-1-t)t!.
+\]
+Using
+\[
+\sum_{t=1}^{n-2} t\,t!
+= \sum_{t=1}^{n-2}\bigl((t+1)! - t!\bigr)
+= (n-1)! - 1,
+\]
+we get
+\[
+\sum_{t=0}^{n-2}(n-1-t)t!
+= (n-1)!n - n! + 1.
+\]
+
+Thus
+\[
+C_n = n! - (n-3)\,!n - 2,
+\]
+and therefore
+\[
+f(n) = (n-3)\,!n + 2.
+\]
+
+\section{Algorithm}
+
+Compute $!n \bmod M$ iteratively for $M=1008691207$:
+\[
+0!, 1!, 2!, \dots, (n-1)!,
+\]
+accumulate their sum modulo $M$, then evaluate
+\[
+f(n) \equiv (n-3)\,!n + 2 \pmod{M}.
+\]
+
+\section{Correctness}
+
+\textbf{Theorem.} The algorithm returns $f(n) \bmod M$.
+
+\textbf{Proof.} The previous section established the exact identity
+\[
+f(n) = (n-3)\,!n + 2,
+\qquad
+!n = \sum_{i=0}^{n-1} i!.
+\]
+The implementation computes the left-factorial sum modulo $M$ by the recurrence $i! = i\cdot(i-1)!$, then substitutes the result into the exact formula. Modular arithmetic preserves the value modulo $M$, so the output is exactly $f(n) \bmod M$. $\square$
+
+\section{Complexity Analysis}
+
+The running time is $O(n)$ modular operations and the memory usage is $O(1)$.
+
+\section{Answer}
+
+\[
+\boxed{210286684}
+\]
+
+\end{document}

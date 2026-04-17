@@ -1,0 +1,121 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Problem 55: Lychrel Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A number is called \textbf{Lychrel} (by assumption) if it does not form a palindrome within 50 iterations of the reverse-and-add process. How many Lychrel numbers are there below 10{,}000?
+
+\section{Formal Development}
+
+\begin{definition}[Digit Reversal]
+For a positive integer $n = \sum_{i=0}^{k} d_i \cdot 10^i$ with $d_k \neq 0$, the \emph{digit reversal} is $\mathrm{rev}(n) = \sum_{i=0}^{k} d_i \cdot 10^{k-i}$.
+\end{definition}
+
+\begin{definition}[Reverse-and-Add Operator]
+$R(n) = n + \mathrm{rev}(n)$. Denote $R^{(k)}$ the $k$-fold composition.
+\end{definition}
+
+\begin{definition}[Palindrome]
+An integer $n$ is a \emph{palindrome} if $n = \mathrm{rev}(n)$.
+\end{definition}
+
+\begin{definition}[Lychrel Candidate]
+For bound $L$, the integer $n$ is a \emph{Lychrel candidate with respect to $L$} if $R^{(k)}(n)$ is not a palindrome for all $1 \leq k \leq L$. Here $L = 50$.
+\end{definition}
+
+\begin{theorem}[Digit Growth Bound]
+\label{thm:growth}
+If $n$ has $d$ digits, then $R(n)$ has at most $d + 1$ digits.
+\end{theorem}
+
+\begin{proof}
+Since $n < 10^d$ and $\mathrm{rev}(n) < 10^d$, we have $R(n) = n + \mathrm{rev}(n) < 2 \cdot 10^d < 10^{d+1}$.
+\end{proof}
+
+\begin{corollary}[Iterated Growth]
+Starting from $n$ with $d_0$ digits, $R^{(k)}(n)$ has at most $d_0 + k$ digits.
+\end{corollary}
+
+\begin{proof}
+By induction on $k$, applying Theorem~\ref{thm:growth} at each step.
+\end{proof}
+
+\begin{theorem}[Symmetrization Without Carries]
+\label{thm:nocarry}
+Let $n = \sum_{i=0}^{k} d_i \cdot 10^i$. Then
+\[
+R(n) = \sum_{i=0}^{k} (d_i + d_{k-i}) \cdot 10^i + \text{(carry corrections)}.
+\]
+If $d_i + d_{k-i} \leq 9$ for all $i$ (no carries), then $R(n)$ is a palindrome.
+\end{theorem}
+
+\begin{proof}
+Without carries, the digit at position $i$ is $d_i + d_{k-i}$, which equals the digit at position $k - i$, since addition is commutative. Hence $R(n)$ is a palindrome.
+\end{proof}
+
+\begin{theorem}[Carry Asymmetry]
+When $d_i + d_{k-i} \geq 10$, a carry propagates to position $i + 1$ but may have no symmetric counterpart at position $k - i - 1$, breaking palindromic structure.
+\end{theorem}
+
+\begin{proof}
+The carry adds~1 to the sum at position $i + 1$, yielding $d_{i+1} + d_{k-i-1} + 1$. The symmetric position $k - i - 1$ receives $d_{k-i-1} + d_{i+1}$ without the carry (unless independently generated). Since carry propagation depends on left-to-right digit ordering, the patterns at positions $j$ and $k - j$ need not match.
+\end{proof}
+
+\begin{remark}
+Whether any true Lychrel number exists in base~10 is an open problem. The number 196 is the smallest candidate, with no palindrome found after more than $10^9$ iterations.
+\end{remark}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For each $n = 1, 2, \ldots, 9999$:
+    \begin{enumerate}
+        \item Set $x \leftarrow n$.
+        \item Repeat up to 50 times:
+        \begin{enumerate}
+            \item $x \leftarrow x + \mathrm{rev}(x)$.
+            \item If $x = \mathrm{rev}(x)$: mark $n$ as non-Lychrel; break.
+        \end{enumerate}
+        \item If no palindrome found: count $n$ as Lychrel.
+    \end{enumerate}
+    \item Return count.
+\end{enumerate}
+
+\section{Complexity}
+
+\begin{proposition}[Time]
+$O(N \cdot L \cdot D)$ where $N = 9999$, $L = 50$, and $D \leq d_0 + L = 54$. Approximately $2.7 \times 10^7$ digit-level operations.
+\end{proposition}
+
+\begin{proposition}[Space]
+$O(D) = O(54)$ for the current number during iteration.
+\end{proposition}
+
+\section{Result}
+There are $\boxed{249}$ Lychrel numbers below 10{,}000.
+
+\section{Answer}
+
+\[
+\boxed{249}
+\]
+
+\end{document}

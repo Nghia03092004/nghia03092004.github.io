@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 221: Alexandrian Integers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+We call a positive integer $A$ an \textbf{Alexandrian integer} if there exist integers $p, q, r$ such that
+\[
+A = p \cdot q \cdot r \quad \text{and} \quad \frac{1}{A} = \frac{1}{p} + \frac{1}{q} + \frac{1}{r}.
+\]
+Find the 150000th Alexandrian integer in sorted order.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Fundamental Identity]
+If $(p,q,r)$ satisfies $A = pqr$ and $\frac{1}{A} = \frac{1}{p} + \frac{1}{q} + \frac{1}{r}$, then $pq + pr + qr = 1$.
+\end{lemma}
+\begin{proof}
+Multiply $\frac{1}{A} = \frac{1}{p} + \frac{1}{q} + \frac{1}{r}$ by $A = pqr$:
+\[
+1 = qr + pr + pq.  \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Factorization Identity]
+For any integers $p, q, r$ satisfying $pq + pr + qr = 1$, we have $(q+p)(r+p) = 1 + p^2$.
+\end{theorem}
+\begin{proof}
+$(q+p)(r+p) = qr + qp + rp + p^2 = (pq + pr + qr) + p^2 = 1 + p^2$.
+\end{proof}
+
+\begin{theorem}[No All-Positive Solutions]
+There is no solution with $p > 0$, $q > 0$, $r > 0$ simultaneously.
+\end{theorem}
+\begin{proof}
+Assume $p, q, r > 0$. Set $d = q + p > p$. Then $r + p = (1+p^2)/d$, so $r > 0$ requires $d < (1+p^2)/p = p + 1/p$. Hence $p < d < p + 1/p$, which has no integer solution for $p \geq 1$.
+\end{proof}
+
+\begin{theorem}[Parametrization]
+Every Alexandrian integer $A$ can be written as
+\[
+A = p \cdot (d + p) \cdot \left(\frac{1+p^2}{d} + p\right)
+\]
+for some integer $p \geq 1$ and positive divisor $d$ of $1 + p^2$ with $d \leq \sqrt{1+p^2}$. Conversely, every such pair $(p, d)$ produces an Alexandrian integer.
+\end{theorem}
+\begin{proof}
+Since at least one of $q, r$ must be negative (Theorem~2) and $qr > 0$ (since $A > 0$), both $q$ and $r$ are negative. Set $q + p = -d$ and $r + p = -(1+p^2)/d$ for $d > 0$, $d \mid (1+p^2)$. Then
+\[
+A = p(-q)(-r) = p(d+p)\!\left(\frac{1+p^2}{d} + p\right) > 0.
+\]
+Restricting $d \leq \sqrt{1+p^2}$ avoids double-counting from swapping $q$ and $r$.
+\end{proof}
+
+\begin{lemma}[Bound on $p$]
+For the 150000th Alexandrian integer, it suffices to iterate $p \leq 120{,}000$.
+\end{lemma}
+\begin{proof}
+The minimum $A$ for a given $p$ satisfies $A_{\min}(p) \geq 4p^3$ (attained when $d \approx p$). Since $4 \cdot 120000^3 \approx 6.9 \times 10^{15}$ exceeds the answer $\approx 1.88 \times 10^{15}$, this bound is sufficient.
+\end{proof}
+
+\section{Algorithm}
+For each $p = 1, \ldots, 120000$, compute $N = 1 + p^2$. Find all divisors $d$ of $N$ with $d \leq \sqrt{N}$. Compute $A = p(d+p)(N/d + p)$. Collect all $A$ in a set, sort, and return the 150000th element.
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(P_{\max}^2 + M \log M)$, where $M$ is the number of distinct Alexandrian integers.
+\item \textbf{Space:} $O(M)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1884161251122450}
+\]
+
+\end{document}

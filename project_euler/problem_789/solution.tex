@@ -1,0 +1,28 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 789: Minimal Pairing Modulo p}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Pair numbers 1..p-1 (p prime) into (p-1)/2 pairs. Cost of pair (a,b) = ab mod p. Find optimal pairing minimizing total cost, then report cost product for p=2000000011.
+\section{Analysis}
+For prime $p$, pair each $a$ with $p-a$ (complement). Then $ab \bmod p = a(p-a) \bmod p = -a^2 \bmod p = p - a^2 \bmod p$.
+
+But the optimal pairing might pair $a$ with $a^{-1} \bmod p$ (inverse), giving cost $a \cdot a^{-1} \equiv 1 \pmod p$, total cost $(p-1)/2$. This is optimal since each pair costs at least 1.
+
+The cost product for this inverse pairing is $1^{(p-1)/2} = 1$. However, elements that are their own inverse ($a^2 \equiv 1$, i.e., $a = 1$ or $a = p-1$) cannot be paired with themselves.
+
+The pairing of $a$ with $p-a$ gives cost $a(p-a) = ap - a^2 \equiv -a^2 \pmod p$. The product o
+\section{Answer}
+
+\[
+\boxed{13431419535872807040}
+\]
+
+\end{document}

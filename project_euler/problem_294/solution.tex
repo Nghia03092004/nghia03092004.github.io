@@ -1,0 +1,73 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 294: Sum of Digits --- Experience \#23}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a positive integer $k$, let $d(k)$ be the digit sum of $k$. Define
+\[
+S(n) = \#\{k : 0 < k < 10^n,\; 23 \mid k,\; d(k) = 23\}.
+\]
+Given: $S(9) = 263626$, $S(42) = 6\,377\,168\,878\,570\,056$. Find $S(11^{12}) \bmod 10^9$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Digit DP State Space]
+The count $S(n)$ equals the $(23, 0)$-entry of the vector $T^n \mathbf{v}_0$, where $T$ is a $552 \times 552$ transition matrix over the state space $\{0,\ldots,23\} \times \{0,\ldots,22\}$ and $\mathbf{v}_0$ has a $1$ at state $(0,0)$.
+\end{theorem}
+
+\begin{proof}
+Encode partial numbers by $(s, r)$ where $s$ is the running digit sum and $r$ is the running value modulo 23. The state space has $24 \times 23 = 552$ elements. Appending digit $d$ transitions $(s, r) \to (s+d, (10r+d) \bmod 23)$ when $s + d \leq 23$.
+
+The matrix $T$ encodes these transitions: $T_{(s',r'),(s,r)} = \#\{d \in \{0,\ldots,9\} : s' = s+d, r' = (10r+d) \bmod 23\}$. After $n$ digit positions, $S(n) = (T^n)_{(23,0),(0,0)}$. The case $k = 0$ has $d(0) = 0 \neq 23$, so it is automatically excluded.
+\end{proof}
+
+\begin{theorem}[Matrix Exponentiation]
+For any $n \times n$ matrix $T$ and positive integer $N$, $T^N$ is computable in $O(n^3 \log N)$ arithmetic operations via repeated squaring.
+\end{theorem}
+
+\begin{proof}
+Write $N = \sum_{i=0}^{\lfloor \log_2 N \rfloor} b_i 2^i$. Compute successive squares $T, T^2, T^4, \ldots$ and multiply those corresponding to $b_i = 1$. This requires $O(\log N)$ matrix multiplications, each costing $O(n^3)$.
+\end{proof}
+
+\begin{lemma}[Modular Correctness]
+Reducing each matrix entry modulo $10^9$ at every multiplication step yields the correct value of $S(11^{12}) \bmod 10^9$.
+\end{lemma}
+
+\begin{proof}
+By the homomorphism property of modular arithmetic: $(AB)_{ij} \bmod m = \left(\sum_k (A_{ik} \bmod m)(B_{kj} \bmod m)\right) \bmod m$. Induction on the number of multiplications gives the result.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Build 552 x 552 transition matrix T
+   State (s, r) indexed as s*23 + r
+   For each digit d in {0..9}: T[s+d, (10r+d) mod 23] += 1
+2. Compute T^(11^12) mod 10^9 via repeated squaring
+3. Return entry at (s=23, r=0) from initial state (s=0, r=0)
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(552^3 \cdot \log_2(11^{12})) \approx O(552^3 \cdot 42) \approx 7.1 \times 10^9$ modular multiplications.
+\item \textbf{Space:} $O(552^2) \approx 3 \times 10^5$ entries for the matrix.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{789184709}
+\]
+
+\end{document}

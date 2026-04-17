@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 711: Binary Blackboard}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Oscar and Eric play a game on a blackboard. They take turns writing binary digits (0 or 1). After all digits are written, the digits form a binary number whose value must not exceed~$2n$. Oscar wins if the total count of 1-bits is odd; Eric wins otherwise. Define $S(N)$ as the sum of all values $n \le 2^N$ for which Eric has a winning strategy. Given $S(4) = 46$ and $S(12) = 54532$, find $S(12345678) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+A \emph{game position} is a pair $(t, c)$ where $t$ is the number of turns remaining and $c$ is the current count of 1-bits written so far. Oscar wins if the final count~$c$ is odd; Eric wins if $c$ is even.
+\end{definition}
+
+\begin{lemma}
+For a fixed bound~$n$, the game tree depends only on the binary representation of~$n$. The set of valid final configurations is determined by the bits of~$n$.
+\end{lemma}
+
+\begin{proof}
+The constraint that the written binary number does not exceed~$2n$ means the sequence of bits must form a number in $\{0,1,\ldots,2n\}$. The valid continuations at each node of the game tree depend on whether we are still ``tied'' with the binary prefix of~$2n$ or have already committed to a strictly smaller prefix. This is entirely determined by the bits of~$n$.
+\end{proof}
+
+\begin{theorem}
+Let $b_1 b_2 \cdots b_k$ be the binary representation of~$n$. Eric has a winning strategy for value~$n$ if and only if the parity game on the digit-constrained tree rooted at~$n$ has even Sprague--Grundy value. The set of winning~$n$ values exhibits periodicity in the binary structure, enabling computation of~$S(N)$ via a digit-DP over the binary digits of~$2^N$.
+\end{theorem}
+
+\begin{proof}
+Consider the two-player perfect-information game. At each position, the current player chooses a bit $b \in \{0,1\}$ subject to the constraint that the resulting number does not exceed~$2n$. The game is equivalent to a Nim-like parity game on a binary trie truncated at value~$2n$.
+
+By backward induction on the game tree, each position has a determined winner. The winning condition (parity of 1-count) is a linear function over~$\mathbb{F}_2$ of the choices, and the constraint set has a recursive binary structure. Therefore, whether Eric wins depends on a function $f(n)$ that can be evaluated by processing the binary digits of~$n$ from most significant to least significant, maintaining a DP state that tracks the game-theoretic status.
+
+The sum $S(N) = \sum_{n:\, f(n)=1} n$ can then be computed by a digit-DP over the bits, accumulating both the count and the weighted sum of qualifying~$n$.
+\end{proof}
+
+\begin{lemma}
+The digit-DP state space has $O(1)$ states per bit position, so the total number of states is~$O(N)$.
+\end{lemma}
+
+\begin{proof}
+At each bit position~$i$, the DP state consists of: (1)~whether we are still ``tight,'' and (2)~the current game-theoretic evaluation. Since~(1) is Boolean and~(2) has a bounded number of outcomes, the state space per bit is~$O(1)$. Over $N$~bits, the total is~$O(N)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function S(N, mod):
+    Initialize dp[tight][game_state] for bit 0
+    for i = 1 to N:
+        for each state (tight, gs):
+            for bit b in {0, 1}:
+                if tight and b > bit_i(2^N): skip
+                new_tight = tight and (b == bit_i(2^N))
+                new_gs = transition(gs, b)
+                dp_new[new_tight][new_gs] += dp[tight][gs]
+                sum_new[...] += sum[...] + b * 2^(N-i) * count[...]
+    return sum over Eric-winning states, mod p
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$ where $N = 12345678$. Each bit position processes $O(1)$ DP states.
+    \item \textbf{Space:} $O(1)$ since only current and previous DP layers are needed.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{541510990}
+\]
+
+\end{document}

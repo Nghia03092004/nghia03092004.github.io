@@ -1,0 +1,95 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 302: Strong Achilles Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A positive integer $n$ is \textbf{powerful} if $p \mid n \Rightarrow p^2 \mid n$ for every prime~$p$. An \textbf{Achilles number} is a powerful number that is not a perfect power. A \textbf{Strong Achilles number} is an Achilles number $n$ such that $\varphi(n)$ is also an Achilles number.
+
+Find the count of Strong Achilles numbers below $10^{18}$.
+
+\section{Mathematical Development}
+
+\begin{definition}
+A positive integer $n$ is \emph{powerful} if $v_p(n) \ge 2$ for every prime $p \mid n$.
+\end{definition}
+
+\begin{theorem}[Characterization of powerful numbers]\label{thm:powerful}
+A positive integer $n > 1$ is powerful if and only if every exponent in its canonical factorization satisfies $e_i \ge 2$. Equivalently, $n = a^2 b^3$ for some positive integers $a, b$.
+\end{theorem}
+
+\begin{proof}
+The first equivalence is immediate. For the second, if every $e_i \ge 2$: when $e_i$ is even, write $e_i = 2(e_i/2)$; when $e_i$ is odd ($e_i \ge 3$), write $e_i = 2\cdot\frac{e_i-3}{2} + 3$. Collecting the even parts into $a^2$ and the residual cubic parts into $b^3$ yields $n = a^2 b^3$. Conversely, $n = a^2 b^3$ implies $v_p(n) = 2v_p(a) + 3v_p(b) \ge 2$ whenever $p \mid n$.
+\end{proof}
+
+\begin{lemma}[Perfect power criterion]\label{lem:perfect-power}
+A positive integer $n = p_1^{e_1} \cdots p_k^{e_k}$ with $k \ge 1$ is a perfect power if and only if $\gcd(e_1, \ldots, e_k) \ge 2$.
+\end{lemma}
+
+\begin{proof}
+If $g = \gcd(e_1,\ldots,e_k) \ge 2$, then $n = \bigl(\prod_i p_i^{e_i/g}\bigr)^g$. Conversely, $n = m^d$ with $d \ge 2$ implies $d \mid e_i$ for all~$i$, so $g \ge 2$.
+\end{proof}
+
+\begin{lemma}[Totient formula]\label{lem:totient}
+For $n = \prod_{i=1}^k p_i^{e_i}$, we have $\varphi(n) = \prod_{i=1}^{k} p_i^{e_i - 1}(p_i - 1)$.
+\end{lemma}
+
+\begin{proof}
+Immediate from the multiplicativity of Euler's totient and $\varphi(p^e) = p^{e-1}(p-1)$.
+\end{proof}
+
+\begin{theorem}[Strong Achilles criterion]\label{thm:strong}
+$n = p_1^{e_1}\cdots p_k^{e_k}$ is a Strong Achilles number if and only if:
+\begin{enumerate}
+    \item $e_i \ge 2$ for all $i$ (powerful).
+    \item $\gcd(e_1, \ldots, e_k) = 1$ (not a perfect power).
+    \item Every prime in the factorization of $\varphi(n)$ appears with exponent $\ge 2$.
+    \item The gcd of all exponents in the factorization of $\varphi(n)$ equals~$1$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Conditions (1)--(2) characterize $n$ as Achilles (Theorem~\ref{thm:powerful} and Lemma~\ref{lem:perfect-power}). Conditions (3)--(4) characterize $\varphi(n)$ as Achilles. Their conjunction is the definition of Strong Achilles.
+\end{proof}
+
+\section{Algorithm}
+\begin{verbatim}
+function count_strong_achilles(N):
+    primes <- sieve up to 10^6
+    count <- 0
+    function dfs(idx, product, gcd_exp, phi_factors):
+        if product has >= 2 prime factors and gcd_exp == 1:
+            if phi_factors is powerful and gcd(phi exps) == 1:
+                count += 1
+        for p = primes[idx], ...:
+            if product * p^2 > N: break
+            for e = 2, 3, ... while product * p^e <= N:
+                update gcd_exp and phi_factors
+                dfs(idx+1, product*p^e, ...)
+    dfs(0, 1, 0, {})
+    return count
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} The count of powerful numbers below $N$ is $\Theta(\sqrt{N})$. The Achilles and Strong Achilles conditions prune the DFS substantially.
+    \item \textbf{Space:} $O(N^{1/3}/\!\ln N)$ for the prime sieve, $O(\log N)$ recursion depth.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1170060}
+\]
+
+\end{document}

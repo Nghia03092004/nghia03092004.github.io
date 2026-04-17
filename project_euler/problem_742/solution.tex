@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 742: Minimum Area Ellipse}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \textbf{symmetrical convex grid polygon} is a convex polygon whose vertices all have integer coordinates, all internal angles are strictly less than $180^\circ$, and it has both horizontal and vertical symmetry. Let $A(N)$ be the minimum area of such a polygon with exactly $N$ vertices.
+
+Given: $A(4)=1$, $A(8)=7$, $A(40)=1039$, $A(100)=17473$. Find $A(1000)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Edge-Vector Characterization]
+A convex lattice polygon is uniquely determined (up to translation) by its sequence of primitive edge vectors $(v_1, \ldots, v_N)$, sorted by angle, with $\sum_i v_i = \mathbf{0}$ and consecutive vectors turning strictly left.
+\end{theorem}
+
+\begin{proof}
+The edge vectors of a convex polygon traversed counterclockwise have strictly increasing argument in $[0,2\pi)$. Primitivity ensures one lattice point per edge. The zero-sum condition ensures closure, and strict left turns ensure all internal angles are strictly less than $180^\circ$.
+\end{proof}
+
+\begin{theorem}[Double Symmetry Constraint]
+A convex lattice polygon with both horizontal and vertical symmetry has its edge vectors partitioned into orbits of size~$4$ (generic) or $2$ (axis-aligned), related by reflections across the coordinate axes.
+\end{theorem}
+
+\begin{proof}
+If $v = (a,b)$ is an edge vector in the first-quadrant arc, then $(-a,b)$, $(-a,-b)$, and $(a,-b)$ must also appear by the two reflections. Axis-aligned vectors have orbits of size~$2$.
+\end{proof}
+
+\begin{lemma}[Minimum Area via Farey Vectors]
+The minimum-area such polygon with $N$ vertices is constructed by selecting the $N/4$ primitive lattice vectors in the first-quadrant sector with smallest Stern--Brocot depth, mirroring across both axes, and computing area via the shoelace formula.
+\end{lemma}
+
+\begin{proof}
+Minimizing area requires edge vectors of minimal magnitude. Primitive vectors sorted by angle correspond to Stern--Brocot entries. The shallowest entries yield minimal cross-product sums, hence minimal area.
+\end{proof}
+
+\begin{lemma}[Area from Edge Vectors]
+Given counterclockwise edge vectors $(v_1, \ldots, v_N)$, the polygon's area is:
+\[
+A = \frac{1}{2}\sum_{i < j} |v_i \times v_j|
+\]
+where $v_i \times v_j = v_{i,x}\,v_{j,y} - v_{i,y}\,v_{j,x}$.
+\end{lemma}
+
+\begin{proof}
+Expand the shoelace formula with vertices expressed as cumulative sums of edge vectors.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Generate all primitive lattice vectors in the first quadrant, sorted by angle.
+\item Select the $N/4$ vectors yielding minimum area (Farey/Stern--Brocot ordering).
+\item Mirror across both axes to obtain all $N$ edge vectors.
+\item Compute vertices as cumulative sums and apply the shoelace formula.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^2)$ for vector generation and sorting; $O(N)$ for area computation.
+\item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{18397727}
+\]
+
+\end{document}

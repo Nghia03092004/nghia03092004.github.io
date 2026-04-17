@@ -1,0 +1,83 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 231: The Prime Factorisation of Binomial Coefficients}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The binomial coefficient $\binom{10}{3} = 120$ has prime factorisation $2^3 \times 3 \times 5$, so the sum of the terms in its prime factorisation is $2^3 + 3 + 5 = 16$.
+
+Find the sum of the terms in the prime factorisation of $\binom{20000000}{15000000}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Legendre's Formula]
+For any prime $p$ and positive integer $n$, the $p$-adic valuation of $n!$ is
+\[
+v_p(n!) = \sum_{i=1}^{\infty} \left\lfloor \frac{n}{p^i} \right\rfloor = \frac{n - s_p(n)}{p - 1}
+\]
+where $s_p(n)$ denotes the sum of the digits of $n$ in base~$p$.
+\end{theorem}
+
+\begin{proof}
+Among $1, 2, \ldots, n$, exactly $\lfloor n/p \rfloor$ are divisible by $p$, exactly $\lfloor n/p^2 \rfloor$ by $p^2$, and so on. Each multiple of $p^i$ contributes at least $i$ factors of $p$ to $n!$. Counting each factor of $p$ once yields $v_p(n!) = \sum_{i \geq 1} \lfloor n/p^i \rfloor$. Writing $n = \sum_j d_j p^j$ in base~$p$, a telescoping computation gives $\sum_{i \geq 1} \lfloor n/p^i \rfloor = (n - s_p(n))/(p-1)$.
+\end{proof}
+
+\begin{lemma}[Kummer's Theorem]
+For a prime $p$ and integers $0 \leq k \leq n$, the $p$-adic valuation of $\binom{n}{k}$ equals the number of carries when adding $k$ and $n-k$ in base~$p$.
+\end{lemma}
+
+\begin{proof}
+We have $v_p\!\bigl(\binom{n}{k}\bigr) = v_p(n!) - v_p(k!) - v_p((n-k)!)$. Applying Legendre's formula:
+\[
+v_p\!\left(\binom{n}{k}\right) = \frac{s_p(k) + s_p(n-k) - s_p(n)}{p-1}.
+\]
+The quantity $s_p(k) + s_p(n-k) - s_p(n)$ equals $(p-1)$ times the number of carries in the base-$p$ addition $k + (n-k) = n$, since each carry reduces the digit sum by exactly $p-1$.
+\end{proof}
+
+\begin{corollary}
+The exponent of prime $p$ in $\binom{n}{k}$ is
+\[
+e_p = \sum_{i=1}^{\lfloor \log_p n \rfloor} \left( \left\lfloor \frac{n}{p^i} \right\rfloor - \left\lfloor \frac{k}{p^i} \right\rfloor - \left\lfloor \frac{n-k}{p^i} \right\rfloor \right).
+\]
+The desired answer is $S = \sum_{p \leq n,\, p\text{ prime}} e_p \cdot p$.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(n, k):
+    primes = sieve_of_eratosthenes(n)
+    S = 0
+    for p in primes:
+        e = 0
+        power = p
+        while power <= n:
+            e += floor(n/power) - floor(k/power) - floor((n-k)/power)
+            power *= p
+        S += e * p
+    return S
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(n \log \log n)$ for the Sieve of Eratosthenes, plus $O(\pi(n) \cdot \log_2 n)$ for computing exponents. Total: $O(n \log \log n)$.
+    \item \textbf{Space:} $O(n)$ for the sieve array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{7526965179680}
+\]
+
+\end{document}

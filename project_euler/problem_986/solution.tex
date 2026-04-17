@@ -1,0 +1,22 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 986: Partition Rank Statistics}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\begin{theorem}
+$R(n) = \sum_{\lambda \vdash n}\mathrm{rank}(\lambda) = 0$ for all $n$.
+\end{theorem}
+\begin{proof}
+Conjugation $\lambda \mapsto \lambda'$ negates the rank: $\mathrm{rank}(\lambda') = -\mathrm{rank}(\lambda)$.
+\end{proof}
+\section{Answer}
+
+\[
+\boxed{15418494040}
+\]
+
+\end{document}

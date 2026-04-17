@@ -1,0 +1,57 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 118: Pandigital Prime Sets}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Using all digits 1 through 9 exactly once, how many distinct sets of primes can be formed by concatenating subsets of these digits?
+
+\section{Solution}
+
+\subsection{Approach}
+We partition the set $D = \{1, 2, \ldots, 9\}$ into non-empty subsets $S_1, S_2, \ldots, S_k$ such that:
+\begin{enumerate}
+\item Each subset $S_i$ forms a prime number $p_i$ under some permutation of its digits.
+\item $p_1 < p_2 < \cdots < p_k$ (to count sets, not sequences).
+\item $\bigcup_{i=1}^k S_i = D$ and the subsets are disjoint.
+\end{enumerate}
+
+\subsection{Algorithm}
+We use depth-first search with a bitmask representing remaining available digits.
+
+At each recursive step:
+\begin{itemize}
+\item Enumerate all non-empty subsets of the remaining digits.
+\item For each subset, generate all permutations and check if the resulting number is prime.
+\item If prime and greater than the last number chosen, recurse with updated bitmask.
+\item When the bitmask is empty (all digits used), increment the count.
+\end{itemize}
+
+\subsection{Pruning}
+\begin{itemize}
+\item Numbers whose digit sum is divisible by 3 are divisible by 3 (and thus not prime, unless equal to 3).
+\item Even numbers $> 2$ are excluded.
+\item Numbers ending in 5 and $> 5$ are excluded.
+\end{itemize}
+
+\subsection{Result}
+\[
+\boxed{44680}
+\]
+
+\section{Complexity}
+The search space is bounded by the number of ordered partitions of a 9-element set, times the permutations within each part. With aggressive pruning (divisibility by 2, 3, 5), the actual computation is very fast (under 1 second).
+
+\section{Answer}
+
+\[
+\boxed{44680}
+\]
+
+\end{document}

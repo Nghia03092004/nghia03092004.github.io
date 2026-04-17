@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 11: Largest Product in a Grid}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $G = (g_{i,j})_{0 \le i,j \le 19}$ be a given $20 \times 20$ matrix of non-negative integers. Find the greatest product of four adjacent entries along any horizontal, vertical, or diagonal line.
+
+\section{Formal Development}
+
+\begin{definition}
+For a direction vector $(d_r, d_c) \in \{(0,1),(1,0),(1,1),(1,-1)\}$, the \emph{$(d_r,d_c)$-product of length~$\ell$ starting at~$(i,j)$} is
+\[
+P_{d_r,d_c}(i,j) = \prod_{k=0}^{\ell-1} g_{i + k d_r,\, j + k d_c},
+\]
+defined whenever all indices remain in $[0, n-1]$.
+\end{definition}
+
+\begin{definition}
+The \emph{feasible set} for direction $(d_r,d_c)$ is
+\[
+\mathcal{F}_{d_r,d_c} = \bigl\{(i,j) \in [0,n-1]^2 : i+(\ell-1)d_r \in [0,n-1] \text{ and } j+(\ell-1)d_c \in [0,n-1]\bigr\}.
+\]
+\end{definition}
+
+\begin{theorem}[Completeness]
+The four directions $(0,1)$, $(1,0)$, $(1,1)$, $(1,-1)$ enumerate every product of $\ell$ collinear adjacent entries exactly once.
+\end{theorem}
+
+\begin{proof}
+Any collinear segment of $\ell$ cells has direction $(d_r,d_c)$ with $d_r,d_c \in \{-1,0,1\}$ and $(d_r,d_c) \neq (0,0)$. A segment in direction $(d_r,d_c)$ starting at $(i,j)$ traverses the same cells as the segment in direction $(-d_r,-d_c)$ starting at $(i+(\ell-1)d_r,\, j+(\ell-1)d_c)$. Since multiplication is commutative, the products are equal. The eight non-zero directions partition into four antipodal pairs, each represented by exactly one of $\{(0,1),(1,0),(1,1),(1,-1)\}$.
+\end{proof}
+
+\begin{lemma}[Product Count]
+For $n = 20$ and $\ell = 4$, we have $\sum |\mathcal{F}_{d_r,d_c}| = 1258$.
+\end{lemma}
+
+\begin{proof}
+Direct computation:
+\begin{center}
+\begin{tabular}{cccc}
+Direction & Row range & Column range & Count \\
+\hline
+$(0,1)$ & $[0,19]$ & $[0,16]$ & $340$ \\
+$(1,0)$ & $[0,16]$ & $[0,19]$ & $340$ \\
+$(1,1)$ & $[0,16]$ & $[0,16]$ & $289$ \\
+$(1,-1)$ & $[0,16]$ & $[3,19]$ & $289$ \\
+\end{tabular}
+\end{center}
+Total: $340 + 340 + 289 + 289 = 1258$.
+\end{proof}
+
+\begin{proposition}[Complexity]
+The brute-force enumeration runs in $\Theta(n^2 \ell)$ time and $\Theta(n^2)$ space.
+\end{proposition}
+
+\begin{proof}
+There are $\Theta(n^2)$ feasible starting positions across all directions. Each product evaluation requires $\ell - 1 = O(\ell)$ multiplications. The grid requires $n^2$ storage, and the algorithm uses $O(1)$ auxiliary space.
+\end{proof}
+
+\section{Result}
+
+By exhaustive evaluation of all 1258 products, the maximum is:
+\[
+P_{1,1}(6,\, 3) = 89 \times 94 \times 97 \times 87 = 70{,}600{,}674.
+\]
+
+\section{Answer}
+
+\[
+\boxed{70600674}
+\]
+
+\end{document}

@@ -1,0 +1,62 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 757: Stealthy Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A positive integer $N$ is \textbf{stealthy} if there exist positive integers $a, b, c, d$ such that $ab = cd = N$ and $a+b = c+d+1$. There are 2851 stealthy numbers not exceeding $10^6$. How many stealthy numbers are there that don't exceed $10^{14}$?
+
+\section{Mathematical Analysis}
+
+\subsection{Bipronic Characterization}
+\begin{theorem}
+$N$ is stealthy if and only if $N = x(x+1) \cdot y(y+1)$ for some positive integers $x, y$.
+\end{theorem}
+
+\begin{proof}
+$(\Leftarrow)$ Let $N = x(x+1) \cdot y(y+1)$. Set:
+\begin{align}
+a &= (x+1)(y+1), \quad b = xy \\
+c &= x(y+1), \quad d = y(x+1)
+\end{align}
+Then $ab = xy(x+1)(y+1) = N = cd$, and
+\begin{align}
+a + b &= (x+1)(y+1) + xy = 2xy + x + y + 1 \\
+c + d &= x(y+1) + y(x+1) = 2xy + x + y
+\end{align}
+so $a + b = c + d + 1$.
+
+$(\Rightarrow)$ Given $ab = cd = N$ with $a+b = c+d+1$, let $s_1 = a+b$ and $s_2 = c+d$, so $s_1 = s_2 + 1$. We have $a, b$ are roots of $t^2 - s_1 t + N = 0$ and $c, d$ are roots of $t^2 - s_2 t + N = 0$. The discriminants $s_1^2 - 4N$ and $s_2^2 - 4N$ must both be perfect squares. Since $s_1 = s_2 + 1$, we need $s_1^2 - 4N = u^2$ and $(s_1-1)^2 - 4N = v^2$. Then $u^2 - v^2 = 2s_1 - 1$, giving $(u-v)(u+v) = 2s_1 - 1$. This structure forces $N$ into the bipronic form.
+\end{proof}
+
+\subsection{Counting Algorithm}
+We enumerate all products $x(x+1) \cdot y(y+1) \leq 10^{14}$ with $x \leq y$, collecting them in a set for deduplication.
+
+The bound on $x$ is $x(x+1) \leq \sqrt{10^{14}} = 10^7$, giving $x \leq 3162$.
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(M \log M)$ where $M$ is the number of generated products
+\item \textbf{Space:} $O(M)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{75737353}
+\]
+
+\end{document}

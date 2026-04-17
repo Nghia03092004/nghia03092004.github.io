@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 501: Eight Divisors}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $f(n)$ be the count of numbers not exceeding $n$ with exactly eight divisors.
+Given: $f(100) = 10$, $f(1000) = 180$, $f(10^6) = 224427$. Find $f(10^{12})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Divisor Count Formula]
+Let $n = p_1^{a_1} p_2^{a_2} \cdots p_k^{a_k}$. Then $\tau(n) = \prod_{i=1}^{k}(a_i + 1)$.
+\end{theorem}
+
+\begin{proof}
+Each divisor of $n$ has the form $\prod p_i^{b_i}$ with $0 \le b_i \le a_i$. There are $a_i + 1$ independent choices for each $b_i$, so by the multiplication principle, $\tau(n) = \prod(a_i + 1)$.
+\end{proof}
+
+\begin{lemma}[Classification of $\tau(n) = 8$]
+A positive integer $n$ satisfies $\tau(n) = 8$ if and only if $n$ takes one of the forms:
+\begin{enumerate}
+    \item $n = p^7$ for some prime~$p$,
+    \item $n = p^3 q$ for distinct primes $p, q$,
+    \item $n = pqr$ for distinct primes $p < q < r$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+We need $\prod(a_i + 1) = 8 = 2^3$. The multiplicative partitions of~8 into factors $\ge 2$ are $\{8\}$, $\{4, 2\}$, and $\{2, 2, 2\}$, yielding the three forms above. These are clearly mutually exclusive and exhaust all possibilities.
+\end{proof}
+
+\begin{theorem}[Counting Formula]
+Let $N = 10^{12}$ and $\pi(x)$ denote the prime counting function. Then
+\[
+f(N) = C_1 + C_2 + C_3
+\]
+where:
+\begin{align}
+C_1 &= \pi(N^{1/7}), \\
+C_2 &= \sum_{\substack{p \text{ prime} \\ p^3 < N}} \left[\pi\!\left(\frac{N}{p^3}\right) - \mathbf{1}[p^4 \le N]\right], \\
+C_3 &= \sum_{p \text{ prime}} \sum_{\substack{q \text{ prime} \\ p < q,\; pq^2 \le N}} \left[\pi\!\left(\frac{N}{pq}\right) - \pi(q)\right].
+\end{align}
+\end{theorem}
+
+\begin{proof}
+\textbf{Case 1:} $n = p^7 \le N$ iff $p \le N^{1/7}$, giving count $\pi(N^{1/7})$.
+
+\textbf{Case 2:} $n = p^3 q \le N$ with $p \ne q$. For each prime~$p$ with $p^3 < N$, the number of valid primes $q \le N/p^3$ is $\pi(N/p^3)$, minus~1 when $q = p$ is itself valid (i.e., when $p^4 \le N$).
+
+\textbf{Case 3:} $n = pqr$ with $p < q < r$. For each pair $(p,q)$ with $p < q$, valid primes $r$ satisfy $q < r \le N/(pq)$, giving $\pi(N/(pq)) - \pi(q)$ choices. We need $pq^2 < N$ for at least one valid~$r$.
+
+By Lemma~1 the three cases are disjoint and exhaustive.
+\end{proof}
+
+\section{Algorithm}
+\begin{verbatim}
+1. Sieve primes up to sqrt(N) = 10^6.
+2. Implement pi(x) via Lucy Hedgehog / Meissel-Lehmer.
+3. Case 1: C1 = pi(floor(N^(1/7))).
+4. Case 2: For each prime p with p^3 < N:
+     C2 += pi(N/p^3) - [p^4 <= N].
+5. Case 3: For each prime p, for each prime q > p
+     with p*q^2 <= N:
+     C3 += pi(N/(p*q)) - pi(q).
+6. Return C1 + C2 + C3.
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N^{2/3})$, dominated by the prime counting function.
+    \item \textbf{Space:} $O(N^{1/2})$ for the sieve and $\pi(x)$ tables.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{197912312715}
+\]
+
+\end{document}

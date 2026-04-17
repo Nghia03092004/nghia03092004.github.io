@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 511: Sequences with Nice Divisibility Properties}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $S(n, k, m)$ denote the number of $n$-tuples $(a_1, a_2, \ldots, a_n)$ of positive integers satisfying:
+\begin{enumerate}
+    \item $1 \leq a_i \leq m$ for all $1 \leq i \leq n$.
+    \item $a_1 + a_2 + \cdots + a_n \equiv 0 \pmod{k}$.
+\end{enumerate}
+Compute $S(n, k, m)$ modulo a given prime $p$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Roots of Unity Filter]
+Let $\omega = e^{2\pi i / k}$ be a primitive $k$-th root of unity. For any integer $s$,
+\[
+[k \mid s] = \frac{1}{k}\sum_{j=0}^{k-1} \omega^{js}.
+\]
+\end{theorem}
+
+\begin{proof}
+If $k \mid s$, then $\omega^{js} = 1$ for all $j$, so the sum equals $k/k = 1$. If $k \nmid s$, then $\omega^s \neq 1$ and the sum is a geometric series:
+\[
+\frac{1}{k} \cdot \frac{(\omega^s)^k - 1}{\omega^s - 1} = \frac{1}{k} \cdot \frac{1 - 1}{\omega^s - 1} = 0. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Counting Formula]
+\[
+S(n, k, m) = \frac{1}{k}\sum_{j=0}^{k-1} g_j^{\,n},
+\]
+where $g_j = \sum_{a=1}^{m} \omega^{ja}$.
+\end{theorem}
+
+\begin{proof}
+We write
+\[
+S(n, k, m) = \sum_{\substack{(a_1,\ldots,a_n) \\ 1 \leq a_i \leq m}} [k \mid a_1 + \cdots + a_n].
+\]
+Applying Theorem~1 and exchanging summation:
+\[
+S(n, k, m) = \frac{1}{k}\sum_{j=0}^{k-1} \prod_{i=1}^{n}\left(\sum_{a=1}^{m}\omega^{ja}\right) = \frac{1}{k}\sum_{j=0}^{k-1} g_j^{\,n}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Geometric Evaluation]
+For $j \not\equiv 0 \pmod{k}$:
+\[
+g_j = \omega^j \cdot \frac{1 - \omega^{jm}}{1 - \omega^j}.
+\]
+For $j \equiv 0 \pmod{k}$: $g_j = m$.
+\end{lemma}
+
+\begin{proof}
+When $\omega^j \neq 1$, the sum $g_j = \sum_{a=1}^{m}\omega^{ja}$ is a geometric series with first term $\omega^j$, ratio $\omega^j$, and $m$ terms. The standard geometric series formula yields the result. When $j \equiv 0 \pmod{k}$, every term equals~1.
+\end{proof}
+
+\begin{corollary}[Special Case $m = k$]
+$S(n, k, k) = k^{n-1}$.
+\end{corollary}
+
+\begin{proof}
+For $j = 0$: $g_0 = k$. For $1 \leq j \leq k-1$: the sum $\sum_{a=1}^{k}\omega^{ja} = \sum_{a=0}^{k-1}\omega^{ja} + \omega^{jk} - 1 = 0 + 1 - 1 = 0$. Hence $S(n,k,k) = k^n/k = k^{n-1}$. Combinatorially: choose $a_1, \ldots, a_{n-1}$ freely, and $a_n$ is uniquely determined.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Find a primitive $k$-th root of unity $\omega \bmod p$: set $\omega = g^{(p-1)/k}$ where $g$ is a primitive root modulo~$p$.
+    \item For each $j = 0, 1, \ldots, k-1$, compute $g_j = \omega^j(1 - \omega^{jm})(1 - \omega^j)^{-1} \bmod p$ (or $g_0 = m$).
+    \item Compute $g_j^n \bmod p$ via fast exponentiation.
+    \item Sum and multiply by $k^{-1} \bmod p$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(k \log n)$. Each of $k$ terms requires $O(\log n)$ for modular exponentiation.
+    \item \textbf{Space:} $O(1)$ auxiliary.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{935247012}
+\]
+
+\end{document}

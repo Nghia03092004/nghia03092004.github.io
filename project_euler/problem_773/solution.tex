@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 773: Ruff Numbers}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+$S_k = \{2, 5\} \cup \{\text{first } k \text{ primes ending in 7}\}$. A $k$-Ruff number is not divisible by any element of $S_k$. $N_k = \prod_{s \in S_k} s$. $F(k)$ = sum of all $k$-Ruff numbers less than $N_k$ that end in digit 7. Given $F(3) = 76101452$. Find $F(97) \bmod 10^9+7$.
+\section{Analysis}
+\subsection*{Inclusion-Exclusion on Primes}
+
+A $k$-Ruff number $m < N_k$ satisfies $\gcd(m, N_k) = 1$ (coprime to all elements of $S_k$). Since $N_k = \prod S_k$ and all elements of $S_k$ are prime, this is exactly the condition that $m$ is coprime to $N_k$.
+
+\subsection*{Euler's Totient and Digit Constraint}
+
+The sum of all integers $< N_k$ coprime to $N_k$ is $\frac{N_k \cdot \phi(N_k)}{2}$. But we additionally require the last digit to be 7.
+
+\subsection*{Chinese Remainder Theorem}
+
+Since $10 = 2 \times 5$ and $2, 5 \in S_k$, any Ruff number is coprime to 10, so its last digit is 1, 3, 7, or 9. By CRT, the Ruff numbers 
+\section{Answer}
+
+\[
+\boxed{556206950}
+\]
+
+\end{document}

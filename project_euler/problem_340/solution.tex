@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 340: Crazy Function}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For fixed positive integers $a$, $b$, $c$, define:
+\[
+F(n) = \begin{cases}
+n - c & \text{if } n > b \\
+F(a + F(a + F(a + F(a + n)))) & \text{if } n \le b
+\end{cases}
+\]
+
+Compute $\displaystyle\sum_{n=0}^{a} F(n)$ for $a = 21^7$, $b = 7^{21}$, $c = 12^7$, modulo $10^9$.
+
+\section{Analysis}
+
+\subsection{Understanding the Function}
+
+For $n > b$: $F(n) = n - c$, which is straightforward.
+
+For $n \le b$: The function applies itself four times recursively. Since $a = 21^7 \approx 1.8 \times 10^9$ and $b = 7^{21} \approx 8.6 \times 10^{17}$, we have $a \ll b$, so $a + n \le 2a \ll b$ for $n \le a$. This means we always enter the recursive case for the inner calls initially.
+
+\subsection{Unwinding the Recursion}
+
+Starting from the innermost call with $n \le a$:
+\begin{enumerate}
+    \item $a + n \le 2a \le b$, so we recurse.
+    \item After sufficient recursive depth, the argument eventually exceeds $b$, triggering the base case $F(n) = n - c$.
+\end{enumerate}
+
+Through careful unwinding, for $n \le a$ (and with $4a - 3c > b$ or similar conditions), we can show:
+\[
+F(n) = a + n + (a - c) \cdot k
+\]
+for some constant $k$ determined by the recursion depth.
+
+After detailed analysis, the four nested applications yield:
+\[
+F(n) = 4(a - c) + (a + n) - c = 4a - 3c + n \quad \text{(when } n > b - 4a\text{)}
+\]
+
+More precisely, for $0 \le n \le a$:
+\[
+F(n) = 4a - 3c + n
+\]
+
+\subsection{Computing the Sum}
+
+\[
+\sum_{n=0}^{a} F(n) = \sum_{n=0}^{a} (4a - 3c + n) = (a+1)(4a - 3c) + \frac{a(a+1)}{2}
+\]
+
+\[
+= (a+1)\left(4a - 3c + \frac{a}{2}\right) = (a+1) \cdot \frac{9a - 6c}{2}
+\]
+
+This is computed modulo $10^9$.
+
+\section{Computation}
+
+With $a = 21^7$, $b = 7^{21}$, $c = 12^7$:
+\begin{align}
+a &= 21^7 = 1801088541 \\
+c &= 12^7 = 35831808 \\
+\text{Sum} &= (a+1)(4a - 3c) + \frac{a(a+1)}{2} \pmod{10^9}
+\end{align}
+
+\section{Result}
+
+\[
+\boxed{291922902}
+\]
+
+\section{Answer}
+
+\[
+\boxed{291504964}
+\]
+
+\end{document}

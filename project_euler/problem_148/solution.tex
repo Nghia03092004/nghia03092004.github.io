@@ -1,0 +1,71 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 148: Exploring Pascal's Triangle}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many entries in the first $10^9$ rows of Pascal's triangle are not divisible by 7?
+
+\section{Analysis}
+
+\subsection{Lucas' Theorem}
+By Lucas' theorem, for a prime $p$, $\binom{n}{k} \not\equiv 0 \pmod{p}$ if and only if every base-$p$ digit of $k$ is $\le$ the corresponding digit of $n$.
+
+\subsection{Counting per Row}
+For row $n$ with base-7 digits $(d_s, d_{s-1}, \ldots, d_0)$, the number of entries not divisible by 7 is:
+\[
+\prod_{i=0}^{s} (d_i + 1)
+\]
+
+\subsection{Summing Over Rows}
+We need $S(N) = \sum_{n=0}^{N-1} \prod_i (d_i(n)+1)$.
+
+\subsubsection{Recursive Formula}
+Write $N = d \cdot 7^k + R$ where $d$ is the leading base-7 digit and $0 \le R < 7^k$.
+
+\begin{theorem}
+\[
+S(N) = \frac{d(d+1)}{2} \cdot 28^k + (d+1) \cdot S(R)
+\]
+with base case $S(0) = 0$.
+\end{theorem}
+
+\begin{proof}
+The rows $0, 1, \ldots, N-1$ split into $d$ complete blocks of $7^k$ rows (with leading digits $0, 1, \ldots, d-1$) plus a partial block of $R$ rows with leading digit $d$.
+
+For a complete block with leading digit $j$ ($0 \le j \le d-1$), the contribution is $(j+1) \cdot S(7^k) = (j+1) \cdot 28^k$, since the leading digit factor is $(j+1)$ and the remaining digits contribute $28^k$ total.
+
+Summing over $j = 0, \ldots, d-1$: $\sum_{j=0}^{d-1}(j+1) = \frac{d(d+1)}{2}$.
+
+The partial block contributes $(d+1) \cdot S(R)$.
+\end{proof}
+
+\subsubsection{Why $S(7^k) = 28^k$}
+\[
+S(7^k) = \sum_{n=0}^{7^k-1} \prod_{i=0}^{k-1}(d_i(n)+1) = \prod_{i=0}^{k-1} \sum_{d=0}^{6}(d+1) = 28^k
+\]
+
+\section{Complexity}
+$O(\log_7 N)$ --- one step per base-7 digit.
+
+\section{Answer}
+
+\[
+\boxed{2129970655314432}
+\]
+
+\end{document}

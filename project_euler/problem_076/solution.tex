@@ -1,0 +1,103 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 76: Counting Summations}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+How many different ways can one hundred be written as a sum of at least two positive integers?
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Integer Partition]
+A \emph{partition} of a non-negative integer $n$ is a multiset $\{a_1, \ldots, a_k\}$ of positive integers with $\sum_{i=1}^k a_i = n$. The \emph{partition function} $p(n)$ counts the number of such partitions, with the convention $p(0) = 1$. We write $p_{\le m}(n)$ for the number of partitions of $n$ into parts each at most~$m$.
+\end{definition}
+
+\begin{theorem}[Generating Function]
+The ordinary generating function for $p(n)$ is
+\[
+\sum_{n=0}^{\infty} p(n)\,x^n = \prod_{k=1}^{\infty} \frac{1}{1 - x^k}.
+\]
+\end{theorem}
+
+\begin{proof}
+For each $k \geq 1$, the geometric series $\frac{1}{1-x^k} = \sum_{c_k=0}^{\infty} x^{c_k \cdot k}$ encodes choosing $c_k$ copies of part~$k$. Taking the Cauchy product over all $k$ and collecting the coefficient of $x^n$ counts all solutions $(c_1, c_2, \ldots)$ in non-negative integers to $\sum_k k \cdot c_k = n$, which is precisely $p(n)$. Absolute convergence for $|x| < 1$ follows from $\sum_{k=1}^{\infty} \log \frac{1}{1-|x|^k} \leq \sum_{k=1}^{\infty} \frac{|x|^k}{1-|x|^k} < \infty$.
+\end{proof}
+
+\begin{theorem}[Euler's Pentagonal Number Theorem]
+\[
+\prod_{k=1}^{\infty}(1 - x^k) = 1 + \sum_{j=1}^{\infty} (-1)^j \left(x^{j(3j-1)/2} + x^{j(3j+1)/2}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+(Franklin's involution.) The coefficient of $x^n$ in $\prod_{k \geq 1}(1-x^k)$ equals $\sum_{\lambda \in \mathcal{D}_n}(-1)^{\ell(\lambda)}$, where $\mathcal{D}_n$ is the set of partitions of $n$ into distinct parts and $\ell(\lambda)$ is the number of parts.
+
+For $\lambda = (\lambda_1 > \cdots > \lambda_r)$, let $s = \lambda_r$ (smallest part) and $t$ be the length of the maximal consecutive run descending from $\lambda_1$. Define a map $\phi$ on $\mathcal{D}_n$:
+\begin{itemize}
+    \item \textbf{Move A} ($s < t$, or $s = t$ with the smallest part outside the top run): remove $\lambda_r$ and add $1$ to each of the $s$ largest parts, producing $r - 1$ parts.
+    \item \textbf{Move B} (otherwise, when $s > t$): subtract $1$ from each of the $t$ largest parts and insert $t$ as a new part, producing $r + 1$ parts.
+\end{itemize}
+These moves are mutual inverses and each reverses the sign $(-1)^r$. Fixed points occur only when $n = j(3j-1)/2$ or $n = j(3j+1)/2$ for some $j \geq 1$, contributing $(-1)^j$. All other terms cancel in pairs.
+\end{proof}
+
+\begin{theorem}[Partition Recurrence]
+For $n \geq 1$:
+\[
+p(n) = \sum_{j=1}^{\infty} (-1)^{j+1} \left[p\!\left(n - \tfrac{j(3j-1)}{2}\right) + p\!\left(n - \tfrac{j(3j+1)}{2}\right)\right],
+\]
+with $p(0) = 1$ and $p(m) = 0$ for $m < 0$.
+\end{theorem}
+
+\begin{proof}
+From $\bigl(\sum_n p(n)x^n\bigr)\bigl(\prod_k (1-x^k)\bigr) = 1$, extract the coefficient of $x^n$ for $n \geq 1$ and rearrange. The sum terminates when both pentagonal arguments become negative.
+\end{proof}
+
+\begin{theorem}[DP Correctness]
+Initialize $\mathrm{dp}[0] = 1$, $\mathrm{dp}[j] = 0$ for $j \geq 1$. For $k = 1, \ldots, n$ and $j = k, \ldots, n$, update $\mathrm{dp}[j] \mathrel{+}= \mathrm{dp}[j-k]$. Then $\mathrm{dp}[n] = p(n)$.
+\end{theorem}
+
+\begin{proof}
+By induction on $k$: after processing part size $k$, the value $\mathrm{dp}[j]$ equals $p_{\le k}(j)$ for all $0 \leq j \leq n$. The update adds partitions of $j$ that use at least one copy of~$k$: the forward iteration (increasing~$j$) allows unbounded repetition since $\mathrm{dp}[j - k]$ already reflects earlier uses of~$k$ in the same pass. The identity $p_{\le k}(j) = \sum_{m=0}^{\lfloor j/k \rfloor} p_{\le k-1}(j - mk)$ confirms the inductive step. After $k = n$, $\mathrm{dp}[n] = p_{\le n}(n) = p(n)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute $p(n) - 1$}
+\begin{algorithmic}[1]
+\REQUIRE $n = 100$
+\STATE $\mathrm{dp}[0..n] \gets 0$; $\mathrm{dp}[0] \gets 1$
+\FOR{$k = 1$ \TO $n$}
+    \FOR{$j = k$ \TO $n$}
+        \STATE $\mathrm{dp}[j] \gets \mathrm{dp}[j] + \mathrm{dp}[j - k]$
+    \ENDFOR
+\ENDFOR
+\RETURN $\mathrm{dp}[n] - 1$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} $\sum_{k=1}^{n}(n - k + 1) = n(n+1)/2 = O(n^2)$. For $n = 100$: $5050$ operations.
+
+\textbf{Space:} $O(n)$ for the one-dimensional DP array.
+
+\textbf{Alternative:} The pentagonal recurrence (Theorem~3) yields $O(n\sqrt{n})$ time, since each $p(k)$ computation involves $O(\sqrt{k})$ pentagonal numbers.
+
+\section{Answer}
+
+\[
+\boxed{190569291}
+\]
+
+\end{document}

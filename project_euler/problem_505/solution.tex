@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 505: Bidding Game}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Two players each start with $n$ chips and play a series of rounds. In each round, both simultaneously bid some chips. The higher bidder wins the round; spent chips are removed. The first to win a target number of rounds wins the game. Find the game value under optimal play.
+
+\section{Mathematical Analysis}
+The state space is $(a, b, r_A, r_B)$ where $a, b$ are remaining chips and $r_A, r_B$ are rounds still needed. At each state, the simultaneous bid choices form a matrix game.
+
+\section{Derivation}
+Terminal conditions:
+\begin{align}
+V(a, b, 0, r_B) &= 1 \quad \text{(A has won)} \\
+V(a, b, r_A, 0) &= 0 \quad \text{(B has won)}
+\end{align}
+
+At non-terminal states, the payoff when A bids $i$ and B bids $j$:
+\[
+M_{i,j} = \begin{cases}
+V(a-i, b-j, r_A-1, r_B) & \text{if } i > j \\
+V(a-i, b-j, r_A, r_B-1) & \text{if } i < j \\
+V(a-i, b-j, r_A-1, r_B) & \text{if } i = j \text{ (tie to A)}
+\end{cases}
+\]
+
+The game value is:
+\[
+V(a, b, r_A, r_B) = \text{val}(M) = \max_{\mathbf{p}} \min_{\mathbf{q}} \mathbf{p}^T M \mathbf{q}
+\]
+
+By the minimax theorem, this is well-defined.
+
+\section{Proof of Correctness}
+Backward induction from terminal states is valid because:
+\begin{enumerate}
+    \item The game is finite (chips are consumed).
+    \item Each matrix game has a unique value (von Neumann minimax theorem).
+    \item Optimal strategies exist in mixed strategies.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{State space:} $O(n^2 \cdot R^2)$.
+    \item \textbf{Per state:} $O(n^2)$ for matrix construction, $O(n^3)$ for LP.
+    \item \textbf{Total:} $O(n^5 \cdot R^2)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{714591308667615832}
+\]
+
+\end{document}

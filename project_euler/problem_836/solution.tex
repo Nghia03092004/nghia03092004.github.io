@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 836: A Bold Proposition}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $A$ be an \textbf{affine plane} over a \textbf{radically integral local field}~$F$ with residual characteristic~$p$. We consider an \textbf{open oriented line section}~$U$ of~$A$ with normalized Haar measure~$m$. Define $f(m,p)$ as the maximal possible discriminant of the \textbf{jacobian} associated to the \textbf{orthogonal kernel embedding} of~$U$ into~$A$.
+
+Find $f(20230401, 57)$. Give as your answer the concatenation of the first letters of each bolded word.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Non-existence of Coherent Interpretation]
+The compound expression ``radically integral local field'' does not correspond to any standard mathematical object. The problem is intentionally constructed from incompatible terminology as an April Fools' Day puzzle (note $m=20230401$ encodes April~1, 2023).
+\end{theorem}
+
+\begin{proof}
+A ``local field'' is well-defined (Serre, Neukirch), but ``radically integral'' is not a recognized qualifier. Similarly, ``Jacobian'' and ``orthogonal kernel embedding'' do not compose into a coherent construction in this context. The date encoding confirms the puzzle nature.
+\end{proof}
+
+\begin{lemma}[Extraction Rule]
+The answer is obtained by concatenating the first letter of each bolded word.
+\end{lemma}
+
+\begin{proof}
+The bolded words in order are: \textbf{a}ffine, \textbf{p}lane, \textbf{r}adically, \textbf{i}ntegral, \textbf{l}ocal, \textbf{f}ield, \textbf{o}pen, \textbf{o}riented, \textbf{l}ine, \textbf{s}ection, \textbf{j}acobian, \textbf{o}rthogonal, \textbf{k}ernel, \textbf{e}mbedding. Concatenation yields \texttt{aprilfoolsjoke}.
+\end{proof}
+
+\section{Algorithm}
+
+Extract the first letter of each bolded word and concatenate. Time and space: $O(1)$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(1)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{\texttt{aprilfoolsjoke}}
+\]
+
+\end{document}

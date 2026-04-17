@@ -1,0 +1,140 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{proposition}{Proposition}
+
+\title{Project Euler Problem 398: Cutting Rope}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Inside a rope of length~$n$, place $n-1$ points at integer positions $1, 2, \ldots, n-1$.
+Choose $m-1$ of these points uniformly at random and cut the rope, creating $m$ segments.
+
+Define $E(n, m)$ as the expected length of the \emph{second-shortest} segment. If multiple
+segments share the shortest length, the second-shortest equals the shortest.
+
+\medskip
+\noindent\textbf{Examples:} $E(3, 2) = 2$, \quad $E(8, 3) = \tfrac{16}{7}$.
+
+\medskip
+\noindent\textbf{Task:} Find $E(10^7, 100)$ rounded to 5 decimal places.
+
+\section{Reformulation as Compositions}
+
+Selecting $m-1$ cut points from $\{1, \ldots, n-1\}$ is equivalent to choosing a
+uniformly random \textbf{composition} of $n$ into $m$ positive integer parts
+$(x_1, x_2, \ldots, x_m)$ with $x_i \ge 1$ and $\sum x_i = n$.
+
+The total number of such compositions is $\binom{n-1}{m-1}$ (stars and bars).
+
+\section{Tail-Sum Formula}
+
+By the tail-sum identity for non-negative integer-valued random variables:
+\[
+    E[\text{2nd min}] = \sum_{t=1}^{\infty} P(\text{2nd min} \ge t).
+\]
+
+The event $\{\text{2nd min} \ge t\}$ means \emph{at most one} part is strictly less than~$t$:
+\[
+    P(\text{2nd min} \ge t) = P(\text{all parts} \ge t) + P(\text{exactly one part} < t).
+\]
+
+\subsection{Term 1: All Parts $\ge t$}
+
+\begin{proposition}
+The number of compositions of $n$ into $m$ parts each $\ge t$ is
+\[
+    N_{\text{all}}(t) = \binom{n - m(t-1) - 1}{m - 1}
+\]
+provided $n - m(t-1) \ge m$, and zero otherwise.
+\end{proposition}
+
+\begin{proof}
+Substitute $y_i = x_i - (t-1) \ge 1$. Then $\sum y_i = n - m(t-1)$, and the number of
+compositions of $n - m(t-1)$ into $m$ positive parts is $\binom{n - m(t-1) - 1}{m-1}$.
+\end{proof}
+
+\subsection{Term 2: Exactly One Part $< t$}
+
+Choose which of the $m$ parts is the small one (say it has value $s \in \{1, \ldots, t-1\}$).
+The remaining $m-1$ parts are each $\ge t$ and sum to $n - s$.
+
+Substituting $y_j = x_j - t \ge 0$ for the remaining parts, we need non-negative integer
+solutions to $\sum_{j=1}^{m-1} y_j = n - s - (m-1)t$. The count is:
+\[
+    \binom{n - s - (m-1)t + m - 2}{m - 2}
+\]
+when $n - s - (m-1)t \ge 0$.
+
+\medskip
+Summing over $s = 1, \ldots, S$ where $S = \min(t-1, \; n - (m-1)t)$, and letting
+$R = n - (m-1)t$:
+
+\[
+    \sum_{s=1}^{S} \binom{R - s + m - 2}{m - 2}.
+\]
+
+\begin{proposition}[Hockey Stick Identity]
+\[
+    \sum_{s=1}^{S} \binom{R - s + m - 2}{m - 2}
+    = \binom{R + m - 2}{m - 1} - \binom{R - S + m - 2}{m - 1}.
+\]
+\end{proposition}
+
+\begin{proof}
+Apply the identity $\sum_{j=a}^{b} \binom{j}{k} = \binom{b+1}{k+1} - \binom{a}{k+1}$
+with the substitution $j = R - s + m - 2$ and $k = m - 2$.
+\end{proof}
+
+Therefore:
+\[
+    N_{\text{one}}(t) = m \left[\binom{R + m - 2}{m - 1} - \binom{R - S + m - 2}{m - 1}\right].
+\]
+
+\section{Final Formula}
+
+\[
+    \boxed{E(n, m) = \frac{1}{\binom{n-1}{m-1}} \sum_{t=1}^{T}
+    \left[N_{\text{all}}(t) + N_{\text{one}}(t)\right]}
+\]
+
+where $T = \lfloor (n-1)/(m-1) \rfloor + 1$ (the sum is zero for larger $t$).
+
+\section{Complexity}
+
+The outer loop runs $O(n/m)$ iterations. Each iteration computes $O(1)$ binomial
+coefficients. For $n = 10^7$ and $m = 100$, this yields $\approx 100{,}000$ iterations.
+
+\section{Result}
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Test} & \textbf{Expected} & \textbf{Computed} \\
+\midrule
+$E(3, 2)$ & 2 & 2 \\
+$E(8, 3)$ & $16/7 \approx 2.28571$ & $16/7$ \\
+$E(10^7, 100)$ & --- & $2010.59096$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\[
+    \boxed{E(10^7, 100) = 2010.59096}
+\]
+
+\section{Answer}
+
+\[
+\boxed{2010.59096}
+\]
+
+\end{document}

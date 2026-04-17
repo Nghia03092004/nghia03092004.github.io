@@ -1,0 +1,46 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 709: Even Stevens}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Even Stevens plays a game where he flips a fair coin repeatedly. He starts with score 0. On each flip, if heads, his score increases by 1; if tails, his score increases by 2. He stops when his score reaches or exceeds $n$. Let $p(n)$ be the probability he finishes with exactly $n$. Find $\sum_{n=1}^{10^7} p(n)$ modulo $10^9+7$.
+
+\section{Mathematical Analysis}
+At each step, score goes up by 1 (prob 1/2) or 2 (prob 1/2). The probability of landing exactly on $n$ satisfies the recurrence:
+$$p(n) = \frac{1}{2}p(n-1) + \frac{1}{2}p(n-2)$$
+with $p(0) = 1$, $p(1) = 1/2$.
+
+This is a linear recurrence related to the Fibonacci sequence scaled by powers of $1/2$.
+
+\section{Derivation}
+From the recurrence $p(n) = \frac{1}{2}p(n-1) + \frac{1}{2}p(n-2)$:
+
+The characteristic equation is $x^2 = \frac{1}{2}x + \frac{1}{2}$, i.e., $2x^2 - x - 1 = 0$, giving roots $x = 1$ and $x = -1/2$.
+
+General solution: $p(n) = A + B(-1/2)^n$.
+
+From $p(0)=1$: $A+B=1$. From $p(1)=1/2$: $A-B/2=1/2$.
+
+Solving: $A = 2/3$, $B = 1/3$. So $p(n) = \frac{2}{3} + \frac{1}{3}(-\frac{1}{2})^n$.
+
+The sum $\sum_{n=1}^{N} p(n) = \frac{2N}{3} + \frac{1}{3}\sum_{n=1}^{N}(-1/2)^n = \frac{2N}{3} + \frac{1}{3} \cdot \frac{-1/2(1-(-1/2)^N)}{3/2}$.
+
+\section{Proof of Correctness}
+The recurrence follows from decomposing the last step: to reach $n$ exactly, either come from $n-1$ via heads or from $n-2$ via tails. The base cases are $p(0)=1$ (start at 0) and $p(1) = 1/2$ (only way is one heads flip).
+
+\section{Complexity Analysis}
+$O(N)$ iterative, or $O(\log N)$ via matrix exponentiation, or $O(1)$ closed form with modular arithmetic.
+
+\section{Answer}
+
+\[
+\boxed{773479144}
+\]
+
+\end{document}

@@ -1,0 +1,84 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{booktabs}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 89: Roman Numerals}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given 1000 Roman numerals in valid but not necessarily minimal form, determine the total number of characters saved by converting each to minimal form.
+
+\section{Solution}
+
+\subsection{Parsing Roman Numerals}
+Given a string $s = s_1 s_2 \cdots s_n$, define $v(s_i)$ as the value of symbol $s_i$. The integer value is:
+\[
+\text{value} = \sum_{i=1}^{n} \begin{cases} -v(s_i) & \text{if } i < n \text{ and } v(s_i) < v(s_{i+1}) \\ v(s_i) & \text{otherwise} \end{cases}
+\]
+
+\subsection{Generating Minimal Form}
+Use the greedy algorithm with the extended symbol table:
+
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+\textbf{Symbol(s)} & \textbf{Value} \\
+\midrule
+M & 1000 \\
+CM & 900 \\
+D & 500 \\
+CD & 400 \\
+C & 100 \\
+XC & 90 \\
+L & 50 \\
+XL & 40 \\
+X & 10 \\
+IX & 9 \\
+V & 5 \\
+IV & 4 \\
+I & 1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{theorem}
+The greedy algorithm produces the unique minimal-length Roman numeral representation for any positive integer $n \le 4999$.
+\end{theorem}
+
+\begin{proof}
+Each digit position (thousands, hundreds, tens, ones) is independently encoded. For each digit $d \in \{0, \ldots, 9\}$, the subtractive notation gives the unique shortest encoding. Since the greedy algorithm processes from largest to smallest value, it correctly decomposes each digit.
+\end{proof}
+
+\subsection{Character Savings}
+For each numeral, the saving is:
+\[
+\Delta_i = |s_i^{\text{original}}| - |s_i^{\text{minimal}}|
+\]
+The total saving is $\sum_{i=1}^{1000} \Delta_i$.
+
+\subsection{Result}
+\[
+\boxed{743}
+\]
+
+\section{Answer}
+
+\[
+\boxed{743}
+\]
+
+\end{document}

@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 506: Clock Sequence}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider the infinite periodic digit stream
+\[
+123432123432123432\cdots
+\]
+and read it from left to right. Define $v_n$ to be the shortest consecutive block of unread digits whose digit sum is exactly $n$. The beginning of the sequence is
+\[
+1,\ 2,\ 3,\ 4,\ 32,\ 123,\ 43,\ 2123,\ 432,\ 1234,\ 32123,\ldots
+\]
+Let
+\[
+S(N)=\sum_{n=1}^{N} v_n.
+\]
+It is given that $S(11)=36120$. Find $S(10^{14}) \bmod 123454321$.
+
+\section{Mathematical Analysis}
+
+Let $c=123432$ be the fundamental 6-digit cycle. Its digit sum is $15$.
+
+\begin{lemma}
+The first fifteen terms are
+\[
+\begin{aligned}
+&v_1=1,\quad v_2=2,\quad v_3=3,\quad v_4=4,\quad v_5=32,\\
+&v_6=123,\quad v_7=43,\quad v_8=2123,\quad v_9=432,\quad v_{10}=1234,\\
+&v_{11}=32123,\quad v_{12}=43212,\quad v_{13}=34321,\quad v_{14}=23432,\quad v_{15}=123432.
+\end{aligned}
+\]
+\end{lemma}
+
+\begin{proof}
+Since all digits are positive, for each target sum $n$ there is a unique shortest unread block whose digit sum is $n$. A direct simulation yields the displayed values.
+\end{proof}
+
+\begin{lemma}
+After the first fifteen terms have been read, the stream is again aligned with the start of the cycle $c$.
+\end{lemma}
+
+\begin{proof}
+The total number of digits consumed by the fifteen terms is
+\[
+1+1+1+1+2+3+2+4+3+4+5+5+5+5+6 = 48 = 8 \cdot 6,
+\]
+which is a multiple of the cycle length. Hence the next unread digit is again the first digit of $c$.
+\end{proof}
+
+\begin{theorem}
+The pattern of starting phases repeats with period $15$. Hence for every $q \ge 0$ and every $1 \le r \le 15$, the block $v_{15q+r}$ starts in the same phase as $v_r$.
+\end{theorem}
+
+\begin{proof}
+By the previous lemma the stream is realigned after one block of fifteen terms. Repeating the same argument inductively proves the claim for every subsequent 15-term block.
+\end{proof}
+
+For each residue $r \in \{1,\dots,15\}$ let $p_r$ be the starting phase of $v_r$, let $C_r$ be the 6-digit rotation of $c$ starting at phase $p_r$, and let $U_r$ be the terminal partial block needed to realize the residue $r \bmod 15$.
+
+Writing
+\[
+n=15q+r \qquad (1 \le r \le 15),
+\]
+we obtain
+\[
+v_n = \underbrace{C_r C_r \cdots C_r}_{q\text{ copies}}\, U_r.
+\]
+Therefore, modulo $M=123454321$,
+\[
+v_n \equiv A_r G(q) + B_r \pmod M,
+\]
+where
+\[
+A_r \equiv C_r 10^{L_r} \pmod M,\qquad B_r \equiv U_r \pmod M,
+\]
+and
+\[
+G(q)=1+10^6+10^{12}+\cdots+10^{6(q-1)}.
+\]
+
+\begin{theorem}
+The contribution of all complete 15-term blocks reduces to geometric sums.
+\end{theorem}
+
+\begin{proof}
+The coefficients $A_r,B_r$ depend only on the residue class $r$, not on the block index. Hence
+\[
+\sum_{q=0}^{Q-1} v_{15q+r}
+\equiv
+A_r \sum_{q=0}^{Q-1} G(q) + Q B_r \pmod M.
+\]
+Since $G(q)$ is itself a geometric sum in the ratio $10^6$, the outer sum is again expressible by geometric-series identities.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Simulate the first fifteen terms once and record the phase data $(p_r,U_r,L_r)$.
+\item Form the rotations $C_r$ and coefficients $A_r,B_r$.
+\item Let $N=10^{14}$, $Q=\lfloor N/15 \rfloor$, and $R=N \bmod 15$.
+\item Sum the $Q$ complete blocks using the geometric-series formula above.
+\item Add the first $R$ terms of the next block directly.
+\end{enumerate}
+
+\begin{theorem}
+The algorithm computes $S(10^{14}) \bmod 123454321$.
+\end{theorem}
+
+\begin{proof}
+Lemma 1 gives the exact first-block data. Lemma 2 and the first theorem imply 15-periodicity of the starting phases. The decomposition $v_{15q+r}=C_r^q U_r$ is exact because each full cycle contributes digit sum $15$ and returns to the same phase. The geometric-sum reduction therefore computes the contribution of every complete block exactly, and the remaining $R$ terms are added explicitly. Hence every term $v_n$ with $1 \le n \le 10^{14}$ is counted once and only once.
+\end{proof}
+
+\section{Complexity}
+
+The precomputation is constant-size. The final evaluation uses a constant number of modular exponentiations and geometric-sum evaluations.
+
+\begin{itemize}
+\item Time: $O(\log N)$.
+\item Space: $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{18934502}
+\]
+
+\end{document}

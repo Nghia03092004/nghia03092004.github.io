@@ -1,0 +1,84 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 347: Largest Integer Divisible by Two Primes}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For distinct primes $p < q$, let $M(p,q,N)$ be the largest integer $\le N$ whose only prime factors are $p$ and $q$ (both appearing). Find
+\[
+\sum_{\substack{p < q \\ pq \le 10^7}} M(p, q, 10^7).
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Structure]
+The integers with only prime factors $p$ and $q$ (both present) form the set $\{p^a q^b : a \ge 1,\, b \ge 1\}$.
+\end{theorem}
+
+\begin{proof}
+By unique factorization, an integer whose only prime factors are $p$ and $q$ has the form $p^a q^b$ with $a, b \ge 0$. Requiring both primes to appear forces $a \ge 1$ and $b \ge 1$.
+\end{proof}
+
+\begin{lemma}[Finite Enumeration]
+For $pq \le N$, the set $\{p^a q^b \le N : a,b \ge 1\}$ has at most $\log_p N \cdot \log_q N = O(\log^2 N)$ elements.
+\end{lemma}
+
+\begin{proof}
+$a \le \log_p(N/q) \le \log_p N$ and $b \le \log_q(N/p) \le \log_q N$.
+\end{proof}
+
+\begin{theorem}[Maximum Exists]
+$M(p,q,N) = \max\{p^a q^b : a,b \ge 1,\; p^a q^b \le N\}$ is well-defined when $pq \le N$.
+\end{theorem}
+
+\begin{proof}
+The set is non-empty ($pq \le N$) and finite ($p^a q^b \ge 2^{a+b} \to \infty$). A finite non-empty subset of $\mathbb{Z}$ has a maximum.
+\end{proof}
+
+\begin{lemma}[Pair Count]
+The number of prime pairs $(p,q)$ with $p < q$ and $pq \le N$ is $O(N/\log^2 N)$.
+\end{lemma}
+
+\begin{proof}
+For each prime $p \le \sqrt{N}$, the primes $q \in (p, N/p]$ number $O(N/(p \log N))$ by PNT. Summing over $p$ gives $O(N/\log^2 N)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+primes = sieve(N/2)
+total = 0
+for each pair (p, q) with p < q, p*q <= N:
+    best = 0
+    pp = p
+    while pp * q <= N:
+        pq = pp * q
+        while pq * q <= N: pq *= q
+        best = max(best, pq)
+        pp *= p
+    total += best
+return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$. Each of $O(N/\log^2 N)$ pairs requires $O(\log^2 N)$ work.
+    \item \textbf{Space:} $O(N)$ for the sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{11109800204052}
+\]
+
+\end{document}

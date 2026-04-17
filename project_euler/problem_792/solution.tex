@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 792: Too Many Twos}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+$S(n) = \sum_{k=1}^{n} (-2)^k \binom{2k}{k}$. Define $u(n) = v_2(3S(n)+4)$ where $v_2$ is the 2-adic valuation. $U(N) = \sum_{n=1}^{N} u(n^3)$. Given $u(4)=7$ (since $3S(4)+4=2944=2^7 \cdot 23$), $U(5)=241$. Find $U(10^4)$.
+\section{Analysis}
+\subsection*{Computing $S(n)$ Modulo Powers of 2}
+
+The 2-adic valuation $u(n) = v_2(3S(n)+4)$ requires computing $3S(n)+4$ modulo high powers of 2. Using the recurrence for central binomial coefficients:
+
+$$\binom{2k}{k} = \frac{(2k-1) \cdot 2}{k} \binom{2(k-1)}{k-1}$$
+
+The 2-adic properties of $\binom{2k}{k}$ are well-studied: by Kummer's theorem, $v_2\binom{2k}{k}$ equals the number of carries when adding $k$ to itself in binary, which equals $s_2(k)$ (the digit sum of $k$ in base 2)... Actually, $v_2\binom{2k}{k} = s_2(k)$ by Legendre's formula.
+
+\subsection*{Pattern in $u(n)$}
+
+Computing $S(n)$ for small $n$:
+\section{Answer}
+
+\[
+\boxed{2500500025183626}
+\]
+
+\end{document}

@@ -1,0 +1,59 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 416: A Frog's Trip}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A frog begins at the leftmost square of an $n$-square row and makes successive jumps of 1, 2, or 3 squares to the right to reach the rightmost square, then returns leftward using the same rules. The frog makes $m$ such round trips.
+
+Let $F(m,n)$ denote the number of ways the frog can travel so that at most one square remains unvisited. Find the last 9 digits of $F(10, 10^{12})$.
+
+\section{Mathematical Analysis}
+
+\subsection{Transfer Matrix Method}
+We model the problem using a transfer matrix. Consider each position along the row. The frog's jumps of size 1, 2, or 3 create specific patterns of visited and skipped squares.
+
+\subsection{State Encoding}
+For a single leg (outward or return), the state at each position encodes:
+\begin{itemize}
+    \item Whether the position has been visited
+    \item The local pattern of gaps created by jumps of size 2 or 3
+\end{itemize}
+
+After $2m$ legs, we require that at most one square remains unvisited across all legs combined.
+
+\subsection{Matrix Exponentiation}
+The recurrence for the number of valid configurations has the form:
+\[
+F(m,n) = \mathbf{v}^T \cdot T^{n-1} \cdot \mathbf{w}
+\]
+where $T$ is the transfer matrix of dimension $k \times k$ (for a small constant $k$), and $\mathbf{v}, \mathbf{w}$ are boundary vectors.
+
+For $n = 10^{12}$, we compute $T^{n-1}$ using repeated squaring in $O(k^3 \log n)$ time, with all arithmetic modulo $10^9$.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Construct the transfer matrix $T$ encoding valid jump patterns and coverage states.
+    \item Apply matrix exponentiation to compute $T^{n-1} \pmod{10^9}$.
+    \item Multiply with boundary vectors to obtain $F(10, 10^{12}) \pmod{10^9}$.
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(k^3 \log n)$ where $k$ is the matrix size and $n = 10^{12}$.
+    \item \textbf{Space:} $O(k^2)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{898082747}
+\]
+
+\end{document}

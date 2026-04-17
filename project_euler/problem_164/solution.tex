@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 164: Numbers for Which No Three Consecutive Digits\\Have a Sum Greater Than 9}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many 20-digit numbers $n$ (without leading zeros) exist such that no three consecutive digits of $n$ have a digit sum greater than 9?
+
+\section{Mathematical Analysis}
+
+\subsection{Dynamic Programming Formulation}
+
+Let $d_1 d_2 d_3 \ldots d_{20}$ be the digits of such a number. The constraint is:
+\[
+d_i + d_{i+1} + d_{i+2} \leq 9 \quad \text{for all } 1 \leq i \leq 18
+\]
+with $d_1 \geq 1$ (no leading zeros).
+
+\subsection{State Definition}
+
+Define $f(k, a, b)$ = number of valid completions for positions $k, k+1, \ldots, 20$, given that digit at position $k-2$ is $a$ and digit at position $k-1$ is $b$.
+
+\subsection{Recurrence}
+
+For position $k$ ($3 \leq k \leq 20$):
+\[
+f(k, a, b) = \sum_{d=0}^{9-a-b} f(k+1, b, d)
+\]
+where the upper limit ensures $a + b + d \leq 9$.
+
+Base case: $f(21, a, b) = 1$ for all valid $(a, b)$.
+
+\subsection{Answer Computation}
+
+The first digit $d_1 \in \{1, \ldots, 9\}$, the second digit $d_2 \in \{0, \ldots, 9\}$:
+\[
+\text{Answer} = \sum_{d_1=1}^{9} \sum_{d_2=0}^{9} f(3, d_1, d_2)
+\]
+
+Note: when $k = 3$, the constraint $d_1 + d_2 + d_3 \leq 9$ applies, which is handled by the recurrence with $a = d_1, b = d_2$.
+
+\subsection{State Space Analysis}
+
+Valid states $(a, b)$ satisfy $0 \leq a, b \leq 9$. The constraint $a + b + d \leq 9$ requires $a + b \leq 9$ (otherwise no digit $d$ is available, meaning $f = 0$ for $a + b > 9$).
+
+Number of valid states where $a + b \leq 9$:
+\[
+\sum_{a=0}^{9} (10 - a) = 55
+\]
+
+\subsection{Matrix Exponentiation (Alternative)}
+
+The recurrence can be expressed as matrix multiplication on a 55-dimensional state vector. Let $\mathbf{v}_k$ be the vector indexed by valid pairs $(a,b)$ with $a+b \leq 9$, where the entry is $f(k, a, b)$.
+
+The transition matrix $M$ has entry $M_{(a,b),(b,d)} = 1$ if $a + b + d \leq 9$ (and 0 otherwise, or if the indices don't chain properly).
+
+Then $\mathbf{v}_k = M \cdot \mathbf{v}_{k+1}$, and the answer involves $M^{18} \cdot \mathbf{1}$ evaluated at appropriate initial states.
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time (iterative DP)}: $O(20 \times 10^3) = O(20000)$
+    \item \textbf{Time (matrix exponentiation)}: $O(55^3 \log 20) \approx O(700000)$
+    \item \textbf{Space}: $O(10^2) = O(100)$ with rolling array
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{378158756814587}
+\]
+
+\end{document}

@@ -1,0 +1,109 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 84: Monopoly Odds}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+In a simplified Monopoly game using two 4-sided dice, determine the three most frequently visited squares. Express the answer as a six-digit string of their two-digit board positions, ordered by decreasing frequency.
+
+\section{Mathematical Foundation}
+
+\subsection{Definitions and Notation}
+
+\begin{definition}[Board]
+The Monopoly board consists of 40 squares indexed $0, 1, \ldots, 39$. Distinguished squares: GO~(0), JAIL~(10), G2J~(30); Community Chest: $\{2, 17, 33\}$; Chance: $\{7, 22, 36\}$; Railroads: $\{5, 15, 25, 35\}$; Utilities: $\{12, 28\}$.
+\end{definition}
+
+\begin{definition}[Dice distribution]
+Two independent 4-sided dice yield a sum $S \in \{2, \ldots, 8\}$ with
+\[
+P(S = k) = \frac{\min(k-1,\, 9-k)}{16}, \quad k = 2, \ldots, 8.
+\]
+The probability of doubles is $P(\text{doubles}) = 4/16 = 1/4$.
+\end{definition}
+
+\subsection{State Space Construction}
+
+\begin{lemma}[Sufficiency of the Doubles Counter]
+The state space $\mathcal{S} = \{(s, d) : 0 \le s \le 39,\; 0 \le d \le 2\}$ with $|\mathcal{S}| = 120$ is a sufficient representation for the Monopoly Markov chain, where $s$ is the current square and $d$ is the consecutive doubles count.
+\end{lemma}
+
+\begin{proof}
+The transition distribution depends on $s$ (for landing rules) and $d$ (for the three-consecutive-doubles rule). If $d = 2$ and a double is rolled, the player moves to JAIL with $d$ reset to~0, so $d = 3$ never persists. If $d < 2$ and a double is rolled, $d$ increments. Otherwise, $d$ resets to~0. Hence $d \in \{0, 1, 2\}$ is exhaustive, giving $40 \times 3 = 120$ states.
+\end{proof}
+
+\subsection{Ergodicity}
+
+\begin{theorem}[Existence and Uniqueness of Stationary Distribution]
+The Markov chain on $\mathcal{S}$ is irreducible and aperiodic. By the Perron--Frobenius theorem, there exists a unique stationary distribution $\boldsymbol{\pi}$ satisfying $\boldsymbol{\pi}^T P = \boldsymbol{\pi}^T$ and $\|\boldsymbol{\pi}\|_1 = 1$.
+\end{theorem}
+
+\begin{proof}
+\emph{Irreducibility:} From any state, $(10, 0)$ is reachable via three consecutive doubles (probability $(1/4)^k > 0$). From $(10, 0)$, any square is reachable because the dice sums $\{2, 3, \ldots, 8\}$ satisfy $\gcd(2,3,4,5,6,7,8) = 1$, so by B\'{e}zout's lemma every residue modulo~40 is attainable in bounded non-double rolls.
+
+\emph{Aperiodicity:} From $(s, 0)$, non-double rolls keep $d = 0$, and the chain can return to $(s, 0)$ in varying numbers of steps (since step sizes with $\gcd = 1$ generate all residues). Hence the period is~1.
+\end{proof}
+
+\subsection{Transition Matrix}
+
+\begin{theorem}[Transition Construction]
+The $120 \times 120$ transition matrix $P$ is constructed by iterating over all 16 dice outcomes $(a,b) \in \{1,2,3,4\}^2$ for each state $(s,d)$:
+\begin{enumerate}
+    \item If $a = b$ (doubles) and $d = 2$: transition to $(10, 0)$.
+    \item Otherwise, land on $j = (s + a + b) \bmod 40$. Apply G2J, Community Chest, or Chance redirection rules with their respective card probabilities.
+    \item Set $d' = d + 1$ if $a = b$ and $d < 2$; otherwise $d' = 0$.
+\end{enumerate}
+Each outcome contributes probability $1/16$. Card draws are independent with uniform distribution over 16 cards.
+\end{theorem}
+
+\begin{proof}
+Each dice outcome has probability $1/16$, and the card-based redirections have the stated conditional probabilities. The construction sums these contributions, yielding row-stochastic transition probabilities.
+\end{proof}
+
+The marginal square probability is:
+\[
+\pi_s = \sum_{d=0}^{2} \pi_{(s,d)}
+\]
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Monopoly Stationary Distribution}
+\begin{algorithmic}[1]
+\STATE Build $120 \times 120$ transition matrix $P$ from game rules
+\STATE Solve $\boldsymbol{\pi}^T P = \boldsymbol{\pi}^T$ with $\sum \pi_i = 1$
+\STATE Compute $\pi_s = \sum_{d=0}^{2} \pi_{(s,d)}$ for each square $s$
+\RETURN Top 3 squares by $\pi_s$, formatted as 6-digit string
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time (exact):} $O(|\mathcal{S}|^3) = O(120^3) \approx 1.7 \times 10^6$ for eigenvalue decomposition or Gaussian elimination. Power iteration: $O(|\mathcal{S}|^2 \cdot T)$ with $T \sim 100$ iterations.
+    \item \textbf{Time (simulation):} $O(N)$ for $N$ simulated turns ($N \sim 10^7$ typical).
+    \item \textbf{Space:} $O(|\mathcal{S}|^2) = O(14400)$ for the transition matrix.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{101524}
+\]
+
+\end{document}

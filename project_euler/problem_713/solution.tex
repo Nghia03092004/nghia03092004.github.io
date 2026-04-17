@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 713: Turan's Water Heating System}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A water heating system requires two working fuses in series. There are $N$ fuses total, $m$ of which work. Define $T(N,m)$ as the minimum trials to guarantee the system works. Let
+\[
+L(N) = \sum_{m=2}^{N} T(N,m).
+\]
+Given $L(10^3) = 3281346$, find $L(10^7)$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}
+To guarantee finding one working fuse among $N$ fuses when $m$ are working requires at most $N - m + 1$ trials.
+\end{lemma}
+
+\begin{proof}
+In the worst case, the first $N-m$ tested are broken. The $(N-m+1)$-th must be working.
+\end{proof}
+
+\begin{theorem}
+The optimal strategy yields
+\[
+T(N,m) = (N - m + 1) + \left\lfloor \frac{N-1}{m-1} \right\rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+Finding the first working fuse costs $N-m+1$ in the worst case (Lemma~1). For the second, among $N-1$ remaining fuses with $m-1$ working, optimal group testing costs $\lfloor(N-1)/(m-1)\rfloor$ trials.
+\end{proof}
+
+\begin{lemma}
+The sum decomposes as
+\[
+L(N) = \frac{N(N-1)}{2} + \sum_{d=1}^{N-1} \left\lfloor \frac{N-1}{d} \right\rfloor.
+\]
+\end{lemma}
+
+\begin{proof}
+We have $\sum_{m=2}^{N}(N-m+1) = \sum_{k=1}^{N-1} k = N(N-1)/2$. Substituting $d = m-1$, the floor sum becomes $\sum_{d=1}^{N-1}\lfloor(N-1)/d\rfloor$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function L(N):
+    S1 = N * (N - 1) / 2
+    S2 = 0
+    M = N - 1
+    d = 1
+    while d <= M:
+        q = floor(M / d)
+        d_max = floor(M / q)
+        S2 += q * (d_max - d + 1)
+        d = d_max + 1
+    return S1 + S2
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\sqrt{N})$ via the Dirichlet hyperbola method for the divisor sum.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{788626351539895}
+\]
+
+\end{document}

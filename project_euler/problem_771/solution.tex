@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 771: Pseudo Geometric Sequences}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Strictly increasing positive integers $a_0<\cdots<a_n$ with $|a_i^2-a_{{i-1}}a_{{i+1}}|\le 2$ for interior terms, $n\ge 4$. $G(N)$ = count with all terms $\le N$. Find $G(10^{{18}}) \bmod 10^9+7$.
+
+\section{Analysis}
+The condition $|a_i^2-a_{{i-1}}a_{{i+1}}|\le 2$ means the sequence is 'almost geometric'. For a geometric sequence $a_i = a_0 r^i$, $a_i^2 = a_{{i-1}}a_{{i+1}}$ exactly. The tolerance $\pm 2$ allows near-geometric integer sequences.
+
+\section{Answer}
+
+\[
+\boxed{398803409}
+\]
+
+\end{document}

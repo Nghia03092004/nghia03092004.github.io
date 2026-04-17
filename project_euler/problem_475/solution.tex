@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 475: Music Festival}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A music festival has $n$ stages, each running $m$ acts sequentially with no gaps. A festival-goer wishes to attend exactly one complete act from each stage, with no time overlaps between chosen acts.
+
+Count the number of valid schedules.
+
+\section{Mathematical Analysis}
+
+\subsection{Interval Scheduling Model}
+Each stage $s \in \{1, \ldots, n\}$ has acts occupying contiguous time intervals:
+\[
+[a_{s,1}, b_{s,1}), \; [a_{s,2}, b_{s,2}), \; \ldots, \; [a_{s,m}, b_{s,m})
+\]
+where $b_{s,i} = a_{s,i+1}$ (acts are back-to-back on each stage).
+
+A \emph{valid schedule} is a selection $(i_1, i_2, \ldots, i_n)$ with $i_s \in \{1, \ldots, m\}$ such that:
+\[
+[a_{s,i_s}, b_{s,i_s}) \cap [a_{t,i_t}, b_{t,i_t}) = \emptyset \quad \forall\, s \ne t
+\]
+
+\subsection{Bitmask DP}
+Process acts sorted by end time. Define:
+\[
+f(\text{mask}, t) = \text{number of ways to serve exactly the stages in \texttt{mask} with latest end time } \le t
+\]
+
+Transition: for each act $(s, i)$ with start time $a_{s,i} \ge t$ and $s \notin \texttt{mask}$:
+\[
+f(\texttt{mask} \cup \{s\}, \, b_{s,i}) \mathrel{+}= f(\texttt{mask}, \, t)
+\]
+
+Base case: $f(\emptyset, 0) = 1$.
+
+Answer: $\sum_{t} f(\{1, \ldots, n\}, t)$.
+
+\subsection{Inclusion-Exclusion Alternative}
+Define the conflict graph $G$ where vertices are acts and edges connect overlapping acts from different stages. A valid schedule is an independent set of size $n$ in $G$ (one vertex per stage). The count can also be expressed via:
+\[
+\text{Count} = \sum_{S \subseteq \text{conflict pairs}} (-1)^{|S|} \cdot (\text{products of free choices})
+\]
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Bitmask DP:} $O(2^n \cdot n \cdot m \cdot T_{\max})$ time, $O(2^n \cdot T_{\max})$ space.
+    \item \textbf{Brute force:} $O(m^n \cdot n^2)$ time for checking all $m^n$ combinations.
+    \item For moderate $n$ and $m$, the bitmask DP is efficient.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{75780067}
+\]
+
+\end{document}

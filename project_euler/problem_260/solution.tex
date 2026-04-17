@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 260: Stone Game}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Three piles of stones. A player may remove any positive number of stones from one pile, or an equal positive number from any two piles. The player taking the last stone wins.
+
+Find $\displaystyle\sum_{\substack{(a,b,c) \in \mathcal{P} \\ 0 \le a \le b \le c \le 1000}} (a+b+c)$ where $\mathcal{P}$ is the set of P-positions (losing positions for the player to move).
+
+\section{Game-Theoretic Analysis}
+
+\subsection{Sprague--Grundy Framework}
+
+This is an impartial game. Positions are classified as:
+\begin{itemize}
+    \item \textbf{P-position}: every move leads to an N-position (losing for mover).
+    \item \textbf{N-position}: some move leads to a P-position (winning for mover).
+\end{itemize}
+
+\subsection{Available Moves from $(a,b,c)$}
+
+\begin{enumerate}
+    \item Remove $k \ge 1$ stones from one pile.
+    \item Remove $k \ge 1$ stones from two piles simultaneously.
+\end{enumerate}
+
+All resulting positions are re-sorted so $a' \le b' \le c'$.
+
+\subsection{Computation}
+
+Process positions in order of increasing $a+b+c$. Position $(0,0,0)$ is a P-position. For each position, check all successors:
+
+\begin{itemize}
+    \item If any successor is a P-position, current position is N-position.
+    \item If no successor is a P-position, current position is P-position.
+\end{itemize}
+
+\section{Optimizations}
+
+\begin{enumerate}
+    \item Store P-position status in a 3D boolean array.
+    \item Early termination: as soon as we find one move to a P-position, mark as N and move on.
+    \item Process in canonical order $a \le b \le c$.
+\end{enumerate}
+
+\section{Complexity}
+
+Total positions: $\binom{1001+2}{3} \approx 1.67 \times 10^8$. With early termination and cache-friendly access, computation completes in reasonable time.
+
+\section{Result}
+
+\[
+\boxed{167542057}
+\]
+
+\section{Answer}
+
+\[
+\boxed{167542057}
+\]
+
+\end{document}

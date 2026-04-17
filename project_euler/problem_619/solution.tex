@@ -1,0 +1,29 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 619: Square Subsets}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count subsets of $\{1, \ldots, n\}$ whose product is a perfect square.
+
+\section{Mathematical Analysis}
+Represent each number by its prime factorization mod 2 (vector in $\mathbb{F}_2^k$). Count subsets with zero sum in $\mathbb{F}_2^k$.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} See implementation.
+    \item \textbf{Space:} See implementation.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{857810883}
+\]
+
+\end{document}

@@ -1,0 +1,78 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 686: Powers of Two}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find $p(123,678910)$, the $678910$-th smallest exponent $j$ such that the decimal expansion of $2^j$ begins with the digits \texttt{123}.
+
+\section{Mathematical Foundation}
+
+Let $\alpha = \log_{10} 2$.
+
+\begin{lemma}
+The number $2^j$ begins with the digits \texttt{123} if and only if
+\[
+  \log_{10}(1.23) \le \{j\alpha\} < \log_{10}(1.24),
+\]
+where $\{x\}$ denotes the fractional part of $x$.
+\end{lemma}
+
+\begin{proof}
+We have the leading-digit condition exactly when there exists an integer $m$ such that
+\[
+  123 \cdot 10^m \le 2^j < 124 \cdot 10^m.
+\]
+Taking base-$10$ logarithms gives
+\[
+  \log_{10}(123) + m \le j\alpha < \log_{10}(124) + m.
+\]
+Subtracting $2+m$ throughout yields
+\[
+  \log_{10}(1.23) \le \{j\alpha\} < \log_{10}(1.24).
+\]
+The converse is immediate by reversing the same steps.
+\end{proof}
+
+\begin{theorem}
+Scanning the exponents $j=1,2,3,\dots$ and counting those satisfying the interval test from the lemma yields $p(123,678910)$.
+\end{theorem}
+
+\begin{proof}
+The interval test is equivalent to the defining property, so the $678910$-th hit is exactly the required exponent.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Compute $\alpha = \log_{10}2$, $L=\log_{10}(1.23)$, and $U=\log_{10}(1.24)$.
+  \item For $j=1,2,3,\dots$, compute the fractional part $\{j\alpha\}$.
+  \item Count those $j$ for which $L \le \{j\alpha\} < U$.
+  \item Stop at the $678910$-th such exponent.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item Time: $O(p(123,678910))$.
+  \item Space: $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{193060223}
+\]
+
+\end{document}

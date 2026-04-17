@@ -1,0 +1,91 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 489: Common Factors Between Two Sequences}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $\varphi(n)$ be Euler's totient and $\sigma(n)$ the sum of divisors. Define $G(n)=\gcd(\varphi(n),\sigma(n))$. Compute $\sum_{n=1}^N G(n)$ for large~$N$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Euler's totient]
+For $n = p_1^{a_1}\cdots p_k^{a_k}$:
+\[
+\varphi(n) = n\prod_{p\mid n}\!\left(1-\frac{1}{p}\right) = \prod_{i=1}^k p_i^{a_i-1}(p_i-1).
+\]
+\end{theorem}
+
+\begin{proof}
+By inclusion-exclusion, the count of integers in $\{1,\ldots,n\}$ coprime to $n$ is $n\prod_{p\mid n}(1-1/p)$. For prime powers $\varphi(p^a) = p^a - p^{a-1} = p^{a-1}(p-1)$. Multiplicativity extends to general $n$.
+\end{proof}
+
+\begin{theorem}[Sum of divisors]
+For $n = p_1^{a_1}\cdots p_k^{a_k}$:
+\[
+\sigma(n) = \prod_{i=1}^k\frac{p_i^{a_i+1}-1}{p_i-1}.
+\]
+\end{theorem}
+
+\begin{proof}
+$\sigma$ is multiplicative. For $n=p^a$, the divisors are $1,p,\ldots,p^a$ with sum $(p^{a+1}-1)/(p-1)$.
+\end{proof}
+
+\begin{lemma}[GCD at primes]
+For odd prime $p$: $G(p)=\gcd(p-1,p+1)=2$. For $p=2$: $G(2)=\gcd(1,3)=1$.
+\end{lemma}
+
+\begin{proof}
+$\gcd(p-1,p+1) = \gcd(p-1,2)$ by the Euclidean algorithm (since $(p+1)-(p-1)=2$). For odd $p$, $2\mid(p-1)$.
+\end{proof}
+
+\begin{lemma}[GCD at prime powers]
+For odd prime $p$ and $a\ge 1$:
+\[
+G(p^a) = \gcd\!\left(p-1,\;\frac{p^{a+1}-1}{p-1}\right)
+\]
+since $\gcd(p^{a-1},\sigma(p^a))=1$ (as $\sigma(p^a)\equiv 1\pmod{p}$).
+\end{lemma}
+
+\begin{proof}
+$\sigma(p^a) = 1+p+\cdots+p^a \equiv 1\pmod{p}$, so $p\nmid\sigma(p^a)$, hence $\gcd(p^{a-1},\sigma(p^a))=1$. By $\gcd(xy,z)=\gcd(y,z)$ when $\gcd(x,z)=1$:
+\[
+G(p^a) = \gcd(p^{a-1}(p-1),\sigma(p^a)) = \gcd(p-1,\sigma(p^a)). \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Non-multiplicativity]
+$G(n)=\gcd(\varphi(n),\sigma(n))$ is not multiplicative in general, since $\gcd(ab,cd)\ne\gcd(a,c)\gcd(b,d)$ for arbitrary integers.
+\end{theorem}
+
+\begin{proof}
+The identity $\gcd(ab,cd)=\gcd(a,c)\gcd(b,d)$ fails in general (e.g., $\gcd(6,6)=6\ne\gcd(2,2)\gcd(3,3)=2\cdot 3$ happens to hold, but $\gcd(6,10)=2$ while $\gcd(2,2)\gcd(3,5)=2\cdot 1=2$ agrees by coincidence). A systematic argument: for $\gcd(mn)=1$, $\varphi(mn)=\varphi(m)\varphi(n)$ and $\sigma(mn)=\sigma(m)\sigma(n)$, but $\gcd(\varphi(m)\varphi(n),\sigma(m)\sigma(n))$ can exceed $\gcd(\varphi(m),\sigma(m))\cdot\gcd(\varphi(n),\sigma(n))$ when $\gcd(\varphi(m),\sigma(n))>1$ or $\gcd(\varphi(n),\sigma(m))>1$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute $\varphi(n)$ for $n=1,\ldots,N$ via Euler's product sieve.
+\item Compute $\sigma(n)$ for $n=1,\ldots,N$ via divisor-sum sieve.
+\item For each $n$, compute $\gcd(\varphi(n),\sigma(n))$ and accumulate.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Totient sieve:} $O(N\log\log N)$.
+\item \textbf{Divisor-sum sieve:} $O(N\log N)$.
+\item \textbf{GCD computation:} $O(N\log N)$ total.
+\item \textbf{Overall:} $O(N\log N)$ time, $O(N)$ space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1791954757162}
+\]
+
+\end{document}

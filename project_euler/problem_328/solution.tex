@@ -1,0 +1,45 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\title{Problem 328: Lowest-cost Search}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the minimum worst-case cost to determine a hidden number in $\{1, 2, \ldots, n\}$, where each guess $g$ costs $g$ dollars, and you are told whether the hidden number is higher, lower, or equal.
+
+This is extended to a specific large target.
+
+\section{Approach}
+
+\subsection{Dynamic Programming}
+Define $f(lo, hi)$ as the minimum worst-case cost to find the hidden number in $[lo, hi]$:
+\[
+f(lo, hi) = \min_{lo \le g \le hi} \left[ g + \max\bigl(f(lo, g-1),\; f(g+1, hi)\bigr) \right]
+\]
+with $f(lo, lo) = 0$ and $f(lo, hi) = 0$ for $lo > hi$.
+
+\subsection{Properties}
+\begin{itemize}
+    \item $f(1, n)$ depends only on the width $n$ of the interval (by translation: $f(a, a+n-1) = f(1, n) + \text{offset terms}$). Actually, since guess costs are position-dependent, $f$ depends on both endpoints.
+    \item For the variant where cost = guess value (not uniform cost), the optimal strategy is asymmetric---lower guesses are cheaper, so we tend to guess below the midpoint.
+\end{itemize}
+
+\subsection{Efficient Computation}
+For large $n$, we:
+\begin{enumerate}
+    \item Note that $f(1, n)$ can be expressed in terms of overlapping subproblems.
+    \item Use the monotonicity of the optimal guess point: as $hi$ increases, the optimal guess for $[lo, hi]$ is non-decreasing.
+    \item Exploit summation identities for the total cost across all relevant $n$ values.
+\end{enumerate}
+
+\section{Answer}
+
+\[
+\boxed{260511850222}
+\]
+
+\end{document}

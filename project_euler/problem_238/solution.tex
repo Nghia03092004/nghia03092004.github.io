@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 238: Infinite String Tour}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define the Blum Blum Shub sequence: $s_0 = 14025256$, $s_{n+1} = s_n^2 \bmod 20300713$. Concatenate all $s_n$ to form the infinite string $w$. For positive integer~$k$, let $p(k)$ be the earliest starting position of a substring of~$w$ with digit sum~$k$ (or $0$ if none exists).
+
+Given $\sum_{k=1}^{10^3} p(k) = 4742$, find $\sum_{k=1}^{2 \times 10^{15}} p(k)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[BBS Periodicity]
+The sequence $\{s_n\}$ with $s_{n+1} = s_n^2 \bmod M$, $M = 20300713 = 5003 \times 4057$, is purely periodic with period $\lambda = 2\,534\,198$.
+\end{theorem}
+
+\begin{proof}
+Since $M = pq$ with distinct primes $p = 5003$, $q = 4057$, the BBS generator has period $\lambda = \mathrm{lcm}(\lambda_p, \lambda_q)$ where $\lambda_p, \lambda_q$ are the orders of the squaring map modulo $p$ and $q$. These divide $\mathrm{lcm}(p{-}1, q{-}1)/2$. Computation confirms $\lambda = 2\,534\,198$.
+\end{proof}
+
+\begin{lemma}[Cumulative Digit Sum Structure]
+Let $d_i$ be the $i$-th digit of $w$, $C(i) = \sum_{j=1}^{i} d_j$, $L$ the digit count of one BBS period, and $\Delta = C(L)$. Then $C(i+L) = C(i) + \Delta$ for all $i \geq 0$.
+\end{lemma}
+
+\begin{proof}
+Periodicity of the BBS sequence implies $d_{i+L} = d_i$ for all $i \geq 1$. Thus $C(i+L) - C(i) = \sum_{j=i+1}^{i+L} d_j = C(L) = \Delta$.
+\end{proof}
+
+\begin{theorem}[Digit Sum Achievability]
+The digit sum of $w[z..z{+}m{-}1]$ is $C(z{+}m{-}1) - C(z{-}1)$. Define $A(z) = \{C(z{+}m{-}1) - C(z{-}1) : m \geq 1\}$. Then $p(k) = z$ iff $k \in A(z)$ and $k \notin A(z')$ for all $z' < z$.
+\end{theorem}
+
+\begin{proof}
+By definition, $p(k)$ is the smallest $z$ with some substring starting at~$z$ having digit sum~$k$. The set $A(z)$ is exactly the achievable digit sums from position~$z$.
+\end{proof}
+
+\begin{corollary}[Periodic Extension]
+For starting positions in the $t$-th period, the achievable digit sums are shifted by $t \cdot \Delta$ relative to the first period, enabling period-by-period processing.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(K):
+    compute BBS period, form digit string of length L
+    compute cumulative sums C[0..L] and Delta = C[L]
+    for each starting position z in [1, L]:
+        determine which k values get p(k) = z
+    extend via periodicity across ceil(K / Delta) periods
+    return sum of p(k) for k = 1 to K
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(P \log(K/P))$ where $P = \lambda \approx 2.5 \times 10^6$ and $K = 2 \times 10^{15}$.
+    \item \textbf{Space:} $O(P)$ for one period of digits and cumulative sums.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{9922545104535661}
+\]
+
+\end{document}

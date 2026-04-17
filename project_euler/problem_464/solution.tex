@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+
+\title{Problem 464: M\"obius Function and Intervals}
+\author{}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $P(a,b)$ and $N(a,b)$ count values of $n \in [a,b]$ with $\mu(n) = 1$ and $\mu(n) = -1$, respectively. Define $C(n)$ as the number of pairs $(a,b)$ with $1 \le a \le b \le n$ satisfying
+\[
+99\,N(a,b) \le 100\,P(a,b) \quad\text{and}\quad 99\,P(a,b) \le 100\,N(a,b).
+\]
+Given: $C(10) = 13$, $C(500) = 16676$, $C(10000) = 20155319$. Find $C(20\,000\,000)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Reduction to 2D dominance]
+\label{thm:dom}
+Define $\mathrm{prefP}(i) = |\{n \le i : \mu(n) = 1\}|$, $\mathrm{prefN}(i) = |\{n \le i : \mu(n) = -1\}|$, and
+\[
+X(i) = 100\,\mathrm{prefP}(i) - 99\,\mathrm{prefN}(i), \qquad Y(i) = 100\,\mathrm{prefN}(i) - 99\,\mathrm{prefP}(i).
+\]
+Then $C(n) = |\{(j, b) : 0 \le j < b \le n,\; X(b) \ge X(j),\; Y(b) \ge Y(j)\}|$.
+\end{theorem}
+
+\begin{proof}
+Substitute $P(a,b) = \mathrm{prefP}(b) - \mathrm{prefP}(a-1)$ and the analogous formula for~$N$ into both inequalities. The first inequality rearranges to $X(b) \ge X(a-1)$ and the second to $Y(b) \ge Y(a-1)$. Setting $j = a - 1$ gives the stated 2D dominance formulation.
+\end{proof}
+
+\begin{lemma}[Sum identity]
+\label{lem:sum}
+$X(i) + Y(i) = \mathrm{prefP}(i) + \mathrm{prefN}(i)$, the count of squarefree integers up to~$i$.
+\end{lemma}
+
+\begin{proof}
+Direct computation: $X(i) + Y(i) = (100 - 99)(\mathrm{prefP}(i) + \mathrm{prefN}(i)) = \mathrm{prefP}(i) + \mathrm{prefN}(i)$. This is the number of squarefree integers $\le i$, which is non-decreasing.
+\end{proof}
+
+\begin{theorem}[CDQ divide-and-conquer]
+\label{thm:cdq}
+The 2D dominance count with ordering constraint $j < b$ can be computed in $O(n \log^2 n)$ time.
+\end{theorem}
+
+\begin{proof}
+Divide the index range $[0, n]$ at the midpoint. Recursively count same-half pairs. For cross-pairs ($j$ in the left half, $b$ in the right):
+\begin{enumerate}
+    \item Sort both halves by $X$-value.
+    \item Two-pointer sweep: for each $b$ in increasing $X$ order, insert all $j$ from the left half with $X(j) \le X(b)$ into a Fenwick tree keyed by coordinate-compressed $Y$-values.
+    \item Query the Fenwick tree for the prefix sum up to $Y(b)$.
+\end{enumerate}
+Each level processes $O(n)$ elements with $O(\log n)$ overhead from sorting and Fenwick operations. With $O(\log n)$ levels, the total is $O(n \log^2 n)$. Every valid pair $(j, b)$ with $j < b$ is counted exactly once: either in the same recursive half, or as a cross-pair in the merge step.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Compute $\mu(1), \ldots, \mu(n)$ via a linear sieve in $O(n)$.
+    \item Build prefix sums $\mathrm{prefP}$, $\mathrm{prefN}$ and coordinates $X$, $Y$.
+    \item Apply CDQ divide-and-conquer to count valid pairs.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n \log^2 n)$. The M\"obius sieve is $O(n)$; the CDQ step dominates.
+    \item \textbf{Space:} $O(n)$ for the sieve, prefix sums, and Fenwick tree.
+\end{itemize}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{cr}
+\toprule
+$n$ & $C(n)$ \\
+\midrule
+10 & 13 \\
+500 & 16\,676 \\
+10\,000 & 20\,155\,319 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{198775297232878}
+\]
+
+\end{document}

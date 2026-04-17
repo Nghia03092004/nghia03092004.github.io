@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 723: Pythagorean Quadrilaterals}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A quadrilateral $ABCD$ inscribed in a circle of radius~$r$ is \textbf{pythagorean} if $a^2+b^2+c^2+d^2 = 8r^2$. Let $f(r)$ count distinct pythagorean lattice grid quadrilaterals with circumradius~$r$, and
+\[
+S(n) = \sum_{d \mid n} f(\sqrt{d}).
+\]
+Find $S(5^6 \cdot 13^3 \cdot 17^2 \cdot 29 \cdot 37 \cdot 41 \cdot 53 \cdot 61)$.
+
+Given: $f(1)=1$, $f(\sqrt{2})=1$, $f(\sqrt{5})=38$, $f(5)=167$, $S(325)=2370$, $S(1105)=5535$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Lattice Points on Circles]
+The number of representations $r_2(d) = \#\{(x,y)\in\mathbb{Z}^2 : x^2+y^2=d\}$ satisfies
+\[
+r_2(d) = 4\sum_{k \mid d} \chi(k),
+\]
+where $\chi$ is the non-principal Dirichlet character modulo~4.
+\end{theorem}
+
+\begin{proof}
+In the Gaussian integers $\mathbb{Z}[i]$, each representation $d = x^2+y^2$ corresponds to a factorization $d = (x+iy)(x-iy)$. Counting all such factorizations with units yields $r_2(d) = 4(d_1(d) - d_3(d))$ where $d_j(d)$ counts divisors congruent to $j\pmod{4}$. This equals $4\sum_{k\mid d}\chi(k)$.
+\end{proof}
+
+\begin{theorem}[Pythagorean Chord Condition]
+For four points on a circle of radius $\sqrt{d}$ with consecutive central angle differences $\alpha_1,\ldots,\alpha_4$ (summing to $2\pi$), the pythagorean condition is equivalent to
+\[
+\sum_{i=1}^{4} \cos\alpha_i = 0.
+\]
+\end{theorem}
+
+\begin{proof}
+By the chord-length formula $a_i = 2\sqrt{d}\sin(\alpha_i/2)$, so $a_i^2 = 2d(1-\cos\alpha_i)$. Summing: $\sum a_i^2 = 2d(4 - \sum\cos\alpha_i)$. Setting this equal to $8d$ gives $\sum\cos\alpha_i = 0$.
+\end{proof}
+
+\begin{lemma}[Gaussian Integer Formulation]
+With lattice points $z_j \in \mathbb{Z}[i]$ satisfying $|z_j|^2 = d$, the pythagorean condition becomes
+\[
+\sum_{j=1}^{4} \operatorname{Re}(z_{j+1}\bar{z}_j) = 0.
+\]
+\end{lemma}
+
+\begin{proof}
+Since $\cos\alpha_j = \operatorname{Re}(z_{j+1}\bar{z}_j)/d$, the previous theorem gives $\sum\operatorname{Re}(z_{j+1}\bar{z}_j)/d = 0$.
+\end{proof}
+
+\begin{theorem}[Multiplicative Structure]
+Since $n$ consists entirely of primes $p \equiv 1\pmod{4}$, each such prime splits in $\mathbb{Z}[i]$ as $p = \pi\bar\pi$. The lattice point count $r_2(p^e) = 4(e+1)$ and the computation of $f(\sqrt{d})$ decomposes multiplicatively over the prime power factorization of~$d$.
+\end{theorem}
+
+\begin{proof}
+For $p\equiv 1\pmod{4}$, $p$ splits in $\mathbb{Z}[i]$, so $r_2(p^e)$ counts the $e+1$ choices of exponent split $\pi^a\bar\pi^{e-a}$ times 4 units. Multiplicativity of $r_2$ on coprime arguments follows from unique factorization in $\mathbb{Z}[i]$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Enumerate all $\tau(n) = 2688$ divisors of $n$.
+\item For each divisor $d$, compute the set of lattice points on $x^2+y^2=d$ via Gaussian integer factorization.
+\item Count pythagorean quadrilaterals using the two-sum technique on $\operatorname{Re}(z_{j+1}\bar{z}_j)$ values.
+\item Sum $f(\sqrt{d})$ over all divisors.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\tau(n) \cdot R^2)$ where $R = \max_d r_2(d)$, using the meet-in-the-middle approach on pair sums.
+\item \textbf{Space:} $O(R)$ per divisor for storing lattice points.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1395793419248}
+\]
+
+\end{document}

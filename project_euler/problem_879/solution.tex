@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\title{Problem 879: Touch-screen Password}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A touch-screen password is a sequence of $\ge 2$ distinct spots on an $n \times n$ grid. Rules:
+\begin{enumerate}
+\item Trace straight lines between consecutive target spots.
+\item Unvisited intermediate spots on the line are automatically included.
+\item Visited spots are removed from future consideration.
+\end{enumerate}
+Given $389{,}488$ passwords on $3 \times 3$, find the count for $4 \times 4$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Grid and Collinearity]
+Spots at $(i,j)$, $0 \le i,j \le n-1$. Two spots $A=(x_1,y_1)$, $B=(x_2,y_2)$ have intermediate lattice points iff $g = \gcd(|x_2-x_1|,|y_2-y_1|) > 1$.
+\end{definition}
+
+\begin{lemma}[Intermediate Spots]
+The lattice points strictly between $A$ and $B$ are
+\[
+\left(x_1 + \frac{k(x_2-x_1)}{g},\; y_1 + \frac{k(y_2-y_1)}{g}\right), \quad k = 1, \ldots, g-1.
+\]
+\end{lemma}
+
+\begin{proof}
+Write $x_2-x_1 = gd_x$, $y_2-y_1 = gd_y$ with $\gcd(d_x,d_y)=1$. A point at parameter $t \in (0,1)$ is a lattice point iff $tgd_x, tgd_y \in \mathbb{Z}$. Since $\gcd(d_x,d_y)=1$, this requires $tg \in \mathbb{Z}$, giving $t = k/g$ for $k \in \{1,\ldots,g-1\}$.
+\end{proof}
+
+\begin{theorem}[Symmetry Group]
+The $n \times n$ grid has dihedral symmetry $D_4$ of order~8. For $n=4$, the 16 spots form 3 orbits:
+\begin{itemize}
+\item 4 corners,
+\item 8 edge-centers,
+\item 4 inner spots.
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+Corners map to corners, edge non-corners to edge non-corners, and inner spots to inner spots under all 8 symmetries.
+\end{proof}
+
+\begin{lemma}[State Space]
+DFS state $= (\text{current position}, \text{visited bitmask})$. Total states: $n^2 \cdot 2^{n^2}$.
+\end{lemma}
+
+\begin{proof}
+$n^2$ positions, $2^{n^2}$ visited subsets. The pair determines all available moves.
+\end{proof}
+
+\section{Algorithm}
+
+Enumerate via DFS with bitmask memoization:
+\begin{enumerate}
+\item Precompute intermediate spots for all pairs.
+\item For each starting spot $s$, run DFS counting all paths of length $\ge 2$.
+\item At each step, check intermediate spot requirements before moving.
+\item Exploit $D_4$ symmetry to reduce starting positions to 3 orbit representatives.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n^4 \cdot 2^{n^2})$. For $n=4$: $16^2 \cdot 2^{16} \approx 1.7 \times 10^7$ operations.
+\item \textbf{Space:} $O(n^2 \cdot 2^{n^2})$ for memoization. For $n=4$: $\approx 10^6$ entries.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4350069824940}
+\]
+
+\end{document}

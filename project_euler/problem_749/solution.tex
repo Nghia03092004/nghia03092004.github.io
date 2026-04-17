@@ -1,0 +1,100 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 749: Near Power Sums}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer~$n$ is a \textbf{near power sum} if there exists $k \ge 1$ such that the sum of $k$-th powers of its digits equals $n+1$ or $n-1$. Define $S(d)$ as the sum of all near power sums with at most $d$ digits. Given $S(2)=110$, $S(6)=2\,562\,701$, find $S(16)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Digit Multiset Invariance]
+For fixed~$k$, the digit power sum $P_k(n) = \sum_{i=0}^{9} c_i \cdot i^k$ depends only on the digit multiset $(c_0,\ldots,c_9)$.
+\end{theorem}
+
+\begin{proof}
+Addition is commutative, so rearranging digits does not change the sum.
+\end{proof}
+
+\begin{theorem}[Search Space Reduction]
+Instead of checking all $n \le 10^d$, enumerate digit multisets $(c_0,\ldots,c_9)$ with $1 \le \sum c_i \le d$. For each multiset and each valid~$k$, compute $P = P_k$ and check whether $P \pm 1$ has the same digit multiset.
+\end{theorem}
+
+\begin{proof}
+If $n$ is a near power sum, then $n = P_k \pm 1$ for some~$k$. The multiset of~$n$ is enumerated in the search, and $P_k$ is computed from it. The check $P_k \pm 1$ having the correct multiset is both necessary and sufficient.
+\end{proof}
+
+\begin{lemma}[Bound on $k$]
+For numbers with at most $d$ digits:
+\[
+k \le \frac{d \cdot \ln 10}{\ln 9} + O(1).
+\]
+For $d = 16$: $k \le 18$.
+\end{lemma}
+
+\begin{proof}
+The maximum power sum is $d \cdot 9^k$, which must be at most $\sim 10^d$. Taking logarithms yields the bound.
+\end{proof}
+
+\begin{lemma}[Multiset Count]
+The number of digit multisets with total $\le d$ is $\binom{d+10}{10}-1$. For $d=16$: $5\,311\,734$.
+\end{lemma}
+
+\begin{proof}
+Stars and bars with the hockey-stick identity.
+\end{proof}
+
+\begin{theorem}[Algorithm Correctness]
+The algorithm finds exactly all near power sums:
+\begin{enumerate}
+\item Every near power sum~$n$ with $\le d$ digits is found, since its digit multiset is enumerated and $P_k \pm 1 = n$ passes the check.
+\item Every match corresponds to a valid near power sum by definition.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Forward direction: if $P_k(n) = n \pm 1$, the multiset of~$n$ is searched and the check succeeds. Reverse: if the check succeeds for some multiset, then $n = P_k \mp 1$ satisfies $P_k(n) = n \pm 1$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item For each $k = 1,\ldots,k_{\max}$:
+  \begin{enumerate}
+  \item Enumerate all digit multisets $(c_0,\ldots,c_9)$ with $1 \le \sum c_i \le d$.
+  \item Compute $P = \sum c_i \cdot i^k$.
+  \item Check if $P-1$ or $P+1$ has the same digit multiset.
+  \item If so, add the valid number to a result set.
+  \end{enumerate}
+\item Return $\sum(\text{result set})$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O\!\left(k_{\max}\cdot\binom{d+10}{10}\cdot d\right)$. For $d=16$: $\sim 10^8 \cdot 16 \approx 10^9$ operations.
+\item \textbf{Space:} $O(d)$ for recursive multiset generation, plus $O(|\text{results}|)$ for the result set.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{13459471903176422}
+\]
+
+\end{document}

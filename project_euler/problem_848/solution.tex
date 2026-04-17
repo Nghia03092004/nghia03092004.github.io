@@ -1,0 +1,49 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 848: Fraction Field}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Analyze continued fraction expansions $[a_0; a_1, \ldots, a_n]$ and their convergents.
+
+\section{Convergent Recurrence}
+
+\begin{theorem}
+$p_k = a_k p_{k-1} + p_{k-2}$, $q_k = a_k q_{k-1} + q_{k-2}$ with $p_{-1}=1, p_{-2}=0, q_{-1}=0, q_{-2}=1$.
+\end{theorem}
+
+\begin{theorem}[Determinant Identity]
+$p_k q_{k-1} - p_{k-1}q_k = (-1)^{k+1}$ for all $k \ge 0$.
+\end{theorem}
+
+\begin{corollary}
+$\gcd(p_k, q_k) = 1$: convergents are always in lowest terms.
+\end{corollary}
+
+\begin{theorem}[Lagrange]
+A real number has an eventually periodic CF iff it is a quadratic irrational.
+\end{theorem}
+
+\section{Example}
+$355/113 = [3; 7, 16]$. Convergents: $3/1, 22/7, 355/113$.
+
+\section{Complexity}
+CF expansion of $p/q$: $O(\log q)$ steps.
+
+\section{Answer}
+
+\[
+\boxed{188.45503259}
+\]
+
+\end{document}

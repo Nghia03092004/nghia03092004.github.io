@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 120: Square Remainders}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For $3 \le a \le 1000$, let $r_{\max}(a)$ be the maximum remainder when $(a-1)^n + (a+1)^n$ is divided by $a^2$, over all positive integers $n$. Find $\displaystyle\sum_{a=3}^{1000} r_{\max}(a)$.
+
+\section{Solution}
+
+\subsection{Reduction Modulo $a^2$}
+By the binomial theorem, modulo $a^2$:
+\begin{align*}
+(a+1)^n &\equiv 1 + na \pmod{a^2} \\
+(a-1)^n &\equiv (-1)^n + (-1)^{n-1} na \pmod{a^2}
+\end{align*}
+
+Adding:
+\[
+(a-1)^n + (a+1)^n \equiv
+\begin{cases}
+2 & \text{if } n \text{ is even} \\
+2na & \text{if } n \text{ is odd}
+\end{cases}
+\pmod{a^2}
+\]
+
+\begin{proof}
+For even $n$: $(-1)^n = 1$ and $(-1)^{n-1} = -1$, so the sum is $(1 - na) + (1 + na) = 2$.
+
+For odd $n$: $(-1)^n = -1$ and $(-1)^{n-1} = 1$, so the sum is $(-1 + na) + (1 + na) = 2na$.
+\end{proof}
+
+\subsection{Maximizing $r$}
+Since $r = 2$ for even $n$, we focus on odd $n$ where $r = 2na \bmod a^2$.
+
+\textbf{Case 1: $a$ odd.} Since $\gcd(2, a) = 1$, the values $2n \bmod a$ for odd $n$ cover all residues modulo $a$. The maximum of $2na \bmod a^2 = a(2n \bmod a)$ is $a(a-1)$.
+
+\textbf{Case 2: $a$ even.} Write $a = 2m$. Then $2na \bmod a^2 = 4mn \bmod 4m^2 = 4m(n \bmod m)$. For odd $n$, $n \bmod m$ achieves all values, and the maximum is $a(a - 2)$.
+
+\subsection{Closed Form}
+\[
+r_{\max}(a) = \begin{cases}
+a(a-1) & a \text{ odd} \\
+a(a-2) & a \text{ even}
+\end{cases}
+\]
+
+\subsection{Result}
+\[
+\sum_{a=3}^{1000} r_{\max}(a) = \boxed{333082500}
+\]
+
+\section{Complexity}
+$O(N)$ time and $O(1)$ space.
+
+\section{Answer}
+
+\[
+\boxed{333082500}
+\]
+
+\end{document}

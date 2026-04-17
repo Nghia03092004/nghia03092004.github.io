@@ -1,0 +1,75 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 434: Rigid Graphs}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A graph $G = (V, E)$ embedded in the plane is \emph{rigid} if it cannot be continuously deformed while preserving edge lengths, other than by rigid motions. Count the number of rigid graphs on $n$ labeled vertices, modulo a given prime.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Laman's Theorem]
+A graph $G = (V, E)$ on $n \geq 2$ vertices is generically rigid in $\mathbb{R}^2$ if and only if it contains a spanning subgraph $H = (V, E')$ with:
+\begin{enumerate}
+    \item $|E'| = 2n - 3$, and
+    \item $|E'(S)| \leq 2|S| - 3$ for every $S \subseteq V$ with $|S| \geq 2$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof (Sketch)]
+Necessity: $2n$ positional coordinates minus 3 rigid-motion parameters require $2n - 3$ independent constraints. No subset $S$ can support more than $2|S| - 3$ independent edges. Sufficiency was proved by Laman (1970) via inductive Henneberg moves.
+\end{proof}
+
+\begin{lemma}[Minimally Rigid Graphs]
+A graph is minimally rigid (a Laman graph) if $|E| = 2n - 3$ and $|E(S)| \leq 2|S| - 3$ for all $S$. Removing any edge makes it flexible.
+\end{lemma}
+
+\begin{proof}
+Removing an edge reduces $|E|$ below $2n - 3$, violating condition (1) of Laman's theorem.
+\end{proof}
+
+\begin{theorem}[Rigid Graph Counting]
+A graph $G$ is rigid if and only if it contains a Laman graph as a spanning subgraph. The count of rigid graphs on $n$ labeled vertices is obtained via inclusion-exclusion over the Laman subgraph lattice.
+\end{theorem}
+
+\begin{proof}
+Adding edges to a rigid graph preserves rigidity. Thus rigid graphs are exactly the supergraphs of Laman graphs on the same vertex set.
+\end{proof}
+
+\begin{lemma}[Pebble Game]
+The Laman sparsity condition can be verified in polynomial time using the $(2,3)$-pebble game algorithm in $O(n^2 |E|)$ time.
+\end{lemma}
+
+\begin{proof}
+The pebble game maintains 2 pebbles per vertex and tests edge independence via reachability in the directed pebble graph. Correctness follows from the matroidal structure of $(2,3)$-sparsity.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Enumerate all $2^{\binom{n}{2}}$ graphs on $n$ labeled vertices.
+    \item For each graph, run the $(2,3)$-pebble game to test rigidity.
+    \item Count and sum as required.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O\!\left(2^{\binom{n}{2}} \cdot n^2 \binom{n}{2}\right)$ --- exponential but feasible for small $n$.
+    \item \textbf{Space:} $O\!\left(\binom{n}{2}\right)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{863253606}
+\]
+
+\end{document}

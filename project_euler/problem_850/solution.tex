@@ -1,0 +1,28 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 850: Frieze Patterns}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Count Conway--Coxeter frieze patterns of order~$n$.
+\begin{theorem}[Conway--Coxeter]
+$F(n) = C_{n-1}$ where $C_k = \frac{1}{k+1}\binom{2k}{k}$ is the Catalan number.
+\end{theorem}
+\begin{proof}[Proof sketch]
+Bijection with triangulations of the $(n+1)$-gon. The unimodular rule $ad - bc = 1$ encodes triangle adjacency.
+\end{proof}
+\section{Values}
+\begin{center}
+\begin{tabular}{cc} \toprule $n$ & $F(n)$ \\ \midrule 3 & 2 \\ 4 & 5 \\ 5 & 14 \\ 6 & 42 \\ \bottomrule \end{tabular}
+\end{center}
+\section{Answer}
+
+\[
+\boxed{878255725}
+\]
+
+\end{document}

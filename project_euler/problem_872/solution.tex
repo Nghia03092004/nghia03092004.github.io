@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\title{Problem 872: Recursive Bracelets}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+This problem concerns counting equivalence classes of bead colorings on a cycle under the dihedral group (bracelets), with a recursive compositional structure. The necklace counting formula is:
+\[
+N(n,k) = \frac{1}{n}\sum_{d \mid n}\varphi(d)\,k^{n/d}.
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Burnside's Lemma]
+Let a finite group $G$ act on a finite set $X$. The number of orbits is
+\[
+|X/G| = \frac{1}{|G|}\sum_{g \in G} |X^g|.
+\]
+\end{theorem}
+
+\begin{proof}
+Count pairs $(g,x)$ with $g \cdot x = x$ in two ways. Over $G$: $\sum_{g}|X^g|$. Over $X$: $\sum_{x}|G_x|$. By orbit-stabilizer, $|G_x| = |G|/|G \cdot x|$, so
+\[
+\sum_{x \in X} |G_x| = |G| \sum_{\text{orbits}} 1 = |G| \cdot |\text{orbits}|. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Necklace Count]
+The number of distinct necklaces with $n$ beads and $k$ colors is
+\[
+N(n,k) = \frac{1}{n}\sum_{d \mid n}\varphi(d)\,k^{n/d}.
+\]
+\end{theorem}
+
+\begin{proof}
+Apply Burnside to $C_n$ acting on $k$-colorings. Rotation by $j$ fixes $k^{\gcd(n,j)}$ colorings. Grouping by $d = n/\gcd(n,j)$: exactly $\varphi(d)$ values of $j$ satisfy $\gcd(n,j)=n/d$, yielding the formula.
+\end{proof}
+
+\begin{theorem}[Bracelet Count]
+Under the dihedral group $D_n$:
+\[
+B(n,k) = \begin{cases}
+\frac{1}{2}N(n,k) + \frac{1}{4}(k+1)k^{n/2} & n \text{ even},\\[4pt]
+\frac{1}{2}N(n,k) + \frac{1}{2}k^{(n+1)/2} & n \text{ odd}.
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+$D_n$ has $2n$ elements: $n$ rotations contribute $n \cdot N(n,k)$ total fixed points. For $n$ odd, each of the $n$ reflections fixes $k^{(n+1)/2}$ colorings. For $n$ even, $n/2$ reflections through vertices fix $k^{n/2+1}$ each, and $n/2$ through edges fix $k^{n/2}$ each. Dividing by $2n$ gives the result.
+\end{proof}
+
+\begin{lemma}[Aperiodic Necklaces]
+The count of aperiodic necklaces of length $n$ over $k$ symbols is
+\[
+L(n,k) = \frac{1}{n}\sum_{d \mid n}\mu(d)\,k^{n/d}.
+\]
+Furthermore, $N(n,k) = \sum_{d \mid n} L(d,k)$.
+\end{lemma}
+
+\begin{proof}
+Every necklace of length $n$ has a unique primitive period $d \mid n$, giving $N(n,k) = \sum_{d \mid n} L(d,k)$. M\"obius inversion on the divisor lattice yields the formula for $L(n,k)$.
+\end{proof}
+
+\section{Algorithm}
+
+Compute $N(n,k)$ by enumerating divisors of $n$ with Euler's totient and modular exponentiation. Apply the recursive bracelet structure as specified by the problem. Aggregate results modulo $M$ if required.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(d(n) \cdot \log n)$ per necklace count, where $d(n)$ = number of divisors.
+\item \textbf{Space:} $O(1)$ auxiliary per count; $O(n)$ if memoization is needed for recursion.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2903144925319290239}
+\]
+
+\end{document}

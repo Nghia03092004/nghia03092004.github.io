@@ -1,0 +1,57 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 636: Restricted Factorisations}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $F(n)$ as the number of ways $n$ can be written as a product of one natural number, two squares, three cubes, and four fourth powers, with all base numbers distinct. Find $F(1{,}000{,}000!) \bmod 1{,}000{,}000{,}007$.
+
+\section{Mathematical Analysis}
+
+\subsection{Representation}
+
+We seek the number of representations:
+\[
+n = a \cdot b_1^2 \cdot b_2^2 \cdot c_1^3 \cdot c_2^3 \cdot c_3^3 \cdot d_1^4 \cdot d_2^4 \cdot d_3^4 \cdot d_4^4
+\]
+where all bases $\{a, b_1, b_2, c_1, c_2, c_3, d_1, d_2, d_3, d_4\}$ are distinct positive integers.
+
+\subsection{Prime Exponent Distribution}
+
+For $n = N!$, by Legendre's formula:
+\[
+v_p(N!) = \sum_{i=1}^{\infty} \left\lfloor \frac{N}{p^i} \right\rfloor
+\]
+
+For each prime $p$, we must distribute $v_p(N!)$ as:
+\[
+v_p(N!) = \alpha_p + 2(\beta_{1,p} + \beta_{2,p}) + 3(\gamma_{1,p} + \gamma_{2,p} + \gamma_{3,p}) + 4(\delta_{1,p} + \delta_{2,p} + \delta_{3,p} + \delta_{4,p})
+\]
+
+\subsection{Generating Function}
+
+The generating function for the exponent distribution at each prime is:
+\[
+G(x) = \frac{1}{1-x} \cdot \frac{1}{(1-x^2)^2} \cdot \frac{1}{(1-x^3)^3} \cdot \frac{1}{(1-x^4)^4}
+\]
+
+The coefficient $[x^e]G(x)$ gives the number of ways to distribute exponent $e$ without the distinctness constraint.
+
+\subsection{Distinctness via Inclusion-Exclusion}
+
+The distinctness of bases is enforced through inclusion-exclusion on the base assignments. Since each base is a product of prime powers, and the prime exponents at different primes are distributed independently, we can use a multiplicative approach.
+
+\section{Answer}
+
+\[
+\boxed{888316}
+\]
+
+\end{document}

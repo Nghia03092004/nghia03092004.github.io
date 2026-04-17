@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 445: Retractions A}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For the group $G = \mathbb{Z}_n^k$, a \textbf{retraction} is an idempotent group endomorphism $r \colon G \to G$ with $r \circ r = r$. Find $R(12^{12}) \pmod{10^9 + 7}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Idempotent Decomposition]
+Let $G$ be a finite abelian group and $r \colon G \to G$ an endomorphism with $r^2 = r$. Then $G = \operatorname{Im}(r) \oplus \ker(r)$, and $r$ is the projection onto $\operatorname{Im}(r)$ along $\ker(r)$.
+\end{theorem}
+
+\begin{proof}
+For $g \in G$, write $g = r(g) + (g - r(g))$. Since $r^2 = r$, we have $r(g) \in \operatorname{Im}(r)$ and $r(g - r(g)) = r(g) - r^2(g) = 0$, so $g - r(g) \in \ker(r)$. Thus $G = \operatorname{Im}(r) + \ker(r)$. If $x \in \operatorname{Im}(r) \cap \ker(r)$, then $x = r(y)$ and $r(x) = 0$, giving $x = r(y) = r^2(y) = r(x) = 0$.
+\end{proof}
+
+\begin{theorem}[CRT Reduction]
+Let $n = p_1^{a_1} \cdots p_m^{a_m}$. Then $\operatorname{End}(\mathbb{Z}_n) \cong \mathbb{Z}_n$, and the idempotents of $\mathbb{Z}_n$ are in bijection with elements $e$ satisfying $e \equiv 0$ or~$1 \pmod{p_i^{a_i}}$ for each~$i$, yielding $2^m$ idempotents.
+\end{theorem}
+
+\begin{proof}
+By CRT, $\mathbb{Z}_n \cong \prod_i \mathbb{Z}_{p_i^{a_i}}$. Every endomorphism of~$\mathbb{Z}_n$ is multiplication by some element, so $\operatorname{End}(\mathbb{Z}_n) \cong \mathbb{Z}_n$ as rings. The condition $e^2 \equiv e \pmod{n}$ is equivalent to $e(e-1) \equiv 0 \pmod{n}$. Since $\gcd(e, e-1) = 1$, this factors via CRT into $p_i^{a_i} \mid e$ or $p_i^{a_i} \mid (e-1)$ for each~$i$.
+\end{proof}
+
+\begin{theorem}[Gaussian Binomial Counting]
+For $G = \mathbb{Z}_{p^a}^k$,
+\[
+R(p^a, k) = \sum_{j=0}^{k} \binom{k}{j}_{p^a} \cdot (p^a)^{j(k-j)}
+\]
+where $\binom{k}{j}_q$ is the Gaussian binomial coefficient.
+\end{theorem}
+
+\begin{proof}
+A retraction is determined by a direct summand $H \leq G$ (the image) and a complement $K$ (the kernel) with $G = H \oplus K$. The number of free direct summands of rank~$j$ is the Gaussian coefficient $\binom{k}{j}_{p^a}$. For each such~$H$, the number of valid complements is $(p^a)^{j(k-j)}$, corresponding to the choices for the splitting homomorphism. Summing over~$j$ gives the formula.
+\end{proof}
+
+\begin{lemma}[Multiplicativity]
+For $\gcd(n_1, n_2) = 1$, $R(n_1 n_2, k) = R(n_1, k) \cdot R(n_2, k)$.
+\end{lemma}
+
+\begin{proof}
+By CRT, $\mathbb{Z}_{n_1 n_2}^k \cong \mathbb{Z}_{n_1}^k \times \mathbb{Z}_{n_2}^k$. Idempotent endomorphisms of a direct product of groups with coprime orders decompose as products of idempotent endomorphisms on each factor.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Factor $n$ into prime powers $p_1^{a_1} \cdots p_m^{a_m}$.
+\item For each $p_i^{a_i}$, compute $R(p_i^{a_i}, k) = \sum_{j=0}^{k} \binom{k}{j}_{p_i^{a_i}} \cdot (p_i^{a_i})^{j(k-j)} \bmod (10^9+7)$.
+\item Multiply the local factors: $R(n, k) = \prod_i R(p_i^{a_i}, k) \bmod (10^9+7)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(m \cdot k^2 \cdot \log(p^a))$ where $m = \omega(n)$, dominated by Gaussian binomial computation.
+\item \textbf{Space:} $O(k)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{659104042}
+\]
+
+\end{document}

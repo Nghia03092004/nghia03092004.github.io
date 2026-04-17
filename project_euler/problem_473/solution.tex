@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 473: Phigital Number Base}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $\varphi = \frac{1+\sqrt{5}}{2}$ be the golden ratio. Every positive integer has a unique ``phigital'' representation as a sum of non-consecutive powers of $\varphi$ (analogous to the Zeckendorf representation). A phigital representation is \emph{palindromic} if the digit string reads the same forwards and backwards, ignoring the radix point.
+
+Find the sum of all positive integers not exceeding $10^{10}$ whose phigital representation is palindromic.
+
+\section{Mathematical Analysis}
+\subsection{Base-$\varphi$ Representation}
+The golden ratio satisfies $\varphi^2 = \varphi + 1$. Every positive integer $n$ can be written uniquely as:
+\[
+n = \sum_{i} d_i \varphi^i, \quad d_i \in \{0,1\}, \quad d_i d_{i+1} = 0 \;\forall\, i
+\]
+with finitely many nonzero digits (extending to negative exponents).
+
+\subsection{Palindromic Structure}
+For a representation with digits $d_k d_{k-1} \cdots d_1 d_0 \,.\, d_0' d_1' \cdots d_k'$, palindromicity means $d_i = d_i'$ for all $i$. Thus a palindromic number has the form:
+\[
+n = \sum_{i \in S} \left(\varphi^i + \varphi^{-(i+1)}\right)
+\]
+where $S$ is a set of non-negative integers with no two consecutive elements.
+
+\subsection{Integrality}
+Since $\varphi^n + \psi^n = L_n$ (the $n$-th Lucas number) and $|\psi| < 1$, the palindromic sums naturally produce values close to integers. The non-consecutive constraint ensures uniqueness.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Precompute $\varphi^i$ for $i = 0, \ldots, 48$ using extended-precision arithmetic.
+    \item Use depth-first search over bit positions $k, k-1, \ldots, 0$, deciding whether to activate each palindromic pair.
+    \item Enforce the non-consecutive constraint: if position $i$ is active, skip position $i-1$.
+    \item Prune branches where the accumulated value exceeds $10^{10}$.
+    \item Collect all integer-valued results and sum them.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\varphi^{k/2})$ where $k \approx 47$, yielding roughly $10^5$ candidates due to the Fibonacci-like branching of the non-consecutive constraint.
+    \item \textbf{Space:} $O(k)$ for the recursion stack and precomputed powers.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{35856681704365}
+\]
+
+\end{document}

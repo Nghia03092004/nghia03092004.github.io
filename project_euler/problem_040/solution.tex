@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\title{Problem 40: Champernowne's Constant}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Champernowne's constant is defined as
+\[
+    C_{10} = 0.123456789101112131415\ldots
+\]
+If $d_n$ denotes the $n$-th digit of the fractional part, compute:
+\[
+    d_1 \times d_{10} \times d_{100} \times d_{1000} \times d_{10000} \times d_{100000} \times d_{1000000}
+\]
+
+\section{Mathematical Analysis}
+
+\subsection{Digit Distribution}
+The positive integers contribute digits in blocks:
+
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+$k$ (digits) & Range & Count & Total digits \\
+\hline
+1 & $1$--$9$ & 9 & 9 \\
+2 & $10$--$99$ & 90 & 180 \\
+3 & $100$--$999$ & 900 & 2700 \\
+4 & $1000$--$9999$ & 9000 & 36000 \\
+5 & $10000$--$99999$ & 90000 & 450000 \\
+6 & $100000$--$999999$ & 900000 & 5400000 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Algorithm for $d_n$}
+\begin{enumerate}
+    \item Let $S_k = \sum_{j=1}^{k} 9 \cdot 10^{j-1} \cdot j$ be the cumulative digit count through $k$-digit numbers.
+    \item Find $k$ such that $S_{k-1} < n \le S_k$.
+    \item Compute offset $r = n - S_{k-1}$.
+    \item The target number is $N = 10^{k-1} + \left\lfloor \frac{r-1}{k} \right\rfloor$.
+    \item The digit position within $N$ is $\left( (r-1) \bmod k \right)$, counting from the left (0-indexed).
+\end{enumerate}
+
+\subsection{Evaluation}
+\begin{align*}
+    d_1 &= 1 & \text{(digit of 1)} \\
+    d_{10} &= 1 & \text{(first digit of 10)} \\
+    d_{100} &= 5 & \text{(from 55)} \\
+    d_{1000} &= 3 & \text{(from 370)} \\
+    d_{10000} &= 7 & \text{(from 2777)} \\
+    d_{100000} &= 2 & \text{(from 22222)} \\
+    d_{1000000} &= 1 & \text{(from 185185)}
+\end{align*}
+
+\section{Result}
+\[
+    d_1 \times d_{10} \times d_{100} \times d_{1000} \times d_{10000} \times d_{100000} \times d_{1000000}
+    = 1 \times 1 \times 5 \times 3 \times 7 \times 2 \times 1
+    = \boxed{210}
+\]
+
+\section{Answer}
+
+\[
+\boxed{210}
+\]
+
+\end{document}

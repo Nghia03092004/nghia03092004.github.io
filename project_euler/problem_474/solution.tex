@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 474: Last Digits of Divisors}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a positive integer $n$ and digit count $d$, let $f(n, d)$ be the number of divisors of $n!$ whose last $d$ digits equal the last $d$ digits of $n!$. That is, $f(n,d) = \#\{k \mid n! : k \equiv n! \pmod{10^d}\}$.
+
+Define $S(N, d) = \sum_{n=1}^{N} f(n, d)$.
+
+Find $S(10^8, 9) \bmod 2^{32}$.
+
+\section{Mathematical Analysis}
+
+\subsection{Factorization of $n!$}
+Write $n! = 2^a \cdot 5^b \cdot m$ where $\gcd(m, 10) = 1$, with:
+\[
+a = v_2(n!) = \sum_{i=1}^{\infty} \left\lfloor \frac{n}{2^i} \right\rfloor, \qquad
+b = v_5(n!) = \sum_{i=1}^{\infty} \left\lfloor \frac{n}{5^i} \right\rfloor
+\]
+
+\subsection{Divisor Congruence via CRT}
+Since $10^d = 2^d \cdot 5^d$, the condition $k \equiv n! \pmod{10^d}$ splits as:
+\[
+k \equiv n! \pmod{2^d} \quad \text{and} \quad k \equiv n! \pmod{5^d}
+\]
+by the Chinese Remainder Theorem.
+
+\subsection{Character Sum Formula}
+For the coprime-to-10 part, the count of divisors of $n!/(2^a 5^b)$ congruent to a target residue $r \pmod{10^d}$ is:
+\[
+\frac{1}{\varphi(10^d)} \sum_{\chi \bmod{10^d}} \overline{\chi(r)} \prod_{\substack{p \text{ prime} \\ p \ne 2,5}} \sum_{c=0}^{e_p} \chi(p^c)
+\]
+where $e_p = v_p(n!)$ and $\chi$ ranges over Dirichlet characters modulo $10^d$.
+
+\subsection{Geometric Sums}
+For each prime $p$ and character $\chi$:
+\[
+\sum_{c=0}^{e_p} \chi(p^c) = \begin{cases}
+\frac{\chi(p)^{e_p+1} - 1}{\chi(p) - 1} & \text{if } \chi(p) \ne 1 \\
+e_p + 1 & \text{if } \chi(p) = 1
+\end{cases}
+\]
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Sieve primes up to $N = 10^8$.
+    \item For each $n$, incrementally update the prime factorization exponents of $n!$.
+    \item Compute the target residue $n! / (2^a 5^b) \bmod 10^d$ incrementally.
+    \item Evaluate the character sum formula using DFT over $(\mathbb{Z}/10^d\mathbb{Z})^*$.
+    \item Handle the powers of 2 and 5 separately, combining with the coprime count.
+    \item Accumulate $f(n, d)$ into $S$ modulo $2^{32}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \cdot \varphi(10^d) / \log N)$ with optimized character evaluation, feasible for $N = 10^8$, $d = 9$.
+    \item \textbf{Space:} $O(\varphi(10^d) + \pi(N))$ for character tables and prime lists.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{9690646731515010}
+\]
+
+\end{document}

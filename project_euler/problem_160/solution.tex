@@ -1,0 +1,80 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Problem 160: Factorial Trailing Digits}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the last 5 non-trailing-zero digits of $(10^{12})!$. That is, compute:
+\[
+f(N) = \frac{N!}{10^{v_5(N!)}} \bmod 10^5, \quad N = 10^{12}
+\]
+
+\section{Mathematical Framework}
+
+\subsection{Legendre's Formula}
+
+\[
+v_p(N!) = \sum_{i=1}^{\infty} \left\lfloor \frac{N}{p^i} \right\rfloor
+\]
+
+\subsection{Decomposition}
+
+Write $N! = 2^{a} \cdot 5^{b} \cdot m$ where $a = v_2(N!)$, $b = v_5(N!)$, and $\gcd(m, 10) = 1$. Then:
+\[
+\frac{N!}{10^b} = 2^{a-b} \cdot m
+\]
+
+We need $2^{a-b} \cdot m \pmod{10^5}$.
+
+\subsection{Computing the Coprime Product}
+
+Define $P(N)$ as the product $\prod_{\substack{k=1 \\ \gcd(k,10)=1}}^{N} k \pmod{10^5}$.
+
+Let $M = 10^5$. The product of all units modulo $M$ in $\{1, \ldots, M\}$ has a fixed value $W$. By generalized Wilson's theorem applied via CRT to $\mathbb{Z}/2^5\mathbb{Z}$ and $\mathbb{Z}/5^5\mathbb{Z}$:
+\[
+W \equiv -1 \pmod{M}
+\]
+
+Then:
+\[
+P(N) \equiv W^{\lfloor N/M \rfloor} \cdot \prod_{\substack{k=1 \\ \gcd(k,10)=1}}^{N \bmod M} k \pmod{M}
+\]
+
+\subsection{Recursive Stripping of Factor 5}
+
+\[
+\prod_{k=1}^{N} k \;(\text{mod 5 removed}) = P(N) \cdot \prod_{k=1}^{\lfloor N/5 \rfloor} k \;(\text{mod 5 removed})
+\]
+
+Each level of recursion reduces $N$ by a factor of 5, giving $O(\log_5 N)$ levels.
+
+\subsection{Factor of 2}
+
+We handle powers of 2 separately. The exponent $a - b$ can be computed, then $2^{a-b} \bmod 10^5$ is found via fast exponentiation (noting $2^{a-b} \bmod 2^5$ and $2^{a-b} \bmod 5^5$ combined by CRT).
+
+\section{Complexity}
+
+$O(M + \log_5 N)$ where $M = 10^5$ and $N = 10^{12}$.
+
+\section{Result}
+
+\[
+f(10^{12}) = \boxed{16576}
+\]
+
+\section{Answer}
+
+\[
+\boxed{16576}
+\]
+
+\end{document}

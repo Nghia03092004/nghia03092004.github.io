@@ -1,0 +1,178 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm,algorithmic}
+
+\title{Problem 91: Right Triangles with Integer Coordinates}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $O=(0,0)$, $P=(x_1,y_1)$, and $Q=(x_2,y_2)$, with all coordinates integers in $[0,50]$. We must count the number of right triangles $OPQ$.
+
+\section{Derivation}
+
+We split the count according to the vertex at which the right angle occurs.
+
+\subsection*{Right angle at $O$}
+
+The condition is
+\[
+\overrightarrow{OP}\cdot \overrightarrow{OQ}=x_1x_2+y_1y_2=0.
+\]
+Since all coordinates are nonnegative, this happens exactly when one point lies on the positive $x$-axis and the other lies on the positive $y$-axis. Hence this case contributes
+\[
+50^2.
+\]
+
+\subsection*{Right angle on an axis, but not at $O$}
+
+If the right angle is at $P=(x,0)$ with $1\le x\le 50$, then $\overrightarrow{PO}=(-x,0)$ is horizontal, so orthogonality forces $\overrightarrow{PQ}$ to be vertical. Thus $Q=(x,y)$ with $1\le y\le 50$, giving another $50^2$ triangles.
+
+By symmetry, the same number arise when the right angle is at $(0,y)$ on the $y$-axis. Therefore the total contribution from all axis cases is
+\[
+3\cdot 50^2.
+\]
+
+\subsection*{Right angle at an interior lattice point}
+
+Now fix an interior point
+\[
+P=(x,y),\qquad 1\le x,y\le 50,
+\]
+and write
+\[
+g=\gcd(x,y),\qquad x=ga,\qquad y=gb,
+\]
+where $\gcd(a,b)=1$.
+
+We seek all lattice points $Q=(X,Y)$ such that $\angle OPQ=90^\circ$. This is equivalent to
+\[
+\overrightarrow{PO}\cdot \overrightarrow{PQ}=0,
+\]
+namely
+\[
+(-x,-y)\cdot (X-x,Y-y)=0,
+\]
+or
+\[
+x(X-x)+y(Y-y)=0.
+\]
+Substituting $x=ga$ and $y=gb$ yields
+\[
+a(X-x)=-b(Y-y).
+\]
+Because $\gcd(a,b)=1$, there exists $t\in\mathbb Z$ such that
+\[
+X-x=bt,\qquad Y-y=-at.
+\]
+Hence every lattice point $Q$ producing a right angle at $P$ is of the form
+\[
+Q=P+t\left(\frac{y}{g},-\frac{x}{g}\right),\qquad t\in\mathbb Z\setminus\{0\}.
+\]
+So the primitive lattice step along the line through $P$ perpendicular to $OP$ is
+\[
+\left(\frac{y}{g},-\frac{x}{g}\right).
+\]
+
+For $t>0$,
+\[
+Q=\left(x+t\frac{y}{g},\,y-t\frac{x}{g}\right),
+\]
+and the box constraints $0\le X,Y\le 50$ become
+\[
+t\le \left\lfloor \frac{(50-x)g}{y}\right\rfloor,
+\qquad
+t\le \left\lfloor \frac{yg}{x}\right\rfloor.
+\]
+So the number of valid positive steps is
+\[
+\min\!\left(
+\left\lfloor \frac{(50-x)g}{y}\right\rfloor,
+\left\lfloor \frac{yg}{x}\right\rfloor
+\right).
+\]
+
+For $t<0$, write $t=-s$ with $s>0$. Then
+\[
+Q=\left(x-s\frac{y}{g},\,y+s\frac{x}{g}\right),
+\]
+and the constraints become
+\[
+s\le \left\lfloor \frac{xg}{y}\right\rfloor,
+\qquad
+s\le \left\lfloor \frac{(50-y)g}{x}\right\rfloor.
+\]
+Thus the number of valid negative steps is
+\[
+\min\!\left(
+\left\lfloor \frac{xg}{y}\right\rfloor,
+\left\lfloor \frac{(50-y)g}{x}\right\rfloor
+\right).
+\]
+
+Therefore for a fixed interior point $P=(x,y)$, the number of triangles with right angle at $P$ equals
+\[
+\min\!\left(
+\left\lfloor \frac{(50-x)g}{y}\right\rfloor,
+\left\lfloor \frac{yg}{x}\right\rfloor
+\right)
++
+\min\!\left(
+\left\lfloor \frac{xg}{y}\right\rfloor,
+\left\lfloor \frac{(50-y)g}{x}\right\rfloor
+\right).
+\]
+
+Summing over all interior lattice points gives
+\[
+T(N)=3N^2+\sum_{x=1}^{N}\sum_{y=1}^{N}
+\left[
+\min\!\left(
+\left\lfloor \frac{(N-x)\gcd(x,y)}{y}\right\rfloor,
+\left\lfloor \frac{y\gcd(x,y)}{x}\right\rfloor
+\right)
++
+\min\!\left(
+\left\lfloor \frac{x\gcd(x,y)}{y}\right\rfloor,
+\left\lfloor \frac{(N-y)\gcd(x,y)}{x}\right\rfloor
+\right)
+\right].
+\]
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count right triangles in the $N\times N$ lattice box}
+\begin{algorithmic}[1]
+\STATE $\mathrm{total}\gets 3N^2$
+\FOR{$x=1$ to $N$}
+    \FOR{$y=1$ to $N$}
+        \STATE $g\gets \gcd(x,y)$
+        \STATE $s_x\gets y/g$, $s_y\gets x/g$
+        \STATE $\mathrm{total}\gets \mathrm{total} + \min((N-x)/s_x,\ y/s_y)$
+        \STATE $\mathrm{total}\gets \mathrm{total} + \min(x/s_x,\ (N-y)/s_y)$
+    \ENDFOR
+\ENDFOR
+\RETURN $\mathrm{total}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+There are $N^2$ interior points, and each iteration performs one gcd computation plus $O(1)$ arithmetic. Therefore:
+\[
+\text{time}=O(N^2\log N),\qquad \text{space}=O(1).
+\]
+
+\section{Answer}
+
+\[
+\boxed{14234}
+\]
+
+\end{document}

@@ -1,0 +1,74 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 292: Pythagorean Polygons}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A \textbf{Pythagorean polygon} is a convex polygon with all vertices at lattice points and all edges of integer length. Two polygons are identified if they differ only by translation. Define $P(n)$ as the number of distinct Pythagorean polygons with perimeter $\leq n$.
+
+Given: $P(4) = 1$, $P(30) = 3655$, $P(60) = 891045$. Find $P(120)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Gaussian Integer Edge Characterization]
+A vector $(a, b) \in \mathbb{Z}^2$ has integer Euclidean length if and only if $a^2 + b^2$ is a perfect square. Equivalently, every prime $p \equiv 3 \pmod{4}$ divides $a^2 + b^2$ to an even power.
+\end{theorem}
+
+\begin{proof}
+We have $|(a,b)| = \sqrt{a^2 + b^2} \in \mathbb{Z}$ iff $a^2 + b^2 = d^2$ for some non-negative integer $d$. By Fermat's theorem on sums of two squares, a positive integer $n$ is representable as a sum of two squares iff each prime factor $p \equiv 3 \pmod{4}$ of $n$ occurs to an even power. Since $d^2$ is a perfect square, this condition is automatically satisfied.
+\end{proof}
+
+\begin{lemma}[Convexity via Angular Ordering]
+A closed lattice polygon with edge vectors $\mathbf{e}_1, \ldots, \mathbf{e}_k$ (in traversal order) is convex if and only if:
+\begin{enumerate}
+\item The polar angles satisfy $\arg(\mathbf{e}_1) < \arg(\mathbf{e}_2) < \cdots < \arg(\mathbf{e}_k) < \arg(\mathbf{e}_1) + 2\pi$.
+\item The closure condition holds: $\sum_{i=1}^k \mathbf{e}_i = \mathbf{0}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Convexity requires all exterior angles to have the same sign, meaning the edge direction rotates monotonically through exactly $2\pi$ over one traversal. This is precisely the strict angular ordering condition. The closure condition ensures the polygon is closed.
+\end{proof}
+
+\begin{theorem}[Counting via DP]
+$P(L)$ equals the number of sequences $(\mathbf{e}_1, \ldots, \mathbf{e}_k)$ with $k \geq 3$, strictly increasing polar angles, integer edge lengths with total $\leq L$, and $\sum \mathbf{e}_i = \mathbf{0}$.
+\end{theorem}
+
+\begin{proof}
+By Lemma~1, each such sequence determines a unique convex polygon. Translation equivalence is eliminated by fixing the starting vertex at the origin. The correspondence is bijective.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Generate all (a, b, d) with a^2 + b^2 = d^2, d <= L-2, sorted by angle
+2. DFS with memoization:
+   State = (x, y, last_edge_index, remaining_perimeter)
+   At each state, try adding next edge or closing the polygon
+3. Prune: if dist((x,y), origin) > remaining_perimeter, skip
+4. Close: if edge_count >= 3, closing edge has correct angle and length
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(L^2 \cdot E \cdot L)$ states in the memoization table, where $E$ is the number of distinct edge directions. With distance-based pruning, the effective computation for $L = 120$ runs in seconds.
+\item \textbf{Space:} $O(L^2 \cdot E \cdot L)$ for the DP table.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3600060866}
+\]
+
+\end{document}

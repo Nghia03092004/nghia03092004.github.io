@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 28: Number Spiral Diagonals}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Starting with 1 at the center and spiraling clockwise, find the sum of the numbers on the diagonals in a $1001 \times 1001$ number spiral.
+
+\section{Mathematical Development}
+
+\begin{definition}[Spiral Rings]
+\emph{Ring~$k$} ($k \geq 1$) is the layer whose outermost side has length $2k+1$. Ring~0 is the center cell containing~1.
+\end{definition}
+
+\begin{lemma}[Ring Boundaries]\label{lem:bounds}
+Ring~$k$ contains the integers from $(2k-1)^2 + 1$ to $(2k+1)^2$. The count is $8k$.
+\end{lemma}
+
+\begin{proof}
+$(2k+1)^2 - (2k-1)^2 = 8k$.
+\end{proof}
+
+\begin{theorem}[Corner Values]\label{thm:corners}
+The four diagonal entries of ring~$k$ ($k \geq 1$) are
+\begin{align*}
+\mathrm{TR}(k) &= (2k+1)^2, & \mathrm{TL}(k) &= (2k+1)^2 - 2k, \\
+\mathrm{BL}(k) &= (2k+1)^2 - 4k, & \mathrm{BR}(k) &= (2k+1)^2 - 6k.
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+The last number in ring~$k$ is $(2k+1)^2$ at the top-right corner. Each side has $2k+1$ numbers but shares a corner with the next side, contributing $2k$ new numbers per side. Successive corners going counterclockwise are separated by~$2k$.
+\end{proof}
+
+\begin{theorem}[Ring Diagonal Sum]\label{thm:ringsum}
+The sum of the four corners of ring~$k$ is $S_k = 16k^2 + 4k + 4$.
+\end{theorem}
+
+\begin{proof}
+\[
+S_k = \sum_{j=0}^{3}\bigl[(2k+1)^2 - 2jk\bigr] = 4(2k+1)^2 - 12k = 16k^2 + 4k + 4. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Closed-Form Formula]\label{thm:closed}
+For an $N \times N$ spiral ($N$ odd), the diagonal sum is
+\[
+S(N) = \frac{4N^3 + 3N^2 + 8N - 9}{6}.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $n = (N-1)/2$. Then
+\begin{align*}
+S &= 1 + \sum_{k=1}^{n}(16k^2 + 4k + 4) \\
+  &= 1 + \frac{8n(n+1)(2n+1)}{3} + 2n(n+1) + 4n.
+\end{align*}
+Substituting $n = (N-1)/2$, $n+1 = (N+1)/2$, $2n+1 = N$:
+\begin{align*}
+S &= 1 + \frac{2N(N^2-1)}{3} + \frac{N^2-1}{2} + 2(N-1) \\
+  &= \frac{6 + 4N^3 - 4N + 3N^2 - 3 + 12N - 12}{6} = \frac{4N^3 + 3N^2 + 8N - 9}{6}. \qedhere
+\end{align*}
+\end{proof}
+
+\begin{lemma}[Verification]
+$S(1) = 1$, $S(3) = 25$, $S(5) = 101$, matching direct computation.
+\end{lemma}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Spiral Diagonal Sum}
+\begin{algorithmic}[1]
+\REQUIRE Odd side length $N$
+\ENSURE Sum of diagonal entries
+\RETURN $(4N^3 + 3N^2 + 8N - 9) / 6$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The closed-form evaluation runs in $O(1)$ time and $O(1)$ space.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{669171001}
+\]
+
+\end{document}

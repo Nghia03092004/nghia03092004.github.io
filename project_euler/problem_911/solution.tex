@@ -1,0 +1,100 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 911: Geometric Series Truncation}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $S(r, n) = \sum_{k=0}^{n} r^k$ for integer $r \ge 2$. Find $\sum_{r=2}^{100} S(r, r) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Geometric Series]
+For $r \ne 1$ and non-negative integer~$n$,
+\[
+S(r, n) = \sum_{k=0}^{n} r^k = \frac{r^{n+1} - 1}{r - 1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $S = \sum_{k=0}^{n} r^k$. Then $rS = \sum_{k=1}^{n+1} r^k$. Subtracting:
+\[
+(r - 1)S = r^{n+1} - 1.
+\]
+Since $r \ne 1$, dividing both sides by $(r-1)$ yields the result.
+\end{proof}
+
+\begin{theorem}[Fermat's Little Theorem]
+For a prime~$p$ and integer~$a$ with $\gcd(a, p) = 1$:
+\[
+a^{p-1} \equiv 1 \pmod{p}, \qquad a^{-1} \equiv a^{p-2} \pmod{p}.
+\]
+\end{theorem}
+
+\begin{proof}
+The map $x \mapsto ax$ is a bijection on $\{1, 2, \ldots, p-1\}$. Therefore
+\[
+\prod_{x=1}^{p-1}(ax) = a^{p-1}(p-1)! \equiv (p-1)! \pmod{p}.
+\]
+Cancelling $(p-1)!$ (which is coprime to~$p$) gives $a^{p-1} \equiv 1$. Multiplying by $a^{-1}$ yields $a^{p-2} \equiv a^{-1} \pmod{p}$.
+\end{proof}
+
+\begin{lemma}
+For $2 \le r \le 100$ and $p = 10^9 + 7$, the modular inverse $(r-1)^{-1} \bmod p$ exists.
+\end{lemma}
+
+\begin{proof}
+We have $1 \le r - 1 \le 99 < p$, so $r - 1 \not\equiv 0 \pmod{p}$. Since $p$ is prime, $\gcd(r-1, p) = 1$.
+\end{proof}
+
+\begin{theorem}[Correctness]
+The value $\sum_{r=2}^{100} S(r, r) \bmod p$ equals $\sum_{r=2}^{100} \bigl[(r^{r+1} - 1) \cdot (r-1)^{p-2}\bigr] \bmod p$.
+\end{theorem}
+
+\begin{proof}
+By the Geometric Series theorem, $S(r, r) = (r^{r+1} - 1)/(r - 1)$ over~$\mathbb{Z}$. By the preceding lemma, $(r-1)^{-1}$ exists modulo~$p$, and by Fermat's Little Theorem, $(r-1)^{-1} \equiv (r-1)^{p-2} \pmod{p}$. The canonical ring homomorphism $\mathbb{Z} \to \mathbb{Z}/p\mathbb{Z}$ preserves addition and multiplication, so
+\[
+S(r, r) \bmod p \equiv (r^{r+1} - 1) \cdot (r-1)^{p-2} \pmod{p}.
+\]
+Summing over $r = 2, \ldots, 100$ and reducing modulo~$p$ gives the result.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve():
+    p = 10^9 + 7
+    total = 0
+    for r = 2 to 100:
+        numerator = (pow_mod(r, r+1, p) - 1 + p) mod p
+        denominator_inv = pow_mod(r - 1, p - 2, p)
+        total = (total + numerator * denominator_inv) mod p
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(R \log p)$ where $R = 99$. Each term requires two modular exponentiations: $r^{r+1} \bmod p$ in $O(\log r)$ and $(r-1)^{p-2} \bmod p$ in $O(\log p)$. Total: $\approx 2970$ modular multiplications.
+\item \textbf{Space:} $O(1)$. Only a constant number of variables are maintained.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{5679.934966}
+\]
+
+\end{document}

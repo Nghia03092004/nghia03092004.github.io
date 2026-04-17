@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 298: Selective Amnesia}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Larry and Robin play a memory game over 50 turns. Each turn, a number from $\{1,\ldots,10\}$ is drawn uniformly at random. Each player has memory size 5. A hit (number in memory) scores a point.
+
+\textbf{Larry (LRU):} On eviction, remove the least recently \emph{called} item. On hit, item moves to front.
+
+\textbf{Robin (FIFO):} On eviction, remove the oldest item in memory. On hit, item stays in place.
+
+Find $E[|L - R|]$ after 50 turns, to 8 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Markov Property]
+The joint state $(S_L, S_R)$ -- Larry's LRU cache and Robin's FIFO queue -- evolves as a Markov chain under uniform i.i.d.\ draws.
+\end{theorem}
+
+\begin{proof}
+Given the current state and the drawn number $x$ (independent of history), the next state is fully determined by the LRU/FIFO transition rules. Hence the process is Markovian.
+\end{proof}
+
+\begin{theorem}[Symmetry Reduction]
+The state space admits compression under the action of $\mathfrak{S}_{10}$ (permutations of card labels). Transition probabilities depend only on the equivalence class.
+\end{theorem}
+
+\begin{proof}
+For any permutation $\sigma \in \mathfrak{S}_{10}$, if state $(S_L, S_R)$ transitions to $(S_L', S_R')$ on draw $x$, then $(\sigma(S_L), \sigma(S_R))$ transitions to $(\sigma(S_L'), \sigma(S_R'))$ on draw $\sigma(x)$. Since $x$ and $\sigma(x)$ are equidistributed under the uniform distribution, the Markov chain is invariant under $\mathfrak{S}_{10}$.
+\end{proof}
+
+\begin{lemma}[Compressed State]
+The compressed state records: (i) how many cards are in both memories, Larry's only, Robin's only, or neither; (ii) the relative orderings within each memory. The number of equivalence classes is finite and computationally tractable.
+\end{lemma}
+
+\begin{proof}
+Each card falls into one of four categories based on memory membership. By the $\mathfrak{S}_{10}$ symmetry, only the category sizes and internal orderings matter, not the specific labels. The resulting equivalence classes are finite.
+\end{proof}
+
+\begin{theorem}[Score Tracking]
+Track the distribution over (state, score difference $L-R$) across 50 turns. The answer is:
+\[
+E[|L - R|] = \sum_{d=-50}^{50} |d| \cdot \Pr[L - R = d \text{ after 50 turns}].
+\]
+\end{theorem}
+
+\begin{proof}
+By definition of expected absolute value for a discrete random variable.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Enumerate compressed states (equivalence classes under S_10)
+2. For each state and draw category, compute transitions
+   and score change (hit/miss for each player)
+3. DP over 50 turns: dist[state][score_diff] = probability
+4. Compute E[|L-R|] = sum over d of |d| * Pr[L-R = d]
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(50 \cdot |S| \cdot D \cdot C)$ where $|S|$ is the number of compressed states, $D = 101$ is the score-difference range, $C \leq 4$ is the number of draw categories.
+\item \textbf{Space:} $O(|S| \cdot D)$ for the probability distribution.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1.76882294}
+\]
+
+\end{document}

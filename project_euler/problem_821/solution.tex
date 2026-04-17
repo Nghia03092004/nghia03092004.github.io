@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 821: 123-Separable}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer~$n$ is called \textbf{123-separable} if its decimal digit string can be partitioned into contiguous substrings whose numeric values satisfy a prescribed cyclic divisibility pattern by~$1, 2, 3$. Compute the count (or weighted sum) of all 123-separable numbers up to~$N$, modulo~$10^9+7$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Divisibility by residue classes]
+Let $V = \sum_{t=0}^{m} d_t \cdot 10^{m-t}$ be the integer formed by the digit string $d_0 d_1 \cdots d_m$. Then:
+\begin{enumerate}
+    \item $V \equiv 0 \pmod{1}$ always.
+    \item $V \equiv d_m \pmod{2}$.
+    \item $V \equiv d_0 + d_1 + \cdots + d_m \pmod{3}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Statement~(1) is trivial. For~(2), write $V = 10Q + d_m$; since $10 \equiv 0 \pmod{2}$, we have $V \equiv d_m \pmod{2}$. For~(3), since $10 \equiv 1 \pmod{3}$, every power $10^k \equiv 1 \pmod{3}$, so $V \equiv \sum_t d_t \pmod{3}$.
+\end{proof}
+
+\begin{lemma}[Residue tracking sufficiency]
+To determine whether a contiguous substring is divisible by $q \in \{1,2,3\}$, it suffices to maintain the running value modulo~$6$ as digits are appended.
+\end{lemma}
+
+\begin{proof}
+Since $\operatorname{lcm}(1,2,3) = 6$, the residue modulo~$6$ determines divisibility by each of~$1, 2, 3$. When appending digit~$d$ to partial value~$V$, the new value satisfies $V' \bmod 6 = (10(V \bmod 6) + d) \bmod 6$, so the residue is updatable in~$O(1)$.
+\end{proof}
+
+\begin{theorem}[Correctness of the digit DP]
+Define the state $(p, r, t, \tau, s)$ where $p$~is the digit position, $r \in \{0,\ldots,5\}$~is the group residue mod~$6$, $t \in \{1,2,3\}$~is the divisibility target, $\tau \in \{0,1\}$~is the tight flag, and $s \in \{0,1\}$~indicates whether output has begun. The digit~DP over these states counts exactly the 123-separable numbers in~$[1,N]$.
+\end{theorem}
+
+\begin{proof}
+By induction on position~$p$. At $p = D$ (all digits consumed), validity requires $r \equiv 0 \pmod{t}$ and $s = 1$. At each intermediate position, the two transitions---extend and close-then-open---enumerate all possible partition points exhaustively. The tight constraint ensures the count is restricted to $[1,N]$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function COUNT_123_SEPARABLE(N):
+    digits[] = decimal digits of N; D = len(digits)
+    function DP(pos, residue, target, tight, started):
+        if pos == D:
+            return 1 if started and residue mod target == 0 else 0
+        limit = digits[pos] if tight else 9
+        count = 0
+        for d = 0 to limit:
+            new_tight = tight and (d == limit)
+            if not started and d == 0:
+                count += DP(pos+1, 0, 1, new_tight, false)
+            else:
+                new_r = (10*residue + d) mod 6
+                count += DP(pos+1, new_r, target, new_tight, true)
+                if started and residue mod target == 0:
+                    next_t = (target mod 3) + 1
+                    count += DP(pos+1, d mod 6, next_t, new_tight, true)
+        return count mod (10^9+7)
+    return DP(0, 0, 1, true, false)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(D \times 6 \times 3 \times 2 \times 2 \times 10) = O(720\,D)$. For $N \le 10^{18}$, $D \le 19$.
+    \item \textbf{Space:} $O(D \times 6 \times 3 \times 2 \times 2) = O(72\,D)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{9219661511328178}
+\]
+
+\end{document}

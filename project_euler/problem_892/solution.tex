@@ -1,0 +1,38 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 892: Recursive Digit Factorial}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find all $n$ with $f(n) = \sum_{d \in \text{digits}(n)} d! = n$ (factorions).
+
+\section{Key Results}
+
+\begin{theorem}[Finite Search]
+All factorions have $\le 7$ digits, since $k \cdot 9! < 10^{k-1}$ for $k \ge 8$.
+\end{theorem}
+
+\begin{theorem}
+The factorions in base 10 are exactly $\{1, 2, 145, 40585\}$.
+\end{theorem}
+
+\begin{proof}
+Exhaustive search over $n = 1, \ldots, 2540160$.
+Verification: $f(145) = 1!+4!+5! = 1+24+120 = 145$, $f(40585) = 24+1+120+40320+120 = 40585$.
+\end{proof}
+
+Known cycles: $169 \to 363601 \to 1454 \to 169$, $871 \leftrightarrow 45361$, $872 \leftrightarrow 45362$.
+
+\section{Answer}
+
+\[
+\boxed{469137427}
+\]
+
+\end{document}

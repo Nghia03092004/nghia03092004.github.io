@@ -1,0 +1,156 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+\title{Problem 5: Smallest Multiple}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Determine the smallest positive integer divisible by every integer from 1 to 20. Formally, compute
+\[
+L = \operatorname{lcm}(1, 2, 3, \ldots, 20).
+\]
+
+\section{Definitions and Notation}
+
+\begin{definition}
+For a prime $p$ and a positive integer $n$, the \emph{$p$-adic valuation} $v_p(n)$ is the largest exponent $e \ge 0$ such that $p^e \mid n$.
+\end{definition}
+
+\begin{definition}
+The \emph{least common multiple} of positive integers $a_1, \ldots, a_k$ is the smallest positive integer $m$ such that $a_i \mid m$ for all $1 \le i \le k$. Equivalently, $v_p(\operatorname{lcm}(a_1, \ldots, a_k)) = \max_i v_p(a_i)$ for every prime~$p$.
+\end{definition}
+
+\section{Mathematical Development}
+
+\begin{theorem}[Prime Factorization of the LCM]\label{thm:lcm}
+For any positive integer $N$,
+\[
+\operatorname{lcm}(1, 2, \ldots, N) = \prod_{\substack{p \le N \\ p \text{ prime}}} p^{\lfloor \log_p N \rfloor}.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $L = \prod_{p \le N} p^{\lfloor \log_p N \rfloor}$.
+
+\emph{$L$ is a common multiple.} Let $m$ satisfy $1 \le m \le N$, and let $p$ be any prime with $p \mid m$. Then $p^{v_p(m)} \le m \le N$, so $v_p(m) \le \log_p N$, whence $v_p(m) \le \lfloor \log_p N \rfloor = v_p(L)$. Since this holds for every prime~$p$, we have $m \mid L$.
+
+\emph{$L$ is minimal.} Suppose $L' < L$ is a common multiple of $\{1, \ldots, N\}$. Then for some prime $p$, $v_p(L') < \lfloor \log_p N \rfloor$. Set $q = p^{\lfloor \log_p N \rfloor}$. By definition, $q \le N$, so $q \mid L'$, giving $v_p(L') \ge \lfloor \log_p N \rfloor$---a contradiction.
+\end{proof}
+
+\begin{lemma}[GCD-LCM Identity]\label{lem:gcdlcm}
+For positive integers $a, b$: $\operatorname{lcm}(a,b) = ab / \gcd(a,b)$.
+\end{lemma}
+
+\begin{proof}
+For every prime $p$, writing $\alpha = v_p(a)$ and $\beta = v_p(b)$:
+\[
+v_p\!\left(\frac{ab}{\gcd(a,b)}\right) = \alpha + \beta - \min(\alpha,\beta) = \max(\alpha,\beta) = v_p(\operatorname{lcm}(a,b)),
+\]
+using the identity $x + y - \min(x,y) = \max(x,y)$. Since the $p$-adic valuations agree for every prime~$p$, the two quantities are equal.
+\end{proof}
+
+\begin{lemma}[Iterative Reduction]\label{lem:iter}
+Define $L_1 = 1$ and $L_k = \operatorname{lcm}(L_{k-1}, k)$ for $k \ge 2$. Then $L_N = \operatorname{lcm}(1, \ldots, N)$.
+\end{lemma}
+
+\begin{proof}
+By induction on $N$. The base case $L_1 = 1$ is clear. For the inductive step, $L_k = \operatorname{lcm}(L_{k-1}, k) = \operatorname{lcm}(\operatorname{lcm}(1,\ldots,k-1), k) = \operatorname{lcm}(1, \ldots, k)$ by associativity of $\operatorname{lcm}$ (which follows from the $p$-adic characterization in Definition~2).
+\end{proof}
+
+\begin{theorem}[Explicit Computation]\label{thm:explicit}
+$\operatorname{lcm}(1, 2, \ldots, 20) = 232\,792\,560$.
+\end{theorem}
+
+\begin{proof}
+The primes up to 20 are $\{2, 3, 5, 7, 11, 13, 17, 19\}$. By Theorem~\ref{thm:lcm}:
+
+\begin{center}
+\begin{tabular}{ccl r}
+\toprule
+$p$ & $\lfloor \log_p 20 \rfloor$ & Justification & $p^{\lfloor \log_p 20 \rfloor}$ \\
+\midrule
+2  & 4 & $2^4 = 16 \le 20 < 32 = 2^5$ & 16 \\
+3  & 2 & $3^2 = 9 \le 20 < 27 = 3^3$ & 9 \\
+5  & 1 & $5^1 = 5 \le 20 < 25 = 5^2$ & 5 \\
+7  & 1 & $7^1 = 7 \le 20 < 49 = 7^2$ & 7 \\
+11 & 1 & $11 \le 20 < 121$ & 11 \\
+13 & 1 & $13 \le 20 < 169$ & 13 \\
+17 & 1 & $17 \le 20 < 289$ & 17 \\
+19 & 1 & $19 \le 20 < 361$ & 19 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\[
+L = 16 \times 9 \times 5 \times 7 \times 11 \times 13 \times 17 \times 19 = 232\,792\,560. \qedhere
+\]
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Smallest multiple of $\{1, \ldots, N\}$ --- iterative LCM}
+\begin{algorithmic}[1]
+\STATE $L \gets 1$
+\FOR{$k = 2$ \textbf{to} $N$}
+    \STATE $g \gets \gcd(L, k)$ \COMMENT{Euclidean algorithm}
+    \STATE $L \gets (L / g) \cdot k$ \COMMENT{exact division; avoids overflow}
+\ENDFOR
+\RETURN $L$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Algorithm correctness]
+The algorithm returns $\operatorname{lcm}(1,2,\ldots,N)$.
+\end{theorem}
+
+\begin{proof}
+Let $L_k$ denote the value stored in $L$ after the iteration with index $k$. Initially $L_1 = 1$. At iteration $k \ge 2$, the update rule sets
+\[
+L_k = \frac{L_{k-1} \cdot k}{\gcd(L_{k-1}, k)} = \operatorname{lcm}(L_{k-1}, k)
+\]
+by Lemma~\ref{lem:gcdlcm}. By Lemma~\ref{lem:iter}, this implies
+\[
+L_k = \operatorname{lcm}(1,2,\ldots,k)
+\]
+for every $k$. In particular, after the final iteration,
+\[
+L_N = \operatorname{lcm}(1,2,\ldots,N).
+\]
+Thus the algorithm is correct.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Complexity of Iterative LCM]
+Assuming machine-word arithmetic is constant time for the values encountered, the algorithm runs in $O(N \log N)$ time and $O(1)$ space.
+\end{theorem}
+
+\begin{proof}
+The loop executes exactly $N-1$ iterations. In the $k$-th iteration, the algorithm computes $\gcd(L_{k-1}, k)$. By the Euclidean algorithm, this requires $O(\log k)$ divisions because the running time depends on the smaller argument, namely $k$.
+
+Therefore the total running time is
+\[
+\sum_{k=2}^{N} O(\log k) = O(N \log N).
+\]
+The algorithm stores only the variables $L$, $g$, and $k$, so the extra space is $O(1)$. For the present problem, $N = 20$ and the final value $232\,792\,560$ fits easily in a 64-bit integer.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{232792560}
+\]
+
+\end{document}

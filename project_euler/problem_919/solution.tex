@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 919: Multiplicative Persistence}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The multiplicative persistence of~$n$ is the number of times you must multiply the digits of~$n$ until reaching a single digit. Find the sum of all $n < 10^7$ with multiplicative persistence exactly~4.
+
+\section{Definitions}
+
+\begin{definition}
+The \emph{digit-product function} is $f(n) = \prod_{d \in \mathrm{digits}(n)} d$. The \emph{multiplicative persistence} $\mathrm{mp}(n)$ is the smallest $k$ such that $f^{(k)}(n) < 10$.
+\end{definition}
+
+\section{Termination}
+
+\begin{theorem}
+For any $n \geq 10$, $f(n) < n$. Hence $\mathrm{mp}(n)$ is well-defined and finite.
+\end{theorem}
+
+\begin{proof}
+If any digit of~$n$ is~0, then $f(n) = 0 < n$. Otherwise, for a $k$-digit number ($k \geq 2$), $n \geq 10^{k-1}$ while $f(n) \leq 9^k$. Since $9^k / 10^{k-1} = 9 \cdot (9/10)^{k-1} < 9$ which is less than~$10^{k-1}$ for $k \geq 2$, we get $f(n) < n$.
+\end{proof}
+
+\section{Record Values}
+
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+Persistence & Smallest $n$ \\
+\midrule
+0 & 0 \\
+1 & 10 \\
+2 & 25 \\
+3 & 39 \\
+4 & 77 \\
+5 & 679 \\
+6 & 6788 \\
+7 & 68889 \\
+8 & 2677889 \\
+9 & 26888999 \\
+10 & 3778888999 \\
+11 & 277777788888899 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+No number with persistence $\geq 12$ has been found.
+
+\section{Erd\H{o}s Conjecture}
+
+\begin{theorem}[Conjecture, Erd\H{o}s]
+The multiplicative persistence of~$n$ in base~10 is $O(\log \log n)$.
+\end{theorem}
+
+\section{Digit-Product Structure}
+
+\begin{lemma}
+If $n$ has no digit~0, then $f(n)$ is 7-smooth (all prime factors $\leq 7$), since each digit $\in \{1,\ldots,9\}$ factors into primes from $\{2,3,5,7\}$.
+\end{lemma}
+
+\begin{corollary}
+After the first application of~$f$, all subsequent values in the orbit are 7-smooth numbers.
+\end{corollary}
+
+\section{Worked Example}
+
+\begin{align*}
+77 &\xrightarrow{f} 7 \times 7 = 49 \\
+49 &\xrightarrow{f} 4 \times 9 = 36 \\
+36 &\xrightarrow{f} 3 \times 6 = 18 \\
+18 &\xrightarrow{f} 1 \times 8 = 8 \quad (\text{single digit})
+\end{align*}
+Thus $\mathrm{mp}(77) = 4$.
+
+\section{Algorithm}
+
+For each $n \in [10, 10^7)$:
+\begin{enumerate}
+    \item Compute $f(n)$ by extracting and multiplying digits.
+    \item Iterate until $n < 10$; count steps.
+    \item If persistence $= 4$, add $n$ to the running total.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Per number:} $O(\log n \cdot k)$ where $k \leq 11$ is the persistence.
+    \item \textbf{Total:} $O(N \log N)$ for $N = 10^7$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{134222859969633}
+\]
+
+\end{document}

@@ -1,0 +1,149 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 391: Hopping Game}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $s_k = \sum_{i=0}^{k} \operatorname{popcount}(i)$ denote the cumulative popcount function, and define $S = \{s_k : k \ge 0\} = \{0, 1, 2, 4, 5, 7, 9, 12, \ldots\}$.
+
+Two players play a game parameterized by $n$: a counter $c$ starts at $0$; on each turn the current player chooses $m \in \{1, \ldots, n\}$ and sets $c \leftarrow c + m$, with $c \in S$ required. The player who cannot move loses (normal play). Let $F(n)$ denote the number of winning first moves under optimal play.
+
+Given: $F(2) = 1$, $F(5) = 3$, $F(100) = 46$, $F(10{,}000) = 4{,}808$, $F(10^6) = 480{,}440$. Find $F(10^{11})$.
+
+\section{Mathematical Foundation}
+
+\subsection{The Cumulative Popcount Recurrence}
+
+\begin{theorem}[Binary decomposition of $s_k$]
+\label{thm:recurrence}
+The cumulative popcount function satisfies:
+\[
+s_0 = 0, \qquad s_{2m+1} = 2\,s_m + m + 1, \qquad s_{2m} = s_m + s_{m-1} + m.
+\]
+\end{theorem}
+
+\begin{proof}
+For $k = 2m+1$, partition $\{0, \ldots, 2m+1\}$ by the most significant bit. The integers in $\{0, \ldots, m\}$ have leading bit~$0$, contributing $s_m$ ones. Those in $\{m+1, \ldots, 2m+1\}$ have leading bit~$1$; stripping it yields $\{0, \ldots, m\}$, contributing $s_m$ ones from lower bits plus $m+1$ leading ones. Hence $s_{2m+1} = 2s_m + m + 1$.
+
+For $k = 2m$, the group $\{0, \ldots, m-1\}$ contributes $s_{m-1}$, while $\{m, \ldots, 2m\}$ has lower bits $\{0, \ldots, m\}$, contributing $s_m + m$. Thus $s_{2m} = s_{m-1} + s_m + m$.
+\end{proof}
+
+\begin{lemma}[Closed form at powers of two]
+\label{lem:pow2}
+For all $m \ge 1$: $s_{2^m - 1} = m \cdot 2^{m-1}$.
+\end{lemma}
+
+\begin{proof}
+Among the $2^m$ integers $\{0, \ldots, 2^m - 1\}$, each of the $m$ bit positions is $1$ in exactly $2^{m-1}$ of them, by the symmetry of $m$-bit binary strings. The total is $m \cdot 2^{m-1}$.
+\end{proof}
+
+\subsection{Gap Structure and Self-Similarity}
+
+\begin{definition}
+The \emph{gap sequence} is $d_k = s_{k+1} - s_k = \operatorname{popcount}(k+1)$ for $k \ge 0$.
+\end{definition}
+
+\begin{lemma}[Gap self-similarity]
+\label{lem:selfsimilar}
+For all $m \ge 0$ and $0 \le j < 2^m$:
+\[
+\operatorname{popcount}(2^m + j) = 1 + \operatorname{popcount}(j).
+\]
+Consequently, the gap sequence in each power-of-two block is a shifted copy of the preceding block.
+\end{lemma}
+
+\begin{proof}
+The binary representation of $2^m + j$ (with $0 \le j < 2^m$) has bit~$m$ set to~$1$ and lower bits identical to $j$. Therefore $\operatorname{popcount}(2^m + j) = 1 + \operatorname{popcount}(j)$.
+\end{proof}
+
+\subsection{Game-Theoretic Analysis}
+
+\begin{theorem}[Arena boundary]
+\label{thm:arena}
+The smallest index $K$ with $d_K > n$ is $K = 2^{n+1} - 2$. The game arena is $\{s_0, s_1, \ldots, s_K\}$, and $s_K$ is the unique terminal position.
+\end{theorem}
+
+\begin{proof}
+We have $d_K = \operatorname{popcount}(2^{n+1} - 1) = n+1 > n$. For $k < K$, the integer $k+1 \le 2^{n+1} - 2$ has at most $n$ bits set (since $2^{n+1} - 1$ is the unique integer below $2^{n+1}$ with $n+1$ bits set), so $d_k \le n$. From $s_K$, every candidate $s_K + m$ with $1 \le m \le n$ lies strictly between $s_K$ and $s_{K+1}$, hence outside $S$.
+\end{proof}
+
+\begin{theorem}[Sprague--Grundy classification]
+\label{thm:sg}
+The game is finite, impartial, and under normal play. By the Sprague--Grundy theorem, every position $p$ has a Grundy value $\mathcal{G}(p) = \operatorname{mex}\{\mathcal{G}(q) : q \text{ reachable from } p\}$. Position $p$ is a P-position (losing for the mover) if and only if $\mathcal{G}(p) = 0$.
+\end{theorem}
+
+\begin{proof}
+The counter strictly increases at each move and is bounded by $s_K$ (Theorem~\ref{thm:arena}), so the game is finite. Both players share the same move set (impartial). The Sprague--Grundy theorem applies directly.
+\end{proof}
+
+\begin{theorem}[Counting formula]
+\label{thm:counting}
+\[
+F(n) = \bigl|\{m \in \{1, \ldots, n\} \cap S : \mathcal{G}(m) = 0\}\bigr|.
+\]
+\end{theorem}
+
+\begin{proof}
+From position $0 \in S$, a move of size $m$ is valid iff $m \in S$, and is winning iff $\mathcal{G}(m) = 0$ (leaving the opponent in a P-position).
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Brute-Force: $F(n)$}
+\begin{algorithmic}[1]
+\Require Parameter $n$
+\State $K \gets 2^{n+1} - 2$
+\State Build $S[0..K]$ using cumulative popcount
+\State $\mathcal{G}(S[K]) \gets 0$ \Comment{Terminal P-position}
+\For{$i = K - 1$ \textbf{downto} $0$}
+    \State $R \gets \{\mathcal{G}(S[i]+m) : m \in \{1,\ldots,n\},\; S[i]+m \in S\}$
+    \State $\mathcal{G}(S[i]) \gets \operatorname{mex}(R)$
+\EndFor
+\State \Return $|\{m \in \{1,\ldots,n\} \cap S : \mathcal{G}(m) = 0\}|$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Efficient: $F(n)$ via gap self-similarity}
+\begin{algorithmic}[1]
+\Require Parameter $n$ (up to $10^{11}$)
+\State Split arena at midpoint index $2^n - 1$
+\State Apply Lemma~\ref{lem:selfsimilar}: second-half gaps $=$ first-half gaps $+ 1$
+\State Recursively solve sub-problems on condensed gap representations
+\State Match Grundy boundary conditions across halves
+\State Count P-positions among the first $n$ reachable positions from $0$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}[nosep]
+\item \textbf{Brute-force:} Time $O(2^{n+1} \cdot n)$, Space $O(2^{n+1})$. Feasible for $n \le 22$.
+\item \textbf{Efficient recursive:} Time $O(n^2 \log n)$, Space $O(n \log n)$. The binary self-similarity (Lemma~\ref{lem:selfsimilar}) yields a divide-and-conquer decomposition into $O(\log n)$ levels, each with $O(n^2)$ work on a condensed representation.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{61029882288}
+\]
+
+\end{document}

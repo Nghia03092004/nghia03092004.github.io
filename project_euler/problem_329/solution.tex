@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\title{Problem 329: Prime Frog}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A frog sits on a uniformly chosen square from 1 to 500. It jumps left or right with equal probability (boundaries force direction). On each square it croaks ``P'' with probability $\frac{2}{3}$ if the square is prime, $\frac{1}{3}$ otherwise; and ``N'' with complementary probabilities.
+
+Find the probability that the 15-croak sequence is ``PPPPNNPPPNPPNPN'', as a reduced fraction.
+
+\section{Approach}
+
+\subsection{Dynamic Programming}
+Let $dp[t][i]$ be the probability of producing the first $t+1$ letters and being on square $i$ after step $t$.
+
+Initialize for step 0:
+\[
+dp[0][s] = \frac{1}{500} \cdot P(\text{croak}_0 \mid s), \quad s = 1, \ldots, 500
+\]
+where $P(\text{croak}_0 \mid s) = \frac{2}{3}$ if the croak matches the prime status, $\frac{1}{3}$ otherwise.
+
+Transition for $t \geq 1$:
+\[
+dp[t][j] = P(\text{croak}_t \mid j) \cdot \sum_{i \sim j} P(\text{jump } i \to j) \cdot dp[t-1][i]
+\]
+
+\subsection{Result}
+\[
+\Pr(\text{sequence}) = \sum_{i=1}^{500} dp[14][i]
+\]
+
+Using exact rational arithmetic, the answer simplifies to:
+\[
+\frac{199740353}{29386561536000}
+\]
+
+\section{Answer}
+
+\[
+\boxed{199740353/29386561536000}
+\]
+
+\end{document}

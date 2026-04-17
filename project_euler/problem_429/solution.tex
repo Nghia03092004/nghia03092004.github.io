@@ -1,0 +1,67 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 429:\\Sum of Squares of Unitary Divisors}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A unitary divisor $d$ of a number $n$ is a divisor such that $\gcd(d, n/d) = 1$.
+Find $S(100\,000\,000!) \pmod{1\,000\,000\,009}$, where $S(n)$ is the sum of the squares of the unitary divisors of $n$.
+
+\section{Mathematical Derivation}
+
+\subsection{Unitary Divisor Sum Formula}
+\begin{theorem}
+If $n = p_1^{a_1} p_2^{a_2} \cdots p_k^{a_k}$, then the sum of squares of unitary divisors of $n$ is:
+\[
+\sigma_2^*(n) = \prod_{i=1}^{k} \left(1 + p_i^{2a_i}\right)
+\]
+\end{theorem}
+
+\begin{proof}
+A unitary divisor $d$ of $n$ satisfies $\gcd(d, n/d) = 1$. For each prime power $p_i^{a_i}$ dividing $n$, the divisor $d$ either contains $p_i^{a_i}$ or $p_i^0 = 1$ (no intermediate powers, as those would share a common factor with $n/d$). Thus:
+\[
+\sigma_2^*(n) = \sum_{\substack{d \mid n \\ \gcd(d, n/d) = 1}} d^2 = \prod_{i=1}^{k} \left(1 + (p_i^{a_i})^2\right) = \prod_{i=1}^{k} \left(1 + p_i^{2a_i}\right)
+\]
+\end{proof}
+
+\subsection{Legendre's Formula}
+\begin{theorem}[Legendre]
+The exponent of prime $p$ in $N!$ is:
+\[
+v_p(N!) = \sum_{i=1}^{\infty} \left\lfloor \frac{N}{p^i} \right\rfloor
+\]
+\end{theorem}
+
+\subsection{Solution}
+For $N = 10^8$, we compute:
+\[
+S(N!) = \prod_{p \leq N} \left(1 + p^{2 \cdot v_p(N!)}\right) \pmod{10^9 + 9}
+\]
+using modular exponentiation. Since $10^9 + 9$ is prime, we can use Fermat's little theorem if needed.
+
+\section{Result}
+\[
+\boxed{S(100\,000\,000!) \equiv 98792821 \pmod{1\,000\,000\,009}}
+\]
+
+\section{Answer}
+
+\[
+\boxed{98792821}
+\]
+
+\end{document}

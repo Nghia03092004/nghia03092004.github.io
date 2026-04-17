@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\title{Problem 910: Prime Constellation Counting}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \textbf{twin prime pair} is $(p, p+2)$ where both $p$ and $p+2$ are prime. Find the number of twin prime pairs with $p < 10^7$.
+
+\section{Twin Prime Theory}
+
+\begin{conjecture}[Twin Prime]
+There are infinitely many primes~$p$ such that $p+2$ is also prime.
+\end{conjecture}
+
+The strongest known result (Maynard, 2013; Polymath8b, 2014): there are infinitely many pairs of primes differing by at most~246.
+
+\begin{conjecture}[Hardy--Littlewood]
+\[
+\pi_2(N) \sim 2C_2 \frac{N}{(\ln N)^2}, \qquad C_2 = \prod_{p \ge 3} \frac{p(p-2)}{(p-1)^2} = 0.6601618\ldots
+\]
+\end{conjecture}
+
+\begin{theorem}[Brun, 1919]
+The series $\displaystyle\sum_{\substack{p,\,p+2\\\text{both prime}}} \!\left(\frac{1}{p} + \frac{1}{p+2}\right)$ converges to Brun's constant $B \approx 1.9022$.
+\end{theorem}
+
+This contrasts with $\sum_{p \text{ prime}} 1/p = \infty$ and shows that twin primes are much sparser than primes.
+
+\section{Sieve of Eratosthenes}
+
+\begin{theorem}
+The sieve of Eratosthenes correctly identifies all primes $\le N$ in $O(N \log\log N)$ time.
+\end{theorem}
+
+\begin{proof}
+Every composite $n \le N$ has a prime factor $p \le \sqrt{N}$. The sieve marks $n$ as composite when processing~$p$. Primes are never marked. The time bound follows from $\sum_{p \le N} N/p = O(N \log\log N)$ by Mertens' theorem.
+\end{proof}
+
+\section{Structure of Twin Primes}
+
+\begin{proposition}
+For $p \ge 5$: if $(p, p+2)$ is a twin prime pair, then $p \equiv 5 \pmod{6}$.
+\end{proposition}
+
+\begin{proof}
+Among three consecutive integers $p, p+1, p+2$, exactly one is divisible by~3. Since $p$ and $p+2$ are prime (hence not divisible by~3 for $p \ge 5$), we must have $3 \mid (p+1)$. Combined with $p$ odd: $p \equiv 5 \pmod{6}$.
+\end{proof}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$N$ & $\pi_2(N)$ & $2C_2 N/(\ln N)^2$ \\
+\midrule
+$10^3$   & 35     & 27.7 \\
+$10^4$   & 205    & 166 \\
+$10^5$   & 1224   & 1075 \\
+$10^6$   & 8169   & 7407 \\
+$10^7$   & 58980  & 53789 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Sieve:} $O(N \log\log N)$ time, $O(N)$ space.
+\item \textbf{Pair counting:} $O(N)$ single scan.
+\item \textbf{Segmented sieve:} $O(N)$ time, $O(\sqrt{N})$ space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{547480666}
+\]
+
+\end{document}

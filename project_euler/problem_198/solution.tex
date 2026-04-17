@@ -1,0 +1,89 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 198: Ambiguous Numbers}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A real number $x$ is \textbf{ambiguous} if for some denominator bound $d$, there are two or more best rational approximations to $x$ with denominator $\leq d$. Count ambiguous $x = p/q$ (lowest terms, $q \leq 10^8$) in $(0, 1/100)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Midpoint Characterization]
+$x$ is ambiguous if and only if $x$ is the midpoint of two Farey neighbours $a/b < c/d$ with $bc - ad = 1$:
+\[
+x = \frac{ad + bc}{2bd} = \frac{2ad + 1}{2bd}.
+\]
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) Two equidistant best approximations at some bound $D$ must be Farey-adjacent, with $x$ as their midpoint.
+
+($\Leftarrow$) For $D$ just below the mediant denominator $b + d$, both $a/b$ and $c/d$ are equidistant from $x$ and no fraction between them has denominator $\leq D$. \qed
+\end{proof}
+
+\begin{theorem}[Lowest-Terms Denominator]
+The midpoint $(2ad+1)/(2bd)$ is already in lowest terms: $\gcd(2ad+1, 2bd) = 1$, so the denominator is $q = 2bd$.
+\end{theorem}
+
+\begin{proof}
+$2ad + 1$ is odd, so $\gcd(2ad+1, 2) = 1$.
+
+From $bc - ad = 1$: $ad \equiv -1 \pmod{b}$, so $2ad + 1 \equiv -1 \pmod{b}$, giving $\gcd(2ad+1, b) = 1$.
+
+From $bc \equiv 1 \pmod{d}$: $ad + bc \equiv 1 \pmod{d}$, so $\gcd(2ad+1, d) = 1$.
+
+Thus $\gcd(2ad+1, 2bd) = 1$. \qed
+\end{proof}
+
+\begin{lemma}[Counting Reduction]
+Condition $q \leq N = 10^8$ becomes $bd \leq N/2$. For each coprime pair $(b, d)$ with $bd \leq N/2$, there is a unique $a \in [0, b)$ with $ad \equiv -1 \pmod{b}$.
+\end{lemma}
+
+\begin{proof}
+$\gcd(b, d) = 1$ ensures $d^{-1} \bmod b$ exists. Set $a = (-d^{-1}) \bmod b$. \qed
+\end{proof}
+
+\begin{lemma}[Range Constraint]
+The midpoint lies in $(0, 1/100)$ iff $0 < a < b/100 - 1/(2d)$. For $b < 100$, only $a = 0$ is possible, giving $x = 1/(2bd) < 1/100$ iff $bd > 50$.
+\end{lemma}
+
+\begin{proof}
+Direct algebraic manipulation of $0 < (2ad+1)/(2bd) < 1/100$. \qed
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+Case 1 (b=1): count = N/2 - 50
+Case 2 (small b, 2 <= b <= sqrt(N/2)):
+    For each b, for valid a with gcd(a,b)=1, a < b/100:
+        Count d in arithmetic progression mod b
+Case 3 (large b > sqrt(N/2)):
+    For each d <= sqrt(N/2):
+        Count valid large b values
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$ total arithmetic operations across all three cases.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{52374425}
+\]
+
+\end{document}

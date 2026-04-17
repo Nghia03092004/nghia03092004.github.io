@@ -1,0 +1,83 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 310: Nim Square}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Alice and Bob play Nim Square: three-heap normal play Nim where players may only remove a perfect square number of stones from one heap.
+
+Find the number of losing positions $(a,b,c)$ with $0 \leq a \leq b \leq c \leq 100{,}000$.
+
+\textbf{Verification:} For $0 \leq a \leq b \leq c \leq 29$, there are 1{,}160 losing positions.
+
+\section{Sprague--Grundy Analysis}
+
+\subsection{Single-Pile Grundy Values}
+\begin{equation}
+    G(n) = \operatorname{mex}\{G(n - k^2) : k \geq 1,\; k^2 \leq n\}
+\end{equation}
+with $G(0) = 0$. The maximum Grundy value for $n \leq 100{,}000$ is~74.
+
+\subsection{Three-Pile Game}
+\begin{equation}
+    G(a, b, c) = G(a) \oplus G(b) \oplus G(c)
+\end{equation}
+
+A position is losing if and only if $G(a) \oplus G(b) \oplus G(c) = 0$.
+
+\section{Counting Algorithm}
+
+\subsection{Incremental Pair Counting}
+Process values $c = 0, 1, \ldots, N$ in order. Maintain:
+\begin{itemize}
+    \item $\text{freq}[g]$: count of values $\leq c-1$ with Grundy value $g$
+    \item $\text{pair}[v]$: count of pairs $(a,b)$ with $a \leq b \leq c$ and $G(a) \oplus G(b) = v$
+\end{itemize}
+
+When processing a new value $c$ with $G(c) = g_c$:
+\begin{enumerate}
+    \item For each $g$: $\text{pair}[g \oplus g_c] \mathrel{+}= \text{freq}[g]$
+    \item $\text{pair}[0] \mathrel{+}= 1$ \quad (pair $(c,c)$)
+    \item $\text{freq}[g_c] \mathrel{+}= 1$
+    \item $\text{answer} \mathrel{+}= \text{pair}[g_c]$ \quad (triples with $c$ as maximum)
+\end{enumerate}
+
+\begin{theorem}
+This counts exactly the losing positions $(a,b,c)$ with $a \leq b \leq c$.
+\end{theorem}
+
+\begin{proof}
+Each triple $(a,b,c)$ with $a \leq b \leq c$ is counted exactly once: when $c$ is the maximum element, the pair $(a,b)$ with $a \leq b \leq c$ and $G(a) \oplus G(b) = G(c)$ is counted in step~4.
+\end{proof}
+
+\section{Result}
+\[
+    \boxed{2586528661783}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N\sqrt{N})$ for Grundy values, $O(N \cdot G_{\max})$ for counting.
+    \item \textbf{Space:} $O(N)$ for Grundy array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2586528661783}
+\]
+
+\end{document}

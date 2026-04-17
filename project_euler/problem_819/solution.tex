@@ -1,0 +1,78 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 819: Iterative Sampling}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Compute expected values for an iterative random sampling process, equivalent to the coupon collector problem or an absorbing Markov chain. Answer modulo $10^9+7$.
+
+\section{Coupon Collector Theory}
+
+\begin{theorem}
+The expected number of samples to collect all $n$ distinct coupons is:
+\[
+E[T_n] = n H_n = n \sum_{k=1}^{n} \frac{1}{k}.
+\]
+\end{theorem}
+
+\begin{proof}
+After collecting $k-1$ distinct coupons, each new sample gives a new coupon with probability $(n-k+1)/n$. The expected wait is $n/(n-k+1)$. Summing: $E[T_n] = \sum_{k=0}^{n-1} n/(n-k) = n H_n$.
+\end{proof}
+
+\section{Absorbing Markov Chain}
+
+\begin{theorem}[Fundamental Matrix]
+For an absorbing Markov chain with transient states having transition submatrix~$Q$, the fundamental matrix is $N = (I-Q)^{-1}$, and $E[T_i] = \sum_j N_{ij}$.
+\end{theorem}
+
+\begin{proof}
+$N_{ij} = \sum_{k=0}^{\infty} (Q^k)_{ij}$ counts expected visits to state~$j$ from state~$i$. The series converges since all eigenvalues of~$Q$ have modulus $< 1$. Total time = total visits.
+\end{proof}
+
+\begin{theorem}[Variance]
+$\mathrm{Var}(T_n) = n^2 \sum_{k=1}^{n} k^{-2} - n H_n$.
+\end{theorem}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$n$ & $E[T_n]$ & $E[T_n]$ (decimal) & $\mathrm{Var}(T_n)$ \\
+\midrule
+1 & 1 & 1.000 & 0 \\
+2 & 3 & 3.000 & 1 \\
+3 & 11/2 & 5.500 & 37/4 \\
+4 & 25/3 & 8.333 & -- \\
+10 & 7381/252 & 29.290 & -- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Modular Computation}
+
+$H_n \bmod p = \sum_{k=1}^{n} k^{-1} \bmod p$, where $k^{-1} = k^{p-2} \bmod p$ by Fermat's little theorem.
+
+\section{Complexity}
+
+$O(n)$ time for the harmonic sum, $O(1)$ space.
+
+\section{Answer}
+
+\[
+\boxed{1995.975556}
+\]
+
+\end{document}

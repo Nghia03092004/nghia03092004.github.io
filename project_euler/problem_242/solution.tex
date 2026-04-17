@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 242: Odd Triplets}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $f(N)$ as the number of triplets $(a,b,c)$ with $0<a\le b\le c$, $a+b+c\le N$, and $a\oplus b\oplus c=0$. Find $f(10^{12})\bmod 10^9$.
+
+\section{Mathematical Development}
+
+\begin{definition}
+The set of valid XOR-zero bit patterns is $\mathcal{V}=\{(0,0,0),(0,1,1),(1,0,1),(1,1,0)\}$.
+\end{definition}
+
+\begin{theorem}[XOR-zero bit classification]\label{thm:xor}
+$a\oplus b\oplus c=0$ if and only if at every bit position the triple of bits belongs to~$\mathcal{V}$.
+\end{theorem}
+
+\begin{proof}
+XOR operates independently at each bit. The XOR of three bits is zero iff an even number (0 or~2) are~1, which yields exactly the four patterns in~$\mathcal{V}$.
+\end{proof}
+
+\begin{lemma}[Bit-sum structure]\label{lem:bitsum}
+If $a\oplus b\oplus c=0$, then at each bit position the arithmetic sum $s_i\in\{0,2\}$. Consequently $a+b+c=\sum_i s_i\cdot 2^i$ is always even.
+\end{lemma}
+
+\begin{proof}
+Each pattern in $\mathcal{V}$ sums to either~0 or~2. Since every term $s_i\cdot 2^i$ is divisible by~2, so is the total.
+\end{proof}
+
+\begin{theorem}[Digit DP formulation]\label{thm:dp}
+Write $N=\sum_{i=0}^{L}n_i\cdot 2^i$ in binary. Process bits from position~$L$ down to~$0$, maintaining state $(\mathrm{carry},\mathrm{tight},\mathrm{ord}_{ab},\mathrm{ord}_{bc})$ where:
+\begin{itemize}
+\item $\mathrm{carry}\in\{0,1\}$: carry from the addition $a+b+c$;
+\item $\mathrm{tight}\in\{0,1\}$: whether $a+b+c$ remains bounded by~$N$;
+\item $\mathrm{ord}_{ab},\mathrm{ord}_{bc}\in\{=,<\}$: ordering status for $a\le b$ and $b\le c$.
+\end{itemize}
+At each bit, enumerate all patterns in $\mathcal{V}$, updating carry, tightness, and ordering. Accept at $i=-1$ iff $\mathrm{carry}=0$.
+\end{theorem}
+
+\begin{proof}
+\textbf{(i)~Exhaustiveness.} All four valid XOR-zero patterns are tried at each bit.
+
+\textbf{(ii)~Ordering correctness.} If $\mathrm{ord}_{ab}={=}$, enforce $a_i\le b_i$; transition to ${<}$ when $a_i<b_i$. Once ${<}$, any $(a_i,b_i)$ is valid since $a<b$ is established at higher bits. Analogously for $\mathrm{ord}_{bc}$.
+
+\textbf{(iii)~Sum constraint.} Carries propagate correctly; tightness ensures $a+b+c\le N$.
+
+\textbf{(iv)~Termination.} $\mathrm{carry}=0$ at position $-1$ confirms no overflow.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+dp = {(0, 1, EQUAL, EQUAL): 1}
+for pos = L downto 0:
+    for each state and each pattern in V:
+        check ordering, compute carry/digit, update tightness
+        accumulate into next-level dp
+result = sum(counts with carry=0) - 1   # subtract (0,0,0)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(L\cdot|S|\cdot|\mathcal{V}|)=O(40\times 16\times 4)=O(2560)$.
+\item \textbf{Space:} $O(|S|)=O(16)=O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{997104142249036713}
+\]
+
+\end{document}

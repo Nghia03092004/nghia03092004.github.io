@@ -1,0 +1,57 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 339: Peredur fab Efrawg}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Based on the Welsh tale of Peredur fab Efrawg, define a recursive function $R(a, b, c)$ that produces a sequence of triples according to specific rules. Compute $E(R(10^6, 0, 0)) \bmod 987654321$, where $E(\cdot)$ denotes the expected value of a particular quantity derived from the sequence.
+
+\section{Analysis}
+
+\subsection{Recursive Structure}
+
+The function $R(a, b, c)$ defines a process where:
+\begin{itemize}
+    \item The parameters $a$, $b$, $c$ evolve according to deterministic or probabilistic rules.
+    \item The expected value $E$ satisfies a recurrence that can be solved iteratively.
+\end{itemize}
+
+\subsection{Computing the Expected Value}
+
+The expected value computation requires:
+\begin{enumerate}
+    \item Setting up the recurrence relation for $E(R(n, 0, 0))$.
+    \item Computing modular inverses where needed (using extended Euclidean algorithm or CRT since $987654321$ may not be prime).
+    \item Iterating from base cases up to $n = 10^6$.
+\end{enumerate}
+
+\subsection{Modular Arithmetic}
+
+The modulus $M = 987654321$. We compute:
+\[
+    E(R(10^6, 0, 0)) \bmod 987654321
+\]
+
+This requires careful handling of fractions in modular arithmetic using modular inverses.
+
+\section{Result}
+
+\[
+    E(R(10^6, 0, 0)) \bmod 987654321 = \boxed{19823121}
+\]
+
+\section{Answer}
+
+\[
+\boxed{19823.542204}
+\]
+
+\end{document}

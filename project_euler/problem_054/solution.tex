@@ -1,0 +1,127 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 54: Poker Hands}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given 1000 poker hands dealt to two players (from \texttt{poker.txt}), determine how many hands Player~1 wins.
+
+\section{Formal Development}
+
+\begin{definition}[Card and Hand]
+A \emph{card} is a pair $(v, s)$ with value $v \in \{2, 3, \ldots, 14\}$ and suit $s \in \{\clubsuit, \diamondsuit, \heartsuit, \spadesuit\}$. A \emph{hand} is an ordered 5-tuple of distinct cards.
+\end{definition}
+
+\begin{definition}[Derived Quantities]
+For a hand $H$ with values $v_1, \ldots, v_5$ and suits $s_1, \ldots, s_5$:
+\begin{itemize}
+    \item \emph{Frequency}: $f(v) = |\{i : v_i = v\}|$.
+    \item \emph{Flush}: $\phi(H) \iff s_1 = \cdots = s_5$.
+    \item \emph{Straight}: $\sigma(H) \iff$ the sorted distinct values are 5 consecutive integers, or $\{2,3,4,5,14\}$.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Hand Category]
+The category $c(H) \in \{0, \ldots, 9\}$:
+\begin{center}
+\begin{tabular}{cll}
+\toprule
+$c$ & Name & Condition \\
+\midrule
+9 & Royal Flush & $\sigma \wedge \phi \wedge \{v_i\} = \{10,11,12,13,14\}$ \\
+8 & Straight Flush & $\sigma \wedge \phi \wedge \neg(c=9)$ \\
+7 & Four of a Kind & Freq.\ partition $= (4,1)$ \\
+6 & Full House & Freq.\ partition $= (3,2)$ \\
+5 & Flush & $\phi \wedge \neg\sigma$ \\
+4 & Straight & $\sigma \wedge \neg\phi$ \\
+3 & Three of a Kind & Freq.\ partition $= (3,1,1)$ \\
+2 & Two Pairs & Freq.\ partition $= (2,2,1)$ \\
+1 & One Pair & Freq.\ partition $= (2,1,1,1)$ \\
+0 & High Card & otherwise \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{definition}
+
+\begin{definition}[Comparison Key]
+The comparison key is:
+\[
+\kappa(H) = \bigl(c(H),\; \tau_1, \tau_2, \ldots, \tau_m\bigr)
+\]
+where $(\tau_i)$ are the tiebreaker values: for straights/straight flushes, the high card of the straight (5 for the wheel); for all other categories, distinct values sorted by $(f(v), v)$ descending.
+\end{definition}
+
+\begin{theorem}[Correctness]
+\label{thm:correct}
+For two hands $H_1, H_2$ with no ties: $H_1$ beats $H_2 \iff \kappa(H_1) > \kappa(H_2)$ lexicographically.
+\end{theorem}
+
+\begin{proof}
+The category $c$ is the primary discriminator. Within each category, the tiebreaker tuple orders groups by frequency (then value) descending, matching standard poker rules:
+\begin{itemize}
+    \item \textbf{Four of a Kind}: compare quad value, then kicker.
+    \item \textbf{Full House}: compare triple value, then pair value.
+    \item \textbf{Two Pairs}: compare higher pair, lower pair, then kicker.
+    \item \textbf{One Pair}: compare pair value, then kickers descending.
+    \item \textbf{High Card / Flush}: compare all values descending.
+    \item \textbf{Straight types}: compare by high card.
+\end{itemize}
+In every case the lexicographic order on $\kappa$ faithfully implements the poker comparison.
+\end{proof}
+
+\begin{lemma}[Ace-Low Straight]
+When sorted values are $\{2,3,4,5,14\}$, the ace functions as~1. The high card is~5.
+\end{lemma}
+
+\begin{proof}
+By poker rules, $A$-$2$-$3$-$4$-$5$ is the lowest straight. Without this correction, the ace (14) would rank this straight above $2$-$3$-$4$-$5$-$6$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For each of the 1000 lines:
+    \begin{enumerate}
+        \item Parse 10 cards; assign first 5 to $H_1$, last 5 to $H_2$.
+        \item Compute $\kappa(H_1)$ and $\kappa(H_2)$.
+        \item If $\kappa(H_1) > \kappa(H_2)$: increment win counter.
+    \end{enumerate}
+    \item Return win counter.
+\end{enumerate}
+
+\section{Complexity}
+
+\begin{proposition}[Time]
+$O(H)$ where $H = 1000$. Each hand evaluation is $O(1)$ (5 cards, fixed-size operations).
+\end{proposition}
+
+\begin{proposition}[Space]
+$O(1)$ per hand evaluation.
+\end{proposition}
+
+\section{Result}
+Player~1 wins $\boxed{376}$ hands out of 1000.
+
+\section{Answer}
+
+\[
+\boxed{376}
+\]
+
+\end{document}

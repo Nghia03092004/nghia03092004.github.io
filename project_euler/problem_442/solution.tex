@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 442: Eleven-free Integers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An integer is \textbf{eleven-free} if its decimal expansion contains no substring equal to a power of~$11$ (excluding $11^0 = 1$). The forbidden substrings are $11, 121, 1331, 14641, \ldots$ Find $E(10^{18})$, the $10^{18}$-th eleven-free positive integer.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Aho--Corasick Automaton]
+Given a finite set of patterns $\mathcal{P} = \{P_1, \ldots, P_k\}$ over alphabet~$\Sigma$, the Aho--Corasick automaton~$\mathcal{A}$ is a DFA with $O(S)$ states ($S = \sum |P_i|$) that, for any input string~$w$, reaches an accepting state if and only if some~$P_i$ is a substring of~$w$.
+\end{theorem}
+
+\begin{proof}
+Construct a trie~$T$ of the patterns. Define the failure function $\pi(v)$ for each node~$v$ as the longest proper suffix of the label of~$v$ that is also a prefix in~$T$. Compute~$\pi$ by BFS from the root in $O(S \cdot |\Sigma|)$ time. The goto function $\delta(v, c)$ follows the trie edge if it exists, otherwise recurses via $\pi(v)$. Mark a state as accepting if it completes a pattern or has an accepting state on its failure chain (dictionary suffix links). The resulting DFA processes each input character in $O(1)$ amortized time.
+\end{proof}
+
+\begin{theorem}[Digit DP Counting]
+Let $\mathcal{A}$ be a DFA with state set~$Q$, safe (non-accepting) states $Q_{\mathrm{safe}} \subseteq Q$, and transition function~$\delta$. The number of integers in $[1, N]$ whose decimal representations avoid all accepting states can be computed in $O(L \cdot |Q| \cdot |\Sigma|)$ time, where $L$ is the digit length of~$N$.
+\end{theorem}
+
+\begin{proof}
+Define $\mathrm{dp}[i][s][t][z]$ where $i$ is position, $s \in Q$ is automaton state, $t \in \{0,1\}$ is the tight-bound flag, and $z \in \{0,1\}$ indicates whether a nonzero digit has been placed. For each state tuple, iterate over digits $d = 0, \ldots, 9$ (or $d \leq N_i$ if tight), advance via~$\delta$, and accumulate only if the new state is safe. The state space is $O(L \cdot |Q| \cdot 4)$ with $O(|\Sigma|)$ transitions each.
+\end{proof}
+
+\begin{lemma}[Binary Search]
+The counting function $C(N) = |\{k \in [1,N] : k \text{ is eleven-free}\}|$ is non-decreasing. Hence $E(n) = \min\{N : C(N) \geq n\}$ is found by binary search in $O(\log U)$ evaluations of~$C$.
+\end{lemma}
+
+\begin{proof}
+$C(N+1) - C(N) \in \{0,1\}$, so $C$ is non-decreasing. Eleven-free integers have positive density (finitely many finite-length forbidden substrings), so $E(n)$ is well-defined. Binary search applies to any non-decreasing integer-valued function.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Generate all powers $11^k$ for $k = 1, 2, \ldots$ until the number of digits exceeds~19. Collect their decimal strings as forbidden patterns.
+\item Build the Aho--Corasick automaton~$\mathcal{A}$ from the forbidden patterns.
+\item Implement the digit DP function $C(N)$ using~$\mathcal{A}$.
+\item Binary search: find the smallest $N$ with $C(N) \geq 10^{18}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Automaton:} $O(S \cdot 10)$ construction, $S \approx 170$.
+\item \textbf{Digit DP:} $O(L \cdot |Q| \cdot 10)$ per query; $L \leq 19$, $|Q| \leq 170$.
+\item \textbf{Binary search:} $O(\log 10^{19}) \approx 61$ iterations.
+\item \textbf{Total:} $\approx 2 \times 10^6$ operations.
+\item \textbf{Space:} $O(|Q| \cdot |\Sigma| + L \cdot |Q|)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1295552661530920149}
+\]
+
+\end{document}

@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 755: Not Zeckendorf}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+$f(n)$ = number of representations of $n$ as sum of distinct Fibonacci numbers (allowing consecutive). $S(n) = \sum_{{k=0}}^n f(k)$. Given $S(100)=415, S(10^4)=312807$. Find $S(10^{{13}})$.
+
+\section{Mathematical Analysis}
+Zeckendorf's theorem says every $n$ has a unique representation using non-consecutive Fibonacci numbers. Here we allow all subsets of Fibonacci numbers.
+
+$f(n)$ counts the number of subsets $A$ of Fibonacci numbers with $\sum_{{a\in A}} a = n$. This is related to the binary representation in the Fibonacci numeral system, but with carries allowed.
+
+The generating function is $\prod_{{k\ge 1}} (1 + x^{{F_k}})$. The sum $S(n)$ can be computed using a digit-DP on the Zeckendorf representation of $n$.
+
+\section{Answer}
+
+\[
+\boxed{2877071595975576960}
+\]
+
+\end{document}

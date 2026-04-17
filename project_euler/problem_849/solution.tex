@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 849: The Locked Box}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Compute the expected number of keys to open all $n$ boxes (coupon collector variant).
+
+\section{Coupon Collector}
+
+\begin{theorem}
+$E[T] = n H_n = n\sum_{k=1}^{n} \frac{1}{k}$.
+\end{theorem}
+
+\begin{proof}
+Phase~$i$ (going from $i{-}1$ to $i$ distinct items) is geometric with parameter $(n-i+1)/n$, so expected length $n/(n-i+1)$. Summing gives $nH_n$.
+\end{proof}
+
+\begin{theorem}
+$\mathrm{Var}(T) = n^2 \sum_{k=1}^n \frac{1}{k^2} - nH_n \sim \frac{\pi^2 n^2}{6}$.
+\end{theorem}
+
+\section{Asymptotics}
+$E[T] = n\ln n + \gamma n + \frac{1}{2} + O(1/n)$ where $\gamma \approx 0.5772$.
+
+\section{Answer}
+
+\[
+\boxed{936203459}
+\]
+
+\end{document}

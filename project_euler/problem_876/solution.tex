@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\title{Problem 876: Triplet Tricks}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Beginning with $(a,b,c)$, at each step replace one variable $x$ with $2(\text{sum of the other two}) - x$. Define $f(a,b,c)$ as the minimum steps to reach a zero (or $0$ if impossible). Let $F(a,b) = \sum_{c=1}^{\infty} f(a,b,c)$.
+
+Given $F(6,10)=17$, $F(36,100)=179$, find $\displaystyle\sum_{k=1}^{18} F(6^k, 10^k)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Reflection Operation]
+Replacing $a$ with $a' = 2(b+c)-a$ reflects $a$ through $b+c$: $\frac{a+a'}{2} = b+c$.
+\end{definition}
+
+\begin{theorem}[Scaling Invariance]
+For any $t \neq 0$: $f(ta, tb, tc) = f(a,b,c)$.
+\end{theorem}
+
+\begin{proof}
+If $a \mapsto 2(b+c)-a$, then $ta \mapsto 2(tb+tc)-ta = t(2(b+c)-a)$. Since $t \cdot 0 = 0$, the minimum step count is preserved under scaling.
+\end{proof}
+
+\begin{theorem}[Sum Transformation]
+Under $a \mapsto a' = 2(b+c)-a$, the sum $s = a+b+c$ becomes $s' = 3(b+c)-a = 3s - 4a$.
+\end{theorem}
+
+\begin{proof}
+$s' = 2(b+c)-a+b+c = 3(b+c)-a$. Since $b+c = s-a$: $s' = 3s - 4a$.
+\end{proof}
+
+\begin{lemma}[Reachability Conditions]
+For $f(a,b,c)>0$, the value $c$ must satisfy divisibility conditions related to $\gcd(a,b)$ and congruence conditions modulo~3.
+\end{lemma}
+
+\begin{proof}
+Each operation preserves $\mathbb{Z}a + \mathbb{Z}b + \mathbb{Z}c$ (since $a' = 2b+2c-a$). For $0$ to appear in the orbit, $c$ is constrained to finitely many residue classes.
+\end{proof}
+
+\begin{theorem}[Finiteness]
+For fixed $a,b>0$, only finitely many $c \ge 1$ have $f(a,b,c)>0$. Hence $F(a,b) < \infty$.
+\end{theorem}
+
+\begin{proof}
+Divisibility and congruence conditions restrict $c$ to a finite set. For $c$ sufficiently large, the orbit cannot reach zero.
+\end{proof}
+
+\section{Algorithm}
+
+For each $k$, compute $F(6^k, 10^k)$ via BFS over feasible $c$ values. Exploit scaling: $f(ta,tb,tc) = f(a,b,c)$ reduces to the coprime case $\gcd(a,b,c)=1$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} BFS per $(a,b,c)$; state space bounded by arithmetic constraints. Scaling amortizes across $k$.
+\item \textbf{Space:} $O(|V|)$ for BFS visited set.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{457019806569269}
+\]
+
+\end{document}

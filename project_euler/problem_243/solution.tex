@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 243: Resilience}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a denominator $d>1$, the \emph{resilience} is
+\[
+R(d)=\frac{\phi(d)}{d-1}.
+\]
+Find the smallest $d$ such that $R(d)<\dfrac{15499}{94744}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Resilience via Euler's product]
+For any integer $d>1$,
+\[
+R(d)=\frac{d}{d-1}\prod_{p\mid d}\!\left(1-\frac{1}{p}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+By Euler's product formula, $\phi(d)=d\prod_{p\mid d}(1-1/p)$. Dividing by $d-1$ gives the result.
+\end{proof}
+
+\begin{lemma}[Primorial optimality]\label{lem:primorial}
+Let $P_k=\prod_{i=1}^k p_i$ be the $k$-th primorial. Among all integers with exactly $k$ distinct prime factors, $P_k$ minimises $\prod_{p\mid d}(1-1/p)$.
+\end{lemma}
+
+\begin{proof}
+The function $p\mapsto 1-1/p$ is strictly increasing for primes. If $d$ has distinct prime factors $q_1<\cdots<q_k$, then $q_i\ge p_i$ for all $i$, so $\prod(1-1/q_i)\ge\prod(1-1/p_i)$, with equality iff $q_i=p_i$.
+\end{proof}
+
+\begin{theorem}[Search reduction]\label{thm:search}
+The smallest $d$ with $R(d)<r$ has the form $d=m\cdot P_k$ for some $k$ and integer $m\ge 1$ whose prime factors lie in $\{p_1,\ldots,p_k\}$.
+\end{theorem}
+
+\begin{proof}
+If $d$ uses a prime $q_i>p_i$, replacing it with $p_i$ cannot increase $\prod(1-1/p)$ (by Lemma~\ref{lem:primorial}) and either decreases or maintains $d/(d-1)$, yielding a smaller or equal solution.
+\end{proof}
+
+\begin{lemma}[Multiplier formula]\label{lem:mult}
+For $d=m\cdot P_k$ with $m$ smooth over $\{p_1,\ldots,p_k\}$:
+\[
+R(d)=\frac{m\cdot P_k}{m\cdot P_k-1}\prod_{i=1}^{k}\!\left(1-\frac{1}{p_i}\right).
+\]
+\end{lemma}
+
+\begin{proof}
+Since $m$ introduces no new primes, $\phi(mP_k)=mP_k\prod_{i=1}^k(1-1/p_i)$. Divide by $mP_k-1$.
+\end{proof}
+
+\section{Algorithm}
+
+Compute primorials $P_1,P_2,\ldots$ until $R(P_k)<r$. Then search multiples $m\cdot P_{k-1}$ for $m=2,3,\ldots$ (with $m$ smooth over the first $k-1$ primes) to find the smallest $d<P_k$ satisfying the bound.
+
+\begin{verbatim}
+function SmallestResilient(r = 15499/94744):
+    Compute primorials until R(P_k) < r
+    Search d = m * P_{k-1} for small smooth m
+    Return minimum d satisfying R(d) < r
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(p_k)$ multiplier checks, where $p_k$ is a small prime ($\le 30$). Effectively $O(1)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{892371480}
+\]
+
+\end{document}

@@ -1,0 +1,65 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 370: Geometric Triangles}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count the number of triangles with integer sides $a \leq b \leq c$ such that $b^2 = ac$ (geometric progression) and $a + b + c \leq L$ for a given large~$L$.
+
+\section{Solution}
+
+\subsection{Parametrization}
+Every integer geometric triple $(a, b, c)$ with $a \leq b \leq c$ can be written as:
+\[
+a = k m^2, \quad b = k m n, \quad c = k n^2
+\]
+where $k \geq 1$, $1 \leq m \leq n$, and $\gcd(m, n) = 1$.
+
+\begin{proof}
+Setting $d = \gcd(a,b)$, writing $a = dm'$, $b = dn'$ with $\gcd(m',n')=1$, and using $b^2 = ac$ gives $c = dn'^2/m'$. Since $\gcd(m',n')=1$, we need $m' \mid d$, so $d = m'k$. Then $a = km'^2$, $b = km'n'$, $c = kn'^2$.
+\end{proof}
+
+\subsection{Triangle Inequality}
+The constraint $a + b > c$ becomes:
+\[
+km^2 + kmn > kn^2 \implies m^2 + mn - n^2 > 0.
+\]
+Setting $r = n/m$, this gives $r^2 - r - 1 < 0$, hence:
+\[
+\frac{n}{m} < \phi = \frac{1 + \sqrt{5}}{2} \approx 1.618.
+\]
+
+\subsection{Perimeter Constraint}
+The perimeter is:
+\[
+a + b + c = k(m^2 + mn + n^2) \leq L
+\]
+so the number of valid $k$ values is $\lfloor L / (m^2 + mn + n^2) \rfloor$.
+
+\subsection{Total Count}
+\[
+T(L) = \sum_{\substack{1 \leq m \leq n \\ \gcd(m,n) = 1 \\ n < \phi \cdot m}} \left\lfloor \frac{L}{m^2 + mn + n^2} \right\rfloor
+\]
+
+\subsection{Efficient Evaluation}
+We iterate over coprime pairs $(m, n)$ with $m \leq n < \phi m$. For each $m$, the range of $n$ is bounded, and for large $m$, the contribution per term is small. The total number of coprime pairs to consider is $O(\sqrt{L})$.
+
+For very large $L$, we can split the sum:
+\begin{itemize}
+\item \textbf{Small $m^2 + mn + n^2$}: Compute $\lfloor L/q \rfloor$ directly.
+\item \textbf{Large $m^2 + mn + n^2$}: Group by the value of $\lfloor L/q \rfloor$ and count coprime pairs with $q$ in each range (hyperbola method / Dirichlet series techniques).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{41791929448408}
+\]
+
+\end{document}

@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 510: Tangent Circles}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Three mutually tangent circles $C_1, C_2, C_3$ with integer radii $a, b, c$ are all tangent to a line. Find the sum of $(a+b+c)$ over all valid triples $(a,b,c)$ with $a \leq b \leq c$ and $a+b+c \leq N$.
+
+\section{Mathematical Analysis}
+By Descartes' Circle Theorem with one ``circle'' being a line (curvature $k_0 = 0$):
+\[
+(k_1 + k_2 + k_3)^2 = 2(k_1^2 + k_2^2 + k_3^2)
+\]
+where $k_i = 1/r_i$. In terms of radii:
+\[
+a^2b^2 + b^2c^2 + a^2c^2 = 2abc(a + b + c)
+\]
+
+\section{Derivation}
+Fixing $a$ and $b$, the equation in $c$ becomes quadratic:
+\[
+(a-b)^2 c^2 - 2ab(a+b)c + a^2b^2 = 0
+\]
+
+Solving:
+\[
+c = \frac{ab\left[(\sqrt{a} \pm \sqrt{b})^2\right]}{(a-b)^2}
+\]
+
+For $c$ to be a positive integer, we need $ab$ to be a perfect square. Setting $a = du^2$, $b = dv^2$:
+\[
+c = \frac{du^2v^2}{(u \pm v)^2}
+\]
+
+For each valid $(d, u, v)$ with $(u \pm v)^2 \mid du^2v^2$ and $a + b + c \leq N$, we get a solution.
+
+\section{Proof of Correctness}
+\begin{enumerate}
+    \item Descartes' Circle Theorem is an established result in inversive geometry.
+    \item The quadratic formula application is verified by substituting back.
+    \item The parameterization $a = du^2$, $b = dv^2$ ensures $\sqrt{ab} = duv \in \mathbb{Z}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Parameterized search:} $O(\sqrt{N}^2 \cdot N/\text{step}) \approx O(N^{3/2})$.
+    \item \textbf{Brute-force:} $O(N^3)$ for triple enumeration.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{315306518862563689}
+\]
+
+\end{document}

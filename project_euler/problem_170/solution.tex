@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\title{Problem 170: Largest Pandigital by Concatenating Products}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the largest 0--9 pandigital 10-digit number that can be formed by concatenating products of an integer $n$ with two or more multipliers $c_1, c_2, \ldots, c_m$ ($m \ge 2$), subject to the constraint that the concatenation of all input numbers $n \| c_1 \| c_2 \| \cdots \| c_m$ is \emph{also} a 0--9 pandigital 10-digit number.
+
+\section{Analysis}
+
+\subsection{Dual Pandigital Constraint}
+Let the products be $p_i = n \cdot c_i$ for $i = 1, \ldots, m$. We require:
+\begin{enumerate}
+    \item $p_1 \| p_2 \| \cdots \| p_m$ is a 10-digit pandigital (digits 0--9 each exactly once).
+    \item $n \| c_1 \| c_2 \| \cdots \| c_m$ is a 10-digit pandigital (digits 0--9 each exactly once).
+\end{enumerate}
+
+\subsection{Bitmask Representation}
+For each integer $x$, let $\mu(x) \subseteq \{0,1,\ldots,9\}$ be the set of its decimal digits (requiring no repetitions). The constraints become:
+\begin{itemize}
+    \item $\mu(n), \mu(c_1), \ldots, \mu(c_m)$ are pairwise disjoint with union $\{0,\ldots,9\}$.
+    \item $\mu(p_1), \mu(p_2), \ldots, \mu(p_m)$ are pairwise disjoint with union $\{0,\ldots,9\}$.
+\end{itemize}
+
+\subsection{Algorithm}
+For each $n$ (with distinct digits):
+\begin{enumerate}
+    \item Enumerate multipliers $c$ whose digits are drawn from the pool of digits not used by $n$.
+    \item For each valid $c$, compute $p = nc$ and verify it has distinct digits.
+    \item Use bitmask dynamic programming on the state $(\text{input\_mask}, \text{output\_mask})$ to find the optimal set of $(c, p)$ pairs covering all digits.
+    \item Maximize the concatenated product value, trying both orderings when combining two groups.
+\end{enumerate}
+
+\section{Result}
+The answer is achieved with $n = 27$:
+\begin{itemize}
+    \item $27 \times 36508 = 985716$
+    \item $27 \times 149 = 4023$
+    \item Products: $985716 \| 4023 = 9857164023$
+    \item Inputs: $27 \| 36508 \| 149 = 2736508149$ (pandigital)
+\end{itemize}
+\[
+\boxed{9857164023}
+\]
+
+\section{Answer}
+
+\[
+\boxed{9857164023}
+\]
+
+\end{document}

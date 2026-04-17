@@ -1,0 +1,56 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 507: Shortest Lattice Vector}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given lattices defined by binary quadratic forms, find the shortest non-zero lattice vectors and compute their sum over a family of forms.
+
+\section{Mathematical Analysis}
+A 2D lattice with Gram matrix $G = \begin{pmatrix} a & b/2 \\ b/2 & c \end{pmatrix}$ has associated quadratic form $Q(x,y) = ax^2 + bxy + cy^2$. The shortest non-zero vector length is $\sqrt{\lambda_1}$ where:
+\[
+\lambda_1 = \min_{(x,y) \in \mathbb{Z}^2 \setminus \{0\}} Q(x,y)
+\]
+
+\section{Derivation}
+\textbf{Gauss Reduction} transforms any positive-definite binary form into a reduced form satisfying:
+\begin{enumerate}
+    \item $0 < a \leq c$
+    \item $|b| \leq a$
+\end{enumerate}
+
+The algorithm alternates:
+\begin{itemize}
+    \item \textbf{Swap:} If $a > c$, swap $a \leftrightarrow c$.
+    \item \textbf{Reduce:} Set $k = \text{round}(b/(2a))$, then $(a, b, c) \mapsto (a, b - 2ka, c - kb + k^2 a)$.
+\end{itemize}
+
+For the reduced form, $\lambda_1 = a$.
+
+\section{Proof of Correctness}
+For a reduced form with $|b| \leq a \leq c$:
+\[
+Q(x,y) = ax^2 + bxy + cy^2 \geq ax^2 - a|x||y| + cy^2 \geq ax^2 - a|x||y| + a|y|^2
+\]
+If $y \neq 0$: $Q(x,y) \geq a(x^2 - |x||y| + y^2) \geq a \cdot \frac{3}{4}y^2 \geq a$ when $|y| \geq 1$.
+If $y = 0$: $Q(x,0) = ax^2 \geq a$.
+Thus $\lambda_1 \geq a$, and $Q(1,0) = a$ achieves this bound.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Gauss reduction (2D):} $O(\log^2 M)$ where $M = \max(|a|,|b|,|c|)$.
+    \item \textbf{LLL reduction (nD):} $O(n^5 \log^3 B)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{316558047002627270}
+\]
+
+\end{document}

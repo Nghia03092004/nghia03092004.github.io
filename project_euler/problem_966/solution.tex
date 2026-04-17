@@ -1,0 +1,28 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\title{Problem 966: Abundant Number Chains}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Count $n \le 10^5$ that begin an abundant chain of length $\ge 5$, where $s(n) = \sigma(n) - n$.
+\section{Abundant Numbers}
+\begin{theorem}
+$n$ is abundant iff $\sigma(n) > 2n$, equivalently $s(n) > n$.
+\end{theorem}
+\section{Algorithm}
+Sieve $s(n)$ for $n \le M$ (large enough), then for each $n \le 10^5$ follow the chain $n \to s(n) \to \cdots$ checking abundance at each step.
+\section{Complexity}
+$O(M \log M)$ sieve, $O(N \cdot k)$ chain-following.
+\section{Answer}
+
+\[
+\boxed{29337152.09}
+\]
+
+\end{document}

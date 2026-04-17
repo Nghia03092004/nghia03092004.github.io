@@ -1,0 +1,132 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\geometry{margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 402: Integer-valued Polynomials}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The polynomial $n^4 + 4n^3 + 2n^2 + 5n$ is a multiple of~$6$ for every integer~$n$, and~$6$ is the largest such integer.  Define $M(a,b,c)$ as the maximum~$m$ such that $n^4 + an^3 + bn^2 + cn$ is divisible by~$m$ for all integers~$n$.  Thus $M(4,2,5) = 6$.
+
+Define
+\[
+S(N) = \sum_{\substack{0 < a,b,c \le N}} M(a,b,c).
+\]
+It can be verified that $S(10) = 1972$ and $S(10\,000) = 2\,024\,258\,331\,114$.
+
+Let $(F_k)$ be the Fibonacci sequence: $F_0 = 0$, $F_1 = 1$, $F_k = F_{k-1} + F_{k-2}$.  Find the last~9 digits of
+\[
+\sum_{k=2}^{1\,234\,567\,890\,123} S(F_k).
+\]
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Newton forward-difference expansion]
+\label{lem:binomial}
+The monomials expand in the binomial basis as:
+\begin{align*}
+n &= \binom{n}{1}, \qquad
+n^2 = 2\binom{n}{2} + \binom{n}{1}, \\
+n^3 &= 6\binom{n}{3} + 6\binom{n}{2} + \binom{n}{1}, \\
+n^4 &= 24\binom{n}{4} + 36\binom{n}{3} + 14\binom{n}{2} + \binom{n}{1}.
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+By the Stirling number identity $n^k = \sum_{j=0}^{k} S(k,j)\,j!\,\binom{n}{j}$, with direct computation of the Stirling numbers $S(k,j)$ of the second kind.
+\end{proof}
+
+\begin{theorem}[Closed form for $M(a,b,c)$]
+\label{thm:M}
+\[
+M(a,b,c) = \gcd\!\big(24,\; 36+6a,\; 14+6a+2b,\; 1+a+b+c\big).
+\]
+\end{theorem}
+
+\begin{proof}
+A polynomial $p(n) = \sum_{k} d_k \binom{n}{k}$ satisfies $m \mid p(n)$ for every $n \in \mathbb{Z}$ if and only if $m \mid d_k$ for all~$k$.  This follows from the fact that $\{\binom{n}{k}\}$ forms a $\mathbb{Z}$-basis for integer-valued polynomials and $\binom{n}{k} \in \mathbb{Z}$ for all integers~$n$.  By Lemma~\ref{lem:binomial}, the binomial coefficients of $p(n) = n^4 + an^3 + bn^2 + cn$ are $d_4 = 24$, $d_3 = 36+6a$, $d_2 = 14+6a+2b$, $d_1 = 1+a+b+c$.  The maximum universal divisor is $\gcd(d_1, d_2, d_3, d_4)$.
+\end{proof}
+
+\begin{theorem}[Euler totient decomposition]
+Since $M(a,b,c) \mid 24$,
+\[
+S(N) = \sum_{d \mid 24} \varphi(d) \cdot \#\{(a,b,c) \in [1,N]^3 : d \mid M(a,b,c)\}.
+\]
+\end{theorem}
+
+\begin{proof}
+By the identity $n = \sum_{d \mid n}\varphi(d)$, we have $M(a,b,c) = \sum_{d \mid M(a,b,c)}\varphi(d)$.  Summing over all triples and interchanging:
+\[
+S(N) = \sum_{(a,b,c)}\sum_{d \mid M(a,b,c)}\varphi(d) = \sum_{d \mid 24}\varphi(d)\sum_{\substack{(a,b,c)\\d \mid M(a,b,c)}} 1. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Piecewise-cubic structure]
+For each residue $s = N \bmod 24$, the function $S(N)$ is a cubic polynomial in~$N$:
+\[
+288 \cdot S(N) = A_s N^3 + B_s N^2 + C_s N + D_s, \quad N \equiv s \pmod{24},
+\]
+where $A_s = 583$ for all~$s$.
+\end{lemma}
+
+\begin{proof}
+The condition $d \mid M(a,b,c)$ reduces to congruences modulo~$d$ on $(a,b,c)$.  For each valid residue class, the count of triples in $[1,N]^3$ is a product of three floor-linear terms, hence piecewise-cubic with period $\mathrm{lcm}$ of all $d \mid 24$, which is~$24$.  The factor~$288$ clears all denominators.
+\end{proof}
+
+\begin{theorem}[Fibonacci power sums via matrix exponentiation]
+The Pisano period $\pi(24) = 24$.  For each class $r \bmod 24$, the subsequence $F_{24i+r}$ satisfies a two-term linear recurrence.  The sums $\sum F_{24i+r}^j$ for $j=0,1,2,3$ are tracked by a $14$-dimensional state vector
+\[
+\mathbf{x} = (u^3, u^2v, uv^2, v^3, u^2, uv, v^2, u, v, 1, \textstyle\sum u^3, \sum u^2, \sum u, \sum 1)
+\]
+with a $14\times 14$ transition matrix~$T$ computed via $O(14^3 \log K)$ matrix exponentiation.
+\end{theorem}
+
+\begin{proof}
+The matrix $A^{24}$ with $A = \bigl(\begin{smallmatrix}1&1\\1&0\end{smallmatrix}\bigr)$ gives the recurrence $(u',v') = (F_{23}u + F_{24}v,\; F_{24}u + F_{25}v)$.  This is linear in $(u,v)$, and all monomials $u^i v^j$ with $i+j \le 3$ transform linearly under this substitution.  The accumulator rows add each monomial to its running sum, maintaining linearity.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{Solve}{$K, \mathrm{MOD}$}
+  \State Precompute 24 cubic polynomials $(A_s, B_s, C_s, D_s)$ by fitting $S(N)$ at sample points
+  \State $\mathrm{MODEXT} \gets 288 \cdot \mathrm{MOD}$; \quad $\mathrm{total} \gets 0$
+  \For{$r = 0$ \textbf{to} $23$}
+    \State $s \gets F_r \bmod 24$ \Comment{Pisano period determines polynomial}
+    \State Build $14\times 14$ transition matrix $T$ from $F_{23}, F_{24}, F_{25}$
+    \State Compute $T^{n-1} \cdot \mathbf{x}_0 \pmod{\mathrm{MODEXT}}$ \Comment{$n$ = number of terms in subsequence}
+    \State Extract $\Sigma u^3, \Sigma u^2, \Sigma u, \Sigma 1$ from state
+    \State $\mathrm{total} \mathrel{+}= A_s \cdot \Sigma u^3 + B_s \cdot \Sigma u^2 + C_s \cdot \Sigma u + D_s \cdot \Sigma 1$
+  \EndFor
+  \State \Return $(\mathrm{total} / 288) \bmod \mathrm{MOD}$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(14^3 \cdot 24 \cdot \log K) \approx O(10^6)$ operations.
+  \item \textbf{Space:} $O(14^2) = O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{356019862}
+\]
+
+\end{document}

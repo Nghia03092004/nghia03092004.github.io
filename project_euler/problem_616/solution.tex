@@ -1,0 +1,53 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 616: Creative Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Alice plays a game starting with a list $L$ of integers. She can:
+\begin{enumerate}
+    \item Remove two elements $a$ and $b$ from $L$ and add $a^b$.
+    \item If $c = a^b \in L$ (with $a,b > 1$), remove $c$ and add $a$ and $b$.
+\end{enumerate}
+
+An integer $n > 1$ is \textbf{creative} if starting from $L = \{n\}$, Alice can reach any integer $m > 1$.
+
+Find the sum of all creative integers $\leq 10^{12}$.
+
+\section{Mathematical Analysis}
+
+\subsection{Decomposition of Perfect Powers}
+A number $n$ can only be decomposed if $n = a^b$ with $a, b > 1$. Starting from $\{n\}$, we obtain $\{a, b\}$.
+
+\subsection{Reachability}
+From any list containing $\{2, 3\}$, we can reach any integer $m > 1$:
+\begin{itemize}
+    \item $2^3 = 8$, then $8 = 2^3$ gives $\{2, 3\}$ again
+    \item We can build any number through exponentiation chains
+\end{itemize}
+
+\subsection{Creative Number Classification}
+A number $n$ is creative if and only if:
+\begin{enumerate}
+    \item $n$ is a perfect power $a^b$ with $a, b > 1$
+    \item Through the decomposition tree, we can eventually reach a configuration containing both 2 and 3
+\end{enumerate}
+
+The key insight is that $n$ must be expressible as $a^b$ where the decomposition chain of both $a$ and $b$ eventually produces the values 2 and 3.
+
+\section{Algorithm}
+We enumerate all perfect powers up to $10^{12}$ and check the creative condition through recursive decomposition analysis.
+
+\section{Answer}
+
+\[
+\boxed{310884668312456458}
+\]
+
+\end{document}

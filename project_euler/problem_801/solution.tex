@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 801: $x^y \equiv y^x \pmod{p}$}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a prime $p$, define
+\[
+f(p) = \sum_{\substack{1 \le x < y < p \\ x^y \equiv y^x \pmod{p}}} (x + y).
+\]
+Compute $\displaystyle\sum_{\substack{p \le 10^6 \\ p \text{ prime}}} f(p) \pmod{10^9 + 7}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Discrete Logarithm Reduction]
+Let $p$ be an odd prime and $g$ a primitive root modulo $p$. For $x, y \in \{1, \ldots, p-1\}$, write $x = g^a$ and $y = g^b$ where $a = \operatorname{ind}_g(x)$ and $b = \operatorname{ind}_g(y)$. Then
+\[
+x^y \equiv y^x \pmod{p} \iff a \cdot y \equiv b \cdot x \pmod{p-1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Since $g$ is a primitive root, the map $k \mapsto g^k$ is a bijection $\mathbb{Z}/(p-1)\mathbb{Z} \to (\mathbb{Z}/p\mathbb{Z})^*$. We have $x^y = g^{ay}$ and $y^x = g^{bx}$, so $x^y \equiv y^x \pmod{p}$ if and only if $g^{ay} \equiv g^{bx} \pmod{p}$, which holds if and only if $ay \equiv bx \pmod{p-1}$ by the order of $g$.
+\end{proof}
+
+\begin{lemma}[Collision via Hash Function]
+Define $h : \{x \in \{1, \ldots, p-1\} : \gcd(x, p-1) = 1\} \to \mathbb{Z}/(p-1)\mathbb{Z}$ by
+\[
+h(x) = \operatorname{ind}_g(x) \cdot x^{-1} \pmod{p-1}.
+\]
+Then for $x, y$ both in the domain of $h$, $x^y \equiv y^x \pmod{p}$ if and only if $h(x) = h(y)$.
+\end{lemma}
+
+\begin{proof}
+The condition $ay \equiv bx \pmod{p-1}$ can be rewritten (when $\gcd(x, p-1) = 1$ and $\gcd(y, p-1) = 1$) as $a \cdot x^{-1} \equiv b \cdot y^{-1} \pmod{p-1}$, i.e., $h(x) = h(y)$.
+\end{proof}
+
+\begin{lemma}[Handling $\gcd(x, p-1) > 1$]
+When $\gcd(x, p-1) > 1$, the inverse $x^{-1} \pmod{p-1}$ does not exist. For such $x$, the congruence $ay \equiv bx \pmod{p-1}$ must be verified directly: it holds iff $p - 1 \mid ay - bx$.
+\end{lemma}
+
+\begin{proof}
+This follows immediately from the definition of congruence modulo $p-1$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Sieve primes up to $N = 10^6$.
+    \item For each prime $p$, find a primitive root $g$ and compute $\operatorname{ind}_g(x)$ for all $x$.
+    \item For each $x$ with $\gcd(x, p-1) = 1$, compute $h(x) = \operatorname{ind}_g(x) \cdot x^{-1} \bmod (p-1)$.
+    \item Group values by $h(x)$; for each bucket $B$, add $(|B|-1) \cdot \sum_{x \in B} x$ to the answer.
+    \item Handle elements with $\gcd(x, p-1) > 1$ by direct verification.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N^{3/2}/\ln N)$ using baby-step giant-step for discrete logarithms; $O(p)$ per prime for collision detection.
+    \item \textbf{Space:} $O(N)$ for the sieve and discrete logarithm table.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{638129754}
+\]
+
+\end{document}

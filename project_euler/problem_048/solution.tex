@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 48: Self Powers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The series $1^1 + 2^2 + 3^3 + \cdots + 10^{10} = 10\,405\,071\,317$. Find the last ten digits of:
+\[
+S_{1000} = \sum_{k=1}^{1000} k^k.
+\]
+
+\section{Formal Development}
+
+\begin{theorem}[Ring Homomorphism]\label{thm:mod}
+The reduction map $\phi\colon \mathbb{Z} \to \mathbb{Z}/m\mathbb{Z}$ preserves addition and multiplication:
+\begin{align*}
+(a + b) \bmod m &= ((a \bmod m) + (b \bmod m)) \bmod m, \\
+(a \cdot b) \bmod m &= ((a \bmod m) \cdot (b \bmod m)) \bmod m.
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+Write $a = q_1 m + r_1$, $b = q_2 m + r_2$. Then $a + b \equiv r_1 + r_2 \pmod{m}$ and $ab \equiv r_1 r_2 \pmod{m}$.
+\end{proof}
+
+\begin{corollary}\label{cor:sum}
+$S_N \bmod m = \bigl(\sum_{k=1}^{N} (k^k \bmod m)\bigr) \bmod m$.
+\end{corollary}
+
+\begin{proof}
+Induction on $N$ using the additive property of Theorem~\ref{thm:mod}.
+\end{proof}
+
+\begin{theorem}[Binary Exponentiation]\label{thm:binexp}
+For integers $a$, $b \geq 0$, and $m > 1$, the value $a^b \bmod m$ is computable in $O(\log b)$ multiplications modulo $m$.
+\end{theorem}
+
+\begin{proof}
+Write $b = \sum_{i=0}^{L} b_i \cdot 2^i$ in binary. Compute $a^{2^i} \bmod m$ by repeated squaring ($L$ multiplications). Accumulate $\prod_{i:\, b_i=1} a^{2^i} \bmod m$ (at most $L+1$ multiplications). Total: $\leq 2L + 1 = O(\log b)$.
+\end{proof}
+
+\begin{lemma}[Last Ten Digits]\label{lem:digits}
+The last ten digits of $N \geq 0$ are $N \bmod 10^{10}$.
+\end{lemma}
+
+\begin{proof}
+$N = q \cdot 10^{10} + r$ with $0 \leq r < 10^{10}$; $r$ encodes the last ten digits.
+\end{proof}
+
+\begin{theorem}\label{thm:answer}
+$S_{1000} \bmod 10^{10} = 9110846700$.
+\end{theorem}
+
+\begin{proof}
+Set $m = 10^{10}$. By Corollary~\ref{cor:sum}, compute each $k^k \bmod m$ via binary exponentiation (Theorem~\ref{thm:binexp}) and accumulate. The result is $9110846700$.
+
+Verification: $S_{10} = 10\,405\,071\,317$, so $S_{10} \bmod 10^{10} = 0405071317$, which agrees with our modular computation.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{proposition}[Time]
+$O(N \log N)$ where $N = 1000$.
+\end{proposition}
+
+\begin{proof}
+The loop runs $N$ iterations; iteration $k$ costs $O(\log k)$. Total: $\sum_{k=1}^{N} O(\log k) = O(N \log N)$.
+\end{proof}
+
+\begin{proposition}[Space]
+$O(1)$ auxiliary space (accumulator and exponentiation variables only).
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{9110846700}
+\]
+
+\end{document}

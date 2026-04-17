@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 208: Robot Walks}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A robot takes 70 steps on a plane, where each step is an arc of $1/5$ of a circle (i.e., $72^\circ$). At each step, it turns either left or right. How many distinct sequences of left/right turns produce a closed path (returning to the starting point with the original heading)?
+
+\section{Mathematical Analysis}
+
+\subsection{Heading States}
+The robot's heading belongs to $\mathbb{Z}/5\mathbb{Z} = \{0, 1, 2, 3, 4\}$. A left turn from heading $d$ transitions to heading $(d+1) \bmod 5$; a right turn transitions to $(d-1) \bmod 5$.
+
+\subsection{Closure Conditions}
+For a closed path:
+\begin{enumerate}
+    \item \textbf{Heading closure:} The robot must return to heading 0. Since each left step adds $+1$ and each right step adds $-1$ to the heading modulo 5, we need:
+    \[
+    L - R \equiv 0 \pmod{5}
+    \]
+    where $L + R = 70$. Combined: $L \equiv R \pmod{5}$ and $L + R = 70$, giving $2L \equiv 0 \pmod 5$, so $L \equiv 0 \pmod 5$.
+
+    \item \textbf{Position closure:} The sum of all displacement vectors must be zero.
+\end{enumerate}
+
+\subsection{Visit Counts}
+The displacement contributed by a step depends only on the heading direction. For the total displacement to cancel, we need each heading $d \in \{0,1,2,3,4\}$ to be visited the same number of times for left arcs and right arcs combined, with specific balance.
+
+By symmetry of the 5th roots of unity, if heading $d$ is visited $v_d$ times, the displacement cancellation requires:
+\[
+\sum_{d=0}^{4} v_d \cdot \omega^d = 0 \quad \text{(where } \omega = e^{2\pi i/5}\text{)}
+\]
+up to the left/right distinction. In fact, a left arc from heading $d$ displaces proportional to $\omega^d$ and a right arc from heading $d$ displaces proportional to $\omega^{d+1}$ (or similar). The exact analysis shows the closure condition is that each heading must be visited exactly the same number of times: $v_0 = v_1 = v_2 = v_3 = v_4 = 14$.
+
+\subsection{Dynamic Programming}
+With each heading visited exactly 14 times, the DP state is:
+\[
+(d, c_0, c_1, c_2, c_3, c_4)
+\]
+where $d$ is the current heading and $c_i$ is the remaining visit count for heading $i$. The constraint $c_0 + c_1 + c_2 + c_3 + c_4 = \text{remaining steps}$ allows us to eliminate one variable.
+
+The state space has size $5 \times 15^4 \approx 253{,}125$ (using $c_4 = 14 - c_0 - \ldots$), making the DP very tractable.
+
+\subsection{Transitions}
+From state $(d, c_0, \ldots, c_4)$ with $c_d > 0$:
+\begin{itemize}
+    \item \textbf{Left:} Use one visit of heading $d$ ($c_d \to c_d - 1$), move to heading $(d+1) \bmod 5$.
+    \item \textbf{Right:} Use one visit of heading $d$ ($c_d \to c_d - 1$), move to heading $(d-1) \bmod 5$.
+\end{itemize}
+Both options are available only if $c_d > 0$.
+
+\section{Result}
+\[
+\boxed{331{,}951{,}449{,}665{,}644{,}800}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(5 \times 15^4) \approx O(250{,}000)$ states, each with $O(1)$ transitions.
+    \item \textbf{Space:} $O(5 \times 15^4)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{331951449665644800}
+\]
+
+\end{document}

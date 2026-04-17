@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 929: Prime Gap Distribution}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $g(p) = p' - p$ where $p'$ is the next prime after~$p$. Find $\sum_{p \leq 10^7} g(p)^2$, summing over primes.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Prime Number Theorem]
+$\pi(x) \sim x/\ln x$ as $x \to \infty$.
+\end{theorem}
+
+\begin{proof}[Proof (sketch)]
+Proved by Hadamard and de la Vall\'ee Poussin (1896) via the non-vanishing of $\zeta(1+it)$ and contour integration on $-\zeta'(s)/\zeta(s)$.
+\end{proof}
+
+\begin{theorem}[Average Gap]
+The average prime gap near~$x$ is $\ln x$: for $p_n \leq N$, $\frac{1}{n}\sum_{k=1}^n g_k \sim \ln p_n$.
+\end{theorem}
+
+\begin{proof}
+The gaps telescope: $\sum_{k=1}^n g_k = p_{n+1} - 2$. Dividing by $n = \pi(p_n)$ and applying PNT gives $\sim \ln p_n$.
+\end{proof}
+
+\begin{theorem}[Sum of Squared Gaps --- Heuristic]
+Under the Hardy--Littlewood prime $k$-tuples conjecture:
+\[
+\sum_{p \leq N} g(p)^2 \sim 2N\ln N.
+\]
+\end{theorem}
+
+\begin{proof}[Proof (heuristic)]
+Gaps near~$x$ are approximately exponentially distributed with mean $\ln x$, giving $\mathbb{E}[g^2] \sim 2(\ln x)^2$. Summing over $\pi(N) \sim N/\ln N$ primes yields $\sim 2N\ln N$.
+\end{proof}
+
+\begin{lemma}[Sieve Correctness]
+The sieve of Eratosthenes identifies all primes up to~$N$ in $O(N\log\log N)$ time.
+\end{lemma}
+
+\begin{proof}
+A composite $n \leq N$ has a prime factor $p \leq \sqrt{N}$ and is marked when processing~$p$. A prime is never marked. Time: $\sum_{p \leq N} N/p = O(N\log\log N)$ by Mertens' theorem.
+\end{proof}
+
+\begin{lemma}[Boundary Handling]
+To compute $g(p)$ for all primes $p \leq N$, sieving up to $N + O(N^{0.525})$ suffices.
+\end{lemma}
+
+\begin{proof}
+By Baker--Harman--Pintz (2001), $g(p) = O(p^{0.525})$. In practice, the maximal gap below $10^7$ is~154, so $N + 1000$ suffices.
+\end{proof}
+
+\section{Algorithm}
+
+Sieve primes up to $N + 1000$. Iterate consecutive prime pairs $(p_i, p_{i+1})$ with $p_i \leq N$, accumulating $(p_{i+1} - p_i)^2$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N\log\log N)$ for the sieve; $O(\pi(N))$ for accumulation.
+    \item \textbf{Space:} $O(N)$ for the sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{57322484}
+\]
+
+\end{document}

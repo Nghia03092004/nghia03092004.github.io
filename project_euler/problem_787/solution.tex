@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 787: Bezout's Game}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Two stone piles of coprime sizes $(a, b)$. A player removes $(c, d)$ stones with $|ad - bc| = 1$. First to empty a pile wins. Position $(a,b)$ is **winning** if the next player can force a victory. $H(N)$ counts winning positions with $\gcd(a,b)=1$, $a,b > 0$, $a+b \le N$. Given $H(4)=5$, $H(100)=2043$. Find $H(10^9)$.
+\section{Analysis}
+\subsection*{Stern-Brocot Tree and Continued Fractions}
+
+The condition $|ad - bc| = 1$ means $(a,b)$ and $(c,d)$ are **Farey neighbors** or equivalently adjacent nodes in the **Stern-Brocot tree**. The valid moves from $(a,b)$ are to positions $(c,d)$ that are Stern-Brocot neighbors with $c < a$ or $d < b$ (removing stones).
+
+\subsection*{Euclidean Game Structure}
+
+This game is closely related to the **Euclidean game** (Sprague-Grundy analysis on continued fraction expansions). The continued fraction of $a/b = [q_0; q_1, q_2, \ldots, q_k]$ determines the game tree.
+
+**Key theorem:** A position $(a,b)$ is a losing
+\section{Answer}
+
+\[
+\boxed{202642367520564145}
+\]
+
+\end{document}

@@ -1,0 +1,40 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 887: Chained Radicals}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find $R(a) = \sqrt{a + \sqrt{a + \sqrt{a + \cdots}}}$ in closed form.
+
+\section{Key Results}
+
+\begin{theorem}
+$R(a) = \frac{1 + \sqrt{1 + 4a}}{2}$ for $a \ge 0$.
+\end{theorem}
+
+\begin{proof}
+If $x = R(a)$, then $x = \sqrt{a + x}$, so $x^2 - x - a = 0$, giving $x = \frac{1+\sqrt{1+4a}}{2}$.
+\end{proof}
+
+\begin{theorem}[Convergence]
+The iteration $x_{n+1} = \sqrt{a + x_n}$ converges linearly with rate $\frac{1}{2R(a)}$.
+\end{theorem}
+
+Special case: $R(1) = \frac{1+\sqrt{5}}{2} = \varphi$ (golden ratio).
+
+\section{Integer Solutions}
+$R(a) = n \iff a = n(n-1)$: $a \in \{0, 2, 6, 12, 20, 30, \ldots\}$.
+
+\section{Answer}
+
+\[
+\boxed{39896187138661622}
+\]
+
+\end{document}

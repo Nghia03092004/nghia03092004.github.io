@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 722: Slowly Converging Series}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For non-negative integer~$k$, define
+\[
+E_k(q) = \sum_{n=1}^{\infty} \sigma_k(n)\,q^n, \qquad \sigma_k(n) = \sum_{d \mid n} d^k.
+\]
+Compute $E_{15}(1 - 2^{-25})$ to twelve significant digits.
+
+Given: $E_1(1-2^{-4}) = 3.872155809243 \times 10^2$, $E_3(1-2^{-8}) = 2.767385314772 \times 10^{10}$, $E_7(1-2^{-15}) = 6.725803486744 \times 10^{39}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Lambert Series Representation]
+For $|q| < 1$ and $k \ge 0$,
+\[
+E_k(q) = \sum_{m=1}^{\infty} \frac{m^k\,q^m}{1 - q^m}.
+\]
+\end{theorem}
+
+\begin{proof}
+By absolute convergence, Fubini's theorem permits interchange of summation:
+\[
+\sum_{n \ge 1} \sigma_k(n)\,q^n
+= \sum_{n \ge 1} q^n \sum_{d \mid n} d^k
+= \sum_{d \ge 1} d^k \sum_{j \ge 1} q^{dj}
+= \sum_{d \ge 1} \frac{d^k\,q^d}{1-q^d}.
+\]
+Each inner geometric series converges since $|q^d| < 1$.
+\end{proof}
+
+\begin{theorem}[Polylogarithm Decomposition]
+For $|q|<1$ and positive integer $k$,
+\[
+E_k(q) = \sum_{j=1}^{\infty} \operatorname{Li}_{-k}(q^j), \qquad
+\operatorname{Li}_{-k}(x) = \frac{x\,A_k(x)}{(1-x)^{k+1}},
+\]
+where $A_k(x)$ is the Eulerian polynomial of degree $k-1$.
+\end{theorem}
+
+\begin{proof}
+From the Lambert series, exchange summation order:
+\[
+E_k(q) = \sum_{m=1}^{\infty} m^k \sum_{j=1}^{\infty} q^{mj}
+= \sum_{j=1}^{\infty} \sum_{m=1}^{\infty} m^k (q^j)^m
+= \sum_{j=1}^{\infty} \operatorname{Li}_{-k}(q^j).
+\]
+The rational function form of $\operatorname{Li}_{-k}$ for integer $k$ is classical.
+\end{proof}
+
+\begin{lemma}[Asymptotic Behavior]
+For $q = 1 - \epsilon$ with $\epsilon \to 0^+$ and $k \ge 2$,
+\[
+E_k(q) \sim \frac{\Gamma(k)\,\zeta(k)}{\epsilon^k}.
+\]
+\end{lemma}
+
+\begin{proof}
+Approximate the Lambert series sum by the integral $\int_0^\infty \frac{t^k\,e^{-t\epsilon}}{1-e^{-t\epsilon}}\,dt$. Under $u = t\epsilon$, this becomes $\epsilon^{-(k+1)}\int_0^\infty \frac{u^k}{e^u-1}\,du = \epsilon^{-(k+1)}\Gamma(k+1)\zeta(k+1)$. Euler--Maclaurin correction on the leading singular term of $\frac{q^m}{1-q^m}$ yields the refined asymptotic $E_k(q) \sim \Gamma(k)\zeta(k)\epsilon^{-k}$.
+\end{proof}
+
+\section{Algorithm}
+
+Evaluate the polylogarithm decomposition: for each $j \ge 1$ with $q^j$ above the precision threshold, compute $\operatorname{Li}_{-k}(q^j)$ via the Eulerian polynomial rational function and accumulate. Use multiprecision arithmetic with sufficient guard digits.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(k \cdot 2^B \cdot D)$ where $B = 25$ and $D$ is the number of precision digits. With Euler--Maclaurin acceleration: $O(k \cdot \sqrt{2^B \cdot D})$.
+\item \textbf{Space:} $O(k)$ for the Eulerian polynomial.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3.376792776502e132}
+\]
+
+\end{document}

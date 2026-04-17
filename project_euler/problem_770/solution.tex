@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 770: Delphi Flip}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+A starts with 1g gold. Each round, A picks $x$, B takes or gives $x$. $n$ takes and $n$ gives total. $g(X)$ = smallest $n$ for A to guarantee $X$ grams. $g(1.7)=10$. Find $g(1.9999)$.
+
+\section{Analysis}
+This is a minimax game. A's guaranteed final wealth after $n$ takes and $n$ gives with optimal play relates to the central binomial coefficient: $g(X)$ is the smallest $n$ such that $\binom{2n}{n}/4^n \ge 1/X$ (or similar).
+
+\section{Answer}
+
+\[
+\boxed{127311223}
+\]
+
+\end{document}

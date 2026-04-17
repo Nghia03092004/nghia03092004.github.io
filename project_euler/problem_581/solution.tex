@@ -1,0 +1,91 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 581: 47-smooth Triangular Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer~$m$ is called \emph{$p$-smooth} if every prime factor of~$m$ is at most~$p$. Let $T(n) = \frac{n(n+1)}{2}$ denote the $n$-th triangular number. Determine
+\[
+S = \sum_{\substack{n \ge 1 \\ T(n) \text{ is } 47\text{-smooth}}} n.
+\]
+
+\section{Notation}
+
+\begin{definition}
+Let $\mathcal{P} = \{2,3,5,7,11,13,17,19,23,29,31,37,41,43,47\}$ denote the set of the first 15~primes. A positive integer~$m$ is \emph{47-smooth} (equivalently, $\mathcal{P}$-smooth) if and only if $\operatorname{rad}(m) \mid \prod_{p \in \mathcal{P}} p$, where $\operatorname{rad}(m) = \prod_{p \mid m} p$.
+\end{definition}
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Reduction to Consecutive Smooth Pairs]
+For every positive integer~$n$, the triangular number $T(n) = \frac{n(n+1)}{2}$ is 47-smooth if and only if both $n$ and $n+1$ are 47-smooth.
+\end{theorem}
+
+\begin{proof}
+Since $\gcd(n, n+1) = 1$, exactly one of $n, n+1$ is even; call it~$e$ and the other~$o$. Then
+\[
+T(n) = \frac{e}{2} \cdot o, \qquad \gcd\!\left(\frac{e}{2},\, o\right) = 1.
+\]
+
+$(\Rightarrow)$~Suppose $T(n)$ is 47-smooth. Every prime dividing~$o$ divides $T(n)$, so it lies in~$\mathcal{P}$. Every prime dividing $e/2$ divides $T(n)$, so it lies in~$\mathcal{P}$. The only additional prime factor of~$e$ beyond those of $e/2$ is~$2 \in \mathcal{P}$. Hence both $n$ and $n+1$ are 47-smooth.
+
+$(\Leftarrow)$~If both $n$ and $n+1$ are 47-smooth, then every prime dividing $n(n+1)$ lies in~$\mathcal{P}$. Since $T(n) \mid n(n+1)$, the number $T(n)$ is 47-smooth.
+\end{proof}
+
+\begin{theorem}[Finiteness --- St\o rmer's Theorem (1897)]
+For any finite set of primes~$\mathcal{P}$, there are only finitely many positive integers~$n$ such that both $n$ and $n+1$ are $\mathcal{P}$-smooth.
+\end{theorem}
+
+\begin{proof}
+Given a consecutive $\mathcal{P}$-smooth pair $(n, n+1)$, set $x = 2n+1$ so that $x^2 = 4n(n+1) + 1$. Let $d$ be the squarefree part of $n(n+1)$. Since $n(n+1)$ is $\mathcal{P}$-smooth, $d$ is squarefree and $\mathcal{P}$-smooth. Write $n(n+1) = dy^2$; then $x^2 - 4dy^2 = 1$, a Pell equation.
+
+There are exactly $2^{|\mathcal{P}|}$ squarefree $\mathcal{P}$-smooth numbers. For each, the Pell equation $X^2 - dY^2 = 1$ has solutions growing exponentially as $(X_1 + Y_1\sqrt{d}\,)^k$. For sufficiently large~$k$, the quantity $n = (x-1)/2$ acquires a prime factor exceeding $\max(\mathcal{P})$. Hence only finitely many solutions per~$d$, and finitely many~$d$.
+\end{proof}
+
+\begin{lemma}[Explicit Upper Bound]
+Every consecutive pair $(n, n+1)$ of 47-smooth integers satisfies $n < 1.2 \times 10^{12}$. The largest such pair is $(n, n+1) = (1\,109\,496\,723\,124,\; 1\,109\,496\,723\,125)$.
+\end{lemma}
+
+\begin{proof}
+By exhaustive enumeration of all Pell equation solutions for each of the $2^{15}$ squarefree 47-smooth numbers, one verifies that no consecutive 47-smooth pair exceeds this bound.
+\end{proof}
+
+\section{Algorithm}
+
+By Theorem~1, it suffices to enumerate all 47-smooth numbers up to $L = 1.2 \times 10^{12}$ in increasing order and identify consecutive pairs.
+
+\begin{enumerate}
+\item Initialize a min-heap with seed value~1 and a visited set $\{1\}$.
+\item Repeatedly extract the minimum value~$v$. For each prime $p \in \mathcal{P}$, insert $vp$ if $vp \le L$ and $vp$ has not been visited.
+\item Whenever $v = \mathrm{prev} + 1$ and $\mathrm{prev} \ge 1$, accumulate $\mathrm{prev}$ into the running sum.
+\item Terminate when the heap is empty or the extracted value exceeds~$L$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+Let $S = \Psi(L, 47)$ denote the count of 47-smooth integers up to~$L$. By the Dickman--de~Bruijn estimate with $u = \frac{\log L}{\log 47} \approx 7.2$, the count~$S$ is on the order of millions.
+
+\begin{itemize}
+\item \textbf{Time:} $O(S \cdot |\mathcal{P}| \cdot \log S)$. Each extraction involves a heap operation of cost $O(\log S)$ and spawns at most $|\mathcal{P}| = 15$ insertions.
+\item \textbf{Space:} $O(S)$ for the heap and visited set.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2227616372734}
+\]
+
+\end{document}

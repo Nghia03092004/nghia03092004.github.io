@@ -1,0 +1,55 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Problem 254: Sums of Digit Factorials}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define:
+\begin{align}
+f(n) &= \text{sum of factorials of digits of } n \\
+sf(n) &= \text{digit sum of } f(n) \\
+g(i) &= \min\{n : sf(n) = i\} \\
+sg(i) &= \text{digit sum of } g(i)
+\end{align}
+
+Find $\displaystyle\sum_{i=1}^{150} sg(i)$.
+
+\section{Key Observations}
+
+\begin{enumerate}
+    \item $f(n)$ depends only on the multiset of digits of $n$.
+    \item The smallest $n$ with a given digit multiset has digits in non-decreasing order.
+    \item For large $i$, $g(i)$ consists of many 9's plus a small adjustment set of digits.
+    \item $sf(n) = s(f(n))$ where $s$ is the digit sum function.
+\end{enumerate}
+
+\section{Algorithm}
+
+For each target $i$ from 1 to 150:
+\begin{enumerate}
+    \item Enumerate ``base patterns'' (multisets of digits from 1--9 with at most a few non-9 digits).
+    \item For each pattern, determine the number of 9's needed so that $s(f(n)) = i$.
+    \item The digit sum of $g(i)$ is $sg(i) = 9 \cdot c_9 + \sum_{d} d \cdot c_d$ for the optimal pattern.
+\end{enumerate}
+
+The number of 9's $c_9$ is chosen so that $f(n) = c_9 \cdot 362880 + R$ (where $R$ is the sum of factorials of the non-9 digits) has digit sum equal to $i$.
+
+\section{Result}
+\[
+\boxed{8184523820510}
+\]
+
+\section{Answer}
+
+\[
+\boxed{8184523820510}
+\]
+
+\end{document}

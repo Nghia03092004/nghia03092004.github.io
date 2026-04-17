@@ -1,0 +1,105 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 96: Su Doku}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Solve fifty Sudoku puzzles and compute the sum of the three-digit numbers formed by the first three cells of each solution's top row.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Sudoku as a CSP]
+A Sudoku instance is a constraint satisfaction problem on $G = \{0,\ldots,8\}^2$ with variables $v_{r,c}$, domains $D_{r,c} \subseteq \{1,\ldots,9\}$, and 27 all-different constraints (one per row, column, and $3 \times 3$ box).
+\end{definition}
+
+\begin{definition}[Peers]
+The \emph{peers} of $(r,c)$ are the $20$ cells sharing a row, column, or box with it.
+\end{definition}
+
+\begin{theorem}[Soundness of propagation]
+\label{thm:prop}
+If $v_{r,c} = d$, removing $d$ from every peer's domain preserves all valid completions.
+\end{theorem}
+\begin{proof}
+In any valid completion, the all-different constraint on each unit containing $(r,c)$ forces $v_{r',c'} \ne d$ for every peer $(r',c')$. Hence $d \notin D_{r',c'}$ in any solution, and removal is safe.
+\end{proof}
+
+\begin{lemma}[Naked single]
+If $|D_{r,c}| = 1$ after propagation, the sole remaining value is forced.
+\end{lemma}
+\begin{proof}
+$v_{r,c}$ must take a value in $D_{r,c}$; a singleton domain admits exactly one choice.
+\end{proof}
+
+\begin{lemma}[Hidden single]
+If value $d$ appears in exactly one cell's domain within a unit, that cell must hold~$d$.
+\end{lemma}
+\begin{proof}
+The all-different constraint requires $d$ to appear in the unit. With only one possible location, the assignment is forced.
+\end{proof}
+
+\begin{theorem}[Completeness of backtracking]
+\label{thm:complete}
+Backtracking with propagation (Theorem~\ref{thm:prop}) is complete: it finds a solution if one exists.
+\end{theorem}
+\begin{proof}
+The search tree has finite depth ($\le 81$) and bounded branching factor ($\le 9$). Propagation removes only values inconsistent with all valid completions, so no solution path is pruned. Exhaustive exploration of all surviving branches guarantees that a solution is found if it exists.
+\end{proof}
+
+\begin{theorem}[MRV heuristic]
+Selecting the unassigned cell with minimum $|D_{r,c}|$ minimizes the branching factor at each node.
+\end{theorem}
+\begin{proof}
+Branching on a variable with $b$ candidates creates at most $b$ child nodes. Choosing the minimum $b$ minimizes this per-node cost. Under the fail-first principle, this greedily minimizes the expected search tree size.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Sudoku solver: constraint propagation + backtracking}
+\begin{algorithmic}[1]
+\REQUIRE Grid with givens
+\STATE Initialize $D_{r,c}$ and propagate all givens
+\RETURN \textsc{Backtrack}$(D)$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{\textsc{Backtrack}$(D)$}
+\begin{algorithmic}[1]
+\IF{all cells assigned} \RETURN solution \ENDIF
+\IF{any $D_{r,c} = \emptyset$} \RETURN FAILURE \ENDIF
+\STATE $(r^*,c^*) \gets \arg\min_{(r,c):\;|D_{r,c}|>1} |D_{r,c}|$ \COMMENT{MRV}
+\FOR{each $d \in D_{r^*,c^*}$}
+    \STATE Save state; assign $d$ to $(r^*,c^*)$; propagate
+    \IF{\textsc{Backtrack}$(D) \ne$ FAILURE} \RETURN solution \ENDIF
+    \STATE Restore state
+\ENDFOR
+\RETURN FAILURE
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} Worst case $O(9^{81})$. In practice, propagation reduces well-posed puzzles to trivial search; each of 50 puzzles solves in milliseconds.
+
+\textbf{Space:} $O(81 \times 9) = O(1)$ for domains, plus $O(81)$ stack depth.
+
+\section{Answer}
+
+\[
+\boxed{24702}
+\]
+
+\end{document}

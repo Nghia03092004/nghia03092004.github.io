@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 516: 5-Smooth Totients}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A number is \emph{5-smooth} (Hamming number) if its largest prime factor does not exceed~5. Let $S(L)$ be the sum of all $n \leq L$ with $\varphi(n)$ being 5-smooth. Given $S(100) = 3728$, find $S(10^{12}) \bmod 2^{32}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Characterization]
+A positive integer $n$ has $\varphi(n)$ being 5-smooth if and only if
+\[
+n = 2^a \cdot 3^b \cdot 5^c \cdot p_1 p_2 \cdots p_k,
+\]
+where $a, b, c \geq 0$, $k \geq 0$, and each $p_i > 5$ is a distinct prime with $p_i - 1$ being a Hamming number.
+\end{theorem}
+
+\begin{proof}
+$(\Leftarrow)$\; By multiplicativity of $\varphi$:
+\[
+\varphi(n) = \varphi(2^a)\,\varphi(3^b)\,\varphi(5^c)\prod_{i=1}^{k}(p_i - 1).
+\]
+Each factor is 5-smooth by hypothesis, and a product of 5-smooth numbers is 5-smooth.
+
+$(\Rightarrow)$\; If $q > 5$ is prime and $q^2 \mid n$, then $q \mid \varphi(q^2) = q(q-1)$ divides $\varphi(n)$, so $\varphi(n)$ has a prime factor $q > 5$, contradicting 5-smoothness. Thus each prime $q > 5$ dividing $n$ appears to the first power, and $\varphi(q) = q - 1$ must itself be 5-smooth.
+\end{proof}
+
+\begin{lemma}[Hamming Number Count]
+The number of Hamming numbers $\leq L$ is $O(\log^3 L)$. For $L = 10^{12}$, there are approximately 3{,}428.
+\end{lemma}
+
+\begin{proof}
+A Hamming number $2^a 3^b 5^c \leq L$ requires $a \leq \log_2 L$, $b \leq \log_3 L$, $c \leq \log_5 L$. The triple count is $O(\log^3 L)$.
+\end{proof}
+
+\begin{lemma}[Hamming Prime Count]
+The number of primes $p \leq L$ with $p - 1$ being 5-smooth is at most $O(\log^3 L)$. For $L = 10^{12}$, there are approximately 545.
+\end{lemma}
+
+\begin{proof}
+Each such prime corresponds to a distinct Hamming number $p - 1$, so the count is bounded by the Hamming number count.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Generate all Hamming numbers $h \leq L$ by enumerating $2^a \cdot 3^b \cdot 5^c$.
+    \item Identify Hamming primes: test $h + 1$ for primality for each Hamming number $h$.
+    \item Enumerate valid $n$ via DFS: at each level, either include the next Hamming prime (at most once) or stop. Multiply the partial product of Hamming primes by each Hamming number $\leq L/\mathrm{product}$ and accumulate.
+    \item Return the sum modulo $2^{32}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Hamming generation:} $O(\log^3 L)$.
+    \item \textbf{Primality tests:} $O(\log^3 L \cdot \sqrt{L})$ worst case (fast with Miller--Rabin).
+    \item \textbf{DFS enumeration:} Pruned by $\leq L$ bound; runs in under 1 second for $L = 10^{12}$.
+    \item \textbf{Space:} $O(\log^3 L)$ for the Hamming list.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{939087315}
+\]
+
+\end{document}

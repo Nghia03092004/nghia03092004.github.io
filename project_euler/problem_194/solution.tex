@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 194: Coloured Configurations}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Two complete graphs $K_a$ and $K_b$ share exactly one common edge. Count the number of proper $n$-colourings of the resulting graph, for $(a, b, n) = (25, 75, 1984)$, modulo $10^8$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Chromatic Polynomial of $K_m$]
+\[
+P(K_m, n) = n^{\underline{m}} = n(n-1)(n-2)\cdots(n-m+1).
+\]
+\end{theorem}
+
+\begin{proof}
+Assign colours greedily: vertex $i$ has $n - i + 1$ choices, since it must differ from all $i-1$ previously coloured vertices (all adjacent in $K_m$). The product gives $n^{\underline{m}}$. \qed
+\end{proof}
+
+\begin{theorem}[Clique Separator Theorem]
+If $G = G_1 \cup G_2$ with $G_1 \cap G_2 = K_s$, then:
+\[
+P(G, n) = \frac{P(G_1, n) \cdot P(G_2, n)}{P(K_s, n)}.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $S = V(G_1) \cap V(G_2)$ inducing $K_s$. For any fixed colouring $c_S$ of $S$, the extensions to $G_1 \setminus S$ and $G_2 \setminus S$ are independent (these vertex sets are disjoint with no cross-edges). Each colouring of $S$ admits $P(G_i, n)/P(K_s, n)$ extensions to $G_i$ (by symmetry of $K_s$ under colour permutations). Summing over all $P(K_s, n)$ colourings of $S$:
+\[
+P(G, n) = P(K_s, n) \cdot \frac{P(G_1, n)}{P(K_s, n)} \cdot \frac{P(G_2, n)}{P(K_s, n)} = \frac{P(G_1, n) \cdot P(G_2, n)}{P(K_s, n)}.
+\]
+\qed
+\end{proof}
+
+\begin{lemma}
+For $G = K_a \cup K_b$ with shared edge $K_2$:
+\[
+P(G, n) = \frac{n^{\underline{a}} \cdot n^{\underline{b}}}{n(n-1)} = (n-2)^{\underline{a-2}} \cdot n^{\underline{b}}.
+\]
+\end{lemma}
+
+\begin{proof}
+Apply Theorem~2 with $s = 2$. Cancel $n(n-1)$ from $n^{\underline{a}} = n(n-1) \cdot (n-2)^{\underline{a-2}}$. \qed
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+Compute 1982^{underline 23} * 1984^{underline 75} mod 10^8
+= product(1982-i, i=0..22) * product(1984-j, j=0..74) mod 10^8
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(a + b)$ modular multiplications (98 total).
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{61190912}
+\]
+
+\end{document}

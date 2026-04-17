@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 702: Jumping Flea}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A hexagonal table of side $N$ is divided into unit triangles. A flea jumps to the midpoint between its current position and a chosen corner. Let $J(T)$ be the minimum jumps needed to reach the interior of triangle $T$, and $S(N)=\sum J(T)$ over upper triangles. Given $S(3)=42$ and $S(5)=126$, find $S(123456789)$.
+
+\section{Mathematical Analysis}
+
+Each jump is a contraction mapping. Position after jumps is determined by the sequence of chosen corners in base-6-like encoding.
+
+\section{Complexity Analysis}
+
+Explicit computation is $O(N^2 \log N)$, or $O(N \log N)$ using the fractal structure.
+
+\section{Answer}
+
+\[
+\boxed{622305608172525546}
+\]
+
+\end{document}

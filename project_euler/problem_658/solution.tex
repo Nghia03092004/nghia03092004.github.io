@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 658: Incomplete Words II}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $S(k,n) = \sum_{\alpha=1}^{k} I(\alpha, n)$ where $I(\alpha,n)$ counts incomplete words of length $\leq n$ over an alphabet of $\alpha$ letters.
+
+Given: $S(4,4) = 406$, $S(8,8) = 27902680$, $S(10,100) \equiv 983602076 \pmod{10^9+7}$.
+
+Find $S(10^7, 10^{12}) \pmod{10^9+7}$.
+
+\section{Derivation}
+
+\subsection{Recall from Problem 657}
+
+\[
+I(\alpha, n) = \sum_{j=1}^{\alpha}(-1)^{j+1}\binom{\alpha}{j}\frac{(\alpha-j)^{n+1}-1}{(\alpha-j)-1}
+\]
+
+\subsection{Double Sum}
+
+\begin{align}
+S(k,n) &= \sum_{\alpha=1}^{k}\sum_{j=1}^{\alpha}(-1)^{j+1}\binom{\alpha}{j}G(\alpha-j,n) \\
+&= \sum_{i=0}^{k-1}G(i,n)\sum_{\alpha=i+1}^{k}(-1)^{\alpha-i+1}\binom{\alpha}{i}
+\end{align}
+
+where $G(i,n) = \frac{i^{n+1}-1}{i-1}$.
+
+\subsection{Simplification of Inner Sum}
+
+Using the identity for alternating binomial sums:
+\[
+\sum_{\alpha=i+1}^{k}(-1)^{\alpha-i+1}\binom{\alpha}{i} = (-1)^{k-i+1}\binom{k}{i+1}
+\]
+
+Therefore:
+\[
+S(k,n) = \sum_{i=0}^{k-1}(-1)^{k-i+1}\binom{k}{i+1}G(i,n)
+\]
+
+\section{Computation}
+
+With $m = i+1$:
+\[
+S(k,n) = \sum_{m=1}^{k}(-1)^{k-m+2}\binom{k}{m}G(m-1,n)
+\]
+
+Each term requires:
+\begin{itemize}
+\item Binomial coefficient (computed iteratively)
+\item Geometric sum via modular exponentiation
+\item Modular inverse for division
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{958280177}
+\]
+
+\end{document}

@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 508: Integers in Base $i{-}1$}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Every Gaussian integer can be uniquely represented in base $\beta = i - 1$ (where $i = \sqrt{-1}$) using digits $\{0, 1\}$:
+\[
+z = \sum_{k=0}^{m} d_k \cdot (i-1)^k, \quad d_k \in \{0, 1\}
+\]
+Compute the sum of digit sums for integers in a given range.
+
+\section{Mathematical Analysis}
+The base $\beta = i - 1$ satisfies $|\beta|^2 = 2$, so it behaves like a ``complex binary'' system. The quotient ring $\mathbb{Z}[i]/\beta\mathbb{Z}[i] \cong \mathbb{F}_2$, giving exactly two digits.
+
+Key powers:
+\begin{align}
+(i-1)^0 &= 1 \\
+(i-1)^1 &= -1 + i \\
+(i-1)^2 &= -2i \\
+(i-1)^4 &= -4 \\
+(i-1)^8 &= 16
+\end{align}
+
+\section{Derivation}
+\textbf{Conversion algorithm:} Given $z = a + bi \in \mathbb{Z}[i]$:
+\begin{enumerate}
+    \item Digit: $d = a \bmod 2$.
+    \item Update: $z \leftarrow \frac{z - d}{i - 1} = \frac{(z-d)(-1-i)}{2}$.
+    \item Explicitly: if $z - d = a' + b'i$, then $z_{\text{new}} = \frac{-a'+b'}{2} + \frac{-a'-b'}{2}\,i$.
+    \item Repeat until $z = 0$.
+\end{enumerate}
+
+\section{Proof of Correctness}
+\begin{enumerate}
+    \item \textbf{Termination:} $|z_{\text{new}}| = |z-d|/\sqrt{2} \leq |z|/\sqrt{2}$ (approximately), so the norm decreases geometrically.
+    \item \textbf{Uniqueness:} At each step, the digit is forced by $z \bmod \beta$, which is unique in $\{0,1\}$.
+    \item \textbf{Reconstruction:} $z = d_0 + (i-1)(d_1 + (i-1)(d_2 + \cdots))$ by unrolling.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Single conversion:} $O(\log|z|)$ steps.
+    \item \textbf{Sum over range $[1,N]$:} $O(N \log N)$ brute-force.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{891874596}
+\]
+
+\end{document}

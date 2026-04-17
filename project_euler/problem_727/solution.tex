@@ -1,0 +1,65 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 727: Triangle of Circular Arcs}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Three circles with radii $r_a, r_b, r_c$ are mutually externally tangent. Define:
+\begin{itemize}
+\item $D$ = circumcenter of the triangle formed by the three tangency points
+\item $E$ = center of the inner Soddy circle (incircle of the curvilinear triangle)
+\end{itemize}
+
+Compute $\mathbb{E}(|DE|)$ for integers $1 \leq r_a < r_b < r_c \leq 100$ with $\gcd(r_a, r_b, r_c) = 1$.
+
+\section{Mathematical Framework}
+
+\subsection{Coordinate Setup}
+
+Place circle $a$ centered at the origin $O_a = (0, 0)$ with radius $r_a$, and circle $b$ centered at $O_b = (r_a + r_b, 0)$. The center of circle $c$ is at:
+\[
+O_c = (x_c, y_c) \quad \text{where} \quad x_c = \frac{(r_a+r_c)^2 - (r_b+r_c)^2 + (r_a+r_b)^2}{2(r_a+r_b)}, \quad y_c = \sqrt{(r_a+r_c)^2 - x_c^2}
+\]
+
+\subsection{Tangency Points}
+
+\begin{align}
+T_{ab} &= \frac{r_b \cdot O_a + r_a \cdot O_b}{r_a + r_b} \\
+T_{ac} &= \frac{r_c \cdot O_a + r_a \cdot O_c}{r_a + r_c} \\
+T_{bc} &= \frac{r_c \cdot O_b + r_b \cdot O_c}{r_b + r_c}
+\end{align}
+
+\subsection{Circumcenter $D$}
+
+The circumcenter of $\triangle T_{ab}T_{ac}T_{bc}$ is found by intersecting perpendicular bisectors.
+
+\subsection{Inner Soddy Circle Center $E$}
+
+Using the Descartes Circle Theorem with curvatures $k_i = 1/r_i$:
+\[
+k_s = k_a + k_b + k_c + 2\sqrt{k_a k_b + k_b k_c + k_c k_a}
+\]
+
+The center $E$ is found using the complex version of Descartes' theorem:
+\[
+z_s = \frac{k_a z_a + k_b z_b + k_c z_c + 2\sqrt{k_a k_b z_a z_b + k_b k_c z_b z_c + k_c k_a z_c z_a}}{k_s}
+\]
+
+\section{Algorithm}
+
+Enumerate all triples $(r_a, r_b, r_c)$ with $1 \leq r_a < r_b < r_c \leq 100$ and $\gcd(r_a, r_b, r_c) = 1$. For each, compute $|DE|$ and average.
+
+\section{Answer}
+
+\[
+\boxed{3.64039141}
+\]
+
+\end{document}

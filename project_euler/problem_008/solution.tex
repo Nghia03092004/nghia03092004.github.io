@@ -1,0 +1,160 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 8: Largest Product in a Series}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a 1000-digit number $D = d_0 d_1 \cdots d_{999}$ with $d_i \in \{0, 1, \ldots, 9\}$, find the maximum product of $k = 13$ consecutive digits:
+\[
+M = \max_{0 \le i \le 987}\; \prod_{j=0}^{12} d_{i+j}.
+\]
+
+\section{Mathematical Development}
+
+\subsection{Window Products}
+
+\begin{definition}
+For integers $i$ and $k$ with $0 \le i \le N-k$, define the \emph{window product}
+\[
+P_i = \prod_{j=0}^{k-1} d_{i+j}.
+\]
+\end{definition}
+
+For this problem, $N = 1000$ and $k = 13$, so there are
+\[
+N-k+1 = 1000-13+1 = 988
+\]
+candidate windows.
+
+\begin{theorem}[Exhaustive search is sufficient]\label{thm:exhaustive}
+The desired quantity is
+\[
+M = \max_{0 \le i \le N-k} P_i,
+\]
+so evaluating all $988$ window products and retaining the largest one yields the correct answer.
+\end{theorem}
+
+\begin{proof}
+The set
+\[
+\mathcal{W} = \{P_i : 0 \le i \le N-k\}
+\]
+is finite. Therefore it has a maximum element. An exhaustive search computes every element of $\mathcal{W}$ and returns the largest value encountered, which is exactly $\max \mathcal{W} = M$.
+\end{proof}
+
+\begin{lemma}[Zero windows]
+If one of the digits in a length-13 window is zero, then the product of that window is zero.
+\end{lemma}
+
+\begin{proof}
+A product containing a factor equal to zero is zero.
+\end{proof}
+
+\noindent\emph{Remark.} This lemma explains why many windows are automatically non-optimal, but the reference implementation does not require any special optimization: it simply computes all $988$ products directly.
+
+\subsection{Numerical Evaluation}
+
+\begin{proposition}
+The maximum product is attained by the 13-digit block
+\[
+5576689664895,
+\]
+which begins at index $197$ (using zero-based indexing), and its product is
+\[
+23\,514\,624\,000.
+\]
+\end{proposition}
+
+\begin{proof}
+Exhaustive evaluation of the $988$ window products shows that the largest one occurs for the block
+\[
+d_{197} d_{198} \cdots d_{209} = 5576689664895.
+\]
+Its product is computed directly as
+\[
+\begin{aligned}
+5 \cdot 5 &= 25,\\
+25 \cdot 7 &= 175,\\
+175 \cdot 6 &= 1050,\\
+1050 \cdot 6 &= 6300,\\
+6300 \cdot 8 &= 50400,\\
+50400 \cdot 9 &= 453600,\\
+453600 \cdot 6 &= 2721600,\\
+2721600 \cdot 6 &= 16329600,\\
+16329600 \cdot 4 &= 65318400,\\
+65318400 \cdot 8 &= 522547200,\\
+522547200 \cdot 9 &= 4702924800,\\
+4702924800 \cdot 5 &= 23514624000.
+\end{aligned}
+\]
+Hence the maximal product is $23\,514\,624\,000$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Largest product of $k$ consecutive digits}
+\begin{algorithmic}[1]
+\STATE $\text{best} \gets 0$
+\FOR{$i = 0$ \textbf{to} $N-k$}
+    \STATE $P \gets 1$
+    \FOR{$j = 0$ \textbf{to} $k-1$}
+        \STATE $P \gets P \cdot d_{i+j}$
+    \ENDFOR
+    \IF{$P > \text{best}$}
+        \STATE $\text{best} \gets P$
+    \ENDIF
+\ENDFOR
+\RETURN best
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Algorithm correctness]
+The algorithm returns the largest product of $k$ consecutive digits.
+\end{theorem}
+
+\begin{proof}
+For each index $i$ with $0 \le i \le N-k$, the inner loop computes exactly
+\[
+P_i = \prod_{j=0}^{k-1} d_{i+j}.
+\]
+The outer loop visits every admissible starting position exactly once and stores in \texttt{best} the maximum value seen so far. By Theorem~\ref{thm:exhaustive}, the maximum over these values is precisely the desired quantity. Therefore the returned value is correct.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{theorem}
+The algorithm runs in $\Theta((N-k+1)k)$ time and uses $O(N)$ space in the given implementation.
+\end{theorem}
+
+\begin{proof}
+There are exactly $N-k+1$ windows, and for each window the inner loop performs exactly $k$ multiplications. Hence the running time is
+\[
+\Theta((N-k+1)k).
+\]
+For this problem,
+\[
+(N-k+1)k = 988 \cdot 13 = 12\,844,
+\]
+so the computation is tiny. The Python implementation first stores the 1000 digits in a list, which uses $O(N)$ space; aside from that list, only a constant number of scalar variables are maintained.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{23514624000}
+\]
+
+\end{document}

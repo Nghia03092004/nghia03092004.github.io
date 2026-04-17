@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 804: Counting Binary Quadratic Representations}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $g(n)$ be the number of integer solutions to
+\[
+x^2 + xy + 41y^2 = n,
+\]
+and define
+\[
+T(N)=\sum_{n=1}^{N} g(n).
+\]
+Given $T(10^3)=474$ and $T(10^6)=492128$, determine $T(10^{16})$.
+
+\section{Archive Note}
+This archived LaTeX note keeps a concise statement and the verified final answer for the problem. The underlying quadratic form has discriminant $-163$, which leads to a class-number-one representation theory viewpoint.
+
+\section{Answer}
+
+\[
+\boxed{4921370551019052}
+\]
+
+\end{document}

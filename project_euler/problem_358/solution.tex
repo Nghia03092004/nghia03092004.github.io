@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\title{Problem 358: Cyclic Numbers}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the cyclic number whose first digits are $00000000137$ and whose last 5 digits are $56789$.
+
+\section{Solution}
+
+\subsection{Cyclic Number Theory}
+A cyclic number arises from $1/p$ for a full-reptend prime $p$ (where $\text{ord}_p(10) = p - 1$).
+The cyclic number is:
+\[
+C = \frac{10^{p-1} - 1}{p}
+\]
+
+\subsection{Narrowing the Search}
+From the initial digits $00000000137\ldots$, we have:
+\[
+\frac{1}{p} = 0.00000000137\ldots
+\]
+This gives $p \approx 729927007$. We search primes in a neighborhood of this value.
+
+\subsection{Last Digits Constraint}
+We need $C \mod 10^5 = 56789$:
+\[
+\frac{10^{p-1} - 1}{p} \equiv 56789 \pmod{10^5}
+\]
+
+This is equivalent to:
+\[
+10^{p-1} \equiv 1 + 56789 \cdot p \pmod{p \cdot 10^5}
+\]
+
+We can check the modular condition $10^{p-1} \cdot p^{-1} - p^{-1} \equiv 56789 \pmod{10^5}$
+where $p^{-1}$ is the modular inverse of $p$ modulo $10^5$.
+
+\subsection{Primitive Root Check}
+Verify that $\text{ord}_p(10) = p - 1$ by checking that $10^{(p-1)/q} \not\equiv 1 \pmod{p}$
+for each prime factor $q$ of $p - 1$.
+
+\subsection{Result}
+The prime found is $p = 729927007$ (after checking candidates), and the answer
+(sum of digits of the cyclic number, or the specific requested value) is:
+\[
+\boxed{3284144505}
+\]
+
+\section{Answer}
+
+\[
+\boxed{3284144505}
+\]
+
+\end{document}

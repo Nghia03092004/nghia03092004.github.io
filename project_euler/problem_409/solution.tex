@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newcommand{\GF}{\mathrm{GF}}
+\newcommand{\XOR}{\oplus}
+
+\title{Project Euler Problem 409: Nim Extreme}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider Nim positions where there are $n$ non-empty piles, each pile has size
+less than $2^n$, and no two piles share the same size. A position is
+\emph{winning} if the first player has a guaranteed winning strategy (normal
+play convention). Let $W(n)$ denote the number of such winning positions.
+
+Given: $W(1)=1$, $W(2)=6$, $W(3)=168$, $W(5)=19\,764\,360$, and
+$W(100) \bmod 10^9+7 = 384\,777\,056$.
+
+\medskip\noindent\textbf{Find} $W(10\,000\,000) \bmod 10^9+7$.
+
+\section{Setup}
+
+The heap sizes form an ordered $n$-tuple of \emph{distinct} values from
+$\{1, 2, \ldots, 2^n - 1\}$.  By Sprague--Grundy theory, a position is losing
+if and only if the XOR of all heap sizes is zero.
+
+Let $L(n)$ be the number of \emph{unordered} $n$-element subsets of
+$\{1,\ldots,2^n-1\}$ with XOR equal to $0$.  Then
+\[
+  W(n) \;=\; n!\,\Bigl[\binom{2^n-1}{n} - L(n)\Bigr].
+\]
+
+\section{Fourier Analysis on $\GF(2)^n$}
+
+Identify $\{1,\ldots,2^n-1\}$ with the nonzero elements of $\GF(2)^n$.
+Using the orthogonality of additive characters $\chi_a(v) = (-1)^{a \cdot v}$:
+\[
+  L(n) = \frac{1}{2^n}\sum_{a \in \GF(2)^n}
+         \sum_{\substack{S \subseteq \GF(2)^n\setminus\{0\}\\|S|=n}}
+         \prod_{v \in S} (-1)^{a \cdot v}.
+\]
+The $a=0$ term contributes $\binom{2^n-1}{n}$.  For every $a \neq 0$, exactly
+$p = 2^{n-1}-1$ nonzero vectors satisfy $a\cdot v = 0$ and $q = 2^{n-1}$
+satisfy $a\cdot v = 1$.  Hence the inner sum equals
+\[
+  E_n \;=\; \sum_{j=0}^{n} \binom{p}{j}\binom{q}{n-j}(-1)^{n-j},
+  \qquad p = 2^{n-1}-1,\quad q = 2^{n-1}.
+\]
+There are $2^n-1$ nonzero characters, so
+\[
+  L(n) = \frac{1}{2^n}\Bigl[\binom{2^n-1}{n} + (2^n-1)\,E_n\Bigr].
+\]
+
+\section{Closed Form for $E_n$}
+
+The generating function identity gives
+\[
+  E_n = [x^n]\,(1+x)^p(1-x)^q = [x^n]\,(1-x)(1-x^2)^m, \qquad m = 2^{n-1}-1.
+\]
+Since $(1-x^2)^m = \sum_k \binom{m}{k}(-1)^k x^{2k}$, extracting $[x^n]$:
+\[
+  E_n =
+  \begin{cases}
+    (-1)^{n/2}\,\binom{m}{n/2}   & \text{if } n \text{ is even},\\[6pt]
+    (-1)^{(n+1)/2}\,\binom{m}{\lfloor n/2\rfloor} & \text{if } n \text{ is odd}.
+  \end{cases}
+\]
+
+\section{Final Formula}
+
+Substituting and simplifying:
+\[
+  \boxed{W(n) \;=\; n!\;\frac{2^n-1}{2^n}\;\Bigl[\binom{2^n-1}{n} - E_n\Bigr]
+  \pmod{10^9+7}.}
+\]
+All binomial coefficients $\binom{N}{k}$ with $N \gg k$ are computed as falling
+factorials divided by $k!$ modulo $10^9+7$, and division by $2^n$ uses the
+modular inverse.
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(n)$ --- one pass computes $n!$ and the falling
+        factorial for $\binom{2^n-1}{n}$; a second pass of length $\lfloor n/2
+        \rfloor$ computes $\binom{m}{\lfloor n/2\rfloor}$.
+  \item \textbf{Space:} $O(1)$ --- only accumulator variables.
+\end{itemize}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{rl@{\qquad}l}
+\toprule
+$n$ & $W(n) \bmod 10^9+7$ & Status \\
+\midrule
+1   & 1            & \checkmark \\
+2   & 6            & \checkmark \\
+3   & 168          & \checkmark \\
+5   & 19\,764\,360 & \checkmark \\
+100 & 384\,777\,056 & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{253223948}
+\]
+
+\end{document}

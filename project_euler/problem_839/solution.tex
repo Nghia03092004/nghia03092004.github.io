@@ -1,0 +1,78 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 839: Beans in Bowls}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count the number of solutions to $x_1+x_2+\cdots+x_k=n$ with $0\le x_i\le m$ for all~$i$. Denote this $B(n,k,m)$. Compute modulo a prime~$p$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Stars and Bars]
+The number of non-negative integer solutions to $x_1+\cdots+x_k=n$ is $\binom{n+k-1}{k-1}$.
+\end{theorem}
+
+\begin{proof}
+Represent the $n$ units as stars and $k-1$ dividers as bars. Each arrangement of $n$ stars and $k-1$ bars corresponds bijectively to a solution, and there are $\binom{n+k-1}{k-1}$ arrangements.
+\end{proof}
+
+\begin{theorem}[Bounded Compositions via Inclusion-Exclusion]
+\[
+B(n,k,m) = \sum_{j=0}^{\lfloor n/(m+1)\rfloor}(-1)^j\binom{k}{j}\binom{n-j(m+1)+k-1}{k-1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $A_i$ be the set of solutions with $x_i\ge m+1$. By inclusion-exclusion,
+\[
+B = \left|\overline{A_1\cup\cdots\cup A_k}\right| = \sum_{j=0}^{k}(-1)^j\binom{k}{j}\cdot(\text{solutions with }j\text{ specified variables}\ge m+1).
+\]
+For $j$ variables exceeding~$m$, substitute $y_i=x_i-(m+1)\ge 0$; the new total is $n-j(m+1)$, and by Stars and Bars the count is $\binom{n-j(m+1)+k-1}{k-1}$ when non-negative, and zero otherwise.
+\end{proof}
+
+\begin{lemma}[Generating Function]
+The generating function per bowl is $g(x)=\frac{1-x^{m+1}}{1-x}$, and $B(n,k,m)=[x^n]\,g(x)^k$.
+\end{lemma}
+
+\begin{proof}
+$g(x)=1+x+\cdots+x^m$. Then $g(x)^k=(1-x^{m+1})^k(1-x)^{-k}$. Expanding via the binomial theorem and extracting $[x^n]$ recovers the inclusion-exclusion formula.
+\end{proof}
+
+\begin{lemma}[DP Recurrence with Prefix Sums]
+Define $f(i,s)$ as the number of ways to fill bowls $1,\ldots,i$ with total~$s$. Then $f(i,s)=F(s)-F(s-m-1)$ where $F(s)=\sum_{t=0}^{s}f(i-1,t)$, giving $O(n)$ per row.
+\end{lemma}
+
+\begin{proof}
+Condition on $x_i\in\{0,\ldots,\min(m,s)\}$: $f(i,s)=\sum_{x=0}^{\min(m,s)}f(i-1,s-x)$. This sliding window sum equals $F(s)-F(s-m-1)$.
+\end{proof}
+
+\section{Algorithm}
+
+Precompute factorials modulo~$p$, then evaluate the inclusion-exclusion formula directly. Each term requires $O(1)$ using precomputed factorial/inverse-factorial tables.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n+k)$ for precomputation; $O(\min(k,n/(m+1)))$ for the sum.
+\item \textbf{Space:} $O(n+k)$ for factorial tables.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{150893234438294408}
+\]
+
+\end{document}

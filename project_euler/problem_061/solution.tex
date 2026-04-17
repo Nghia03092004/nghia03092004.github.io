@@ -1,0 +1,133 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algcompatible}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\newcommand{\Function}[2]{\STATE \textbf{Function} #1(#2)}
+\newcommand{\EndFunction}{\STATE \textbf{End Function}}
+\newcommand{\RETURN}{\STATE \textbf{return} }
+
+\title{Problem 61: Cyclical Figurate Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the sum of the only ordered set of six cyclic 4-digit numbers for which each of the six polygonal types (triangle, square, pentagonal, hexagonal, heptagonal, octagonal) is represented by a different number in the set. The cyclic condition requires that the last two digits of each number equal the first two digits of the next (wrapping around).
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+The \emph{$s$-gonal number} of order $n$ is
+\[
+P(s, n) = \frac{n\bigl[(s-2)n - (s-4)\bigr]}{2}, \quad s \ge 3, \; n \ge 1.
+\]
+\end{definition}
+
+\begin{theorem}[Closed form validation]
+The formula satisfies $P(s,1) = 1$ for all $s \ge 3$, and the recurrence $P(s,n) - P(s,n-1) = (s-2)(n-1) + 1$ for $n \ge 2$.
+\end{theorem}
+
+\begin{proof}
+Direct computation: $P(s,1) = \frac{1 \cdot [(s-2) - (s-4)]}{2} = 1$. For the recurrence:
+\begin{align*}
+P(s,n) - P(s,n-1) &= \frac{(s-2)[n^2 - (n-1)^2] - (s-4)}{2} \\
+&= \frac{(s-2)(2n-1) - (s-4)}{2} = (s-2)(n-1) + 1.
+\end{align*}
+This confirms that consecutive differences form an arithmetic progression with common difference $s-2$.
+\end{proof}
+
+\begin{lemma}[Index bounds]
+For each $s \in \{3,4,5,6,7,8\}$, the indices $n$ producing 4-digit values form the contiguous range $[n_{\min}(s), n_{\max}(s)]$:
+\begin{center}
+\begin{tabular}{cccc}
+$s$ & $n_{\min}$ & $n_{\max}$ & Count \\
+\hline
+3 & 45 & 140 & 96 \\
+4 & 32 & 99 & 68 \\
+5 & 26 & 81 & 56 \\
+6 & 23 & 70 & 48 \\
+7 & 21 & 63 & 43 \\
+8 & 19 & 58 & 40 \\
+\end{tabular}
+\end{center}
+\end{lemma}
+
+\begin{proof}
+Since $P(s,n)$ is strictly increasing in $n$ (each difference is positive), the solution set is a contiguous interval. The endpoints follow from solving $P(s,n) = M$ via the quadratic formula:
+\[
+n = \frac{(s-4) + \sqrt{(s-4)^2 + 8(s-2)M}}{2(s-2)},
+\]
+with $n_{\min} = \lceil n(M{=}1000) \rceil$ and $n_{\max} = \lfloor n(M{=}9999) \rfloor$.
+\end{proof}
+
+\begin{definition}[Cyclic linking graph]
+Define a directed labeled multigraph $G = (V, E)$ where $V = \{10, 11, \ldots, 99\}$. For each 4-digit polygonal number $N$ of type $s$ with prefix $p = \lfloor N/100 \rfloor$ and suffix $q = N \bmod 100 \ge 10$, include the directed edge $(p, q)$ with label $s$.
+\end{definition}
+
+\begin{theorem}[Graph formulation]
+A valid solution corresponds to a directed 6-cycle $v_1 \to v_2 \to \cdots \to v_6 \to v_1$ in $G$ whose edges carry all six distinct labels $\{3,4,5,6,7,8\}$.
+\end{theorem}
+
+\begin{proof}
+Given a valid cyclic set $(N_1, \ldots, N_6)$, define $v_i = \lfloor N_i/100 \rfloor$. The cyclic condition $N_i \bmod 100 = v_{i+1}$ (indices mod 6) means $N_i$ corresponds to edge $(v_i, v_{i+1})$. Distinct polygonal types give distinct labels. The converse reconstruction is immediate.
+\end{proof}
+
+\begin{theorem}[Uniqueness]
+The solution is unique up to cyclic rotation.
+\end{theorem}
+
+\begin{proof}
+Exhaustive depth-first search over $G$ with backtracking, starting from every possible initial edge and exploring all label-valid extensions, yields exactly one equivalence class of 6-cycles under cyclic rotation.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Cyclical Figurate Number Search}
+\begin{algorithmic}[1]
+\STATE Generate all 4-digit polygonal numbers for $s \in \{3,\ldots,8\}$
+\STATE Build adjacency list $\mathrm{adj}[\text{prefix}] \gets \{(\text{suffix}, s, N)\}$
+\FOR{each starting type $t$ and value $v$}
+    \STATE $p \gets \lfloor v/100 \rfloor$, $q \gets v \bmod 100$
+    \STATE \textbf{call} $\mathrm{DFS}(p,\; q,\; \{t\},\; [v],\; 1)$
+\ENDFOR
+\STATE
+\Function{DFS}{start, current, used, chain, depth}
+    \IF{$\text{depth} = 6$}
+        \RETURN chain if $\text{current} = \text{start}$, else \textbf{None}
+    \ENDIF
+    \FOR{each $(\text{next}, t, v)$ in $\mathrm{adj}[\text{current}]$ with $t \notin \text{used}$}
+        \STATE result $\gets$ DFS(start, next, used $\cup\ \{t\}$, chain $+$ [$v$], depth $+ 1$)
+        \IF{result $\ne$ \textbf{None}}
+            \RETURN result
+        \ENDIF
+    \ENDFOR
+    \RETURN \textbf{None}
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} Let $E = \sum_s |E_s| \le 351$ be the total edge count. The DFS explores at most $O(E \cdot (E/|V|)^5)$ paths, where $|V| = 90$. The label-uniqueness constraint prunes aggressively, yielding effective constant-time performance for this problem size.
+
+\textbf{Space:} $O(E)$ for adjacency lists plus $O(6)$ for the DFS stack.
+
+\section{Answer}
+
+\[
+\boxed{28684}
+\]
+
+\end{document}

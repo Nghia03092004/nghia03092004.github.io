@@ -1,0 +1,167 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Project Euler Problem 455:\\Powers With Trailing Digits}
+\author{Solution Document}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f(n)$ be the largest positive integer $x < 10^9$ such that the last 9
+digits of $n^x$ form the number $x$ (with leading zeros permitted), or $0$ if
+no such $x$ exists:
+\[
+f(n) = \max\bigl\{x \in \mathbb{Z} : 1 \leq x < 10^9,\; n^x \equiv x \pmod{10^9}\bigr\}.
+\]
+
+\textbf{Examples:}
+\begin{itemize}
+    \item $f(4) = 411{,}728{,}896$.
+    \item $f(10) = 0$.
+    \item $f(157) = 743{,}757$.
+\end{itemize}
+
+\textbf{Checkpoint:} $\sum_{n=2}^{10^3} f(n) = 442{,}530{,}011{,}399$.
+
+\textbf{Find} $\sum_{n=2}^{10^6} f(n)$.
+
+\section{CRT Decomposition}
+
+Since $10^9 = 2^9 \cdot 5^9$ and $\gcd(2^9, 5^9) = 1$:
+\[
+n^x \equiv x \pmod{10^9} \iff
+\begin{cases}
+n^x \equiv x \pmod{2^9}, \\
+n^x \equiv x \pmod{5^9}.
+\end{cases}
+\]
+
+\subsection{Special case: $10 \mid n$}
+
+If $10 \mid n$, then $n^x \equiv 0 \pmod{10^9}$ for $x \geq 9$, requiring
+$x \equiv 0 \pmod{10^9}$. Since $x < 10^9$, only $x = 0$ (not positive),
+so $f(n) = 0$.
+
+\subsection{Case $p \mid n$ but $q \nmid n$ (for $\{p,q\} = \{2,5\}$)}
+
+If $p \mid n$ but $q \nmid n$: for the mod $p^9$ component, $n^x \equiv 0 \pmod{p^9}$
+for sufficiently large $x$, so $x \equiv 0 \pmod{p^9}$. The mod $q^9$ component
+is solved normally. CRT combines $x \equiv 0 \pmod{p^9}$ with the $q^9$-solutions.
+
+\section{Solving $n^x \equiv x \pmod{p^k}$ via Combined Lifting}
+
+\subsection{The Subtlety}
+
+A naive approach of lifting $x$ digit-by-digit in base $p$ fails because
+$n^x \bmod p^j$ depends on $x \bmod \lambda(p^j)$ (via the Carmichael function),
+not on $x \bmod p^j$. Changing higher $p$-adic digits of $x$ alters $n^x$ at
+\emph{all} levels.
+
+\subsection{Combined Modulus}
+
+Define $M_j = \operatorname{lcm}(p^j, \lambda(p^j))$. Working modulo $M_j$
+simultaneously tracks both:
+\begin{enumerate}
+    \item The residue $x \bmod p^j$ (the ``target'' side), and
+    \item The exponent $x \bmod \lambda(p^j)$ (which determines $n^x \bmod p^j$).
+\end{enumerate}
+
+\textbf{Values of $M_j$:}
+\begin{itemize}
+    \item For $p = 2$: $\lambda(2^j) = 2^{\max(j-2,0)}$ for $j \geq 3$, so
+    $M_j = \operatorname{lcm}(2^j, 2^{j-2}) = 2^j$.
+    Branching factor: $M_{j+1}/M_j = 2$, total after 9 levels: $2^9 = 512$.
+
+    \item For $p = 5$: $\lambda(5^j) = 4 \cdot 5^{j-1}$, so
+    $M_j = \operatorname{lcm}(5^j, 4 \cdot 5^{j-1}) = 4 \cdot 5^j$.
+    Branching factor: $M_{j+1}/M_j = 5$, total worst-case: $5^9 \approx 2 \times 10^6$
+    (but most branches are pruned).
+\end{itemize}
+
+\subsection{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Solve $n^x \equiv x \pmod{p^k}$}
+\begin{algorithmic}[1]
+\Function{SolveModPk}{$n, p, k$}
+    \If{$p \mid n$} \Return $\{0\}$ \Comment{$x \equiv 0 \pmod{p^k}$} \EndIf
+    \State $M_1 \gets \operatorname{lcm}(p, \lambda(p))$
+    \State $S \gets \{x \in [0, M_1) : n^x \equiv x \pmod{p}\}$
+    \For{$j = 1$ to $k-1$}
+        \State $M_j \gets \operatorname{lcm}(p^j, \lambda(p^j))$
+        \State $M_{j+1} \gets \operatorname{lcm}(p^{j+1}, \lambda(p^{j+1}))$
+        \State $b \gets M_{j+1} / M_j$ \Comment{branching factor}
+        \State $S' \gets \emptyset$
+        \For{$x_j \in S$}
+            \For{$t = 0$ to $b-1$}
+                \State $x' \gets x_j + t \cdot M_j$
+                \If{$n^{x'} \equiv x' \pmod{p^{j+1}}$}
+                    $S' \gets S' \cup \{x'\}$
+                \EndIf
+            \EndFor
+        \EndFor
+        \State $S \gets S'$
+    \EndFor
+    \State \Return $\{s \bmod p^k : s \in S\}$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{CRT Combination}
+
+For each pair $(r_2, r_5)$ from the mod-$2^9$ and mod-$5^9$ solution sets,
+compute $x \in [0, 10^9)$ via CRT. Since $\gcd(2^9, 5^9) = 1$:
+\[
+x \equiv r_2 \pmod{2^9}, \quad x \equiv r_5 \pmod{5^9}
+\implies x \text{ is unique modulo } 10^9.
+\]
+
+\textbf{Verification step:} Not every CRT-combined $x$ is a true solution,
+because the lifting tracks sufficient (but not always necessary-and-sufficient)
+conditions. We verify $n^x \equiv x \pmod{10^9}$ and take $f(n) = \max$
+over valid positive $x$.
+
+\section{Complexity}
+
+\begin{itemize}
+    \item Per $n$: at most $512$ candidates from $p=2$ side, and typically
+    $O(1)$--$O(100)$ from $p=5$ (heavily pruned). Each candidate needs
+    one modular exponentiation ($O(\log x)$ multiplications).
+    \item Total for $N = 10^6$: approximately $10^9$--$10^{10}$ multiplications
+    in C++, running in minutes.
+\end{itemize}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{rl}
+\toprule
+Input & Result \\
+\midrule
+$f(4)$ & $411{,}728{,}896$ \\
+$f(10)$ & $0$ \\
+$f(157)$ & $743{,}757$ \\
+$\sum_{n=2}^{10^3} f(n)$ & $442{,}530{,}011{,}399$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{450186511399999}
+\]
+
+\end{document}

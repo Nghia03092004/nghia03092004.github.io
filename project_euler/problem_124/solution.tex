@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 124: Ordered Radicals}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $\operatorname{rad}(n) = \prod_{p \mid n} p$ (product of distinct prime factors), with $\operatorname{rad}(1) = 1$. Sort the pairs $(\operatorname{rad}(n), n)$ for $1 \le n \le 100{,}000$ lexicographically. Find $E(10000)$.
+
+\section{Mathematical Development}
+
+\begin{definition}
+For $n = p_1^{e_1} \cdots p_m^{e_m}$, the radical is $\operatorname{rad}(n) = p_1 \cdots p_m$.
+\end{definition}
+
+\begin{theorem}[Squarefreeness characterization]
+$\operatorname{rad}(n) = n$ if and only if $n$ is squarefree. For any prime power, $\operatorname{rad}(p^k) = p$.
+\end{theorem}
+
+\begin{proof}
+If $n = p_1 \cdots p_m$ is squarefree, then $\operatorname{rad}(n) = n$. If $p^2 \mid n$, then $n > \operatorname{rad}(n)$. For $p^k$, the unique prime factor is $p$.
+\end{proof}
+
+\begin{theorem}[Sieve correctness]
+Initialize $\operatorname{rad}[n] = 1$. For each prime $p$, multiply $\operatorname{rad}[m]$ by $p$ for all multiples $m$ of $p$. This yields $\operatorname{rad}[n] = \prod_{p \mid n} p$.
+\end{theorem}
+
+\begin{proof}
+Each prime $p \mid n$ visits $n$ exactly once, contributing one factor of $p$. Primes act independently and are identified as those $p$ with $\operatorname{rad}[p] = 1$ upon first encounter.
+\end{proof}
+
+\begin{lemma}[Total order]
+The lexicographic order on $(\operatorname{rad}(n), n)$ is total: $n$ is a unique tiebreaker.
+\end{lemma}
+
+\begin{proof}
+Immediate from the uniqueness of $n$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve $\operatorname{rad}[n]$ for $n = 1, \ldots, N$.
+\item Sort the integers $1, \ldots, N$ by $(\operatorname{rad}(n), n)$.
+\item Return the $n$-value at position $K = 10{,}000$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log \log N)$ for sieve (by Mertens' theorem), $O(N \log N)$ for sort.
+\item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{21417}
+\]
+
+\end{document}

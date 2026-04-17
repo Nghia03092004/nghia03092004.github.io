@@ -1,0 +1,65 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 268: Counting Numbers with at Least\\Four Distinct Prime Factors Less Than 100}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many positive integers below $10^{16}$ are divisible by at least four distinct primes less than 100?
+
+\section{Mathematical Analysis}
+
+\subsection{Setup}
+The 25 primes less than 100 are:
+\[ \mathcal{P} = \{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97\} \]
+
+Let $M = 10^{16} - 1$. For each prime $p_i$, define $A_i = \{n \leq M : p_i \mid n\}$.
+
+\subsection{Inclusion--Exclusion}
+
+\begin{theorem}
+The number of integers in $[1, M]$ divisible by at least $r$ elements of $\mathcal{P}$ is:
+\[ N_{\geq r} = \sum_{k=r}^{25} (-1)^{k-r} \binom{k-1}{r-1} S_k \]
+where $S_k = \sum_{\substack{T \subseteq \mathcal{P} \\ |T|=k}} \left\lfloor \frac{M}{\prod_{p \in T} p} \right\rfloor$.
+\end{theorem}
+
+\begin{proof}
+Consider an integer $n$ divisible by exactly $m \geq r$ primes from $\mathcal{P}$. Its contribution to $S_k$ is $\binom{m}{k}$ (one for each $k$-subset of its prime divisors). Its total contribution to the sum is:
+\[ \sum_{k=r}^{m} (-1)^{k-r} \binom{k-1}{r-1} \binom{m}{k} \]
+By the Vandermonde-type identity, this equals 1 when $m \geq r$ and 0 when $m < r$.
+\end{proof}
+
+For $r = 4$:
+\[ N_{\geq 4} = \sum_{k=4}^{25} (-1)^{k-4} \binom{k-1}{3} S_k \]
+
+\subsection{Efficient Computation}
+We enumerate $k$-subsets of $\mathcal{P}$ using depth-first search with pruning: when the product of selected primes exceeds $M$, we prune the branch (since adding more primes only increases the product and $\lfloor M/\text{product}\rfloor = 0$).
+
+Since the primes are sorted, once $\prod p_i > M$ for a partial subset, all extensions also exceed $M$.
+
+\section{Complexity}
+\begin{itemize}
+    \item The number of subsets with product $\leq M$ is bounded and manageable (on the order of millions).
+    \item Each subset requires $O(1)$ work (integer division).
+    \item Total time: proportional to the number of valid subsets.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{785478606870985}
+\]
+
+\end{document}

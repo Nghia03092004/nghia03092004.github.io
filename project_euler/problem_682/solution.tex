@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 682: 5-Smooth Pairs}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer is \emph{5-smooth} if its largest prime factor is at most~5. For a positive integer~$a$, let $\Omega(a)$ count its prime factors with multiplicity and $s(a)$ their sum. Define $f(n)$ as the number of ordered pairs $(p,q)$ of 5-smooth numbers with $\Omega(p)=\Omega(q)$ and $s(p)+s(q)=n$.
+
+Given: $f(10)=4$, $f(100)=3629$. Find $f(10^7)\bmod(10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Generating Function]
+Every 5-smooth number $m = 2^a\cdot 3^b\cdot 5^c$ satisfies $\Omega(m)=a+b+c$ and $s(m)=2a+3b+5c$. The bivariate generating function is
+\[
+G(x,y) = \frac{1}{(1-xy^2)(1-xy^3)(1-xy^5)},
+\]
+where $[x^k y^j]\,G(x,y)$ counts 5-smooth numbers with $\Omega=k$ and $s=j$.
+\end{theorem}
+
+\begin{proof}
+The factor $1/(1-xy^p)=\sum_{e\ge 0}x^e y^{pe}$ tracks $e$ copies of prime~$p$, contributing $e$ to $\Omega$ and $pe$ to~$s$. The product over $p\in\{2,3,5\}$ generates all triples $(a,b,c)$.
+\end{proof}
+
+\begin{lemma}[Polynomial $h_k$]
+Define $h_k(y) = [x^k]\,G(x,y) = \sum_{\substack{a+b+c=k\\a,b,c\ge 0}} y^{2a+3b+5c}$. Then $h_k$ has minimum degree $2k$ and maximum degree $5k$.
+\end{lemma}
+
+\begin{proof}
+The minimum of $2a+3b+5c$ subject to $a+b+c=k$ is $2k$ (set $a=k$). The maximum is $5k$ (set $c=k$).
+\end{proof}
+
+\begin{theorem}[Pair Counting]
+$\displaystyle f(n) = \sum_{k=0}^{\lfloor n/2\rfloor} [y^n]\,h_k(y)^2$.
+\end{theorem}
+
+\begin{proof}
+A pair $(p,q)$ with $\Omega(p)=\Omega(q)=k$ and $s(p)+s(q)=n$ corresponds to choosing $s(p)=j$ and $s(q)=n-j$ from the distribution $h_k$. The number of such pairs is $[y^n]\,h_k(y)^2$ by the convolution theorem. Summing over~$k$ yields $f(n)$.
+\end{proof}
+
+\begin{lemma}[Verification]
+$f(10) = 4$: contributions from $k=1$ ($[y^{10}]\,h_1^2=1$) and $k=2$ ($[y^{10}]\,h_2^2=3$).
+\end{lemma}
+
+\begin{proof}
+$h_1(y) = y^2+y^3+y^5$, so $h_1^2 = y^4+2y^5+y^6+2y^7+2y^8+y^{10}$ and $[y^{10}]=1$. For $h_2$, the pairs $(s_1,s_2)$ summing to~10 with $s_i \in \{4,5,6,7,8,10\}$ are $(4,6),(5,5),(6,4)$, giving $[y^{10}]=3$. For $k\ge 3$, $\min(s(p)+s(q))=4k\ge 12>10$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item For each $k = 0,1,\ldots,\lfloor n/2\rfloor$: build $h_k$ as a polynomial, square it, extract $[y^n]$.
+  \item Optimization: combine into a single convolution using NTT modulo $10^9+7$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(n\log n)$ with NTT-based combined convolution; $O(n^2\log n)$ naive per-$k$.
+  \item \textbf{Space:} $O(n)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{290872710}
+\]
+
+\end{document}

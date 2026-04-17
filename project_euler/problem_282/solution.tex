@@ -1,0 +1,101 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 282: The Ackermann Function}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $A(n) = \operatorname{ack}(n,n)$ where $\operatorname{ack}$ is the Ackermann function:
+\begin{align*}
+\operatorname{ack}(0,m) &= m+1, \\
+\operatorname{ack}(n,0) &= \operatorname{ack}(n-1,1) \quad (n>0), \\
+\operatorname{ack}(n,m) &= \operatorname{ack}(n-1,\operatorname{ack}(n,m-1)) \quad (n,m>0).
+\end{align*}
+Find $\displaystyle\sum_{n=0}^{6} A(n) \pmod{14^8}$.
+
+\section{Mathematical Development}
+
+\begin{theorem}[Closed Forms for Levels 0--4]
+For all $m \ge 0$:
+\begin{enumerate}
+\item $\operatorname{ack}(0,m) = m+1$,
+\item $\operatorname{ack}(1,m) = m+2$,
+\item $\operatorname{ack}(2,m) = 2m+3$,
+\item $\operatorname{ack}(3,m) = 2^{m+3}-3$,
+\item $\operatorname{ack}(4,m) = {}^{m+3}2 - 3$ (tower of $2$s of height $m+3$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each level by induction on $m$.
+
+(1)~Definition. (2)~Base: $\operatorname{ack}(1,0) = \operatorname{ack}(0,1) = 2$. Step: $\operatorname{ack}(1,m) = \operatorname{ack}(0,\operatorname{ack}(1,m-1)) = \operatorname{ack}(1,m-1)+1$, giving $m+2$ by induction.
+
+(3)~Base: $\operatorname{ack}(2,0) = \operatorname{ack}(1,1) = 3$. Step: $\operatorname{ack}(2,m) = \operatorname{ack}(1,\operatorname{ack}(2,m-1)) = \operatorname{ack}(2,m-1)+2 = 2m+3$.
+
+(4)~Base: $\operatorname{ack}(3,0) = \operatorname{ack}(2,1) = 5 = 2^3-3$. Step: $\operatorname{ack}(3,m) = 2\operatorname{ack}(3,m-1)+3 = 2(2^{m+2}-3)+3 = 2^{m+3}-3$.
+
+(5)~Base: $\operatorname{ack}(4,0) = 2^4-3 = 13 = {}^{3}2 - 3$. Step: $\operatorname{ack}(4,m) = 2^{\operatorname{ack}(4,m-1)+3}-3 = 2^{{}^{m+2}2}-3 = {}^{m+3}2-3$.
+\end{proof}
+
+\begin{corollary}
+$A(0)=1$, $A(1)=3$, $A(2)=7$, $A(3)=61$, $A(4) = {}^{7}2 - 3$.
+\end{corollary}
+
+\begin{theorem}[Modular Stabilization of Towers]
+For any positive integer $M$, there exists $H \ge 0$ such that ${}^{h}2 \equiv {}^{H}2 \pmod{M}$ for all $h \ge H$. The minimal $H$ equals the length of the Carmichael chain $M, \lambda(M), \lambda(\lambda(M)), \ldots, 1$.
+\end{theorem}
+
+\begin{proof}
+By strong induction on $M$. The case $M=1$ is trivial with $H=0$.
+
+If $\gcd(2,M)=1$: by the generalized Euler theorem, $2^a \equiv 2^b \pmod{M}$ whenever $a \equiv b \pmod{\lambda(M)}$. Since $\lambda(M) < M$, the inductive hypothesis gives stabilization of the exponent ${}^{h-1}2 \bmod \lambda(M)$ for $h-1 \ge H'$, whence ${}^{h}2 \bmod M$ stabilizes for $h \ge H'+1$.
+
+If $2 \mid M$: write $M = 2^a M'$ with $\gcd(2,M')=1$. For $h \ge a$, ${}^{h}2 \equiv 0 \pmod{2^a}$, and ${}^{h}2 \bmod M'$ stabilizes by the coprime case. By CRT, ${}^{h}2 \bmod M$ stabilizes.
+\end{proof}
+
+\begin{theorem}[CRT Decomposition for $M = 14^8$]
+Let $M = 2^8 \cdot 7^8$. For $k \ge 4$, $A(k) \equiv 253 \pmod{256}$. The residue $A(k) \bmod 7^8$ is computed via the Carmichael chain, stabilizing for $k \ge 5$. CRT combines the residues.
+\end{theorem}
+
+\begin{proof}
+Modulo $256$: for tower heights $h \ge 4$, ${}^{h}2 \equiv 0 \pmod{256}$, so $A(k) = {}^{(\cdots)}2 - 3 \equiv -3 \equiv 253$.
+
+Modulo $7^8$: $\gcd(2,7^8)=1$, so we recurse down the Carmichael chain. For $A(5)$, the inner tower height exceeds $65536$, which vastly surpasses the chain length ($O(\log M) \approx 20$). Hence $A(5) \equiv A(6) \pmod{7^8}$: both equal the stabilized residue.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+small = [1, 3, 7, 61]
+total = sum(small) mod M
+a4 = (tower2_mod(7, M) - 3) mod M
+stable = (tower2_mod(200, M) - 3) mod M
+total += a4 + 2 * stable
+return total mod M
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log^2 M)$. The Carmichael chain has $O(\log M)$ levels, each requiring $O(\log M)$ work for modular exponentiation.
+\item \textbf{Space:} $O(\log M)$ for the recursion stack.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1098988351}
+\]
+
+\end{document}

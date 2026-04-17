@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 885: Modular Fibonacci Products}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Compute $P(n,m) = \prod_{k=1}^{n} F_k \bmod m$.
+
+\section{Key Results}
+
+\begin{theorem}[Pisano Period]
+$F_n \bmod m$ is periodic with period $\pi(m)$. For prime $p$: $\pi(p) \mid p^2 - 1$.
+\end{theorem}
+
+\begin{theorem}[Product Reduction]
+\[
+P(n, m) = Q_{\pi(m)}^{\lfloor n/\pi(m)\rfloor} \cdot Q_{n \bmod \pi(m)} \pmod{m}
+\]
+where $Q_r = \prod_{k=1}^{r} F_k \bmod m$.
+\end{theorem}
+
+\section{Pisano Periods}
+\begin{center}
+\begin{tabular}{r|rrrrrrrr}
+$m$ & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 10 \\ \hline
+$\pi(m)$ & 3 & 8 & 6 & 20 & 24 & 16 & 12 & 60
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{827850196}
+\]
+
+\end{document}

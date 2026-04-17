@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 841: Regular Star Polygons}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \emph{regular star polygon} $\{n/k\}$ is formed by connecting every $k$-th point of $n$ equally spaced points on a circle of radius~$r$. The star polygon is valid when $1 < k < n/2$ and $\gcd(n,k) = 1$. Compute
+\[
+S(N) = \sum_{\substack{3 \le n \le N \\ 1 < k < n/2 \\ \gcd(n,k) = 1}} A(\{n/k\})
+\]
+where $A(\{n/k\})$ is the area of the star polygon inscribed in a unit circle.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Area of a Regular Star Polygon]
+The area of $\{n/k\}$ inscribed in a circle of radius~$r$ is
+\[
+A(\{n/k\}) = \frac{nr^2}{2}\sin\!\left(\frac{2\pi k}{n}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+Label the $n$ equally spaced points as $P_j = r(\cos(2\pi j/n),\, \sin(2\pi j/n))$ for $0 \le j \le n-1$. The star polygon $\{n/k\}$ connects $P_j$ to $P_{j+k \bmod n}$, and since $\gcd(n,k)=1$ it visits all $n$ vertices in a single cycle. Decompose the polygon into $n$ triangles $\triangle O P_j P_{j+k}$ where $O$ is the center. Each has two sides of length~$r$ with included angle $2\pi k/n$, so
+\[
+\mathrm{Area}(\triangle O P_j P_{j+k}) = \tfrac{1}{2}r^2 \sin(2\pi k/n).
+\]
+Summing over $j = 0, \ldots, n-1$ yields the result.
+\end{proof}
+
+\begin{lemma}[Count of Valid Star Polygons]
+For $n \ge 5$, the number of integers $k$ with $1 < k < n/2$ and $\gcd(n,k)=1$ is $\varphi(n)/2 - 1$.
+\end{lemma}
+
+\begin{proof}
+The $\varphi(n)$ integers coprime to~$n$ in $\{1, \ldots, n-1\}$ pair off as $(k, n-k)$, with exactly one member of each pair satisfying $1 \le k < n/2$. This gives $\varphi(n)/2$ such values. Excluding $k = 1$ (the convex polygon) yields $\varphi(n)/2 - 1$.
+\end{proof}
+
+\begin{lemma}[Ramanujan Sum Connection]
+$\sum_{\substack{1 \le k \le n-1 \\ \gcd(k,n)=1}} \sin(2\pi k/n) = 0$, since the Ramanujan sum $c_n(1) = \mu(n) \in \mathbb{R}$.
+\end{lemma}
+
+\begin{proof}
+By the classical identity $c_n(1) = \sum_{\gcd(k,n)=1} e^{2\pi ik/n} = \mu(n)$. Since $\mu(n) \in \{-1, 0, 1\}$, the imaginary part is zero, which equals the stated sine sum.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function S(N):
+    total = 0.0
+    for n = 5 to N:
+        for k = 2 to floor((n-1)/2):
+            if gcd(n, k) == 1:
+                total += (n / 2.0) * sin(2 * pi * k / n)
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^2)$, since $\sum_{n=5}^{N} \varphi(n)/2 = \Theta(N^2)$.
+\item \textbf{Space:} $O(1)$ auxiliary, or $O(N)$ with a sieve for $\gcd$ acceleration.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{381.7860132854}
+\]
+
+\end{document}

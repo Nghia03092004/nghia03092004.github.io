@@ -1,0 +1,52 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 856: Waiting for a Pair}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A standard 52-card deck contains 13 ranks across four suits. Cards are drawn without replacement until either two consecutive draws form a pair (same rank) or all 52 cards are exhausted. Calculate the expected number of cards drawn.
+
+\section{Mathematical Analysis}
+
+\subsection{State Representation}
+We define the state by the tuple $(n_1, n_2, n_3, n_4, c)$ where:
+\begin{itemize}
+    \item $n_i$ = number of ranks with exactly $i$ cards remaining in the deck
+    \item $c$ = number of remaining cards sharing the rank of the last drawn card ($0 \leq c \leq 3$)
+\end{itemize}
+
+The total remaining cards is $R = n_1 + 2n_2 + 3n_3 + 4n_4 + c$.
+
+\subsection{Transitions}
+From state $(n_1, n_2, n_3, n_4, c)$ with $R$ remaining cards:
+
+\textbf{Match (stop):} Probability $\frac{c}{R}$.
+
+\textbf{Draw a card of a rank with $j$ remaining ($j \in \{1,2,3,4\}$):}
+Probability $\frac{j \cdot n_j}{R}$ (if the rank originally had $j$ remaining). The new state reduces $n_j$ by 1, possibly increases $n_{j-1}$ by 1 (if $j > 1$), returns the previous rank's remaining cards to the distribution, and sets the new $c = j-1$.
+
+\subsection{Expected Value}
+Let $E(s)$ be the expected additional cards to draw from state $s$. Then:
+\[
+E(s) = 1 + \frac{c}{R} \cdot 0 + \sum_{j=1}^{4} \frac{j \cdot n_j}{R} \cdot E(s')
+\]
+where $s'$ is the updated state after drawing a non-matching card of a rank with $j$ remaining.
+
+The overall answer is $E(\text{initial state}) + 1$ starting from the initial draw.
+
+\section{Result}
+The expected number of cards drawn is $\boxed{17.09661501}$.
+
+\section{Answer}
+
+\[
+\boxed{17.09661501}
+\]
+
+\end{document}

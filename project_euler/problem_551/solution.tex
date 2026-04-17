@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 551: Sum of Digits Sequence}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $a_0, a_1, a_2, \ldots$ be an integer sequence defined by $a_0 = 1$ and $a_n = a_{n-1} + s(a_{n-1})$ for $n \geq 1$, where $s(m)$ denotes the digit sum of~$m$ in base~10. Given that $a_{10^6} = 31054319$, find $a_{10^{15}}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Digit-Sum Growth Bound]
+For all $n \geq 0$, if $a_n$ has $d$ digits in base~10, then $a_{n+1} - a_n = s(a_n) \leq 9d$. Consequently, $a_n = O(n \log n)$.
+\end{theorem}
+
+\begin{proof}
+Each base-10 digit is at most~9, and a $d$-digit number has exactly $d$ digits, so $s(m) \leq 9d$. Since $d = \lfloor \log_{10}(a_n) \rfloor + 1$, the increment per step is $O(\log a_n)$, yielding $a_n = O(n \log n)$ by summation.
+\end{proof}
+
+\begin{lemma}[Block Decomposition Principle]
+Write $a_n$ in base~$10^B$, i.e., $a_n = \sum_{j=0}^{L} c_j \cdot 10^{jB}$ with $0 \leq c_j < 10^B$. Define $s_{\mathrm{upper}} = \sum_{j=1}^{L} s(c_j)$. Then the evolution of $c_0$ depends only on its current value and $s_{\mathrm{upper}}$, which remains constant until a carry propagates out of block~$c_0$.
+\end{lemma}
+
+\begin{proof}
+The full digit sum is $s(a_n) = s(c_0) + s_{\mathrm{upper}}$. Adding $s(a_n)$ to $a_n$ modifies $c_0$ to $c_0 + s(c_0) + s_{\mathrm{upper}}$. If $c_0 + s(c_0) + s_{\mathrm{upper}} < 10^B$, no carry occurs and blocks $c_1, c_2, \ldots$ are unchanged, so $s_{\mathrm{upper}}$ is invariant.
+\end{proof}
+
+\begin{theorem}[Memoized Block Acceleration]
+For block size~$B$, define $T(V, U) = (\Delta, V')$ where $V \in \{0, \ldots, 10^B - 1\}$ is the block value, $U$ is the upper digit sum, $\Delta$ is the number of steps until the first carry out of the block, and $V'$ is the new block value. Then $T$ is well-defined and computable by simulation of at most $10^B$ steps.
+\end{theorem}
+
+\begin{proof}
+Since $a_n \geq 1$ for all $n$, each step increments $V$ by at least~1 (the digit sum of a positive integer is positive). Hence $V$ must reach~$10^B$ within at most~$10^B$ steps, producing a carry. The new value $V' = V_{\text{final}} - 10^B$ is uniquely determined.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Represent $a_n$ as an array of 20 base-10 digits.
+\item Maintain a memoization table indexed by (bottom-block value, upper digit sum).
+\item At each iteration, look up or compute the block transition: how many steps until carry, and the resulting bottom-block value.
+\item If the jump fits within the remaining step budget, apply it and propagate the carry into upper digits. Otherwise, fall back to single-step simulation.
+\item Repeat until $10^{15}$ steps are completed.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} The memoization table has $10^B \times U_{\max}$ entries. With $B = 4$ and $U_{\max} \leq 153$, this gives ${\sim}1.5 \times 10^6$ entries. Each is computed in $O(10^B)$ worst case. The main loop performs $O(N / \bar{\Delta})$ iterations where $\bar{\Delta}$ is the average jump size.
+\item \textbf{Space:} $O(10^B \cdot U_{\max}) \approx O(1.5 \times 10^6)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{73597483551591773}
+\]
+
+\end{document}

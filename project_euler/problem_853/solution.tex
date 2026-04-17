@@ -1,0 +1,28 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 853: Pisano Periods}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Compute $\sum_{m=2}^{N}\pi(m)$ where $\pi(m)$ is the Pisano period.
+\begin{theorem}
+$\pi(m) = \mathrm{lcm}(\pi(p_1^{a_1}), \ldots, \pi(p_k^{a_k}))$ and $\pi(p^k) = p^{k-1}\pi(p)$.
+\end{theorem}
+\begin{theorem}
+$\pi(m) \le 6m$ for all $m$.
+\end{theorem}
+\section{Values}
+\begin{center}
+\begin{tabular}{cc} \toprule $m$ & $\pi(m)$ \\ \midrule 2 & 3 \\ 5 & 20 \\ 10 & 60 \\ 100 & 300 \\ \bottomrule \end{tabular}
+\end{center}
+\section{Answer}
+
+\[
+\boxed{44511058204}
+\]
+
+\end{document}

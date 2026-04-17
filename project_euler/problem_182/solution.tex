@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 182: RSA Encryption}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given distinct primes $p = 1009$ and $q = 3643$, let $n = pq$ and $\lambda(n) = \operatorname{lcm}(p-1, q-1)$. Find the sum of all valid RSA exponents $e$ (with $1 < e < \lambda(n)$, $\gcd(e, \lambda(n)) = 1$) that minimise the number of unconcealed messages $m \in \{0, \ldots, n-1\}$ satisfying $m^e \equiv m \pmod{n}$.
+
+\section{Mathematical Development}
+
+\begin{theorem}[Unconcealed Message Count]
+For RSA modulus $n = pq$ with distinct odd primes $p, q$ and exponent $e$ with $\gcd(e, \lambda(n)) = 1$:
+\[
+N(e) = \bigl(1 + \gcd(e-1, p-1)\bigr)\bigl(1 + \gcd(e-1, q-1)\bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+By the Chinese Remainder Theorem, $m^e \equiv m \pmod{n}$ iff $m^e \equiv m \pmod{p}$ and $m^e \equiv m \pmod{q}$. For a prime $r \in \{p, q\}$, the equation $m(m^{e-1} - 1) \equiv 0 \pmod{r}$ has two disjoint solution sets: $m \equiv 0 \pmod{r}$ (one solution) and $m^{e-1} \equiv 1$ in $(\mathbb{Z}/r\mathbb{Z})^*$. By Lagrange's theorem applied to the cyclic group of order $r - 1$, the latter has exactly $\gcd(e-1, r-1)$ solutions. The total modulo $r$ is $1 + \gcd(e-1, r-1)$, and by CRT the answer is the product.
+\end{proof}
+
+\begin{theorem}[Minimisation]
+The minimum of $N(e)$ over valid exponents is $9$, achieved when $\gcd(e-1, p-1) = 2$ and $\gcd(e-1, q-1) = 2$.
+\end{theorem}
+
+\begin{proof}
+Since $\lambda(n)$ is even, every valid $e$ is odd, so $e - 1$ is even, forcing $\gcd(e-1, p-1) \ge 2$ and $\gcd(e-1, q-1) \ge 2$. Setting $a = \gcd(e-1, p-1)$ and $b = \gcd(e-1, q-1)$, the function $(1+a)(1+b)$ with $a, b \ge 2$ is minimised at $a = b = 2$, giving $9$.
+
+Existence: with $p-1 = 2^4 \cdot 3^2 \cdot 7$ and $q-1 = 2 \cdot 3 \cdot 607$, the conditions $v_2(e-1) = 1$, $3 \nmid (e-1)$, $7 \nmid (e-1)$, $607 \nmid (e-1)$, and $\gcd(e, \lambda(n)) = 1$ are simultaneously satisfiable by CRT (the moduli $4, 3, 7, 607$ are pairwise coprime).
+\end{proof}
+
+\begin{lemma}[Explicit Conditions]
+An exponent $e$ achieves $N(e) = 9$ if and only if: $\gcd(e, \lambda(n)) = 1$, $e \equiv 3 \pmod{4}$, $e \not\equiv 1 \pmod{3}$, $e \not\equiv 1 \pmod{7}$, and $e \not\equiv 1 \pmod{607}$.
+\end{lemma}
+
+\begin{proof}
+These conditions are equivalent to $\gcd(e-1, p-1) = 2$ and $\gcd(e-1, q-1) = 2$ after factoring $p - 1 = 2^4 \cdot 3^2 \cdot 7$ and $q - 1 = 2 \cdot 3 \cdot 607$, as verified prime-by-prime.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{SumOptimalExponents}{$p, q$}
+    \State $\lambda_n \gets \operatorname{lcm}(p-1, q-1)$;\quad $\mathrm{total} \gets 0$
+    \For{$e = 2$ to $\lambda_n - 1$}
+        \If{$\gcd(e, \lambda_n) \neq 1$} \textbf{continue} \EndIf
+        \If{$\gcd(e-1, p-1) = 2$ \textbf{and} $\gcd(e-1, q-1) = 2$}
+            \State $\mathrm{total} \mathrel{+}= e$
+        \EndIf
+    \EndFor
+    \State \Return total
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\lambda(n) \log \lambda(n))$, iterating over all $e < \lambda(n) = 612{,}648$ with $O(\log \lambda(n))$ GCD cost per candidate.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{399788195976}
+\]
+
+\end{document}

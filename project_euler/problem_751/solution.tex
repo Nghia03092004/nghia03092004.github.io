@@ -1,0 +1,75 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+\title{Project Euler Problem 751: Concatenation Coincidence}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A non-decreasing sequence of positive integers $a_1, a_2, a_3, \ldots$ is derived from a real number $\theta$ by:
+\begin{align}
+b_1 &= \theta, \\
+b_n &= \lfloor b_{n-1} \rfloor \cdot (b_{n-1} - \lfloor b_{n-1} \rfloor + 1) \quad \text{for } n \geq 2, \\
+a_n &= \lfloor b_n \rfloor.
+\end{align}
+The concatenation $\tau(\theta)$ places $a_1$ before the decimal point and concatenates $a_2, a_3, \ldots$ after it. Find the unique $\theta$ with $a_1 = 2$ and $\tau(\theta) = \theta$, rounded to 24 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+Let $C: [2,3) \to \mathbb{R}$ be the \emph{concatenation map} sending $\theta$ to $\tau(\theta)$.
+\end{definition}
+
+\begin{theorem}[Existence and uniqueness]
+There exists a unique $\theta^* \in [2,3)$ such that $C(\theta^*) = \theta^*$.
+\end{theorem}
+
+\begin{proof}
+Define the metric $d(\theta, \theta') = 10^{-m}$ where $m$ is the index of the first decimal digit at which $\tau(\theta)$ and $\tau(\theta')$ differ. Suppose $\theta$ and $\theta'$ agree in their first $k$ decimal digits. Then $b_1 = \theta$ and $b_1' = \theta'$ agree to $k$ digits, so the sequences $(a_n)$ and $(a_n')$ agree for all indices whose terms are determined by those $k$ digits. Since each term $a_n$ contributes at least one digit to the concatenation, $\tau$ reproduces at least those $k$ digits and typically more. Hence $d(C(\theta), C(\theta')) < d(\theta, \theta')$, making $C$ a contraction on the complete metric space $([2,3), d)$. By the Banach fixed-point theorem, a unique fixed point exists.
+\end{proof}
+
+\begin{lemma}[Rapid convergence]
+For any $\theta_0 \in [2,3)$, the iteration $\theta_{n+1} = C(\theta_n)$ converges to $\theta^*$. In practice, 2--3 iterations with 30-digit precision yield 24 correct decimal places.
+\end{lemma}
+
+\begin{proof}
+Immediate from the contraction property. Convergence is superlinear: each iteration at least doubles the number of correct digits, since the concatenation preserves all already-correct digits.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Set precision to at least 34 decimal digits.
+\item Initialize $\theta = 2.0$.
+\item Repeat up to 5 times:
+  \begin{enumerate}
+  \item Generate the sequence $(a_n)$ from $\theta$ until enough digits accumulate.
+  \item Form $\tau = a_1.a_2 a_3 a_4 \cdots$
+  \item Set $\theta \leftarrow \tau$.
+  \end{enumerate}
+\item Return $\theta$ rounded to 24 decimal places.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(I \cdot D)$ where $I \leq 5$ iterations and $D$ is the digit precision. Each iteration generates $O(D)$ terms with $O(1)$ arbitrary-precision operations each.
+\item \textbf{Space:} $O(D)$ for the high-precision number and concatenated string.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2.223561019313554106173177}
+\]
+
+\end{document}

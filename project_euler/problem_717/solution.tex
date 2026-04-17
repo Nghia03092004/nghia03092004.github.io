@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 717: Summation of a Modular Formula}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For an odd prime~$p$, define
+\[
+f(p) = \left\lfloor \frac{2^{2^p}}{p} \right\rfloor \bmod 2^p.
+\]
+Let $\displaystyle G(N) = \sum_{\substack{p < N \\ p \text{ odd prime}}} f(p)$. Given $G(100) = 474$ and $G(10^4)=2819236$, find $G(10^7)$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Reduction to Modular Arithmetic]
+\[
+\left\lfloor \frac{2^{2^p}}{p} \right\rfloor \bmod 2^p = \frac{2^{2^p} \bmod (p \cdot 2^p)}{p}.
+\]
+\end{lemma}
+
+\begin{proof}
+Write $2^{2^p} = qp + r$ with $0 \le r < p$. Then $q = \lfloor 2^{2^p}/p\rfloor$ and $2^{2^p} \bmod (p \cdot 2^p)$ determines $q \bmod 2^p$.
+\end{proof}
+
+\begin{theorem}[CRT Decomposition]
+Since $\gcd(p, 2^p) = 1$ for odd~$p$:
+\begin{align*}
+2^{2^p} &\equiv 2^{2^p \bmod (p-1)} \pmod{p} \quad\text{(Fermat)},\\
+2^{2^p} &\equiv 0 \pmod{2^p} \quad\text{(since $2^p \le 2^{2^p}$)}.
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+Fermat's little theorem gives $2^{p-1} \equiv 1 \pmod{p}$, so $2^{2^p} \equiv 2^{2^p \bmod (p-1)} \pmod{p}$. The second congruence holds because the exponent $2^p \ge p$.
+\end{proof}
+
+\begin{theorem}[Final Formula]
+Let $r = 2^{(2^p \bmod (p-1))} \bmod p$. Then
+\[
+f(p) = (-r \cdot p^{-1}) \bmod 2^p,
+\]
+where $p^{-1}$ is the modular inverse of~$p$ modulo~$2^p$.
+\end{theorem}
+
+\begin{proof}
+From $2^{2^p} = p\,f(p) + r$ and $2^{2^p} \equiv 0 \pmod{2^p}$, we get $p\,f(p) \equiv -r \pmod{2^p}$, so $f(p) \equiv -r\,p^{-1} \pmod{2^p}$. The inverse exists since $p$ is odd.
+\end{proof}
+
+\begin{lemma}[Inverse by Hensel Lifting]
+The inverse $p^{-1} \bmod 2^p$ can be computed iteratively: starting from $x_0 = 1$ ($p^{-1} \bmod 2$), apply $x_{k+1} = x_k(2 - p\,x_k) \bmod 2^{2^{k+1}}$ until precision reaches~$p$ bits.
+\end{lemma}
+
+\begin{proof}
+Standard Newton--Hensel lifting for $2$-adic inverses. If $px_k \equiv 1 \pmod{2^{2^k}}$, then $p \cdot x_k(2-px_k) = 2px_k - (px_k)^2 \equiv 2-1 = 1 \pmod{2^{2^{k+1}}}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function G(N):
+    primes = sieve(N)
+    total = 0
+    for each odd prime p:
+        e = pow_mod(2, p, p-1)
+        r = pow_mod(2, e, p)
+        p_inv = hensel_inverse(p, num_bits=p)
+        fp = (-r * p_inv) mod 2^p
+        total += fp
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\log p)$ for modular exponentiation per prime; $O(p/w)$ for the $p$-bit inverse (word size~$w$). Total: $O\bigl(\sum_{p<N} p/w\bigr) = O(N^2/(w\log N))$.
+    \item \textbf{Space:} $O(N)$ for the sieve; $O(N/w)$ for the largest bignum.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1603036763131}
+\]
+
+\end{document}

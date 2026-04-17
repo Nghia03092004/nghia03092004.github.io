@@ -1,0 +1,100 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 17: Number Letter Counts}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $\ell(n)$ denote the number of letters (excluding spaces and hyphens) in the British
+English representation of the positive integer~$n$. Compute $\sum_{n=1}^{1000} \ell(n)$.
+
+\section{Formal Development}
+
+\begin{definition}[Atomic letter counts]
+Define lookup tables:
+\begin{center}
+\begin{tabular}{lcl}
+\toprule
+Table & Indices & Values (sum) \\
+\midrule
+$o_k$ (ones) & $k = 1,\ldots,9$ & $3,3,5,4,4,3,5,5,4$ \quad ($S_O = 36$) \\
+$t_k$ (teens) & $k = 10,\ldots,19$ & $3,6,6,8,8,7,7,9,8,8$ \quad ($S_T = 70$) \\
+$d_k$ (tens) & $k = 2,\ldots,9$ & $6,6,5,5,5,7,6,6$ \quad ($S_D = 46$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{definition}
+
+\begin{theorem}[Recursive decomposition]
+\label{thm:decomp}
+For $1 \le n \le 1000$:
+\[
+\ell(n) = \begin{cases}
+o_n & 1 \le n \le 9, \\
+t_n & 10 \le n \le 19, \\
+d_{\lfloor n/10 \rfloor} + \ell(n \bmod 10)\cdot[n \bmod 10 \ne 0] & 20 \le n \le 99, \\
+o_{\lfloor n/100 \rfloor} + 7 + (3 + \ell(n \bmod 100))\cdot[n \bmod 100 \ne 0] & 100 \le n \le 999, \\
+11 & n = 1000.
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+Follows from British English naming: ``hundred'' has 7 letters, ``and'' has 3,
+``thousand'' has 8, and each base word has letter count given by the lookup tables.
+\end{proof}
+
+\begin{lemma}
+$\Sigma_{1\text{--}99} = S_O + S_T + 10 S_D + 8 S_O = 36 + 70 + 460 + 288 = 854$.
+\end{lemma}
+
+\begin{proof}
+For the decade $\{10j, \ldots, 10j + 9\}$ ($j = 2, \ldots, 9$), the tens-word contributes
+$10 d_j$ and the ones-words contribute $S_O$, totalling $10 S_D + 8 S_O = 748$ for all
+eight decades. Adding $S_O = 36$ for 1--9 and $S_T = 70$ for 10--19 yields~$854$.
+\end{proof}
+
+\begin{theorem}[Hundred-block sum]
+For $h \in \{1,\ldots,9\}$, $\sum_{n=100h}^{100h+99} \ell(n) = 100\,o_h + 1851$.
+\end{theorem}
+
+\begin{proof}
+Each of 100 numbers contributes $o_h + 7$ for ``[h] hundred''. The 99 numbers with nonzero
+remainder add ``and'' (3~letters) plus the representation of the remainder:
+$100(o_h + 7) + 99 \cdot 3 + 854 = 100\,o_h + 1851$.
+\end{proof}
+
+\begin{theorem}[Total]
+$\displaystyle\sum_{n=1}^{1000} \ell(n) = 854 + 100 \cdot 36 + 9 \times 1851 + 11 = 21124$.
+\end{theorem}
+
+\begin{proof}
+$854 + 3600 + 16659 + 11 = 21124$.
+\end{proof}
+
+\section{Complexity}
+
+\begin{proposition}
+$\Theta(N)$ time, $\Theta(1)$ space: each $\ell(n)$ is computed in $O(1)$ via table lookup.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{21124}
+\]
+
+\end{document}

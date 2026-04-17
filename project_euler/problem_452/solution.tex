@@ -1,0 +1,118 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+
+\newcommand{\Fmn}{F(m,n)}
+\newcommand{\dn}{d_n}
+\newcommand{\MOD}{1\,234\,567\,891}
+
+\title{Problem 452: Long Products}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $\Fmn$ as the number of $n$-tuples $(a_1, a_2, \ldots, a_n)$ of positive
+integers for which the product of the elements does not exceed~$m$:
+\[
+  \Fmn = \bigl|\bigl\{(a_1, \ldots, a_n) \in \mathbb{Z}_{>0}^n : a_1 a_2 \cdots a_n \le m\bigr\}\bigr|.
+\]
+
+Given that $F(10, 10) = 571$ and $F(10^6, 10^6) \bmod \MOD = 252\,903\,833$,
+find $F(10^9, 10^9) \bmod \MOD$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Reduction to Piltz divisor sum]\label{thm:piltz}
+Grouping tuples by product value,
+\[
+  \Fmn = \sum_{k=1}^{m} \dn(k),
+\]
+where $\dn(k)$ counts the ordered factorizations of~$k$ into exactly~$n$ positive integer factors.
+\end{theorem}
+
+\begin{proof}
+Each $n$-tuple $(a_1, \ldots, a_n)$ with product $k$ is an ordered factorization of $k$ into $n$ parts. Summing over all $k \le m$ counts every valid tuple exactly once.
+\end{proof}
+
+\begin{lemma}[Multiplicativity of $\dn$]\label{lem:mult}
+The function $\dn$ is multiplicative: for $\gcd(a,b) = 1$,
+$\dn(ab) = \dn(a)\,\dn(b)$. At a prime power $p^a$:
+\[
+  \dn(p^a) = \binom{n + a - 1}{a}.
+\]
+\end{lemma}
+
+\begin{proof}
+Multiplicativity follows from CRT applied to ordered factorizations. For $p^a$, distributing $a$ copies of prime~$p$ among $n$ positions is a stars-and-bars count: $\binom{n+a-1}{a}$.
+\end{proof}
+
+\begin{lemma}[Exponent bound]\label{lem:exp}
+Since $m = 10^9$ and $2^{30} > 10^9$, every prime power $p^a \le m$ satisfies $a \le 29$. Hence $\binom{n+a-1}{a}$ is a polynomial of degree at most~29 in~$n$, readily evaluable modulo the prime $\MOD$.
+\end{lemma}
+
+\begin{proof}
+If $p^a \le 10^9$ then $a \le \lfloor \log_2(10^9) \rfloor = 29$. The binomial coefficient $\binom{n+a-1}{a} = \prod_{j=0}^{a-1} (n+j) / a!$ is a polynomial of degree~$a$ in~$n$.
+\end{proof}
+
+\begin{theorem}[Bucket decomposition]\label{thm:bucket}
+The set $\{\lfloor m/k \rfloor : k = 1, \ldots, m\}$ has at most $2\lfloor\sqrt{m}\rfloor$ distinct values. Storing partial sums $S[v]$ for each such~$v$ suffices to compute $\Fmn$ with $O(\sqrt{m})$ storage.
+\end{theorem}
+
+\begin{proof}
+For $k \le \sqrt{m}$, the value $\lfloor m/k \rfloor$ ranges over at most $\sqrt{m}$ values. For $k > \sqrt{m}$, $\lfloor m/k \rfloor < \sqrt{m}$, contributing at most $\sqrt{m}$ additional values. The union has at most $2\sqrt{m}$ elements.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute $\Fmn \bmod P$ via multiplicative bucket sieve}
+\begin{algorithmic}[1]
+\State $B \gets \lfloor\sqrt{m}\rfloor$
+\State Initialize $\texttt{lo}[v] \gets 1$ for $v = 1, \ldots, B$ and $\texttt{hi}[k] \gets 1$ for $k = 1, \ldots, B$
+\State Precompute $C[a] \gets \binom{n+a-1}{a} \bmod P$ for $a = 0, \ldots, 29$
+\For{each prime $p \le B$} \Comment{Small primes}
+    \For{each bucket value $v$ in decreasing order}
+        \For{$a = 1, 2, \ldots, \lfloor\log_p v\rfloor$}
+            \State $S[v] \mathrel{+}= C[a] \cdot S[\lfloor v/p^a \rfloor] \pmod{P}$
+        \EndFor
+    \EndFor
+\EndFor
+\For{each prime $p \in (B, m]$ via segmented sieve} \Comment{Large primes}
+    \For{$k = 1$ to $\min(B, \lfloor m/p \rfloor)$}
+        \State $\texttt{hi}[k] \mathrel{+}= C[1] \cdot \texttt{lo}[\lfloor \lfloor m/k \rfloor / p \rfloor] \pmod{P}$
+    \EndFor
+\EndFor
+\State \Return $\texttt{hi}[1]$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(m)$, dominated by the large-prime phase. The small-prime phase costs $O(\sqrt{m} \cdot \sqrt{m} / \log \sqrt{m}) = O(m / \log m)$. Each large prime~$p$ updates at most $\lfloor m/p \rfloor \le \sqrt{m}$ buckets; summing gives $O(\sum_{p > \sqrt{m}} m/p) = O(m)$.
+    \item \textbf{Space:} $O(\sqrt{m})$ for the two bucket arrays and the segmented sieve buffer.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{345558983}
+\]
+
+\end{document}

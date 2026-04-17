@@ -1,0 +1,131 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 6: Sum Square Difference}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Compute the difference between the square of the sum and the sum of the squares of the first 100 natural numbers:
+\[
+D(100) = \left(\sum_{i=1}^{100} i\right)^{\!2} - \sum_{i=1}^{100} i^2.
+\]
+
+\section{Notation}
+
+Throughout, write
+\[
+S_1(n) = \sum_{i=1}^{n} i, \qquad S_2(n) = \sum_{i=1}^{n} i^2, \qquad D(n) = S_1(n)^2 - S_2(n).
+\]
+
+\section{Mathematical Development}
+
+\begin{lemma}[Sum of Natural Numbers]\label{lem:s1}
+For all $n \ge 1$, \; $S_1(n) = n(n+1)/2$.
+\end{lemma}
+
+\begin{proof}
+By induction. Base: $S_1(1) = 1 = 1 \cdot 2/2$. Step: assuming $S_1(k) = k(k+1)/2$,
+\[
+S_1(k+1) = \frac{k(k+1)}{2} + (k+1) = \frac{(k+1)(k+2)}{2}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Sum of Squares]\label{lem:s2}
+For all $n \ge 1$, \; $S_2(n) = n(n+1)(2n+1)/6$.
+\end{lemma}
+
+\begin{proof}
+The telescoping identity $(k+1)^3 - k^3 = 3k^2 + 3k + 1$, summed from $k=1$ to $n$, gives
+\[
+(n+1)^3 - 1 = 3S_2(n) + 3S_1(n) + n.
+\]
+Substituting $S_1(n) = n(n+1)/2$ from Lemma~\ref{lem:s1} and solving:
+\begin{align*}
+3S_2(n) &= (n+1)^3 - 1 - \tfrac{3n(n+1)}{2} - n \\
+        &= \frac{2n^3 + 3n^2 + n}{2} = \frac{n(n+1)(2n+1)}{2},
+\end{align*}
+where the last equality uses $2n^2 + 3n + 1 = (2n+1)(n+1)$. Dividing by 3 yields the result.
+\end{proof}
+
+\begin{theorem}[Closed Form]\label{thm:closed}
+For all $n \ge 1$,
+\[
+D(n) = \frac{n(n-1)(n+1)(3n+2)}{12}.
+\]
+\end{theorem}
+
+\begin{proof}
+By Lemmas~\ref{lem:s1} and~\ref{lem:s2},
+\[
+D(n) = \frac{n^2(n+1)^2}{4} - \frac{n(n+1)(2n+1)}{6} = \frac{n(n+1)}{12}\bigl[3n(n+1) - 2(2n+1)\bigr].
+\]
+Expanding the bracket:
+\[
+3n(n+1) - 2(2n+1) = 3n^2 + 3n - 4n - 2 = 3n^2 - n - 2.
+\]
+The discriminant of $3n^2 - n - 2$ is $\Delta = 1 + 24 = 25$, giving roots $n = 1$ and $n = -2/3$. Hence
+\[
+3n^2 - n - 2 = (n - 1)(3n + 2),
+\]
+and $D(n) = n(n+1)(n-1)(3n+2)/12$.
+\end{proof}
+
+\begin{corollary}[Non-negativity]
+$D(n) \ge 0$ for all $n \ge 1$, with equality iff $n = 1$.
+\end{corollary}
+
+\begin{proof}
+For $n \ge 2$, each factor $n, n-1, n+1, 3n+2$ is positive. For $n = 1$: $D(1) = 0$.
+\end{proof}
+
+\begin{theorem}[Combinatorial Interpretation]\label{thm:comb}
+$\displaystyle D(n) = 2\sum_{1 \le i < j \le n} ij$.
+\end{theorem}
+
+\begin{proof}
+Expanding $\bigl(\sum_{i=1}^n i\bigr)^2 = \sum_i i^2 + 2\sum_{i<j} ij$ (by separating diagonal and off-diagonal terms in the double sum $\sum_{i,j} ij$) and subtracting $\sum i^2$ yields the result.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Sum square difference via closed form}
+\begin{algorithmic}[1]
+\RETURN $n \cdot (n-1) \cdot (n+1) \cdot (3n+2) \;/\; 12$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Application to $n = 100$:}
+\[
+D(100) = \frac{100 \times 99 \times 101 \times 302}{12} = \frac{301\,969\,800}{12} = 25\,164\,150.
+\]
+
+\emph{Verification.} $S_1(100) = 5050$, $S_1(100)^2 = 25\,502\,500$, $S_2(100) = 338\,350$, and $25\,502\,500 - 338\,350 = 25\,164\,150$.\;\checkmark
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Complexity]
+The closed-form algorithm runs in $O(1)$ time and $O(1)$ space.
+\end{theorem}
+
+\begin{proof}
+The formula requires exactly 4 multiplications and 1 division. A brute-force approach iterating to compute $S_1$ and $S_2$ would require $O(n)$ time.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{25164150}
+\]
+
+\end{document}

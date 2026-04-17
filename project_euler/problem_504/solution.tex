@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 504: Square on the Inside}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $ABCD$ be a quadrilateral whose vertices lie on the coordinate axes: $A(a,0)$, $B(0,b)$, $C(-c,0)$, $D(0,-d)$, where $1 \le a,b,c,d \le m$.
+
+For $m = 100$, how many quadrilaterals $ABCD$ have a square number of interior lattice points?
+
+\section{Mathematical Analysis}
+
+\subsection{Pick's Theorem}
+For a lattice polygon with area $A$, interior points $i$, and boundary points $b$:
+\[
+A = i + \frac{b}{2} - 1 \quad \Longrightarrow \quad i = A - \frac{b}{2} + 1
+\]
+
+\subsection{Area}
+By the Shoelace formula:
+\[
+A = \frac{(a+c)(b+d)}{2}
+\]
+
+\subsection{Boundary Points}
+The number of lattice points on the segment from $(x_1,y_1)$ to $(x_2,y_2)$, including endpoints, is $\gcd(|x_2-x_1|,|y_2-y_1|) + 1$. Summing over four edges and subtracting 4 for double-counted vertices:
+\[
+b = \gcd(a,b) + \gcd(b,c) + \gcd(c,d) + \gcd(d,a)
+\]
+
+\subsection{Interior Points}
+\[
+i = \frac{(a+c)(b+d) - \gcd(a,b) - \gcd(b,c) - \gcd(c,d) - \gcd(d,a)}{2} + 1
+\]
+
+We count quadrilaterals where $i$ is a perfect square.
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(m^4)$ with precomputed GCD, feasible for $m = 100$.
+    \item \textbf{Space:} $O(m^2)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{694687}
+\]
+
+\end{document}

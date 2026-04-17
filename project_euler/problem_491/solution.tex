@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 491: Double Pandigital Number Divisible by 11}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+We call a positive integer \emph{double pandigital} if it uses all the digits $0$ to $9$ exactly twice (with no leading zero). How many double pandigital numbers are divisible by~$11$?
+
+\section{Notation}
+A double pandigital number is a $20$-digit string $d_1 d_2 \cdots d_{20}$ with $d_1 \neq 0$ in which every digit $0,1,\ldots,9$ appears exactly twice. Positions $1,3,5,\ldots,19$ are \emph{odd}; positions $2,4,\ldots,20$ are \emph{even}. Write $O = \sum_{i\;\text{odd}} d_i$ and $E = \sum_{i\;\text{even}} d_i$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Divisibility rule for $11$]
+An integer $N$ with decimal representation $d_1 d_2 \cdots d_n$ satisfies $11 \mid N$ if and only if $\sum_{i=1}^{n}(-1)^{i+1}d_i \equiv 0 \pmod{11}$.
+\end{theorem}
+
+\begin{proof}
+Since $10 \equiv -1\pmod{11}$, we have $10^k \equiv (-1)^k\pmod{11}$. Thus
+\[
+N = \sum_{i=1}^{n} d_i\cdot 10^{n-i} \equiv \sum_{i=1}^{n} d_i(-1)^{n-i} \pmod{11}.
+\]
+For $n=20$ (even), $(-1)^{n-i} = (-1)^{-i} = (-1)^i$, so $N \equiv E - O \pmod{11}$. Hence $11 \mid N$ iff $O \equiv E\pmod{11}$.
+\end{proof}
+
+\begin{lemma}[Reduction to a single congruence]
+The divisibility condition $O \equiv E \pmod{11}$ is equivalent to $O \equiv 1 \pmod{11}$.
+\end{lemma}
+
+\begin{proof}
+The total digit sum is $O + E = 2(0+1+\cdots+9) = 90$, so $E = 90 - O$. The condition $O \equiv 90 - O\pmod{11}$ becomes $2O \equiv 90 \equiv 2\pmod{11}$. Since $\gcd(2,11)=1$, dividing gives $O \equiv 1 \pmod{11}$.
+\end{proof}
+
+\begin{definition}[Assignment vector]
+An \emph{assignment vector} is $\mathbf{c} = (c_0,\ldots,c_9) \in \{0,1,2\}^{10}$ with $\sum c_d = 10$, where $c_d$ is the number of copies of digit $d$ placed at odd positions.
+\end{definition}
+
+\begin{lemma}[Feasible values]
+The odd-position sum $O = \sum d\cdot c_d$ satisfies $0 \le O \le 90$. The values with $O\equiv 1\pmod{11}$ in this range are exactly
+\[
+O \in \{1,\,12,\,23,\,34,\,45,\,56,\,67,\,78,\,89\}.
+\]
+\end{lemma}
+
+\begin{proof}
+The minimum is $O=0$ (all large digits at even positions) and the maximum is $O=90$. Neither satisfies $O\equiv 1\pmod{11}$. The nine listed values are the complete intersection of the residue class with $[0,90]$.
+\end{proof}
+
+\begin{theorem}[Counting formula]
+For each valid assignment vector $\mathbf{c}$, the number of leading-zero-free double pandigital numbers is:
+\[
+N(\mathbf{c}) = \frac{10!}{\prod_d c_d!}\cdot\frac{10!}{\prod_d(2-c_d)!} \;-\; \mathbf{1}_{c_0\ge 1}\cdot\frac{9!}{(c_0-1)!\prod_{d\ge 1}c_d!}\cdot\frac{10!}{\prod_d(2-c_d)!}.
+\]
+\end{theorem}
+
+\begin{proof}
+The first product counts all arrangements of $c_d$ copies of digit~$d$ at odd positions and $2-c_d$ copies at even positions via independent multinomial coefficients. The second term subtracts arrangements with digit~$0$ at position~$1$: fixing one zero there leaves $9$ odd-position slots for the remaining digits, counted by $9!/((c_0-1)!\prod_{d\ge 1}c_d!)$, multiplied by the unchanged even-position count.
+\end{proof}
+
+\begin{corollary}
+The answer is $\sum_{\mathbf{c}\;\text{valid}} N(\mathbf{c})$.
+\end{corollary}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Enumerate all $(c_0,\ldots,c_9) \in \{0,1,2\}^{10}$ with $\sum c_d = 10$.
+\item For each, check $\sum d\cdot c_d \equiv 1 \pmod{11}$.
+\item If valid, compute $N(\mathbf{c})$ and accumulate.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(3^{10}\cdot 10)$ --- enumerate $59049$ vectors, each in $O(10)$.
+\item \textbf{Space:} $O(1)$ auxiliary.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{194505988824000}
+\]
+
+\end{document}

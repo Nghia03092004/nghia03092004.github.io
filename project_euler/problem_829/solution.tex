@@ -1,0 +1,45 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 829: Integral Remainders}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Floor sum computation. See the accompanying solution.md for the full problem statement and mathematical analysis.
+
+\section{Mathematical Framework}
+
+\begin{theorem}
+$R(n) = \sum_{k=1}^{n} (n \bmod k) = n^2 - \sum_{k=1}^{n} k\lfloor n/k \rfloor$.
+\end{theorem}
+
+\begin{theorem}[Floor Grouping]
+$\lfloor n/k \rfloor$ takes $O(\sqrt{n})$ distinct values. Grouping by these values computes the sum in $O(\sqrt{n})$.
+\end{theorem}
+
+\begin{lemma}
+$\sum_{k=1}^{n} k\lfloor n/k\rfloor = \sum_{m=1}^{n} \sigma_1(m)$ where $\sigma_1$ is the sum-of-divisors function.
+\end{lemma}
+
+\section{Complexity}
+
+See solution.md for detailed complexity analysis.
+
+\section{Answer}
+
+\[
+\boxed{41768797657018024}
+\]
+
+\end{document}

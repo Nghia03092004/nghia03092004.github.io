@@ -1,0 +1,64 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 102: Triangle Containment}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given the coordinates of 1000 triangles in the Cartesian plane with coordinates in $[-1000, 1000]$, determine how many triangles contain the origin $(0,0)$ in their interior.
+
+\section{Mathematical Development}
+
+\begin{theorem}[Point-in-Triangle via Signed Areas]
+\label{thm:pit}
+Let $A, B, C$ form a non-degenerate triangle and let $P \in \mathbb{R}^2$. Define the signed area function
+\[
+\sigma(U, V, W) = \tfrac{1}{2}\det\!\begin{pmatrix} v_x - u_x & w_x - u_x \\ v_y - u_y & w_y - u_y \end{pmatrix}.
+\]
+Then $P$ lies in the interior of $\triangle ABC$ if and only if $\sigma(A,B,P)$, $\sigma(B,C,P)$, and $\sigma(C,A,P)$ all share the same nonzero sign.
+\end{theorem}
+
+\begin{proof}
+Each directed edge $\overrightarrow{UV}$ divides $\mathbb{R}^2$ into two open half-planes. The sign of $\sigma(U, V, P)$ indicates which half-plane $P$ occupies. The interior of $\triangle ABC$ is the intersection of the three half-planes on the ``interior side'' of each edge. If the triangle has counterclockwise (resp.\ clockwise) orientation, all three signed areas are positive (resp.\ negative) for interior points.
+\end{proof}
+
+\begin{lemma}[Specialization to the Origin]
+For $P = (0,0)$,
+\[
+2\,\sigma(A, B, P) = a_x b_y - b_x a_y,
+\]
+which is the $z$-component of $\vec{OA} \times \vec{OB}$.
+\end{lemma}
+
+\begin{proof}
+Direct substitution of $(P_x, P_y) = (0,0)$ into the signed area formula, with cancellation of the $a_x a_y$ terms.
+\end{proof}
+
+\begin{corollary}
+The origin lies inside $\triangle ABC$ if and only if the three quantities $a_x b_y - b_x a_y$, $b_x c_y - c_x b_y$, $c_x a_y - a_x c_y$ are all positive or all negative.
+\end{corollary}
+
+\section{Complexity}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N)$ where $N = 1000$. Each triangle requires $O(1)$ work.
+\item \textbf{Space:} $O(1)$ auxiliary.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{228}
+\]
+
+\end{document}

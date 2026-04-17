@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 687: Shuffling Cards}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+52-card deck shuffled randomly. A rank is 'perfect' if no two cards of that rank are adjacent. Expected perfect ranks = 4324/425. Find P(perfect ranks is prime), rounded to 10 d.p.
+
+\section{Mathematical Analysis}
+
+Inclusion-exclusion over non-adjacent conditions, generating functions for card arrangements
+
+\section{Complexity Analysis}
+
+O(13 * 52!) infeasible; use moment methods and Poisson approximation
+
+\section{Answer}
+
+\[
+\boxed{0.3285320869}
+\]
+
+\end{document}

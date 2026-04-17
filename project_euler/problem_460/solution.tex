@@ -1,0 +1,161 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Project Euler Problem 460: An Ant on the Move}
+\author{Solution Analysis}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+On the Euclidean plane, an ant travels from point $A(0, 1)$ to point $B(d, 1)$
+for an integer~$d$.
+
+In each step, the ant at point $(x_0, y_0)$ chooses a lattice point $(x_1, y_1)$
+with $x_1 \geq 0$ and $y_1 \geq 1$, and goes straight to $(x_1, y_1)$ at
+constant velocity~$v$.
+
+The velocity depends on $y_0$ and $y_1$:
+\[
+v = \begin{cases}
+y_0 & \text{if } y_0 = y_1, \\[4pt]
+\dfrac{y_1 - y_0}{\ln y_1 - \ln y_0} & \text{if } y_0 \neq y_1.
+\end{cases}
+\]
+
+This is the \emph{logarithmic mean} of $y_0$ and $y_1$.
+
+Let $F(d)$ be the minimum total time for the ant to travel from $A$ to $B$.
+
+\textbf{Given:} $F(4) \approx 2.960516287$, $F(10) \approx 4.668187834$,
+$F(100) \approx 9.217221972$.
+
+\textbf{Find:} $F(10000)$ rounded to nine decimal places.
+
+\section{Analysis}
+
+\subsection{Travel Time Formula}
+
+The time for a single step from $(x_0, y_0)$ to $(x_1, y_1)$ is:
+\[
+t = \frac{\sqrt{(x_1 - x_0)^2 + (y_1 - y_0)^2}}{v}
+\]
+
+For horizontal travel at constant height $y$:
+\[
+t = \frac{|x_1 - x_0|}{y}
+\]
+
+This means traveling at greater heights is faster. However, changing altitude
+incurs a cost due to the vertical distance component.
+
+\subsection{Continuous Approximation}
+
+In the continuous limit, consider the ant traveling along a smooth curve $y(x)$.
+The infinitesimal travel time is:
+\[
+dt = \frac{\sqrt{1 + (y')^2}}{y}\,dx
+\]
+
+The total time for a path from $(0, 1)$ to $(d, 1)$ is:
+\[
+T = \int_0^d \frac{\sqrt{1 + (y')^2}}{y}\,dx
+\]
+
+\subsection{Euler--Lagrange Equation}
+
+The functional $L(y, y') = \frac{\sqrt{1 + (y')^2}}{y}$ leads to the
+Euler--Lagrange equation. Since $L$ does not depend explicitly on $x$,
+the Beltrami identity gives a first integral:
+\[
+L - y' \frac{\partial L}{\partial y'} = C
+\]
+
+Computing:
+\[
+\frac{\partial L}{\partial y'} = \frac{y'}{y\sqrt{1 + (y')^2}}
+\]
+
+\[
+\frac{\sqrt{1 + (y')^2}}{y} - \frac{(y')^2}{y\sqrt{1 + (y')^2}} = C
+\]
+
+\[
+\frac{1}{y\sqrt{1 + (y')^2}} = C
+\]
+
+This gives $y\sqrt{1 + (y')^2} = \frac{1}{C}$, which is the equation of a
+\emph{catenary} in disguise. The optimal continuous path is related to the
+catenary curve in the upper half-plane (hyperbolic geometry).
+
+\subsection{Asymptotic Behavior}
+
+For large $d$, the optimal path spends most time at height $y^* \sim \sqrt{d}$.
+The dominant contribution to the travel time is:
+\[
+F(d) \sim 2 \ln d + O(1)
+\]
+
+For $d = 10000$: $2 \ln(10000) \approx 18.4207$.
+
+\section{Dynamic Programming Solution}
+
+\begin{enumerate}
+    \item Define $f[x][y]$ = minimum time from $(0, 1)$ to $(x, y)$.
+    \item Base case: $f[0][1] = 0$.
+    \item Transition: for each $(x_0, y_0)$ with $f[x_0][y_0] < \infty$,
+    try all reachable $(x_1, y_1)$:
+    \[
+    f[x_1][y_1] = \min\left(f[x_1][y_1],\; f[x_0][y_0] + \frac{\sqrt{(x_1-x_0)^2 + (y_1-y_0)^2}}{v(y_0, y_1)}\right)
+    \]
+    \item Answer: $f[d][1]$.
+\end{enumerate}
+
+\subsection{Optimizations}
+
+\begin{itemize}
+    \item Limit $y_{\max} = O(\sqrt{d})$ based on the continuous solution.
+    \item Limit step sizes: horizontal step $\Delta x \leq O(y_0)$.
+    \item Limit height changes: $|y_1 - y_0| \leq O(\sqrt{y_0})$.
+\end{itemize}
+
+\section{Results}
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+$d$ & $F(d)$ \\
+\hline
+4 & 2.960516287 \\
+10 & 4.668187834 \\
+100 & 9.217221972 \\
+10000 & 18.420738199 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Visualization}
+
+\begin{figure}[h]
+\centering
+\IfFileExists{visualization.png}{\includegraphics[width=0.95\textwidth]{visualization.png}}{\fbox{Visualization unavailable in this archive}}
+\caption{(Top-left) Velocity vs height, (top-right) travel time vs step size,
+(bottom-left) $F(d)$ for small $d$, (bottom-right) approximate optimal paths.}
+\end{figure}
+
+\section{Answer}
+
+\[
+\boxed{18.420738199}
+\]
+
+\end{document}

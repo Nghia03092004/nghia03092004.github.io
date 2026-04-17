@@ -1,0 +1,63 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 898: Product Partition Function}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $f(n)$ denote the number of unordered factorizations of $n$ into factors $> 1$. Compute $\sum_{n=2}^{N} f(n)$.
+
+\section{Key Results}
+
+\begin{theorem}[Recursive Formula]
+Define $g(n, m)$ = number of factorizations of $n$ with all factors $\ge m$:
+\[
+g(n, m) = [n \ge m] + \sum_{\substack{d \mid n \\ m \le d \le \sqrt{n}}} g(n/d, d).
+\]
+Then $f(n) = g(n, 2)$.
+\end{theorem}
+
+\begin{proof}
+The term $[n \ge m]$ counts $n$ alone. Each factorization with smallest factor $d$ contributes $g(n/d, d)$. The constraint $d \le \sqrt{n}$ ensures each unordered pair is counted once.
+\end{proof}
+
+\begin{theorem}[Prime Powers]
+$f(p^a) = p(a)$, the additive partition function.
+\end{theorem}
+
+\begin{proof}
+Each factorization $p^a = p^{e_1} \cdot p^{e_2} \cdots p^{e_k}$ with $e_i \ge 1$ and $e_1 \le e_2 \le \cdots \le e_k$ bijects with an additive partition $a = e_1 + e_2 + \cdots + e_k$.
+\end{proof}
+
+\begin{theorem}[Dirichlet Series]
+\[
+\sum_{n=1}^{\infty} \frac{f(n)}{n^s} = \prod_{k=2}^{\infty} \frac{1}{1 - k^{-s}}, \qquad \Re(s) > 1.
+\]
+\end{theorem}
+
+\section{Numerical Values}
+\begin{center}
+\begin{tabular}{r|r|l}
+$n$ & $f(n)$ & Factorizations \\ \hline
+2 & 1 & $2$ \\
+4 & 2 & $4;\; 2\times 2$ \\
+8 & 3 & $8;\; 2\times 4;\; 2\times 2\times 2$ \\
+12 & 4 & $12;\; 2\times 6;\; 3\times 4;\; 2\times 2\times 3$ \\
+24 & 7 & seven factorizations \\
+36 & 9 & nine factorizations
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{0.9861343531}
+\]
+
+\end{document}

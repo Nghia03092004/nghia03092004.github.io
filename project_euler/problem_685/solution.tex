@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 685: Inverse Digit Sum II}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f(n,m)$ be the $m$-th number with digit sum $n$. Define $S(k)=\sum_{n=1}^{k} f(n^3,n^4)$. Given $S(3)=7128$ and $S(10)=32287064 \bmod 10^9+7$, find $S(10000)\bmod 10^9+7$.
+
+\section{Mathematical Analysis}
+
+Digit DP to find the m-th number with given digit sum. Binary search on the number of digits.
+
+\section{Complexity Analysis}
+
+The digit-DP approach runs in $O(kDS)$ where $D$ is the digit count and $S$ is the maximum digit sum.
+
+\section{Answer}
+
+\[
+\boxed{662878999}
+\]
+
+\end{document}

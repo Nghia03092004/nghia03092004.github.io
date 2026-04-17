@@ -1,0 +1,78 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 345: Matrix Sum}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given a $15 \times 15$ matrix $M$, find
+\[
+\max_{\sigma \in S_{15}} \sum_{i=1}^{15} M_{i,\sigma(i)}.
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Assignment Problem Duality]
+The maximum weight assignment equals the minimum weight cover:
+\[
+\max_{\sigma \in S_n} \sum_{i} C_{i,\sigma(i)}
+= \min\!\left\{ \sum_i u_i + \sum_j v_j \;\middle|\; u_i + v_j \ge C_{ij}\;\forall\,i,j \right\}.
+\]
+\end{theorem}
+
+\begin{proof}
+This is LP strong duality applied to the assignment problem. The primal optimizes over the Birkhoff polytope (doubly stochastic matrices), whose vertices are permutation matrices by the Birkhoff--von Neumann theorem. The dual introduces row potentials $u_i$ and column potentials $v_j$. Feasibility of both primal and dual, combined with boundedness, gives strong duality.
+\end{proof}
+
+\begin{theorem}[Hungarian Algorithm]
+The Kuhn--Munkres algorithm solves the assignment problem in $O(n^3)$ by maintaining dual-feasible potentials and iteratively augmenting the matching.
+\end{theorem}
+
+\begin{proof}
+The algorithm preserves dual feasibility $u_i + v_j \ge C_{ij}$ with complementary slackness $u_i + v_j = C_{ij}$ on matched edges. Each iteration either augments the matching (increasing $|\text{matching}|$ by 1) or adjusts potentials to create new tight edges. After $n$ augmentations, a perfect matching satisfying complementary slackness is obtained, which is optimal by LP duality.
+\end{proof}
+
+\begin{lemma}[Bitmask DP]
+For small $n$, define $\mathrm{dp}[S]$ as the maximum sum assigning columns in $S \subseteq \{1,\ldots,n\}$ to the first $|S|$ rows. Then:
+\[
+\mathrm{dp}[S] = \max_{j \in S}\!\bigl(\mathrm{dp}[S \setminus \{j\}] + M_{|S|,j}\bigr), \quad \mathrm{dp}[\emptyset] = 0.
+\]
+\end{lemma}
+
+\begin{proof}
+By induction on $|S|$. The recurrence enumerates all column choices for row $|S|$ and takes the optimum. Correctness follows from Bellman's principle of optimality.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+dp[0] = 0, dp[mask] = -inf for mask > 0
+for mask = 1 to 2^n - 1:
+    row = popcount(mask)
+    for j = 0 to n-1:
+        if bit j set in mask:
+            dp[mask] = max(dp[mask], dp[mask ^ (1<<j)] + M[row-1][j])
+return dp[2^n - 1]
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(n \cdot 2^n) = O(15 \cdot 32768) = O(491{,}520)$.
+    \item \textbf{Space:} $O(2^n) = O(32{,}768)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{13938}
+\]
+
+\end{document}

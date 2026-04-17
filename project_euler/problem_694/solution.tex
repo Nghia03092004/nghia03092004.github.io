@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 694: Cube-full Divisors}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $s(n)$ be the number of cube-full divisors of $n$, where a positive integer is cube-full if every prime factor appears with exponent at least $3$. Define
+\[
+  S(N) = \sum_{n=1}^{N} s(n).
+\]
+Find $S(10^{18})$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}
+For every positive integer $N$,
+\[
+  S(N) = \sum_{\substack{c \le N \\ c \text{ cube-full}}} \left\lfloor \frac{N}{c} \right\rfloor.
+\]
+\end{lemma}
+
+\begin{proof}
+Write
+\[
+  s(n) = \sum_{\substack{c \mid n \\ c \text{ cube-full}}} 1.
+\]
+Summing over $n \le N$ and exchanging the order of summation gives
+\[
+  S(N)
+  =
+  \sum_{n \le N}\sum_{\substack{c \mid n \\ c \text{ cube-full}}} 1
+  =
+  \sum_{\substack{c \le N \\ c \text{ cube-full}}}\#\{n \le N : c \mid n\}
+  =
+  \sum_{\substack{c \le N \\ c \text{ cube-full}}} \left\lfloor \frac{N}{c} \right\rfloor.
+\]
+\end{proof}
+
+\begin{lemma}
+Every cube-full number has a unique factorisation
+\[
+  c = \prod_{i=1}^{r} p_i^{e_i},
+  \qquad e_i \ge 3,
+\]
+with distinct primes $p_1 < \cdots < p_r$.
+\end{lemma}
+
+\begin{proof}
+This is immediate from the uniqueness of prime factorisation together with the condition $e_i \ge 3$ for every prime divisor.
+\end{proof}
+
+\begin{theorem}
+Recursively enumerating primes in increasing order and, for each chosen prime, allowing exponents $3,4,5,\dots$, visits every cube-full number at most $N$ exactly once.
+\end{theorem}
+
+\begin{proof}
+By the previous lemma every cube-full number corresponds to a unique strictly increasing list of primes and a unique exponent attached to each prime. The recursion only allows the next choice to use a larger prime, so no number can be generated in two different orders.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Sieve all primes up to $N^{1/3} = 10^6$.
+  \item Recursively enumerate cube-full numbers by trying exponents $3,4,5,\dots$ for each selected prime.
+  \item For each generated cube-full number $c$, add $\lfloor N/c \rfloor$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+The sieve costs $O(N^{1/3}\log\log N)$ with $N=10^{18}$. The total running time is dominated by the number of cube-full integers up to $N$ that are visited by the recursion.
+
+\section{Answer}
+
+\[
+\boxed{1339784153569958487}
+\]
+
+\end{document}

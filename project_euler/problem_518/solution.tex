@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 518: Prime Triples and Geometric Sequences}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $S(n)$ be the sum of $a + b + c$ over all triples $(a, b, c)$ of primes with $a < b < c < n$ such that $a+1, b+1, c+1$ form a geometric sequence. Given $S(100) = 1035$, find $S(10^8)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Geometric Sequence Characterization]
+Positive integers $A < B < C$ form a geometric sequence if and only if $B^2 = AC$.
+\end{theorem}
+
+\begin{proof}
+If the ratio is $r > 1$, then $B = Ar$, $C = Ar^2$, so $B^2 = A^2r^2 = AC$. Conversely, $B^2 = AC$ with $A < B < C$ implies $r = B/A > 1$ and $C = Ar^2$.
+\end{proof}
+
+\begin{theorem}[Parametrization]
+Every valid triple can be written as
+\[
+a+1 = ky^2, \quad b+1 = kxy, \quad c+1 = kx^2,
+\]
+where $k \geq 1$, $x > y \geq 1$, and $\gcd(x,y) = 1$.
+\end{theorem}
+
+\begin{proof}
+Write the common ratio $r = (b+1)/(a+1) = x/y$ in lowest terms. Then $a+1 = ky^2$ for some integer $k$, and the expressions for $b+1$ and $c+1$ follow by multiplying by $x/y$ and $(x/y)^2$ respectively. Since $\gcd(x,y) = 1$, all values are integers.
+\end{proof}
+
+\begin{lemma}[Parameter Bounds]
+For $c < n$, we need $kx^2 \leq n$, giving $x \leq \sqrt{n}$ and $k \leq n/x^2$.
+\end{lemma}
+
+\begin{proof}
+From $c + 1 = kx^2 \leq n$, the bounds follow immediately.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Sieve all primes up to $n = 10^8$ using the Sieve of Eratosthenes.
+    \item For each $x$ from 2 to $\lfloor\sqrt{n}\rfloor$:
+    \begin{enumerate}
+        \item For each $y$ from 1 to $x - 1$ with $\gcd(x, y) = 1$:
+        \begin{enumerate}
+            \item For each $k$ with $kx^2 \leq n$:
+            \begin{enumerate}
+                \item Compute $a = ky^2 - 1$, $b = kxy - 1$, $c = kx^2 - 1$.
+                \item If all three are prime and $a \geq 2$, add $a + b + c$ to the sum.
+            \end{enumerate}
+        \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n \log\log n)$ for the sieve. The triple enumeration is $O(n \log n)$ in the worst case but much less in practice due to $\gcd$ and primality filtering.
+    \item \textbf{Space:} $O(n)$ for the prime sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{100315739184392}
+\]
+
+\end{document}

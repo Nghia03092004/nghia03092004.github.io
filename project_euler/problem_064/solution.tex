@@ -1,0 +1,128 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 64: Odd Period Square Roots}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For $N \le 10000$, how many continued fractions for $\sqrt{N}$ (where $N$ is not a perfect square) have an odd period?
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+For non-square $N > 0$, the \emph{continued fraction algorithm} for $\sqrt{N}$ produces partial quotients $a_k$ and states $(m_k, d_k)$ via:
+\[
+m_0 = 0,\quad d_0 = 1,\quad a_0 = \lfloor \sqrt{N} \rfloor,
+\]
+\[
+m_{k+1} = d_k a_k - m_k,\quad d_{k+1} = \frac{N - m_{k+1}^2}{d_k},\quad a_{k+1} = \left\lfloor \frac{a_0 + m_{k+1}}{d_{k+1}} \right\rfloor.
+\]
+\end{definition}
+
+\begin{lemma}[Divisibility invariant]
+\label{lem:div}
+For all $k \ge 0$, $d_k \mid (N - m_k^2)$, and $d_{k+1}$ is a positive integer.
+\end{lemma}
+
+\begin{proof}
+By induction. Base: $d_0 = 1 \mid N$. Inductive step: given $d_k \mid (N - m_k^2)$:
+\[
+N - m_{k+1}^2 = (N - m_k^2) - d_k^2 a_k^2 + 2 d_k a_k m_k.
+\]
+Every term is divisible by $d_k$, so $d_k \mid (N - m_{k+1}^2)$ and $d_{k+1} = (N - m_{k+1}^2)/d_k \in \mathbb{Z}_{>0}$.
+\end{proof}
+
+\begin{lemma}[Boundedness]
+\label{lem:bound}
+For all $k \ge 1$: $0 < m_k \le a_0$ and $1 \le d_k \le 2a_0$.
+\end{lemma}
+
+\begin{proof}
+From $a_k = \lfloor (a_0 + m_k)/d_k \rfloor < (a_0 + m_k)/d_k$, we get $m_{k+1} = d_k a_k - m_k < a_0$. Strict positivity of $m_k$ for $k \ge 1$ follows from $N$ not being a perfect square. For $d_k$: the complete quotient $\alpha_k = (m_k + \sqrt{N})/d_k > 1$ for $k \ge 1$ gives $d_k < m_k + \sqrt{N} \le a_0 + \sqrt{N} < 2a_0 + 1$.
+\end{proof}
+
+\begin{theorem}[Lagrange]
+\label{thm:lagrange}
+The continued fraction of $\sqrt{N}$ is periodic:
+\[
+\sqrt{N} = [a_0; \overline{a_1, a_2, \ldots, a_{r-1}, 2a_0}]
+\]
+where $r$ is the period length, and the period terminates at the first $k \ge 1$ with $a_k = 2a_0$.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:bound}, the state $(m_k, d_k)$ lies in a finite set of cardinality at most $a_0 \times 2a_0$. By the pigeonhole principle, the state sequence must repeat. The first repetition occurs when $(m_k, d_k) = (a_0, 1)$, equivalently $a_k = 2a_0$, establishing pure periodicity from index 1.
+\end{proof}
+
+\begin{theorem}[Period parity and the negative Pell equation]
+\label{thm:parity}
+Let $r$ be the period of $\sqrt{N}$ and $p_k/q_k$ the $k$-th convergent. Then
+\[
+p_{r-1}^2 - N q_{r-1}^2 = (-1)^r.
+\]
+Consequently, $r$ is odd if and only if $x^2 - Ny^2 = -1$ has a solution in positive integers.
+\end{theorem}
+
+\begin{proof}
+The general identity $p_k^2 - Nq_k^2 = (-1)^{k+1} d_{k+1}$ (provable by induction using the convergent recurrence and the determinant identity $p_k q_{k-1} - p_{k-1} q_k = (-1)^{k+1}$), applied at $k = r-1$ with $d_r = 1$ (since the period has closed), gives $p_{r-1}^2 - Nq_{r-1}^2 = (-1)^r$.
+
+If $r$ is odd, $(p_{r-1}, q_{r-1})$ solves $x^2 - Ny^2 = -1$. If $r$ is even, it solves $x^2 - Ny^2 = 1$. The converse holds because any solution to the negative Pell equation must appear among convergents at a period boundary, and the sign pattern is determined by $r$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count non-square $N \le N_{\max}$ with odd continued fraction period}
+\begin{algorithmic}[1]
+\STATE $\mathrm{count} \gets 0$
+\FOR{$N = 2$ \TO $N_{\max}$}
+    \STATE $a_0 \gets \lfloor \sqrt{N} \rfloor$
+    \IF{$a_0^2 = N$}
+        \STATE \textbf{continue}
+    \ENDIF
+    \STATE $m \gets 0,\; d \gets 1,\; a \gets a_0,\; r \gets 0$
+    \REPEAT
+        \STATE $m \gets d \cdot a - m$
+        \STATE $d \gets (N - m^2) / d$
+        \STATE $a \gets \lfloor (a_0 + m) / d \rfloor$
+        \STATE $r \gets r + 1$
+    \UNTIL{$a = 2a_0$}
+    \IF{$r$ is odd}
+        \STATE $\mathrm{count} \gets \mathrm{count} + 1$
+    \ENDIF
+\ENDFOR
+\RETURN count
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} Each period computation runs $r$ iterations with $r = O(\sqrt{N})$ on average. Summing:
+\[
+T = \sum_{\substack{N=2 \\ N \text{ not square}}}^{N_{\max}} O(\sqrt{N}) = O(N_{\max}^{3/2}).
+\]
+For $N_{\max} = 10000$: $T = O(10^6)$.
+
+\textbf{Space:} $O(1)$ per $N$.
+
+\section{Answer}
+
+\[
+\boxed{1322}
+\]
+
+\end{document}

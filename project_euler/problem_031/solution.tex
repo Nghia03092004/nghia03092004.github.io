@@ -1,0 +1,114 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 31: Coin Sums}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+In England the currency is made up of pound and pence, with eight coins in general circulation:
+\[
+1\text{p},\ 2\text{p},\ 5\text{p},\ 10\text{p},\ 20\text{p},\ 50\text{p},\ 100\text{p}\ (\pounds 1),\ 200\text{p}\ (\pounds 2).
+\]
+How many different ways can $\pounds 2$ (200p) be made using any number of these coins?
+
+\section{Mathematical Development}
+
+\begin{definition}
+Let $S = \{c_1, c_2, \ldots, c_k\}$ be a finite set of positive integers (coin denominations). A \emph{representation} of a non-negative integer $n$ over $S$ is a tuple $(j_1, j_2, \ldots, j_k) \in \mathbb{Z}_{\ge 0}^k$ satisfying $\sum_{i=1}^{k} j_i c_i = n$. The \emph{change-making function} $p(n; S)$ counts the number of such representations.
+\end{definition}
+
+\begin{theorem}[Generating function]
+The change-making function satisfies
+\[
+p(n; S) = [x^n] \prod_{i=1}^{k} \frac{1}{1 - x^{c_i}},
+\]
+where $[x^n]$ denotes extraction of the coefficient of $x^n$.
+\end{theorem}
+
+\begin{proof}
+Each factor admits the geometric series expansion $\frac{1}{1 - x^{c_i}} = \sum_{j=0}^{\infty} x^{j c_i}$, valid for $|x| < 1$. The Cauchy product of $k$ such series yields
+\[
+\prod_{i=1}^{k} \frac{1}{1 - x^{c_i}} = \sum_{(j_1, \ldots, j_k) \in \mathbb{Z}_{\ge 0}^k} x^{j_1 c_1 + j_2 c_2 + \cdots + j_k c_k}.
+\]
+The coefficient of $x^n$ equals the cardinality of $\{(j_1, \ldots, j_k) \in \mathbb{Z}_{\ge 0}^k : \sum_{i=1}^{k} j_i c_i = n\}$, which is $p(n; S)$ by definition.
+\end{proof}
+
+\begin{lemma}[Recurrence]
+Define $f(i, m)$ as the number of representations of $m$ using only denominations $\{c_1, \ldots, c_i\}$. Then:
+\[
+f(i, m) = \begin{cases}
+1 & \text{if } m = 0, \\
+0 & \text{if } m > 0 \text{ and } i = 0, \\
+f(i-1, m) & \text{if } 0 < m < c_i, \\
+f(i-1, m) + f(i, m - c_i) & \text{if } m \ge c_i.
+\end{cases}
+\]
+\end{lemma}
+
+\begin{proof}
+The case $m = 0$ admits exactly the empty sum. The case $i = 0$, $m > 0$ has no coins available. For $m \ge c_i$, the representations partition into two disjoint classes:
+\begin{enumerate}
+\item Those with $j_i = 0$: counted by $f(i-1, m)$.
+\item Those with $j_i \ge 1$: subtracting one copy of $c_i$ gives a bijection with representations of $m - c_i$ over $\{c_1, \ldots, c_i\}$, counted by $f(i, m - c_i)$.
+\end{enumerate}
+These classes are exhaustive and mutually exclusive. For $0 < m < c_i$, we must have $j_i = 0$, collapsing to $f(i-1, m)$.
+\end{proof}
+
+\begin{theorem}[Space-optimal computation]
+The function $f(k, n)$ can be computed in $O(kn)$ time and $O(n)$ space using a one-dimensional array $\mathrm{dp}[0..n]$.
+\end{theorem}
+
+\begin{proof}
+Initialize $\mathrm{dp}[0] = 1$ and $\mathrm{dp}[m] = 0$ for $1 \le m \le n$, encoding $f(0, m)$.
+
+\textbf{Claim.} After processing coin $c_i$ via the update $\mathrm{dp}[j] \mathrel{+}= \mathrm{dp}[j - c_i]$ for $j = c_i, c_i + 1, \ldots, n$ in increasing order, we have $\mathrm{dp}[m] = f(i, m)$ for all $0 \le m \le n$.
+
+We prove the claim by induction on $i$. The base case $i = 0$ holds by initialization. Suppose $\mathrm{dp}[m] = f(i-1, m)$ at the start of iteration $i$. For $j \ge c_i$: before $j$ is processed, $\mathrm{dp}[j] = f(i-1, j)$; since $j - c_i < j$ and we process in increasing order, $\mathrm{dp}[j - c_i]$ has already been updated to $f(i, j - c_i)$; after the update, $\mathrm{dp}[j] = f(i-1, j) + f(i, j - c_i) = f(i, j)$ by the lemma. For $j < c_i$, no update occurs, and $\mathrm{dp}[j] = f(i-1, j) = f(i, j)$. After all $k$ iterations, $\mathrm{dp}[n] = f(k, n) = p(n; S)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Coin Change Count}
+\begin{algorithmic}[1]
+\REQUIRE Target amount $n$, coin set $\{c_1, \ldots, c_k\}$
+\ENSURE $p(n; S)$
+\STATE $\mathrm{dp}[0..n] \gets 0$; \quad $\mathrm{dp}[0] \gets 1$
+\FOR{each $c$ in coins}
+    \FOR{$j \gets c$ \TO $n$}
+        \STATE $\mathrm{dp}[j] \gets \mathrm{dp}[j] + \mathrm{dp}[j - c]$
+    \ENDFOR
+\ENDFOR
+\RETURN $\mathrm{dp}[n]$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+For $S = \{1, 2, 5, 10, 20, 50, 100, 200\}$ and $n = 200$: the algorithm performs $\Theta(kn) = \Theta(1600)$ arithmetic operations using $\Theta(n) = \Theta(201)$ integers of storage.
+\end{proposition}
+
+\begin{proof}
+Follows from Theorem~2 with $k = 8$ and $n = 200$. Each operation is $O(1)$ since all intermediate values fit in a machine word ($f(8,200) = 73682 < 2^{31}$).
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{73682}
+\]
+
+\end{document}

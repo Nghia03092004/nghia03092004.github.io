@@ -1,0 +1,79 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 107: Minimal Network}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given an undirected weighted network with 40 vertices represented as an adjacency matrix, find the maximum saving achievable by removing redundant edges while keeping the network connected. This is equivalent to computing:
+\[
+\text{Saving} = \text{Total Edge Weight} - \text{MST Weight}
+\]
+
+\section{Theory: Minimum Spanning Tree}
+
+\begin{theorem}[Cut Property]
+For any cut $(S, V \setminus S)$ of a connected graph $G = (V, E)$, the minimum weight edge crossing the cut belongs to every MST of $G$.
+\end{theorem}
+
+\begin{proof}
+Let $e = (u,v)$ be the unique minimum weight edge crossing cut $(S, V \setminus S)$, and let $T$ be an MST not containing $e$. Adding $e$ to $T$ creates a cycle. This cycle must contain another edge $e'$ crossing the same cut. Since $w(e) < w(e')$, replacing $e'$ with $e$ gives a spanning tree of strictly smaller weight, contradicting that $T$ is an MST.
+\end{proof}
+
+\section{Kruskal's Algorithm}
+
+\begin{algorithm}[H]
+\caption{Kruskal's MST Algorithm}
+\begin{algorithmic}[1]
+\REQUIRE Graph $G = (V, E, w)$
+\STATE Sort edges $E$ by weight in non-decreasing order
+\STATE Initialize Union-Find with $|V|$ components
+\STATE $T \leftarrow \emptyset$
+\FOR{each edge $(u, v, w)$ in sorted order}
+    \IF{$\textsc{Find}(u) \neq \textsc{Find}(v)$}
+        \STATE $T \leftarrow T \cup \{(u, v)\}$
+        \STATE $\textsc{Union}(u, v)$
+    \ENDIF
+\ENDFOR
+\RETURN $T$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Kruskal's:} $O(E \log E)$ where $E \leq \binom{40}{2} = 780$.
+    \item \textbf{Union-Find} with path compression and union by rank: nearly $O(1)$ amortized per operation.
+    \item Total: effectively $O(E \log E)$, trivial for this problem size.
+\end{itemize}
+
+\section{Result}
+
+\[
+\text{Total weight} - \text{MST weight} = \boxed{259679}
+\]
+
+\section{Answer}
+
+\[
+\boxed{259679}
+\]
+
+\end{document}

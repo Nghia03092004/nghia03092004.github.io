@@ -1,0 +1,61 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{booktabs}
+\geometry{margin=1in}
+
+\title{Problem 90: Cube Digit Pairs}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Two cubes each have 6 faces with distinct digits from $\{0, \ldots, 9\}$. By placing two cubes side-by-side, all two-digit perfect squares (01, 04, 09, 16, 25, 36, 49, 64, 81) must be displayable. The digits 6 and 9 are interchangeable. How many distinct arrangements of two cubes permit this?
+
+\section{Solution}
+
+\subsection{Enumeration Space}
+Each cube is a 6-element subset of $\{0, 1, \ldots, 9\}$. The number of possible cubes is:
+\[
+\binom{10}{6} = 210
+\]
+
+Since the two cubes are unordered (swapping gives the same arrangement), the number of pairs is:
+\[
+\binom{210}{2} + 210 = \frac{210 \times 211}{2} = 22{,}155
+\]
+
+\subsection{Validity Check}
+For each pair $(C_1, C_2)$, define $C_i' = C_i \cup \{9\}$ if $6 \in C_i$, and $C_i' = C_i \cup \{6\}$ if $9 \in C_i$ (the 6/9 equivalence).
+
+A pair is valid if for each required pair $(a, b)$:
+\[
+(a \in C_1' \wedge b \in C_2') \vee (a \in C_2' \wedge b \in C_1')
+\]
+
+The required pairs are:
+\begin{center}
+\begin{tabular}{ccccccccc}
+(0,1) & (0,4) & (0,9) & (1,6) & (2,5) & (3,6) & (4,9) & (6,4) & (8,1)
+\end{tabular}
+\end{center}
+
+Note that (4,9) and (6,4) together with the 6/9 rule require careful handling: 64 needs a 6 on one cube and 4 on the other, which with the interchangeability means a 6-or-9 on one and 4 on the other.
+
+\subsection{Result}
+Exhaustive enumeration yields:
+\[
+\boxed{1217}
+\]
+valid arrangements.
+
+\section{Answer}
+
+\[
+\boxed{1217}
+\]
+
+\end{document}

@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs,algorithm2e}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\title{Problem 871: Drifting Digits}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider the \emph{reverse-and-add} process: given a positive integer $n$, compute $n + \operatorname{rev}(n)$ where $\operatorname{rev}(n)$ reverses the base-10 digits of $n$. Iterate until a palindrome is reached. The problem asks for a specific aggregate derived from this iteration applied across a parametrized family of starting values.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Reverse-and-Add]
+Let $n = \sum_{i=0}^{d-1} a_i \cdot 10^i$ with $a_{d-1} \neq 0$. Define $\operatorname{rev}(n) = \sum_{i=0}^{d-1} a_{d-1-i} \cdot 10^i$ and the map $T(n) = n + \operatorname{rev}(n)$.
+\end{definition}
+
+\begin{definition}[Lychrel Number]
+A natural number $n$ is a \emph{Lychrel number} if the sequence $(T^{(k)}(n))_{k \ge 0}$ never produces a palindrome. The existence of such numbers in base~10 remains open; 196 is the smallest candidate.
+\end{definition}
+
+\begin{theorem}[Carry Propagation]
+Let $n$ have digits $a_0, a_1, \ldots, a_{d-1}$ (least significant first). In $n + \operatorname{rev}(n)$, position~$i$ has digit
+\[
+s_i \equiv a_i + a_{d-1-i} + c_i \pmod{10},
+\]
+where $c_0 = 0$ and $c_{i+1} = \lfloor (a_i + a_{d-1-i} + c_i)/10 \rfloor$. The result is a palindrome iff $s_i \bmod 10 = s_{d'-1-i} \bmod 10$ for all valid~$i$, where $d'$ is the digit count of $T(n)$.
+\end{theorem}
+
+\begin{proof}
+Standard base-10 addition: position $i$ of $n$ contributes $a_i$; position $i$ of $\operatorname{rev}(n)$ contributes $a_{d-1-i}$. The carry recurrence is the usual one. The palindrome condition is that the resulting digit sequence reads identically forwards and backwards.
+\end{proof}
+
+\begin{lemma}[Carry-Free Case]
+If $a_i + a_{d-1-i} \le 9$ for all $i$, then $T(n)$ is a palindrome.
+\end{lemma}
+
+\begin{proof}
+Without carries, $s_i = a_i + a_{d-1-i} = s_{d-1-i}$, so the digit sequence is symmetric.
+\end{proof}
+
+\begin{theorem}[Digit Growth Bound]
+The digit count of $T^{(k)}(n)$ is at most $d + k$, where $d$ is the initial digit count.
+\end{theorem}
+
+\begin{proof}
+Each application of $T$ satisfies $T(n) \le 2 \cdot 10^{d'} - 2$ where $d'$ is the digit count of $n$, so the digit count increases by at most~1 per step.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwIn{Problem parameters}
+\KwOut{Answer}
+\For{each starting value $n$}{
+    \For{$\text{step} = 1$ \KwTo $\text{MAX\_ITER}$}{
+        $r \leftarrow \operatorname{rev}(n)$\;
+        $n \leftarrow n + r$\;
+        \If{$n$ is a palindrome}{
+            record $(n, \text{step})$; \textbf{break}\;
+        }
+    }
+}
+Aggregate results and \Return answer\;
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(S \cdot d)$ per starting value where $S$ = steps and $d$ = max digit count. Since $d \le d_0 + S$, the per-value cost is $O(S^2)$ with big-integer arithmetic.
+\item \textbf{Space:} $O(d)$ for the current number.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2848790}
+\]
+
+\end{document}

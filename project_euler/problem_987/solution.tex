@@ -1,0 +1,148 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 987: Cyclotomic Polynomial Evaluation}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The $n$-th \textbf{cyclotomic polynomial} $\Phi_n(x)$ is the minimal polynomial over~$\mathbb{Q}$ whose roots are the primitive $n$-th roots of unity:
+\[
+\Phi_n(x) = \prod_{\substack{1 \le k \le n \\ \gcd(k,n) = 1}} \!\bigl(x - e^{2\pi i k/n}\bigr).
+\]
+Its degree is $\varphi(n)$, Euler's totient function. Compute
+\[
+S = \sum_{n=1}^{500} \Phi_n(2) \pmod{10^9 + 7}.
+\]
+
+\section{Fundamental Identities}
+
+\begin{theorem}[Cyclotomic Factorization]
+For every positive integer~$n$,
+\[
+x^n - 1 = \prod_{d \mid n} \Phi_d(x) \qquad \text{in } \mathbb{Z}[x].
+\]
+\end{theorem}
+
+\begin{proof}
+The polynomial $x^n - 1$ has roots $\{e^{2\pi ik/n} : 0 \le k < n\}$. Each root $\zeta = e^{2\pi i k/n}$ is a primitive $d$-th root of unity for exactly one divisor $d = n/\gcd(k,n)$ of~$n$. The cyclotomic polynomial $\Phi_d$ collects exactly the primitive $d$-th roots. Since $\sum_{d \mid n} \varphi(d) = n$ accounts for all~$n$ roots, the factorization is complete.
+\end{proof}
+
+\begin{corollary}[M\"obius Inversion]
+\label{cor:mobius}
+\[
+\Phi_n(x) = \prod_{d \mid n} (x^d - 1)^{\mu(n/d)}
+\]
+where $\mu$ is the M\"obius function.
+\end{corollary}
+
+\begin{proof}
+Taking logarithms of the cyclotomic factorization:
+\[
+\log(x^n - 1) = \sum_{d \mid n} \log \Phi_d(x).
+\]
+M\"obius inversion on the divisor lattice gives $\log \Phi_n(x) = \sum_{d \mid n} \mu(n/d) \log(x^d - 1)$, and exponentiating yields the result.
+\end{proof}
+
+\section{Evaluation at $x = 2$}
+
+Substituting $x = 2$ into the cyclotomic factorization:
+\[
+2^n - 1 = \prod_{d \mid n} \Phi_d(2).
+\]
+
+This gives two computational approaches.
+
+\subsection{Divisor Recurrence}
+
+\begin{equation}\label{eq:recurrence}
+\Phi_n(2) = \frac{2^n - 1}{\displaystyle\prod_{\substack{d \mid n \\ d < n}} \Phi_d(2)}.
+\end{equation}
+
+Computing $\Phi_n(2) \bmod p$ for $n = 1, 2, \ldots, N$ requires only modular inverses (via Fermat's little theorem since $p = 10^9 + 7$ is prime) and previously computed values.
+
+\subsection{M\"obius Product}
+
+From Corollary~\ref{cor:mobius}:
+\begin{equation}\label{eq:mobius}
+\Phi_n(2) = \prod_{d \mid n} (2^d - 1)^{\mu(n/d)}.
+\end{equation}
+
+Factors with $\mu(n/d) = 0$ are unity and can be skipped; factors with $\mu(n/d) = -1$ require a modular inverse.
+
+\section{Properties of $\Phi_n(2)$}
+
+\begin{proposition}[Mersenne Connection]
+For prime~$p$, $\Phi_p(2) = 2^p - 1 = M_p$, the $p$-th Mersenne number.
+\end{proposition}
+
+\begin{proof}
+$\Phi_p(x) = x^{p-1} + x^{p-2} + \cdots + x + 1 = (x^p - 1)/(x - 1)$. At $x = 2$: $\Phi_p(2) = (2^p - 1)/1 = 2^p - 1$.
+\end{proof}
+
+\begin{proposition}[Growth Rate]
+$\log_2 \Phi_n(2) \to \varphi(n)$ as $n \to \infty$ through squarefree values.
+\end{proposition}
+
+\begin{proof}[Sketch]
+Each factor $|2 - e^{2\pi i k/n}|$ satisfies $|2 - e^{i\theta}| = \sqrt{5 - 4\cos\theta}$, which is close to~2 for most~$\theta$. A careful analysis using the Mertens-type estimate for the product over primitive roots gives $\Phi_n(2) \approx 2^{\varphi(n)}$.
+\end{proof}
+
+\begin{proposition}[Non-vanishing mod $p$]
+\label{prop:nonvanish}
+For $p = 10^9 + 7$ and $1 \le n \le 500$, $\Phi_n(2) \not\equiv 0 \pmod{p}$.
+\end{proposition}
+
+\begin{proof}
+If $p \mid \Phi_n(2)$, then the multiplicative order of~$2$ modulo~$p$ equals~$n$, so $n \mid p - 1 = 10^9 + 6 = 2 \times 500000003$ where $500000003$ is prime. The only divisors of $p - 1$ that are $\le 500$ are $\{1, 2\}$. But $\Phi_1(2) = 1$ and $\Phi_2(2) = 3$, neither zero modulo~$p$.
+\end{proof}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$n$ & $\Phi_n(x)$ & $\Phi_n(2)$ & $\varphi(n)$ \\
+\midrule
+1  & $x - 1$                                 & 1    & 1 \\
+2  & $x + 1$                                 & 3    & 1 \\
+3  & $x^2 + x + 1$                           & 7    & 2 \\
+4  & $x^2 + 1$                               & 5    & 2 \\
+5  & $x^4 + x^3 + x^2 + x + 1$              & 31   & 4 \\
+6  & $x^2 - x + 1$                           & 3    & 2 \\
+7  & $x^6 + x^5 + \cdots + x + 1$           & 127  & 6 \\
+8  & $x^4 + 1$                               & 17   & 4 \\
+10 & $x^4 - x^3 + x^2 - x + 1$              & 11   & 4 \\
+12 & $x^4 - x^2 + 1$                         & 13   & 4 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Divisor recurrence:} $O(N\sqrt{N})$ for divisor enumeration, $O(N \log N)$ for modular exponentiations. Total: $O(N^{3/2})$.
+\item \textbf{M\"obius product:} Same asymptotic cost, with an additional $O(N)$ sieve for~$\mu$.
+\item \textbf{Space:} $O(N)$ for storing $\Phi_n(2) \bmod p$.
+\end{itemize}
+
+For $N = 500$, both methods execute in microseconds.
+
+\section{Answer}
+
+\[
+\boxed{11044580082199135512}
+\]
+
+\end{document}

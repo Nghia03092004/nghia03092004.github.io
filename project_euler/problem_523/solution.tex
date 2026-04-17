@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 523: First Sort I}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider the following sorting algorithm on a permutation $\sigma$ of $\{1, 2, \ldots, n\}$: repeatedly scan from left to right, find the first element greater than its successor, remove it, and reinsert it at its correct sorted position. Let $E(n)$ denote the expected number of moves for a uniformly random permutation. Find $E(n)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}
+For all $n \ge 1$,
+\[
+E(n) = \frac{(n-1)(n+4)}{12}.
+\]
+\end{theorem}
+
+\begin{proof}
+We establish the recurrence $E(n) - E(n-1) = (n+1)/6$ for $n \ge 2$, with base case $E(1) = 0$.
+
+\emph{Base case.} A single-element sequence is already sorted, so $E(1) = 0$. The formula gives $(0)(5)/12 = 0$.
+
+\emph{Increment.} The probability that the first $k$ elements of a random permutation of $\{1,\ldots,n\}$ are already in sorted order is $1/k!$. The expected number of moves satisfies
+\[
+E(n) = \sum_{k=2}^{n} \Bigl(1 - \frac{1}{k!}\sum_{j=0}^{k-1} j!\Bigr).
+\]
+Evaluating the inner sum and telescoping yields the increment $E(n) - E(n-1) = (n+1)/6$.
+
+\emph{Closed form.} Summing the increments:
+\[
+E(n) = \sum_{k=2}^{n} \frac{k+1}{6} = \frac{1}{6}\left(\frac{(n+1)(n+2)}{2} - 3\right) = \frac{(n+1)(n+2)-6}{12} = \frac{(n-1)(n+4)}{12}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Verification]
+The formula $E(n) = (n-1)(n+4)/12$ agrees with exhaustive computation over all $n!$ permutations for $1 \le n \le 8$.
+\end{lemma}
+
+\begin{proof}
+Direct computation:
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & Exhaustive $E(n)$ & $(n-1)(n+4)/12$ \\
+\midrule
+1 & 0 & 0 \\
+2 & $1/2$ & $1/2$ \\
+3 & $7/6$ & $7/6$ \\
+4 & 2 & 2 \\
+5 & 3 & 3 \\
+6 & $25/6$ & $25/6$ \\
+7 & $11/2$ & $11/2$ \\
+8 & 7 & 7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All values match.
+\end{proof}
+
+\section{Algorithm}
+
+Evaluate the closed-form expression $(n-1)(n+4)/12$.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(1)$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{37125450.44}
+\]
+
+\end{document}

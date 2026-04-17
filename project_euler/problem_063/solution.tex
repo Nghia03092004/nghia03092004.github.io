@@ -1,0 +1,119 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 63: Powerful Digit Counts}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+How many $n$-digit positive integers exist which are also an $n$-th power?
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Complete characterization]
+A positive integer $a^n$ has exactly $n$ digits if and only if $a \in \{1, 2, \ldots, 9\}$ and $1 \le n \le N(a)$, where
+\[
+N(a) = \begin{cases} 1 & \text{if } a = 1, \\ \left\lfloor \dfrac{1}{1 - \log_{10} a} \right\rfloor & \text{if } 2 \le a \le 9. \end{cases}
+\]
+No solution exists for $a \ge 10$ or $a = 0$.
+\end{theorem}
+
+\begin{proof}
+The condition for $a^n$ to have exactly $n$ digits is
+\[
+10^{n-1} \le a^n < 10^n. \tag{$\star$}
+\]
+
+\textbf{Step 1: Bounding $a$.} The right inequality gives $a < 10$, so $a \in \{1, \ldots, 9\}$. For $a \ge 10$: $a^n \ge 10^n$, yielding $\ge n+1$ digits.
+
+\textbf{Step 2: Bounding $n$.} Taking $\log_{10}$ of the left inequality:
+\[
+n - 1 \le n \log_{10} a \implies n(1 - \log_{10} a) \le 1.
+\]
+
+For $a = 1$: the constraint becomes $n \le 1$, and only $1^1 = 1$ works.
+
+For $2 \le a \le 9$: since $0 < 1 - \log_{10} a < 1$, we get $n \le 1/(1 - \log_{10} a)$, so
+\[
+N(a) = \left\lfloor \frac{1}{1 - \log_{10} a} \right\rfloor.
+\]
+The right inequality $a^n < 10^n$ is automatic since $a < 10$. The left inequality holds for all $n \le N(a)$ because $n(1 - \log_{10} a) \le 1$ implies $10^{n-1} \le a^n$.
+\end{proof}
+
+\begin{lemma}[Explicit enumeration]
+The values $N(a)$ for $a = 1, \ldots, 9$ are:
+\begin{center}
+\begin{tabular}{cccc}
+$a$ & $\log_{10} a$ & $1/(1 - \log_{10} a)$ & $N(a)$ \\
+\hline
+1 & 0.0000 & 1.000 & 1 \\
+2 & 0.3010 & 1.431 & 1 \\
+3 & 0.4771 & 1.912 & 1 \\
+4 & 0.6021 & 2.513 & 2 \\
+5 & 0.6990 & 3.322 & 3 \\
+6 & 0.7782 & 4.507 & 4 \\
+7 & 0.8451 & 6.456 & 6 \\
+8 & 0.9031 & 10.319 & 10 \\
+9 & 0.9542 & 21.854 & 21 \\
+\end{tabular}
+\end{center}
+\end{lemma}
+
+\begin{proof}
+Direct computation. Each entry is verified: $a^{N(a)}$ has $N(a)$ digits, $a^{N(a)+1}$ does not have $N(a)+1$ digits.
+\end{proof}
+
+\begin{theorem}[Total count]
+The number of $n$-digit $n$-th powers is
+\[
+\sum_{a=1}^{9} N(a) = 1 + 1 + 1 + 2 + 3 + 4 + 6 + 10 + 21 = 49.
+\]
+\end{theorem}
+
+\begin{proof}
+Sum the values from the lemma. By Theorem~1, this enumeration is exhaustive over all positive integers and all exponents.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count $n$-digit $n$-th powers}
+\begin{algorithmic}[1]
+\STATE $\mathrm{count} \gets 0$
+\FOR{$a = 1$ \TO $9$}
+    \IF{$a = 1$}
+        \STATE $N \gets 1$
+    \ELSE
+        \STATE $N \gets \lfloor 1 / (1 - \log_{10} a) \rfloor$
+    \ENDIF
+    \STATE $\mathrm{count} \gets \mathrm{count} + N$
+\ENDFOR
+\RETURN count
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} $O(1)$. Exactly 9 iterations with constant-time arithmetic each.
+
+\textbf{Space:} $O(1)$. Only scalar variables.
+
+\section{Answer}
+
+\[
+\boxed{49}
+\]
+
+\end{document}

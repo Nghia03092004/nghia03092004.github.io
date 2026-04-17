@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 443: GCD Sequence}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define the sequence $g(n)$ by $g(1) = 1$ and
+\[
+g(n) = g(n-1) + \gcd(n,\, g(n-1)) \quad \text{for } n \geq 2.
+\]
+Find $g(10^{15})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Monotonicity]
+The sequence $\{g(n)\}$ is strictly increasing with $g(n) \geq n$ for all $n \geq 1$.
+\end{theorem}
+
+\begin{proof}
+By induction. Base case: $g(1) = 1 \geq 1$. Inductive step: $g(n) = g(n-1) + \gcd(n, g(n-1)) \geq g(n-1) + 1 > g(n-1)$, establishing strict monotonicity. Also $g(n) \geq (n-1) + 1 = n$.
+\end{proof}
+
+\begin{theorem}[Prime Generation --- Rowland, 2008]
+If $g(n) - g(n-1) > 1$, then $g(n) - g(n-1)$ is prime for all $n \geq 5$.
+\end{theorem}
+
+\begin{proof}
+Let $d = \gcd(n, g(n-1))$ with $d > 1$. Write $g(n-1) = n + \delta$ where $\delta = g(n-1) - n$. Then $d = \gcd(n, n + \delta) = \gcd(n, \delta)$. Since $\gcd(n, n-1) = 1$, the value $d$ divides $\delta$ but is coprime to consecutive integers near~$n$. A careful analysis of the deficit evolution shows that when $d > 1$, the value $d$ equals the smallest prime factor of $\gcd(n, \delta)$, which is itself prime. See Rowland (2008) and Cloitre (2011) for the complete argument.
+\end{proof}
+
+\begin{lemma}[Deficit Tracking]
+\label{lem:deficit}
+Define $\delta(n) = g(n) - n$. Then:
+\begin{itemize}
+\item If $\gcd(n, g(n-1)) = 1$: $\delta(n) = \delta(n-1)$.
+\item If $\gcd(n, g(n-1)) = d > 1$: $\delta(n) = \delta(n-1) + d - 1$.
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+$\delta(n) = g(n) - n = g(n-1) + d - n = (g(n-1) - (n-1)) + (d - 1) = \delta(n-1) + (d - 1)$.
+\end{proof}
+
+\begin{theorem}[Skip Optimization]
+When $\gcd(n, g(n-1)) = 1$ for consecutive values of~$n$, the sequence satisfies $g(n) = g(n-1) + 1$, allowing long stretches to be skipped. The next nontrivial GCD occurs at the smallest $n' > n$ such that $\gcd(n', \delta) > 1$, where $\delta = g(n-1) - (n-1)$ is the current deficit.
+\end{theorem}
+
+\begin{proof}
+When $d = 1$, we have $g(n) = g(n-1) + 1$ and $\delta$ is constant. For future index $n' > n$, $\gcd(n', g(n'-1)) = \gcd(n', n' - 1 + \delta) = \gcd(n', \delta - 1 + n') = \gcd(n', \delta)$ (since $\gcd(n', n'-1) = 1$ and $g(n'-1) = n' - 1 + \delta$). Thus $d > 1$ iff $\gcd(n', \delta) > 1$, which occurs at the next multiple of any prime factor of~$\delta$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Initialize $g = 1$, $n = 2$.
+\item At each step, compute $d = \gcd(n, g)$.
+\item If $d = 1$: compute $\delta = g - n + 1$. Find the smallest prime factor~$p$ of~$\delta$, then skip to the next multiple of~$p$ at or above~$n$, advancing~$g$ linearly.
+\item If $d > 1$: set $g \leftarrow g + d$, $n \leftarrow n + 1$.
+\item Repeat until $n > N$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} Approximately $O(N / \log N)$ steps due to skip optimization. Each step requires a GCD computation ($O(\log N)$) and a smallest-prime-factor lookup.
+\item \textbf{Space:} $O(\sqrt{N})$ for a prime sieve used in factoring the deficit, or $O(1)$ with trial division.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2744233049300770}
+\]
+
+\end{document}

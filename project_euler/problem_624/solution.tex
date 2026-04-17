@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 624: Two Heads Are Better Than One}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A fair coin is flipped repeatedly. Let $E_n$ denote the expected number of flips to obtain $n$ consecutive heads. Determine $E_n$.
+
+\section{Markov Chain Model}
+
+\begin{theorem}[Main Result]
+\[
+E_n = 2^{n+1} - 2.
+\]
+\end{theorem}
+
+Define states $S_0, S_1, \ldots, S_n$ where $S_k$ means the current run of consecutive heads has length~$k$. State $S_n$ is absorbing. The transition rules are:
+\[
+S_k \xrightarrow{p=1/2} S_{k+1}, \qquad S_k \xrightarrow{p=1/2} S_0 \qquad (k < n).
+\]
+
+\section{System of Equations}
+
+Let $e_k$ be the expected flips from state~$S_k$ to~$S_n$. Then $e_n = 0$ and for $k < n$:
+\begin{equation}\label{eq:rec}
+e_k = 1 + \tfrac{1}{2}\,e_{k+1} + \tfrac{1}{2}\,e_0.
+\end{equation}
+
+\begin{proof}[Proof of the Main Result]
+We claim $e_k = 2^{n+1} - 2^{k+1}$ for all $0 \le k \le n$. Check: $e_n = 2^{n+1} - 2^{n+1} = 0$. Substituting into~\eqref{eq:rec}:
+\begin{align*}
+1 + \tfrac{1}{2}(2^{n+1} - 2^{k+2}) + \tfrac{1}{2}(2^{n+1} - 2) &= 1 + 2^n - 2^{k+1} + 2^n - 1 \\
+&= 2^{n+1} - 2^{k+1} = e_k. \qedhere
+\end{align*}
+\end{proof}
+
+\section{Alternative Derivation}
+
+\begin{proposition}[Recurrence for $E_n$]
+$E_1 = 2$ and $E_n = 2\,E_{n-1} + 2$ for $n \ge 2$.
+\end{proposition}
+
+\begin{proof}
+To get $n$ consecutive heads, first get $n-1$ consecutive heads ($E_{n-1}$ flips expected), then flip once more. If heads (probability $1/2$), done. If tails, restart completely, costing $E_n$ more in expectation:
+\[
+E_n = E_{n-1} + 1 + \tfrac{1}{2} \cdot 0 + \tfrac{1}{2}\,E_n,
+\]
+giving $E_n = 2\,E_{n-1} + 2$. Solving: $E_n + 2 = 2(E_{n-1} + 2)$, so $E_n + 2 = 2^n(E_1 + 2) = 2^n \cdot 4$, hence $E_n = 2^{n+1} - 2$ (since $E_1 = 2$, check: $E_1 + 2 = 4 = 2^1 \cdot 4 / 2$... more simply, $E_n + 2 = 2(E_{n-1}+2)$ with $E_1+2=4$ gives $E_n+2 = 4 \cdot 2^{n-1} = 2^{n+1}$).
+\end{proof}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $E_n = 2^{n+1}-2$ & Interpretation \\
+\midrule
+1  & 2     & Expected flips for first head \\
+2  & 6     & HH \\
+3  & 14    & HHH \\
+4  & 30    & HHHH \\
+5  & 62    & HHHHH \\
+10 & 2046  & \\
+20 & 2097150 & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Generating Function}
+
+\begin{proposition}
+The probability generating function $G_n(x) = \mathbb{E}[x^{T_n}]$ satisfies
+\[
+G_n(x) = \left(\frac{x/2}{1 - x/2}\right) \cdot G_{n-1}(x) \cdot \frac{1}{1 - (1-G_{n-1}(x))\cdot\frac{x/2}{1-x/2}}.
+\]
+\end{proposition}
+
+The expected value follows by differentiating at $x=1$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Closed form:} $O(\log n)$ via modular exponentiation.
+\item \textbf{Markov chain:} $O(n)$ back-substitution.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{984524441}
+\]
+
+\end{document}

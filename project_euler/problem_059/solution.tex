@@ -1,0 +1,126 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Problem 59: XOR Decryption}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A text file has been encrypted by XOR-ing each byte with a repeating key of three lowercase ASCII characters. Decrypt the message and find the sum of the ASCII values of the original text.
+
+\section{Mathematical Development}
+
+\begin{definition}[XOR Cipher]
+Let $\mathbf{p} = (p_0, p_1, \ldots, p_{N-1})$ be the plaintext and $\mathbf{k} = (k_0, k_1, k_2)$ be the key with $k_j \in [97, 122]$. The ciphertext is
+\[
+c_i = p_i \oplus k_{i \bmod 3}, \qquad i = 0, 1, \ldots, N-1.
+\]
+\end{definition}
+
+\begin{theorem}[XOR Involution]
+For any bytes $p, k \in \{0, 1, \ldots, 255\}$: $(p \oplus k) \oplus k = p$.
+\end{theorem}
+
+\begin{proof}
+In $\mathbb{F}_2$, addition is self-inverse: $x \oplus x = 0$ and $x \oplus 0 = x$. Applying bitwise:
+\[
+(p \oplus k) \oplus k = p \oplus (k \oplus k) = p \oplus 0 = p. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Decryption]
+$p_i = c_i \oplus k_{i \bmod 3}$.
+\end{corollary}
+
+\begin{definition}[Residue Subsequences]
+For $j \in \{0, 1, 2\}$, define $G_j = (c_i)_{i \equiv j \pmod{3}}$. Each element of $G_j$ was encrypted with key byte $k_j$.
+\end{definition}
+
+\begin{theorem}[Key Recovery]
+If the plaintext is English prose, the most frequent byte in $G_j$ is $32 \oplus k_j$, where $32$ is the ASCII code for the space character. Therefore:
+\[
+k_j = \operatorname{mode}(G_j) \oplus 32.
+\]
+\end{theorem}
+
+\begin{proof}
+In English text, the space character is the most frequent byte ($\sim$15--20\% of characters). For each position $i \equiv j \pmod{3}$ where $p_i = 32$, the ciphertext byte is $c_i = 32 \oplus k_j$. Hence $32 \oplus k_j$ is the mode of $G_j$, and $k_j = \operatorname{mode}(G_j) \oplus 32$.
+\end{proof}
+
+\begin{lemma}[Key Space]
+The key space has $|\mathcal{K}| = 26^3 = 17{,}576$ elements.
+\end{lemma}
+
+\begin{proof}
+Each of the three key bytes independently ranges over 26 lowercase letters.
+\end{proof}
+
+\begin{theorem}[Validation]
+A decryption is correct if and only if all bytes lie in $[32, 126]$ and the text is coherent English. This uniquely determines the key among the $17{,}576$ candidates.
+\end{theorem}
+
+\begin{proof}
+Printability and linguistic coherence are necessary conditions. The fraction of keys producing both is negligible, so the correct key is unique.
+\end{proof}
+
+\begin{proposition}[Algebraic Structure]
+$(\{0,\ldots,255\}, \oplus) \cong \mathbb{F}_2^8$. Encryption by a fixed key is translation in this group, which preserves frequency distributions up to relabeling.
+\end{proposition}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{XOR Decryption via Frequency Analysis}
+\begin{algorithmic}[1]
+\For{$j = 0, 1, 2$}
+    \State $G_j \gets \{c_i : i \equiv j \pmod{3}\}$
+    \State $k_j \gets \operatorname{mode}(G_j) \oplus 32$
+\EndFor
+\State $\textit{plaintext}[i] \gets c_i \oplus k_{i \bmod 3}$ for $i = 0, \ldots, N-1$
+\State \Return $\sum_{i=0}^{N-1} \textit{plaintext}[i]$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Time Complexity]
+The frequency-analysis approach runs in $O(N)$ time.
+\end{theorem}
+
+\begin{proof}
+Step~1 scans $N$ bytes to build three frequency tables of size $\leq 256$, costing $O(N)$. Finding each mode costs $O(256) = O(1)$. Steps~2--4 each make a single $O(N)$ pass. Total: $O(N)$.
+\end{proof}
+
+\noindent\textbf{Space:} $O(N)$ for ciphertext and plaintext; $O(1)$ auxiliary for frequency tables.
+
+\begin{remark}
+Brute-force over all $26^3$ keys costs $O(|\mathcal{K}| \cdot N)$, also efficient for the given input.
+\end{remark}
+
+\section{Result}
+The key is ``exp'' (ASCII: 101, 120, 112). The answer is $\boxed{129448}$.
+
+\section{Answer}
+
+\[
+\boxed{129448}
+\]
+
+\end{document}

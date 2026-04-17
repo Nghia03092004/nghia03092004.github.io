@@ -1,0 +1,121 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm, algpseudocode}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 51: Prime Digit Replacements}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the smallest prime which, by replacing part of the number (not necessarily adjacent digits) with the same digit, is part of an eight prime value family.
+
+\section{Formal Development}
+
+\begin{definition}[Digit Replacement Family]
+Let $n$ be a positive integer with $m$-digit decimal representation $d_{m-1} d_{m-2} \cdots d_0$. A \emph{digit replacement mask} is a nonempty subset $M \subseteq \{0, 1, \ldots, m-1\}$. The \emph{replacement family} $\mathcal{F}(n, M)$ consists of all $m$-digit numbers $n_\delta$ obtained by setting $d_i = \delta$ for all $i \in M$, for $\delta \in \{0, 1, \ldots, 9\}$, excluding values with leading zeros.
+\end{definition}
+
+\begin{definition}[Prime Family Size]
+The \emph{prime family size} $\pi(n, M) = |\{\delta : n_\delta \in \mathcal{F}(n, M) \text{ and } n_\delta \text{ is prime}\}|$.
+\end{definition}
+
+\begin{theorem}[Divisibility-by-3 Obstruction]
+\label{thm:div3}
+Let $|M| = k$. If $3 \nmid k$, then $\pi(n, M) \leq 7$.
+\end{theorem}
+
+\begin{proof}
+The digit sum of $n_\delta$ is $\sigma(\delta) = S_{\mathrm{fix}} + k\delta$, where $S_{\mathrm{fix}} = \sum_{i \notin M} d_i$. The candidate $n_\delta$ is divisible by~3 if and only if
+\[
+k\delta \equiv -S_{\mathrm{fix}} \pmod{3}.
+\]
+
+If $\gcd(k, 3) = 1$, then $k$ is invertible modulo~3, so the congruence has a unique residue class $\delta_0 \pmod{3}$. Among $\delta \in \{0, 1, \ldots, 9\}$, the three residue classes modulo~3 have sizes $4, 3, 3$ respectively. Thus at least 3 values of $\delta$ yield $n_\delta$ divisible by~3. Since $n_\delta \geq 10^{m-1} \geq 10 > 3$ for $m \geq 2$, these are composite, giving $\pi(n, M) \leq 10 - 3 = 7$.
+
+If $3 \mid k$, then $k\delta \equiv 0 \pmod{3}$ for all $\delta$, so divisibility by~3 depends solely on $S_{\mathrm{fix}}$, and when $3 \nmid S_{\mathrm{fix}}$, no candidate is divisible by~3, allowing $\pi(n, M) \geq 8$.
+\end{proof}
+
+\begin{corollary}
+Any mask achieving $\pi(n, M) = 8$ satisfies $3 \mid |M|$. The minimum is $|M| = 3$.
+\end{corollary}
+
+\begin{lemma}[Five-Digit Insufficiency]
+No 5-digit number admits an 8-prime replacement family. Exhaustive computation confirms this.
+\end{lemma}
+
+\begin{corollary}[Search Domain]
+The search begins at 6-digit numbers with mask size $k = 3$.
+\end{corollary}
+
+\begin{theorem}[Smallest Member Constraint]
+If $p$ is the smallest prime in an 8-prime family with $|M| = 3$, then the common digit value at the masked positions in $p$ is at most~2.
+\end{theorem}
+
+\begin{proof}
+If the masked digit value $\delta \geq 3$, then only $10 - \delta \leq 7$ replacement digits $\delta' \geq \delta$ are available (also accounting for $\delta' < \delta$ producing smaller numbers), which is insufficient for 8 primes when $p$ must be the smallest member.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Procedure{PrimeDigitReplacement}{}
+    \State Compute sieve \texttt{is\_prime}$[0 \ldots 10^6 - 1]$
+    \For{$n = 100000$ \textbf{to} $999999$}
+        \If{$\lnot$\texttt{is\_prime}$[n]$} \textbf{continue} \EndIf
+        \State $D \gets$ digits of $n$
+        \For{$v \in \{0, 1, 2\}$}
+            \State $P_v \gets \{i : D[i] = v\}$
+            \For{each 3-element subset $M \subseteq P_v$}
+                \State $c \gets 0$; $s \gets \texttt{NULL}$
+                \For{$\delta = 0$ \textbf{to} $9$}
+                    \State Construct $n_\delta$ by replacing positions $M$ with $\delta$
+                    \If{$n_\delta$ has no leading zero \textbf{and} \texttt{is\_prime}$[n_\delta]$}
+                        \State $c \gets c + 1$; \textbf{if} $s = \texttt{NULL}$ \textbf{then} $s \gets n_\delta$
+                    \EndIf
+                \EndFor
+                \If{$c = 8$} \Return $s$ \EndIf
+            \EndFor
+        \EndFor
+    \EndFor
+\EndProcedure
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{proposition}[Time]
+$O(N \log \log N)$ where $N = 10^6$. The sieve dominates; the mask-checking phase is $O(N)$.
+\end{proposition}
+
+\begin{proposition}[Space]
+$O(N)$ for the sieve array.
+\end{proposition}
+
+\section{Result}
+
+The answer is $\boxed{121313}$.
+
+The 8-prime family (mask $M = \{0, 2, 4\}$, the positions of the three 1's in $1\_1\_1\_$):
+\[
+\{121313,\ 222323,\ 424343,\ 525353,\ 626363,\ 727373,\ 828383,\ 929393\}
+\]
+
+\section{Answer}
+
+\[
+\boxed{121313}
+\]
+
+\end{document}

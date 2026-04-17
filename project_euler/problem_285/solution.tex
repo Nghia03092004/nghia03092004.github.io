@@ -1,0 +1,74 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 285: Pythagorean Odds}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Albert picks $a,b$ uniformly from $[0,1]$, computes $\sqrt{(ka+1)^2+(kb+1)^2}$, and rounds to the nearest integer. He scores $k$ points if the result equals $k$. Find the expected total score for $k = 1$ to $100000$, rounded to 5 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Winning Probability as Annular Area]
+The probability of winning round $k$ is $P_k = A(r_2,c) - A(r_1,c)$ where $r_1 = \frac{2k-1}{2k}$, $r_2 = \frac{2k+1}{2k}$, $c = \frac{1}{k}$, and
+\[
+A(r,c) = \begin{cases}
+\displaystyle\frac{r^2}{2}\!\left(\frac{\pi}{2} - 2\arcsin\frac{c}{r}\right) - c\sqrt{r^2-c^2} + c^2 & \text{if } r \ge c\sqrt{2}, \\[8pt]
+0 & \text{otherwise}.
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+The winning condition is equivalent to $r_1^2 \le x^2+y^2 \le r_2^2$ under the substitution $x = a + 1/k$, $y = b + 1/k$, where $(x,y) \in [c, 1+c]^2$.
+
+Since $r_2 < 1+c$, the outer boundary of the annulus lies inside the square. The only binding constraints are $x \ge c$ and $y \ge c$. Define $A(r,c) = \mathrm{Area}\{(x,y): x \ge c,\, y \ge c,\, x^2+y^2 \le r^2\}$.
+
+For $r \ge c\sqrt{2}$:
+\[
+A(r,c) = \int_c^{\sqrt{r^2-c^2}} \bigl(\sqrt{r^2-x^2} - c\bigr)\,dx.
+\]
+
+Using $\int \sqrt{r^2-x^2}\,dx = \frac{x\sqrt{r^2-x^2}}{2} + \frac{r^2}{2}\arcsin\frac{x}{r} + C$ and evaluating at the limits:
+\begin{align*}
+A(r,c) &= \left[\frac{x\sqrt{r^2-x^2}}{2} + \frac{r^2}{2}\arcsin\frac{x}{r} - cx\right]_c^{\sqrt{r^2-c^2}} \\
+&= \frac{r^2}{2}\!\left(\arcsin\frac{\sqrt{r^2-c^2}}{r} - \arcsin\frac{c}{r}\right) - c\sqrt{r^2-c^2} + c^2.
+\end{align*}
+
+Applying $\arcsin\frac{\sqrt{r^2-c^2}}{r} = \frac{\pi}{2} - \arcsin\frac{c}{r}$ yields the stated formula.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+total = 0
+for k = 1 to 100000:
+    c = 1/k; r1 = (2k-1)/(2k); r2 = (2k+1)/(2k)
+    P_k = area(r2, c) - area(r1, c)
+    total += k * P_k
+return round(total, 5)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N)$ with $N = 100000$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{157055.80999}
+\]
+
+\end{document}

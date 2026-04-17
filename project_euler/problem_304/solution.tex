@@ -1,0 +1,99 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 304: Primonacci}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $p_i$ denote the $i$-th prime. Define $a(i) = F(p_{10^{14}+i})$ where $F(n)$ is the $n$-th Fibonacci number ($F(1) = F(2) = 1$).
+
+Find
+\[
+\sum_{i=1}^{100000} a(i) \pmod{1234567891011}.
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Fibonacci matrix identity]\label{thm:fib-matrix}
+For all $n \ge 1$,
+\[
+\begin{pmatrix} F(n+1) & F(n) \\ F(n) & F(n-1) \end{pmatrix}
+= \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^{\!n}.
+\]
+\end{theorem}
+
+\begin{proof}
+By induction on $n$. The base case $n=1$ is immediate. For the inductive step, multiply
+\[
+M^{n+1} = M^n \cdot M
+= \begin{pmatrix} F(n+1) & F(n) \\ F(n) & F(n-1) \end{pmatrix}
+\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}
+= \begin{pmatrix} F(n+2) & F(n+1) \\ F(n+1) & F(n) \end{pmatrix},
+\]
+using the Fibonacci recurrence $F(k+1) = F(k) + F(k-1)$.
+\end{proof}
+
+\begin{theorem}[Matrix exponentiation]\label{thm:fast-exp}
+For any $2 \times 2$ matrix $M$ and positive integer $n$, $M^n \bmod m$ can be computed in $O(\log n)$ matrix multiplications modulo~$m$.
+\end{theorem}
+
+\begin{proof}
+Write $n = \sum_j 2^{b_j}$ in binary. Compute $M^{2^0}, M^{2^1}, \ldots$ by repeated squaring, then multiply the relevant powers. The total cost is at most $2\lfloor\log_2 n\rfloor$ multiplications.
+\end{proof}
+
+\begin{lemma}[Incremental computation]\label{lem:incremental}
+Given $M^{p_k} \bmod m$, we compute $M^{p_{k+1}} \bmod m$ via $M^{p_{k+1}} = M^{p_k} \cdot M^g$ where $g = p_{k+1} - p_k$. For small gaps $g$, this costs $O(\log g)$ multiplications.
+\end{lemma}
+
+\begin{proof}
+By associativity of matrix multiplication and Theorem~\ref{thm:fast-exp} applied to $M^g$.
+\end{proof}
+
+\begin{theorem}[Prime location]\label{thm:prime-loc}
+The $10^{14}$-th prime satisfies $p_{10^{14}} \approx 10^{14}\ln(10^{14}) \approx 3.22 \times 10^{15}$. The Meissel--Lehmer algorithm computes $\pi(x)$ in $O(x^{2/3}/\!\ln x)$ time, enabling binary search for the exact starting point. A segmented sieve then enumerates consecutive primes.
+\end{theorem}
+
+\begin{proof}
+By the prime number theorem, $p_n \sim n \ln n$. The Meissel--Lehmer algorithm's complexity is established in~\cite{deleglise1996}. The segmented sieve of Eratosthenes processes a segment $[a, a+L]$ in $O(L \log\log a + \sqrt{a})$ time.
+\end{proof}
+
+\section{Algorithm}
+\begin{verbatim}
+function solve():
+    m = 1234567891011
+    M = [[1,1],[1,0]]
+    // Locate primes p_{10^14+1} ... p_{10^14+100000}
+    primes = segmented_sieve(near 3.22e15, 100000 primes)
+    // Compute F(primes[0]) mod m
+    A = matrix_pow(M, primes[0], m)
+    result = A[0][1]
+    // Incremental for remaining primes
+    for i = 1 to 99999:
+        gap = primes[i] - primes[i-1]
+        G = matrix_pow(M, gap, m)
+        A = A * G mod m
+        result = (result + A[0][1]) mod m
+    return result
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\sqrt{N})$ for base sieve ($N \approx 3.2 \times 10^{15}$), $O(\log N)$ for first matrix exponentiation, $O(100000 \cdot \log \bar{g})$ for incremental steps where $\bar{g} \approx 36$.
+    \item \textbf{Space:} $O(\sqrt{N})$ for base primes, $O(1)$ for $2\times 2$ matrices.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{283988410192}
+\]
+
+\end{document}

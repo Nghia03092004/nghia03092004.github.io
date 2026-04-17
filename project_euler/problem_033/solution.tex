@@ -1,0 +1,99 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 33: Digit Cancelling Fractions}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The fraction $49/98$ is curious because cancelling the 9s gives $4/8 = 1/2$, which is correct. There are exactly four non-trivial examples of two-digit fractions less than one where ``digit cancelling'' yields the correct value. Find the denominator of their product in lowest terms.
+
+\section{Mathematical Development}
+
+\begin{definition}
+Let $n = 10a + b$ and $d = 10c + e$ be two-digit positive integers with $a,c \in \{1,\ldots,9\}$ and $b,e \in \{0,\ldots,9\}$. The fraction $n/d$ (with $n < d$) is a \emph{non-trivial digit-cancelling fraction} if there exists a shared non-zero digit between $n$ and $d$ such that removing one occurrence from both yields a single-digit fraction equal to $n/d$.
+\end{definition}
+
+\begin{theorem}[Classification under Pattern P1]
+\label{thm:p1}
+Under cancellation pattern $b = c \ne 0$ (cancel units of numerator with tens of denominator), the equation $\frac{10a+b}{10b+e} = \frac{a}{e}$ holds if and only if $e = \frac{10ab}{9a+b}$. The complete solution set with $a,b \in \{1,\ldots,9\}$, $e \in \{1,\ldots,9\}$, and $10a+b < 10b+e$ is:
+\[
+(a,b,e) \in \{(1,6,4),\; (1,9,5),\; (2,6,5),\; (4,9,8)\}.
+\]
+\end{theorem}
+
+\begin{proof}
+Cross-multiplying $\frac{10a+b}{10b+e} = \frac{a}{e}$ yields $e(10a+b) = a(10b+e)$. Expanding: $10ae + be = 10ab + ae$. Rearranging: $9ae = b(10a - e)$, equivalently $e(9a + b) = 10ab$, so
+\[
+e = \frac{10ab}{9a + b}.
+\]
+We require $e \in \mathbb{Z} \cap [1,9]$ and $10a + b < 10b + e$. Exhaustive verification over all $81$ pairs $(a,b) \in \{1,\ldots,9\}^2$:
+\begin{center}
+\begin{tabular}{cccccl}
+\toprule
+$a$ & $b$ & $e$ & Fraction & Simplified & Valid? \\
+\midrule
+1 & 6 & 4 & $16/64$ & $1/4$ & Yes \\
+1 & 9 & 5 & $19/95$ & $1/5$ & Yes \\
+2 & 6 & 5 & $26/65$ & $2/5$ & Yes \\
+4 & 9 & 8 & $49/98$ & $1/2$ & Yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+All other pairs fail integrality, range, or ordering constraints.
+\end{proof}
+
+\begin{theorem}[Completeness]
+Cancellation patterns P2 ($a = e$), P3 ($a = c$), and P4 ($b = e$) yield no additional non-trivial solutions.
+\end{theorem}
+
+\begin{proof}
+\textbf{P3} ($a = c$): The equation $\frac{10a+b}{10a+e} = \frac{b}{e}$ simplifies to $10ae = 10ab$, hence $e = b$. Then $n = d$, contradicting $n < d$.
+
+\textbf{P4} ($b = e$, $c \ne 0$): The equation $\frac{10a+b}{10c+b} = \frac{a}{c}$ gives $cb = ab$, so $c = a$ (if $b \ne 0$) or $b = 0$ (trivial). Either way, no valid solution.
+
+\textbf{P2} ($a = e$, $c \ne 0$): The equation $\frac{10a+b}{10c+a} = \frac{b}{c}$ gives $a = \frac{9bc}{10c - b}$. Exhaustive check over $(b,c) \in \{1,\ldots,9\}^2$ yields no solution with $a \in [1,9]$ and $10a+b < 10c+a$ not already found via P1.
+\end{proof}
+
+\begin{theorem}[Product computation]
+The product of the four digit-cancelling fractions, reduced to lowest terms, equals $1/100$.
+\end{theorem}
+
+\begin{proof}
+\[
+\frac{16}{64} \times \frac{19}{95} \times \frac{26}{65} \times \frac{49}{98}
+= \frac{1}{4} \times \frac{1}{5} \times \frac{2}{5} \times \frac{1}{2}
+= \frac{2}{200} = \frac{1}{100}.
+\]
+Since $\gcd(1,100) = 1$, the denominator is $100$.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(1)$ time and $O(1)$ space.
+\end{proposition}
+
+\begin{proof}
+The search iterates over exactly $81$ pairs $(a,b)$, with $O(1)$ arithmetic per pair. All quantities are bounded by constants independent of any input parameter.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{100}
+\]
+
+\end{document}

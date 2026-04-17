@@ -1,0 +1,100 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\title{Project Euler Problem 22: Names Scores}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a file of $n$ first names, sort them lexicographically. For each name, compute its \emph{alphabetical value} (sum of letter positions: A\,=\,1, \ldots, Z\,=\,26), then multiply by the name's 1-based position in the sorted list. Find the sum of all name scores.
+
+\section{Definitions}
+
+\begin{definition}[Letter Value]
+For an uppercase Latin letter $c$, define $\operatorname{val}(c) = \operatorname{ord}(c) - 64$, where $\operatorname{ord}$ returns the ASCII codepoint.
+\end{definition}
+
+\begin{definition}[Alphabetical Value]
+For a name $w = c_1 c_2 \cdots c_k$, define $\alpha(w) = \sum_{i=1}^{k} \operatorname{val}(c_i)$.
+\end{definition}
+
+\begin{definition}[Name Score]
+Let $w_1 \prec w_2 \prec \cdots \prec w_n$ be the names in lexicographic order. The \emph{name score} of $w_j$ is $S(w_j) = j \cdot \alpha(w_j)$.
+\end{definition}
+
+\section{Theorems and Proofs}
+
+\begin{theorem}[Well-Definedness]
+The total score $T = \sum_{j=1}^{n} j \cdot \alpha(w_j)$ is uniquely determined by the input set of names.
+\end{theorem}
+
+\begin{proof}
+The lexicographic order on $\Sigma^*$ (finite strings over a totally ordered alphabet $\Sigma$) is a total order. Since the input names are distinct, the sorted sequence is unique. Each $\alpha(w_j)$ depends only on the string $w_j$, and the index $j$ depends only on the sorted order. Hence $T$ is uniquely determined.
+\end{proof}
+
+\begin{lemma}[Bounds on $\alpha$]
+For any name $w$ of length $k$ over $\{\textup{A}, \ldots, \textup{Z}\}$, we have $k \leq \alpha(w) \leq 26k$.
+\end{lemma}
+
+\begin{proof}
+Each character contributes at least $1$ and at most $26$ to the sum.
+\end{proof}
+
+\begin{lemma}[ASCII and Dictionary Order]
+Lexicographic comparison of ASCII-encoded uppercase Latin strings coincides with standard dictionary order.
+\end{lemma}
+
+\begin{proof}
+The ASCII codes $65, 66, \ldots, 90$ for A through Z form a strictly increasing sequence, so byte-wise comparison agrees with alphabetical comparison.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Total Name Scores}
+\begin{algorithmic}[1]
+\REQUIRE File of comma-separated quoted names
+\ENSURE Total of all name scores
+\STATE $\mathrm{names} \gets \text{ParseCSV}(\text{filename})$
+\STATE $\text{Sort}(\mathrm{names})$
+\STATE $\mathrm{total} \gets 0$
+\FOR{$j = 1$ \TO $|\mathrm{names}|$}
+    \STATE $\alpha \gets \sum_{c \in \mathrm{names}[j]} (\operatorname{ord}(c) - 64)$
+    \STATE $\mathrm{total} \gets \mathrm{total} + j \cdot \alpha$
+\ENDFOR
+\RETURN $\mathrm{total}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(nL\log n)$ time and $O(nL)$ space, where $n$ is the number of names and $L$ is the maximum name length.
+\end{proposition}
+
+\begin{proof}
+Sorting $n$ strings costs $O(n \log n)$ comparisons at $O(L)$ each, for $O(nL \log n)$ total. The linear scan over all names contributes $O(nL)$, dominated by sorting. Storing all names requires $O(nL)$ space.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{871198282}
+\]
+
+\end{document}

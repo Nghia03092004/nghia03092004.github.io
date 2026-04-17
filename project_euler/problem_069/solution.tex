@@ -1,0 +1,100 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 69: Totient Maximum}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the value of $n \le 1\,000\,000$ for which $n / \varphi(n)$ is a maximum, where $\varphi$ is Euler's totient function.
+
+\section{Mathematical Analysis}
+
+\begin{theorem}[Ratio Formula]
+For $n = p_1^{a_1} p_2^{a_2} \cdots p_k^{a_k}$, the ratio $n/\varphi(n)$ depends only on the set of distinct prime divisors:
+\[
+\frac{n}{\varphi(n)} = \prod_{p \mid n} \frac{p}{p - 1}.
+\]
+\end{theorem}
+
+\begin{proof}
+By Euler's product formula, $\varphi(n) = n \prod_{p \mid n}(1 - 1/p)$. Dividing:
+\[
+\frac{n}{\varphi(n)} = \prod_{p \mid n} \frac{1}{1 - 1/p} = \prod_{p \mid n} \frac{p}{p-1}.
+\]
+The exponents $a_i$ cancel, so the ratio depends only on $\{p_1, \ldots, p_k\}$.
+\end{proof}
+
+\begin{theorem}[Monotonicity]
+\begin{enumerate}
+    \item Adding any prime $q$ to the set of divisors multiplies $n/\varphi(n)$ by $q/(q-1) > 1$.
+    \item The factor $p/(p-1) = 1 + 1/(p-1)$ is strictly decreasing in $p$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Statement (1) is immediate since $q/(q-1) > 1$ for all primes $q \geq 2$. Statement (2) follows because $1/(p-1)$ is strictly decreasing.
+\end{proof}
+
+\begin{theorem}[Primorial Optimality]
+Among all $n \leq N$, the ratio $n/\varphi(n)$ is maximized when $n$ is the largest primorial not exceeding~$N$:
+\[
+n^* = \prod_{\substack{i=1}}^{k} p_i, \quad \text{where } p_1 p_2 \cdots p_k \leq N < p_1 p_2 \cdots p_{k+1}.
+\]
+\end{theorem}
+
+\begin{proof}
+We prove optimality in three steps:
+
+\textbf{Step 1 (Squarefree).} If $n$ is not squarefree, say $n = p^2 m$ with $p \nmid m$, then $n' = pm$ satisfies $n' < n$ and $n'/\varphi(n') = n/\varphi(n)$ by Theorem~1. The freed factor of~$p$ can be used to include a new prime, strictly increasing the ratio by Theorem~2(1). Hence the optimizer is squarefree.
+
+\textbf{Step 2 (Consecutive primes).} If $n = p_{j_1} \cdots p_{j_k}$ with some $j_i > i$, replacing $p_{j_i}$ by $p_i$ (a smaller prime) does not increase $n$ and strictly increases the ratio by Theorem~2(2). Hence the optimizer uses consecutive smallest primes.
+
+\textbf{Step 3 (Maximal count).} By Theorem~2(1), each additional prime strictly increases the ratio, so we include as many consecutive primes as the bound allows.
+\end{proof}
+
+\subsection{Computation}
+
+\[
+2 \times 3 \times 5 \times 7 \times 11 \times 13 \times 17 = 510510 \le 1\,000\,000
+\]
+\[
+2 \times 3 \times 5 \times 7 \times 11 \times 13 \times 17 \times 19 = 9\,699\,690 > 1\,000\,000
+\]
+
+\begin{corollary}
+The answer is $n = 510510$ with:
+\[
+\frac{510510}{\varphi(510510)} = \frac{2}{1} \cdot \frac{3}{2} \cdot \frac{5}{4} \cdot \frac{7}{6} \cdot \frac{11}{10} \cdot \frac{13}{12} \cdot \frac{17}{16} \approx 5.214
+\]
+\end{corollary}
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time}: $O(\log \log N)$ multiplications --- we multiply consecutive primes until exceeding~$N$.
+    \item \textbf{Space}: $O(1)$.
+\end{itemize}
+
+\section{Result}
+
+The answer is $\boxed{510510}$.
+
+\section{Answer}
+
+\[
+\boxed{510510}
+\]
+
+\end{document}

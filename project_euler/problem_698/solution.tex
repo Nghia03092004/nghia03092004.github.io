@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 698: 123 Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A 123-number uses only digits {1,2,3}. Count/sum 123-numbers up to N with specific properties. Find F(111111111111222333) mod 123123123.
+
+\section{Mathematical Analysis}
+
+Digit DP with restricted digit set {1,2,3}. Track digits placed so far.
+
+\section{Complexity Analysis}
+
+O(D * states) where D = number of digits
+
+\section{Answer}
+
+\[
+\boxed{57808202}
+\]
+
+\end{document}

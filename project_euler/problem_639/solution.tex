@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 639: Summing a Multiplicative Function}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For integer $k$, let $f_k(n)$ be a multiplicative function with $f_k(p^e) = p^k$ for any prime $p$ and $e > 0$. Define $S_k(n) = \sum_{i=1}^n f_k(i)$.
+
+Find $\displaystyle\sum_{k=1}^{50} S_k(10^{12}) \bmod 1{,}000{,}000{,}007$.
+
+\section{Mathematical Analysis}
+
+\subsection{Characterization of $f_k$}
+
+\begin{theorem}
+$f_k(n) = \text{rad}(n)^k$ where $\text{rad}(n) = \prod_{p | n} p$ is the radical of $n$.
+\end{theorem}
+
+\begin{proof}
+Since $f_k$ is multiplicative and $f_k(p^e) = p^k$ for all primes $p$ and $e \ge 1$:
+\[
+f_k(n) = f_k\left(\prod_{i} p_i^{e_i}\right) = \prod_i f_k(p_i^{e_i}) = \prod_i p_i^k = \text{rad}(n)^k
+\]
+\end{proof}
+
+\subsection{Dirichlet Convolution}
+
+Define $g_k = f_k * \mu$ (M\"obius inversion of $f_k = g_k * \mathbf{1}$). Then:
+\begin{align}
+g_k(p) &= f_k(p) - f_k(1) = p^k - 1 \\
+g_k(p^e) &= f_k(p^e) - f_k(p^{e-1}) = p^k - p^k = 0 \quad (e \ge 2)
+\end{align}
+
+Thus $g_k$ is supported on squarefree numbers:
+\[
+g_k(n) = \begin{cases} \prod_{p|n}(p^k - 1) & \text{if } n \text{ is squarefree} \\ 0 & \text{otherwise} \end{cases}
+\]
+
+\subsection{Hyperbola Method}
+
+\[
+S_k(n) = \sum_{i=1}^n f_k(i) = \sum_{d=1}^n g_k(d) \left\lfloor \frac{n}{d} \right\rfloor
+\]
+
+Using the hyperbola splitting at $u = n^{2/3}$:
+\[
+S_k(n) = \sum_{d=1}^u g_k(d) \left\lfloor \frac{n}{d} \right\rfloor + \sum_{m=1}^{n/u} G_k\left(\frac{n}{m}\right) - G_k(u) \cdot \left\lfloor \frac{n}{u} \right\rfloor
+\]
+
+where $G_k(x) = \sum_{d=1}^x g_k(d)$.
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve squarefree numbers and compute $g_k$ up to $n^{2/3}$
+\item Use the min-25 sieve or Lucy DP for prefix sums of $g_k$
+\item Apply hyperbola method for each $k = 1, \ldots, 50$
+\item Sum all $S_k(10^{12})$ modulo $10^9 + 7$
+\end{enumerate}
+
+\section{Answer}
+
+\[
+\boxed{797866893}
+\]
+
+\end{document}

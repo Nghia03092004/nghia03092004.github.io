@@ -1,0 +1,116 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 951: Euler Product Approximation}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The Euler product for the Riemann zeta function is
+\[
+\zeta(s) = \prod_{p \text{ prime}} \frac{1}{1 - p^{-s}}.
+\]
+Let $E(s, N) = \prod_{p \le N} (1 - p^{-s})^{-1}$. Find $\lfloor E(3, 10^6) \times 10^{15} \rfloor$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Euler Product Formula]
+For $\operatorname{Re}(s) > 1$,
+\[
+\zeta(s) = \sum_{n=1}^{\infty} n^{-s} = \prod_{p \text{ prime}} \frac{1}{1 - p^{-s}}.
+\]
+\end{theorem}
+
+\begin{proof}
+Each factor expands as a geometric series: $(1-p^{-s})^{-1} = \sum_{k=0}^{\infty} p^{-ks}$, convergent for $\operatorname{Re}(s) > 0$. For any finite set of primes~$P$,
+\[
+\prod_{p \in P} \sum_{k=0}^{\infty} p^{-ks} = \sum_{\substack{n \ge 1 \\ p \mid n \Rightarrow p \in P}} n^{-s}
+\]
+by the Fundamental Theorem of Arithmetic: every positive integer factors uniquely into primes, so expanding the product yields exactly one term~$n^{-s}$ for each~$n$ whose prime factors all lie in~$P$. As $P$ exhausts all primes, the right-hand side converges to~$\zeta(s)$ by absolute convergence of the Dirichlet series for $\operatorname{Re}(s) > 1$.
+\end{proof}
+
+\begin{lemma}[Monotonicity]
+$E(s, N) \le \zeta(s)$ for all~$N$, with $E(s, N) \nearrow \zeta(s)$ as $N \to \infty$.
+\end{lemma}
+
+\begin{proof}
+Each factor $(1-p^{-s})^{-1} > 1$ for $s > 0$. The partial product~$E(s,N)$ accounts for all positive integers whose prime factors are at most~$N$, a subset of all positive integers. Including additional primes strictly increases the product.
+\end{proof}
+
+\begin{theorem}[Error Bound]
+\label{thm:error}
+For $s = 3$ and $N \ge 2$,
+\[
+\zeta(3) - E(3, N) = O\!\left(\frac{1}{N^2 \ln N}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+We have $\zeta(3)/E(3,N) = \prod_{p>N}(1-p^{-3})^{-1}$. Taking logarithms:
+\[
+\ln\frac{\zeta(3)}{E(3,N)} = \sum_{p>N} \sum_{k=1}^{\infty} \frac{1}{kp^{3k}} = \sum_{p>N} p^{-3} + O\!\Bigl(\sum_{p>N} p^{-6}\Bigr).
+\]
+By partial summation with the Prime Number Theorem $\pi(x) \sim x/\ln x$:
+\[
+\sum_{p>N} p^{-3} = -\frac{\pi(N)}{N^3} + 3\int_N^{\infty} \frac{\pi(t)}{t^4}\,dt \sim 3\int_N^{\infty} \frac{dt}{t^3 \ln t} \sim \frac{3}{2N^2 \ln N}.
+\]
+Since $\ln(1+\varepsilon) \sim \varepsilon$ for small~$\varepsilon$, we get $\zeta(3)/E(3,N)-1 = O(1/(N^2\ln N))$, and therefore $\zeta(3) - E(3,N) = O(1/(N^2\ln N))$.
+\end{proof}
+
+\begin{lemma}[Numerical Precision]
+For $N = 10^6$, the relative error is approximately $3 \times 10^{-14}$. Standard IEEE 754 double-precision arithmetic suffices for extracting $\lfloor E(3,10^6) \times 10^{15} \rfloor$.
+\end{lemma}
+
+\begin{proof}
+By Theorem~\ref{thm:error}, the relative error is $\approx 1.1 \times 10^{-14}$. Working in log-space, each of $\pi(10^6) = 78498$ terms incurs relative error $\varepsilon_{\mathrm{mach}} \approx 2^{-53}$, giving accumulated error $\sim 8.7 \times 10^{-12}$ in $L = \sum_p -\ln(1-p^{-3})$, which propagates to absolute error $\sim 10^{-11}$ in~$E$. This is well within the tolerance for the 15th decimal digit.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item \textbf{Sieve primes} up to $N = 10^6$ via the Sieve of Eratosthenes.
+\item \textbf{Accumulate in log-space:} $L = \sum_{p \le N} \bigl[-\ln(1-p^{-3})\bigr]$.
+\item \textbf{Recover:} $E(3, N) = e^L$.
+\item \textbf{Extract:} $\lfloor E \times 10^{15} \rfloor$.
+\end{enumerate}
+
+\begin{verbatim}
+function EulerProduct(N):
+    is_prime[0..N] = all true
+    is_prime[0] = is_prime[1] = false
+    for i = 2 to floor(sqrt(N)):
+        if is_prime[i]:
+            for j = i*i to N step i:
+                is_prime[j] = false
+    L = 0.0
+    for p = 2 to N:
+        if is_prime[p]:
+            L = L - log(1 - p^(-3))
+    return floor(exp(L) * 10^15)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log\log N)$ for the sieve, plus $O(\pi(N)) = O(N/\ln N)$ for log-space accumulation. Total: $O(N \log\log N)$.
+\item \textbf{Space:} $O(N)$ for the sieve array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{495568995495726}
+\]
+
+\end{document}

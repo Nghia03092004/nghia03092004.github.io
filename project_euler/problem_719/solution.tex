@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 719: Number Splitting}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+An \textbf{S-number} is a natural number~$n$ that is a perfect square whose square root can be obtained by splitting the decimal representation of~$n$ into 2 or more parts and summing them. Examples:
+\begin{itemize}
+    \item $81$: $\sqrt{81} = 8+1$
+    \item $6724$: $\sqrt{6724} = 6+72+4$
+    \item $8281$: $\sqrt{8281} = 82+8+1$
+    \item $9801$: $\sqrt{9801} = 98+0+1$
+\end{itemize}
+Define $T(N)$ as the sum of all S-numbers $n \le N$. Given $T(10^4)=41333$, find $T(10^{12})$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+For a digit string $d_1\cdots d_m$ and target~$s$, define $\operatorname{CanSplit}(i,r)$ to be true if the substring $d_i\cdots d_m$ can be partitioned into parts summing to~$r$.
+\end{definition}
+
+\begin{lemma}[Modular Filter]
+If $n = k^2$ is an S-number, then $k \equiv 0 \pmod{9}$ or $k \equiv 1 \pmod{9}$.
+\end{lemma}
+
+\begin{proof}
+Splitting preserves the digit sum modulo~9. Hence $k \equiv k^2 \pmod{9}$, giving $k(k-1) \equiv 0 \pmod{9}$. Since $\gcd(k,k-1)=1$, either $9\mid k$ or $9\mid(k-1)$.
+\end{proof}
+
+\begin{theorem}[Recursive Characterization]
+The number $n=k^2$ with digits $d_1\cdots d_m$ is an S-number iff $\operatorname{CanSplit}(1,k)$ returns true, where
+\[
+\operatorname{CanSplit}(i,r) = \bigvee_{j=i+1}^{m} \Bigl[v_{i\ldots j} \le r \;\wedge\; \bigl((j=m \wedge v_{i\ldots j}=r) \vee \operatorname{CanSplit}(j{+}1,\, r-v_{i\ldots j})\bigr)\Bigr],
+\]
+with $v_{i\ldots j}$ the numerical value of digits $d_i\cdots d_j$, requiring $\ge 2$ parts.
+\end{theorem}
+
+\begin{proof}
+The recursion enumerates all first segments and recurses on the remainder. The base case checks that the final segment exactly matches the remaining target. Correctness follows by structural induction on the substring length.
+\end{proof}
+
+\begin{lemma}[Pruning]
+The recursion is pruned by: (1)~skipping when $v_{i\ldots j} > r$; (2)~the mod-9 pre-filter eliminates ${\approx}77.8\%$ of candidates; (3)~early termination when $r < 0$.
+\end{lemma}
+
+\begin{proof}
+All segment values are non-negative, so the target decreases monotonically. If any segment exceeds the remainder, no completion exists.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function T(N):
+    limit = floor(sqrt(N))
+    total = 0
+    for k = 4 to limit:
+        if k mod 9 != 0 and k mod 9 != 1: continue
+        n = k * k
+        if can_split(digits(n), 0, k, 0): total += n
+    return total
+
+function can_split(digits, pos, remaining, parts):
+    if pos == len(digits):
+        return remaining == 0 and parts >= 2
+    for end = pos+1 to len(digits):
+        val = to_int(digits[pos..end])
+        if val > remaining: break
+        if can_split(digits, end, remaining-val, parts+1):
+            return true
+    return false
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\sqrt{N})$ candidates reduced by $7/9$ via modular filter. Per candidate, worst-case $O(2^m)$ splittings ($m \le 13$ digits), heavily pruned in practice. Total: a few seconds.
+    \item \textbf{Space:} $O(m)$ for the recursion stack, $m \le 13$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{128088830547982}
+\]
+
+\end{document}

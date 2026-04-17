@@ -1,0 +1,51 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,algorithm,algpseudocode}
+\geometry{a4paper,margin=1in}
+\title{Project Euler Problem 816:\\Shortest Distance Among Points}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A sequence of points is defined using a pseudo-random number generator:
+\begin{align}
+s_0 &= 290797 \\
+s_{n+1} &= s_n^2 \bmod 50515093 \\
+P_n &= (s_{2n},\, s_{2n+1})
+\end{align}
+Let $d(k)$ be the shortest Euclidean distance between any two distinct points among $P_0, P_1, \ldots, P_{k-1}$. Given $d(14) = 546446.466846479$, find $d(2000000)$ rounded to 9 decimal places.
+
+\section{Mathematical Analysis}
+
+\subsection{Closest Pair of Points}
+The problem reduces to the classic closest pair problem in computational geometry. The naive $O(n^2)$ approach is infeasible for $n = 2\times 10^6$.
+
+\subsection{Sweep Line Algorithm}
+We use a sweep line approach:
+\begin{enumerate}
+    \item Sort all $n$ points by $x$-coordinate.
+    \item Maintain a set $A$ of ``active'' points sorted by $y$-coordinate.
+    \item Sweep left to right. For each point $p_i$:
+    \begin{enumerate}
+        \item Remove from $A$ all points $p_j$ with $p_i.x - p_j.x > \delta$.
+        \item Query $A$ for all points with $y \in [p_i.y - \delta, p_i.y + \delta]$.
+        \item For each such point, compute the distance and update $\delta$ if smaller.
+        \item Insert $p_i$ into $A$.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection{Correctness}
+Any pair of points with distance $< \delta$ must have both $|x_i - x_j| < \delta$ and $|y_i - y_j| < \delta$. The sweep line ensures we only miss pairs already outside the current best distance.
+
+\subsection{Complexity}
+The algorithm runs in $O(n \log n)$ time due to sorting and balanced BST operations. Each point is inserted and removed from the set at most once.
+
+\section{Answer}
+
+\[
+\boxed{20.880613018}
+\]
+
+\end{document}

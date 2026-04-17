@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 117: Red, Green, and Blue Tiles}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Using grey squares (length~1), red tiles (length~2), green tiles (length~3), and blue tiles (length~4), how many ways can a row of 50 units be tiled?
+
+\section{Mathematical Analysis}
+
+\subsection{Recurrence (Tetranacci)}
+
+\begin{theorem}
+Let $f(n)$ be the number of tilings of a row of length~$n$. Then:
+\[
+f(n) = f(n-1) + f(n-2) + f(n-3) + f(n-4), \quad n \ge 4
+\]
+with $f(0) = 1$, $f(1) = 1$, $f(2) = 2$, $f(3) = 4$.
+\end{theorem}
+
+\begin{proof}
+Every tiling ends with a tile of length $L \in \{1,2,3,4\}$, with $L \le n$. Removing it leaves a valid tiling of length $n - L$. The cases are mutually exclusive and exhaustive.
+\end{proof}
+
+\subsection{Generating Function}
+
+\begin{theorem}
+\[
+\sum_{n=0}^{\infty} f(n)\, x^n = \frac{1}{1 - x - x^2 - x^3 - x^4}
+\]
+\end{theorem}
+
+\begin{proof}
+Each step chooses one of four tile types contributing $x^L$. The GF is a geometric series with ratio $x + x^2 + x^3 + x^4$.
+\end{proof}
+
+\subsection{Characteristic Root}
+
+The dominant root of $x^4 - x^3 - x^2 - x - 1 = 0$ is $\alpha \approx 1.92756$ (the \emph{tetranacci constant}), giving $f(n) \sim C \cdot \alpha^n$.
+
+\section{Computed Values}
+
+\begin{center}
+\begin{tabular}{rrl}
+\toprule
+$n$ & $f(n)$ & $f(n)/f(n-1)$ \\
+\midrule
+0 & 1 & --- \\
+1 & 1 & 1.000 \\
+2 & 2 & 2.000 \\
+3 & 4 & 2.000 \\
+4 & 8 & 2.000 \\
+5 & 15 & 1.875 \\
+10 & 401 & 1.928 \\
+20 & 121415 & 1.928 \\
+50 & 100808458960497 & 1.928 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(n)$.
+\item \textbf{Space:} $O(1)$ (rolling window of 4 values).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{100808458960497}
+\]
+
+\end{document}

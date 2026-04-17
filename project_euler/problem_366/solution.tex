@@ -1,0 +1,58 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 366: Stone Game III}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Two players play a stone removal game. Starting with a heap of stones, the first player removes at least one but not all stones. Thereafter, each player removes at least one stone but at most twice the number removed by the previous player. The player who takes the last stone wins.
+
+We must analyze the losing positions for the first player and compute a specific sum.
+
+\section{Solution}
+
+\subsection{Fibonacci Nim}
+This game is a well-known variant called \textbf{Fibonacci Nim}. The fundamental result is:
+
+\begin{theorem}[Schwenk's Theorem]
+A position with $n$ stones is a losing position (P-position) for the player about to move if and only if $n$ is a Fibonacci number.
+\end{theorem}
+
+\subsection{Zeckendorf Representation}
+By Zeckendorf's theorem, every positive integer $n$ has a unique representation as a sum of non-consecutive Fibonacci numbers:
+\[
+n = F_{k_1} + F_{k_2} + \cdots + F_{k_m}, \quad k_1 > k_2 + 1 > k_3 + 2 > \cdots
+\]
+
+The winning strategy for a non-Fibonacci starting position is to remove $F_{k_m}$ stones (the smallest Fibonacci term in the Zeckendorf representation).
+
+\subsection{Computation}
+Let $N = 10^{18}$. We need to find:
+\[
+S = \sum_{\substack{F_k \leq N}} f(F_k) \pmod{10^8}
+\]
+where $f$ encodes the required quantity related to each Fibonacci losing position.
+
+The Fibonacci numbers grow exponentially as $F_n \approx \frac{\phi^n}{\sqrt{5}}$ where $\phi = \frac{1+\sqrt{5}}{2}$. Thus there are approximately $86$ Fibonacci numbers below $10^{18}$.
+
+We use modular arithmetic with modulus $10^8$ to compute the required sum efficiently.
+
+\section{Answer}
+
+\[
+\boxed{88351299}
+\]
+
+\end{document}

@@ -1,0 +1,80 @@
+---
+interface HeadingItem {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+interface TocNode extends HeadingItem {
+	children: TocNode[];
+}
+
+interface Props {
+	headings?: HeadingItem[];
+	maxDepth?: number;
+}
+
+const { headings = [], maxDepth = 4 } = Astro.props;
+
+function escapeHtml(value: string) {
+	return value
+		.replaceAll('&', '&amp;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;')
+		.replaceAll('"', '&quot;')
+		.replaceAll("'", '&#39;');
+}
+
+function buildTree(sourceHeadings: HeadingItem[]) {
+	const filtered = sourceHeadings
+		.filter((heading) => heading.slug && heading.text && heading.depth >= 2 && heading.depth <= maxDepth)
+		.map((heading) => ({
+			...heading,
+			text: heading.text.trim(),
+			children: [],
+		})) satisfies TocNode[];
+
+	const roots: TocNode[] = [];
+	const stack: TocNode[] = [];
+
+	for (const heading of filtered) {
+		while (stack.length && stack.at(-1)!.depth >= heading.depth) {
+			stack.pop();
+		}
+
+		if (!stack.length) {
+			roots.push(heading);
+		} else {
+			stack.at(-1)!.children.push(heading);
+		}
+
+		stack.push(heading);
+	}
+
+	return roots;
+}
+
+function renderNodes(nodes: TocNode[]): string {
+	if (!nodes.length) {
+		return '';
+	}
+
+	return `<ul class="toc__list">${nodes
+		.map((node) => {
+			const children = renderNodes(node.children);
+			return `<li class="toc__item toc__item--depth-${node.depth}"><a href="#${escapeHtml(node.slug)}">${escapeHtml(node.text)}</a>${children}</li>`;
+		})
+		.join('')}</ul>`;
+}
+
+const listMarkup = renderNodes(buildTree(headings));
+---
+
+{
+	listMarkup ? (
+		<nav class="toc" aria-label="Table of contents">
+			<h2>On this page</h2>
+			<div class="toc__body" set:html={listMarkup} />
+		</nav>
+	) : null
+}

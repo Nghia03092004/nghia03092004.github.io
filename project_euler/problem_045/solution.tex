@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{booktabs}
+\geometry{margin=1in}
+
+\title{Problem 45: Triangular, Pentagonal, and Hexagonal}
+\author{Project Euler Solutions}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Triangle, pentagonal, and hexagonal numbers are given by:
+\begin{align*}
+T_n &= \frac{n(n+1)}{2}, \\
+P_n &= \frac{n(3n-1)}{2}, \\
+H_n &= n(2n-1).
+\end{align*}
+
+We know that $T_{285} = P_{165} = H_{143} = 40755$. Find the next number that is simultaneously triangular, pentagonal, and hexagonal.
+
+\section{Key Theorem}
+
+\begin{theorem}
+Every hexagonal number is a triangle number. Specifically, $H_m = T_{2m-1}$ for all $m \geq 1$.
+\end{theorem}
+
+\begin{proof}
+\[
+T_{2m-1} = \frac{(2m-1)(2m-1+1)}{2} = \frac{(2m-1)(2m)}{2} = m(2m-1) = H_m. \qedhere
+\]
+\end{proof}
+
+\section{Reduced Problem}
+
+Since every hexagonal number is automatically triangular, we only need to find the next number that is both \textbf{hexagonal} and \textbf{pentagonal}. That is, we seek the smallest $m > 143$ such that $H_m$ is also pentagonal.
+
+\section{Pentagonal Test}
+
+A positive integer $v$ is pentagonal if and only if
+\[
+n = \frac{1 + \sqrt{1 + 24v}}{6}
+\]
+is a positive integer. Equivalently, $1 + 24v$ must be a perfect square $s^2$ with $s \equiv 1 \pmod{6}$.
+
+\section{Connection to Pell's Equation}
+
+Setting $H_m = P_k$:
+\[
+m(2m-1) = \frac{k(3k-1)}{2} \implies 2m(2m-1) = k(3k-1).
+\]
+
+Let $x = 4m - 1$ and $y = 6k - 1$. Then:
+\[
+\frac{(x+1)}{2} \cdot \frac{x}{1} = \frac{(y+1)}{6} \cdot \frac{(y+2)}{2}
+\]
+
+After algebraic manipulation, this reduces to a generalized Pell equation:
+\[
+2x^2 - 3y^2 = -1
+\]
+where $x = 4m-1$ and $y = 6k-1$. The fundamental solution gives rise to a recurrence generating all solutions. The solution after $m = 143$ is $m = 27693$.
+
+\section{Answer}
+
+\[
+\boxed{1533776805}
+\]
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(M)$ where $M = 27693$ is the hexagonal index. Each pentagonal test is $O(1)$ using the square root formula.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\end{document}

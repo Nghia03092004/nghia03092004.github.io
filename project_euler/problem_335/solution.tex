@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 335: Gathering the Beans}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+In a circle of $n$ bowls numbered $0, 1, \ldots, n-1$, bowl $k$ initially contains $k$ beans. Beans are gathered into a single bowl by moving one at a time to adjacent bowls. Define $M(n)$ as the minimum total moves. Find $M(10^{14}) \bmod 7^9$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Optimal Gathering Cost]
+\[
+M(n) = \min_{t} \sum_{k=0}^{n-1} k \cdot d(k, t), \quad d(k,t) = \min(|k-t|, n - |k-t|).
+\]
+\end{theorem}
+
+\begin{proof}
+Each bean travels the shortest circular distance from its bowl to the target. The total cost sums over all $\sum_k k$ beans, each contributing its minimum distance. The optimal $t$ minimizes this sum.
+\end{proof}
+
+\begin{lemma}[Weighted Circular Median]
+The optimal target $t^*$ is the weighted circular median of the distribution with weight $k$ at position $k$.
+\end{lemma}
+
+\begin{proof}
+Standard result in facility location on metric spaces: the $L_1$-minimizer on a circle is the weighted median.
+\end{proof}
+
+\begin{theorem}[Closed Form]
+For $n \ge 2$:
+\[
+M(n) = \begin{cases}
+\dfrac{n(n^2-1)}{12} & \text{if } n \text{ is odd}, \\[6pt]
+\dfrac{n^3}{12} & \text{if } n \text{ is even}.
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+\emph{Case $n$ odd:} The optimal target is $t^* = (n-1)/2$. By symmetry and direct summation:
+\[
+\sum_{k=0}^{n-1} k \cdot \left|k - \tfrac{n-1}{2}\right| = \frac{n(n^2-1)}{12}.
+\]
+This is verified by splitting into $k \le t^*$ and $k > t^*$ and evaluating the resulting quadratic sums.
+
+\emph{Case $n$ even:} The optimal target is $t^* = n/2$. A similar split-and-sum computation yields $n^3/12$.
+\end{proof}
+
+\begin{lemma}[Modular Inverse]
+Since $\gcd(12, 7^9) = 1$, the inverse $12^{-1} \pmod{7^9}$ exists and can be computed via the extended Euclidean algorithm.
+\end{lemma}
+
+\begin{proof}
+$7 \nmid 12$, so $\gcd(12, 7^9) = 1$. By B\'{e}zout's identity, there exist integers $x, y$ with $12x + 7^9 y = 1$, and $x \equiv 12^{-1} \pmod{7^9}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Since $n = 10^{14}$ is even: $M(n) = n^3 / 12$.
+    \item Compute $n^3 \bmod 7^9$ via modular exponentiation.
+    \item Compute $12^{-1} \bmod 7^9$ via extended Euclidean algorithm.
+    \item Return $(n^3 \cdot 12^{-1}) \bmod 7^9$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\log n)$ for modular exponentiation.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{5032316}
+\]
+
+\end{document}

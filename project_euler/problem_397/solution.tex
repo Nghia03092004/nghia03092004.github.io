@@ -1,0 +1,143 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+
+\title{Project Euler Problem 397\\[4pt]\large Triangle on Parabola}
+\author{Solution Notes}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+On the parabola $y = \dfrac{x^2}{k}$ (for a positive integer $k$), three points
+\[
+A\!\left(a,\,\frac{a^2}{k}\right),\quad
+B\!\left(b,\,\frac{b^2}{k}\right),\quad
+C\!\left(c,\,\frac{c^2}{k}\right)
+\]
+are chosen with integer x-coordinates satisfying $0 < a < b < c \le k$.
+
+The area of triangle $ABC$ is
+\[
+\text{Area}(ABC) = \frac{(b-a)(c-b)(c-a)}{2k}.
+\]
+
+Define $S(k)$ as the number of integer triples $(a, b, c)$ with $0 < a < b < c \le k$ such that $\text{Area}(ABC) \le k$, i.e.,
+\[
+(b - a)(c - b)(c - a) \le 2k^2.
+\]
+
+Find $S(10^6)$.
+
+\section{Area Formula Derivation}
+
+Using the shoelace formula for three points $(x_i, y_i)$ on $y = x^2/k$:
+\[
+2k \cdot \text{Area}
+= \bigl|a(b^2-c^2) + b(c^2-a^2) + c(a^2-b^2)\bigr|.
+\]
+
+\begin{theorem}
+$a(b^2-c^2)+b(c^2-a^2)+c(a^2-b^2) = (b-a)(c-a)(c-b).$
+\end{theorem}
+
+\begin{proof}
+Expand $(b-a)(c-a)(c-b)$:
+\begin{align*}
+(b-a)(c-a)(c-b) &= (b-a)\bigl[c^2 - c(a+b) + ab\bigr] \\
+&= c^2(b-a) - c(b^2-a^2) + ab(b-a) \\
+&= c^2 b - c^2 a - cb^2 + ca^2 + ab^2 - a^2 b \\
+&= a(b^2-c^2) + b(c^2-a^2) + c(a^2-b^2). \qedhere
+\end{align*}
+\end{proof}
+
+Therefore:
+\[
+\boxed{\text{Area} = \frac{(b-a)(c-b)(c-a)}{2k}}.
+\]
+
+\section{Reformulation}
+
+Let $u = b - a \ge 1$ and $v = c - b \ge 1$.  Then $c - a = u + v$ and the constraint becomes:
+\[
+u \cdot v \cdot (u + v) \le 2k^2.
+\]
+
+The parameter $a$ ranges from $1$ to $k - u - v$ (since $c = a+u+v \le k$), giving $k-u-v$ valid values when $u + v \le k-1$.
+
+Thus:
+\[
+S(k) = \sum_{\substack{u \ge 1,\; v \ge 1 \\ u + v \le k-1 \\ u\,v\,(u+v)\,\le\, 2k^2}}
+(k - u - v).
+\]
+
+\section{Efficient Computation}
+
+For each fixed $u$, the area constraint $u v(u+v) \le 2k^2$ is equivalent to:
+\[
+u v^2 + u^2 v - 2k^2 \le 0 \implies v^2 + u\,v - \frac{2k^2}{u} \le 0.
+\]
+
+By the quadratic formula:
+\[
+v \le \frac{-u + \sqrt{u^2 + 8k^2/u}}{2} \eqqcolon v_{\max}^{\text{area}}(u).
+\]
+
+Let $v_{\max}(u) = \min\!\bigl(\lfloor v_{\max}^{\text{area}}(u)\rfloor,\; k-1-u\bigr)$.  Then:
+\[
+\sum_{v=1}^{v_{\max}} (k - u - v)
+= v_{\max}(k - u) - \frac{v_{\max}(v_{\max}+1)}{2}.
+\]
+
+The loop terminates when $u \cdot 1 \cdot (u+1) > 2k^2$, i.e.\ $u \approx \sqrt{2}\,k$.
+
+\section{Complexity}
+
+\begin{itemize}[nosep]
+\item \textbf{Time:} $O(k)$ --- one pass over $u$ with $O(1)$ work per iteration.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Sample Values}
+
+\begin{center}
+\begin{tabular}{@{}rr@{}}
+\toprule
+$k$ & $S(k)$ \\
+\midrule
+$10$        & $120$ \\
+$100$       & $161\,700$ \\
+$1\,000$    & $27\,955\,498$ \\
+$10\,000$   & $7\,343\,965\,890$ \\
+$100\,000$  & $1\,749\,913\,169\,720$ \\
+$1\,000\,000$ & $397\,325\,186\,769\,552$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{141630459461893728}
+\]
+\section{Implementation Notes}
+
+\begin{enumerate}[nosep]
+\item For $k = 10^6$ the bound is $2k^2 = 2 \times 10^{12}$, which fits in 64-bit integers.
+\item However, intermediate products $u \cdot v \cdot (u+v)$ can approach $2 \times 10^{12}$ and overflow 64-bit during verification; use 128-bit integers (C++) or Python's arbitrary precision.
+\item The floating-point quadratic formula estimate must be corrected by checking adjacent integers.
+\item The loop over $u$ terminates early at $u \approx \sqrt{2k^2} \approx 1{,}414{,}213$, which is $O(k)$.
+\end{enumerate}
+
+\end{document}

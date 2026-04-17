@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 960: Modular Combinatorics}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find $\displaystyle\sum_{k=0}^{10^6} \binom{10^6}{k} \cdot k^3 \pmod{10^9+7}$.
+
+\section{Stirling Number Expansion}
+
+\begin{theorem}
+Every power $k^m$ can be expressed in the falling factorial basis:
+\[
+k^m = \sum_{r=0}^{m} S(m,r) \cdot k^{\underline{r}}
+\]
+where $S(m,r)$ are the Stirling numbers of the second kind.
+\end{theorem}
+
+For $m=3$: $S(3,1)=1$, $S(3,2)=3$, $S(3,3)=1$, giving
+\[
+k^3 = k + 3k(k{-}1) + k(k{-}1)(k{-}2).
+\]
+
+\section{Binomial--Falling Factorial Identity}
+
+\begin{theorem}[Absorption Identity]
+\[
+\sum_{k=0}^{n} \binom{n}{k} k^{\underline{r}} = n^{\underline{r}} \cdot 2^{n-r}.
+\]
+\end{theorem}
+
+\begin{proof}
+$\binom{n}{k} k^{\underline{r}} = n^{\underline{r}} \binom{n-r}{k-r}$, and summing over $k$ gives $n^{\underline{r}} \cdot 2^{n-r}$.
+\end{proof}
+
+\section{Final Formula}
+
+\[
+\sum_{k=0}^{n}\binom{n}{k}k^3 = n \cdot 2^{n-1} + 3n(n{-}1) \cdot 2^{n-2} + n(n{-}1)(n{-}2) \cdot 2^{n-3}.
+\]
+
+\section{Complexity}
+
+$O(\log n)$ for modular exponentiation; $O(1)$ for the formula.
+
+\section{Answer}
+
+\[
+\boxed{243559751}
+\]
+
+\end{document}

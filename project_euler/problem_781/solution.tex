@@ -1,0 +1,81 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 781: Feynman Path Integral}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider a lattice path on $\mathbb{Z}^2$ from $(0,0)$ to $(n,n)$ using steps $(1,0)$ and $(0,1)$. Define the \emph{area} under a path as the number of unit squares below it. Let
+\[
+Z(n) = \sum_{\gamma} e^{i\pi \cdot \mathrm{area}(\gamma)/n^2}
+\]
+where the sum runs over all $\binom{2n}{n}$ lattice paths $\gamma$. Find $\lfloor |Z(10^6)| \rfloor$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}
+The number of lattice paths from $(0,0)$ to $(n,n)$ with area exactly $k$ below the path equals the coefficient of $q^k$ in the Gaussian binomial coefficient $\binom{2n}{n}_q$.
+\end{lemma}
+
+\begin{proof}
+Each lattice path from $(0,0)$ to $(n,n)$ using $n$ east steps and $n$ north steps can be encoded as a binary string of length $2n$ with $n$ ones. The area below such a path equals the number of inversions: if the east steps occur at positions $1 \le a_1 < a_2 < \cdots < a_n \le 2n$ and north steps at the remaining positions, the area equals $\sum_{i=1}^{n}(a_i - i)$. This is precisely the $q$-analog weight whose generating function is the Gaussian binomial coefficient $\binom{2n}{n}_q = \frac{[2n]_q!}{[n]_q!^2}$.
+\end{proof}
+
+\begin{theorem}
+Let $\omega = e^{i\pi/n^2}$. Then
+\[
+Z(n) = \binom{2n}{n}_{q=\omega} = \prod_{k=1}^{n} \frac{1 - \omega^{n+k}}{1 - \omega^k}.
+\]
+\end{theorem}
+
+\begin{proof}
+By Lemma~1, $Z(n) = \sum_k |\{\gamma : \mathrm{area}(\gamma)=k\}|\cdot \omega^k = \binom{2n}{n}_{q=\omega}$. The standard product formula for the Gaussian binomial coefficient gives
+\[
+\binom{2n}{n}_q = \prod_{k=1}^{n}\frac{1-q^{n+k}}{1-q^k},
+\]
+valid as a polynomial identity and hence for any complex $q$, provided the denominator factors are nonzero. Since $\omega = e^{i\pi/n^2}$ has order $2n^2$ and $k \le n < 2n^2$, we have $\omega^k \ne 1$ for $1 \le k \le n$.
+\end{proof}
+
+\begin{lemma}
+For $|Z(n)|$ we have
+\[
+|Z(n)| = \prod_{k=1}^{n} \frac{|\sin(\pi(n+k)/(2n^2))|}{|\sin(\pi k/(2n^2))|}.
+\]
+\end{lemma}
+
+\begin{proof}
+Using $|1 - e^{i\theta}| = 2|\sin(\theta/2)|$, we get $|1-\omega^m| = 2|\sin(m\pi/(2n^2))|$. Substituting into the product formula from Theorem~1 yields the result.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function compute_Z_magnitude(n):
+    log_mag = 0
+    for k = 1 to n:
+        num_angle = pi * (n + k) / (2 * n * n)
+        den_angle = pi * k / (2 * n * n)
+        log_mag += log(|sin(num_angle)|) - log(|sin(den_angle)|)
+    return floor(exp(log_mag))
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n)$ --- a single loop of $n$ iterations, each computing a constant number of trigonometric and logarithmic operations.
+    \item \textbf{Space:} $O(1)$ --- only a running accumulator for the log-magnitude.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{162450870}
+\]
+
+\end{document}

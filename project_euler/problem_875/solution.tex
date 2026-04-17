@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\title{Problem 875: Quadratic Residue Sequences}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+This problem involves patterns in the Legendre symbol sequence:
+\[
+\left(\frac{n}{p}\right) = n^{(p-1)/2} \bmod p.
+\]
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Legendre Symbol]
+For odd prime $p$ and $\gcd(n,p)=1$:
+\[
+\left(\frac{n}{p}\right) = \begin{cases} 1 & \text{if } x^2 \equiv n \pmod{p} \text{ is solvable,} \\ -1 & \text{otherwise.} \end{cases}
+\]
+\end{definition}
+
+\begin{theorem}[Euler's Criterion]
+$\left(\frac{n}{p}\right) \equiv n^{(p-1)/2} \pmod{p}$.
+\end{theorem}
+
+\begin{proof}
+$(\mathbb{Z}/p\mathbb{Z})^\times$ is cyclic of order $p-1$. Write $n = g^k$. Then $n^{(p-1)/2} = g^{k(p-1)/2} = 1$ iff $k$ is even, i.e., iff $n$ is a square. Otherwise it equals $g^{(p-1)/2} = -1$.
+\end{proof}
+
+\begin{theorem}[Quadratic Reciprocity]
+For distinct odd primes $p,q$:
+\[
+\left(\frac{p}{q}\right)\!\left(\frac{q}{p}\right) = (-1)^{\frac{p-1}{2}\cdot\frac{q-1}{2}}.
+\]
+\end{theorem}
+
+\begin{proof}
+Define $g = \sum_{a=0}^{p-1}\left(\frac{a}{p}\right)\zeta^a$ with $\zeta = e^{2\pi i/p}$. One shows $g^2 = p^* = (-1)^{(p-1)/2}p$. Computing $g^q$ two ways---via $g^{q-1} = (p^*)^{(q-1)/2}$ and via Frobenius $g^q = \left(\frac{q}{p}\right)g$---and equating yields the law.
+\end{proof}
+
+\begin{theorem}[P\'olya--Vinogradov Inequality]
+For a non-principal character $\chi \pmod{q}$:
+\[
+\left|\sum_{n=M+1}^{N}\chi(n)\right| \le \sqrt{q}\,\ln q.
+\]
+\end{theorem}
+
+\begin{proof}
+Expand $\chi(n)$ via its Fourier series with Gauss sum $\tau(\bar\chi)$, $|\tau(\bar\chi)|=\sqrt{q}$. Bound the geometric sums over $n$ by $O(1/\|a/q\|)$ and sum over $a$.
+\end{proof}
+
+\begin{lemma}[Gauss Sum Magnitude]
+For primitive $\chi \pmod{q}$: $|\tau(\chi)|^2 = q$.
+\end{lemma}
+
+\begin{proof}
+$|\tau(\chi)|^2 = \sum_{a,b}\chi(ab^{-1})e^{2\pi i(a-b)/q}$. Substituting $c = ab^{-1}$: $\sum_c \chi(c)\sum_b e^{2\pi ib(c-1)/q} = q\cdot\chi(1) = q$ by orthogonality.
+\end{proof}
+
+\section{Algorithm}
+
+Compute Legendre symbols via modular exponentiation ($O(\log p)$ each). Aggregate over the relevant primes as specified.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(p\log p)$ for the full sequence of length $p-1$; $O(\log p)$ per symbol.
+\item \textbf{Space:} $O(p)$ for full storage; $O(1)$ for running sums.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{79645946}
+\]
+
+\end{document}

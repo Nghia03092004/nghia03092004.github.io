@@ -1,0 +1,123 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\usepackage{booktabs}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Project Euler Problem 24: Lexicographic Permutations}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Determine the millionth lexicographic permutation of the digits $\{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}$.
+
+\section{Definitions}
+
+\begin{definition}[Factorial Number System]
+The \emph{factoradic} represents a non-negative integer $k$ as
+\[
+k = \sum_{i=1}^{m} d_i \cdot i!, \qquad 0 \leq d_i \leq i.
+\]
+\end{definition}
+
+\begin{definition}[Lehmer Code]
+Given a permutation $\pi$ of $\{0, \ldots, n-1\}$, its \emph{Lehmer code} is $(l_0, \ldots, l_{n-1})$ where $l_i = |\{j > i : \pi(j) < \pi(i)\}|$.
+\end{definition}
+
+\section{Theorems and Proofs}
+
+\begin{theorem}[Factoradic Uniqueness]
+Every integer $k$ with $0 \leq k < n!$ has a unique factoradic representation $(d_{n-1}, \ldots, d_1)$ with $0 \leq d_i \leq i$.
+\end{theorem}
+
+\begin{proof}
+By induction on $n$. For $n = 1$, $k = 0$ trivially. For the inductive step, write $k = d_{n-1} \cdot (n-1)! + r$ via the division algorithm. Since $k < n!$, we have $0 \leq d_{n-1} \leq n-1$. Since $0 \leq r < (n-1)!$, the inductive hypothesis gives a unique representation of $r$. Uniqueness of the full representation follows from uniqueness of quotient and remainder.
+\end{proof}
+
+\begin{theorem}[Lehmer Code Bijection]
+The $k$-th permutation (0-indexed) of $n$ elements in lexicographic order is constructed from the factoradic of~$k$: at step~$i$, select the element of rank $d_{n-1-i}$ among remaining elements.
+\end{theorem}
+
+\begin{proof}
+By induction. The $n!$ permutations partition into $n$ blocks of $(n-1)!$, where block~$j$ starts with the $j$-th smallest element. The first digit is $d_{n-1} = \lfloor k/(n-1)!\rfloor$, and the remainder $r = k \bmod (n-1)!$ indexes into the sub-permutation of the remaining $n-1$ elements. The inductive hypothesis completes the construction.
+\end{proof}
+
+\begin{lemma}[Feasibility]
+$k = 999999 < 10! = 3628800$, so the factoradic representation exists with $n = 10$.
+\end{lemma}
+
+\section{Computation}
+
+\begin{center}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+Step $i$ & $k$ & $(9{-}i)!$ & $d_{9-i}$ & Available & Selected \\
+\midrule
+0 & 999999 & 362880 & 2 & 0123456789 & 2 \\
+1 & 274239 & 40320 & 6 & 013456789 & 7 \\
+2 & 32319 & 5040 & 6 & 01345689 & 8 \\
+3 & 2079 & 720 & 2 & 0134569 & 3 \\
+4 & 639 & 120 & 5 & 014569 & 9 \\
+5 & 39 & 24 & 1 & 01456 & 1 \\
+6 & 15 & 6 & 2 & 0456 & 5 \\
+7 & 3 & 2 & 1 & 046 & 4 \\
+8 & 1 & 1 & 1 & 06 & 6 \\
+9 & 0 & 1 & 0 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{$k$-th Lexicographic Permutation}
+\begin{algorithmic}[1]
+\REQUIRE Sorted set $D$ of $n$ elements, 1-based index $k$
+\ENSURE The $k$-th lexicographic permutation of $D$
+\STATE $k \gets k - 1$ \COMMENT{convert to 0-indexed}
+\STATE $\mathrm{result} \gets [\ ]$
+\FOR{$i = 0$ \TO $n - 1$}
+    \STATE $f \gets (n - 1 - i)!$
+    \STATE $q \gets \lfloor k / f \rfloor$; \quad $k \gets k \bmod f$
+    \STATE Append $D[q]$ to $\mathrm{result}$; remove $D[q]$ from $D$
+\ENDFOR
+\RETURN $\mathrm{result}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(n^2)$ time and $O(n)$ space.
+\end{proposition}
+
+\begin{proof}
+The loop iterates $n$ times. Each iteration removes an element from a list of size $O(n)$, costing $O(n)$. All other per-iteration work is $O(1)$. Total: $O(n^2)$. Space: two lists of size $O(n)$.
+\end{proof}
+
+\begin{remark}
+Using an order-statistic tree, select-and-delete costs $O(\log n)$ per step, reducing total time to $O(n \log n)$.
+\end{remark}
+
+\section{Answer}
+
+\[
+\boxed{2783915460}
+\]
+
+\end{document}

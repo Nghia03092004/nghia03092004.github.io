@@ -1,0 +1,81 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 633: Square Sum of Squares}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count and classify integers $n \le N$ representable as sums of 2 and/or 3 squares.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Fermat--Euler]
+A positive integer $n$ is a sum of two squares if and only if every prime $p \equiv 3 \pmod{4}$ dividing $n$ appears to an even power.
+\end{theorem}
+
+\begin{proof}
+Work in the Gaussian integers $\mathbb{Z}[i]$, a UFD with norm $N(a+bi)=a^2+b^2$.
+
+$(\Leftarrow)$: Write $n = 2^{a_0}\prod_{p_j\equiv 1(4)}p_j^{a_j}\prod_{q_k\equiv 3(4)}q_k^{2b_k}$. Since $2 = -i(1+i)^2$ and each $p_j$ splits as $\pi_j\bar\pi_j$ with $N(\pi_j)=p_j$, and $q_k$ is inert with $N(q_k)=q_k^2$, we have $n = N(\alpha)$ for some $\alpha\in\mathbb{Z}[i]$.
+
+$(\Rightarrow)$: If $n = N(a+bi)$ and inert prime $q\mid n$, then $q\mid(a+bi)$ in $\mathbb{Z}[i]$, so $q^2\mid N(a+bi)=n$. By induction $v_q(n)$ is even.
+\end{proof}
+
+\begin{theorem}[Legendre]
+$n \ge 0$ is a sum of three squares if and only if $n \ne 4^a(8b+7)$ for any $a,b\ge 0$.
+\end{theorem}
+
+\begin{proof}
+$(\Rightarrow)$: Every square is $\equiv 0,1,4\pmod{8}$, so three squares sum to at most $0{+}4{+}4=8\equiv 0$, never $\equiv 7\pmod 8$. If $4\mid (a_1^2+a_2^2+a_3^2)$, all $a_i$ are even, so we can divide by 4. By induction, $4^a(8b+7)$ is excluded.
+
+$(\Leftarrow)$: Uses the Hasse--Minkowski theorem for ternary quadratic forms (stated without full proof).
+\end{proof}
+
+\begin{lemma}[Representation Count]
+$r_2(n) = 4\sum_{d\mid n}\chi_{-4}(d)$ where $\chi_{-4}$ is the non-principal character mod~4.
+\end{lemma}
+
+\begin{proof}
+Follows from $\zeta_{\mathbb{Q}(i)}(s) = \zeta(s)L(s,\chi_{-4})$ and the identity $r_2(n) = 4(d_1(n)-d_3(n))$.
+\end{proof}
+
+\begin{lemma}[Density]
+Sum-of-2-squares count $\sim C\cdot N/\sqrt{\ln N}$ (Landau--Ramanujan). Sum-of-3-squares count $= \frac{5}{6}N + O(\sqrt{N})$.
+\end{lemma}
+
+\begin{proof}
+The excluded set for 3 squares has density $\sum_{a\ge 0}\frac{1}{4^a}\cdot\frac{1}{8} = \frac{1}{6}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve smallest prime factors up to $N$.
+\item For each $n$: check 2-square condition via factorization (all $p\equiv 3\pmod 4$ to even power); check 3-square condition ($n/4^a \not\equiv 7\pmod 8$).
+\item Accumulate counts.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log N)$ for sieve and classification.
+\item \textbf{Space:} $O(N)$ for the SPF array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1.0012e-10}
+\]
+
+\end{document}

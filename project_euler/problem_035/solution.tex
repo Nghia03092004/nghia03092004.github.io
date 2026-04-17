@@ -1,0 +1,107 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 35: Circular Primes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A number is called a \emph{circular prime} if all rotations of its digits are prime. How many circular primes are there below one million?
+
+\section{Mathematical Development}
+
+\begin{definition}[Cyclic rotation]
+For a $k$-digit positive integer $n = a_1 a_2 \ldots a_k$ (with $a_1 \ne 0$), define the \emph{rotation operator}
+\[
+R(n) = (n \bmod 10) \cdot 10^{k-1} + \lfloor n/10 \rfloor.
+\]
+The \emph{orbit} of $n$ is $\mathrm{Orb}(n) = \{n, R(n), R^2(n), \ldots, R^{k-1}(n)\}$.
+\end{definition}
+
+\begin{lemma}[Periodicity]
+\label{lem:period}
+$R^k(n) = n$ for every $k$-digit integer $n$.
+\end{lemma}
+
+\begin{proof}
+$R$ acts as the cyclic permutation $a_1 a_2 \ldots a_k \mapsto a_k a_1 \ldots a_{k-1}$ on the digit string. Since cyclic permutations of $k$ elements have order $k$, $R^k$ is the identity.
+\end{proof}
+
+\begin{definition}[Circular prime]
+A prime $p$ is \emph{circular} if every element of $\mathrm{Orb}(p)$ is prime.
+\end{definition}
+
+\begin{lemma}[Single-digit cases]
+The single-digit circular primes are exactly $2, 3, 5, 7$.
+\end{lemma}
+
+\begin{proof}
+For single-digit $n$, $\mathrm{Orb}(n) = \{n\}$. The single-digit primes $\{2,3,5,7\}$ are each trivially circular.
+\end{proof}
+
+\begin{theorem}[Digit restriction]
+\label{thm:digits}
+If $p$ is a circular prime with $k \ge 2$ digits, then every digit of $p$ belongs to $\{1, 3, 7, 9\}$.
+\end{theorem}
+
+\begin{proof}
+Suppose digit $a_i$ is even. The rotation $R^{k-i}(p)$ places $a_i$ in the units position, yielding an even number $\ge 10 > 2$, hence composite---contradicting circularity.
+
+If $a_i = 5$, then $R^{k-i}(p)$ ends in $5$ and exceeds $5$ (since $k \ge 2$), so it is divisible by $5$ but not equal to $5$, hence composite.
+
+If $a_i = 0$, then $R^{k-i}(p)$ has leading digit $0$, so it is not a valid $k$-digit number, contradicting the assumption.
+
+Therefore every digit must be odd and not $0$ or $5$, leaving $\{1, 3, 7, 9\}$.
+\end{proof}
+
+\begin{theorem}[Sieve of Eratosthenes]
+For positive integer $N$, the sieve correctly identifies all primes in $\{2, \ldots, N-1\}$ in $O(N \log \log N)$ time and $O(N)$ space.
+\end{theorem}
+
+\begin{proof}
+Every composite $m < N$ has a prime factor $p \le \sqrt{m} \le \sqrt{N}$, so the sieve marks all composites. Time: $\sum_{p \le N,\, p \text{ prime}} N/p = O(N \log \log N)$ by Mertens' second theorem. Space: one boolean per integer in $[0, N)$.
+\end{proof}
+
+\begin{theorem}[Correctness]
+Given a sieve up to $N$, testing each prime $p < N$ by verifying that all rotations lie in $[0, N)$ and are prime correctly identifies all circular primes below $N$.
+\end{theorem}
+
+\begin{proof}
+If $p$ is circular, all rotations are prime. Since every rotation of a $k$-digit number is also at most $k$ digits (with digits from the same multiset), all rotations are $< 10^k \le N$. Conversely, any rotation failing the primality or range check disqualifies $p$. The sieve gives exact answers for $[0, N)$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute the sieve of Eratosthenes for $[0, N)$ with $N = 10^6$.
+\item For each prime $p < N$, compute all $k$ cyclic rotations via repeated application of $R$.
+\item Count $p$ as circular if and only if every rotation is prime.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+For $N = 10^6$, the algorithm runs in $O(N \log \log N)$ time and $O(N)$ space.
+\end{proposition}
+
+\begin{proof}
+The sieve costs $O(N \log \log N)$. The rotation phase processes $\pi(N) \approx 78{,}498$ primes, each with at most $5$ rotations in $O(1)$, totaling $O(\pi(N) \cdot d_{\max}) = O(N/\ln N) = o(N)$, dominated by the sieve. Space: $O(N)$ for the boolean array.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{55}
+\]
+
+\end{document}

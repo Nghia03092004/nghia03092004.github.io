@@ -1,0 +1,94 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 350: Constraining the Least Greatest and the Greatest Least}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a list $L = (a_1, \ldots, a_n)$ of natural numbers, let $f(L) = \mathrm{lcm}(L)$ and $g(L) = \gcd(L)$. Define
+\[
+S(C, n) = \sum_{\substack{L \in \{1,\ldots,C\}^n \\ f(L) \le C}} g(L).
+\]
+Compute $S\!\left(\tbinom{10^7}{5},\, 5\right) \bmod 999999937$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[M\"obius Inversion for GCD Sums]
+\[
+S(C, n) = \sum_{d=1}^{C} d \sum_{k=1}^{\lfloor C/d \rfloor} \mu(k) \cdot H\!\left(\left\lfloor \frac{C}{dk} \right\rfloor,\, n\right),
+\]
+where $H(m, n)$ counts lists of size $n$ from $\{1, \ldots, m\}$ with $\mathrm{lcm} \le m$.
+\end{theorem}
+
+\begin{proof}
+Factor out $\gcd(L) = d$, writing $L = dL'$ with $\gcd(L') = 1$ and elements from $\{1, \ldots, \lfloor C/d \rfloor\}$. Apply M\"obius inversion to enforce $\gcd(L') = 1$:
+\[
+\sum_{\substack{L':\,\gcd(L')=1 \\ \mathrm{lcm}(L') \le \lfloor C/d\rfloor}} 1 = \sum_{k \ge 1} \mu(k)\, H\!\left(\left\lfloor \tfrac{C}{dk}\right\rfloor, n\right).
+\]
+Multiplying by $d$ and summing over $d$ yields the formula.
+\end{proof}
+
+\begin{lemma}[Hyperbolic Summation]
+The double sum over $(d,k)$ can be evaluated in $O(\sqrt{C})$ groups, since $\lfloor C/m \rfloor$ takes at most $2\sqrt{C}$ distinct values as $m$ ranges over $\{1, \ldots, C\}$.
+\end{lemma}
+
+\begin{proof}
+Classical: if $\lfloor C/m \rfloor = v$, then $m \in [\lfloor C/(v+1)\rfloor + 1,\, \lfloor C/v \rfloor]$. There are at most $2\sqrt{C}$ distinct values of $v$.
+\end{proof}
+
+\begin{theorem}[Modular Arithmetic]
+The modulus $p = 999999937$ is prime. Modular inverses exist via Fermat's little theorem: $a^{-1} \equiv a^{p-2} \pmod{p}$.
+\end{theorem}
+
+\begin{proof}
+Primality of $999999937$ is verified by trial division or Miller--Rabin. For $\gcd(a,p) = 1$, Fermat gives $a^{p-1} \equiv 1$, so $a \cdot a^{p-2} \equiv 1$.
+\end{proof}
+
+\begin{lemma}[Mertens Function]
+Efficient evaluation of $M(x) = \sum_{k=1}^{x} \mu(k)$ for large $x$ is achieved in $O(x^{2/3})$ time using the identity
+\[
+M(x) = 1 - \sum_{k=2}^{x} M\!\left(\left\lfloor \frac{x}{k} \right\rfloor\right),
+\]
+combined with sieving for small arguments and memoization for large ones.
+\end{lemma}
+
+\begin{proof}
+The identity follows from $\sum_{d \mid n} \mu(d) = [n = 1]$ summed over $n \le x$:
+\[
+\sum_{n=1}^{x} \sum_{d \mid n} \mu(d) = 1 \implies \sum_{d=1}^{x} \mu(d) \left\lfloor \frac{x}{d} \right\rfloor = 1 \implies M(x) = 1 - \sum_{d=2}^{x} M\!\left(\lfloor x/d \rfloor\right).
+\]
+Using a sieve for $M(k)$ with $k \le x^{2/3}$ and the recursive formula for larger arguments, with hyperbolic grouping, gives $O(x^{2/3})$ time.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+C = binom(10^7, 5), n = 5, p = 999999937
+Precompute Mertens function via sieve + recursion
+Use hyperbolic summation over d*k = m:
+    Group by v = floor(C / m)
+    Sum weighted contributions d * mu(k) * H(v, n) mod p
+Return total mod p
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(C^{2/3})$ via sub-linear Mertens function computation and hyperbolic summation.
+    \item \textbf{Space:} $O(C^{1/3})$ for the Mertens lookup table.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{84664213}
+\]
+
+\end{document}

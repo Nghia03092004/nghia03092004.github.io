@@ -1,0 +1,6879 @@
+{
+  "1": {
+    "tags": [
+      "number_theory",
+      "arithmetic"
+    ]
+  },
+  "2": {
+    "tags": [
+      "sequence",
+      "algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "3": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "4": {
+    "tags": [
+      "search",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "5": {
+    "tags": [
+      "number_theory",
+      "arithmetic"
+    ]
+  },
+  "6": {
+    "tags": [
+      "algebra",
+      "combinatorics",
+      "arithmetic"
+    ]
+  },
+  "7": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "8": {
+    "tags": [
+      "search",
+      "brute_force",
+      "optimization"
+    ]
+  },
+  "9": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "10": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "constructive"
+    ]
+  },
+  "11": {
+    "tags": [
+      "graph",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "12": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "13": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "14": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "15": {
+    "tags": [
+      "geometry",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "16": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "17": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "arithmetic"
+    ]
+  },
+  "18": {
+    "tags": [
+      "dynamic_programming",
+      "geometry",
+      "greedy"
+    ]
+  },
+  "19": {
+    "tags": [
+      "modular_arithmetic",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "20": {
+    "tags": [
+      "modular_arithmetic",
+      "analytic_math",
+      "number_theory"
+    ]
+  },
+  "21": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "22": {
+    "tags": [
+      "sequence",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "23": {
+    "tags": [
+      "linear_algebra",
+      "number_theory",
+      "analytic_math"
+    ]
+  },
+  "24": {
+    "tags": [
+      "combinatorics",
+      "constructive",
+      "modular_arithmetic"
+    ]
+  },
+  "25": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "algebra"
+    ]
+  },
+  "26": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "simulation"
+    ]
+  },
+  "27": {
+    "tags": [
+      "number_theory",
+      "algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "28": {
+    "tags": [
+      "graph",
+      "arithmetic"
+    ]
+  },
+  "29": {
+    "tags": [
+      "brute_force",
+      "linear_algebra",
+      "number_theory"
+    ]
+  },
+  "30": {
+    "tags": [
+      "search",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "31": {
+    "tags": [
+      "dynamic_programming",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "32": {
+    "tags": [
+      "combinatorics",
+      "search",
+      "brute_force"
+    ]
+  },
+  "33": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "34": {
+    "tags": [
+      "modular_arithmetic",
+      "search",
+      "brute_force"
+    ]
+  },
+  "35": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "36": {
+    "tags": [
+      "constructive",
+      "brute_force",
+      "modular_arithmetic"
+    ]
+  },
+  "37": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "38": {
+    "tags": [
+      "brute_force",
+      "optimization",
+      "search"
+    ]
+  },
+  "39": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "40": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "sequence"
+    ]
+  },
+  "41": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "combinatorics"
+    ]
+  },
+  "42": {
+    "tags": [
+      "geometry",
+      "brute_force",
+      "arithmetic"
+    ]
+  },
+  "43": {
+    "tags": [
+      "constructive",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "44": {
+    "tags": [
+      "optimization",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "45": {
+    "tags": [
+      "sequence",
+      "geometry",
+      "modular_arithmetic"
+    ]
+  },
+  "46": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "47": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "48": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "sequence"
+    ]
+  },
+  "49": {
+    "tags": [
+      "number_theory",
+      "combinatorics",
+      "sequence"
+    ]
+  },
+  "50": {
+    "tags": [
+      "number_theory",
+      "search",
+      "linear_algebra"
+    ]
+  },
+  "51": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "52": {
+    "tags": [
+      "combinatorics",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "53": {
+    "tags": [
+      "combinatorics",
+      "geometry",
+      "sequence"
+    ]
+  },
+  "54": {
+    "tags": [
+      "probability",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "55": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "arithmetic"
+    ]
+  },
+  "56": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "search"
+    ]
+  },
+  "57": {
+    "tags": [
+      "sequence",
+      "linear_algebra",
+      "algebra"
+    ]
+  },
+  "58": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "analytic_math"
+    ]
+  },
+  "59": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "algebra"
+    ]
+  },
+  "60": {
+    "tags": [
+      "number_theory",
+      "graph",
+      "modular_arithmetic"
+    ]
+  },
+  "61": {
+    "tags": [
+      "search",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "62": {
+    "tags": [
+      "combinatorics",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "63": {
+    "tags": [
+      "brute_force",
+      "arithmetic"
+    ]
+  },
+  "64": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "65": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "66": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "67": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "68": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "optimization"
+    ]
+  },
+  "69": {
+    "tags": [
+      "number_theory",
+      "optimization",
+      "brute_force"
+    ]
+  },
+  "70": {
+    "tags": [
+      "number_theory",
+      "combinatorics",
+      "optimization"
+    ]
+  },
+  "71": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "optimization"
+    ]
+  },
+  "72": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "73": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "74": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "75": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "modular_arithmetic"
+    ]
+  },
+  "76": {
+    "tags": [
+      "dynamic_programming",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "77": {
+    "tags": [
+      "dynamic_programming",
+      "number_theory",
+      "analytic_math"
+    ]
+  },
+  "78": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "79": {
+    "tags": [
+      "graph",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "80": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "81": {
+    "tags": [
+      "linear_algebra",
+      "dynamic_programming",
+      "optimization"
+    ]
+  },
+  "82": {
+    "tags": [
+      "linear_algebra",
+      "dynamic_programming",
+      "optimization"
+    ]
+  },
+  "83": {
+    "tags": [
+      "linear_algebra",
+      "graph",
+      "dynamic_programming"
+    ]
+  },
+  "84": {
+    "tags": [
+      "probability",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "85": {
+    "tags": [
+      "geometry",
+      "algebra",
+      "search"
+    ]
+  },
+  "86": {
+    "tags": [
+      "brute_force",
+      "geometry",
+      "arithmetic"
+    ]
+  },
+  "87": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "88": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "geometry"
+    ]
+  },
+  "89": {
+    "tags": [
+      "brute_force",
+      "search",
+      "sequence"
+    ]
+  },
+  "90": {
+    "tags": [
+      "linear_algebra",
+      "brute_force",
+      "combinatorics"
+    ]
+  },
+  "91": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "92": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "93": {
+    "tags": [
+      "linear_algebra",
+      "recursion",
+      "search"
+    ]
+  },
+  "94": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "95": {
+    "tags": [
+      "sequence",
+      "linear_algebra",
+      "number_theory"
+    ]
+  },
+  "96": {
+    "tags": [
+      "search",
+      "geometry",
+      "optimization"
+    ]
+  },
+  "97": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "arithmetic"
+    ]
+  },
+  "98": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "99": {
+    "tags": [
+      "analytic_math",
+      "brute_force",
+      "geometry"
+    ]
+  },
+  "100": {
+    "tags": [
+      "sequence",
+      "linear_algebra",
+      "probability"
+    ]
+  },
+  "101": {
+    "tags": [
+      "algebra",
+      "analytic_math",
+      "linear_algebra"
+    ]
+  },
+  "102": {
+    "tags": [
+      "geometry",
+      "probability"
+    ]
+  },
+  "103": {
+    "tags": [
+      "linear_algebra",
+      "constructive",
+      "optimization"
+    ]
+  },
+  "104": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "105": {
+    "tags": [
+      "linear_algebra",
+      "brute_force",
+      "optimization"
+    ]
+  },
+  "106": {
+    "tags": [
+      "combinatorics",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "107": {
+    "tags": [
+      "linear_algebra",
+      "graph",
+      "optimization"
+    ]
+  },
+  "108": {
+    "tags": [
+      "search",
+      "number_theory",
+      "optimization"
+    ]
+  },
+  "109": {
+    "tags": [
+      "linear_algebra",
+      "brute_force",
+      "combinatorics"
+    ]
+  },
+  "110": {
+    "tags": [
+      "search",
+      "number_theory",
+      "optimization"
+    ]
+  },
+  "111": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "greedy"
+    ]
+  },
+  "112": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "algebra"
+    ]
+  },
+  "113": {
+    "tags": [
+      "sequence",
+      "combinatorics",
+      "algebra"
+    ]
+  },
+  "114": {
+    "tags": [
+      "sequence",
+      "linear_algebra",
+      "optimization"
+    ]
+  },
+  "115": {
+    "tags": [
+      "sequence",
+      "optimization",
+      "algebra"
+    ]
+  },
+  "116": {
+    "tags": [
+      "sequence",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "117": {
+    "tags": [
+      "sequence",
+      "analytic_math",
+      "linear_algebra"
+    ]
+  },
+  "118": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "search"
+    ]
+  },
+  "119": {
+    "tags": [
+      "search",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "120": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "number_theory"
+    ]
+  },
+  "121": {
+    "tags": [
+      "dynamic_programming",
+      "game_theory",
+      "probability"
+    ]
+  },
+  "122": {
+    "tags": [
+      "search",
+      "optimization",
+      "brute_force"
+    ]
+  },
+  "123": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "124": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "125": {
+    "tags": [
+      "brute_force",
+      "sequence",
+      "arithmetic"
+    ]
+  },
+  "126": {
+    "tags": [
+      "optimization",
+      "brute_force",
+      "geometry"
+    ]
+  },
+  "127": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "search"
+    ]
+  },
+  "128": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "129": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "130": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "131": {
+    "tags": [
+      "number_theory",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "132": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "133": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "134": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "135": {
+    "tags": [
+      "brute_force",
+      "linear_algebra",
+      "arithmetic"
+    ]
+  },
+  "136": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "137": {
+    "tags": [
+      "sequence",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "138": {
+    "tags": [
+      "sequence",
+      "linear_algebra",
+      "geometry"
+    ]
+  },
+  "139": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "140": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "141": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "142": {
+    "tags": [
+      "game_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "143": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "graph"
+    ]
+  },
+  "144": {
+    "tags": [
+      "geometry",
+      "algebra",
+      "simulation"
+    ]
+  },
+  "145": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "analytic_math"
+    ]
+  },
+  "146": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "147": {
+    "tags": [
+      "geometry",
+      "search",
+      "brute_force"
+    ]
+  },
+  "148": {
+    "tags": [
+      "geometry",
+      "recursion",
+      "modular_arithmetic"
+    ]
+  },
+  "149": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "150": {
+    "tags": [
+      "geometry",
+      "optimization",
+      "modular_arithmetic"
+    ]
+  },
+  "151": {
+    "tags": [
+      "dynamic_programming",
+      "probability",
+      "recursion"
+    ]
+  },
+  "152": {
+    "tags": [
+      "search",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "153": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "modular_arithmetic"
+    ]
+  },
+  "154": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "geometry"
+    ]
+  },
+  "155": {
+    "tags": [
+      "number_theory",
+      "combinatorics",
+      "brute_force"
+    ]
+  },
+  "156": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "search"
+    ]
+  },
+  "157": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "158": {
+    "tags": [
+      "graph",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "159": {
+    "tags": [
+      "algebra",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "160": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "recursion"
+    ]
+  },
+  "161": {
+    "tags": [
+      "dynamic_programming",
+      "brute_force",
+      "combinatorics"
+    ]
+  },
+  "162": {
+    "tags": [
+      "brute_force",
+      "modular_arithmetic",
+      "arithmetic"
+    ]
+  },
+  "163": {
+    "tags": [
+      "geometry",
+      "linear_algebra",
+      "graph"
+    ]
+  },
+  "164": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "165": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "166": {
+    "tags": [
+      "optimization",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "167": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "168": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "algebra"
+    ]
+  },
+  "169": {
+    "tags": [
+      "dynamic_programming",
+      "recursion",
+      "sequence"
+    ]
+  },
+  "170": {
+    "tags": [
+      "dynamic_programming",
+      "search",
+      "modular_arithmetic"
+    ]
+  },
+  "171": {
+    "tags": [
+      "modular_arithmetic",
+      "digit_dp",
+      "dynamic_programming"
+    ]
+  },
+  "172": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "digit_dp"
+    ]
+  },
+  "173": {
+    "tags": [
+      "modular_arithmetic",
+      "optimization",
+      "brute_force"
+    ]
+  },
+  "174": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "175": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "176": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "177": {
+    "tags": [
+      "geometry",
+      "graph",
+      "brute_force"
+    ]
+  },
+  "178": {
+    "tags": [
+      "dynamic_programming",
+      "optimization",
+      "digit_dp"
+    ]
+  },
+  "179": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "180": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "181": {
+    "tags": [
+      "dynamic_programming",
+      "analytic_math",
+      "linear_algebra"
+    ]
+  },
+  "182": {
+    "tags": [
+      "number_theory",
+      "optimization",
+      "modular_arithmetic"
+    ]
+  },
+  "183": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "geometry"
+    ]
+  },
+  "184": {
+    "tags": [
+      "geometry",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "185": {
+    "tags": [
+      "search",
+      "linear_algebra",
+      "optimization"
+    ]
+  },
+  "186": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "187": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "search"
+    ]
+  },
+  "188": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "recursion"
+    ]
+  },
+  "189": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "graph"
+    ]
+  },
+  "190": {
+    "tags": [
+      "optimization",
+      "geometry",
+      "brute_force"
+    ]
+  },
+  "191": {
+    "tags": [
+      "sequence",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "192": {
+    "tags": [
+      "sequence",
+      "analytic_math",
+      "algebra"
+    ]
+  },
+  "193": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "194": {
+    "tags": [
+      "modular_arithmetic",
+      "graph",
+      "greedy"
+    ]
+  },
+  "195": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "196": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "graph"
+    ]
+  },
+  "197": {
+    "tags": [
+      "geometry",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "198": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "analytic_math"
+    ]
+  },
+  "199": {
+    "tags": [
+      "geometry",
+      "algebra",
+      "linear_algebra"
+    ]
+  },
+  "200": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "201": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "202": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "graph"
+    ]
+  },
+  "203": {
+    "tags": [
+      "combinatorics",
+      "geometry",
+      "modular_arithmetic"
+    ]
+  },
+  "204": {
+    "tags": [
+      "number_theory",
+      "search",
+      "recursion"
+    ]
+  },
+  "205": {
+    "tags": [
+      "probability",
+      "game_theory",
+      "linear_algebra"
+    ]
+  },
+  "206": {
+    "tags": [
+      "modular_arithmetic",
+      "search",
+      "number_theory"
+    ]
+  },
+  "207": {
+    "tags": [
+      "geometry",
+      "optimization",
+      "sequence"
+    ]
+  },
+  "208": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "geometry"
+    ]
+  },
+  "209": {
+    "tags": [
+      "combinatorics",
+      "graph",
+      "linear_algebra"
+    ]
+  },
+  "210": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "211": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "212": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "linear_algebra"
+    ]
+  },
+  "213": {
+    "tags": [
+      "linear_algebra",
+      "probability",
+      "graph"
+    ]
+  },
+  "214": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "215": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "graph"
+    ]
+  },
+  "216": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "217": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "dynamic_programming"
+    ]
+  },
+  "218": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "219": {
+    "tags": [
+      "optimization",
+      "greedy",
+      "brute_force"
+    ]
+  },
+  "220": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "brute_force"
+    ]
+  },
+  "221": {
+    "tags": [
+      "number_theory",
+      "optimization",
+      "linear_algebra"
+    ]
+  },
+  "222": {
+    "tags": [
+      "dynamic_programming",
+      "optimization",
+      "geometry"
+    ]
+  },
+  "223": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "224": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "225": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "226": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "227": {
+    "tags": [
+      "geometry",
+      "probability",
+      "linear_algebra"
+    ]
+  },
+  "228": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "graph"
+    ]
+  },
+  "229": {
+    "tags": [
+      "number_theory",
+      "algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "230": {
+    "tags": [
+      "sequence",
+      "recursion",
+      "brute_force"
+    ]
+  },
+  "231": {
+    "tags": [
+      "number_theory",
+      "combinatorics",
+      "brute_force"
+    ]
+  },
+  "232": {
+    "tags": [
+      "probability",
+      "linear_algebra",
+      "game_theory"
+    ]
+  },
+  "233": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "234": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "geometry"
+    ]
+  },
+  "235": {
+    "tags": [
+      "sequence",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "236": {
+    "tags": [
+      "search",
+      "probability",
+      "number_theory"
+    ]
+  },
+  "237": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "238": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "239": {
+    "tags": [
+      "probability",
+      "combinatorics",
+      "number_theory"
+    ]
+  },
+  "240": {
+    "tags": [
+      "probability",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "241": {
+    "tags": [
+      "number_theory",
+      "search",
+      "modular_arithmetic"
+    ]
+  },
+  "242": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "digit_dp"
+    ]
+  },
+  "243": {
+    "tags": [
+      "number_theory",
+      "search",
+      "modular_arithmetic"
+    ]
+  },
+  "244": {
+    "tags": [
+      "modular_arithmetic",
+      "search",
+      "geometry"
+    ]
+  },
+  "245": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "246": {
+    "tags": [
+      "geometry",
+      "algebra",
+      "search"
+    ]
+  },
+  "247": {
+    "tags": [
+      "greedy",
+      "algebra",
+      "geometry"
+    ]
+  },
+  "248": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "recursion"
+    ]
+  },
+  "249": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "250": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "251": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "252": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "253": {
+    "tags": [
+      "dynamic_programming",
+      "graph",
+      "linear_algebra"
+    ]
+  },
+  "254": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "optimization"
+    ]
+  },
+  "255": {
+    "tags": [
+      "geometry",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "256": {
+    "tags": [
+      "linear_algebra",
+      "geometry",
+      "search"
+    ]
+  },
+  "257": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "analytic_math"
+    ]
+  },
+  "258": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "sequence"
+    ]
+  },
+  "259": {
+    "tags": [
+      "dynamic_programming",
+      "geometry",
+      "sequence"
+    ]
+  },
+  "260": {
+    "tags": [
+      "game_theory",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "261": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "262": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "263": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "264": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "265": {
+    "tags": [
+      "graph",
+      "search",
+      "sequence"
+    ]
+  },
+  "266": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "search"
+    ]
+  },
+  "267": {
+    "tags": [
+      "optimization",
+      "probability",
+      "search"
+    ]
+  },
+  "268": {
+    "tags": [
+      "number_theory",
+      "search",
+      "recursion"
+    ]
+  },
+  "269": {
+    "tags": [
+      "algebra",
+      "dynamic_programming",
+      "digit_dp"
+    ]
+  },
+  "270": {
+    "tags": [
+      "geometry",
+      "graph",
+      "combinatorics"
+    ]
+  },
+  "271": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "number_theory"
+    ]
+  },
+  "272": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "273": {
+    "tags": [
+      "number_theory",
+      "search",
+      "modular_arithmetic"
+    ]
+  },
+  "274": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "275": {
+    "tags": [
+      "search",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "276": {
+    "tags": [
+      "geometry",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "277": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "278": {
+    "tags": [
+      "linear_algebra",
+      "number_theory",
+      "optimization"
+    ]
+  },
+  "279": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "280": {
+    "tags": [
+      "probability",
+      "graph",
+      "linear_algebra"
+    ]
+  },
+  "281": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "282": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "283": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "284": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "285": {
+    "tags": [
+      "geometry",
+      "game_theory",
+      "probability"
+    ]
+  },
+  "286": {
+    "tags": [
+      "dynamic_programming",
+      "probability",
+      "algebra"
+    ]
+  },
+  "287": {
+    "tags": [
+      "geometry",
+      "combinatorics",
+      "recursion"
+    ]
+  },
+  "288": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "289": {
+    "tags": [
+      "graph",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "290": {
+    "tags": [
+      "dynamic_programming",
+      "digit_dp",
+      "linear_algebra"
+    ]
+  },
+  "291": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "292": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "search"
+    ]
+  },
+  "293": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "294": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "digit_dp"
+    ]
+  },
+  "295": {
+    "tags": [
+      "linear_algebra",
+      "geometry",
+      "modular_arithmetic"
+    ]
+  },
+  "296": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "analytic_math"
+    ]
+  },
+  "297": {
+    "tags": [
+      "sequence",
+      "number_theory",
+      "recursion"
+    ]
+  },
+  "298": {
+    "tags": [
+      "probability",
+      "simulation",
+      "dynamic_programming"
+    ]
+  },
+  "299": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "300": {
+    "tags": [
+      "graph",
+      "search",
+      "sequence"
+    ]
+  },
+  "301": {
+    "tags": [
+      "game_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "302": {
+    "tags": [
+      "number_theory",
+      "search",
+      "linear_algebra"
+    ]
+  },
+  "303": {
+    "tags": [
+      "search",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "304": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "305": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "306": {
+    "tags": [
+      "game_theory",
+      "graph",
+      "modular_arithmetic"
+    ]
+  },
+  "307": {
+    "tags": [
+      "probability",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "308": {
+    "tags": [
+      "number_theory",
+      "simulation",
+      "brute_force"
+    ]
+  },
+  "309": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "310": {
+    "tags": [
+      "game_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "311": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "constructive"
+    ]
+  },
+  "312": {
+    "tags": [
+      "graph",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "313": {
+    "tags": [
+      "number_theory",
+      "game_theory",
+      "optimization"
+    ]
+  },
+  "314": {
+    "tags": [
+      "geometry",
+      "optimization",
+      "analytic_math"
+    ]
+  },
+  "315": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "316": {
+    "tags": [
+      "probability",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "317": {
+    "tags": [
+      "geometry",
+      "algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "318": {
+    "tags": [
+      "algebra",
+      "geometry",
+      "brute_force"
+    ]
+  },
+  "319": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "dynamic_programming"
+    ]
+  },
+  "320": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "321": {
+    "tags": [
+      "sequence",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "322": {
+    "tags": [
+      "dynamic_programming",
+      "digit_dp",
+      "number_theory"
+    ]
+  },
+  "323": {
+    "tags": [
+      "probability",
+      "combinatorics",
+      "geometry"
+    ]
+  },
+  "324": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "algebra"
+    ]
+  },
+  "325": {
+    "tags": [
+      "modular_arithmetic",
+      "game_theory",
+      "number_theory"
+    ]
+  },
+  "326": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "327": {
+    "tags": [
+      "probability",
+      "optimization",
+      "sequence"
+    ]
+  },
+  "328": {
+    "tags": [
+      "dynamic_programming",
+      "optimization",
+      "game_theory"
+    ]
+  },
+  "329": {
+    "tags": [
+      "probability",
+      "sequence",
+      "dynamic_programming"
+    ]
+  },
+  "330": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "331": {
+    "tags": [
+      "linear_algebra",
+      "optimization",
+      "modular_arithmetic"
+    ]
+  },
+  "332": {
+    "tags": [
+      "geometry",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "333": {
+    "tags": [
+      "dynamic_programming",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "334": {
+    "tags": [
+      "greedy",
+      "sequence",
+      "graph"
+    ]
+  },
+  "335": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "optimization"
+    ]
+  },
+  "336": {
+    "tags": [
+      "combinatorics",
+      "search",
+      "constructive"
+    ]
+  },
+  "337": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "338": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "geometry"
+    ]
+  },
+  "339": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "sequence"
+    ]
+  },
+  "340": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "analytic_math"
+    ]
+  },
+  "341": {
+    "tags": [
+      "sequence",
+      "analytic_math",
+      "linear_algebra"
+    ]
+  },
+  "342": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "343": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "344": {
+    "tags": [
+      "game_theory",
+      "dynamic_programming",
+      "brute_force"
+    ]
+  },
+  "345": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "346": {
+    "tags": [
+      "brute_force",
+      "arithmetic"
+    ]
+  },
+  "347": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "348": {
+    "tags": [
+      "search",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "349": {
+    "tags": [
+      "simulation",
+      "modular_arithmetic",
+      "geometry"
+    ]
+  },
+  "350": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "351": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "brute_force"
+    ]
+  },
+  "352": {
+    "tags": [
+      "probability",
+      "optimization",
+      "game_theory"
+    ]
+  },
+  "353": {
+    "tags": [
+      "optimization",
+      "geometry",
+      "graph"
+    ]
+  },
+  "354": {
+    "tags": [
+      "modular_arithmetic",
+      "search",
+      "linear_algebra"
+    ]
+  },
+  "355": {
+    "tags": [
+      "number_theory",
+      "greedy",
+      "brute_force"
+    ]
+  },
+  "356": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "analytic_math"
+    ]
+  },
+  "357": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "358": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "search"
+    ]
+  },
+  "359": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "algebra"
+    ]
+  },
+  "360": {
+    "tags": [
+      "recursion",
+      "geometry",
+      "modular_arithmetic"
+    ]
+  },
+  "361": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "362": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "analytic_math"
+    ]
+  },
+  "363": {
+    "tags": [
+      "optimization",
+      "geometry",
+      "algebra"
+    ]
+  },
+  "364": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "recursion"
+    ]
+  },
+  "365": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "366": {
+    "tags": [
+      "sequence",
+      "game_theory",
+      "dynamic_programming"
+    ]
+  },
+  "367": {
+    "tags": [
+      "probability",
+      "combinatorics",
+      "linear_algebra"
+    ]
+  },
+  "368": {
+    "tags": [
+      "digit_dp",
+      "dynamic_programming",
+      "analytic_math"
+    ]
+  },
+  "369": {
+    "tags": [
+      "probability",
+      "combinatorics",
+      "brute_force"
+    ]
+  },
+  "370": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "371": {
+    "tags": [
+      "probability",
+      "game_theory",
+      "linear_algebra"
+    ]
+  },
+  "372": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "linear_algebra"
+    ]
+  },
+  "373": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "374": {
+    "tags": [
+      "modular_arithmetic",
+      "game_theory",
+      "brute_force"
+    ]
+  },
+  "375": {
+    "tags": [
+      "modular_arithmetic",
+      "optimization",
+      "sequence"
+    ]
+  },
+  "376": {
+    "tags": [
+      "probability",
+      "modular_arithmetic",
+      "dynamic_programming"
+    ]
+  },
+  "377": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "378": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "379": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "combinatorics"
+    ]
+  },
+  "380": {
+    "tags": [
+      "linear_algebra",
+      "graph",
+      "analytic_math"
+    ]
+  },
+  "381": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "382": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "number_theory"
+    ]
+  },
+  "383": {
+    "tags": [
+      "dynamic_programming",
+      "digit_dp",
+      "number_theory"
+    ]
+  },
+  "384": {
+    "tags": [
+      "sequence",
+      "recursion",
+      "modular_arithmetic"
+    ]
+  },
+  "385": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "combinatorics"
+    ]
+  },
+  "386": {
+    "tags": [
+      "combinatorics",
+      "analytic_math",
+      "optimization"
+    ]
+  },
+  "387": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "search"
+    ]
+  },
+  "388": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "linear_algebra"
+    ]
+  },
+  "389": {
+    "tags": [
+      "probability",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "390": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "modular_arithmetic"
+    ]
+  },
+  "391": {
+    "tags": [
+      "game_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "392": {
+    "tags": [
+      "geometry",
+      "optimization",
+      "sequence"
+    ]
+  },
+  "393": {
+    "tags": [
+      "dynamic_programming",
+      "geometry",
+      "graph"
+    ]
+  },
+  "394": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "probability"
+    ]
+  },
+  "395": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "396": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "397": {
+    "tags": [
+      "geometry",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "398": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "probability"
+    ]
+  },
+  "399": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "400": {
+    "tags": [
+      "game_theory",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "401": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "arithmetic"
+    ]
+  },
+  "402": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "number_theory"
+    ]
+  },
+  "403": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "algebra"
+    ]
+  },
+  "404": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "geometry"
+    ]
+  },
+  "405": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "406": {
+    "tags": [
+      "sequence",
+      "game_theory",
+      "dynamic_programming"
+    ]
+  },
+  "407": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "408": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "409": {
+    "tags": [
+      "modular_arithmetic",
+      "game_theory",
+      "brute_force"
+    ]
+  },
+  "410": {
+    "tags": [
+      "geometry",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "411": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "412": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "413": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "digit_dp"
+    ]
+  },
+  "414": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "415": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "combinatorics"
+    ]
+  },
+  "416": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "constructive"
+    ]
+  },
+  "417": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "418": {
+    "tags": [
+      "number_theory",
+      "search",
+      "optimization"
+    ]
+  },
+  "419": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "420": {
+    "tags": [
+      "linear_algebra",
+      "brute_force",
+      "game_theory"
+    ]
+  },
+  "421": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "422": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "423": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "424": {
+    "tags": [
+      "search",
+      "combinatorics",
+      "brute_force"
+    ]
+  },
+  "425": {
+    "tags": [
+      "number_theory",
+      "search",
+      "graph"
+    ]
+  },
+  "426": {
+    "tags": [
+      "brute_force",
+      "search",
+      "sequence"
+    ]
+  },
+  "427": {
+    "tags": [
+      "dynamic_programming",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "428": {
+    "tags": [
+      "geometry",
+      "arithmetic"
+    ]
+  },
+  "429": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "430": {
+    "tags": [
+      "analytic_math",
+      "probability",
+      "brute_force"
+    ]
+  },
+  "431": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "432": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "433": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "434": {
+    "tags": [
+      "graph",
+      "game_theory",
+      "algebra"
+    ]
+  },
+  "435": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "436": {
+    "tags": [
+      "probability",
+      "modular_arithmetic",
+      "simulation"
+    ]
+  },
+  "437": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "438": {
+    "tags": [
+      "algebra",
+      "search",
+      "recursion"
+    ]
+  },
+  "439": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "440": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "441": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "442": {
+    "tags": [
+      "dynamic_programming",
+      "digit_dp",
+      "search"
+    ]
+  },
+  "443": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "444": {
+    "tags": [
+      "probability",
+      "graph",
+      "modular_arithmetic"
+    ]
+  },
+  "445": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "combinatorics"
+    ]
+  },
+  "446": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "447": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "448": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "449": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "450": {
+    "tags": [
+      "geometry",
+      "brute_force",
+      "constructive"
+    ]
+  },
+  "451": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "452": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "453": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "number_theory"
+    ]
+  },
+  "454": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "455": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "456": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "457": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "458": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "combinatorics"
+    ]
+  },
+  "459": {
+    "tags": [
+      "game_theory",
+      "linear_algebra",
+      "dynamic_programming"
+    ]
+  },
+  "460": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "optimization"
+    ]
+  },
+  "461": {
+    "tags": [
+      "search",
+      "optimization",
+      "linear_algebra"
+    ]
+  },
+  "462": {
+    "tags": [
+      "combinatorics",
+      "linear_algebra",
+      "search"
+    ]
+  },
+  "463": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "recursion"
+    ]
+  },
+  "464": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "465": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "linear_algebra"
+    ]
+  },
+  "466": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "467": {
+    "tags": [
+      "modular_arithmetic",
+      "constructive",
+      "dynamic_programming"
+    ]
+  },
+  "468": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "469": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "sequence"
+    ]
+  },
+  "470": {
+    "tags": [
+      "linear_algebra",
+      "game_theory",
+      "graph"
+    ]
+  },
+  "471": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "algebra"
+    ]
+  },
+  "472": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "473": {
+    "tags": [
+      "number_theory",
+      "search",
+      "geometry"
+    ]
+  },
+  "474": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "475": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "combinatorics"
+    ]
+  },
+  "476": {
+    "tags": [
+      "geometry",
+      "greedy",
+      "brute_force"
+    ]
+  },
+  "477": {
+    "tags": [
+      "sequence",
+      "dynamic_programming",
+      "modular_arithmetic"
+    ]
+  },
+  "478": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "number_theory"
+    ]
+  },
+  "479": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "480": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "481": {
+    "tags": [
+      "linear_algebra",
+      "probability",
+      "game_theory"
+    ]
+  },
+  "482": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "483": {
+    "tags": [
+      "number_theory",
+      "dynamic_programming",
+      "combinatorics"
+    ]
+  },
+  "484": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "modular_arithmetic"
+    ]
+  },
+  "485": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "486": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "number_theory"
+    ]
+  },
+  "487": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "488": {
+    "tags": [
+      "game_theory",
+      "dynamic_programming",
+      "optimization"
+    ]
+  },
+  "489": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "490": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "491": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "number_theory"
+    ]
+  },
+  "492": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "493": {
+    "tags": [
+      "probability",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "494": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "495": {
+    "tags": [
+      "dynamic_programming",
+      "analytic_math",
+      "linear_algebra"
+    ]
+  },
+  "496": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "497": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "linear_algebra"
+    ]
+  },
+  "498": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "number_theory"
+    ]
+  },
+  "499": {
+    "tags": [
+      "modular_arithmetic",
+      "game_theory",
+      "simulation"
+    ]
+  },
+  "500": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "501": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "502": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "503": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "dynamic_programming"
+    ]
+  },
+  "504": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "graph"
+    ]
+  },
+  "505": {
+    "tags": [
+      "game_theory",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "506": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "507": {
+    "tags": [
+      "linear_algebra",
+      "algebra",
+      "optimization"
+    ]
+  },
+  "508": {
+    "tags": [
+      "modular_arithmetic",
+      "constructive",
+      "brute_force"
+    ]
+  },
+  "509": {
+    "tags": [
+      "game_theory",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "510": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "search"
+    ]
+  },
+  "511": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "number_theory"
+    ]
+  },
+  "512": {
+    "tags": [
+      "number_theory",
+      "dynamic_programming",
+      "recursion"
+    ]
+  },
+  "513": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "modular_arithmetic"
+    ]
+  },
+  "514": {
+    "tags": [
+      "geometry",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "515": {
+    "tags": [
+      "dynamic_programming",
+      "digit_dp",
+      "analytic_math"
+    ]
+  },
+  "516": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "517": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "combinatorics"
+    ]
+  },
+  "518": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "519": {
+    "tags": [
+      "dynamic_programming",
+      "graph",
+      "linear_algebra"
+    ]
+  },
+  "520": {
+    "tags": [
+      "dynamic_programming",
+      "digit_dp",
+      "linear_algebra"
+    ]
+  },
+  "521": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "522": {
+    "tags": [
+      "graph",
+      "recursion",
+      "sequence"
+    ]
+  },
+  "523": {
+    "tags": [
+      "combinatorics",
+      "probability",
+      "simulation"
+    ]
+  },
+  "524": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "combinatorics"
+    ]
+  },
+  "525": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "linear_algebra"
+    ]
+  },
+  "526": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "527": {
+    "tags": [
+      "search",
+      "analytic_math",
+      "sequence"
+    ]
+  },
+  "528": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "brute_force"
+    ]
+  },
+  "529": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "530": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "531": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "532": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "number_theory"
+    ]
+  },
+  "533": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "534": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "graph"
+    ]
+  },
+  "535": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "recursion"
+    ]
+  },
+  "536": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "search"
+    ]
+  },
+  "537": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "number_theory"
+    ]
+  },
+  "538": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "number_theory"
+    ]
+  },
+  "539": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "number_theory"
+    ]
+  },
+  "540": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "541": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "542": {
+    "tags": [
+      "modular_arithmetic",
+      "optimization",
+      "number_theory"
+    ]
+  },
+  "543": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "544": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "algebra"
+    ]
+  },
+  "545": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "546": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "547": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "analytic_math"
+    ]
+  },
+  "548": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "549": {
+    "tags": [
+      "number_theory",
+      "search",
+      "modular_arithmetic"
+    ]
+  },
+  "550": {
+    "tags": [
+      "modular_arithmetic",
+      "game_theory",
+      "number_theory"
+    ]
+  },
+  "551": {
+    "tags": [
+      "dynamic_programming",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "552": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "combinatorics"
+    ]
+  },
+  "553": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "number_theory"
+    ]
+  },
+  "554": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "555": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "geometry"
+    ]
+  },
+  "556": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "geometry"
+    ]
+  },
+  "557": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "analytic_math"
+    ]
+  },
+  "558": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "dynamic_programming"
+    ]
+  },
+  "559": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "dynamic_programming"
+    ]
+  },
+  "560": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "number_theory"
+    ]
+  },
+  "561": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "geometry"
+    ]
+  },
+  "562": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "563": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "564": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "565": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "566": {
+    "tags": [
+      "geometry",
+      "simulation",
+      "sequence"
+    ]
+  },
+  "567": {
+    "tags": [
+      "modular_arithmetic",
+      "optimization",
+      "dynamic_programming"
+    ]
+  },
+  "568": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "569": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "number_theory"
+    ]
+  },
+  "570": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "dynamic_programming"
+    ]
+  },
+  "571": {
+    "tags": [
+      "combinatorics",
+      "modular_arithmetic",
+      "probability"
+    ]
+  },
+  "572": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "number_theory"
+    ]
+  },
+  "573": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "dynamic_programming"
+    ]
+  },
+  "574": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "dynamic_programming"
+    ]
+  },
+  "575": {
+    "tags": [
+      "modular_arithmetic",
+      "graph",
+      "probability"
+    ]
+  },
+  "576": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "geometry"
+    ]
+  },
+  "577": {
+    "tags": [
+      "geometry",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "578": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "recursion"
+    ]
+  },
+  "579": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "number_theory"
+    ]
+  },
+  "580": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "dynamic_programming"
+    ]
+  },
+  "581": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "582": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "sequence"
+    ]
+  },
+  "583": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "584": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "number_theory"
+    ]
+  },
+  "585": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "586": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "dynamic_programming"
+    ]
+  },
+  "587": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "modular_arithmetic"
+    ]
+  },
+  "588": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "linear_algebra"
+    ]
+  },
+  "589": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "590": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "dynamic_programming"
+    ]
+  },
+  "591": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "592": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "593": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "594": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "linear_algebra"
+    ]
+  },
+  "595": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "combinatorics"
+    ]
+  },
+  "596": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "dynamic_programming"
+    ]
+  },
+  "597": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "graph"
+    ]
+  },
+  "598": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "number_theory"
+    ]
+  },
+  "599": {
+    "tags": [
+      "modular_arithmetic",
+      "graph",
+      "brute_force"
+    ]
+  },
+  "600": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "brute_force"
+    ]
+  },
+  "601": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "602": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "603": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "604": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "sequence"
+    ]
+  },
+  "605": {
+    "tags": [
+      "sequence",
+      "probability",
+      "game_theory"
+    ]
+  },
+  "606": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "607": {
+    "tags": [
+      "geometry",
+      "optimization",
+      "brute_force"
+    ]
+  },
+  "608": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "609": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "number_theory"
+    ]
+  },
+  "610": {
+    "tags": [
+      "brute_force",
+      "dynamic_programming",
+      "search"
+    ]
+  },
+  "611": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "analytic_math"
+    ]
+  },
+  "612": {
+    "tags": [
+      "combinatorics",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "613": {
+    "tags": [
+      "geometry",
+      "probability",
+      "analytic_math"
+    ]
+  },
+  "614": {
+    "tags": [
+      "dynamic_programming",
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "615": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "616": {
+    "tags": [
+      "number_theory",
+      "search",
+      "dynamic_programming"
+    ]
+  },
+  "617": {
+    "tags": [
+      "sequence",
+      "search",
+      "brute_force"
+    ]
+  },
+  "618": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "619": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "620": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "search"
+    ]
+  },
+  "621": {
+    "tags": [
+      "analytic_math",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "622": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "623": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "624": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "simulation"
+    ]
+  },
+  "625": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "626": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "627": {
+    "tags": [
+      "dynamic_programming",
+      "number_theory",
+      "recursion"
+    ]
+  },
+  "628": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "combinatorics"
+    ]
+  },
+  "629": {
+    "tags": [
+      "game_theory",
+      "linear_algebra",
+      "dynamic_programming"
+    ]
+  },
+  "630": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "sequence"
+    ]
+  },
+  "631": {
+    "tags": [
+      "linear_algebra",
+      "probability",
+      "modular_arithmetic"
+    ]
+  },
+  "632": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "633": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "634": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "geometry"
+    ]
+  },
+  "635": {
+    "tags": [
+      "dynamic_programming",
+      "analytic_math",
+      "algebra"
+    ]
+  },
+  "636": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "analytic_math"
+    ]
+  },
+  "637": {
+    "tags": [
+      "modular_arithmetic",
+      "constructive",
+      "algebra"
+    ]
+  },
+  "638": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "geometry"
+    ]
+  },
+  "639": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "dynamic_programming"
+    ]
+  },
+  "640": {
+    "tags": [
+      "probability",
+      "game_theory",
+      "brute_force"
+    ]
+  },
+  "641": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "642": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "dynamic_programming"
+    ]
+  },
+  "643": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "arithmetic"
+    ]
+  },
+  "644": {
+    "tags": [
+      "probability",
+      "geometry",
+      "analytic_math"
+    ]
+  },
+  "645": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "analytic_math"
+    ]
+  },
+  "646": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "recursion"
+    ]
+  },
+  "647": {
+    "tags": [
+      "sequence",
+      "algebra",
+      "number_theory"
+    ]
+  },
+  "648": {
+    "tags": [
+      "search",
+      "sequence",
+      "arithmetic"
+    ]
+  },
+  "649": {
+    "tags": [
+      "game_theory",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "650": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "651": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "652": {
+    "tags": [
+      "number_theory",
+      "search",
+      "recursion"
+    ]
+  },
+  "653": {
+    "tags": [
+      "sequence",
+      "recursion"
+    ]
+  },
+  "654": {
+    "tags": [
+      "linear_algebra",
+      "graph",
+      "algebra"
+    ]
+  },
+  "655": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "656": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "657": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "sequence"
+    ]
+  },
+  "658": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "brute_force"
+    ]
+  },
+  "659": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "660": {
+    "tags": [
+      "geometry",
+      "combinatorics",
+      "optimization"
+    ]
+  },
+  "661": {
+    "tags": [
+      "probability",
+      "analytic_math",
+      "game_theory"
+    ]
+  },
+  "662": {
+    "tags": [
+      "dynamic_programming",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "663": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "probability"
+    ]
+  },
+  "664": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "game_theory"
+    ]
+  },
+  "665": {
+    "tags": [
+      "game_theory",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "666": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "geometry"
+    ]
+  },
+  "667": {
+    "tags": [
+      "geometry",
+      "optimization",
+      "modular_arithmetic"
+    ]
+  },
+  "668": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "669": {
+    "tags": [
+      "sequence",
+      "graph",
+      "modular_arithmetic"
+    ]
+  },
+  "670": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "671": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "algebra"
+    ]
+  },
+  "672": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "673": {
+    "tags": [
+      "linear_algebra",
+      "combinatorics",
+      "modular_arithmetic"
+    ]
+  },
+  "674": {
+    "tags": [
+      "sequence",
+      "linear_algebra",
+      "analytic_math"
+    ]
+  },
+  "675": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "676": {
+    "tags": [
+      "dynamic_programming",
+      "digit_dp",
+      "number_theory"
+    ]
+  },
+  "677": {
+    "tags": [
+      "graph",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "678": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "679": {
+    "tags": [
+      "dynamic_programming",
+      "geometry",
+      "linear_algebra"
+    ]
+  },
+  "680": {
+    "tags": [
+      "combinatorics",
+      "algebra",
+      "sequence"
+    ]
+  },
+  "681": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "682": {
+    "tags": [
+      "algebra",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "683": {
+    "tags": [
+      "linear_algebra",
+      "probability",
+      "modular_arithmetic"
+    ]
+  },
+  "684": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "685": {
+    "tags": [
+      "constructive",
+      "modular_arithmetic",
+      "digit_dp"
+    ]
+  },
+  "686": {
+    "tags": [
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "687": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "688": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "689": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "690": {
+    "tags": [
+      "graph",
+      "modular_arithmetic",
+      "dynamic_programming"
+    ]
+  },
+  "691": {
+    "tags": [
+      "sequence",
+      "optimization",
+      "constructive"
+    ]
+  },
+  "692": {
+    "tags": [
+      "sequence",
+      "graph",
+      "digit_dp"
+    ]
+  },
+  "693": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "dynamic_programming"
+    ]
+  },
+  "694": {
+    "tags": [
+      "number_theory",
+      "recursion",
+      "linear_algebra"
+    ]
+  },
+  "695": {
+    "tags": [
+      "probability",
+      "modular_arithmetic",
+      "dynamic_programming"
+    ]
+  },
+  "696": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "697": {
+    "tags": [
+      "analytic_math",
+      "sequence",
+      "probability"
+    ]
+  },
+  "698": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "digit_dp"
+    ]
+  },
+  "699": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "linear_algebra"
+    ]
+  },
+  "700": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "optimization"
+    ]
+  },
+  "701": {
+    "tags": [
+      "analytic_math",
+      "probability",
+      "graph"
+    ]
+  },
+  "702": {
+    "tags": [
+      "geometry",
+      "optimization",
+      "sequence"
+    ]
+  },
+  "703": {
+    "tags": [
+      "graph",
+      "dynamic_programming",
+      "modular_arithmetic"
+    ]
+  },
+  "704": {
+    "tags": [
+      "combinatorics",
+      "brute_force",
+      "constructive"
+    ]
+  },
+  "705": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "arithmetic"
+    ]
+  },
+  "706": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "dynamic_programming"
+    ]
+  },
+  "707": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "708": {
+    "tags": [
+      "number_theory",
+      "dynamic_programming",
+      "recursion"
+    ]
+  },
+  "709": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "number_theory"
+    ]
+  },
+  "710": {
+    "tags": [
+      "dynamic_programming",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "711": {
+    "tags": [
+      "game_theory",
+      "dynamic_programming",
+      "digit_dp"
+    ]
+  },
+  "712": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "713": {
+    "tags": [
+      "game_theory",
+      "optimization",
+      "modular_arithmetic"
+    ]
+  },
+  "714": {
+    "tags": [
+      "search",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "715": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "716": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "717": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "optimization"
+    ]
+  },
+  "718": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "brute_force"
+    ]
+  },
+  "719": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "brute_force"
+    ]
+  },
+  "720": {
+    "tags": [
+      "combinatorics",
+      "modular_arithmetic",
+      "recursion"
+    ]
+  },
+  "721": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "722": {
+    "tags": [
+      "algebra",
+      "graph",
+      "analytic_math"
+    ]
+  },
+  "723": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "modular_arithmetic"
+    ]
+  },
+  "724": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "probability"
+    ]
+  },
+  "725": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "sequence"
+    ]
+  },
+  "726": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "combinatorics"
+    ]
+  },
+  "727": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "728": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "729": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "730": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "731": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "linear_algebra"
+    ]
+  },
+  "732": {
+    "tags": [
+      "dynamic_programming",
+      "greedy",
+      "modular_arithmetic"
+    ]
+  },
+  "733": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "734": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "735": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "736": {
+    "tags": [
+      "search",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "737": {
+    "tags": [
+      "modular_arithmetic",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "738": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "739": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "combinatorics"
+    ]
+  },
+  "740": {
+    "tags": [
+      "probability",
+      "dynamic_programming",
+      "simulation"
+    ]
+  },
+  "741": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "combinatorics"
+    ]
+  },
+  "742": {
+    "tags": [
+      "geometry",
+      "optimization",
+      "linear_algebra"
+    ]
+  },
+  "743": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "combinatorics"
+    ]
+  },
+  "744": {
+    "tags": [
+      "game_theory",
+      "probability",
+      "analytic_math"
+    ]
+  },
+  "745": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "746": {
+    "tags": [
+      "sequence",
+      "graph",
+      "combinatorics"
+    ]
+  },
+  "747": {
+    "tags": [
+      "geometry",
+      "graph",
+      "number_theory"
+    ]
+  },
+  "748": {
+    "tags": [
+      "number_theory",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "749": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "recursion"
+    ]
+  },
+  "750": {
+    "tags": [
+      "combinatorics",
+      "optimization",
+      "geometry"
+    ]
+  },
+  "751": {
+    "tags": [
+      "sequence",
+      "geometry",
+      "brute_force"
+    ]
+  },
+  "752": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "753": {
+    "tags": [
+      "algebra",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "754": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "combinatorics"
+    ]
+  },
+  "755": {
+    "tags": [
+      "sequence",
+      "digit_dp",
+      "dynamic_programming"
+    ]
+  },
+  "756": {
+    "tags": [
+      "probability",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "757": {
+    "tags": [
+      "brute_force",
+      "linear_algebra"
+    ]
+  },
+  "758": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "759": {
+    "tags": [
+      "sequence",
+      "brute_force",
+      "combinatorics"
+    ]
+  },
+  "760": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "761": {
+    "tags": [
+      "geometry",
+      "game_theory",
+      "analytic_math"
+    ]
+  },
+  "762": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "763": {
+    "tags": [
+      "analytic_math",
+      "combinatorics",
+      "constructive"
+    ]
+  },
+  "764": {
+    "tags": [
+      "number_theory",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "765": {
+    "tags": [
+      "probability",
+      "optimization",
+      "dynamic_programming"
+    ]
+  },
+  "766": {
+    "tags": [
+      "search",
+      "linear_algebra",
+      "geometry"
+    ]
+  },
+  "767": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "768": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "combinatorics"
+    ]
+  },
+  "769": {
+    "tags": [
+      "algebra",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "770": {
+    "tags": [
+      "combinatorics",
+      "brute_force",
+      "dynamic_programming"
+    ]
+  },
+  "771": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "772": {
+    "tags": [
+      "modular_arithmetic",
+      "constructive",
+      "sequence"
+    ]
+  },
+  "773": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "combinatorics"
+    ]
+  },
+  "774": {
+    "tags": [
+      "linear_algebra",
+      "digit_dp",
+      "algebra"
+    ]
+  },
+  "775": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "optimization"
+    ]
+  },
+  "776": {
+    "tags": [
+      "linear_algebra",
+      "dynamic_programming",
+      "digit_dp"
+    ]
+  },
+  "777": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "778": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "779": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "780": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "781": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "combinatorics"
+    ]
+  },
+  "782": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "783": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "784": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "785": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "786": {
+    "tags": [
+      "linear_algebra",
+      "combinatorics",
+      "geometry"
+    ]
+  },
+  "787": {
+    "tags": [
+      "game_theory",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "788": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "brute_force"
+    ]
+  },
+  "789": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "optimization"
+    ]
+  },
+  "790": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "combinatorics"
+    ]
+  },
+  "791": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "analytic_math"
+    ]
+  },
+  "792": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "793": {
+    "tags": [
+      "search",
+      "algebra",
+      "combinatorics"
+    ]
+  },
+  "794": {
+    "tags": [
+      "geometry",
+      "combinatorics",
+      "optimization"
+    ]
+  },
+  "795": {
+    "tags": [
+      "number_theory",
+      "combinatorics",
+      "geometry"
+    ]
+  },
+  "796": {
+    "tags": [
+      "probability",
+      "combinatorics",
+      "geometry"
+    ]
+  },
+  "797": {
+    "tags": [
+      "algebra",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "798": {
+    "tags": [
+      "probability",
+      "game_theory",
+      "combinatorics"
+    ]
+  },
+  "799": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "800": {
+    "tags": [
+      "number_theory",
+      "search",
+      "linear_algebra"
+    ]
+  },
+  "801": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "802": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "803": {
+    "tags": [
+      "sequence",
+      "search",
+      "brute_force"
+    ]
+  },
+  "804": {
+    "tags": [
+      "algebra",
+      "brute_force",
+      "number_theory"
+    ]
+  },
+  "805": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "search"
+    ]
+  },
+  "806": {
+    "tags": [
+      "arithmetic"
+    ]
+  },
+  "807": {
+    "tags": [
+      "probability",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "808": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "search"
+    ]
+  },
+  "809": {
+    "tags": [
+      "sequence",
+      "modular_arithmetic",
+      "recursion"
+    ]
+  },
+  "810": {
+    "tags": [
+      "algebra",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "811": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "digit_dp"
+    ]
+  },
+  "812": {
+    "tags": [
+      "graph",
+      "modular_arithmetic",
+      "geometry"
+    ]
+  },
+  "813": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "814": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "graph"
+    ]
+  },
+  "815": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "analytic_math"
+    ]
+  },
+  "816": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "sequence"
+    ]
+  },
+  "817": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "number_theory"
+    ]
+  },
+  "818": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "probability"
+    ]
+  },
+  "819": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "linear_algebra"
+    ]
+  },
+  "820": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "search"
+    ]
+  },
+  "821": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "digit_dp"
+    ]
+  },
+  "822": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "optimization"
+    ]
+  },
+  "823": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "824": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "dynamic_programming"
+    ]
+  },
+  "825": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "826": {
+    "tags": [
+      "analytic_math",
+      "geometry",
+      "simulation"
+    ]
+  },
+  "827": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "828": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "optimization"
+    ]
+  },
+  "829": {
+    "tags": [
+      "modular_arithmetic",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "830": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "831": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "analytic_math"
+    ]
+  },
+  "832": {
+    "tags": [
+      "modular_arithmetic",
+      "game_theory",
+      "sequence"
+    ]
+  },
+  "833": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "834": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "arithmetic"
+    ]
+  },
+  "835": {
+    "tags": [
+      "geometry",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "836": {
+    "tags": [
+      "analytic_math",
+      "constructive",
+      "algebra"
+    ]
+  },
+  "837": {
+    "tags": [
+      "linear_algebra",
+      "combinatorics",
+      "modular_arithmetic"
+    ]
+  },
+  "838": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "probability"
+    ]
+  },
+  "839": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "analytic_math"
+    ]
+  },
+  "840": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "analytic_math"
+    ]
+  },
+  "841": {
+    "tags": [
+      "geometry",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "842": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "843": {
+    "tags": [
+      "dynamic_programming",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "844": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "probability"
+    ]
+  },
+  "845": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "846": {
+    "tags": [
+      "graph",
+      "number_theory",
+      "search"
+    ]
+  },
+  "847": {
+    "tags": [
+      "modular_arithmetic",
+      "search",
+      "game_theory"
+    ]
+  },
+  "848": {
+    "tags": [
+      "sequence",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "849": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "probability"
+    ]
+  },
+  "850": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "sequence"
+    ]
+  },
+  "851": {
+    "tags": [
+      "number_theory",
+      "optimization",
+      "brute_force"
+    ]
+  },
+  "852": {
+    "tags": [
+      "probability",
+      "game_theory",
+      "linear_algebra"
+    ]
+  },
+  "853": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "854": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "modular_arithmetic"
+    ]
+  },
+  "855": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "856": {
+    "tags": [
+      "probability",
+      "dynamic_programming",
+      "brute_force"
+    ]
+  },
+  "857": {
+    "tags": [
+      "geometry",
+      "graph",
+      "analytic_math"
+    ]
+  },
+  "858": {
+    "tags": [
+      "modular_arithmetic",
+      "graph",
+      "geometry"
+    ]
+  },
+  "859": {
+    "tags": [
+      "modular_arithmetic",
+      "recursion",
+      "game_theory"
+    ]
+  },
+  "860": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "constructive"
+    ]
+  },
+  "861": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "862": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "algebra"
+    ]
+  },
+  "863": {
+    "tags": [
+      "combinatorics",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "864": {
+    "tags": [
+      "linear_algebra",
+      "algebra",
+      "sequence"
+    ]
+  },
+  "865": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "optimization"
+    ]
+  },
+  "866": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "probability"
+    ]
+  },
+  "867": {
+    "tags": [
+      "geometry",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "868": {
+    "tags": [
+      "search",
+      "linear_algebra",
+      "constructive"
+    ]
+  },
+  "869": {
+    "tags": [
+      "number_theory",
+      "search",
+      "game_theory"
+    ]
+  },
+  "870": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "optimization"
+    ]
+  },
+  "871": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "arithmetic"
+    ]
+  },
+  "872": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "recursion"
+    ]
+  },
+  "873": {
+    "tags": [
+      "graph",
+      "modular_arithmetic",
+      "algebra"
+    ]
+  },
+  "874": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "graph"
+    ]
+  },
+  "875": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "number_theory"
+    ]
+  },
+  "876": {
+    "tags": [
+      "search",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "877": {
+    "tags": [
+      "algebra",
+      "dynamic_programming",
+      "recursion"
+    ]
+  },
+  "878": {
+    "tags": [
+      "digit_dp",
+      "dynamic_programming",
+      "algebra"
+    ]
+  },
+  "879": {
+    "tags": [
+      "search",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "880": {
+    "tags": [
+      "geometry",
+      "graph",
+      "combinatorics"
+    ]
+  },
+  "881": {
+    "tags": [
+      "graph",
+      "number_theory",
+      "optimization"
+    ]
+  },
+  "882": {
+    "tags": [
+      "dynamic_programming",
+      "greedy",
+      "modular_arithmetic"
+    ]
+  },
+  "883": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "884": {
+    "tags": [
+      "linear_algebra",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "885": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "886": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "linear_algebra"
+    ]
+  },
+  "887": {
+    "tags": [
+      "geometry",
+      "sequence",
+      "algebra"
+    ]
+  },
+  "888": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "889": {
+    "tags": [
+      "graph",
+      "search",
+      "combinatorics"
+    ]
+  },
+  "890": {
+    "tags": [
+      "probability",
+      "analytic_math",
+      "modular_arithmetic"
+    ]
+  },
+  "891": {
+    "tags": [
+      "sequence",
+      "analytic_math",
+      "geometry"
+    ]
+  },
+  "892": {
+    "tags": [
+      "search",
+      "graph",
+      "recursion"
+    ]
+  },
+  "893": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "geometry"
+    ]
+  },
+  "894": {
+    "tags": [
+      "linear_algebra",
+      "sequence",
+      "combinatorics"
+    ]
+  },
+  "895": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "modular_arithmetic"
+    ]
+  },
+  "896": {
+    "tags": [
+      "search",
+      "graph",
+      "linear_algebra"
+    ]
+  },
+  "897": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "898": {
+    "tags": [
+      "number_theory",
+      "dynamic_programming",
+      "modular_arithmetic"
+    ]
+  },
+  "899": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "900": {
+    "tags": [
+      "modular_arithmetic",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "901": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "brute_force"
+    ]
+  },
+  "902": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "combinatorics"
+    ]
+  },
+  "903": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "number_theory"
+    ]
+  },
+  "904": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "905": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "geometry"
+    ]
+  },
+  "906": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "907": {
+    "tags": [
+      "dynamic_programming",
+      "geometry",
+      "optimization"
+    ]
+  },
+  "908": {
+    "tags": [
+      "dynamic_programming",
+      "number_theory",
+      "graph"
+    ]
+  },
+  "909": {
+    "tags": [
+      "probability",
+      "analytic_math",
+      "number_theory"
+    ]
+  },
+  "910": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "911": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "912": {
+    "tags": [
+      "algebra",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "913": {
+    "tags": [
+      "linear_algebra",
+      "search",
+      "greedy"
+    ]
+  },
+  "914": {
+    "tags": [
+      "geometry",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "915": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "modular_arithmetic"
+    ]
+  },
+  "916": {
+    "tags": [
+      "combinatorics",
+      "number_theory",
+      "graph"
+    ]
+  },
+  "917": {
+    "tags": [
+      "modular_arithmetic",
+      "algebra",
+      "number_theory"
+    ]
+  },
+  "918": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "analytic_math"
+    ]
+  },
+  "919": {
+    "tags": [
+      "modular_arithmetic",
+      "dynamic_programming",
+      "digit_dp"
+    ]
+  },
+  "920": {
+    "tags": [
+      "sequence",
+      "geometry",
+      "modular_arithmetic"
+    ]
+  },
+  "921": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "922": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "number_theory"
+    ]
+  },
+  "923": {
+    "tags": [
+      "modular_arithmetic",
+      "game_theory",
+      "combinatorics"
+    ]
+  },
+  "924": {
+    "tags": [
+      "probability",
+      "analytic_math",
+      "graph"
+    ]
+  },
+  "925": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "linear_algebra"
+    ]
+  },
+  "926": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "combinatorics"
+    ]
+  },
+  "927": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "analytic_math"
+    ]
+  },
+  "928": {
+    "tags": [
+      "modular_arithmetic",
+      "analytic_math",
+      "sequence"
+    ]
+  },
+  "929": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "geometry"
+    ]
+  },
+  "930": {
+    "tags": [
+      "number_theory",
+      "algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "931": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "932": {
+    "tags": [
+      "algebra",
+      "modular_arithmetic",
+      "number_theory"
+    ]
+  },
+  "933": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "search"
+    ]
+  },
+  "934": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "935": {
+    "tags": [
+      "dynamic_programming",
+      "number_theory",
+      "modular_arithmetic"
+    ]
+  },
+  "936": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "sequence"
+    ]
+  },
+  "937": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "combinatorics"
+    ]
+  },
+  "938": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "optimization"
+    ]
+  },
+  "939": {
+    "tags": [
+      "number_theory",
+      "optimization",
+      "analytic_math"
+    ]
+  },
+  "940": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "recursion"
+    ]
+  },
+  "941": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "942": {
+    "tags": [
+      "graph",
+      "search",
+      "geometry"
+    ]
+  },
+  "943": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "geometry"
+    ]
+  },
+  "944": {
+    "tags": [
+      "combinatorics",
+      "probability",
+      "sequence"
+    ]
+  },
+  "945": {
+    "tags": [
+      "number_theory",
+      "dynamic_programming",
+      "recursion"
+    ]
+  },
+  "946": {
+    "tags": [
+      "modular_arithmetic",
+      "brute_force",
+      "combinatorics"
+    ]
+  },
+  "947": {
+    "tags": [
+      "game_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "948": {
+    "tags": [
+      "linear_algebra",
+      "modular_arithmetic",
+      "brute_force"
+    ]
+  },
+  "949": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "linear_algebra"
+    ]
+  },
+  "950": {
+    "tags": [
+      "modular_arithmetic",
+      "linear_algebra",
+      "graph"
+    ]
+  },
+  "951": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "952": {
+    "tags": [
+      "geometry",
+      "analytic_math",
+      "brute_force"
+    ]
+  },
+  "953": {
+    "tags": [
+      "graph",
+      "simulation",
+      "linear_algebra"
+    ]
+  },
+  "954": {
+    "tags": [
+      "number_theory",
+      "analytic_math",
+      "linear_algebra"
+    ]
+  },
+  "955": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "956": {
+    "tags": [
+      "linear_algebra",
+      "probability",
+      "brute_force"
+    ]
+  },
+  "957": {
+    "tags": [
+      "sequence",
+      "analytic_math",
+      "number_theory"
+    ]
+  },
+  "958": {
+    "tags": [
+      "dynamic_programming",
+      "brute_force",
+      "search"
+    ]
+  },
+  "959": {
+    "tags": [
+      "geometry",
+      "dynamic_programming",
+      "sequence"
+    ]
+  },
+  "960": {
+    "tags": [
+      "modular_arithmetic",
+      "combinatorics",
+      "brute_force"
+    ]
+  },
+  "961": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "962": {
+    "tags": [
+      "modular_arithmetic",
+      "search",
+      "algebra"
+    ]
+  },
+  "963": {
+    "tags": [
+      "number_theory",
+      "probability",
+      "linear_algebra"
+    ]
+  },
+  "964": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "965": {
+    "tags": [
+      "modular_arithmetic",
+      "optimization",
+      "search"
+    ]
+  },
+  "966": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "brute_force"
+    ]
+  },
+  "967": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "968": {
+    "tags": [
+      "search",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "969": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "probability"
+    ]
+  },
+  "970": {
+    "tags": [
+      "dynamic_programming",
+      "modular_arithmetic",
+      "sequence"
+    ]
+  },
+  "971": {
+    "tags": [
+      "number_theory",
+      "modular_arithmetic",
+      "geometry"
+    ]
+  },
+  "972": {
+    "tags": [
+      "number_theory",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "973": {
+    "tags": [
+      "sequence",
+      "analytic_math",
+      "modular_arithmetic"
+    ]
+  },
+  "974": {
+    "tags": [
+      "number_theory",
+      "linear_algebra",
+      "modular_arithmetic"
+    ]
+  },
+  "975": {
+    "tags": [
+      "sequence",
+      "greedy",
+      "linear_algebra"
+    ]
+  },
+  "976": {
+    "tags": [
+      "number_theory",
+      "geometry",
+      "search"
+    ]
+  },
+  "977": {
+    "tags": [
+      "number_theory",
+      "brute_force",
+      "arithmetic"
+    ]
+  },
+  "978": {
+    "tags": [
+      "modular_arithmetic",
+      "sequence",
+      "number_theory"
+    ]
+  },
+  "979": {
+    "tags": [
+      "geometry",
+      "sequence",
+      "modular_arithmetic"
+    ]
+  },
+  "980": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "981": {
+    "tags": [
+      "sequence",
+      "recursion",
+      "brute_force"
+    ]
+  },
+  "982": {
+    "tags": [
+      "modular_arithmetic",
+      "constructive",
+      "brute_force"
+    ]
+  },
+  "983": {
+    "tags": [
+      "combinatorics",
+      "number_theory",
+      "brute_force"
+    ]
+  },
+  "984": {
+    "tags": [
+      "modular_arithmetic",
+      "geometry",
+      "linear_algebra"
+    ]
+  },
+  "985": {
+    "tags": [
+      "algebra",
+      "graph",
+      "brute_force"
+    ]
+  },
+  "986": {
+    "tags": [
+      "brute_force"
+    ]
+  },
+  "987": {
+    "tags": [
+      "modular_arithmetic",
+      "number_theory",
+      "algebra"
+    ]
+  },
+  "988": {
+    "tags": [
+      "modular_arithmetic",
+      "probability",
+      "linear_algebra"
+    ]
+  }
+}

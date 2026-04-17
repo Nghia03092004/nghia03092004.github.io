@@ -1,0 +1,91 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 122: Efficient Exponentiation}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find $\sum_{n=1}^{200} m(n)$ where $m(n)$ is the length of a shortest addition chain for $n$.
+
+\section{Mathematical Development}
+
+\begin{definition}[Addition chain]
+An addition chain for $n$ is a sequence $1 = a_0 < a_1 < \cdots < a_r = n$ where each $a_k = a_i + a_j$ for some $0 \le i \le j < k$. The length is $r$, and $m(n)$ denotes the minimum such $r$.
+\end{definition}
+
+\begin{theorem}[Lower bound]
+For all $n \ge 1$, $m(n) \ge \lceil \log_2 n \rceil$.
+\end{theorem}
+
+\begin{proof}
+By induction, $a_k \le 2^k$ (each step at most doubles the maximum). Hence $n = a_r \le 2^r$, giving $r \ge \lceil \log_2 n \rceil$.
+\end{proof}
+
+\begin{theorem}[Upper bound]
+$m(n) \le \lfloor \log_2 n \rfloor + \nu(n) - 1$, where $\nu(n)$ is the Hamming weight of $n$.
+\end{theorem}
+
+\begin{proof}
+The binary method uses $\lfloor \log_2 n \rfloor$ doublings and $\nu(n) - 1$ additions (one per 1-bit excluding the leading bit).
+\end{proof}
+
+\begin{proposition}
+The binary method is not always optimal: $m(15) = 5$ but the binary method uses $3 + 4 - 1 = 6$ steps.
+\end{proposition}
+
+\begin{proof}
+The chain $1, 2, 3, 6, 12, 15$ has length 5. Exhaustive search confirms no chain of length 4 exists for $n = 15$.
+\end{proof}
+
+\begin{theorem}[IDDFS optimality]
+Iterative deepening DFS with initial depth $\lceil \log_2 n \rceil$ finds a shortest addition chain.
+\end{theorem}
+
+\begin{proof}
+IDDFS explores all chains of length $r$ before trying $r + 1$, and the search space is finite (chain elements $\le n$, strictly increasing). The first solution is therefore optimal.
+\end{proof}
+
+\begin{lemma}[Pruning criterion]
+If the current chain has largest element $a_d$ and $r - d$ steps remain, then $a_d \cdot 2^{r-d} < n$ implies the branch cannot reach $n$.
+\end{lemma}
+
+\begin{proof}
+Doubling $a_d$ at every remaining step yields at most $a_d \cdot 2^{r-d}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item For each $n = 2, \ldots, 200$, try depth limits $r = \lceil \log_2 n \rceil, \lceil \log_2 n \rceil + 1, \ldots$
+\item At depth $d$ with chain $[a_0, \ldots, a_d]$, try $a_{d} + a_i$ for $i = d, d-1, \ldots, 0$.
+\item Prune if $a_d \cdot 2^{r-d} < n$.
+\item Record $m(n) = r$ when the first valid chain is found.
+\item Return $\sum_{n=1}^{200} m(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} Branching factor at depth $d$ is at most $d + 1$; maximum depth $r \le 11$. Pruning renders the search fast in practice.
+\item \textbf{Space:} $O(r)$ for the DFS stack and chain.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1582}
+\]
+
+\end{document}

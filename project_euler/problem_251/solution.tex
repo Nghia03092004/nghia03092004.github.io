@@ -1,0 +1,109 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{remark}{Remark}
+
+\title{Problem 251: Cardano Triplets}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A triplet of positive integers $(a, b, c)$ is called a \textbf{Cardano Triplet} if:
+\[
+\sqrt[3]{a + b\sqrt{c}} + \sqrt[3]{a - b\sqrt{c}} = 1.
+\]
+Find the number of such triplets with $a + b + c \leq 110{,}000{,}000$.
+
+\section{Formal Mathematical Development}
+
+\begin{theorem}[Fundamental Equation]
+A triple $(a,b,c)$ of positive integers satisfies $\sqrt[3]{a + b\sqrt{c}} + \sqrt[3]{a - b\sqrt{c}} = 1$ if and only if
+\[
+(a+1)^2(8a-1) = 27b^2 c.
+\]
+\end{theorem}
+
+\begin{proof}
+Set $u = \sqrt[3]{a + b\sqrt{c}}$ and $v = \sqrt[3]{a - b\sqrt{c}}$, so that $u + v = 1$, $u^3 + v^3 = 2a$, and $u^3 v^3 = a^2 - b^2 c$. Cubing $u + v = 1$:
+\[
+u^3 + v^3 + 3uv(u+v) = 1 \implies 2a + 3uv = 1 \implies uv = \frac{1-2a}{3}.
+\]
+Therefore $u^3 v^3 = (uv)^3 = \frac{(1-2a)^3}{27}$, yielding
+\[
+a^2 - b^2 c = \frac{(1-2a)^3}{27}.
+\]
+Multiplying by 27 and rearranging:
+\[
+8a^3 + 15a^2 + 6a - 1 = 27b^2 c.
+\]
+Verifying that $a = -1$ is a double root, we factor:
+\[
+8a^3 + 15a^2 + 6a - 1 = (a+1)^2(8a-1). \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Congruence Constraint]
+Every Cardano triplet satisfies $a \equiv 2 \pmod{3}$.
+\end{lemma}
+
+\begin{proof}
+Since $(a+1)^2(8a-1) = 27 b^2 c$, the left side must be divisible by $27 = 3^3$. Let $v_3(\cdot)$ denote the $3$-adic valuation. We require $2\,v_3(a+1) + v_3(8a-1) \ge 3$.
+
+If $3 \nmid (a+1)$, then $v_3(a+1) = 0$, and a case analysis on $a \bmod 3$ shows $v_3(8a-1) = 0$ in both remaining cases ($a \equiv 0$ or $a \equiv 1 \pmod{3}$), a contradiction. Hence $3 \mid (a+1)$, i.e., $a \equiv 2 \pmod{3}$.
+
+Conversely, writing $a = 3t - 1$: $v_3(a+1) = v_3(3t) \ge 1$ and $v_3(8a-1) = v_3(3(8t-3)) \ge 1$, giving a total $\ge 3$.
+\end{proof}
+
+\begin{theorem}[Parametrization]
+Setting $a = 3t - 1$ for $t \ge 1$, the Cardano equation reduces to
+\[
+t^2(8t-3) = b^2 c.
+\]
+For each $t$, writing $8t - 3 = s^2 m$ with $m$ squarefree gives the family of solutions $a = 3t-1$, $b = ts$, $c = m$.
+\end{theorem}
+
+\begin{proof}
+Substituting $a = 3t - 1$:
+\[
+(3t)^2 \cdot 3(8t-3) = 27b^2 c \implies t^2(8t-3) = b^2 c.
+\]
+Decomposing $8t - 3 = s^2 m$ with $m$ squarefree, we obtain $t^2 s^2 m = b^2 c$. Setting $b = ts$ and $c = m$ satisfies the equation with $c$ squarefree. Since $m$ is squarefree, $d = 1$ is the only integer with $d^2 \mid m$, so this is the unique decomposition for the given square factor $s^2$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State $\mathrm{count} \gets 0$
+\For{$r = 1, 2, \ldots$ while $r(r+3) \le N$}
+    \State Handle $f = 1$ case with closed-form arithmetic progression count
+    \For{$f = 3, 5, 7, \ldots$ while $f^3 \le 8rN$}
+        \If{$\gcd(f, r) = 1$ and $\gcd(8r \bmod f^2, f^2) = 1$}
+            \State Compute $e_0 = 3 \cdot (8r)^{-1} \bmod f^2$
+            \State Count valid $e$ in arithmetic progression with step $f^2$
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return $\mathrm{count}$
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} The outer loop runs $O(\sqrt{N})$ iterations. For each $r$, the inner loop over $f$ satisfies $f \le (8rN)^{1/3}$. The total work is $O(N)$.
+
+\textbf{Space:} $O(1)$ auxiliary storage.
+
+\section{Answer}
+
+\[
+\boxed{18946051}
+\]
+
+\end{document}

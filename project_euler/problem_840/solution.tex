@@ -1,0 +1,75 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 840: Sum of Products}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a sequence $\{x_1,\ldots,x_n\}$ of positive integers, compute $\sum_{k=1}^{n}e_k(x_1,\ldots,x_n)\bmod(10^9+7)$, where $e_k$ is the $k$-th elementary symmetric polynomial.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Product-Sum Identity]
+For any elements $x_1,\ldots,x_n$ in a commutative ring,
+\[
+\sum_{k=0}^{n}e_k(x_1,\ldots,x_n) = \prod_{i=1}^{n}(1+x_i).
+\]
+In particular, $\sum_{k=1}^{n}e_k = \prod_{i=1}^{n}(1+x_i)-1$.
+\end{theorem}
+
+\begin{proof}
+Expand $\prod_{i=1}^{n}(1+x_i)$. Each term chooses either~$1$ or~$x_i$ from each factor. The sum of all terms choosing exactly~$k$ of the~$x_i$'s is~$e_k$. Summing over $k=0,\ldots,n$ gives the full product. The $k=0$ term is $e_0=1$ (the empty product).
+\end{proof}
+
+\begin{theorem}[Newton's Identities]
+With $p_j=\sum_{i=1}^{n}x_i^j$, for $k\ge 1$:
+\[
+k\cdot e_k = \sum_{j=1}^{k}(-1)^{j-1}e_{k-j}\,p_j.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $E(t)=\prod_{i=1}^{n}(1+x_i t)=\sum_{k=0}^{n}e_k t^k$. Taking the logarithmic derivative:
+\[
+\frac{E'(t)}{E(t)} = \sum_{i=1}^{n}\frac{x_i}{1+x_i t} = \sum_{j=0}^{\infty}(-1)^j p_{j+1}t^j.
+\]
+Then $E'(t)=E(t)\cdot\sum_{j=0}^{\infty}(-1)^j p_{j+1}t^j$. Comparing coefficients of $t^{k-1}$: the left side gives $k\cdot e_k$; the right side gives $\sum_{j=1}^{k}(-1)^{j-1}e_{k-j}p_j$.
+\end{proof}
+
+\begin{lemma}[Fundamental Theorem of Symmetric Polynomials]
+$\mathbb{Z}[x_1,\ldots,x_n]^{S_n} = \mathbb{Z}[e_1,\ldots,e_n]$.
+\end{lemma}
+
+\begin{proof}
+By induction on degree using lexicographic order. The leading monomial of a symmetric polynomial corresponds to a partition $\lambda_1\ge\cdots\ge\lambda_n$. The product $e_1^{\lambda_1-\lambda_2}\cdots e_n^{\lambda_n}$ has the same leading term. Subtracting reduces degree. Freeness follows because distinct exponent vectors produce distinct leading terms.
+\end{proof}
+
+\section{Algorithm}
+
+By Theorem~1, compute $\prod_{i=1}^{n}(1+x_i)\bmod p$ via a single pass, then subtract~1.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n)$ --- one modular multiplication per element.
+\item \textbf{Space:} $O(1)$ auxiliary.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{194396971}
+\]
+
+\end{document}

@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm, geometry, hyperref}
+\geometry{margin=1in}
+\title{Problem 316: Numbers in Decimal Expansions}
+\author{Project Euler Solution}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $p = p_1 p_2 p_3 \ldots$ be an infinite random decimal sequence with each digit uniform on $\{0,\ldots,9\}$. For positive integer $n$ with $d$ digits, let $k$ be the smallest index such that $p_k \cdots p_{k+d-1}$ spells $n$. Define $g(n) = E[k]$.
+
+Given $\displaystyle\sum_{n=2}^{999} g\!\left(\!\left\lfloor \frac{10^6}{n}\right\rfloor\!\right) = 27280188$, find $\displaystyle\sum_{n=2}^{999999} g\!\left(\!\left\lfloor \frac{10^{16}}{n}\right\rfloor\!\right)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Conway Leading Number]
+For a target string $s = d_1 d_2 \cdots d_m$ over alphabet of size $A = 10$, the expected number of characters examined before $s$ appears completely is:
+\[
+    W(s) = \sum_{k=1}^{m} A^k \cdot \mathbf{1}\bigl[d_1 \cdots d_k = d_{m-k+1} \cdots d_m\bigr]
+\]
+\end{theorem}
+
+\begin{proof}
+(Martingale / Casino argument.) Gambler $j$ arrives at position $j$ and bets \$1 on $p_j = d_1$. If correct (probability $1/A$), the stake is multiplied by $A$ and wagered on $p_{j+1} = d_2$, etc.
+
+Define $X_t = \sum_{j=1}^{t}(\text{payout of gambler }j\text{ by time }t) - t$. This is a martingale.
+
+Let $T$ be the first completion time of pattern $s$. At time $T$, the gambler starting at position $T-k+1$ has payout $A^k$ iff $d_1\cdots d_k = d_{m-k+1}\cdots d_m$. By the optional stopping theorem:
+\[
+    E[T] = \sum_{k=1}^{m} A^k \cdot \mathbf{1}[\text{prefix}_k = \text{suffix}_k]. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Relationship to $g(n)$]
+$W(s)$ gives the expected position of the last character. Since $g(n)$ is the expected first-character position:
+\[
+    g(n) = W(s) - d + 1
+\]
+where $s$ is the decimal string of $n$ and $d = |s|$.
+\end{lemma}
+
+\begin{proof}
+If the pattern completes at position $T$, the first character is at $T - d + 1$. By linearity of expectation, $g(n) = E[T] - d + 1$.
+\end{proof}
+
+\subsection{Verification}
+
+For $n = 535$, $s = \texttt{535}$, $d = 3$:
+\begin{itemize}
+    \item $k=1$: ``5'' = ``5'' $\checkmark$, contributes $10$
+    \item $k=2$: ``53'' $\neq$ ``35'' $\times$
+    \item $k=3$: ``535'' = ``535'' $\checkmark$, contributes $1000$
+\end{itemize}
+$g(535) = (10 + 1000) - 3 + 1 = 1008$ \checkmark
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For each $n$ from 2 to 999999:
+    \begin{enumerate}
+        \item Compute $m = \lfloor 10^{16}/n \rfloor$, convert to string $s$ of length $d$.
+        \item For $k = 1, \ldots, d$: check if length-$k$ prefix of $s$ equals length-$k$ suffix.
+        \item Accumulate $g(m) = W(s) - d + 1$.
+    \end{enumerate}
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N \cdot d^2)$ where $N = 999998$, $d \le 16$. With KMP: $O(N \cdot d)$.
+    \item \textbf{Space:} $O(d)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{542934735751917735}
+\]
+
+\end{document}

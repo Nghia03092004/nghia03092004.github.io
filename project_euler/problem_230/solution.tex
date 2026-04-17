@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 230: Fibonacci Words}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define the Fibonacci word sequence with base strings $A, B$ (each 100 digits of $\pi$):
+\[
+F(1) = A, \quad F(2) = B, \quad F(n) = F(n-2) \cdot F(n-1) \text{ for } n > 2.
+\]
+Let $D(k)$ be the $k$-th digit of $F(n)$ where $n$ is minimal with $|F(n)| \geq k$. Compute
+\[
+\sum_{n=0}^{17} 10^n \cdot D\bigl((127 + 19n) \cdot 7^n\bigr).
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Length Recurrence]
+$L(1) = L(2) = 100$ and $L(n) = L(n-1) + L(n-2)$ for $n \geq 3$.
+\end{theorem}
+\begin{proof}
+$F(n) = F(n-2) \cdot F(n-1)$ implies $|F(n)| = |F(n-2)| + |F(n-1)|$.
+\end{proof}
+
+\begin{theorem}[Exponential Growth]
+$L(n) = \Theta(\phi^n)$ where $\phi = (1+\sqrt{5})/2$.
+\end{theorem}
+\begin{proof}
+The recurrence $L(n) = L(n-1) + L(n-2)$ has characteristic roots $\phi$ and $-1/\phi$. With initial conditions $L(1) = L(2) = 100$, the closed form gives $L(n) = \Theta(\phi^n)$.
+\end{proof}
+
+\begin{lemma}[Sufficient Depth]
+The largest query position is $k_{17} = 450 \cdot 7^{17} \approx 1.05 \times 10^{17}$. We need $n \approx 85$ terms.
+\end{lemma}
+\begin{proof}
+Solve $L(n) \geq 10^{17}$: $n \geq 2 + \log_\phi(10^{17}(\phi+1)/100) \approx 85$.
+\end{proof}
+
+\begin{theorem}[Recursive Digit Lookup]
+To find digit $k$ in $F(n)$ (with $L(n) \geq k$):
+\begin{itemize}
+\item If $n \in \{1, 2\}$: return $A[k]$ or $B[k]$.
+\item If $k \leq L(n-2)$: recurse into $F(n-2)$ with position $k$.
+\item If $k > L(n-2)$: recurse into $F(n-1)$ with position $k - L(n-2)$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Since $F(n) = F(n-2) \cdot F(n-1)$, the first $L(n-2)$ digits come from $F(n-2)$ and the rest from $F(n-1)$. Each step reduces $n$ by at least~1, guaranteeing termination.
+\end{proof}
+
+\begin{lemma}[Lookup Complexity]
+Each lookup takes $O(\log_\phi k)$ steps.
+\end{lemma}
+\begin{proof}
+Starting at $n = O(\log_\phi k)$ and decrementing $n$ by at least~1 per step, we reach $n \in \{1,2\}$ in $O(\log_\phi k)$ steps.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Precompute $L(1), \ldots, L(90)$.
+\item For each $n = 0, \ldots, 17$: compute $k_n = (127 + 19n) \cdot 7^n$, look up $D(k_n)$ by recursive decomposition.
+\item Sum $\sum 10^n \cdot D(k_n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(18 \cdot \log_\phi k_{\max}) = O(1530)$, essentially constant.
+\item \textbf{Space:} $O(\log_\phi k_{\max}) = O(85)$ for the length array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{850481152593119296}
+\]
+
+\end{document}

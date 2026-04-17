@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\title{Problem 184: Triangles Containing the Origin}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count the number of triangles with vertices at lattice points on or inside the circle $x^2 + y^2 \leq 105^2$ that strictly contain the origin.
+
+\section{Mathematical Foundation}
+
+\textbf{Theorem 1.} A non-degenerate triangle $ABC$ (with no vertex at the origin) strictly contains the origin if and only if the three vertices do not all lie in any closed half-plane bounded by a line through the origin.
+
+\textbf{Proof.} The origin lies strictly inside $\triangle ABC$ iff it is on the same strict side of each edge. Viewing $A, B, C$ from the origin, this means their angular positions span the full $2\pi$ circle with each consecutive arc less than $\pi$. If all three lay in a closed half-plane (arc $\leq \pi$), the origin would be on or outside one edge. $\square$
+
+\medskip
+
+\textbf{Theorem 2 (Complementary Counting).} Let $N$ be the count of non-origin lattice points with $x^2 + y^2 \leq R^2$. Sort them by angle $\theta_i$. Let $c_i$ be the number of points with angle strictly in $(\theta_i, \theta_i + \pi)$. Then:
+\[
+\text{Answer} = \binom{N}{3} - \sum_{i=1}^{N} \binom{c_i}{2}.
+\]
+
+\textbf{Proof.} A ``bad'' triple lies in some closed semicircle. Each bad triple has a unique ``first'' point $P_i$ (the counterclockwise-earliest point such that the triple fits in $[\theta_i, \theta_i + \pi]$). The other two points lie strictly in $(\theta_i, \theta_i + \pi)$, giving $\binom{c_i}{2}$ bad triples for each $i$. $\square$
+
+\medskip
+
+\textbf{Lemma 1.} The two-pointer method computes all $c_i$ values in $O(N)$ time after $O(N \log N)$ sorting.
+
+\textbf{Proof.} As $i$ advances, the right pointer $j$ only advances (the semicircle window slides), so total pointer movement is $O(N)$. $\square$
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{CountTriangles}{$R$}
+    \State Collect all $(x,y) \neq (0,0)$ with $x^2 + y^2 \leq R^2$; let $N$ = count
+    \State Sort by $\mathrm{atan2}(y, x)$
+    \State $\mathrm{bad} \gets 0$; $j \gets 0$
+    \For{$i = 0$ to $N - 1$}
+        \While{$j - i < N$ and $\mathrm{angle}(j \bmod N) - \mathrm{angle}(i) < \pi$}
+            \State $j \gets j + 1$
+        \EndWhile
+        \State $c_i \gets j - i - 1$
+        \State $\mathrm{bad} \mathrel{+}= \binom{c_i}{2}$
+    \EndFor
+    \State \Return $\binom{N}{3} - \mathrm{bad}$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$ for sorting, $O(N)$ for the sweep, where $N \approx \pi \cdot 105^2 \approx 34{,}636$.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1725323624056}
+\]
+
+\end{document}

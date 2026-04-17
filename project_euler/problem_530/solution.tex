@@ -1,0 +1,67 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry}
+\geometry{a4paper,margin=1in}
+\title{Project Euler Problem 530:\\GCD of Divisors}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define
+\[
+f(n) = \sum_{d \mid n} \gcd(d, n/d)
+\]
+and $F(k) = \sum_{n=1}^{k} f(n)$.
+
+Given $F(10) = 32$ and $F(1000) = 12776$, find $F(10^{15})$.
+
+\section{Mathematical Analysis}
+
+\subsection{Multiplicativity of $f$}
+$f$ is multiplicative. For a prime power $p^k$:
+\[
+f(p^k) = \sum_{j=0}^{k} \gcd(p^j, p^{k-j}) = \sum_{j=0}^{k} p^{\min(j,k-j)}
+\]
+
+For even $k$:
+\[
+f(p^k) = 2 \cdot \frac{p^{k/2}-1}{p-1} + p^{k/2}
+\]
+
+For odd $k$:
+\[
+f(p^k) = 2 \cdot \frac{p^{(k+1)/2}-1}{p-1}
+\]
+
+\subsection{Reformulation of $F(k)$}
+For each divisor $d$ of $n$, let $g = \gcd(d, n/d)$, $d = ga$, $n/d = gb$ with $\gcd(a,b)=1$. Then $n = g^2 ab$.
+
+\[
+F(k) = \sum_{n=1}^{k} \sum_{d \mid n} \gcd(d, n/d) = \sum_{g=1}^{\lfloor\sqrt{k}\rfloor} g \cdot \#\{(a,b) : \gcd(a,b)=1,\, g^2 ab \le k\}
+\]
+
+\subsection{M\"obius Inversion}
+\[
+\#\{(a,b) : \gcd(a,b)=1,\, ab \le M\} = \sum_{e=1}^{\lfloor\sqrt{M}\rfloor} \mu(e) \cdot D\!\left(\left\lfloor \frac{M}{e^2} \right\rfloor\right)
+\]
+where $D(x) = \sum_{j=1}^{x} \lfloor x/j \rfloor$ is the Dirichlet divisor sum, computable in $O(\sqrt{x})$ via the hyperbola method:
+\[
+D(x) = 2 \sum_{j=1}^{\lfloor\sqrt{x}\rfloor} \lfloor x/j \rfloor - \lfloor\sqrt{x}\rfloor^2
+\]
+
+\subsection{Final Formula}
+\[
+F(k) = \sum_{g=1}^{\lfloor\sqrt{k}\rfloor} g \sum_{\substack{e \ge 1 \\ g^2 e^2 \le k}} \mu(e) \cdot D\!\left(\left\lfloor \frac{k}{g^2 e^2}\right\rfloor\right)
+\]
+
+\section{Complexity}
+Overall $O(k^{2/3})$ with the hyperbola method optimization.
+
+\section{Answer}
+
+\[
+\boxed{207366437157977206}
+\]
+
+\end{document}

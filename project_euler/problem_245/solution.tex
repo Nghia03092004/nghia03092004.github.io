@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 245: Coresilience}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For $n>1$, define the \emph{coresilience}:
+\[
+C(n)=\frac{n-\phi(n)-1}{n-1}.
+\]
+Find the sum of all composite $n\le 10^{10}$ for which $C(n)=1/k$ for some positive integer $k$, i.e., $(n-\phi(n)-1)\mid(n-1)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Prime squares]\label{thm:p2}
+For any prime $p$, $C(p^2)=1/(p+1)$.
+\end{theorem}
+
+\begin{proof}
+$\phi(p^2)=p(p-1)$, so $n-\phi(n)-1=p-1$ and $n-1=(p-1)(p+1)$. Thus $C(p^2)=1/(p+1)$.
+\end{proof}
+
+\begin{theorem}[Higher prime powers]\label{thm:pa}
+For $n=p^a$ with $a\ge 3$, $C(n)$ is never a unit fraction.
+\end{theorem}
+
+\begin{proof}
+$n-\phi(n)-1=p^{a-1}-1$ and $n-1=p^a-1$. Since $p^a-1=p(p^{a-1}-1)+(p-1)$, we need $(p^{a-1}-1)\mid(p-1)$. For $a\ge 3$, $p^{a-1}-1\ge p^2-1>p-1$, a contradiction.
+\end{proof}
+
+\begin{theorem}[Semiprime reduction]\label{thm:semi}
+For $n=pq$ with primes $p<q$: the condition $(p+q-2)\mid(pq-1)$ is equivalent to $(p+q-2)\mid(p-1)^2$.
+\end{theorem}
+
+\begin{proof}
+Set $s=p+q-2$. Then $q=s+2-p$ and $pq-1=ps-(p-1)^2$, so $pq-1\equiv -(p-1)^2\pmod{s}$.
+\end{proof}
+
+\begin{lemma}[Semiprime search]\label{lem:search}
+For each prime $p$, candidates for $q$ arise from divisors $d$ of $(p-1)^2$ with $d>2(p-1)$: set $q=d+2-p$, accept if $q$ is prime and $pq\le 10^{10}$.
+\end{lemma}
+
+\begin{proof}
+From $s\mid(p-1)^2$ and $q=s+2-p$, the constraint $q>p$ gives $s>2(p-1)$.
+\end{proof}
+
+\begin{theorem}[Three or more primes]
+For $n$ with $k\ge 3$ distinct prime factors, the divisibility condition $(n-\phi(n)-1)\mid(n-1)$ is highly restrictive. Exhaustive DFS over small prime factors with the bound $n\le 10^{10}$ yields finitely many solutions.
+\end{theorem}
+
+\begin{proof}
+By inclusion-exclusion, $n-\phi(n)=\sum_{i}n/p_i-\sum_{i<j}n/(p_ip_j)+\cdots$. The divisibility constraint combined with the finite bound makes the search terminate.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sum all $p^2$ for primes $p\le\sqrt{10^{10}}$ (Theorem~\ref{thm:p2}).
+\item For each prime $p$, enumerate divisors of $(p-1)^2$ to find semiprime solutions (Theorem~\ref{thm:semi}, Lemma~\ref{lem:search}).
+\item DFS for solutions with $3+$ prime factors.
+\end{enumerate}
+
+\begin{verbatim}
+For each prime p <= sqrt(bound):
+    total += p^2
+    for each divisor d of (p-1)^2:
+        q = d + 2 - p
+        if q > p, q prime, p*q <= bound:
+            total += p*q
+DFS for 3+ prime factor solutions
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^{1/2+\epsilon})$ dominated by the semiprime divisor enumeration.
+\item \textbf{Space:} $O(\sqrt{N})$ for the prime sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{288084712410001}
+\]
+
+\end{document}

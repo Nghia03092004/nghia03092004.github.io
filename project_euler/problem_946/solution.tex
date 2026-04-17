@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 946: Hypergeometric Sums}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$S = \sum_{k=0}^{1000} \binom{2000}{k}^2 \bmod 10^9+7$.
+
+\section{Vandermonde Identity}
+\begin{theorem}
+$\sum_{k=0}^n \binom{n}{k}^2 = \binom{2n}{n}$.
+\end{theorem}
+
+\section{Symmetry}
+\begin{theorem}
+$\sum_{k=0}^{1000} \binom{2000}{k}^2 = \frac{1}{2}\left(\binom{4000}{2000} + \binom{2000}{1000}^2\right)$.
+\end{theorem}
+
+\begin{proof}
+By symmetry $\binom{n}{k}^2 = \binom{n}{n-k}^2$, the sum over $k=0..n$ splits into two equal halves plus the middle term.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{585787007}
+\]
+
+\end{document}

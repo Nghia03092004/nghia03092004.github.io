@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\title{Problem 899: Tree Enumeration}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Compute the number of labeled trees on $n$ vertices, and the sum $\sum_{n=2}^{N} n^{n-2} \bmod p$.
+
+\section{Key Results}
+
+\begin{theorem}[Cayley's Formula]
+The number of labeled trees on $\{1,\ldots,n\}$ is $t(n) = n^{n-2}$.
+\end{theorem}
+
+\begin{proof}
+We exhibit a bijection with Pr\"ufer sequences $(a_1,\ldots,a_{n-2}) \in \{1,\ldots,n\}^{n-2}$.
+
+\textbf{Encoding:} Repeatedly remove the smallest-labeled leaf $\ell$, recording its neighbor $a_i$.
+
+\textbf{Decoding:} For each $a_i$, connect the smallest available vertex not in the remaining sequence to $a_i$. The last two vertices form the final edge.
+
+Since there are $n^{n-2}$ such sequences, $t(n) = n^{n-2}$.
+\end{proof}
+
+\begin{theorem}[Kirchhoff's Matrix Tree Theorem]
+For a graph $G$ with Laplacian $L = D - A$, the number of spanning trees equals any cofactor of $L$.
+\end{theorem}
+
+\begin{corollary}
+For $K_n$: $L = nI - J$ has eigenvalues $n$ ($\times\, n{-}1$) and $0$ ($\times\, 1$), so
+$\tau(K_n) = n^{n-1}/n = n^{n-2}$.
+\end{corollary}
+
+\begin{theorem}[Degree Sequence]
+Trees where vertex $i$ has degree $d_i$ (with $\sum d_i = 2n-2$):
+\[
+\frac{(n-2)!}{\prod_{i=1}^n (d_i - 1)!}
+\]
+\end{theorem}
+
+\section{Numerical Values}
+\begin{center}
+\begin{tabular}{r|r|r}
+$n$ & $t(n)=n^{n-2}$ & Cumulative \\ \hline
+2 & 1 & 1 \\
+3 & 3 & 4 \\
+4 & 16 & 20 \\
+5 & 125 & 145 \\
+6 & 1296 & 1441 \\
+7 & 16807 & 18248 \\
+8 & 262144 & 280392
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{10784223938983273}
+\]
+
+\end{document}

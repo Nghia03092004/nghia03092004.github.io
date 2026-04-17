@@ -1,0 +1,172 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+\title{Problem 4: Largest Palindrome Product}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the largest palindrome made from the product of two 3-digit numbers. Formally, determine
+\[
+M = \max\bigl\{xy : 100 \le x,y \le 999,\; xy \text{ is a palindrome in base 10}\bigr\}.
+\]
+
+\section{Definitions}
+
+\begin{definition}
+A non-negative integer $n$ is a \emph{palindrome in base 10} if its decimal representation $d_k d_{k-1} \cdots d_1 d_0$ satisfies $d_i = d_{k-i}$ for all $0 \le i \le k$.
+\end{definition}
+
+\begin{definition}
+A \emph{6-digit palindrome} is an integer $P$ with $100\,000 \le P \le 999\,999$ that is a palindrome. Its decimal form is $\overline{abccba}$ where $a \in \{1,\dots,9\}$ and $b,c \in \{0,\dots,9\}$.
+\end{definition}
+
+\section{Mathematical Development}
+
+\begin{theorem}[Structure of 6-Digit Palindromes]\label{thm:div11}
+Every 6-digit palindrome $P = \overline{abccba}$ admits the representation
+\[
+P = 11(9091a + 910b + 100c).
+\]
+In particular, $11 \mid P$.
+\end{theorem}
+
+\begin{proof}
+By positional notation,
+\[
+P = 10^5 a + 10^4 b + 10^3 c + 10^2 c + 10 b + a = 100001a + 10010b + 1100c.
+\]
+We verify each coefficient is divisible by 11:
+\begin{align*}
+100001 &= 11 \times 9091, \\
+10010  &= 11 \times 910, \\
+1100   &= 11 \times 100.
+\end{align*}
+Therefore $P = 11(9091a + 910b + 100c)$.
+\end{proof}
+
+\begin{lemma}[Factor Constraint]\label{lem:factor}
+If $P = xy$ where $P$ is a 6-digit palindrome and $x, y$ are positive integers, then $11 \mid x$ or $11 \mid y$.
+\end{lemma}
+
+\begin{proof}
+By Theorem~\ref{thm:div11}, $11 \mid P$. Since 11 is prime, Euclid's lemma (if $p$ is prime and $p \mid ab$, then $p \mid a$ or $p \mid b$) gives $11 \mid x$ or $11 \mid y$.
+\end{proof}
+
+\begin{theorem}[Product Range]\label{thm:range}
+If $100 \le x, y \le 999$, then $10\,000 \le xy \le 998\,001$. Moreover, the largest palindromic product is necessarily a 6-digit palindrome.
+\end{theorem}
+
+\begin{proof}
+The bounds follow from $100^2 = 10\,000$ and $999^2 = 998\,001$. The largest 5-digit palindrome is $99\,999$. A 6-digit palindromic product exists: $143 \times 707 = 101\,101 = \overline{101101}$. Since $101\,101 > 99\,999$, the maximum palindromic product must be a 6-digit palindrome.
+\end{proof}
+
+\begin{theorem}[Optimality]\label{thm:opt}
+The largest palindrome that is a product of two 3-digit numbers is
+\[
+M = 906\,609 = 913 \times 993.
+\]
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:range}, any maximal palindromic product of two 3-digit numbers must be a 6-digit palindrome. Therefore Lemma~\ref{lem:factor} applies: if $P = xy$, then at least one of the two factors is divisible by 11.
+
+By commutativity of multiplication, every candidate product can thus be written in the form $xy$ with
+\[
+110 \le x \le y \le 999,\qquad 11 \mid x.
+\]
+Hence it suffices to search the finite set
+\[
+\mathcal{C} = \{(x,y) \in \mathbb{Z}^2 : 110 \le x \le y \le 999,\ 11 \mid x\}.
+\]
+
+The algorithm below enumerates $\mathcal{C}$ in descending order of $x$ and, for each fixed $x$, in descending order of $y$. Its pruning rule is sound because for fixed $x$ the products $xy$ strictly decrease as $y$ decreases. Consequently, once $xy \le \text{best}$ no smaller value of $y$ can improve the answer, and the first palindromic product found for a fixed $x$ is the largest one with that value of $x$.
+
+A complete execution over $\mathcal{C}$ returns
+\[
+\text{best} = 906\,609 = 913 \times 993.
+\]
+We verify that $906\,609$ is a palindrome and that $913 = 11 \times 83$, so the candidate lies in the restricted search space. Since the search is exhaustive over all relevant pairs, no larger palindromic product exists.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Largest palindrome product of two 3-digit numbers}
+\begin{algorithmic}[1]
+\STATE $\text{best} \gets 0$
+\FOR{$x = 990$ \textbf{downto} $110$ \textbf{step} $-11$}
+    \FOR{$y = 999$ \textbf{downto} $x$ \textbf{step} $-1$}
+        \STATE $P \gets x \cdot y$
+        \IF{$P \le \text{best}$}
+            \STATE \textbf{break} \COMMENT{no further $y$ can improve}
+        \ENDIF
+        \IF{\textsc{IsPalindrome}($P$)}
+            \STATE $\text{best} \gets P$; \textbf{break}
+        \ENDIF
+    \ENDFOR
+\ENDFOR
+\RETURN best
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Algorithm correctness]
+The algorithm returns the largest palindrome of the form $xy$ with $100 \le x,y \le 999$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:range} and Lemma~\ref{lem:factor}, every optimal pair may be reordered so that it belongs to
+\[
+\mathcal{C} = \{(x,y) : 110 \le x \le y \le 999,\ 11 \mid x\}.
+\]
+The outer loop enumerates every admissible value of $x$ in $\mathcal{C}$ exactly once, and for each such $x$ the inner loop enumerates admissible $y$ values from $999$ down to $x$.
+
+We justify the early exits.
+\begin{enumerate}
+\item If $P \le \text{best}$, then for every later inner-loop value $y' < y$ we have $xy' < xy \le \text{best}$, so no skipped pair can improve the answer.
+\item If $P$ is palindromic, the algorithm sets $\text{best} \gets P$ and breaks. This is valid because any later value satisfies $y' < y$, hence $xy' < xy = P$, so no later pair with the same $x$ can produce a larger palindrome.
+\end{enumerate}
+
+Therefore the algorithm never discards a pair that could beat the final answer, and it eventually records the maximum palindromic product.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Time Complexity]
+The algorithm runs in $O(N^2/11)$ time in the worst case, where $N = 900$.
+\end{theorem}
+
+\begin{proof}
+The outer loop visits the 3-digit multiples of 11
+\[
+110, 121, 132, \ldots, 990,
+\]
+which form an arithmetic progression with
+\[
+\frac{990 - 110}{11} + 1 = 81
+\]
+terms. For each outer-loop value, the inner loop performs at most $900$ iterations in the worst case. Each iteration performs $O(1)$ work: one multiplication, one comparison, and at most one palindrome test on a decimal string of length at most $6$. Hence the total work is bounded by
+\[
+81 \times 900 = 72\,900 = O(N^2/11),
+\]
+where $N = 900$ is the number of 3-digit integers. Early termination can only decrease this bound.
+\end{proof}
+
+\textbf{Space:} $O(1)$. Only a constant number of variables are used.
+
+\section{Answer}
+
+\[
+\boxed{906609}
+\]
+
+\end{document}

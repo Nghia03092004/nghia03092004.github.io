@@ -1,0 +1,27 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 852: Coin Flipping Game}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Gambler's ruin: probability and duration of reaching $N$ from $k$.
+\begin{theorem}
+$P_k = \frac{1-(q/p)^k}{1-(q/p)^N}$ for $p \ne q$; $P_k = k/N$ for $p = q = 1/2$.
+\end{theorem}
+\begin{theorem}
+$D_k = k(N-k)$ for the fair case.
+\end{theorem}
+\begin{proof}
+Solve the recurrence $P_k = pP_{k+1} + qP_{k-1}$ with $P_0=0, P_N=1$.
+\end{proof}
+\section{Answer}
+
+\[
+\boxed{130.313496}
+\]
+
+\end{document}

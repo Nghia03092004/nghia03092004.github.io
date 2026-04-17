@@ -1,0 +1,64 @@
+---
+import { formatDate } from '../../../lib/content';
+import { formatProblemNumber } from '../lib/euler';
+import { withBase } from '../../../lib/paths';
+
+interface Props {
+	href: string;
+	title: string;
+	description: string;
+	updated: Date;
+	problem: number;
+	languages?: string[];
+	answer?: string;
+}
+
+const {
+	href,
+	title,
+	description,
+	updated,
+	problem,
+	languages = [],
+	answer,
+} = Astro.props;
+
+const normalizedLanguages = languages.map((language) => language.toLowerCase());
+const searchText = `${formatProblemNumber(problem)} ${title} ${description} ${answer ?? ''}`
+	.toLowerCase()
+	.trim();
+const band =
+	problem <= 100
+		? '001-100'
+		: problem <= 300
+			? '101-300'
+			: problem <= 600
+				? '301-600'
+				: '601-988';
+---
+
+<a
+	class="card euler-card"
+	data-tone="olive"
+	data-problem-card
+	data-languages={normalizedLanguages.join(',')}
+	data-search={searchText}
+	data-problem={problem}
+	data-band={band}
+	data-updated={updated.getTime()}
+	href={withBase(href)}
+>
+	<div class="card__meta">
+		<span class="metric">{formatProblemNumber(problem)}</span>
+		<time datetime={updated.toISOString()}>Updated {formatDate(updated)}</time>
+	</div>
+	<h3>{title}</h3>
+	<p>{description}</p>
+	<div class="chip-row">
+		<span class="chip" data-tone="olive">full solution</span>
+		{languages.map((language) => (
+			<span class="chip" data-tone="cool">{language}</span>
+		))}
+		{answer ? <span class="chip" data-tone="warm">answer {answer}</span> : null}
+	</div>
+</a>

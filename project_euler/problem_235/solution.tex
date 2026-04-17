@@ -1,0 +1,73 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 235: An Arithmetic Geometric Sequence}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given $u(k) = (900 - 3k)\,r^{k-1}$, let $s(r) = \sum_{k=1}^{5000} u(k)$. Find $r$ (to 12 decimal places) such that $s(r) = -600\,000\,000\,000$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Closed-Form Summation]
+For $r \neq 1$ and $n = 5000$:
+\[
+s(r) = 900 \cdot \frac{r^n - 1}{r - 1} - 3 \cdot \frac{n\,r^{n+1} - (n+1)\,r^n + 1}{(r-1)^2}.
+\]
+\end{theorem}
+
+\begin{proof}
+We split $s(r) = 900\sum_{k=1}^{n} r^{k-1} - 3\sum_{k=1}^{n} k\,r^{k-1}$. The first sum is geometric: $(r^n - 1)/(r-1)$. For the second, differentiate $\sum_{k=0}^{n} r^k = (r^{n+1}-1)/(r-1)$ with respect to~$r$. By the quotient rule, the numerator of the derivative is $(n{+}1)r^n(r{-}1) - (r^{n+1}{-}1) = nr^{n+1} - (n{+}1)r^n + 1$, yielding $\sum_{k=1}^{n} k\,r^{k-1} = [nr^{n+1} - (n{+}1)r^n + 1]/(r-1)^2$.
+\end{proof}
+
+\begin{lemma}[Existence and Uniqueness]
+The equation $s(r) = -6 \times 10^{11}$ has a unique solution in $(1, 1.01)$.
+\end{lemma}
+
+\begin{proof}
+At $r = 1$: $s(1) = -33\,007\,500 > -6\times 10^{11}$. For $r > 1$, the negative terms ($k > 300$) are amplified by $r^{k-1}$, so $s(r)$ is strictly decreasing and unbounded below near this range. At $r = 1.01$, $s(1.01) \ll -6\times 10^{11}$. By the intermediate value theorem, a unique root exists in $(1, 1.01)$.
+\end{proof}
+
+\begin{theorem}[Bisection Convergence]
+Bisection on $g(r) = s(r) + 6\times 10^{11}$ over $[1, 1.01]$ achieves 12-decimal-place accuracy in at most $\lceil\log_2(0.01/5\times 10^{-13})\rceil = 35$ iterations.
+\end{theorem}
+
+\begin{proof}
+Starting width $0.01$; after $m$ steps, width is $0.01/2^m$. For error $< 5\times 10^{-13}$: $0.01/2^m < 5\times 10^{-13}$, so $m > \log_2(2\times 10^{10}) \approx 34.2$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve():
+    n = 5000, target = -600000000000
+    function s(r):
+        return 900*(r^n-1)/(r-1) - 3*(n*r^(n+1)-(n+1)*r^n+1)/(r-1)^2
+    lo = 1.0, hi = 1.01
+    repeat 50 times:
+        mid = (lo+hi)/2
+        if s(mid) > target: lo = mid else: hi = mid
+    return mid
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\log(1/\varepsilon))$ bisection iterations, each $O(1)$ with the closed form.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1.002322108633}
+\]
+
+\end{document}

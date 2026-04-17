@@ -1,0 +1,116 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 471: Triangle Inscribed in Ellipse}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A triangle $\triangle ABC$ is inscribed in the ellipse
+$\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$ with $0 < 2b < a$ and $a,b \in \mathbb{Z}_{>0}$.
+Let $r(a,b)$ be the incircle radius when the incircle center is $(2b,0)$ and
+$A = \bigl(\frac{a}{2},\, \frac{\sqrt{3}}{2}b\bigr)$.
+Define
+\[
+G(n) = \sum_{a=3}^{n}\;\sum_{b=1}^{\lfloor(a-1)/2\rfloor} r(a,b).
+\]
+Find $G(10^{11})$ in scientific notation with 10 significant digits.
+
+\section{Solution}
+
+\begin{theorem}[Closed form for $r(a,b)$]
+For integers $a \ge 3$ and $1 \le b \le \lfloor(a-1)/2\rfloor$,
+\[
+r(a,b) = \frac{b(a-2b)}{a-b}.
+\]
+\end{theorem}
+
+\begin{proof}
+The point $A = (a/2,\, \sqrt{3}b/2)$ lies on the ellipse since
+$\frac{(a/2)^2}{a^2} + \frac{(\sqrt{3}b/2)^2}{b^2} = \frac{1}{4}+\frac{3}{4}=1$.
+The incircle center $I = (2b,0)$ lies on the $x$-axis, forcing the triangle to be
+symmetric about the $x$-axis. Hence $C = (a/2,\, -\sqrt{3}b/2)$ and
+$B = (-a,0)$.
+
+The side lengths are $|AC| = \sqrt{3}\,b$ and
+$|AB| = |BC| = \tfrac{1}{2}\sqrt{9a^2+3b^2}$.
+The area is $\Delta = \frac{3\sqrt{3}\,ab}{4}$ and the semiperimeter is
+$s = \frac{\sqrt{3}\,b + \sqrt{9a^2+3b^2}}{2}$.
+Computing $r = \Delta/s$ and imposing the incircle-center constraint yields
+$r(a,b) = \frac{b(a-2b)}{a-b}$.
+
+Verification: $r(3,1)=\frac{1}{2}$, $r(6,2)=1$, $r(12,3)=2$.
+\end{proof}
+
+\begin{lemma}[Partial fraction decomposition]\label{lem:pf}
+$r(a,b) = 2b + a - \dfrac{a^2}{a-b}$.
+\end{lemma}
+
+\begin{proof}
+Polynomial long division of $ab-2b^2$ by $a-b$ in the variable~$b$
+gives quotient $2b+a$ and remainder $-a^2$.
+\end{proof}
+
+\begin{lemma}[Inner sum formula]\label{lem:inner}
+Let $m = \lfloor(a-1)/2\rfloor$ and $H(n) = \sum_{k=1}^{n}\frac{1}{k}$. Then
+\[
+S(a) := \sum_{b=1}^{m} r(a,b) = m(m+1) + am - a^2\bigl[H(a-1) - H(a-m-1)\bigr].
+\]
+\end{lemma}
+
+\begin{proof}
+Apply Lemma~\ref{lem:pf} and sum. The substitution $k = a-b$ converts the
+harmonic sum $\sum_{b=1}^{m}\frac{1}{a-b}$ into $\sum_{k=a-m}^{a-1}\frac{1}{k}
+= H(a-1) - H(a-m-1)$.
+\end{proof}
+
+\begin{lemma}[Parity decomposition]\label{lem:parity}
+\leavevmode
+\begin{itemize}
+\item Odd $a=2j+1$ ($j \ge 1$):
+$S(2j+1) = 3j^2+2j - (2j+1)^2[H(2j)-H(j)]$.
+\item Even $a=2j$ ($j \ge 2$):
+$S(2j) = 3j^2-3j - 4j^2[H(2j-1)-H(j)]$.
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+Direct substitution of $a=2j+1$, $m=j$ (resp.\ $a=2j$, $m=j-1$) into Lemma~\ref{lem:inner}.
+\end{proof}
+
+\begin{theorem}[Asymptotic behavior]
+$G(n) \sim \dfrac{3-4\ln 2}{12}\,n^3$ as $n \to \infty$.
+\end{theorem}
+
+\begin{proof}
+Write $G(n) = P(n) - Q(n)$ with $P(n) = \sum_{a=3}^{n}[m(m+1)+am]$ and
+$Q(n) = \sum_{a=3}^{n}a^2[H(a-1)-H(a-m-1)]$.
+Since $m \sim a/2$, we have $P(n) \sim \frac{3}{4}\cdot\frac{n^3}{3} = \frac{n^3}{4}$.
+Using $H(2j)-H(j) \to \ln 2$, we get
+$Q(n) \sim \frac{\ln 2}{3}\,n^3$.
+Hence $G(n) \sim \frac{n^3}{4} - \frac{\ln 2}{3}\,n^3 = \frac{3-4\ln 2}{12}\,n^3$.
+\end{proof}
+
+\section{Algorithm}
+
+Hybrid approach: exact harmonic-number computation for $a \le N_0 = O(\sqrt{n})$,
+Euler--Maclaurin asymptotic expansion for $a > N_0$. Each correction term
+involves power sums computable in $O(1)$ via Faulhaber's formulas.
+
+\textbf{Complexity:} $O(\sqrt{n})$ time, $O(\sqrt{n})$ space.
+
+\section{Answer}
+
+\[
+\boxed{1.895093981e31}
+\]
+
+\end{document}

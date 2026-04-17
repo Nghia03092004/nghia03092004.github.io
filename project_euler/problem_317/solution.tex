@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm, geometry, hyperref}
+\geometry{margin=1in}
+\title{Problem 317: Firecracker}
+\author{Project Euler Solution}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A firecracker at height $h_0 = 100$\,m ejects fragments in all directions at speed $v_0 = 20$\,m/s. With $g = 9.81$\,m/s$^2$ and no air resistance, find the volume of the reachable region, to 4 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Parametric Trajectory]
+A fragment launched at polar angle $\alpha$ from the vertical traces:
+\[
+    r(t) = v_0 \sin\alpha \cdot t, \qquad z(t) = h_0 + v_0\cos\alpha \cdot t - \tfrac{1}{2}gt^2.
+\]
+\end{lemma}
+
+\begin{proof}
+By Newton's second law with initial conditions $r(0)=0$, $z(0)=h_0$, $\dot{r}(0) = v_0\sin\alpha$, $\dot{z}(0) = v_0\cos\alpha$, and $\ddot{z} = -g$.
+\end{proof}
+
+\begin{theorem}[Envelope of Trajectories]
+The boundary of the reachable region is:
+\[
+    z_{\max}(r) = Z - \frac{gr^2}{2v_0^2}, \qquad Z := h_0 + \frac{v_0^2}{2g}.
+\]
+\end{theorem}
+
+\begin{proof}
+Eliminating $t$ and setting $u = \cot\alpha$:
+\[
+    z = h_0 + ru - \frac{gr^2}{2v_0^2}(1+u^2).
+\]
+Maximizing over $u$: $\partial z/\partial u = r - \frac{gr^2}{v_0^2}u = 0$ gives $u^* = \frac{v_0^2}{gr}$. Substituting:
+\begin{align*}
+    z_{\max}(r) &= h_0 + \frac{v_0^2}{g} - \frac{gr^2}{2v_0^2} - \frac{v_0^2}{2g} = h_0 + \frac{v_0^2}{2g} - \frac{gr^2}{2v_0^2}. \qedhere
+\end{align*}
+\end{proof}
+
+\begin{theorem}[Volume of the Reachable Region]
+\[
+    V = \frac{\pi v_0^2 Z^2}{g}, \qquad Z = h_0 + \frac{v_0^2}{2g}.
+\]
+\end{theorem}
+
+\begin{proof}
+The region is bounded above by $z_{\max}(r)$ and below by $z = 0$. From the envelope: $r^2(z) = \frac{2v_0^2}{g}(Z-z)$. By the disc method:
+\[
+    V = \pi\int_0^Z r^2(z)\,dz = \frac{2\pi v_0^2}{g}\int_0^Z (Z-z)\,dz = \frac{2\pi v_0^2}{g}\cdot\frac{Z^2}{2} = \frac{\pi v_0^2 Z^2}{g}. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Numerical Evaluation]
+\begin{align*}
+    Z &= 100 + \frac{400}{19.62} = 120.38736\ldots \\
+    V &= \frac{\pi \times 400 \times (120.38736\ldots)^2}{9.81} = 1856532.8455\ldots
+\end{align*}
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Compute $Z = h_0 + v_0^2/(2g)$.
+    \item Compute $V = \pi v_0^2 Z^2 / g$.
+    \item Round to 4 decimal places.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(1)$ --- direct closed-form evaluation.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1856532.8455}
+\]
+
+\end{document}

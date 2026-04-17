@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 178: Step Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A step number is a positive integer where each pair of consecutive digits differs by exactly 1. A pandigital step number contains every digit 0 through 9 at least once. Find the count of pandigital step numbers with at most 40 digits.
+
+\section{Solution}
+
+\subsection{DP Formulation}
+
+Define:
+\[
+dp[n][d][S] = \text{count of $n$-digit step numbers ending in digit $d$ with digit set $S$}
+\]
+
+where $S \subseteq \{0,1,\ldots,9\}$ is represented as a bitmask.
+
+\subsection{Recurrence}
+
+\[
+dp[n+1][d-1][S \cup \{d-1\}] \mathrel{+}= dp[n][d][S] \quad \text{if } d \geq 1
+\]
+\[
+dp[n+1][d+1][S \cup \{d+1\}] \mathrel{+}= dp[n][d][S] \quad \text{if } d \leq 8
+\]
+
+\subsection{Base Case}
+
+For $d = 1, 2, \ldots, 9$:
+\[
+dp[1][d][\{d\}] = 1
+\]
+
+(No leading zeros: single-digit numbers start from 1.)
+
+\subsection{Answer}
+
+\[
+\text{Answer} = \sum_{n=10}^{40} \sum_{d=0}^{9} dp[n][d][\{0,1,\ldots,9\}]
+\]
+
+The full set $\{0,1,\ldots,9\}$ corresponds to bitmask $2^{10}-1 = 1023$.
+
+\subsection{Complexity}
+
+The state space has $O(N \cdot 10 \cdot 2^{10})$ entries with $O(1)$ transitions each, giving total time $O(N \cdot 10 \cdot 1024) \approx 4 \times 10^5$ operations for $N=40$.
+
+\subsection{Result}
+
+\[
+\boxed{126461847755}
+\]
+
+\section{Answer}
+
+\[
+\boxed{126461847755}
+\]
+
+\end{document}

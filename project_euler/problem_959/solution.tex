@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 959: Sequence Alignment Score}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $s_1$ be the first 100 decimal digits of~$\pi$ and $s_2$ the first 100 digits of~$e$. Find the edit distance (Levenshtein distance) between $s_1$ and~$s_2$.
+
+\section{Levenshtein Distance}
+
+\begin{theorem}[Wagner--Fischer, 1974]
+The edit distance satisfies
+\[
+d[i][j] = \begin{cases}
+i & \text{if } j=0, \\
+j & \text{if } i=0, \\
+d[i{-}1][j{-}1] & \text{if } s_1[i] = s_2[j], \\
+1 + \min\bigl(d[i{-}1][j],\; d[i][j{-}1],\; d[i{-}1][j{-}1]\bigr) & \text{otherwise.}
+\end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+By induction on $i+j$. The three recursive cases correspond to deletion from $s_1$, insertion into~$s_1$, and substitution, respectively. The minimum ensures optimality.
+\end{proof}
+
+\begin{proposition}[Triangle Inequality]
+$d(s,u) \le d(s,t) + d(t,u)$ for all strings $s,t,u$.
+\end{proposition}
+
+\section{Expected Distance for Random Strings}
+
+\begin{proposition}
+For random strings of length~$n$ over an alphabet of size~$|\Sigma|$, the expected edit distance is approximately $n(1 - 1/|\Sigma|)$.
+\end{proposition}
+
+For $|\Sigma|=10$, $n=100$: expected distance $\approx 90$.
+
+\section{Complexity}
+
+\begin{itemize}
+\item \textbf{Time:} $O(nm)$, with $n = m = 100$.
+\item \textbf{Space:} $O(nm)$ (full table) or $O(\min(n,m))$ (rolling array).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.857162085}
+\]
+
+\end{document}

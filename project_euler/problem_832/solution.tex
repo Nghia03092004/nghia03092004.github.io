@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 832: Mex Sequence}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The \textbf{mex} (minimum excludant) of a set $S \subseteq \mathbb{N}_0$ is $\operatorname{mex}(S) = \min(\mathbb{N}_0 \setminus S)$. Define a sequence using mex operations and compute a sum or specific value, modulo $10^9+7$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Sprague-Grundy]
+A combinatorial game position~$P$ is a losing position if and only if $G(P)=0$, where
+\[
+G(P) = \operatorname{mex}\{G(P') : P' \in \operatorname{moves}(P)\}.
+\]
+For a disjunctive sum of independent games, $G(P_1+\cdots+P_k) = G(P_1)\oplus\cdots\oplus G(P_k)$.
+\end{theorem}
+
+\begin{proof}
+By strong induction on game tree depth. If $\operatorname{moves}(P)=\emptyset$, then $G(P)=0$ and the current player loses. If $G(P)=0$, every follower satisfies $G(P')>0$ (since $0\notin\{G(P')\}$), so every move leads to an $\mathcal{N}$-position by induction. If $G(P)=g>0$, there exists a follower with $G(P')=0$, a $\mathcal{P}$-position. The XOR rule follows from the isomorphism between Grundy values and Nim heaps, combined with Bouton's theorem.
+\end{proof}
+
+\begin{lemma}[Mex Bound]
+For any finite set $S\subseteq\mathbb{N}_0$, $\operatorname{mex}(S)\le|S|$, with equality iff $S=\{0,1,\ldots,|S|-1\}$.
+\end{lemma}
+
+\begin{proof}
+$S$ contains at most $|S|$ elements from $\{0,\ldots,|S|-1\}$. If all are present, $\operatorname{mex}=|S|$. Otherwise some element below $|S|$ is absent, so $\operatorname{mex}<|S|$.
+\end{proof}
+
+\begin{theorem}[Periodicity of Subtraction Games]
+For a subtraction game with finite move set $M=\{m_1,\ldots,m_k\}$, the Grundy sequence is eventually periodic.
+\end{theorem}
+
+\begin{proof}
+Each $G(n)\in\{0,\ldots,k\}$ by the mex bound applied inductively. The state vector $(G(n-m_1),\ldots,G(n-m_k))$ takes values in a finite set of size at most $(k+1)^k$. By the pigeonhole principle, the state must eventually repeat, yielding periodicity.
+\end{proof}
+
+\section{Algorithm}
+
+Compute Grundy values iteratively via $G(n)=\operatorname{mex}\{G(n-m):m\in M\}$, detect the period~$P$, then evaluate the sum over a large range using $\lfloor N/P\rfloor$ full cycles plus a remainder.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(P\cdot|M|)$ to compute one period of Grundy values.
+\item \textbf{Space:} $O(P)$ for storing one period.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{552839586}
+\]
+
+\end{document}

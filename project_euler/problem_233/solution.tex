@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 233: Lattice Points on a Circle}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $f(n)$ be the number of lattice points on the circle $x^2 + y^2 = n^2$. Find the sum of all positive integers $n \leq 10^{11}$ such that $f(n) = 420$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Sum of Two Squares Representation Count]
+For a positive integer $m$, the number of representations of $m$ as a sum of two squares (counting order and signs) is
+\[
+r_2(m) = 4 \sum_{d \mid m} \chi(d)
+\]
+where $\chi$ is the non-principal Dirichlet character modulo~4.
+\end{theorem}
+
+\begin{proof}
+This follows from the factorization of ideals in the Gaussian integers $\mathbb{Z}[i]$. The multiplicativity of the norm $N(a+bi) = a^2 + b^2$ and Euler-product expansion of $\sum_{d \mid m} \chi(d)$ yield: for $p = 2$, factor is~1; for $p \equiv 1\pmod{4}$, factor is $v_p(m)+1$; for $p \equiv 3\pmod{4}$, factor is~1 if $v_p(m)$ is even, 0~if odd.
+\end{proof}
+
+\begin{lemma}
+For $n = 2^{a_0} \prod_i p_i^{a_i} \prod_j q_j^{b_j}$ with $p_i \equiv 1\pmod{4}$ and $q_j \equiv 3\pmod{4}$:
+\[
+f(n) = r_2(n^2) = 4\prod_i (2a_i + 1).
+\]
+\end{lemma}
+
+\begin{proof}
+In $n^2$, each $p_i$ appears with even exponent $2a_i$ and each $q_j$ with even exponent $2b_j$. By the theorem, the $q_j$-factors each contribute~1, the factor of~2 contributes~1, and each $p_i$-factor contributes $2a_i + 1$.
+\end{proof}
+
+\begin{corollary}
+The condition $f(n) = 420$ is equivalent to $\prod_i (2a_i + 1) = 105$ over primes $p_i \equiv 1\pmod{4}$ dividing~$n$.
+\end{corollary}
+
+\begin{proof}
+Immediate from $f(n) = 4\prod_i(2a_i+1) = 420$.
+\end{proof}
+
+\subsection{Factorization Patterns}
+
+The factorizations of $105$ into factors $\geq 3$ (since $a_i \geq 1$):
+\begin{center}
+\begin{tabular}{ll}
+$105$ & $(a) = (52)$ \\
+$3 \times 35$ & $(a_1, a_2) = (1, 17)$ \\
+$5 \times 21$ & $(a_1, a_2) = (2, 10)$ \\
+$7 \times 15$ & $(a_1, a_2) = (3, 7)$ \\
+$3 \times 5 \times 7$ & $(a_1, a_2, a_3) = (1, 2, 3)$
+\end{tabular}
+\end{center}
+
+For each pattern, $n = P \cdot k$ where $P = \prod p_i^{a_i}$ (primes $\equiv 1\pmod{4}$) and $k$ has no prime factor $\equiv 1\pmod{4}$.
+
+\section{Algorithm}
+
+\begin{verbatim}
+for each factorization pattern:
+    enumerate products P = p_1^a_1 * ... * p_m^a_m, P <= N
+    for each P:
+        L = floor(N / P)
+        sum all n = P * k where k <= L has no prime factor congruent to 1 (mod 4)
+        accumulate into total
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} Enumeration of products $P$ plus inclusion-exclusion for each; effectively $O(\sqrt{N})$ per query with sieving.
+    \item \textbf{Space:} $O(\sqrt{N})$ for sieve arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{271204031455541309}
+\]
+
+\end{document}

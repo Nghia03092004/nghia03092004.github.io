@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 918: Farey Sequence Properties}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The Farey sequence $F_n$ consists of all reduced fractions $a/b$ with $0 \le a \le b \le n$ in ascending order. Find $|F_{1000}|$.
+
+\section{Length Formula}
+
+\begin{theorem}
+$|F_n| = 1 + \sum_{k=1}^{n} \varphi(k)$.
+\end{theorem}
+
+\begin{proof}
+For each denominator $b \in \{1, \ldots, n\}$, the fractions with denominator~$b$ in $F_n$ are $a/b$ with $\gcd(a,b) = 1$ and $0 < a < b$; there are $\varphi(b)$ such fractions. The fraction $1/1$ is counted via $\varphi(1) = 1$, and $0/1$ is the additional $+1$.
+\end{proof}
+
+\section{Euler's Totient}
+
+\begin{theorem}
+$\varphi(n) = n \prod_{p \mid n}(1 - 1/p)$.
+\end{theorem}
+
+\begin{proof}
+By multiplicativity ($\varphi$ is multiplicative by CRT) and $\varphi(p^a) = p^{a-1}(p-1)$.
+\end{proof}
+
+\section{Asymptotic}
+
+\begin{theorem}
+$|F_n| \sim \dfrac{3n^2}{\pi^2}$ as $n \to \infty$.
+\end{theorem}
+
+\begin{proof}
+$\sum_{k=1}^{n}\varphi(k) = \frac{n^2}{2\zeta(2)} + O(n\log n) = \frac{3n^2}{\pi^2} + O(n\log n)$.
+\end{proof}
+
+\section{Mediant Property}
+
+\begin{theorem}[Farey Mediant]
+If $a/b$ and $c/d$ are consecutive in $F_n$, then $bc - ad = 1$.
+\end{theorem}
+
+\begin{proof}
+By induction on~$n$. Base: $F_1 = \{0/1, 1/1\}$, $1 \cdot 0 - 1 \cdot 1 = -1$. When inserting $(a+c)/(b+d)$ between $a/b$ and $c/d$ (when $b+d \le n$), the new cross-differences are $(a+c)b - a(b+d) = cb - ad = 1$ and $c(b+d) - (a+c)d = cb - ad = 1$.
+\end{proof}
+
+\begin{corollary}
+Consecutive Farey fractions $a/b < c/d$ satisfy $c/d - a/b = 1/(bd)$.
+\end{corollary}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$n$ & $|F_n|$ & $3n^2/\pi^2$ & Ratio \\
+\midrule
+10   & 33      & 30.4    & 1.086 \\
+100  & 3045    & 3040    & 1.002 \\
+1000 & 304193  & 303964  & 1.001 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+
+\begin{itemize}
+\item \textbf{Totient sieve:} $O(n\log\log n)$ time, $O(n)$ space.
+\item \textbf{Summation:} $O(n)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{304193}
+\]
+
+\end{document}

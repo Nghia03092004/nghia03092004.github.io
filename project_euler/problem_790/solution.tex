@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 790: Clock Grid}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+A $50515093 \times 50515093$ grid of 12-hour clocks, all starting at 12. Pseudorandom sequence $S_0=290797$, $S_{t+1} = S_t^2 \bmod 50515093$. Every 4 terms define a rectangle; all clocks in the rectangle advance 1 hour (mod 12). $C(t)$ = sum of all clock values. Given $C(0)=30621295449583788$. Find $C(10^5)$.
+\section{Analysis}
+\subsection*{Grid Update Model}
+
+At each timestep, a rectangle $[x_1, x_2] \times [y_1, y_2]$ of clocks advances by 1 hour. The total sum changes by $\Delta = (x_2-x_1+1)(y_2-y_1+1)$ minus $12$ times the number of clocks that wrap around from 12 back to 1.
+
+\subsection*{Tracking Without Full Grid}
+
+We cannot store the full $5 \times 10^7 \times 5 \times 10^7$ grid. Instead, notice that $C(t)$ depends on how many times each clock has been incremented modulo 12. If clock $(x,y)$ has been incremented $k$ times, its value is $k \bmod 12$ (treating 0 as 12).
+
+\subsection*{2D Prefix Sum Approach}
+
+Each rectangle update is a 2D r
+\section{Answer}
+
+\[
+\boxed{16585056588495119}
+\]
+
+\end{document}

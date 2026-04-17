@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 490: Jumping Frog}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A frog on stepping stones $0,1,\ldots,n$ can jump forward by 1, 2, or 3 stones per step. Count the number of distinct paths from stone~0 to stone~$n$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Tribonacci recurrence]
+Let $f(k)$ be the number of paths from stone~0 to stone~$k$. Then
+\[
+f(k) = f(k-1)+f(k-2)+f(k-3) \quad\text{for }k\ge 3,
+\]
+with $f(0)=1$, $f(1)=1$, $f(2)=2$.
+\end{theorem}
+
+\begin{proof}
+The frog's last jump to stone $k$ was of size 1, 2, or 3 (from stones $k-1$, $k-2$, $k-3$ respectively). These cases are mutually exclusive and exhaustive, giving $f(k)=f(k-1)+f(k-2)+f(k-3)$. Initial conditions: $f(0)=1$ (empty path), $f(1)=1$ (jump of~1), $f(2)=2$ (paths $0\to1\to2$ and $0\to2$).
+\end{proof}
+
+\begin{theorem}[Matrix exponentiation]
+\[
+\begin{pmatrix}f(n)\\f(n-1)\\f(n-2)\end{pmatrix} = A^{n-2}\begin{pmatrix}2\\1\\1\end{pmatrix},\quad A=\begin{pmatrix}1&1&1\\1&0&0\\0&1&0\end{pmatrix},\quad n\ge 2.
+\]
+Using repeated squaring, $A^{n-2}$ is computed in $O(\log n)$ matrix multiplications.
+\end{theorem}
+
+\begin{proof}
+The matrix form restates the recurrence. By induction: if the relation holds at step $k$, multiplying by $A$ gives step $k+1$.
+\end{proof}
+
+\begin{theorem}[Generating function]
+\[
+F(x) = \sum_{k=0}^{\infty}f(k)x^k = \frac{1}{1-x-x^2-x^3}.
+\]
+\end{theorem}
+
+\begin{proof}
+Multiply the recurrence by $x^k$, sum for $k\ge 3$, substitute initial conditions, and solve for $F(x)$:
+\[
+F(x)-1-x-2x^2 = xF(x)-x-x^2+x^2F(x)-x^2+x^3F(x).
+\]
+Rearranging: $F(x)(1-x-x^2-x^3)=1$.
+\end{proof}
+
+\begin{lemma}[Asymptotic growth]
+The dominant root of $x^3-x^2-x-1=0$ is the tribonacci constant
+\[
+\tau = \frac{1}{3}\!\left(1+\sqrt[3]{19+3\sqrt{33}}+\sqrt[3]{19-3\sqrt{33}}\right)\approx 1.83929.
+\]
+Thus $f(n)\sim C\tau^n$ for a constant $C>0$.
+\end{lemma}
+
+\begin{proof}
+The polynomial $p(x)=x^3-x^2-x-1$ has $p(1)=-2<0$ and $p(2)=1>0$, so there is a real root $\tau\in(1,2)$. By Descartes' rule there is exactly one positive real root. The other two roots are complex conjugates. By Vieta's formulas their product is $1/\tau<1$, so their common modulus is $\tau^{-1/2}<1<\tau$. Hence $\tau^n$ dominates.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item \textbf{DP method ($O(n)$):} Iterate $f(k)=f(k-1)+f(k-2)+f(k-3)$ for $k=3,\ldots,n$, storing only the last three values.
+\item \textbf{Matrix method ($O(\log n)$):} Compute $A^{n-2}\bmod M$ via repeated squaring and extract $f(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{DP:} $O(n)$ time, $O(1)$ space.
+\item \textbf{Matrix exponentiation:} $O(3^3\log n) = O(\log n)$ time, $O(1)$ space ($3\times 3$ matrices).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{777577686}
+\]
+
+\end{document}

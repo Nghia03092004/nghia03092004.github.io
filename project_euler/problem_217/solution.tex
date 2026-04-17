@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 217: Balanced Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer with $k$ digits is \emph{balanced} if the sum of the first $\lfloor k/2\rfloor$ digits equals the sum of the last $\lfloor k/2\rfloor$ digits (the middle digit, if $k$ is odd, is ignored). Find the sum of all balanced numbers below $10^{47}$, modulo $3^{15} = 14348907$.
+
+\section{Mathematical Foundation}
+
+For $h$-digit strings (with possible leading zeros), define:
+\begin{align*}
+C(h,s) &= |\{x: 0 \leq x < 10^h, \;\operatorname{digitsum}(x) = s\}|, \\
+\Sigma(h,s) &= \textstyle\sum_{\substack{0 \leq x < 10^h \\ \operatorname{digitsum}(x)=s}} x.
+\end{align*}
+
+For left halves (leading digit $\geq 1$): $C_L(h,s) = C(h,s) - C(h{-}1,s)$, $\Sigma_L(h,s) = \Sigma(h,s) - \Sigma(h{-}1,s)$.
+
+\begin{theorem}[Balanced number sum decomposition]
+For even $k = 2h$:
+\[
+\mathrm{Sum}_{2h} = \sum_{s=0}^{9h}\bigl[\Sigma_L(h,s)\cdot 10^h\cdot C(h,s) + C_L(h,s)\cdot\Sigma(h,s)\bigr].
+\]
+For odd $k = 2h+1$:
+\[
+\mathrm{Sum}_{2h+1} = \sum_{s=0}^{9h}\bigl[10\,\Sigma_L(h,s)\cdot 10^{h+1}\cdot C(h,s) + 45\cdot 10^h\cdot C_L(h,s)\cdot C(h,s) + 10\,C_L(h,s)\cdot\Sigma(h,s)\bigr].
+\]
+\end{theorem}
+
+\begin{proof}
+A balanced number $N$ of even length $k=2h$ decomposes as $N = L\cdot 10^h + R$ with $\operatorname{digitsum}(L) = \operatorname{digitsum}(R) = s$. Summing over all such $N$:
+\[
+\sum N = 10^h\!\sum_L L\cdot|R\text{-set}| + \sum_R R\cdot|L\text{-set}| = 10^h\,\Sigma_L(h,s)\,C(h,s) + C_L(h,s)\,\Sigma(h,s).
+\]
+Summing over $s$ gives the formula. For odd $k=2h+1$, $N = L\cdot 10^{h+1} + m\cdot 10^h + R$, and summing over $m=0,\ldots,9$ introduces factors $\sum 1 = 10$ and $\sum m = 45$.
+\end{proof}
+
+\begin{lemma}[DP recurrences]
+\begin{align*}
+C(h,s) &= \sum_{d=0}^{9} C(h{-}1, s{-}d), \\
+\Sigma(h,s) &= \sum_{d=0}^{9}\bigl[10\,\Sigma(h{-}1,s{-}d) + d\,C(h{-}1,s{-}d)\bigr],
+\end{align*}
+with $C(0,0)=1$, $C(0,s)=0$ for $s\neq 0$, $\Sigma(0,0)=0$.
+\end{lemma}
+
+\begin{proof}
+The last digit $d$ of an $h$-digit string contributes $d$ to the digit sum. Removing it yields an $(h{-}1)$-digit string with digit sum $s-d$ and value $v$; the original has value $10v+d$. Summing over all choices gives the recurrence.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Handle 1-digit balanced numbers: $\sum_{d=1}^{9} d = 45$.
+\item For each $k = 2, \ldots, 47$: compute $C(h,s)$, $\Sigma(h,s)$ via DP; derive $C_L$, $\Sigma_L$; apply the summation formula modulo $3^{15}$.
+\item Return total modulo $3^{15}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O\bigl(\sum_{k=2}^{47} h \cdot 9h \cdot 10\bigr) = O(47 \cdot 23^2 \cdot 90) \approx O(2.2 \times 10^6)$.
+\item \textbf{Space:} $O(h^2)$ per digit length (reusable). Maximum $O(23^2) \approx O(500)$ entries.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{6273134}
+\]
+
+\end{document}

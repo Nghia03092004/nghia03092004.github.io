@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 293: Pseudo-Fortunate Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An integer $n$ is \textbf{admissible} if $n = 2^{a_1} \cdot 3^{a_2} \cdot 5^{a_3} \cdots p_k^{a_k}$ where $2 = p_1 < p_2 = 3 < \cdots < p_k$ are consecutive primes and all $a_i \geq 1$. The \textbf{pseudo-Fortunate number} $\psi(n)$ is the smallest $m > 1$ with $n + m$ prime.
+
+Find the sum of all distinct values in $\{\psi(n) : n \text{ admissible}, n \leq 10^9\}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Structure of Admissible Numbers]
+The admissible numbers $\leq 10^9$ use consecutive primes from the set $\{2, 3, 5, 7, 11, 13, 17, 19, 23\}$, since $23\# = 223\,092\,870 \leq 10^9$ while $29\# = 6\,469\,693\,230 > 10^9$.
+\end{theorem}
+
+\begin{proof}
+An admissible number must include all consecutive primes from 2 up to some $p_k$ with exponents $\geq 1$. The minimum such number using primes up to $p_k$ is the primorial $p_k\#$. Since $29\# > 10^9$ and $23\# \leq 10^9$, the maximum prime used is 23.
+\end{proof}
+
+\begin{lemma}[Bound on Pseudo-Fortunate Numbers]
+For any admissible $n$, $\psi(n) \leq n$ (by Bertrand's postulate). In practice, $\psi(n) = O(\ln n)$ by the prime number theorem.
+\end{lemma}
+
+\begin{proof}
+By Bertrand's postulate, there exists a prime in $(n, 2n]$, so $m \leq n$. The prime number theorem gives expected gap $O(\ln n)$ after $n$, so $m$ is typically small.
+\end{proof}
+
+\begin{lemma}[Fortune's Conjecture]
+It is conjectured (and verified for all admissible $n \leq 10^9$) that $\psi(n)$ is itself prime. If $\psi(n) = ab$ were composite with $a$ divisible by some $p_i \leq p_k$, then $p_i \mid (n + a)$, so $n + a$ is composite. For $a$ coprime to $p_k\#$, the argument is incomplete, but empirical evidence supports the conjecture.
+\end{lemma}
+
+\begin{proof}
+Partial: if $\psi(n) = m$ is composite and has a factor $a < m$ with $\gcd(a, p_k\#) > 1$, then $n + a$ shares a common factor with $n$, contradicting minimality. The full conjecture remains open.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Recursively generate all admissible numbers <= 10^9
+   using primes {2, 3, 5, 7, 11, 13, 17, 19, 23}
+2. For each admissible n, find smallest m > 1 with n + m prime
+3. Collect distinct pseudo-Fortunate numbers and sum
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(A \cdot G \cdot \sqrt{N})$ where $A \approx$ few thousand admissible numbers, $G = O(\log N)$ average gap, $\sqrt{N}$ for trial division.
+\item \textbf{Space:} $O(A)$ for admissible numbers plus $O(|\text{distinct } \psi|)$ for the output set.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2209}
+\]
+
+\end{document}

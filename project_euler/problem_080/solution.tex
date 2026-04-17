@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{Problem 80: Square Root Digital Expansion}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For the first one hundred natural numbers, find the total of the digital sums of the first one hundred decimal digits for all irrational square roots.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Irrationality Criterion]
+For a positive integer $n$, $\sqrt{n}$ is irrational if and only if $n$ is not a perfect square.
+\end{theorem}
+
+\begin{proof}
+($\Leftarrow$) Suppose $n$ is not a perfect square and $\sqrt{n} = a/b$ with $\gcd(a,b) = 1$. Then $nb^2 = a^2$. Let $p$ be a prime dividing $n$ to an odd power (such $p$ exists since $n$ is not a perfect square). Then $v_p(nb^2) = v_p(n) + 2v_p(b)$ is odd while $v_p(a^2) = 2v_p(a)$ is even, a contradiction.
+
+($\Rightarrow$) If $n = k^2$, then $\sqrt{n} = k \in \mathbb{Q}$.
+\end{proof}
+
+\begin{lemma}[Perfect Squares]
+The perfect squares in $\{1, \ldots, 100\}$ are $\{1, 4, 9, 16, 25, 36, 49, 64, 81, 100\}$ (10~values). We compute for $90$ non-square values.
+\end{lemma}
+
+\begin{proof}
+$\lfloor\sqrt{100}\rfloor = 10$, giving exactly $10$ perfect squares $1^2, 2^2, \ldots, 10^2$.
+\end{proof}
+
+\begin{theorem}[High-Precision Extraction]
+To obtain the first 100 decimal digits of $\sqrt{n}$ (non-square $n \leq 100$), compute $r = \lfloor\sqrt{n \cdot 10^{198}}\rfloor$ and take the first 100 digits of $r$.
+\end{theorem}
+
+\begin{proof}
+We have $r = \lfloor 10^{99}\sqrt{n}\rfloor$ since $10^{198} = (10^{99})^2$. For $n \leq 100$, $\sqrt{n} < 11$, so $r < 11 \times 10^{99}$ has at most 101 digits. The first 100 digits give 100 significant decimal digits of $\sqrt{n}$.
+\end{proof}
+
+\begin{theorem}[Newton's Method for Integer Square Roots]
+Given positive integer $N$, the sequence $x_0 = N$, $x_{k+1} = \lfloor(x_k + \lfloor N/x_k\rfloor)/2\rfloor$ converges to $\lfloor\sqrt{N}\rfloor$ with quadratic convergence. Termination: $x_{k+1} \geq x_k$ implies $x_k = \lfloor\sqrt{N}\rfloor$.
+\end{theorem}
+
+\begin{proof}
+Let $s = \lfloor\sqrt{N}\rfloor$.
+
+\textbf{(i)} For $x_k > s$: $N/x_k < x_k$, so $x_{k+1} \leq (x_k + N/x_k)/2 < x_k$ (strictly decreasing).
+
+\textbf{(ii)} For $x_k > s$: by AM-GM, $(x_k + N/x_k)/2 \geq \sqrt{N} \geq s$, so $x_{k+1} \geq s$ (bounded below).
+
+\textbf{(iii)} The sequence is strictly decreasing and bounded below by $s$, so it reaches $s$ in finite steps. At $x_k = s$: $\lfloor N/s\rfloor \in \{s, s+1\}$ (since $s^2 \leq N < (s+1)^2$), so $x_{k+1} = s \geq x_k$, and we terminate.
+
+\textbf{(iv)} Quadratic convergence: $e_{k+1} \leq e_k^2/(2x_k)$ gives $O(\log\log N)$ iterations.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Sum of digital sums of first 100 digits of irrational $\sqrt{n}$ for $n = 1, \ldots, 100$}
+\begin{algorithmic}[1]
+\STATE $\text{total} \gets 0$
+\FOR{$n = 1$ \TO $100$}
+    \STATE $s \gets \text{isqrt}(n)$
+    \IF{$s \cdot s = n$}
+        \STATE \textbf{continue} \COMMENT{skip perfect squares}
+    \ENDIF
+    \STATE $N \gets n \cdot 10^{198}$
+    \STATE $r \gets \text{isqrt}(N)$ \COMMENT{Newton's method}
+    \STATE $\text{digits} \gets$ first 100 decimal digits of $r$
+    \STATE $\text{total} \gets \text{total} + \sum \text{digits}$
+\ENDFOR
+\RETURN total
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} For each of 90 non-squares, Newton's method on a $D \approx 200$ digit number takes $O(\log D)$ iterations, each costing $O(M(D))$ for division. With schoolbook arithmetic: $O(90 \cdot D^2 \cdot \log D)$.
+
+\textbf{Space:} $O(D)$ per computation.
+
+\section{Answer}
+
+\[
+\boxed{40886}
+\]
+
+\end{document}

@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 683: The Chase II}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+$n$ players sit around a circular table. Two dice are placed randomly with distinct players. Each turn, both holders roll: 1--2 pass left, 3--4 keep, 5--6 pass right. A round ends when one player holds both dice and pays $s^2$ (for $s$ turns). The game continues until one player remains. Find the expected total pot for $n=100$ players.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Gap Reduction]
+The state of a round with $m$ players is described by the gap $g = (d_2 - d_1)\bmod m \in \{1,\ldots,m-1\}$, evolving as $g_{t+1} \equiv g_t + \Delta \pmod{m}$ where $\Delta = \delta_2-\delta_1$ and each $\delta_i \in \{-1,0,+1\}$ uniformly.
+\end{theorem}
+
+\begin{proof}
+Die positions evolve as $d_i \mapsto d_i + \delta_i \pmod{m}$. The gap changes by $\delta_2-\delta_1$, and only the gap matters by circular symmetry.
+\end{proof}
+
+\begin{lemma}[Distribution of $\Delta$]
+$\Pr[\Delta = j]$ for $j \in \{-2,-1,0,1,2\}$ is $\{1/9,\, 2/9,\, 3/9,\, 2/9,\, 1/9\}$.
+\end{lemma}
+
+\begin{proof}
+Direct convolution of two uniform $\{-1,0,1\}$ distributions.
+\end{proof}
+
+\begin{theorem}[Circulant Eigenvalues]
+The transition matrix $Q$ on states $\{1,\ldots,m-1\}$ is circulant with eigenvalues
+\[
+\lambda_k = \frac{1}{9}\bigl(3 + 4\cos(2\pi k/m) + 2\cos(4\pi k/m)\bigr), \quad k=1,\ldots,m-1.
+\]
+\end{theorem}
+
+\begin{proof}
+The transition probability from $g$ to $g'$ depends only on $(g'-g)\bmod m$. For a circulant with entries $c_j = \Pr[\Delta\equiv j]$, the eigenvalues are $\lambda_k = \sum_j c_j\,e^{2\pi ijk/m}$, which simplifies to the stated expression.
+\end{proof}
+
+\begin{theorem}[Expected $s^2$]
+Let $N=(I-Q)^{-1}$ be the fundamental matrix. Then $E[s^2\mid g] = ((2N-I)N\mathbf{1})_g$. For circulant~$Q$:
+\[
+E[s^2\mid g] = \frac{1}{m-1}\sum_{k=1}^{m-1}\frac{1+\lambda_k}{(1-\lambda_k)^2}\,e^{2\pi ikg/m}.
+\]
+\end{theorem}
+
+\begin{proof}
+Standard absorbing Markov chain theory gives $E[T^2]=(2N-I)N\mathbf{1}$. The circulant $N$ diagonalizes via DFT with eigenvalues $1/(1-\lambda_k)$, so $(2N-I)N$ has eigenvalues $(1+\lambda_k)/(1-\lambda_k)^2$.
+\end{proof}
+
+\begin{theorem}[Expected Round Cost]
+With uniform initial gap:
+\[
+C(m) = \frac{-1}{(m-1)^2}\sum_{k=1}^{m-1}\frac{1+\lambda_k}{(1-\lambda_k)^2}.
+\]
+\end{theorem}
+
+\begin{proof}
+Average $E[s^2\mid g]$ over $g\in\{1,\ldots,m-1\}$ uniformly, using $\sum_{g=1}^{m-1}e^{2\pi ikg/m}=-1$ for $k\not\equiv 0$.
+\end{proof}
+
+\begin{corollary}
+The expected total pot is $E[\mathrm{Pot}] = \sum_{m=2}^{n}C(m)$.
+\end{corollary}
+
+\section{Algorithm}
+
+For each $m=2,\ldots,n$: compute $C(m)$ using the eigenvalue formula in $O(m)$ time. Sum all $C(m)$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(n^2)$.
+  \item \textbf{Space:} $O(1)$ (eigenvalues computed on-the-fly).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2.38955315e11}
+\]
+
+\end{document}

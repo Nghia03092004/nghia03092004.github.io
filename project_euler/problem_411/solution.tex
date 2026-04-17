@@ -1,0 +1,99 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 411: Uphill Paths}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $n$ be a positive integer. Stations are placed at coordinates
+\[
+  (x, y) = (2^i \bmod n, \; 3^i \bmod n) \quad \text{for } 0 \le i \le 2n.
+\]
+Stations at identical coordinates are identified. An \emph{uphill path} from $(0,0)$ to $(n,n)$ is one where both coordinates never decrease. Let $S(n)$ denote the maximum number of stations such a path can pass through.
+
+\textbf{Find:} $\displaystyle\sum_{k=1}^{30} S(k^5)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Reduction to LNDS]
+Let $\mathcal{P} = \{(x_1,y_1),\dots,(x_M,y_M)\}$ be the set of distinct stations, sorted lexicographically by $(x,y)$. Then $S(n)$ equals the length of the longest non-decreasing subsequence (LNDS) of $(y_1,\dots,y_M)$.
+\end{theorem}
+
+\begin{proof}
+An uphill path visits stations in order of non-decreasing $x$-coordinate. Among all subsequences of stations with non-decreasing $x$, the maximum-length subsequence that also has non-decreasing $y$ is precisely the LNDS of the $y$-values when stations are sorted by $(x,y)$ lexicographically. The lexicographic sort with $y$ ascending as tiebreaker ensures that when two stations share the same $x$, both may appear on a non-decreasing path. Formally, a subsequence $(x_{i_1},y_{i_1}),\dots,(x_{i_\ell},y_{i_\ell})$ with $i_1 < \cdots < i_\ell$ satisfies $x_{i_1} \le \cdots \le x_{i_\ell}$ (by sort order) and $y_{i_1} \le \cdots \le y_{i_\ell}$ (by the LNDS property), which is exactly the uphill condition. Conversely, every uphill subsequence induces a non-decreasing subsequence of $y$-values in the sorted order.
+\end{proof}
+
+\begin{lemma}[Periodicity]
+The sequence $2^i \bmod n$ has period $\mathrm{ord}_n(2) \mid \varphi(n)$, and similarly for $3^i \bmod n$. The joint station sequence has period $\mathrm{lcm}(\mathrm{ord}_n(2), \mathrm{ord}_n(3))$.
+\end{lemma}
+
+\begin{proof}
+By Euler's theorem, $a^{\varphi(n)} \equiv 1 \pmod{n}$ when $\gcd(a,n)=1$, so $\mathrm{ord}_n(a) \mid \varphi(n)$. The sequence $a^i \bmod n$ is periodic with this order. Since $2n + 1 > \varphi(n)$ for all $n \ge 1$, all distinct stations appear within the generated range.
+\end{proof}
+
+\begin{theorem}[Patience Sorting]
+The LNDS of a sequence of length $M$ can be computed in $O(M \log M)$ time by maintaining an array $\mathrm{tails}[]$ where $\mathrm{tails}[j]$ stores the smallest ending element of any non-decreasing subsequence of length $j+1$.
+\end{theorem}
+
+\begin{proof}
+For each new element $v$, use \texttt{upper\_bound} to find the first position $p$ with $\mathrm{tails}[p] > v$. If $p$ is past the end, append $v$; otherwise set $\mathrm{tails}[p] = v$. The array $\mathrm{tails}[]$ remains non-decreasing throughout, each insertion costs $O(\log M)$ via binary search, and the final length of $\mathrm{tails}[]$ is the LNDS length by the standard theory of patience sorting.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute $S(n)$}
+\begin{algorithmic}[1]
+\State Generate stations: $(2^i \bmod n, 3^i \bmod n)$ for $i = 0,\dots,2n$
+\State Remove duplicate stations
+\State Sort stations lexicographically by $(x, y)$
+\State Extract $y$-values into array $Y$
+\State $\mathrm{tails} \gets []$
+\For{each $v$ in $Y$}
+    \State $p \gets \textsc{UpperBound}(\mathrm{tails}, v)$
+    \If{$p = |\mathrm{tails}|$}
+        \State Append $v$ to $\mathrm{tails}$
+    \Else
+        \State $\mathrm{tails}[p] \gets v$
+    \EndIf
+\EndFor
+\State \Return $|\mathrm{tails}|$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Main: Compute $\sum_{k=1}^{30} S(k^5)$}
+\begin{algorithmic}[1]
+\State $\text{total} \gets 0$
+\For{$k = 1$ to $30$}
+    \State $\text{total} \gets \text{total} + S(k^5)$
+\EndFor
+\State \Return total
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(M \log M)$ per value of $n$, where $M \le 2n+1$. Total: $O\!\left(\sum_{k=1}^{30} k^5 \log k\right)$, dominated by $k = 30$ with $n = 24\,300\,000$.
+  \item \textbf{Space:} $O(M)$ for storing stations and the $\mathrm{tails}$ array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{9936352}
+\]
+
+\end{document}

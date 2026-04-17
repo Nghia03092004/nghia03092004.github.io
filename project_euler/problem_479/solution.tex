@@ -1,0 +1,72 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\title{Project Euler Problem 479: Roots on the Rise}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given the equation $\frac{1}{x} = \frac{k^2}{x^2}(k + x^2) - kx$, let $a_k, b_k, c_k$ be its three solutions.
+
+Define:
+\[
+S(n) = \sum_{\substack{1 \le p \le n \\ 1 \le k \le n}} (a_k+b_k)^p (b_k+c_k)^p (c_k+a_k)^p
+\]
+
+Given $S(4) = 51160$, find $S(10^6) \bmod 1{,}000{,}000{,}007$.
+
+\section{Mathematical Analysis}
+
+\subsection{Deriving the Cubic}
+Multiply by $x^2$:
+\[
+x = k^2(k + x^2) - kx^3 \implies kx^3 - k^2 x^2 + x - k^3 = 0
+\]
+
+\subsection{Vieta's Formulas}
+\begin{align}
+a_k + b_k + c_k &= k \\
+a_k b_k + b_k c_k + c_k a_k &= \frac{1}{k} \\
+a_k b_k c_k &= k^2
+\end{align}
+
+\subsection{Key Simplification}
+\begin{align}
+(a_k+b_k)(b_k+c_k)(c_k+a_k) &= (k - c_k)(k - a_k)(k - b_k) \\
+&= k^3 - k^2 \cdot k + k \cdot \frac{1}{k} - k^2 \\
+&= 1 - k^2
+\end{align}
+
+\subsection{Geometric Series}
+\[
+S(n) = \sum_{k=1}^{n} \sum_{p=1}^{n} (1-k^2)^p = \sum_{k=1}^{n} \frac{(1-k^2)^{n+1} - (1-k^2)}{(1-k^2) - 1}
+\]
+
+For $k \ge 2$:
+\[
+\sum_{p=1}^{n} (1-k^2)^p = \frac{(1-k^2)\left((1-k^2)^n - 1\right)}{-k^2}
+\]
+
+For $k = 1$: $1 - k^2 = 0$, so all terms vanish.
+
+\section{Algorithm}
+For each $k$ from 2 to $n$:
+\begin{enumerate}
+    \item Compute $q = (1 - k^2) \bmod p$
+    \item Compute $q^{n+1} \bmod p$ using fast exponentiation
+    \item Compute the geometric sum using modular inverse of $k^2$
+    \item Accumulate
+\end{enumerate}
+
+\section{Complexity}
+$O(n \log n)$ time, $O(1)$ space.
+
+\section{Answer}
+
+\[
+\boxed{191541795}
+\]
+
+\end{document}

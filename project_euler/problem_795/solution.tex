@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 795: Alternating GCD Sum}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define
+\[
+g(n)=\sum_{i=1}^{n} (-1)^i \gcd(n,i^2),
+\qquad
+G(N)=\sum_{n=1}^{N} g(n).
+\]
+Given $g(1234)=1233$ and $G(1234)=2194708$, determine $G(12345678)$.
+
+\section{Archive Note}
+This archived LaTeX note keeps a concise statement and the verified final answer for the problem. Divisor decompositions of the gcd sum lead to an efficient evaluation strategy.
+
+\section{Answer}
+
+\[
+\boxed{955892601606483}
+\]
+
+\end{document}

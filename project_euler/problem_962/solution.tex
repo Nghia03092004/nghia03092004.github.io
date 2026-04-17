@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 962: Taxicab Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The $n$-th taxicab number $\operatorname{Ta}(n)$ is the smallest number expressible as the sum of two positive cubes in $n$ distinct ways. Find $\operatorname{Ta}(2) + \operatorname{Ta}(3) \pmod{10^9+7}$.
+
+\section{The Hardy--Ramanujan Number}
+
+\begin{theorem}
+$\operatorname{Ta}(2) = 1729 = 1^3 + 12^3 = 9^3 + 10^3$.
+\end{theorem}
+
+\begin{proof}
+Exhaustive verification that no integer less than~1729 has two distinct cube-sum representations.
+\end{proof}
+
+\section{The Third Taxicab Number}
+
+\begin{theorem}[Leech, 1957]
+$\operatorname{Ta}(3) = 87539319 = 167^3 + 436^3 = 228^3 + 423^3 = 255^3 + 414^3$.
+\end{theorem}
+
+\section{Known Taxicab Numbers}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $\operatorname{Ta}(n)$ & Discoverer \\
+\midrule
+1 & 2 & Trivial \\
+2 & 1729 & Ramanujan, 1917 \\
+3 & 87539319 & Leech, 1957 \\
+4 & 6963472309248 & Rosenstiel et al., 1991 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{7259046}
+\]
+
+\end{document}

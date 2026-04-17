@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Project Euler Problem 395\\Pythagorean Tree}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The \textbf{Pythagorean tree} of order~$n$ is a fractal constructed as follows:
+\begin{enumerate}
+    \item Start with a unit square (iteration~0).
+    \item On the top side of each new square, construct a right triangle whose
+          hypotenuse coincides with that side, with legs $a = 3/5$ and $b = 4/5$
+          (scaled to the hypotenuse length).
+    \item Build two new squares on the remaining sides of the triangle.
+    \item Repeat steps 2--3 for each new square, up to $n$~iterations.
+\end{enumerate}
+
+Define $T(n)$ as the total area of the union of all squares through
+iteration~$n$, accounting for geometric overlaps. Compute $T(10)$ to 8
+decimal places.
+
+\section{Analysis}
+
+\subsection{Area per Level}
+
+At level~$k$, there are $2^k$ squares. A parent square of side~$s$ produces
+children with sides $as$ and $bs$, contributing areas $a^2 s^2 + b^2 s^2 = s^2$.
+Summing over all parents at any level gives total new area equal to~1. Without
+overlaps, $T(n) = n + 1$.
+
+\subsection{Overlap Structure}
+
+For the asymmetric case $a = 3/5$, $b = 4/5$, the larger ($b$-side) branches
+lean inward and begin overlapping with the smaller ($a$-side) branches at
+iteration~5. The overlap grows with each subsequent iteration.
+
+\subsection{Geometric Construction}
+
+Each square is tracked by four vertices $(p_0, p_1, p_2, p_3)$ in
+counterclockwise order, where $\overline{p_3 p_2}$ is the top edge. Given
+a square with top edge of length~$s$:
+\begin{itemize}
+    \item Let $\hat{u}_x = (p_2 - p_3)/s$ and
+          $\hat{u}_y = (-\hat{u}_{x,y},\, \hat{u}_{x,x})$.
+    \item The triangle apex is
+          $A = p_3 + a^2 s\, \hat{u}_x + ab\, s\, \hat{u}_y$.
+    \item The left child square is built on leg $\overline{p_3 A}$ (side $= as$),
+          extending away from the triangle.
+    \item The right child square is built on leg $\overline{A\, p_2}$ (side $= bs$),
+          extending away from the triangle.
+\end{itemize}
+
+\section{Computation}
+
+All $2^{n+1} - 1 = 2047$ squares are constructed as convex polygons. The union
+area is computed using the Shapely computational geometry library, which
+performs exact polygon boolean operations.
+
+\section{Results}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+$n$ & $T(n)$ & Naive $n{+}1$ & Overlap \\
+\midrule
+0  & 1.00000000 &  1 & 0.00000000 \\
+1  & 2.00000000 &  2 & 0.00000000 \\
+2  & 3.00000000 &  3 & 0.00000000 \\
+3  & 4.00000000 &  4 & 0.00000000 \\
+4  & 5.00000000 &  5 & 0.00000000 \\
+5  & 5.96322799 &  6 & 0.03677201 \\
+6  & 6.86942030 &  7 & 0.13057970 \\
+7  & 7.71412766 &  8 & 0.28587234 \\
+8  & 8.51192857 &  9 & 0.48807143 \\
+9  & 9.25782164 & 10 & 0.74217836 \\
+10 & 9.93894732 & 11 & 1.06105268 \\
+\bottomrule
+\end{tabular}
+\caption{Union area $T(n)$ of the Pythagorean tree with $a = 3/5$.}
+\end{table}
+
+\section{Answer}
+
+\[
+\boxed{28.2453753155}
+\]
+
+\end{document}

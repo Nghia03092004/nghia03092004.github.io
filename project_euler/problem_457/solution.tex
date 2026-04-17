@@ -1,0 +1,144 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm, algpseudocode}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Project Euler Problem 457:\\A Polynomial Modulo the Square of a Prime}
+\author{Solution}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f(n) = n^2 - 3n - 1$.
+
+For a prime $p$, define $R(p)$ as the smallest positive integer $n$ such that
+\[
+f(n) \equiv 0 \pmod{p^2},
+\]
+or $R(p) = 0$ if no such $n$ exists.
+
+Define
+\[
+\text{SR}(L) = \sum_{\substack{p \leq L \\ p \text{ prime}}} R(p).
+\]
+
+\textbf{Goal:} Compute $\text{SR}(10^7)$.
+
+\section{Mathematical Foundation}
+
+\subsection{Solving $f(n) \equiv 0 \pmod{p}$}
+
+The polynomial $f(n) = n^2 - 3n - 1$ has discriminant
+\[
+\Delta = (-3)^2 - 4(1)(-1) = 9 + 4 = 13.
+\]
+
+By the quadratic formula modulo $p$ (for odd $p \neq 13$):
+\[
+n \equiv \frac{3 \pm \sqrt{13}}{2} \pmod{p}.
+\]
+
+This requires:
+\begin{enumerate}
+    \item $p \neq 2$: so that $2^{-1} \pmod{p}$ exists.
+    \item $\left(\frac{13}{p}\right) = 1$: the Legendre symbol, ensuring $\sqrt{13}$ exists modulo $p$.
+\end{enumerate}
+
+\subsection{Special Cases}
+
+\textbf{Case $p = 2$:}
+Checking $f(n) \bmod 4$ for $n = 0, 1, 2, 3$:
+\[
+f(0) = -1 \equiv 3,\quad f(1) = -3 \equiv 1,\quad f(2) = -3 \equiv 1,\quad f(3) = -1 \equiv 3.
+\]
+No solution exists, so $R(2) = 0$.
+
+\textbf{Case $p = 13$:}
+The discriminant vanishes: $\Delta = 13 \equiv 0 \pmod{13}$. The double root is
+$n \equiv 3 \cdot 2^{-1} \equiv 3 \cdot 7 = 21 \equiv 8 \pmod{13}$.
+Since $f'(8) = 2(8) - 3 = 13 \equiv 0 \pmod{13}$ and $f(8) = 39 = 3 \cdot 13 \not\equiv 0 \pmod{169}$,
+Hensel's lemma cannot lift this root. So $R(13) = 0$.
+
+\subsection{Hensel's Lemma}
+
+\begin{theorem}[Hensel's Lemma]
+If $f(r) \equiv 0 \pmod{p}$ and $f'(r) \not\equiv 0 \pmod{p}$, then there exists a unique
+$\hat{r} \equiv r \pmod{p}$ such that $f(\hat{r}) \equiv 0 \pmod{p^2}$, given by:
+\[
+\hat{r} \equiv r - f(r) \cdot \bigl(f'(r)\bigr)^{-1} \pmod{p^2}.
+\]
+\end{theorem}
+
+For our polynomial, $f'(n) = 2n - 3$. At a root $r$ modulo $p$ with $2r - 3 \not\equiv 0 \pmod{p}$,
+the lifted root modulo $p^2$ is:
+\[
+\hat{r} = r - (r^2 - 3r - 1) \cdot (2r - 3)^{-1} \pmod{p^2}.
+\]
+
+\subsection{Tonelli--Shanks Algorithm}
+
+To compute $\sqrt{13} \pmod{p}$, we use the Tonelli--Shanks algorithm:
+\begin{enumerate}
+    \item Write $p - 1 = 2^s \cdot q$ with $q$ odd.
+    \item Find a non-residue $z$ modulo $p$.
+    \item Initialize $M = s$, $c = z^q$, $t = 13^q$, $R = 13^{(q+1)/2}$.
+    \item Iterate: find the least $i$ with $t^{2^i} \equiv 1$, update using $b = c^{2^{M-i-1}}$.
+\end{enumerate}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute $\text{SR}(L)$}
+\begin{algorithmic}[1]
+\State Sieve all primes $p \leq L$
+\State $\text{total} \gets 0$
+\For{each prime $p$}
+    \If{$p = 2$ or $p = 13$} \textbf{continue} \EndIf
+    \State Compute $s \gets \sqrt{13} \bmod p$ via Tonelli--Shanks
+    \If{$s$ does not exist} \textbf{continue} \EndIf
+    \State $r_1 \gets (3 + s) \cdot 2^{-1} \bmod p$
+    \State $r_2 \gets (3 - s) \cdot 2^{-1} \bmod p$
+    \State $\text{best} \gets p^2$
+    \For{$r \in \{r_1, r_2\}$}
+        \State Lift $r$ to $\hat{r} \bmod p^2$ via Hensel's Lemma
+        \State $\text{best} \gets \min(\text{best}, \hat{r})$
+    \EndFor
+    \State $\text{total} \gets \text{total} + \text{best}$
+\EndFor
+\State \Return total
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Prime sieve:} $O(L \log \log L)$ via Eratosthenes.
+    \item \textbf{Per prime:} $O(\log p)$ for Tonelli--Shanks + $O(1)$ for Hensel lift.
+    \item \textbf{Total:} $O(L)$ effective, dominated by the sieve and iteration.
+\end{itemize}
+
+\section{Visualization}
+
+\begin{figure}[h]
+\centering
+\IfFileExists{visualization.png}{\includegraphics[width=0.95\textwidth]{visualization.png}}{\fbox{Visualization unavailable in this archive}}
+\caption{Distribution of $R(p)$ for primes up to $10^5$. Top-left: scatter of $R(p)$ vs.\ $p$.
+Top-right: normalized ratio $R(p)/p^2$. Bottom-left: histogram of $R(p)/p^2$.
+Bottom-right: cumulative $\text{SR}(L)$.}
+\end{figure}
+
+\section{Answer}
+
+\[
+\boxed{2647787126797397063}
+\]
+
+\end{document}

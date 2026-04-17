@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 152: Writing $\frac{1}{2}$ as a Sum of Inverse Squares}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the number of distinct subsets $S \subseteq \{2, 3, \ldots, 80\}$ such that
+\[
+\sum_{k \in S} \frac{1}{k^2} = \frac{1}{2}.
+\]
+
+\section{Mathematical Development}
+
+\begin{definition}
+Let $L = \operatorname{lcm}(k^2 : 2 \le k \le 80)$. Define $\Sigma(S) = \sum_{k \in S} L/k^2$, so the target equation becomes $\Sigma(S) = L/2$.
+\end{definition}
+
+\begin{theorem}[Large Prime Elimination]
+\label{thm:large-prime}
+Let $p$ be a prime with $40 < p \le 80$. Then $p \notin S$ for any valid subset $S$.
+\end{theorem}
+
+\begin{proof}
+Since $2p > 80$, the only multiple of $p$ in $\{2, \ldots, 80\}$ is $p$ itself. We have $v_p(L) = 2$ and $v_p(L/p^2) = 0$, while $v_p(L/k^2) = 2$ for all $k$ with $p \nmid k$. If $p \in S$, the term $L/p^2$ has $p$-adic valuation $0$, strictly less than all other terms' valuation of $2$. Hence $v_p(\Sigma(S)) = 0$. But $v_p(L/2) = 2$ since $p \neq 2$. Contradiction.
+\end{proof}
+
+\begin{theorem}[Paired Prime Elimination]
+\label{thm:paired}
+For a prime $p$ with $26 < p \le 40$, let $M_p = \{k \in \{2,\ldots,80\} : p \mid k\}$. Then $S \cap M_p$ must satisfy
+\[
+\sum_{k \in S \cap M_p} \frac{L}{k^2} \equiv 0 \pmod{p^{v_p(L)}}.
+\]
+Since $|M_p| \le 3$, this is verified exhaustively over at most $8$ subsets.
+\end{theorem}
+
+\begin{proof}
+For $k \notin M_p$, $v_p(L/k^2) \ge v_p(L)$, so the contribution from $S \setminus M_p$ vanishes modulo $p^{v_p(L)}$. Likewise $v_p(L/2) \ge v_p(L)$ since $p \ge 29$. Hence the $M_p$-terms must sum to $0$ modulo $p^{v_p(L)}$.
+\end{proof}
+
+\begin{lemma}[Reduced Candidate Set]
+Applying Theorems~\ref{thm:large-prime} and~\ref{thm:paired} for all primes $p$ from $79$ down to $2$, the candidate set reduces to approximately $36$ elements.
+\end{lemma}
+
+\begin{proof}
+Direct computation of the modular constraints for each prime.
+\end{proof}
+
+\begin{theorem}[DFS Correctness]
+Depth-first search over the reduced candidates with pruning rules---partial sum exceeds target, or partial sum plus remaining capacity falls short---correctly enumerates all valid subsets.
+\end{theorem}
+
+\begin{proof}
+Both pruning conditions eliminate only branches that provably contain no valid completion (monotonicity of partial sums for positive terms). The base case is exact. By structural induction on the search tree, completeness follows.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+Phase 1: For each prime p >= 29, eliminate or constrain
+         multiples of p via p-adic valuation arguments.
+Phase 2: DFS over ~36 remaining candidates with:
+         - integer arithmetic (clear denominators via LCM)
+         - upper bound pruning (suffix sums)
+         - lower bound pruning (partial sum exceeds target)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(2^m)$ worst case with $m \approx 36$; branch-and-bound reduces this to sub-second in practice.
+    \item \textbf{Space:} $O(m)$ for the recursion stack and suffix sums.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{301}
+\]
+
+\end{document}

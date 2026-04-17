@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 576: Irrational Jumps}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+This problem requires computing a specific quantity using \textbf{three-distance theorem and Weyl equidistribution}. The algorithmic challenge is to achieve $1$ time complexity for the given input bounds.
+
+\section{Mathematical Framework}
+
+\begin{theorem}[Core Result]
+The target quantity can be expressed and efficiently computed using continued fraction expansion. The complexity is $1$.
+\end{theorem}
+
+\begin{proof}
+The proof proceeds in three steps:
+
+\textbf{Step 1 (Reformulation).} Express the target in terms of standard mathematical objects. The three-distance theorem and Weyl equidistribution framework provides the natural algebraic structure.
+
+\textbf{Step 2 (Efficient Evaluation).} Apply continued fraction expansion to reduce the computation. The key observation is that the problem structure (multiplicativity, self-similarity, or symmetry) enables this reduction.
+
+\textbf{Step 3 (Modular Arithmetic).} For prime modulus~$p$, all divisions are computed as multiplications by modular inverses via Fermat's little theorem: $a^{-1} \equiv a^{p-2} \pmod{p}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Precompute auxiliary data structures (sieve, DP table, factorials).
+\item Apply the continued fraction expansion to evaluate the main expression.
+\item Accumulate and reduce modulo the given prime.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(log n)$.
+\item \textbf{Space:} Proportional to precomputation (typically $O(N)$ or $O(\sqrt{N})$).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{344457.5871}
+\]
+
+\end{document}

@@ -1,0 +1,83 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 549: Divisibility of Factorials}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $s(n)$ be the smallest number $m$ such that $n \mid m!$. For example, $s(10) = 5$ and $s(25) = 10$.
+
+Let $S(n) = \sum_{i=2}^{n} s(i)$. Given $S(100) = 2012$, find $S(10^8)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Reduction to Prime Powers}
+
+\begin{theorem}
+If $n = p_1^{e_1} p_2^{e_2} \cdots p_r^{e_r}$, then
+\[
+s(n) = \max_{1 \le j \le r} s(p_j^{e_j}).
+\]
+\end{theorem}
+
+\begin{proof}
+Since the prime factorizations of $m!$ for different primes are independent, $n \mid m!$ if and only if $p_j^{e_j} \mid m!$ for all $j$. Each condition $p_j^{e_j} \mid m!$ is satisfied precisely when $m \geq s(p_j^{e_j})$. Therefore the smallest such $m$ is the maximum over all $j$.
+\end{proof}
+
+\subsection{Legendre's Formula}
+
+By Legendre's formula, the exponent of prime $p$ in $m!$ is:
+\[
+\nu_p(m!) = \sum_{k=1}^{\infty} \left\lfloor \frac{m}{p^k} \right\rfloor.
+\]
+
+For a prime power $p^e$, we seek the smallest $m$ such that $\nu_p(m!) \geq e$.
+
+\subsection{Properties of $s(p^e)$}
+
+\begin{itemize}
+\item For any prime $p$: $s(p) = p$.
+\item $s(p^e)$ is always a multiple of $p$.
+\item $s(p^e) \leq pe$ since $\nu_p((pe)!) \geq e + \lfloor e/p \rfloor + \cdots \geq e$.
+\end{itemize}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Compute the smallest prime factor (SPF) sieve up to $N = 10^8$.
+\item For each $n$ from 2 to $N$:
+    \begin{enumerate}
+    \item Factorize $n$ using the SPF sieve.
+    \item For each prime power $p^e \| n$, compute $s(p^e)$ via binary search on multiples of $p$.
+    \item Set $s(n) = \max$ over all such values.
+    \end{enumerate}
+\item Accumulate $S(N) = \sum_{i=2}^{N} s(i)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log \log N)$ for the SPF sieve, plus $O(N \cdot \omega(n) \cdot \log n)$ for the factorization and binary search, where $\omega(n)$ is the number of distinct prime factors.
+\item \textbf{Space:} $O(N)$ for the sieve array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{476001479068717}
+\]
+
+\end{document}

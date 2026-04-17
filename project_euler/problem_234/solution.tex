@@ -1,0 +1,74 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 234: Semidivisible Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For an integer $n$, let $\mathrm{lps}(n)$ be the largest prime $\leq \sqrt{n}$ and $\mathrm{ups}(n)$ the smallest prime $\geq \sqrt{n}$. A number is \emph{semidivisible} if exactly one of $\mathrm{lps}(n)$ and $\mathrm{ups}(n)$ divides it. Find the sum of all semidivisible numbers not exceeding $999\,966\,663\,333$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Interval Decomposition]
+For consecutive primes $p < q$, every integer $n$ with $p^2 < n < q^2$ satisfies $\mathrm{lps}(n) = p$ and $\mathrm{ups}(n) = q$.
+\end{theorem}
+
+\begin{proof}
+Since $p^2 < n < q^2$, we have $p < \sqrt{n} < q$. As $p$ and $q$ are consecutive primes, $p$ is the largest prime $\leq \sqrt{n}$ and $q$ is the smallest prime $\geq \sqrt{n}$.
+\end{proof}
+
+\begin{lemma}[Semidivisibility Criterion]
+For $n \in (p^2, q^2)$ with consecutive primes $p < q$, $n$ is semidivisible iff exactly one of $p \mid n$, $q \mid n$ holds.
+\end{lemma}
+
+\begin{proof}
+Immediate from the theorem and the definition of semidivisibility.
+\end{proof}
+
+\begin{lemma}[Arithmetic Sum Formula]
+The sum of semidivisible numbers in the open interval $(p^2, \min(q^2, L))$ equals $\Sigma_p + \Sigma_q - 2\Sigma_{pq}$, where $\Sigma_d$ is the sum of multiples of $d$ in the interval.
+\end{lemma}
+
+\begin{proof}
+Let $A$ (resp.\ $B$) be the set of multiples of $p$ (resp.\ $q$) in the interval. Semidivisible numbers form $A \triangle B$. Since $p,q$ are distinct primes, $A \cap B$ consists of multiples of $pq$. Then $\sum_{A \triangle B} = \sum_A + \sum_B - 2\sum_{A \cap B}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(L):
+    primes = sieve(ceil(sqrt(L)) + margin)
+    total = 0
+    for each consecutive pair (p, q) in primes:
+        lo = p*p, hi = min(q*q, L)
+        if lo >= hi: continue
+        total += sum_mult(p,lo,hi) + sum_mult(q,lo,hi) - 2*sum_mult(p*q,lo,hi)
+    return total
+
+function sum_mult(d, lo, hi):
+    k1 = floor(lo/d) + 1, k2 = floor((hi-1)/d)
+    if k1 > k2: return 0
+    return d * (k1+k2) * (k2-k1+1) / 2
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\sqrt{L}\,\log\log\sqrt{L})$ for the sieve; $O(\pi(\sqrt{L}))$ for the summation loop.
+    \item \textbf{Space:} $O(\sqrt{L})$ for the sieve array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1259187438574927161}
+\]
+
+\end{document}

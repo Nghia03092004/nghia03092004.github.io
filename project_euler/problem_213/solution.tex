@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Problem 213: Flea Circus}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A $30 \times 30$ grid starts with one flea per square. Each round, every flea independently jumps to a uniformly random adjacent square. After 50 rounds, find the expected number of empty squares.
+
+\section{Mathematical Development}
+
+\begin{definition}
+Let $G = (V,E)$ be the $30\times 30$ grid graph with $N = |V| = 900$ vertices. The \emph{transition matrix} $T \in \mathbb{R}^{N\times N}$ is defined by $T_{ij} = 1/\deg(i)$ if $j \sim i$, and $T_{ij} = 0$ otherwise.
+\end{definition}
+
+\begin{lemma}[Row stochasticity]
+$T$ is row-stochastic: $\sum_j T_{ij} = 1$ for all $i$.
+\end{lemma}
+
+\begin{proof}
+$\sum_j T_{ij} = \sum_{j \sim i} 1/\deg(i) = \deg(i)/\deg(i) = 1$.
+\end{proof}
+
+\begin{theorem}[Chapman--Kolmogorov]
+$(T^k)_{ij}$ is the probability that a random walk starting at $i$ occupies $j$ after $k$ steps.
+\end{theorem}
+
+\begin{proof}
+Induction on $k$. Base case ($k=1$) holds by definition. For the step, $(T^{k+1})_{ij} = \sum_\ell (T^k)_{i\ell}\,T_{\ell j}$, which by the inductive hypothesis and the law of total probability equals the $(k{+}1)$-step transition probability.
+\end{proof}
+
+\begin{theorem}[Expected empty squares]
+Let $\mathbf{1}_i$ indicate that square $i$ is empty after 50 rounds. Then
+\[
+E\!\left[\sum_{i=1}^{N}\mathbf{1}_i\right] = \sum_{i=1}^{N}\prod_{j=1}^{N}\bigl(1 - (T^{50})_{j,i}\bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+By linearity of expectation, $E[\sum_i \mathbf{1}_i] = \sum_i P(\text{square }i\text{ empty})$. Since fleas move independently, the events $\{\text{flea }j \neq i\}$ are mutually independent across~$j$:
+\[
+P(\text{square }i\text{ empty}) = \prod_{j=1}^{N}\bigl(1 - (T^{50})_{j,i}\bigr),
+\]
+where $(T^{50})_{j,i}$ is the probability that the flea starting at $j$ reaches $i$ after 50 steps.
+\end{proof}
+
+\begin{remark}
+To avoid numerical underflow, compute $\sum_j \log(1-(T^{50})_{ji})$ via \texttt{log1p} and exponentiate.
+\end{remark}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Build the transition matrix $T$ for the $30 \times 30$ grid.
+\item For each starting square $j$: propagate the distribution $\mathbf{p}^{(t+1)} = \mathbf{p}^{(t)} T$ for 50 rounds (or compute $T^{50}$ via matrix exponentiation).
+\item For each target square $i$: compute $\prod_j(1-(T^{50})_{ji})$ and sum over all~$i$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^2 R) = O(900^2 \times 50) \approx 4\times 10^7$ via per-flea propagation; or $O(N^3 \log R)$ via matrix exponentiation.
+\item \textbf{Space:} $O(N^2)$ for the probability matrix, or $O(N)$ if accumulated column-by-column.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{330.721154}
+\]
+
+\end{document}

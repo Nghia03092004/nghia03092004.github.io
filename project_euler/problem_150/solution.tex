@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 150: Minimum-sum Sub-triangle}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A triangular array with 1000 rows is filled by a linear congruential generator. Find the downward-pointing sub-triangle with the minimum sum.
+
+\section{Generator}
+\begin{align}
+t_k &= (615949 \cdot t_{k-1} + 797807) \bmod 2^{20}, \quad t_0 = 0 \\
+s_k &= t_k - 2^{19}
+\end{align}
+
+\section{Analysis}
+
+\begin{theorem}[Prefix sum reduction]
+With $P[r][j] = \sum_{k=0}^{j-1} s(r,k)$, the sum of row $r$ from column $c$ to $c+i$ is $P[r][c+i+1] - P[r][c]$, computed in $O(1)$.
+\end{theorem}
+
+\begin{lemma}[Enumeration count]
+The total number of sub-triangles is:
+\[
+\sum_{r=0}^{N-1} (r+1)(N-r) = \frac{N(N+1)(N+2)}{6} \approx 1.67 \times 10^8
+\]
+\end{lemma}
+
+\section{Algorithm}
+For each apex $(r,c)$, maintain running sum as depth $h$ increases:
+\[
+\text{TriSum}(r,c,h) = \text{TriSum}(r,c,h-1) + P[r+h][c+h+1] - P[r+h][c]
+\]
+Track global minimum.
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(N^3/6)$.
+\item \textbf{Space:} $O(N^2)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{-271248680}
+\]
+
+\end{document}

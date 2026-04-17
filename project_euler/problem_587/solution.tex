@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\title{Project Euler Problem 587: Concave Triangle}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A square is drawn around a circle. The blue shaded region between them is called the ``L-section.'' A diagonal line from the bottom left to the top right creates a ``concave triangle.''
+
+When $n$ circles are placed horizontally with a bounding rectangle and a diagonal line from bottom-left to top-right, find the least $n$ for which the concave triangle occupies less than $0.1\%$ of the L-section.
+
+\section{Mathematical Derivation}
+
+\subsection{Setup}
+Consider $n$ unit circles ($r = 1$) placed horizontally. The bounding rectangle has dimensions $2n \times 2$. The diagonal line has equation $y = \frac{x}{n}$.
+
+The L-section (one quarter) has area:
+\[
+A_L = 1 - \frac{\pi}{4}
+\]
+
+\subsection{Intersection Point}
+The leftmost circle has center $(1, 1)$ and equation $(x-1)^2 + (y-1)^2 = 1$.
+
+Setting $y = x/n$:
+\[
+(x - 1)^2 + \left(\frac{x}{n} - 1\right)^2 = 1
+\]
+
+Let $s = 1/n$. Expanding:
+\[
+(1 + s^2)x^2 - 2(1 + s)x + 1 = 0
+\]
+
+The relevant (smaller) root is:
+\[
+x_0 = \frac{(1+s) - \sqrt{2s}}{1+s^2}
+\]
+
+\subsection{Concave Triangle Area}
+The area has two components:
+
+\textbf{Part 1:} Triangle under the line from $0$ to $x_0$:
+\[
+A_1 = \frac{x_0^2 s}{2}
+\]
+
+\textbf{Part 2:} Area between circle bottom and $x$-axis from $x_0$ to $1$. The bottom of the circle is $y = 1 - \sqrt{1 - (x-1)^2}$.
+
+\[
+A_2 = \int_{x_0}^{1} \left(1 - \sqrt{1 - (x-1)^2}\right) dx
+\]
+
+Substituting $u = x - 1$:
+\[
+A_2 = \int_{x_0 - 1}^{0} \left(1 - \sqrt{1 - u^2}\right) du
+\]
+\[
+= \left[u - \frac{u\sqrt{1 - u^2}}{2} - \frac{\arcsin u}{2}\right]_{x_0 - 1}^{0}
+\]
+
+\subsection{Ratio Condition}
+We seek the least $n$ such that:
+\[
+\frac{A_1 + A_2}{1 - \pi/4} < 0.001
+\]
+
+\section{Result}
+The answer is $\boxed{2240}$.
+
+\section{Answer}
+
+\[
+\boxed{2240}
+\]
+
+\end{document}

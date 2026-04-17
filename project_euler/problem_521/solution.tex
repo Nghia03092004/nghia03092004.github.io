@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 521: Smallest Prime Factor}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $\mathrm{smpf}(n)$ denote the smallest prime factor of~$n$ for $n \ge 2$. Define
+\[
+S(N) = \sum_{n=2}^{N} \mathrm{smpf}(n).
+\]
+Compute $S(10^{12}) \bmod 10^9$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+For an integer $n \ge 2$ with canonical factorisation $n = p_1^{a_1}\cdots p_r^{a_r}$ where $p_1 < \cdots < p_r$, define $\mathrm{smpf}(n) = p_1$.
+\end{definition}
+
+\begin{theorem}[Partition by Smallest Prime Factor]\label{thm:partition}
+For any integer $N \ge 2$,
+\[
+S(N) = \sum_{\substack{p \text{ prime} \\ p \le N}} p \cdot \bigl|\{n \in [2,N] : \mathrm{smpf}(n) = p\}\bigr|.
+\]
+\end{theorem}
+
+\begin{proof}
+By the Fundamental Theorem of Arithmetic, every integer $n \ge 2$ possesses a unique smallest prime factor. The map $n \mapsto \mathrm{smpf}(n)$ partitions $\{2,\ldots,N\}$ into disjoint subsets $\mathcal{C}_p = \{n \in [2,N] : \mathrm{smpf}(n) = p\}$ indexed by primes $p \le N$. Since the sets are pairwise disjoint and exhaust $\{2,\ldots,N\}$:
+\[
+S(N) = \sum_{n=2}^{N} \mathrm{smpf}(n) = \sum_{\substack{p \le N \\ p \text{ prime}}} \sum_{n \in \mathcal{C}_p} p = \sum_{\substack{p \le N \\ p \text{ prime}}} p \cdot |\mathcal{C}_p|. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Lucy DP for Prime Summation]\label{thm:lucy}
+Let $\mathcal{V} = \{\lfloor N/i\rfloor : 1 \le i \le N\}$. Initialise $S_0(v) = v-1$ and $S_1(v) = v(v+1)/2 - 1$ for each $v \in \mathcal{V}$. For each prime~$p$ with $p^2 \le N$ (processed in increasing order), update for all $v \ge p^2$:
+\begin{align*}
+S_0(v) &\gets S_0(v) - \bigl(S_0(\lfloor v/p\rfloor) - S_0(p-1)\bigr), \\
+S_1(v) &\gets S_1(v) - p\bigl(S_0(\lfloor v/p\rfloor) - S_0(p-1)\bigr).
+\end{align*}
+After all primes $p \le \sqrt{N}$ are processed, $S_0(v) = \pi(v)$ and $S_1(v) = \sum_{p \le v} p$.
+\end{theorem}
+
+\begin{proof}
+By strong induction on the primes processed.
+
+\emph{Base.} Initially $S_0(v) = v - 1 = |\{2,\ldots,v\}|$ and $S_1(v) = \sum_{k=2}^{v}k$, correctly counting and summing all integers in $[2,v]$ under the hypothesis that none have been identified as composite.
+
+\emph{Inductive step.} After processing all primes $q < p$, the quantity $S_0(v)$ counts integers in $[2,v]$ that are either prime or have $\mathrm{smpf} \ge p$. The composites in $[2,v]$ with $\mathrm{smpf} = p$ are exactly the products $pm$ where $m \in [2,\lfloor v/p\rfloor]$ and $\mathrm{smpf}(m) \ge p$. Their count is $S_0(\lfloor v/p\rfloor) - S_0(p-1)$, since $S_0(p-1) = \pi(p-1)$ counts primes below~$p$ (which have $\mathrm{smpf} < p$). Each composite is removed exactly once---at the stage of its smallest prime factor.
+
+After processing all primes $p \le \sqrt{N}$, every composite $n \le v$ has been removed (as $\mathrm{smpf}(n) \le \sqrt{n} \le \sqrt{N}$), leaving $S_0(v) = \pi(v)$ and $S_1(v) = \sum_{p \le v}p$.
+\end{proof}
+
+\begin{theorem}[Recovering $S(N)$]\label{thm:recover}
+The smallest-prime-factor sum decomposes as
+\[
+S(N) = S_1(N) + \sum_{\substack{p \text{ prime} \\ p^2 \le N}} p \cdot C(N,p),
+\]
+where $C(N,p) = |\{n \in [2,N] : n \text{ composite},\, \mathrm{smpf}(n) = p\}|$ is extracted from the Lucy DP arrays during the sieve phase.
+\end{theorem}
+
+\begin{proof}
+Each $n \in [2,N]$ is either prime or composite. Primes contribute $\mathrm{smpf}(n) = n$, summing to $S_1(N)$. A composite~$n$ with $\mathrm{smpf}(n) = p$ satisfies $p^2 \le n$ (since $n$ has at least two prime factors, each $\ge p$), hence $p \le \sqrt{N}$. Writing $n = pm$ with $m \ge 2$ and $\mathrm{smpf}(m) \ge p$, the number of such~$m$ is read from the Lucy DP arrays before the prime~$p$ is sieved. Summing $p$ over all such composites gives $p \cdot C(N,p)$, and summing over all primes~$p$ with $p^2 \le N$ yields the result.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Collect distinct floor quotients $\mathcal{V} = \{\lfloor N/i\rfloor\}$; note $|\mathcal{V}| = O(\sqrt{N})$.
+    \item Initialise $S_0(v) = v-1$ and $S_1(v) = v(v+1)/2 - 1$ for each $v \in \mathcal{V}$.
+    \item For each prime~$p$ with $p^2 \le N$ (ascending), sieve-update all $v \ge p^2$.  Before sieving prime~$p$, accumulate the composite contribution $p \cdot C(N,p)$.
+    \item Return $\bigl(S_1(N) + \sum_p p \cdot C(N,p)\bigr) \bmod 10^9$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N^{3/4}/\ln N)$.  The sieve iterates over $O(\sqrt{N})$ floor quotient values per prime~$p \le \sqrt{N}$, with the constraint $v \ge p^2$ and $\pi(\sqrt{N}) = O(\sqrt{N}/\ln N)$ yielding the stated bound.
+    \item \textbf{Space:} $O(\sqrt{N})$ for the arrays indexed by floor quotients.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{44389811}
+\]
+
+\end{document}

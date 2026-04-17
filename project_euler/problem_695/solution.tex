@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 695: Random Rectangles}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Three random points in unit square define 3 axis-aligned rectangles via their pairwise diagonals. Find expected area of the second-largest rectangle, to 10 d.p.
+
+\section{Mathematical Analysis}
+
+Order statistics of uniform random variables. E[area] = E[|x1-x2| * |y1-y2|] for each pair.
+
+\section{Complexity Analysis}
+
+O(1) via closed-form integration of order statistics
+
+\section{Answer}
+
+\[
+\boxed{0.1017786859}
+\]
+
+\end{document}

@@ -1,0 +1,50 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 734: A Bit of Prime}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$T(n,k)$ counts $k$-tuples of primes $\le n$ whose bitwise OR is also prime $\le n$. Find $T(10^6, 999983) \bmod 10^9+7$.
+
+\section{Subset Lattice Inversion}
+
+\begin{theorem}[Zeta-Mobius on Boolean Lattice]
+Let $f(m)$ = number of primes that are submasks of $m$. The count of $k$-tuples with OR exactly~$q$ is
+\[
+g(q) = \sum_{s \subseteq q} (-1)^{|q|-|s|}\, f(s)^k
+\]
+where $|m| = \mathrm{popcount}(m)$.
+\end{theorem}
+
+\begin{proof}
+The number of $k$-tuples with OR $\subseteq m$ is $f(m)^k$ (each element independently chosen from submask primes). Mobius inversion on the subset lattice recovers the exact-OR count.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Sieve primes $\le n$.
+\item Compute $f(m)$ via subset zeta transform: $O(2^b \cdot b)$.
+\item For each prime $q$, enumerate submasks and compute $g(q)$ via Mobius inversion.
+\item Sum $T = \sum_{q\text{ prime}} g(q)$.
+\end{enumerate}
+
+\section{Verification}
+$T(5,2) = 5$, $T(100,3) = 3355$, $T(1000,10) \equiv 2071632$.
+
+\section{Answer}
+
+\[
+\boxed{557988060}
+\]
+
+\end{document}

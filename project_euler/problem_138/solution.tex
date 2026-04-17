@@ -1,0 +1,83 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 138: Special Isosceles Triangles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider an isosceles triangle with base $b$, equal legs of length $L$, and height $h$.
+We require $|b - h| = 1$ (i.e., $h = b \pm 1$) and $L$ to be a positive integer.
+Find $\sum L$ for the 12 smallest such triangles.
+
+\section{Derivation}
+
+\subsection{Pythagorean Relation}
+The height splits the triangle into two right triangles:
+\[
+L^2 = h^2 + \left(\frac{b}{2}\right)^2
+\]
+
+With $h = b \pm 1$:
+\[
+L^2 = (b \pm 1)^2 + \frac{b^2}{4}
+\]
+
+Setting $b = 2m$ (we need $b$ even for $b/2$ to contribute cleanly):
+\[
+L^2 = (2m \pm 1)^2 + m^2 = 5m^2 \pm 4m + 1
+\]
+
+\subsection{Pell Equation}
+Multiplying by 5:
+\[
+5L^2 = 25m^2 \pm 20m + 5 = (5m \pm 2)^2 + 1
+\]
+
+Let $X = 5m \pm 2$:
+\[
+X^2 - 5L^2 = -1
+\]
+
+This is a generalized Pell equation.
+
+\subsection{Solutions}
+The fundamental solution is $(X, L) = (2, 1)$. The general solution satisfies:
+\[
+(X_n + L_n\sqrt{5}) = (2 + \sqrt{5})^{2n-1}
+\]
+
+Extracting valid $L$ values (those giving positive integer $m$ and $b$), the sequence is:
+\[
+L_1 = 17, \quad L_2 = 305, \quad L_{n+1} = 18L_n - L_{n-1}
+\]
+
+\subsection{Verification}
+\begin{center}
+\begin{tabular}{c|r|r|r|r}
+$n$ & $L$ & $m$ & $b = 2m$ & $h$ \\ \hline
+1 & 17 & 8 & 16 & 15 \\
+2 & 305 & 136 & 272 & 273 \\
+3 & 5473 & 2448 & 4896 & 4895 \\
+\end{tabular}
+\end{center}
+
+Check $n=1$: $17^2 = 289 = 225 + 64 = 15^2 + 8^2$. $|16 - 15| = 1$. \checkmark
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(k)$ for $k$ terms via recurrence.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1118049290473932}
+\]
+
+\end{document}

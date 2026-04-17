@@ -1,0 +1,91 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 248: Numbers for which Euler's Totient Equals $13!$}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the $150{,}000$-th number $n$ (in ascending order) with $\varphi(n)=13!=6{,}227{,}020{,}800$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Totient product formula]\label{thm:totient}
+For $n=\prod p_i^{a_i}$: $\varphi(n)=\prod p_i^{a_i-1}(p_i-1)$.
+\end{theorem}
+
+\begin{proof}
+$\varphi(p^a)=p^a-p^{a-1}=p^{a-1}(p-1)$. Multiplicativity of $\varphi$ for coprime arguments gives the product.
+\end{proof}
+
+\begin{lemma}[Candidate prime criterion]\label{lem:cand}
+If $p\mid n$ and $\varphi(n)=13!$, then $(p-1)\mid 13!$.
+\end{lemma}
+
+\begin{proof}
+$p^{a-1}(p-1)\mid\varphi(n)=13!$ by Theorem~\ref{thm:totient}, so $(p-1)\mid 13!$.
+\end{proof}
+
+\begin{theorem}[Candidate enumeration]\label{thm:enum}
+The candidate primes $\mathcal{P}=\{p\text{ prime}:(p-1)\mid 13!\}$ has $|\mathcal{P}|=459$.
+\end{theorem}
+
+\begin{proof}
+$13!=2^{10}\cdot 3^5\cdot 5^2\cdot 7\cdot 11\cdot 13$ has $\tau(13!)=1584$ divisors. For each divisor $d$, check if $d+1$ is prime. Exhaustive enumeration yields 459 primes.
+\end{proof}
+
+\begin{theorem}[Recursive construction]\label{thm:recurse}
+All $n$ with $\varphi(n)=T$ are found by choosing primes $p_1\le p_2\le\cdots$ from $\mathcal{P}$ with exponents $a_i\ge 1$, maintaining residual target $T'=T/\prod p_i^{a_i-1}(p_i-1)$. Terminate when $T'=1$ (solution) or prune when no valid continuation exists.
+\end{theorem}
+
+\begin{proof}
+Unique prime factorisation ensures each solution is visited once. Processing primes in non-decreasing order avoids duplication. The residual target tracks the remaining totient exactly.
+\end{proof}
+
+\begin{lemma}[Exponent bound]\label{lem:exp}
+For prime $p$ and residual $T'$: $a\le 1+\lfloor\log_p(T'/(p-1))\rfloor$.
+\end{lemma}
+
+\begin{proof}
+$p^{a-1}(p-1)\le T'$ is necessary.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function Solve(T = 13!):
+    P = {p prime : (p-1) | T}    # 459 primes
+    solutions = []
+    Recurse(0, T, 1):
+        if T == 1: solutions.append(n); return
+        for p in P[idx..]:
+            if p-1 > T: break
+            if (p-1) nmid T: continue
+            for a = 1, 2, ...:
+                Recurse(idx+1, T/(p^{a-1}(p-1)), n*p^a)
+    sort(solutions)
+    return solutions[149999]
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} Enumeration produces $\sim 548{,}000$ solutions. Sorting: $O(N\log N)$.
+\item \textbf{Space:} $O(N)$ for solutions, $O(\log T)$ recursion depth.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{23507044290}
+\]
+
+\end{document}

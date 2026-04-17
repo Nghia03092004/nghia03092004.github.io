@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 437: Fibonacci Primitive Roots}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A primitive root $g$ of a prime $p$ is a \textbf{Fibonacci primitive root} if $g^n + g^{n+1} \equiv g^{n+2} \pmod{p}$ for all $n \geq 0$. Find the sum of all primes less than $10^8$ having at least one Fibonacci primitive root.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Characterization]
+A primitive root $g$ of prime $p$ is a Fibonacci primitive root if and only if $g^2 - g - 1 \equiv 0 \pmod{p}$.
+\end{theorem}
+
+\begin{proof}
+Dividing $g^n + g^{n+1} \equiv g^{n+2} \pmod{p}$ by $g^n \not\equiv 0$ yields $1 + g \equiv g^2 \pmod{p}$. Conversely, $g^2 \equiv g + 1$ implies $g^{n+2} \equiv g^{n+1} + g^n$ by multiplying both sides by $g^n$.
+\end{proof}
+
+\begin{theorem}[Existence of Candidates]
+The equation $x^2 - x - 1 \equiv 0 \pmod{p}$ has solutions iff $5$ is a quadratic residue mod $p$, which (for $p \neq 2, 5$) holds iff $p \equiv \pm 1 \pmod{5}$.
+\end{theorem}
+
+\begin{proof}
+Solutions are $x = (1 \pm \sqrt{5})/2$, requiring $\sqrt{5} \in \mathbb{F}_p$. By quadratic reciprocity (since $5 \equiv 1 \pmod{4}$):
+\[
+\left(\frac{5}{p}\right) = \left(\frac{p}{5}\right) = 1 \iff p \equiv \pm 1 \pmod{5}. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Primitive Root Test]
+$g \in \mathbb{F}_p^*$ is a primitive root iff $g^{(p-1)/q} \not\equiv 1 \pmod{p}$ for every prime $q \mid (p-1)$.
+\end{theorem}
+
+\begin{proof}
+If $\mathrm{ord}(g) < p - 1$, then $\mathrm{ord}(g) \mid (p-1)/q$ for some prime $q \mid (p-1)$, giving $g^{(p-1)/q} \equiv 1$. Conversely, if $\mathrm{ord}(g) = p - 1$, no such $q$ exists since $p - 1 \nmid (p-1)/q$.
+\end{proof}
+
+\begin{lemma}[Case $p = 5$]
+For $p = 5$: $g = 3$ satisfies $g^2 - g - 1 \equiv 0 \pmod{5}$ and has order $4 = p - 1$, so $p = 5$ is included.
+\end{lemma}
+
+\begin{proof}
+Direct computation: $9 - 3 - 1 = 5 \equiv 0$ and $3^1, 3^2, 3^3, 3^4 \equiv 3, 4, 2, 1 \pmod{5}$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Sieve primes and smallest prime factors up to $N = 10^8$.
+    \item For each prime $p \equiv \pm 1 \pmod{5}$ (and $p = 5$):
+    \begin{enumerate}
+        \item Compute $\sqrt{5} \pmod{p}$ via Tonelli--Shanks.
+        \item Form candidates $g_{1,2} = (1 \pm \sqrt{5}) \cdot 2^{-1} \pmod{p}$.
+        \item Factor $p - 1$ using the SPF sieve.
+        \item Test if $g_1$ or $g_2$ is a primitive root.
+        \item If so, add $p$ to the sum.
+    \end{enumerate}
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log\log N)$ for the sieve; $O(\omega(p-1) \cdot \log p)$ per prime for the primitive root test. Total dominated by the sieve: $O(N \log\log N)$.
+    \item \textbf{Space:} $O(N)$ for the SPF sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{74204709657207}
+\]
+
+\end{document}

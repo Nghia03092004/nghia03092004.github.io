@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 228: Minkowski Sums}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $S_n$ be a regular $n$-sided polygon. Find the number of sides of
+\[
+T = S_2 + S_3 + S_4 + \cdots + S_{1864},
+\]
+where $+$ denotes the Minkowski sum.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Minkowski Sum Edge Count]
+The number of edges of the Minkowski sum of convex polygons equals the number of distinct edge normal directions across all summands.
+\end{theorem}
+\begin{proof}
+The support function of the sum is $h_{P+Q}(\theta) = h_P(\theta) + h_Q(\theta)$. Edges correspond to maximal affine arcs of the support function. Two edges from different summands sharing a normal direction merge into one edge. Hence the edge count equals the count of distinct normals.
+\end{proof}
+
+\begin{lemma}[Normal Directions of $S_n$]
+A regular $n$-gon has outward normals at angles $\theta_k = \pi(2k+1)/n$ for $k = 0, \ldots, n-1$.
+\end{lemma}
+\begin{proof}
+Vertices at angles $2\pi k/n$; edge $k$ has midpoint direction $\pi(2k+1)/n$.
+\end{proof}
+
+\begin{theorem}[Reduced Fraction Characterization]
+The direction $\pi p/q$ (with $\gcd(p,q) = 1$, $p$ odd, $0 < p < 2q$) appears in $S_n$ iff $q \mid n$ and $n/q$ is odd.
+\end{theorem}
+\begin{proof}
+Write $\frac{2k+1}{n} = \frac{p}{q}$ in lowest terms. Since $2k+1$ is odd, $p$ is odd. Then $n = q(2k+1)/p$, requiring $q \mid n$ and $n/q$ odd.
+\end{proof}
+
+\begin{theorem}[Direction Count per Denominator]
+For denominator $q$:
+\begin{itemize}
+\item $q$ odd: $\phi(q)$ directions.
+\item $q$ even: $2\phi(q)$ directions.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Count odd $p \in (0, 2q)$ with $\gcd(p, q) = 1$. For odd $q$: $\gcd(p, 2q) = 1$ requires $p$ odd and $\gcd(p,q)=1$, giving $\phi(2q) = \phi(q)$ values. For even $q$: there are $2\phi(q)$ such odd values.
+\end{proof}
+
+\begin{theorem}[Existence]
+Every direction with denominator $q \leq 1864$ is realized by some summand $S_n$ with $2 \leq n \leq 1864$.
+\end{theorem}
+\begin{proof}
+For $q \geq 2$, $S_q$ is a summand. For $q = 1$, $S_3$ contains the direction.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute $\phi(q)$ for $q = 1, \ldots, 1864$ via a sieve.
+\item Sum: $\text{total} = \phi(1) + \sum_{q=2}^{1864} c(q)$, where $c(q) = \phi(q)$ if $q$ odd, $c(q) = 2\phi(q)$ if $q$ even.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(N \log\log N)$ for the totient sieve.
+\item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{86226}
+\]
+
+\end{document}

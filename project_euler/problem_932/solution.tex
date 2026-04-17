@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 932: Triangular Number Intersections}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $T_n = n(n+1)/2$ be the $n$-th triangular number. Find the number of ordered pairs $(a, b)$ with $1 \leq a < b \leq 10^6$ such that $T_a + T_b$ is also a triangular number.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Triangular characterization]
+An integer $m \geq 0$ is a triangular number if and only if $8m + 1$ is a perfect square.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) If $m = k(k+1)/2$, then $8m + 1 = (2k+1)^2$.
+
+($\Leftarrow$) If $8m + 1 = s^2$, then $s$ is odd, say $s = 2k+1$, giving $m = k(k+1)/2 = T_k$.
+\end{proof}
+
+\begin{theorem}[Reduction to near-Pythagorean equation]
+$T_a + T_b$ is triangular if and only if $(2a+1)^2 + (2b+1)^2 - 1$ is a perfect square.
+\end{theorem}
+
+\begin{proof}
+By Theorem~1, $T_a + T_b$ is triangular iff $8(T_a + T_b) + 1$ is a perfect square. Computing:
+\[
+8(T_a + T_b) + 1 = 4a^2 + 4a + 4b^2 + 4b + 1 = (2a+1)^2 + (2b+1)^2 - 1.
+\]
+\end{proof}
+
+\begin{lemma}[Parametric families]
+Setting $X = 2a+1$, $Y = 2b+1$, the equation $X^2 + Y^2 - Z^2 = 1$ with $X, Y$ odd and $3 \leq X < Y$ parametrizes all valid pairs. For fixed $a$, valid $b$ values arise from divisor factorizations of $4a(a+1)$.
+\end{lemma}
+
+\begin{proof}
+From $Z^2 = X^2 + Y^2 - 1$, we obtain $(Z - Y)(Z + Y) = X^2 - 1 = (2a+1)^2 - 1 = 4a(a+1)$. Enumerating divisor pairs of $4a(a+1)$ yields all solutions.
+\end{proof}
+
+\section{Algorithm}
+
+For each $a$ from 1 to $N-1$, factor $K = 4a(a+1)$, enumerate divisor pairs $(d, e)$ with $de = K$ and $d < e$, and extract $b = (e - d - 2)/4$ when it yields a valid integer in $(a, N]$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$ using the optimized divisor enumeration.
+\item \textbf{Space:} $O(1)$ auxiliary (or $O(N)$ with precomputed divisors).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{72673459417881349}
+\]
+
+\end{document}

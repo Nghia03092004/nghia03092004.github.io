@@ -1,0 +1,46 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Problem 278: Linear Combinations of Semiprimes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For distinct primes $p$, $q$, $r$, define:
+\[
+f(p,q,r) = 2pqr - pq - qr - rp
+\]
+Compute $\displaystyle\sum f(p,q,r)$ over all unordered triples of distinct primes up to 5000.
+
+\section{Solution}
+
+\subsection{Approach}
+For fixed $p < q$, the valid primes $r$ are all primes $r > q$ with $r \le 5000$. We write:
+\begin{align}
+\sum_{r > q} f(p,q,r) &= \sum_{r > q} \bigl[(2pq - p - q) \cdot r - pq\bigr] \\
+&= (2pq - p - q)\sum_{r > q} r \;-\; pq \cdot |\{r > q\}|
+\end{align}
+
+\subsection{Prefix Sums}
+Precompute $\mathrm{PS}[i] = \sum_{\text{prime } p \le i} p$ and $\mathrm{PC}[i] = |\{\text{prime } p \le i\}|$. Then:
+\[
+\sum_{r > q} r = \mathrm{PS}[5000] - \mathrm{PS}[q], \qquad |\{r > q\}| = \mathrm{PC}[5000] - \mathrm{PC}[q]
+\]
+
+Each $(p,q)$ pair contributes in $O(1)$.
+
+\subsection{Complexity}
+Sieve: $O(N \log\log N)$. Double loop: $O(\pi(N)^2) \approx 450{,}000$. Total: sub-second.
+
+\section{Answer}
+
+\[
+\boxed{1228215747273908452}
+\]
+
+\end{document}

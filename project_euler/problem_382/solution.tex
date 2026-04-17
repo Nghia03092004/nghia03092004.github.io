@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 382: Generating Polygons}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A convex lattice polygon is called \emph{generating} if its interior contains exactly one lattice point. Let $T(n)$ be the number of generating polygons (up to translation) with perimeter not exceeding~$n$. Find $T(10^6) \bmod (10^9 + 7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Pick's Theorem]
+For a simple lattice polygon with area $A$, $I$ interior lattice points, and $B$ boundary lattice points:
+\[
+A = I + \frac{B}{2} - 1.
+\]
+\end{theorem}
+
+\begin{proof}
+The proof proceeds by triangulating the polygon into fundamental lattice triangles of area $\tfrac{1}{2}$. Pick's formula holds for each such triangle by direct verification, and is additive under edge-gluing since interior and boundary point counts combine correctly.
+\end{proof}
+
+\begin{lemma}[Generating Polygon Characterization]
+A convex lattice polygon is generating ($I = 1$) if and only if $2A = B$.
+\end{lemma}
+
+\begin{proof}
+Setting $I = 1$ in Pick's theorem: $A = 1 + B/2 - 1 = B/2$, hence $2A = B$.
+\end{proof}
+
+\begin{theorem}[Boundary Points on Primitive Edges]
+The number of lattice points on a segment from $(x_1, y_1)$ to $(x_1 + dx, y_1 + dy)$, excluding the start point, is $\gcd(|dx|, |dy|)$. For a primitive edge ($\gcd(|dx|,|dy|) = 1$), only the endpoint is new.
+\end{theorem}
+
+\begin{proof}
+The lattice points on the segment are exactly $(x_1 + t \cdot dx/g, y_1 + t \cdot dy/g)$ for $0 \le t \le g$ where $g = \gcd(|dx|, |dy|)$. There are $g + 1$ such points, so $g$ excluding the start.
+\end{proof}
+
+\begin{lemma}[Closure and Convexity Conditions]
+A sequence of primitive vectors $\mathbf{v}_1, \ldots, \mathbf{v}_k$ defines a valid convex polygon if and only if:
+\begin{enumerate}
+\item $\sum_{i=1}^{k} \mathbf{v}_i = \mathbf{0}$ (closure), and
+\item the cross products $\mathbf{v}_i \times \mathbf{v}_{i+1}$ all have the same sign (convexity).
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Closure ensures the polygon is closed. Consistent sign of cross products means all turns go the same way, which is equivalent to convexity for a simple polygon.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function T(n):
+    Enumerate primitive vectors (dx, dy) with gcd(dx, dy) = 1
+        and length sqrt(dx^2 + dy^2) <= n, sorted by angle
+    DP over edge-vector sequences:
+        State: (angular range, perimeter used, area accumulated)
+        Transition: append next primitive vector in angular order
+        Constraint: perimeter <= n, closure, I = 1
+    return count mod (10^9 + 7)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n^2 \cdot P)$ where $P$ is the count of primitive vectors with length $\le n$. Andrews' theorem bounds edges of a convex lattice polygon at $O(n^{2/3})$, enabling heavy pruning.
+\item \textbf{Space:} $O(n \cdot P)$ for the DP table.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{697003956}
+\]
+
+\end{document}

@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 926: Binomial Coefficient Divisibility}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count entries in Pascal's triangle (rows $0$ through $N=1000$) \textbf{not} divisible by $p=2$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Lucas, 1878]
+Let $p$ be a prime and let $m = \sum m_i p^i$, $n = \sum n_i p^i$. Then
+\[
+\binom{m}{n} \equiv \prod_{i} \binom{m_i}{n_i} \pmod{p}.
+\]
+\end{theorem}
+
+\begin{proof}
+In $\mathbb{F}_p[x]$, $(1+x)^p = 1+x^p$ (Frobenius). By induction, $(1+x)^{p^i} = 1+x^{p^i}$. Writing $m = \sum m_i p^i$:
+\[
+(1+x)^m = \prod_i (1+x^{p^i})^{m_i}.
+\]
+Comparing coefficients of $x^n$ on both sides and using uniqueness of base-$p$ representation gives the result.
+\end{proof}
+
+\begin{theorem}[Non-divisibility Criterion]
+$\binom{m}{n} \not\equiv 0 \pmod{p}$ iff $n_i \leq m_i$ for every digit position~$i$.
+\end{theorem}
+
+\begin{proof}
+From Lucas' theorem, $\binom{m}{n} \equiv \prod_i \binom{m_i}{n_i}$. Each factor is nonzero mod~$p$ iff $n_i \leq m_i$ (since $0 \leq m_i,n_i < p$). The product is nonzero iff every factor is nonzero.
+\end{proof}
+
+\begin{theorem}[Per-Row Count]
+The number of entries $\binom{n}{k}$ ($0 \leq k \leq n$) not divisible by~$p$ equals $\prod_i (d_i+1)$, where $d_i$ are the base-$p$ digits of~$n$.
+\end{theorem}
+
+\begin{proof}
+Count tuples $(k_0,\ldots,k_s)$ with $0 \leq k_i \leq d_i$. Digits are independent, so the count is $\prod_i(d_i+1)$.
+\end{proof}
+
+\begin{lemma}[Specialization to $p=2$]
+For $p=2$, odd entries in row~$n$ number $2^{s_2(n)}$ where $s_2(n) = \mathrm{popcount}(n)$.
+\end{lemma}
+
+\begin{proof}
+Each binary digit contributes factor $d_i+1 \in \{1,2\}$. Product $= 2^{(\#\text{of 1-bits})}$.
+\end{proof}
+
+\begin{theorem}[Kummer, 1852]
+The largest power of~$p$ dividing $\binom{m+n}{m}$ equals the number of carries when adding $m$ and $n$ in base~$p$.
+\end{theorem}
+
+\begin{proof}
+By Legendre's formula, $v_p\binom{m+n}{m} = \sum_{j \geq 1}\!\left(\lfloor(m{+}n)/p^j\rfloor - \lfloor m/p^j\rfloor - \lfloor n/p^j\rfloor\right)$. Each term equals the carry into position~$j$.
+\end{proof}
+
+\section{Algorithm}
+
+For $p=2$: iterate rows $n = 0,\ldots,N$, accumulating $2^{\mathrm{popcount}(n)}$.
+
+For general~$p$: digit DP on the base-$p$ representation of~$N$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time (brute force):} $O(N \log N)$.
+    \item \textbf{Time (digit DP):} $O(\log_p^2 N)$.
+    \item \textbf{Space:} $O(\log_p N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{40410219}
+\]
+
+\end{document}

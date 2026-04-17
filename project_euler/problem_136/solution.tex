@@ -1,0 +1,67 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 136: Singleton Difference}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The positive integers $x$, $y$, and $z$ are consecutive terms of an arithmetic progression. Given that $n$ is a positive integer, the equation
+\[
+x^2 - y^2 - z^2 = n
+\]
+has exactly one solution for how many values of $n$ less than fifty million?
+
+\section{Derivation}
+
+Let $x, y, z$ be in arithmetic progression with common difference $d$:
+\[
+z = y - d, \quad x = y + d, \quad y > 0, \; z > 0.
+\]
+
+Substituting:
+\begin{align*}
+n &= (y+d)^2 - y^2 - (y-d)^2 \\
+  &= y^2 + 2yd + d^2 - y^2 - y^2 + 2yd - d^2 \\
+  &= 4yd - y^2 \\
+  &= y(4d - y).
+\end{align*}
+
+\subsection{Constraints}
+\begin{itemize}
+\item $z = y - d > 0 \Rightarrow d < y$.
+\item $n > 0 \Rightarrow 4d - y > 0 \Rightarrow d > y/4$.
+\end{itemize}
+
+Set $u = 4d - y > 0$, so $n = yu$ and $d = (u+y)/4$. Then:
+\begin{itemize}
+\item $d < y \Rightarrow (u+y)/4 < y \Rightarrow u < 3y$.
+\item $d$ must be a positive integer, so $u + y \equiv 0 \pmod{4}$.
+\end{itemize}
+
+\section{Counting Solutions}
+For each $n$, the number of representations equals the number of factorizations $n = yu$ where:
+\begin{enumerate}
+\item $u < 3y$ (equivalently $y > \sqrt{n/3}$),
+\item $y + u \equiv 0 \pmod{4}$.
+\end{enumerate}
+
+We count $n < 50{,}000{,}000$ with exactly one such factorization using a sieve.
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$ via sieve enumeration.
+\item \textbf{Space:} $O(N)$ for the solution count array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2544559}
+\]
+
+\end{document}

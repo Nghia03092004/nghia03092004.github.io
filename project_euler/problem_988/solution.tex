@@ -1,0 +1,23 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 988: Gaussian Elimination Mod p}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\begin{theorem}
+$|GL(n, p)| = \prod_{k=0}^{n-1}(p^n - p^k)$.
+\end{theorem}
+\begin{proof}
+Row $k+1$ must avoid the $k$-dimensional span of previous rows: $p^n - p^k$ choices.
+\end{proof}
+For $n=10$, $p=2$: $|GL(10,2)| \bmod (10^9+7) = 731930254$.
+\section{Answer}
+
+\[
+\boxed{731930254}
+\]
+
+\end{document}

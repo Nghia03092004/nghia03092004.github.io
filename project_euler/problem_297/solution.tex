@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 297: Zeckendorf Representation}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Every positive integer has a unique Zeckendorf representation as a sum of non-consecutive Fibonacci numbers. Let $z(n)$ denote the number of terms. Given $\sum_{0 < n < 10^6} z(n) = 7\,894\,453$, find $\sum_{0 < n < 10^{17}} z(n)$.
+
+\section{Mathematical Foundation}
+
+We use $F_1 = 1, F_2 = 2, F_3 = 3, F_4 = 5, \ldots$ with $F_k = F_{k-1} + F_{k-2}$.
+
+\begin{theorem}[Zeckendorf's Theorem]
+Every positive integer $n$ has a unique representation $n = \sum_{i \in S} F_i$ where $S$ contains no two consecutive indices.
+\end{theorem}
+
+\begin{proof}
+\emph{Existence:} By strong induction. Let $F_k$ be the largest Fibonacci number $\leq n$. Then $0 \leq n - F_k < F_{k-1}$ (since $F_{k+1} > n$). By induction, $n - F_k$ has a non-consecutive representation using $F_i$ with $i \leq k-2$, which combined with $F_k$ remains non-consecutive.
+
+\emph{Uniqueness:} Suppose two distinct representations exist. Let $k$ be the largest index in their symmetric difference, say $k \in S \setminus T$. Then $\sum_{j \in T, j \leq k-2} F_j \leq F_{k-2} + F_{k-4} + \cdots < F_k$, a contradiction since the $T$-sum must account for the $F_k$ present in $S$.
+\end{proof}
+
+\begin{theorem}[Recurrence at Fibonacci Boundaries]
+Define $S(N) = \sum_{n=1}^{N-1} z(n)$. Then
+\[
+S(F_{k+1}) = S(F_k) + S(F_{k-1}) + F_{k-1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Split $[1, F_{k+1})$ into $[1, F_k)$ and $[F_k, F_{k+1})$. The first group contributes $S(F_k)$. Each $n \in [F_k, F_{k+1})$ writes as $n = F_k + m$ with $0 \leq m < F_{k-1}$, giving $z(n) = 1 + z(m)$ (where $z(0) = 0$). The second group contributes $F_{k-1} + S(F_{k-1})$.
+\end{proof}
+
+\begin{theorem}[General Recursion]
+For $F_k \leq N < F_{k+1}$:
+\[
+S(N) = S(F_k) + (N - F_k) + S(N - F_k).
+\]
+\end{theorem}
+
+\begin{proof}
+Split $[1, N)$ into $[1, F_k)$ contributing $S(F_k)$, and $[F_k, N)$ where each $n = F_k + m$ with $0 \leq m < N - F_k$ contributes $1 + z(m)$. The total from the second range is $(N - F_k) + S(N - F_k)$.
+\end{proof}
+
+\begin{lemma}[Recursion Depth]
+The general recursion terminates in $O(\log_\varphi N)$ steps, where $\varphi = (1+\sqrt{5})/2$.
+\end{lemma}
+
+\begin{proof}
+At each step, $N \to N - F_k \leq N/\varphi^2$, since $F_k \geq N/\varphi$ (from $F_{k+1} > N$ and $F_{k+1}/F_k \to \varphi$). After $j$ steps, $N$ reduces to at most $N/\varphi^{2j}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Precompute F[k] and SF[k] = S(F[k]) for k = 1, ..., ~83
+   SF[1] = 0, SF[2] = 1
+   SF[k+1] = SF[k] + SF[k-1] + F[k-1]
+2. S(N): find k with F[k] <= N < F[k+1]
+   return SF[k] + (N - F[k]) + S(N - F[k])
+3. Return S(10^17)
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(\log N)$ for precomputation and recursion ($\approx 83$ Fibonacci numbers for $N = 10^{17}$).
+\item \textbf{Space:} $O(\log N)$ for storing Fibonacci numbers and their cumulative sums.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2252639041804718029}
+\]
+
+\end{document}

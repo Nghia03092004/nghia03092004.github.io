@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\title{Problem 166: Criss Cross}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A $4\times 4$ grid is filled with digits $d \in \{0,1,\ldots,9\}$. We require that every row, every column, and both main diagonals all share the same sum $S$. How many such grids exist?
+
+\section{Mathematical Analysis}
+
+\subsection{Grid Setup}
+Let the grid entries be:
+\[
+\begin{pmatrix}
+a & b & c & d \\
+e & f & g & h \\
+i & j & k & l \\
+m & n & o & p
+\end{pmatrix}
+\]
+
+The constraints are:
+\begin{align}
+a+b+c+d &= S \label{eq:r1}\\
+e+f+g+h &= S \label{eq:r2}\\
+i+j+k+l &= S \label{eq:r3}\\
+m+n+o+p &= S \label{eq:r4}\\
+a+e+i+m &= S \label{eq:c1}\\
+b+f+j+n &= S \label{eq:c2}\\
+c+g+k+o &= S \label{eq:c3}\\
+d+h+l+p &= S \label{eq:c4}\\
+a+f+k+p &= S \label{eq:d1}\\
+d+g+j+m &= S \label{eq:d2}
+\end{align}
+
+\subsection{Degrees of Freedom}
+There are 16 unknowns and 10 equations, but only 7 are independent (the four row sums and four column sums are related by the identity: sum of all rows = sum of all columns = $4S$). Thus we have $16 - 7 = 9$ free parameters.
+
+\subsection{Solution Strategy}
+Given the common sum $S$ (which ranges from 0 to 36), we enumerate all quadruples $(a,b,c,d)$ of digits summing to $S$. For each pair of first two rows, we derive constraints on the bottom two rows from the column and diagonal requirements, and count valid completions.
+
+Specifically, given rows 1--3, the fourth row is determined by columns:
+\[
+m = S-a-e-i, \quad n = S-b-f-j, \quad o = S-c-g-k, \quad p = S-d-h-l.
+\]
+We then verify $m,n,o,p \in [0,9]$, and check both diagonal constraints.
+
+\subsection{Meet-in-the-Middle Optimization}
+For efficiency, we use a meet-in-the-middle approach: enumerate the top two rows and record partial column sums and diagonal contributions, then enumerate the bottom two rows and match.
+
+\section{Result}
+The total count of valid $4\times 4$ grids is:
+\[
+\boxed{7130034}
+\]
+
+\section{Answer}
+
+\[
+\boxed{7130034}
+\]
+
+\end{document}

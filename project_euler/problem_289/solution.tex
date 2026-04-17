@@ -1,0 +1,88 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 289: Eulerian Cycles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $C(x,y)$ be a circle through $(x,y)$, $(x\!+\!1,y)$, $(x,y\!+\!1)$, $(x\!+\!1,y\!+\!1)$. For positive integers $m,n$, let $E(m,n)$ consist of $mn$ circles for $0 \le x < m$, $0 \le y < n$. Let $L(m,n)$ count non-crossing Eulerian cycles on $E(m,n)$.
+
+Given: $L(1,2)=2$, $L(2,2)=37$, $L(3,3)=104290$. Find $L(6,10) \bmod 10^{10}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Graph Structure]
+$E(m,n)$ has $(m+1)(n+1)$ vertices and $4mn$ arcs. Every vertex has even degree, so Eulerian cycles exist.
+\end{theorem}
+
+\begin{proof}
+Each circle contributes 4 arcs, touching 4 vertices with degree 2 at each. A vertex $(i,j)$ is incident to all circles $C(x,y)$ with $(x,y) \in \{i\!-\!1,i\}\times\{j\!-\!1,j\} \cap [0,m)\times[0,n)$. Each such circle contributes degree 2, so the total degree at $(i,j)$ is even. By Euler's theorem, Eulerian cycles exist.
+\end{proof}
+
+\begin{theorem}[Non-Crossing Matchings]
+A non-crossing Eulerian cycle induces a non-crossing perfect matching on the cyclically-ordered half-edges at each vertex. At a vertex of degree $2k$, the number of such matchings is the Catalan number $C_k = \frac{1}{k+1}\binom{2k}{k}$.
+\end{theorem}
+
+\begin{proof}
+The half-edges are cyclically ordered by angle. A non-crossing matching pairs them without interleaving. The count of such matchings on $2k$ points on a circle is the classical Catalan number $C_k$.
+\end{proof}
+
+\begin{theorem}[Profile Dynamic Programming]
+$L(m,n)$ is computed by a row-by-row transfer-matrix DP. The profile at the boundary between rows $y$ and $y+1$ encodes:
+\begin{enumerate}
+\item The number of path strands at each of the $m+1$ boundary vertices.
+\item The connectivity pattern (non-crossing partition) of these strands.
+\end{enumerate}
+The initial and final profiles are both empty (no strands), and the result must form a single connected cycle.
+\end{theorem}
+
+\begin{proof}
+Cutting the graph along a horizontal boundary exposes strand crossings whose connectivity must be tracked to ensure the final result is a single Eulerian cycle. The non-crossing property of the cycle guarantees the connectivity pattern is a non-crossing partition, which can be encoded compactly.
+
+Processing each row incorporates all arcs from that row's circles. At each boundary vertex, we enumerate valid non-crossing matchings of incoming/outgoing half-edges. The transition updates the profile accordingly.
+
+The initial state (below row 0) has no strands. At termination (above row $n-1$), all strands must be closed into a single cycle, enforced by requiring the empty profile with one connected component.
+\end{proof}
+
+\begin{lemma}[Single-Cycle Constraint]
+The DP must track connectivity to ensure that exactly one closed cycle is formed. Premature loop closures that would create disconnected components are excluded during intermediate transitions.
+\end{lemma}
+
+\begin{proof}
+An Eulerian cycle is a single closed walk. Multiple disconnected loops would not constitute an Eulerian cycle. The non-crossing partition in the profile tracks which strands belong to the same partial path, preventing premature closures except at the final step.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+Initialize states = {empty_profile: 1}
+For each row y = 0..n-1:
+    For each circle in the row:
+        Enumerate non-crossing matchings at affected vertices
+        Update profile connectivity, accumulate counts mod 10^10
+Return states[empty_profile]
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n \cdot m \cdot |S| \cdot C_{\max})$ where $|S|$ is the profile space size (manageable for $m=6$).
+\item \textbf{Space:} $O(|S|)$ for the profile map.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{6567944538}
+\]
+
+\end{document}

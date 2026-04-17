@@ -1,0 +1,76 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 362: Squarefree Factors}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $f(n)$ as the largest squarefree divisor of~$n$: if $n = \prod p_i^{a_i}$, then $f(n) = \prod p_i$. Compute
+\[
+S(N) = \sum_{n=1}^{N} f(n)
+\]
+for $N = 10^{14}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Dirichlet Series]
+The function $f$ is multiplicative with $f(p^a) = p$ for all primes~$p$ and $a \ge 1$. The summatory function can be expressed as:
+\[
+S(N) = \sum_{d=1}^{\lfloor\sqrt{N}\rfloor} \mu(d)\, d \cdot T\!\!\left(\left\lfloor \frac{N}{d^2} \right\rfloor\right)
+\]
+where $T(M) = M(M+1)/2$.
+\end{theorem}
+
+\begin{proof}
+Write each $n$ as $n = d^2 m$ where $d^2$ is the largest square dividing~$n$ such that $m$ retains all prime factors. Using M\"obius inversion on the squarefree kernel:
+\[
+f(n) = \sum_{\substack{d^2 \mid n}} \mu(d)\, \frac{n}{d^2}\, d,
+\]
+and summing over $n \le N$:
+\[
+S(N) = \sum_{n=1}^{N} f(n) = \sum_{d=1}^{\lfloor\sqrt{N}\rfloor} \mu(d)\, d \sum_{m=1}^{\lfloor N/d^2\rfloor} m = \sum_{d=1}^{\lfloor\sqrt{N}\rfloor} \mu(d)\, d \cdot T\!\!\left(\left\lfloor \frac{N}{d^2}\right\rfloor\right).
+\]
+\end{proof}
+
+\begin{lemma}[M\"obius Sieve]
+The values $\mu(d)$ for $d \le \sqrt{N}$ can be computed by sieving in $O(\sqrt{N}\,\log\log\sqrt{N})$ time.
+\end{lemma}
+
+\begin{proof}
+Apply a standard sieve of Eratosthenes variant: for each prime~$p \le N^{1/4}$, mark multiples of~$p$ (multiply $\mu$ by $-1$) and mark multiples of $p^2$ (set $\mu = 0$). This correctly computes $\mu(d)$ for all $d \le \sqrt{N}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(N):
+    limit = isqrt(N)
+    mu = mobius_sieve(limit)
+    S = 0
+    for d = 1 to limit:
+        if mu[d] != 0:
+            M = floor(N / (d * d))
+            S += mu[d] * d * M * (M + 1) / 2
+    return S
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\sqrt{N})$ for the M\"obius sieve and the summation loop.
+\item \textbf{Space:} $O(\sqrt{N})$ for storing $\mu(d)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{457895958010}
+\]
+
+\end{document}

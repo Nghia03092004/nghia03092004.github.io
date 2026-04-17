@@ -1,0 +1,46 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 700: Eulercoin}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider the sequence $a_n = 1504170715041707 \cdot n \bmod 4503599627370517$.
+An element $a_n$ is called an \emph{Eulercoin} if it is strictly smaller than all previously found Eulercoins (i.e., $a_n < a_k$ for all $k < n$ such that $a_k$ was an Eulercoin, and $a_n < a_j$ for all $j < n$).
+
+Find the sum of all Eulercoins.
+
+\section{Mathematical Analysis}
+
+Let $N = 1504170715041707$ and $M = 4503599627370517$. Since $M$ is prime and $\gcd(N, M) = 1$, the sequence $\{a_n\}_{n=1}^{M-1}$ is a permutation of $\{1, 2, \ldots, M-1\}$.
+
+An Eulercoin at index $n$ satisfies $a_n < a_j$ for all $1 \le j < n$. These are the \emph{record minima} (left-to-right minima) of the sequence.
+
+\subsection{Two-Phase Algorithm}
+
+\textbf{Phase 1 (Forward):} Iterate $a_n = (a_{n-1} + N) \bmod M$ and track minima. This finds Eulercoins with large values quickly.
+
+\textbf{Phase 2 (Backward):} For small values $v = 1, 2, \ldots$, compute the index $n_v = v \cdot N^{-1} \bmod M$ where $N^{-1}$ is the modular inverse. Track decreasing indices to identify Eulercoins.
+
+\subsection{Correctness}
+A value $v$ is an Eulercoin if and only if its index $n_v$ is less than the index of any value $v' < v$ that is also an Eulercoin. By iterating upward from $v = 1$ and maintaining a running minimum of indices, we correctly identify all Eulercoins from the small-value side.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item Phase 1: $O(k)$ where $k$ is the index of the transition point ($\approx 10^7$).
+    \item Phase 2: $O(V)$ where $V$ is the value of the last Phase 1 Eulercoin ($\approx 10^7$).
+    \item Total: $O(10^7)$ time, $O(1)$ space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1517926517777556}
+\]
+
+\end{document}

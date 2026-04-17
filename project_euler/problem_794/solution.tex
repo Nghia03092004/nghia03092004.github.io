@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 794: Seventeen Points}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Choose real numbers $x_1, \ldots, x_n \in [0,1)$ sequentially such that after step $n$, each subinterval $[(k-1)/n, k/n)$ for $k=1,\ldots,n$ contains exactly one chosen number. $F(n)$ = minimum sum $x_1+\cdots+x_n$. Given $F(4)=1.5$. No more than 17 points can be chosen. Find $F(17)$ to 12 decimal places.
+\section{Analysis}
+\subsection*{Sequential Constraint}
+
+After placing $k$ points, they must form a valid assignment to $k$ equal subintervals. When placing the $(k+1)$-th point, the existing $k$ points plus the new one must each lie in a distinct subinterval of size $1/(k+1)$.
+
+This is extremely restrictive: each new point must be placed so that the entire set can be reinterpreted on the finer partition.
+
+\subsection*{Permutation Constraint}
+
+At step $n$, the $n$ points in $[0,1)$ define a permutation $\sigma$ where point $x_{\sigma(k)}$ lies in $[(k-1)/n, k/n)$. The constraint is that this permutation must be consistent with all p
+\section{Answer}
+
+\[
+\boxed{8.146681749623}
+\]
+
+\end{document}

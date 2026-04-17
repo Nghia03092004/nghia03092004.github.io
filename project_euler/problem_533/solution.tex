@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 533: Minimum Values of the Carmichael Function}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The \textbf{Carmichael function} $\lambda(n)$ is the smallest $m > 0$ with $a^m \equiv 1 \pmod{n}$ for every $a$ coprime to~$n$. Count
+\[
+f(N) = \bigl|\{n : 1 \le n \le N,\;\lambda(n) = \lambda(n+1)\}\bigr|.
+\]
+Find $f(10^8)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Carmichael Decomposition]
+For $n = \prod_{i=1}^{r} p_i^{a_i}$,
+\[
+\lambda(n) = \operatorname{lcm}\bigl(\lambda(p_1^{a_1}),\ldots,\lambda(p_r^{a_r})\bigr),
+\]
+where $\lambda(2) = 1$, $\lambda(4) = 2$, $\lambda(2^k) = 2^{k-2}$ for $k \ge 3$, and $\lambda(p^k) = p^{k-1}(p-1)$ for odd~$p$.
+\end{theorem}
+
+\begin{proof}
+By CRT, $(\mathbb{Z}/n\mathbb{Z})^\times \cong \prod (\mathbb{Z}/p_i^{a_i}\mathbb{Z})^\times$. The exponent of a direct product is the LCM of the component exponents.
+
+For odd~$p$, $(\mathbb{Z}/p^k\mathbb{Z})^\times$ is cyclic of order $p^{k-1}(p-1)$, so its exponent is $p^{k-1}(p-1)$.
+
+For $p = 2$: $(\mathbb{Z}/2\mathbb{Z})^\times = \{1\}$; $(\mathbb{Z}/4\mathbb{Z})^\times \cong C_2$; for $k \ge 3$, $(\mathbb{Z}/2^k\mathbb{Z})^\times \cong C_2 \times C_{2^{k-2}}$, with exponent $2^{k-2}$. The last isomorphism follows because $-1$ has order~2 and $5$ has order~$2^{k-2}$ modulo~$2^k$, proved by induction using the binomial theorem: $5^{2^{k-3}} \equiv 1 + 2^{k-1} \pmod{2^k}$ for $k \ge 4$.
+\end{proof}
+
+\begin{lemma}[SPF-Based Factoring]
+A linear smallest-prime-factor sieve enables factoring any $n \le N$ in $O(\omega(n))$ time.
+\end{lemma}
+
+\begin{proof}
+Store $\operatorname{spf}(n)$ for each $n \le N$ via linear sieve in $O(N)$ time. Factor~$n$ by repeatedly extracting $p = \operatorname{spf}(n)$ and dividing, requiring $O(\omega(n))$ steps.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Build SPF sieve for $n \le N + 1$.
+\item For each~$n$, compute $\lambda(n)$ from its prime-power factorization via the LCM formula.
+\item Compare $\lambda(n)$ with $\lambda(n+1)$; count matches.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log\log N)$, dominated by the amortized factoring cost $\sum_{n\le N}\omega(n) = O(N\log\log N)$.
+\item \textbf{Space:} $O(N)$ for the SPF array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{789453601}
+\]
+
+\end{document}

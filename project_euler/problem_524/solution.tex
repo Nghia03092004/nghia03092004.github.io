@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 524: First Sort II}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Using the ``first sort'' algorithm from Problem~523, let $E(n)$ be the expected number of moves to sort a uniformly random permutation of $\{1, \ldots, n\}$. Compute $E(10^{18}) \bmod (10^9 + 7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}
+For all $n \ge 1$,
+\[
+E(n) = \frac{(n-1)(n+4)}{12}.
+\]
+\end{theorem}
+
+\begin{proof}
+From Problem~523, the recurrence $E(n) - E(n-1) = (n+1)/6$ with $E(1) = 0$ telescopes to
+\[
+E(n) = \sum_{k=2}^{n}\frac{k+1}{6} = \frac{1}{6}\!\left(\frac{(n+1)(n+2)}{2}-3\right) = \frac{(n-1)(n+4)}{12}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Modular Inverse of 12]
+Let $p = 10^9+7$. Then $12^{-1} \equiv 83333334 \pmod{p}$.
+\end{lemma}
+
+\begin{proof}
+$12 \times 83333334 = 1\,000\,000\,008 = p + 1 \equiv 1 \pmod{p}$. Since $p$ is prime and $\gcd(12,p)=1$, the inverse exists and is unique.
+\end{proof}
+
+\begin{theorem}[Modular Evaluation]
+With $p = 10^9+7$ and $N = 10^{18}$:
+\[
+E(N) \equiv (N-1)(N+4) \cdot 12^{-1} \pmod{p}.
+\]
+\end{theorem}
+
+\begin{proof}
+Since $p$ is prime and $12 \not\equiv 0\pmod{p}$, the rational expression $(N-1)(N+4)/12$ lifts to modular arithmetic as $(N-1)(N+4)\cdot 12^{-1}\bmod p$.
+\end{proof}
+
+\begin{lemma}[Reduction of $10^{18}$]
+$10^{18} \equiv 49 \pmod{p}$.
+\end{lemma}
+
+\begin{proof}
+$10^9 \equiv -7\pmod{p}$, so $10^{18} = (10^9)^2 \equiv 49\pmod{p}$.
+\end{proof}
+
+\begin{corollary}
+$E(10^{18}) \equiv 48 \times 53 \times 83333334 \equiv 2544 \times 83333334 \equiv 1\,000\,015\,819 \pmod{p}$.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Compute $a = (10^{18}-1) \bmod p = 48$.
+    \item Compute $b = (10^{18}+4) \bmod p = 53$.
+    \item Compute $12^{-1} \bmod p = 83333334$ via Fermat's little theorem.
+    \item Return $a \cdot b \cdot 12^{-1} \bmod p$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\log p)$ for modular exponentiation; $O(1)$ for all other operations.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2432925835413407847}
+\]
+
+\end{document}

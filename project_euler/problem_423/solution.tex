@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 423: Consecutive Die Throws}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $n$ consecutive die throws form a sequence with specific consecutive-value constraints. Define $F(n)$ as the count of valid sequences of length $n$. Find $F(10^{14}) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Transfer Matrix Method]
+Let $M$ be the $k \times k$ transfer matrix where $M_{ij} = 1$ if transitioning from state $i$ to state $j$ is valid, and $\mathbf{e} = (1,\ldots,1)^\top$. Then
+\[
+F(n) = \mathbf{e}^\top M^{n-1} \mathbf{e}.
+\]
+\end{theorem}
+
+\begin{proof}
+By induction on $n$. For $n=1$: $\mathbf{e}^\top I\, \mathbf{e} = k$, counting all single-element sequences.
+
+Inductive step: if the vector $v_n = M^{n-1}\mathbf{e}$ has $j$-th component equal to the number of valid sequences of length $n$ ending in state $j$, then the number of length-$(n\!+\!1)$ sequences ending in state $i$ is $\sum_j M_{ij}(v_n)_j = (Mv_n)_i$. Summing over $i$: $\mathbf{e}^\top M^n \mathbf{e} = F(n+1)$.
+\end{proof}
+
+\begin{theorem}[Matrix Exponentiation over $\mathbb{F}_p$]
+For a $k \times k$ matrix $M$ and prime $p$, $M^n \bmod p$ is computable in $O(k^3 \log n)$ arithmetic operations.
+\end{theorem}
+
+\begin{proof}
+Binary exponentiation uses at most $\lfloor \log_2 n \rfloor$ squarings and multiplications, each costing $O(k^3)$ operations in $\mathbb{F}_p$.
+\end{proof}
+
+\begin{lemma}[State Space]
+For a standard 6-faced die, the transfer matrix is $6 \times 6$, with states corresponding to the last face shown.
+\end{lemma}
+
+\begin{proof}
+The consecutive pattern constraint depends only on adjacent pairs in the sequence. Hence the state is fully determined by the most recent die face, giving $k=6$ states.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Construct the $6 \times 6$ transfer matrix $M$ encoding valid transitions.
+    \item Compute $M^{n-1} \bmod (10^9+7)$ via binary exponentiation, where $n = 10^{14}$.
+    \item Evaluate $F(n) = \mathbf{e}^\top M^{n-1} \mathbf{e} = \sum_{i,j} (M^{n-1})_{ij}$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(k^3 \log n)$ with $k=6$, $n=10^{14}$. Concretely $\approx 216 \times 47 \approx 10^4$ modular operations.
+    \item \textbf{Space:} $O(k^2) = O(36)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{653972374}
+\]
+
+\end{document}

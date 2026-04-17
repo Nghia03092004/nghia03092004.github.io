@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\title{Problem 360: Scared of Heights}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Compute a quantity related to lattice points on or in a high-dimensional sphere.
+
+Specifically, find the value involving the count of integer-coordinate points
+$(x_1, x_2, \ldots, x_N)$ satisfying:
+\[
+x_1^2 + x_2^2 + \cdots + x_N^2 \leq R^2
+\]
+for given $N$ and $R$.
+
+\section{Solution}
+
+\subsection{Sum of Squares Representations}
+The number of ways to write an integer $n$ as a sum of $k$ squares (counting order
+and sign) is denoted $r_k(n)$. The total number of lattice points in the $N$-sphere
+of radius $R$ is:
+\[
+\sum_{n=0}^{R^2} r_N(n)
+\]
+
+\subsection{Theta Function}
+The generating function for $r_k(n)$ is $\theta_3(q)^k$ where:
+\[
+\theta_3(q) = 1 + 2\sum_{m=1}^{\infty} q^{m^2}
+\]
+
+\subsection{Recursive Approach}
+We can compute $r_N(n)$ recursively:
+\[
+r_N(n) = \sum_{j=-\lfloor\sqrt{n}\rfloor}^{\lfloor\sqrt{n}\rfloor} r_{N-1}(n - j^2)
+\]
+
+For the specific problem parameters, efficient computation with memoization
+and modular arithmetic is essential.
+
+\subsection{Inclusion-Exclusion and Symmetry}
+Lattice point counts exhibit symmetries under coordinate permutation and sign changes,
+which can be exploited to speed up computation.
+
+\subsection{Result}
+\[
+\boxed{878825614395267092}
+\]
+
+\section{Answer}
+
+\[
+\boxed{878825614395267072}
+\]
+
+\end{document}

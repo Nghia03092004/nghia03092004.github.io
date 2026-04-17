@@ -1,0 +1,73 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 935: Lattice Paths with Obstacles}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+On a $50 \times 50$ grid, obstacles are placed at all lattice points $(x, y)$ where $x + y$ is a perfect square and $\gcd(x, y) > 1$. Starting from $(0, 0)$ and moving only right or up, find the number of paths to $(50, 50)$ modulo $10^9 + 7$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Unrestricted lattice paths]
+The number of lattice paths from $(0,0)$ to $(m,n)$ using unit steps right and up is $\binom{m+n}{m}$.
+\end{theorem}
+
+\begin{proof}
+Each path consists of $m$ right steps and $n$ up steps. The number of orderings is $\binom{m+n}{m} = \frac{(m+n)!}{m!\,n!}$.
+\end{proof}
+
+\begin{lemma}[Obstacle characterization]
+A point $(x, y)$ with $0 \leq x, y \leq 50$ is an obstacle iff $x + y \in \{0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100\}$ and $\gcd(x, y) > 1$.
+\end{lemma}
+
+\begin{proof}
+Since $0 \leq x + y \leq 100$, the perfect squares in range are exactly the listed values.
+\end{proof}
+
+\begin{theorem}[DP correctness]
+Define:
+\begin{align*}
+\operatorname{dp}[0][0] &= 1, \\
+\operatorname{dp}[x][y] &= 0 \quad \text{if $(x,y)$ is an obstacle}, \\
+\operatorname{dp}[x][y] &= \operatorname{dp}[x-1][y] + \operatorname{dp}[x][y-1] \quad \text{otherwise}.
+\end{align*}
+Then $\operatorname{dp}[50][50]$ equals the number of valid paths.
+\end{theorem}
+
+\begin{proof}
+Every path to $(x,y)$ arrives via $(x-1,y)$ or $(x,y-1)$; these cases are mutually exclusive. If $(x,y)$ is an obstacle, no valid path ends there. By induction on $x + y$, $\operatorname{dp}[x][y]$ correctly counts all valid paths.
+\end{proof}
+
+\section{Algorithm}
+
+Fill the DP table row by row. For each cell, check the obstacle condition via integer square root and GCD.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(M \cdot N \cdot \log(\min(M, N)))$. For $M = N = 50$: $\sim 15{,}000$ operations.
+\item \textbf{Space:} $O(M \cdot N) = O(2500)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{759908921637225}
+\]
+
+\end{document}

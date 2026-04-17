@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry}
+\geometry{a4paper,margin=1in}
+
+\title{Project Euler Problem 768: Chandelier}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A chandelier has a circular ring of $n$ evenly spaced candleholders. Define $f(n, m)$ as the number of ways to place $m$ identical candles into these holders so the chandelier is perfectly balanced. Rotations count as distinct.
+
+Given $f(4,2)=2$, $f(12,4)=15$, $f(36,6)=876$, find $f(360, 20)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Balance via Roots of Unity}
+Position the holders at $\omega^j = e^{2\pi i j/n}$ for $j = 0, \ldots, n-1$. A subset $S$ of size $m$ is balanced iff:
+\[
+    \sum_{j \in S} \omega^j = 0
+\]
+
+\subsection{Generating Function Approach}
+We use the identity:
+\[
+    \prod_{j=0}^{n-1}(1 + z\,\zeta^j) = (1 + z^{n/\gcd(d,n)})^{\gcd(d,n)}
+\]
+where $\zeta = e^{2\pi i d/n}$.
+
+\subsection{Main Formula}
+Applying the roots of unity filter:
+\[
+    f(n, m) = \frac{1}{n}\sum_{g \mid n} \varphi\!\left(\frac{n}{g}\right) \binom{g}{m \cdot g/n}
+\]
+where the binomial coefficient is zero unless $\frac{n}{g} \mid m$.
+
+\subsection{Verification}
+For $f(4, 2)$:
+\begin{align*}
+    g=2,\; k=2: &\quad \varphi(2)\binom{2}{1} = 1 \cdot 2 = 2 \\
+    g=4,\; k=1: &\quad \varphi(1)\binom{4}{2} = 1 \cdot 6 = 6 \\
+    f(4,2) &= (2+6)/4 = 2 \quad\checkmark
+\end{align*}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Enumerate all divisors $g$ of $n = 360$.
+    \item For each $g$, let $k = n/g$. If $k \mid m$, compute $\varphi(k) \cdot \binom{g}{m/k}$.
+    \item Sum all contributions and divide by $n$.
+\end{enumerate}
+
+\section{Answer}
+
+\[
+\boxed{14655308696436060}
+\]
+
+\end{document}

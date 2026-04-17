@@ -1,0 +1,107 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 441: The Inverse Summation of Coprime Couples}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For $M \geq 2$, define
+\[
+R(M) = \sum_{\substack{1 \leq p < q \leq M \\ p + q \geq M \\ \gcd(p,q) = 1}} \frac{1}{pq}.
+\]
+Let $S(N) = \sum_{M=2}^{N} R(M)$. Given $S(2) = \tfrac{1}{2}$, $S(10) \approx 6.9147$, $S(100) \approx 58.2962$, find $S(10^7)$ rounded to 4 decimal places.
+
+\section{Solution}
+
+\begin{theorem}[Contribution Counting]
+\label{thm:contrib}
+For a coprime pair $(p,q)$ with $1 \leq p < q$, define
+\[
+c(p,q;N) := \bigl|\{M \in \mathbb{Z} : 2 \leq M \leq N,\; q \leq M \leq p + q\}\bigr| = \max\!\bigl(0,\, \min(N, p+q) - q + 1\bigr).
+\]
+Then $S(N) = \displaystyle\sum_{\substack{1 \leq p < q \\ \gcd(p,q) = 1}} \frac{c(p,q;N)}{pq}$.
+\end{theorem}
+
+\begin{proof}
+The pair $(p,q)$ contributes $\frac{1}{pq}$ to $R(M)$ precisely when $q \leq M$ and $p + q \geq M$, i.e., $M \in [q, p+q]$. Since $p \geq 1$ and $q \geq 2$, every such $M$ satisfies $M \geq 2$. Intersecting with $[2, N]$ gives $M \in [\,q,\, \min(N,p+q)\,]$. Exchanging the order of summation over $M$ and over pairs $(p,q)$ yields the formula.
+\end{proof}
+
+\begin{lemma}[Full--Partial Decomposition]
+\label{lem:split}
+For coprime pairs $(p,q)$ with $p < q \leq N$:
+\[
+S(N) = \underbrace{\sum_{\substack{p < q \leq N,\; p+q \leq N \\ \gcd(p,q) = 1}} \frac{p+1}{pq}}_{\text{full pairs}} \;+\; \underbrace{\sum_{\substack{p < q \leq N,\; p+q > N \\ \gcd(p,q) = 1}} \frac{N - q + 1}{pq}}_{\text{partial pairs}}.
+\]
+\end{lemma}
+
+\begin{proof}
+When $p + q \leq N$: $c = p + q - q + 1 = p + 1$. When $p + q > N$ and $q \leq N$: $c = N - q + 1$.
+\end{proof}
+
+\begin{theorem}[M\"obius Inversion]
+\label{thm:mobius}
+For any arithmetic function $f \colon \mathbb{Z}_{>0}^2 \to \mathbb{R}$ with absolutely convergent sums,
+\[
+\sum_{\substack{p,q \geq 1 \\ \gcd(p,q) = 1}} f(p,q) = \sum_{d=1}^{\infty} \mu(d) \sum_{a,b \geq 1} f(da, db).
+\]
+\end{theorem}
+
+\begin{proof}
+Apply $[\gcd(p,q) = 1] = \sum_{d \mid \gcd(p,q)} \mu(d)$, interchange summation, and substitute $p = da$, $q = db$.
+\end{proof}
+
+\begin{lemma}[Harmonic Reduction]
+\label{lem:harmonic}
+Under the substitution $p = dp'$, $q = dq'$ from Theorem~\ref{thm:mobius}, set $Q = \lfloor N/d \rfloor$ and $\beta = Q - q'$. Define $P_f = \min(q'-1,\, \beta)$ and $P_s = \max(1,\, \beta + 1)$. Then the full-pair contribution for a given $q'$ equals
+\[
+\frac{P_f}{d\,q'} + \frac{H_{P_f}}{d^2\,q'},
+\]
+and the partial-pair contribution equals
+\[
+\frac{(N - dq' + 1)\bigl(H_{q'-1} - H_{P_s - 1}\bigr)}{d^2\,q'},
+\]
+where $H_k = \sum_{i=1}^{k} 1/i$ denotes the $k$-th harmonic number.
+\end{lemma}
+
+\begin{proof}
+We have $\frac{1}{pq} = \frac{1}{d^2 p' q'}$ and the full-pair multiplicity is $dp' + 1$, so
+\[
+\sum_{p'=1}^{P_f} \frac{dp' + 1}{d^2 p' q'} = \frac{1}{dq'}\sum_{p'=1}^{P_f} 1 + \frac{1}{d^2 q'}\sum_{p'=1}^{P_f}\frac{1}{p'} = \frac{P_f}{dq'} + \frac{H_{P_f}}{d^2 q'}.
+\]
+For partial pairs, the multiplicity $N - dq' + 1$ is independent of~$p'$, yielding a harmonic difference.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve $\mu(d)$ for $d = 1, \ldots, N$ via a linear sieve.
+\item Precompute $H_k$ for $k = 0, 1, \ldots, N$.
+\item For each $d$ with $\mu(d) \neq 0$, set $Q = \lfloor N/d \rfloor$ and loop over $q' = 2, \ldots, Q$:
+  \begin{itemize}
+  \item Accumulate full-pair and partial-pair contributions using Lemma~\ref{lem:harmonic}.
+  \end{itemize}
+\item Return $\sum_d \mu(d) \cdot (\text{contribution from } d)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$, since $\sum_{d=1}^{N} \lfloor N/d \rfloor = O(N \ln N)$.
+\item \textbf{Space:} $O(N)$ for the $\mu$ and $H$ arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{5000088.8395}
+\]
+
+\end{document}

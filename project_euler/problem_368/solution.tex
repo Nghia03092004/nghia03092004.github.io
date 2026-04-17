@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 368: A Kempner-like Series}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Compute the sum of the series
+\[
+S = \sum_{\substack{n=1 \\ \text{``506''} \not\subset n}}^{\infty} \frac{1}{n}
+\]
+where the sum runs over all positive integers whose decimal representation does not contain ``506'' as a substring. Report the answer to 10 decimal places.
+
+\section{Solution}
+
+\subsection{Convergence}
+Removing all integers containing a fixed $k$-digit substring makes the harmonic-like series converge. Among $d$-digit numbers, the fraction avoiding a given 3-digit string is approximately $(1 - 10^{-3})^{d-2}$, which decays exponentially. Hence the tail contributions shrink geometrically and the series converges.
+
+\subsection{Digit DP with Automaton}
+We build an Aho-Corasick (or simply KMP) automaton for the pattern ``506'':
+\begin{itemize}
+\item \textbf{State 0}: No prefix of ``506'' matched.
+\item \textbf{State 1}: Suffix ``5'' matched.
+\item \textbf{State 2}: Suffix ``50'' matched.
+\item \textbf{State 3}: Full match ``506'' (reject).
+\end{itemize}
+
+For each digit appended, we transition between states. We reject any number that reaches State~3.
+
+\subsection{Computing the Sum}
+Group integers by their digit length~$d$. For each $d$:
+\begin{enumerate}
+\item Use the digit DP with the automaton to enumerate $d$-digit numbers avoiding ``506''.
+\item Compute $\sum 1/n$ over these numbers using subdivision:
+    \begin{itemize}
+    \item Split the range $[10^{d-1}, 10^d - 1]$ into blocks defined by the first few digits.
+    \item Within each block, use the count of valid numbers and a smooth approximation (midpoint or Euler-Maclaurin) for $\sum 1/n$.
+    \end{itemize}
+\item For large $d$, the total contribution from $d$-digit numbers decays like $0.999^d$, allowing us to truncate.
+\end{enumerate}
+
+\subsection{Precision}
+We compute contributions for $d = 1, 2, \ldots, D$ where $D$ is chosen so that the tail is below $10^{-12}$. With careful numerical summation, we achieve the required 10-digit precision.
+
+\section{Answer}
+
+\[
+\boxed{253.6135092068}
+\]
+
+\end{document}

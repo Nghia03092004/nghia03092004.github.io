@@ -1,0 +1,44 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 949: Sum of Primitive Roots}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$\sum_{p \leq 10^6} (\text{sum of prim roots mod } p) \bmod 10^9+7$.
+
+\section{Sum Formula}
+\begin{theorem}
+Sum of primitive roots mod $p$ $\equiv \mu(p-1) \pmod{p}$.
+\end{theorem}
+
+\begin{proof}
+Primitive roots are $g^k$ with $\gcd(k,p-1)=1$. By Ramanujan sum theory, $\sum g^k = \mu(p-1) \pmod{p}$.
+\end{proof}
+
+\section{M\"obius Values}
+$\mu(p-1) \in \{-1,0,1\}$: zero if $4|p-1$ (unless $p-1$ is squarefree), etc.
+
+\section{Algorithm}
+SPF sieve to factor $p-1$, compute $\mu(p-1)$, accumulate.
+
+\section{Answer}
+
+\[
+\boxed{726010935}
+\]
+
+\end{document}

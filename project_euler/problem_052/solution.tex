@@ -1,0 +1,115 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 52: Permuted Multiples}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the smallest positive integer $x$ such that $2x, 3x, 4x, 5x$, and $6x$ contain the same digits as $x$.
+
+\section{Formal Development}
+
+\begin{definition}[Digit Multiset]
+For a positive integer $n$, let $\mathcal{D}(n)$ denote the sorted multiset of its decimal digits.
+\end{definition}
+
+\begin{definition}[Permuted Multiple Property]
+An integer $x$ satisfies the permuted multiple property up to factor $m$ if $\mathcal{D}(kx) = \mathcal{D}(x)$ for all $k \in \{1, 2, \ldots, m\}$.
+\end{definition}
+
+\begin{lemma}[Digit Count Preservation]
+If $\mathcal{D}(x) = \mathcal{D}(6x)$, then $x$ and $6x$ have the same number of digits.
+\end{lemma}
+
+\begin{proof}
+Two integers sharing the same digit multiset must have the same number of digits, since the multiset determines the digit count.
+\end{proof}
+
+\begin{proposition}[Search Range]
+\label{prop:range}
+If $x$ has $d$ digits and satisfies the permuted multiple property up to factor~6, then $10^{d-1} \leq x < 10^d / 6$.
+\end{proposition}
+
+\begin{proof}
+We have $x \geq 10^{d-1}$ (since $x$ has $d$ digits) and $6x \leq 10^d - 1$ (since $6x$ also has $d$ digits), giving $x < 10^d / 6$.
+\end{proof}
+
+\begin{theorem}[Cyclic Numbers]
+\label{thm:cyclic}
+Let $p$ be prime with $\mathrm{ord}_p(10) = p - 1$. Then $N_p = (10^{p-1} - 1)/p$ is a cyclic number: for $k = 1, \ldots, p-1$, the product $k \cdot N_p$ is a cyclic permutation of the digits of $N_p$.
+\end{theorem}
+
+\begin{proof}
+Since $\mathrm{ord}_p(10) = p - 1$, the decimal expansion $1/p = 0.\overline{d_1 d_2 \cdots d_{p-1}}$ has period exactly $p - 1$. For each $k \in \{1, \ldots, p-1\}$, the fraction $k/p$ has the same repeating block cyclically shifted (as multiplication by $k$ permutes residues modulo $p$). Thus $k \cdot N_p$ is a cyclic permutation of $N_p$, preserving $\mathcal{D}$.
+\end{proof}
+
+\begin{corollary}
+For $p = 7$: $\mathrm{ord}_7(10) = 6 = 7 - 1$, so $N_7 = 142857$ is cyclic:
+\begin{align*}
+1 \times 142857 &= 142857, \\
+2 \times 142857 &= 285714, \\
+3 \times 142857 &= 428571, \\
+4 \times 142857 &= 571428, \\
+5 \times 142857 &= 714285, \\
+6 \times 142857 &= 857142.
+\end{align*}
+\end{corollary}
+
+\begin{theorem}[Minimality]
+$x = 142857$ is the smallest positive integer satisfying $\mathcal{D}(kx) = \mathcal{D}(x)$ for $k = 2, 3, 4, 5, 6$.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:range}, for digit counts $d = 1, \ldots, 5$, the candidate ranges $[10^{d-1}, \lfloor 10^d/6 \rfloor]$ are exhaustively checked with no solution found. For $d = 6$, the range is $[100000, 166666]$, and $142857$ is the first value satisfying the property, as confirmed by computation.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For $d = 1, 2, 3, \ldots$:
+    \begin{enumerate}
+        \item Set $\mathrm{lo} = 10^{d-1}$, $\mathrm{hi} = \lfloor 10^d / 6 \rfloor$.
+        \item For $x = \mathrm{lo}$ to $\mathrm{hi}$:
+        \begin{enumerate}
+            \item Compute $s = \mathcal{D}(x)$.
+            \item If $\mathcal{D}(kx) = s$ for all $k \in \{2, 3, 4, 5, 6\}$: return $x$.
+        \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+
+\section{Complexity}
+
+\begin{proposition}[Time]
+$O(1)$ --- at most $74{,}076$ candidates examined, each in constant time.
+\end{proposition}
+
+\begin{proposition}[Space]
+$O(d) = O(1)$ for digit arrays, where $d \leq 6$.
+\end{proposition}
+
+\section{Result}
+\[
+\boxed{142857}
+\]
+
+\section{Answer}
+
+\[
+\boxed{142857}
+\]
+
+\end{document}

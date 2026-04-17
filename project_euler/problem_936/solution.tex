@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 936: Modular Fibonacci Matrix}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define the Fibonacci sequence $F_0 = 0$, $F_1 = 1$, $F_n = F_{n-1} + F_{n-2}$. Find $\sum_{k=1}^{10^{12}} k \cdot F_k \pmod{10^9 + 7}$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Fibonacci matrix identity]
+For all $n \geq 1$:
+\[
+\begin{pmatrix} F_{n+1} & F_n \\ F_n & F_{n-1} \end{pmatrix} = \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^n.
+\]
+\end{theorem}
+
+\begin{proof}
+By induction. Base ($n=1$): direct verification. Inductive step:
+\[
+\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^{n+1} = \begin{pmatrix} F_{n+1} & F_n \\ F_n & F_{n-1} \end{pmatrix} \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} = \begin{pmatrix} F_{n+2} & F_{n+1} \\ F_{n+1} & F_n \end{pmatrix}.
+\]
+\end{proof}
+
+\begin{lemma}[Fibonacci partial sums]
+For all $n \geq 1$: $\sum_{k=1}^{n} F_k = F_{n+2} - 1$.
+\end{lemma}
+
+\begin{proof}
+Induction. Base: $F_1 = 1 = F_3 - 1$. Step: $\sum_{k=1}^{n+1} F_k = (F_{n+2} - 1) + F_{n+1} = F_{n+3} - 1$.
+\end{proof}
+
+\begin{theorem}[Weighted Fibonacci sum]
+For all $n \geq 1$:
+\[
+\sum_{k=1}^{n} k \, F_k = (n-1) \, F_{n+2} - F_{n+1} + 2.
+\]
+\end{theorem}
+
+\begin{proof}
+By Abel summation with $S_n = F_{n+2} - 1$:
+\[
+\sum_{k=1}^{n} k \, F_k = n \, S_n - \sum_{k=1}^{n-1} S_k = n(F_{n+2} - 1) - \sum_{k=1}^{n-1}(F_{k+2} - 1).
+\]
+Computing the inner sum:
+\[
+\sum_{k=1}^{n-1}(F_{k+2} - 1) = \sum_{j=3}^{n+1} F_j - (n-1) = F_{n+3} - n - 2.
+\]
+Substituting and using $F_{n+3} = F_{n+2} + F_{n+1}$:
+\[
+\sum_{k=1}^{n} k \, F_k = n \, F_{n+2} - F_{n+3} + 2 = (n-1) \, F_{n+2} - F_{n+1} + 2.
+\]
+\end{proof}
+
+\begin{lemma}[Modular matrix exponentiation]
+$F_n \bmod m$ can be computed in $O(\log n)$ arithmetic operations via repeated squaring of the $2 \times 2$ Fibonacci matrix.
+\end{lemma}
+
+\begin{proof}
+Each matrix multiplication is $O(1)$ arithmetic operations. Repeated squaring performs $O(\log n)$ such multiplications.
+\end{proof}
+
+\section{Algorithm}
+
+Compute $F_{n+1}$ and $F_{n+2}$ modulo $10^9+7$ via matrix exponentiation, then apply the closed-form identity from Theorem~2.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log n)$ for matrix exponentiation.
+\item \textbf{Space:} $O(1)$ (constant number of $2 \times 2$ matrices).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{12144907797522336}
+\]
+
+\end{document}

@@ -1,0 +1,100 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 341: Golomb's Self-Describing Sequence}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The \textbf{Golomb sequence} $\{G(n)\}_{n \ge 1}$ is the unique non-decreasing sequence of positive integers in which each value~$n$ appears exactly $G(n)$ times. Given $G(10^3) = 86$, $G(10^6) = 6137$, and $\sum_{n=1}^{999} G(n^3) = 153\,506\,976$, find $\sum_{n=1}^{999999} G(n^3)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Block decomposition]
+Since $G$ is non-decreasing and value~$v$ appears exactly $G(v)$ times, the sequence partitions into consecutive blocks. Define
+\[
+P(v) \coloneqq \sum_{i=1}^{v} G(i), \qquad P(0) \coloneqq 0.
+\]
+The $v$-th block occupies positions $P(v-1)+1$ through $P(v)$ and consists of $G(v)$ copies of~$v$.
+\end{definition}
+
+\begin{theorem}[Golomb recurrence]
+$G(1) = 1$ and $G(n) = 1 + G\bigl(n - G(G(n-1))\bigr)$ for $n \ge 2$.
+\end{theorem}
+
+\begin{proof}
+Let $G(n-1) = v$, so position $n-1$ lies in the block for value~$v$. The self-describing property dictates that value~$v$ occupies $G(v)$ positions. Since $G(G(n-1)) = G(v)$ counts the multiplicity of~$v$, the index $n - G(G(n-1))$ falls into an earlier block. Because consecutive block values differ by exactly one, incrementing by~1 yields $G(n)$.
+\end{proof}
+
+\begin{lemma}[Block-based evaluation]
+$G(n) = v$ if and only if $P(v-1) < n \le P(v)$.
+\end{lemma}
+
+\begin{proof}
+The blocks are disjoint, contiguous, and cover $\mathbb{Z}_{>0}$. Position~$n$ belongs to block~$v$ precisely when $P(v-1) < n \le P(v)$, and every entry in block~$v$ equals~$v$.
+\end{proof}
+
+\begin{lemma}[Cumulative weighted sum]
+Define $S(v) \coloneqq \sum_{i=1}^{v} i \cdot G(i)$, $S(0) \coloneqq 0$. Then $\sum_{k=1}^{P(v)} G(k) = S(v)$.
+\end{lemma}
+
+\begin{proof}
+Partitioning by blocks: $\sum_{k=1}^{P(v)} G(k) = \sum_{i=1}^{v} i \cdot G(i) = S(v)$.
+\end{proof}
+
+\begin{proposition}[Partial-block interpolation]
+For $P(v-1) < n \le P(v)$: $\;\sum_{k=1}^{n} G(k) = S(v-1) + v\bigl(n - P(v-1)\bigr)$.
+\end{proposition}
+
+\begin{proof}
+The first $P(v-1)$ terms contribute $S(v-1)$. The remaining $n - P(v-1)$ terms each equal~$v$.
+\end{proof}
+
+\begin{theorem}[Asymptotic growth (Golomb 1966)]
+$G(n) \sim \phi^{2-\phi}\, n^{\phi - 1}$ as $n \to \infty$, where $\phi = (1+\sqrt{5})/2$. Hence $P(v) \sim C v^{\phi}$ for an explicit constant~$C$.
+\end{theorem}
+
+\begin{proof}
+The self-describing property forces $G(G(n)) \sim n^{(\phi-1)^2}$ and $G(G(n)) \sim G(n)^{\phi-1}$. Equating exponents gives $(\phi-1)^2 = 2 - \phi$, which is equivalent to $\phi^2 = \phi + 1$, the defining equation of the golden ratio. The prefactor is determined by substitution into the recurrence; see Golomb~(1966).
+\end{proof}
+
+\begin{corollary}[Computation range]
+To evaluate $G(n)$ for $n \le (10^6)^3 = 10^{18}$, build blocks until $P(v) \ge 10^{18}$. Empirically $v_{\max} \approx 10^7$.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{verbatim}
+Build G[v], P[v] using recurrence until P[v] >= (10^6 - 1)^3
+idx = 1, total = 0
+for d = 1 to 999999:
+    n = d^3
+    while P[idx] < n: idx += 1
+    total += idx          // G(n) = idx
+return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(V + N)$ where $V \approx 10^7$ is the number of Golomb values computed and $N = 999999$ queries are answered by a single linear scan.
+    \item \textbf{Space:} $O(V)$ for the arrays $G$ and $P$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{56098610614277014}
+\]
+
+\end{document}

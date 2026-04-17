@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 214: Totient Chains}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define the totient chain of $n$ as $n, \phi(n), \phi^2(n), \ldots, 1$. Its length counts all elements. Find the sum of all primes $p < 4 \times 10^7$ whose totient chain has length exactly 25.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Euler's product formula]
+For $n = p_1^{a_1}\cdots p_k^{a_k}$,
+\[
+\phi(n) = n\prod_{i=1}^{k}\left(1 - \frac{1}{p_i}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+By inclusion--exclusion on $\{1,\ldots,n\}$, the count of integers coprime to $n$ is
+\[
+\phi(n) = \sum_{d \mid n}\mu(d)\frac{n}{d} = n\sum_{d \mid n}\frac{\mu(d)}{d} = n\prod_{p \mid n}\left(1-\frac{1}{p}\right),
+\]
+where the last step uses the multiplicativity of $\mu$ and the Euler product.
+\end{proof}
+
+\begin{lemma}[Strict decrease]
+For all $n \geq 2$, $\phi(n) < n$. If $n$ is even, $\phi(n) \leq n/2$.
+\end{lemma}
+
+\begin{proof}
+Since $n \geq 2$ has a prime factor $p$, $\phi(n) = n\prod(1-1/p_i) \leq n(1-1/p) < n$. If $2 \mid n$, the factor $(1-1/2)$ gives $\phi(n) \leq n/2$.
+\end{proof}
+
+\begin{theorem}[Chain length recurrence]
+Define $\ell(1) = 1$ and $\ell(n) = 1 + \ell(\phi(n))$ for $n \geq 2$. Then $\ell(n)$ equals the length of the totient chain of $n$, and can be computed in increasing order of $n$.
+\end{theorem}
+
+\begin{proof}
+The totient chain of $n$ is $n$ followed by the totient chain of $\phi(n)$, so $\ell(n) = 1 + \ell(\phi(n))$. By Lemma~1, $\phi(n) < n$ for $n \geq 2$, so the chain terminates at 1 and the recurrence is well-founded. Processing $n = 1, 2, 3, \ldots$ ensures $\ell(\phi(n))$ is available when computing $\ell(n)$.
+\end{proof}
+
+\begin{lemma}[Totient sieve correctness]
+Initialize $\phi[n] = n$. For each $n$ from $2$ to $N{-}1$: if $\phi[n] = n$ (so $n$ is prime), set $\phi[m] \leftarrow \phi[m]\cdot(n{-}1)/n$ for all multiples $m$ of $n$. After completion, $\phi[n]$ equals Euler's totient for all $1 \leq n < N$.
+\end{lemma}
+
+\begin{proof}
+Each prime $p$ is detected when $\phi[p] = p$ (no smaller prime divides $p$). The multiplicative update applies the factor $(1-1/p)$ for each prime $p \mid m$, yielding $\phi[m] = m\prod_{p \mid m}(1-1/p) = \phi(m)$ by the product formula.
+\end{proof}
+
+\begin{lemma}[Prime detection]
+After the sieve, $n \geq 2$ is prime if and only if $\phi[n] = n - 1$.
+\end{lemma}
+
+\begin{proof}
+If $n$ is prime, $\phi(n) = n-1$. If $n$ is composite with smallest prime factor $p$, then $\phi(n) \leq n(1-1/p) \leq n-\sqrt{n} < n-1$ for $n \geq 4$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item \textbf{Totient sieve:} Compute $\phi[n]$ for all $n < N$ using the sieve method.
+\item \textbf{Chain lengths:} Compute $\ell[n] = 1 + \ell[\phi[n]]$ for $n = 2, \ldots, N{-}1$, with $\ell[1]=1$.
+\item \textbf{Sum:} Accumulate $\sum n$ over all $n$ with $\phi[n] = n-1$ (prime) and $\ell[n] = 25$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log\log N)$ for the sieve (by Mertens' theorem); $O(N)$ for chain lengths and summation. Total: $O(N\log\log N)$.
+\item \textbf{Space:} $O(N)$ for the $\phi$ and $\ell$ arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1677366278943}
+\]
+
+\end{document}

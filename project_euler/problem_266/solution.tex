@@ -1,0 +1,59 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algorithmic}
+
+\title{Problem 266: Pseudo Square Root}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The divisors of 12 are: 1, 2, 3, 4, 6, 12. The largest divisor of 12 that does not exceed $\sqrt{12}$ is 3. We call the largest divisor of $n$ that does not exceed $\sqrt{n}$ the \emph{pseudo square root} (PSR) of $n$.
+
+Let $P = \prod_{p < 190, p \text{ prime}} p$. Find $\text{PSR}(P)$. Give the last 16 digits.
+
+\section{Mathematical Analysis}
+
+\subsection{Setup}
+The primes below 190 are:
+\[ 2, 3, 5, 7, 11, 13, \ldots, 179, 181 \]
+There are 42 such primes. Since $P$ is the product of distinct primes, it is squarefree, and every divisor of $P$ has the form $d = \prod_{p \in S} p$ for some subset $S$ of the primes.
+
+We seek the largest such $d$ with $d \leq \sqrt{P}$, equivalently:
+\[ \log d \leq \frac{1}{2}\sum_{p < 190}\log p \]
+
+\subsection{Meet in the Middle}
+With 42 primes, enumerating all $2^{42} \approx 4.4 \times 10^{12}$ subsets is infeasible. We split the primes into two halves $A$ and $B$ of 21 primes each, and use a \textbf{meet-in-the-middle} strategy:
+
+\begin{enumerate}
+    \item For group $A$, enumerate all $2^{21}$ subset products. Store $(\log d_A, \; d_A \bmod 10^{16})$.
+    \item Sort these by $\log d_A$.
+    \item For each of the $2^{21}$ subset products from group $B$, compute $\log d_B$ and $d_B \bmod 10^{16}$.
+    \item Binary search group $A$ for the largest $\log d_A$ such that $\log d_A + \log d_B \leq \frac{1}{2}\log P$.
+    \item Track the maximum $\log(d_A \cdot d_B)$ and the corresponding value modulo $10^{16}$.
+\end{enumerate}
+
+\subsection{Arithmetic Details}
+Since $P$ is astronomically large, we use:
+\begin{itemize}
+    \item \textbf{Logarithms} for comparison: $\log(\sqrt{P}) = \frac{1}{2}\sum_p \log p$.
+    \item \textbf{Modular arithmetic} for the answer: all products computed modulo $10^{16}$.
+    \item \textbf{128-bit integers} (\texttt{\_\_int128}) for modular multiplication.
+\end{itemize}
+
+\section{Complexity}
+\begin{itemize}
+    \item Time: $O(2^{n/2} \cdot n/2)$ where $n = 42$, giving $\sim 44$ million operations.
+    \item Space: $O(2^{n/2}) \approx 2$ million entries.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1096883702440585}
+\]
+
+\end{document}

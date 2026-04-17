@@ -1,0 +1,96 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 108: Diophantine Reciprocals I}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the least value of $n$ such that the number of distinct solutions of
+\[
+\frac{1}{x} + \frac{1}{y} = \frac{1}{n}
+\]
+exceeds 1000.
+
+\section{Derivation}
+
+\subsection{Algebraic Transformation}
+
+Multiplying both sides by $xyn$:
+\[
+n(x + y) = xy
+\]
+Rearranging via Simon's Favorite Factoring Trick:
+\[
+xy - nx - ny + n^2 = n^2 \implies (x-n)(y-n) = n^2
+\]
+
+\subsection{Counting Solutions}
+
+Setting $a = x - n$, $b = y - n$ with $a, b > 0$ and $ab = n^2$, each ordered factorization of $n^2$ gives a solution. The number of unordered pairs (with $x \leq y$, i.e., $a \leq b$) is:
+\[
+f(n) = \left\lceil \frac{d(n^2)}{2} \right\rceil
+\]
+
+\subsection{Divisor Count Formula}
+
+If $n = \prod_{i=1}^{k} p_i^{a_i}$, then:
+\[
+d(n^2) = \prod_{i=1}^{k} (2a_i + 1)
+\]
+
+We need $d(n^2) \geq 2001$.
+
+\subsection{Minimization Strategy}
+
+\begin{theorem}
+To minimize $n = \prod p_i^{a_i}$ subject to $\prod (2a_i + 1) \geq 2001$ with $a_1 \geq a_2 \geq \cdots \geq a_k \geq 1$, assign the largest exponents to the smallest primes.
+\end{theorem}
+
+\begin{proof}
+If $p_i < p_j$ but $a_i < a_j$, swapping the exponents gives $n' < n$ since:
+\[
+\frac{n'}{n} = \frac{p_i^{a_j} p_j^{a_i}}{p_i^{a_i} p_j^{a_j}} = \left(\frac{p_i}{p_j}\right)^{a_j - a_i} < 1
+\]
+while the divisor count product remains unchanged.
+\end{proof}
+
+\subsection{Solution}
+
+The optimal exponent sequence yields:
+\[
+n = 2^2 \cdot 3^2 \cdot 5 \cdot 7 \cdot 11 \cdot 13 = 180180
+\]
+
+Verification: $d(n^2) = 5 \cdot 5 \cdot 3 \cdot 3 \cdot 3 \cdot 3 = 2025$, so $f(n) = \lceil 2025/2 \rceil = 1013 > 1000$.
+
+\[
+\boxed{n = 180180}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Optimized search:} Enumerate exponent sequences --- the search space is small since we only need $\sim 6$--8 prime factors.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{180180}
+\]
+
+\end{document}

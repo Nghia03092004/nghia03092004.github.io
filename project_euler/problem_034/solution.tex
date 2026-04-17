@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 34: Digit Factorials}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of all numbers $n \ge 3$ which are equal to the sum of the factorial of their digits.
+
+\section{Mathematical Development}
+
+\begin{definition}
+For a positive integer $n$ with decimal digits $d_1, d_2, \ldots, d_k$ (with $d_1 \ne 0$), define the \emph{digit factorial sum} $S(n) = \sum_{i=1}^{k} d_i!$. A positive integer $n \ge 3$ is a \emph{factorion} if $S(n) = n$.
+\end{definition}
+
+\begin{theorem}[Upper bound]
+\label{thm:bound}
+Every factorion satisfies $n \le 2{,}540{,}160$. Equivalently, every factorion has at most $7$ digits.
+\end{theorem}
+
+\begin{proof}
+Let $n$ have $k$ digits. Then $n \ge 10^{k-1}$ and $S(n) \le k \cdot 9! = 362{,}880k$. For $S(n) = n$ to hold, we need $362{,}880k \ge 10^{k-1}$.
+
+Define $g(k) = 10^{k-1}/(362{,}880k)$. We verify $g(7) \approx 0.394 \le 1$ and $g(8) \approx 3.44 > 1$.
+
+For $k \ge 8$: $g(k+1)/g(k) = 10k/(k+1) \ge 80/9 > 1$, so $g$ is increasing for $k \ge 8$, hence $g(k) > 1$ for all $k \ge 8$ by induction.
+
+Therefore the search space is $\{3, \ldots, 7 \cdot 9!\} = \{3, \ldots, 2{,}540{,}160\}$.
+\end{proof}
+
+\begin{lemma}[Precomputation]
+The digit factorials $0!, 1!, \ldots, 9!$ are $1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880$. Using a lookup table, $S(n)$ is computed in $O(\lfloor \log_{10} n \rfloor + 1)$ time.
+\end{lemma}
+
+\begin{proof}
+Extract digits by repeated division by $10$, summing the looked-up factorials. The number of divisions equals the digit count.
+\end{proof}
+
+\begin{theorem}[Complete classification]
+The only factorions with $n \ge 3$ are $n = 145$ and $n = 40{,}585$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:bound}, evaluate $S(n)$ for all $n \in \{3, \ldots, 2{,}540{,}160\}$:
+\begin{align}
+S(145) &= 1! + 4! + 5! = 1 + 24 + 120 = 145, \\
+S(40585) &= 4! + 0! + 5! + 8! + 5! = 24 + 1 + 120 + 40320 + 120 = 40585.
+\end{align}
+No other value in the search range satisfies $S(n) = n$.
+\end{proof}
+
+\section{Algorithm}
+For each $n$ in $\{3, \ldots, 2{,}540{,}160\}$: compute $S(n)$ via digit extraction and factorial lookup; accumulate $n$ if $S(n) = n$.
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(U \cdot d_{\max})$ time and $O(1)$ space, where $U = 2{,}540{,}160$ and $d_{\max} = 7$.
+\end{proposition}
+
+\begin{proof}
+The main loop iterates $U - 2$ times. Each iteration extracts at most $d_{\max} = 7$ digits with $O(1)$ work per digit. Auxiliary space: a $10$-entry lookup table and $O(1)$ working variables.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{40730}
+\]
+
+\end{document}

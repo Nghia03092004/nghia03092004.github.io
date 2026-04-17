@@ -1,0 +1,48 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 355: Maximal Coprime Subset}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define $S_n$ as the maximum sum of a pairwise coprime subset of $\{1, 2, \ldots, n\}$. Compute:
+\[
+\sum_{n=1}^{10^5} S_n
+\]
+
+\section{Solution}
+
+\subsection{Optimal Pairwise Coprime Subset}
+A set of integers is pairwise coprime if and only if for every prime $p$, at most one element is divisible by $p$.
+
+\textbf{Claim:} The maximum-sum pairwise coprime subset of $\{1, \ldots, n\}$ is:
+\[
+\{1\} \cup \left\{ p^{\lfloor \log_p n \rfloor} : p \text{ prime}, p \le n \right\}
+\]
+
+\textbf{Proof sketch:} For each prime $p \le n$, the largest prime power $p^a \le n$ is the number with the largest value that uses only prime $p$. Including one prime power per prime guarantees pairwise coprimality (since distinct prime powers of different primes are coprime). Any number that is not a prime power uses at least two primes, so including it would ``waste'' two prime slots for less total gain than using separate prime powers.
+
+\subsection{Computing the Sum}
+\[
+S_n = 1 + \sum_{\substack{p \text{ prime} \\ p \le n}} p^{\lfloor \log_p n \rfloor}
+\]
+
+To compute $\sum_{n=1}^{N} S_n$, we note that the contribution of prime power $p^k$ (where $p^k \le N < p^{k+1}$) to the sum over $n$ is:
+\[
+\sum_{n=p^k}^{\min(p^{k+1}-1, N)} p^k
+\]
+
+We accumulate these contributions efficiently for all primes and their powers.
+
+\section{Answer}
+
+\[
+\boxed{1726545007}
+\]
+
+\end{document}

@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 236: Luxury Hampers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Suppliers A and B each provided 18885 products across five types:
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+Product & A & B \\
+\hline
+Beluga Caviar & 5248 & 640 \\
+Christmas Cake & 1312 & 1888 \\
+Gammon Joint & 2624 & 3776 \\
+Vintage Port & 5765 & 3776 \\
+Dessert Truffles & 3936 & 5765 \\
+\hline
+\end{tabular}
+\end{center}
+
+A random product is drawn with prior probability $r$ from~A, $1{-}r$ from~B. Find the smallest rational $r = p/q$ in lowest terms with $p < q$ such that the Bayesian posterior correctly identifies the majority supplier for every product type.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Bayesian Posterior Constraint]
+With prior odds ratio $\omega = r/(1-r)$, the posterior correctly favors supplier~A for product type~$i$ (where $a_i > b_i$) iff $\omega > b_i/a_i$, and correctly favors~B (where $b_i > a_i$) iff $\omega < b_i/a_i$.
+\end{theorem}
+
+\begin{proof}
+By Bayes' theorem, $P(A \mid \text{type } i) = r a_i / (r a_i + (1-r)b_i)$. This exceeds $1/2$ iff $r a_i > (1-r)b_i$, iff $\omega > b_i/a_i$.
+\end{proof}
+
+\begin{lemma}[Binding Constraints]
+The tightest lower bound on $\omega$ is $3776/5765$ (from Vintage Port). The tightest upper bound is $59/41$ (from Christmas Cake / Gammon Joint).
+\end{lemma}
+
+\begin{proof}
+Computing $b_i/a_i$ for each product type: Beluga $5/41$, Vintage Port $3776/5765$, Christmas Cake $59/41$, Gammon $59/41$, Truffles $5765/3936$. The binding lower bound is $\max(5/41, 3776/5765) = 3776/5765$ and the binding upper bound is $\min(59/41, 5765/3936) = 59/41$.
+\end{proof}
+
+\begin{theorem}[Conversion to $r$-interval]
+The constraint $3776/5765 < \omega < 59/41$ translates to $3776/9541 < r < 59/100$.
+\end{theorem}
+
+\begin{proof}
+Since $r = \omega/(1+\omega)$ is increasing in $\omega$: $r > 3776/(5765+3776) = 3776/9541$ and $r < 59/(41+59) = 59/100$.
+\end{proof}
+
+The smallest fraction $p/q$ (reduced, $p < q$) in this interval is found via Stern-Brocot mediant search.
+
+\section{Algorithm}
+
+\begin{verbatim}
+for q = 1 to 10000:
+    p_lo = floor(q * 3776/9541) + 1
+    p_hi = ceil(q * 59/100) - 1
+    for p = p_lo to min(p_hi, q-1):
+        if gcd(p,q) == 1: record (p,q) if p+q is smallest
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(D^2)$ worst case for search up to denominator $D$; $O(\log D)$ with Stern-Brocot.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{123/59}
+\]
+
+\end{document}

@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 274: Divisibility Multipliers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For each prime $p$ coprime to 10, define the divisibility multiplier $m(p)$ as the smallest positive $m < p$ such that $f(n) = \lfloor n/10 \rfloor + (n \bmod 10)\cdot m$ satisfies $p \mid f(n)$ whenever $p \mid n$. Find the sum of $m(p)$ over all primes $p < 10^7$ with $\gcd(p,10)=1$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Multiplier equals modular inverse]
+Let $p > 1$ with $\gcd(p,10)=1$. Then $m(p) = 10^{-1} \pmod{p}$.
+\end{theorem}
+
+\begin{proof}
+Write $n = 10q + r$, so $f(n) = q + rm$. If $p \mid n$, then $r \equiv -10q\pmod{p}$, whence
+\[
+f(n) = q + rm \equiv q(1 - 10m) \pmod{p}.
+\]
+For $p \mid f(n)$ to hold for all multiples $n$ of $p$ (producing all residues~$q$), we need $1 - 10m \equiv 0 \pmod{p}$, i.e., $10m \equiv 1 \pmod{p}$. The converse is immediate.
+\end{proof}
+
+\begin{lemma}[Fermat computation]
+For prime $p \nmid 10$, $m(p) = 10^{p-2} \bmod p$.
+\end{lemma}
+
+\begin{proof}
+By Fermat's little theorem, $10^{p-1} \equiv 1\pmod{p}$, so $10^{p-2}$ is the inverse of~$10$.
+\end{proof}
+
+\begin{lemma}[Extended Euclidean alternative]
+For any $p$ with $\gcd(p,10)=1$, $10^{-1}\bmod p$ is computable in $O(\log p)$ via the extended Euclidean algorithm.
+\end{lemma}
+
+\begin{proof}
+The extended GCD finds $s,t$ with $10s + pt = 1$, giving $10^{-1} \equiv s\pmod{p}$. The algorithm terminates in $O(\log p)$ division steps.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Sieve primes up to $N = 10^7$.
+    \item For each prime $p \neq 2, 5$, compute $10^{p-2} \bmod p$ and accumulate.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N\log\log N)$ for the sieve, plus $O(\pi(N)\log N) = O(N)$ for modular exponentiations. Total: $O(N\log\log N)$.
+    \item \textbf{Space:} $O(N)$ for the sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1601912348822}
+\]
+
+\end{document}

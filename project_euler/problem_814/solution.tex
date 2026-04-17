@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 814: Seating Plan}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count circular permutations of $\{1, 2, \ldots, n\}$ satisfying a forbidden adjacency constraint, modulo $10^9+7$.
+
+\section{Derangement Theory}
+
+\begin{theorem}[Derangement Recurrence]
+The number of derangements $D_n$ satisfies:
+\[
+D_n = (n-1)(D_{n-1} + D_{n-2}), \quad D_0 = 1, \quad D_1 = 0.
+\]
+\end{theorem}
+
+\begin{proof}
+Element~1 maps to some $k \ne 1$ ($n-1$ choices). If $k \mapsto 1$: the remaining $n-2$ elements form a derangement ($D_{n-2}$ ways). If $k \not\mapsto 1$: element~$k$ avoids position~1 among $n-1$ elements ($D_{n-1}$ ways).
+\end{proof}
+
+\begin{corollary}
+$D_n = n! \sum_{k=0}^{n} \frac{(-1)^k}{k!}$, and $D_n/n! \to 1/e$ as $n \to \infty$.
+\end{corollary}
+
+\begin{theorem}[M\'enage Formula]
+The number of circular permutations of $n$ married couples seated alternately such that no spouse pair is adjacent:
+\[
+M_n = \frac{n}{2} \sum_{k=0}^{n} (-1)^k \frac{2n}{2n-k} \binom{2n-k}{k} (n-k)!
+\]
+\end{theorem}
+
+\section{Transfer Matrix Method}
+
+\begin{theorem}
+Let $T$ be the $n \times n$ adjacency matrix where $T_{ij} = 1$ iff person~$i$ may sit next to person~$j$. The number of valid circular arrangements starting and ending at person~1 of length~$n$ is $(T^n)_{11}$.
+\end{theorem}
+
+\begin{proof}
+$(T^k)_{ij}$ counts walks of length~$k$ from $i$ to $j$. Setting $i = j = 1$ and length $n$ gives circular arrangements passing through person~1.
+\end{proof}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $D_n$ & $M_n$ \\
+\midrule
+3 & 2 & 1 \\
+4 & 9 & 2 \\
+5 & 44 & 13 \\
+6 & 265 & 80 \\
+7 & 1854 & 579 \\
+8 & 14833 & 4738 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+
+\begin{itemize}
+\item Recurrence method: $O(n)$ time, $O(1)$ space.
+\item Transfer matrix: $O(|S|^3 \log n)$ via matrix exponentiation.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{307159326}
+\]
+
+\end{document}

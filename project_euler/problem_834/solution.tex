@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 834: Sum of Concatenations}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define the concatenation $n\|m$ as the number formed by writing $n$ followed by $m$ in decimal. Compute $S(N) = \sum_{n=1}^{N}\sum_{m=1}^{N}(n\|m) \pmod{10^9+7}$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Concatenation Formula]
+For positive integers $n$ and $m$, $n\|m = n\cdot 10^{d(m)}+m$, where $d(m)=\lfloor\log_{10}m\rfloor+1$.
+\end{lemma}
+
+\begin{proof}
+Writing $n$ and appending $m$ shifts $n$ left by $d(m)$ decimal places and adds $m$. Since $10^{d(m)-1}\le m<10^{d(m)}$, the digit count is $d(m)=\lfloor\log_{10}m\rfloor+1$.
+\end{proof}
+
+\begin{theorem}[Closed-Form Factorization]
+The double sum factors as:
+\[
+S(N) = \frac{N(N+1)}{2}\cdot\sum_{m=1}^{N}10^{d(m)} + N\cdot\frac{N(N+1)}{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+Substitute the concatenation formula and use independence of summation variables:
+\[
+S(N) = \sum_{n=1}^{N}n\cdot\sum_{m=1}^{N}10^{d(m)} + \sum_{n=1}^{N}\sum_{m=1}^{N}m = \frac{N(N+1)}{2}\sum_{m=1}^{N}10^{d(m)} + N\cdot\frac{N(N+1)}{2}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Digit-Group Evaluation]
+$\displaystyle\sum_{m=1}^{N}10^{d(m)} = \sum_{d=1}^{D}10^d\cdot c_d$, where $D=d(N)$ and $c_d$ counts $d$-digit numbers in $\{1,\ldots,N\}$.
+\end{lemma}
+
+\begin{proof}
+Partition $\{1,\ldots,N\}$ by digit count. Each $m$ with $d$ digits contributes $10^d$; the block size is $c_d=\min(N,10^d-1)-10^{d-1}+1$.
+\end{proof}
+
+\section{Algorithm}
+
+Compute $T=N(N+1)/2\bmod p$, then evaluate $\sum 10^{d(m)}$ by iterating over $O(\log_{10}N)$ digit groups with modular exponentiation. Return $(T\cdot\text{power\_sum}+N\cdot T)\bmod p$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log N\cdot\log p)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1254404167198752370}
+\]
+
+\end{document}

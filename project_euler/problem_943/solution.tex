@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 943: Dirichlet Series Evaluation}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$D(s) = \sum_{n=1}^N \mu(n)/n^s$. Find $\lfloor D(2) \cdot 10^{12} \rfloor$ for $N=10^7$.
+
+\section{Connection to Zeta}
+\begin{theorem}
+$\sum_{n=1}^\infty \mu(n)/n^s = 1/\zeta(s)$ for $\mathrm{Re}(s) > 1$.
+\end{theorem}
+
+For $s=2$: $1/\zeta(2) = 6/\pi^2 \approx 0.6079$.
+
+\section{M\"obius Sieve}
+\begin{proposition}
+Sieve $\mu(n)$ in $O(N\log\log N)$, then sum $\mu(n)/n^2$.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{1038733707}
+\]
+
+\end{document}

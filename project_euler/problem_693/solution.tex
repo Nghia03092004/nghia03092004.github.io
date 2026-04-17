@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 693: Finite Sequence Generator}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For $x > y$, generate a sequence $a_n$ by $a_x=y$ and $a_{n+1}=a_n^2 \bmod n$. Let $l(x,y)$ be the length until 0, $g(x)=\max l(x,y)$ for $y<x$, and $f(n)=\max g(x)$ for $x\le n$. Given $f(100)=145$, find $f(3000000)$.
+
+\section{Mathematical Analysis}
+
+Quadratic iteration mod n. Cycle detection via Floyd/Brent. Maximum orbit length.
+
+\section{Complexity Analysis}
+
+A direct search over all $x \le N$ runs in $O(N\sqrt{N})$.
+
+\section{Answer}
+
+\[
+\boxed{699161}
+\]
+
+\end{document}

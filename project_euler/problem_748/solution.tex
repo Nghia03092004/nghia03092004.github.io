@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 748: Upside Down Diophantine}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find primitive solutions to $\frac{1}{x^2}+\frac{1}{y^2}=\frac{13}{z^2}$ with $\gcd(x,y,z)=1$, $x \le y$. Define $S(N) = \sum(x+y+z)$ over all such with $1 \le x,y,z \le N$.
+
+Given: $S(100)=124$, $S(10^3)=1470$, $S(10^5)=2\,340\,084$. Find the last 9 digits of $S(10^{16})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Algebraic Reformulation]
+The equation is equivalent to $z^2(x^2+y^2) = 13\,x^2 y^2$.
+\end{theorem}
+
+\begin{proof}
+Multiply both sides of $\frac{1}{x^2}+\frac{1}{y^2}=\frac{13}{z^2}$ by $x^2 y^2 z^2$.
+\end{proof}
+
+\begin{theorem}[Coprime Reduction]
+Let $d = \gcd(x,y)$, $x = da$, $y = db$ with $\gcd(a,b)=1$. Then:
+\[
+z^2 = \frac{13\,d^2 a^2 b^2}{a^2+b^2},
+\]
+and for $z \in \mathbb{Z}^+$ we need $(a^2+b^2) \mid 13\,d^2$.
+\end{theorem}
+
+\begin{proof}
+Substituting $x = da$, $y = db$ into the reformulated equation gives $z^2 = 13d^2 a^2 b^2/(a^2+b^2)$. Since $\gcd(a,b) = 1$, we have $\gcd(a^2 b^2,\, a^2+b^2) = 1$, so $(a^2+b^2) \mid 13d^2$.
+\end{proof}
+
+\begin{theorem}[Gaussian Integer Parametrization]
+The equation $a^2+b^2 = 13\,t^2$ is solved via the factorization $13 = (2+3i)(2-3i)$ in~$\mathbb{Z}[i]$. Solutions with $\gcd(a,b)=1$ are parametrized by Gaussian integer multiples of $2+3i$.
+\end{theorem}
+
+\begin{proof}
+In $\mathbb{Z}[i]$, $N(a+bi) = a^2+b^2 = 13t^2$, so $a+bi$ is divisible by $2+3i$ or $2-3i$. Writing $a+bi = (2+3i)\cdot w$ with $N(w) = t^2$ and applying the classification of Gaussian integers by norm yields the full parametrization.
+\end{proof}
+
+\begin{lemma}[Primitivity]
+$\gcd(x,y,z) = 1$ is equivalent to $\gcd(d,z) = 1$, since $\gcd(x,y) = d$ and $\gcd(a,b) = 1$.
+\end{lemma}
+
+\begin{proof}
+$\gcd(x,y,z) = \gcd(da, db, z) = \gcd(d\cdot\gcd(a,b),\, z) = \gcd(d,z)$.
+\end{proof}
+
+\begin{theorem}[Enumeration Strategy]
+All primitive solutions with $x,y,z \le N$ are found by iterating over coprime pairs $(a,b)$ with $a \le b$, finding valid~$d$ such that $(a^2+b^2) \mid 13d^2$ and $z = dab\sqrt{13/(a^2+b^2)}$ is integral, then checking bounds and primitivity.
+\end{theorem}
+
+\begin{proof}
+Theorem~2 reduces every primitive solution to a coprime pair $(a,b)$ and scaling factor~$d$. Systematic search over these parameters is complete by construction.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item For each coprime pair $(a,b)$ with $a \le b$ and $a^2+b^2 \le 13N^2$:
+  \begin{enumerate}
+  \item Compute $s = a^2+b^2$.
+  \item Find all $d$ such that $s \mid 13d^2$ and $da, db, z \le N$.
+  \item For each valid~$d$, verify $z^2 = 13d^2 a^2 b^2/s$ is a perfect square, check $\gcd(d,z)=1$, accumulate $x+y+z$.
+  \end{enumerate}
+\item Return the sum modulo $10^9$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N)$ with careful bounding of the $(a,b,d)$ search space.
+\item \textbf{Space:} $O(\sqrt{N})$ for coprimality sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{276402862}
+\]
+
+\end{document}

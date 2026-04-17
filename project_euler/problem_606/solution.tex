@@ -1,0 +1,53 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 606: Gozinta Chains II}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A \textbf{gozinta chain} for $n$ is a sequence $\{1, a, b, \ldots, n\}$ where each element properly divides the next. Let $g(n)$ denote the number of distinct gozinta chains for $n$. Let $S(N)$ be the sum of all numbers $k \leq N$ with exactly 252 gozinta chains.
+
+Given $S(10^6) = 8462952$ and $S(10^{12}) = 623291998881978$, find $S(10^{36}) \bmod 10^9$.
+
+\section{Mathematical Analysis}
+
+\subsection{Gozinta Chain Formula}
+For $n = p_1^{a_1} p_2^{a_2} \cdots p_k^{a_k}$, the number of gozinta chains equals the multinomial coefficient:
+\[
+g(n) = \binom{a_1 + a_2 + \cdots + a_k}{a_1, a_2, \ldots, a_k} = \frac{(a_1 + a_2 + \cdots + a_k)!}{a_1! \, a_2! \cdots a_k!}
+\]
+
+\subsection{Finding Valid Exponent Signatures}
+We need all partitions $(a_1, a_2, \ldots, a_k)$ with $a_1 \geq a_2 \geq \cdots \geq a_k \geq 1$ such that the multinomial coefficient equals 252.
+
+Since $252 = 2^2 \times 3^2 \times 7$, we systematically enumerate:
+\begin{itemize}
+\item Check all partitions of integers $m$ where $\frac{m!}{\prod a_i!} = 252$
+\item Valid signatures include various combinations of exponents
+\end{itemize}
+
+\subsection{Counting Integers with Given Signature}
+For a signature $(a_1, a_2, \ldots, a_k)$ with $a_1 \geq a_2 \geq \cdots \geq a_k$, the number of integers $\leq N$ with this exponent pattern requires:
+\begin{enumerate}
+\item Choosing $k$ distinct primes $p_1 < p_2 < \cdots < p_k$
+\item Assigning exponents (accounting for permutations within equal exponent groups)
+\item Ensuring $p_1^{a_{\sigma(1)}} p_2^{a_{\sigma(2)}} \cdots p_k^{a_{\sigma(k)}} \leq N$
+\end{enumerate}
+
+\section{Result}
+\[
+S(10^{36}) \bmod 10^9 = \boxed{158452775}
+\]
+
+\section{Answer}
+
+\[
+\boxed{158452775}
+\]
+
+\end{document}

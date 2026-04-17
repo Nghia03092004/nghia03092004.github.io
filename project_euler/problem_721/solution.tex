@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 721: High Powers of Irrational Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer~$a$ that is not a perfect square, define
+\[
+f(a, n) = \left\lfloor \bigl(\lceil\sqrt{a}\rceil + \sqrt{a}\bigr)^n \right\rfloor.
+\]
+Compute $G(N) = \sum_{\substack{a=1 \\ a \text{ not a perfect square}}}^{N} f(a, a^2) \pmod{999\,999\,937}$ for $N = 5\,000\,000$.
+
+Given: $f(5,2)=27$, $f(5,5)=3935$, $G(1000) \equiv 163\,861\,845$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Companion Integer Sequence]
+Let $a$ be a positive non-perfect-square integer and $m = \lceil\sqrt{a}\rceil$. Define $\alpha = m + \sqrt{a}$, $\beta = m - \sqrt{a}$, and $T_n = \alpha^n + \beta^n$. Then $T_n$ is a positive integer satisfying
+\[
+T_n = 2m\,T_{n-1} - (m^2 - a)\,T_{n-2}, \quad T_0 = 2,\; T_1 = 2m.
+\]
+\end{theorem}
+
+\begin{proof}
+The values $\alpha,\beta$ are roots of $x^2 - 2mx + (m^2-a) = 0$. By Newton's identity for power sums, $T_n = (\alpha+\beta)T_{n-1} - \alpha\beta\,T_{n-2} = 2m\,T_{n-1} - (m^2-a)T_{n-2}$. The base cases $T_0 = 2$, $T_1 = 2m$ are integers, and the recurrence coefficients $2m, m^2-a$ are integers, so by induction $T_n \in \mathbb{Z}$ for all $n \ge 0$.
+\end{proof}
+
+\begin{lemma}[Floor Extraction]
+For non-perfect-square $a$ and $n \ge 1$, $f(a,n) = T_n - 1$.
+\end{lemma}
+
+\begin{proof}
+Since $m = \lceil\sqrt{a}\rceil$ and $a$ is not a perfect square, we have $m > \sqrt{a}$ (so $\beta > 0$) and $m < \sqrt{a}+1$ (so $\beta < 1$). Thus $0 < \beta < 1$, hence $0 < \beta^n < 1$ for all $n \ge 1$. Since $\alpha^n = T_n - \beta^n$ with $T_n \in \mathbb{Z}_{>0}$ and $0 < \beta^n < 1$, we obtain $\lfloor \alpha^n \rfloor = T_n - 1$.
+\end{proof}
+
+\begin{lemma}[Matrix Recurrence]
+Setting $c = m^2 - a$,
+\[
+\begin{pmatrix} T_n \\ T_{n-1} \end{pmatrix}
+= \begin{pmatrix} 2m & -c \\ 1 & 0 \end{pmatrix}^{n-1}
+\begin{pmatrix} 2m \\ 2 \end{pmatrix}.
+\]
+\end{lemma}
+
+\begin{proof}
+Direct verification: the first row encodes $T_n = 2m\,T_{n-1} - c\,T_{n-2}$, and the second row is tautological. Induction on $n$ yields the matrix power formula.
+\end{proof}
+
+\section{Algorithm}
+
+For each non-perfect-square $a \le N$:
+\begin{enumerate}
+\item Compute $m = \lceil\sqrt{a}\rceil$ and $c = m^2 - a$.
+\item Use binary matrix exponentiation to compute $T_{a^2} \bmod p$ via the $2 \times 2$ matrix raised to the $(a^2-1)$-th power.
+\item Accumulate $(T_{a^2} - 1) \bmod p$ into the running sum.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$. For each of the $N - O(\sqrt{N})$ non-squares, matrix exponentiation costs $O(\log(a^2)) = O(\log a)$ multiplications of $2\times 2$ matrices modulo $p$, each in $O(1)$.
+\item \textbf{Space:} $O(1)$ per value of $a$ (constant number of $2\times 2$ matrices).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{700792959}
+\]
+
+\end{document}

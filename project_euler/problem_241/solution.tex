@@ -1,0 +1,101 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm2e}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 241: Perfection Quotients}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer $n$, let $\sigma(n)$ denote the sum of all positive divisors of~$n$. The \emph{perfection quotient} is $p(n)=\sigma(n)/n$. A positive integer $n$ is a \emph{half-integer perfect number} if $p(n)=k+\tfrac{1}{2}$ for some non-negative integer~$k$, equivalently $2\sigma(n)=n(2k+1)$.
+
+Find the sum of all half-integer perfect numbers not exceeding~$10^{18}$.
+
+\section{Mathematical Development}
+
+\begin{definition}[Abundancy index]
+For a positive integer~$n$, the abundancy index is $\sigma(n)/n$. We say $n$ is half-integer perfect when $\sigma(n)/n\in\mathbb{Z}+\tfrac{1}{2}$.
+\end{definition}
+
+\begin{theorem}[Characterisation]\label{thm:char}
+A positive integer $n>1$ is half-integer perfect if and only if $2\sigma(n)/n$ is an odd integer~$\ge 3$.
+\end{theorem}
+
+\begin{proof}
+If $\sigma(n)/n=k+\tfrac{1}{2}$ then $2\sigma(n)/n=2k+1$, an odd integer. Since $\sigma(n)\ge 1+n>n$ for $n>1$, we have $2k+1\ge 3$. Conversely, $2\sigma(n)/n=2k+1$ with $k\ge 1$ gives $\sigma(n)/n=k+\tfrac{1}{2}$.
+\end{proof}
+
+\begin{theorem}[Multiplicative decomposition]\label{thm:decomp}
+Write $n=2^a\cdot m$ with $m$ odd and $a\ge 0$. Then $\sigma(n)=(2^{a+1}-1)\sigma(m)$, and the half-integer perfect condition becomes
+\[
+\frac{(2^{a+1}-1)\,\sigma(m)}{2^{a-1}\,m}\in\{3,5,7,\ldots\}.
+\]
+\end{theorem}
+
+\begin{proof}
+Since $\gcd(2^a,m)=1$ and $\sigma$ is multiplicative, $\sigma(n)=\sigma(2^a)\sigma(m)=(2^{a+1}-1)\sigma(m)$. Substituting into $2\sigma(n)/n$ yields the stated expression.
+\end{proof}
+
+\begin{lemma}[Divisibility constraint]\label{lem:div}
+For $a\ge 1$, the expression in Theorem~\ref{thm:decomp} is an integer only if $2^{a-1}\mid\sigma(m)$.
+\end{lemma}
+
+\begin{proof}
+Both $2^{a+1}-1$ and $m$ are odd, so $\gcd(2^{a-1},(2^{a+1}-1)m)=1$. Hence integrality of the fraction requires $2^{a-1}\mid\sigma(m)$.
+\end{proof}
+
+\begin{lemma}[Abundancy upper bound]\label{lem:bound}
+For $n=\prod_{i=1}^k p_i^{e_i}$,
+\[
+\frac{\sigma(n)}{n}=\prod_{i=1}^k\sum_{j=0}^{e_i}p_i^{-j}<\prod_{i=1}^k\frac{p_i}{p_i-1}.
+\]
+\end{lemma}
+
+\begin{proof}
+Each factor is a partial sum of the geometric series $\sum_{j=0}^{\infty}p_i^{-j}=p_i/(p_i-1)$, hence strictly less than the limit.
+\end{proof}
+
+\begin{corollary}[Pruning criterion]
+During depth-first search, if the maximum attainable abundancy (using Lemma~\ref{lem:bound} for all remaining candidate primes) cannot reach any half-integer value, the branch is pruned.
+\end{corollary}
+
+\section{Algorithm}
+
+Perform a DFS over factorisations $n=\prod p_i^{a_i}$ with primes in increasing order, maintaining the ratio $2\sigma(n)/n$ as a reduced fraction. At each node: (i)~check whether the current~$n$ satisfies the half-integer condition; (ii)~prune via the abundancy bound; (iii)~try denominator-targeted primes (divisors of the current denominator $\pm 1$) to cancel the denominator efficiently.
+
+\begin{verbatim}
+DFS(n, num, den, min_prime):
+    if den == 1 and num odd and num >= 3 and n > 1:
+        record n
+    if num > 200 * den: return   # prune
+    for each prime p >= min_prime with n*p <= bound:
+        for e = 1, 2, ...:
+            if n * p^e > bound: break
+            update num/den by sigma(p^e)/p^e (reduced)
+            DFS(n * p^e, new_num, new_den, p+1)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} The abundancy bound and divisibility constraint provide strong pruning; empirically $O(10^6)$ nodes are visited. Each node performs $O(1)$ arithmetic.
+\item \textbf{Space:} $O(\log N)$ recursion depth (at most $\lfloor\log_3(10^{18})\rfloor=38$).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{482316491800641154}
+\]
+
+\end{document}

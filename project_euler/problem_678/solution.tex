@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 678: Fermat-like Equations}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count tuples $(a,b,c,e,f)$ with $a^e + b^e = c^f$, $0<a<b$, $e\ge 2$, $f\ge 3$, and $c^f \le N$. Given $F(10^3)=7$, $F(10^5)=53$, and $F(10^7)=287$, find $F(10^{18})$.
+
+\section{Mathematical Analysis}
+
+Enumerate perfect powers, Pythagorean-like parameterization for each (e,f) pair
+
+\section{Complexity Analysis}
+
+The dominant $e=2$ case runs in $O(N^{1/3} \log N)$.
+
+\section{Answer}
+
+\[
+\boxed{1986065}
+\]
+
+\end{document}

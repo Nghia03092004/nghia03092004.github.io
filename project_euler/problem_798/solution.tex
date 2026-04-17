@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 798: Card Stacking Game}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+$s$ suits, cards numbered 1 to $n$ per suit. Some cards visible on table. Players place card X on visible card Y (same suit, X > Y). First unable to move loses. $C(n,s)$ = number of initial visible configurations where first player loses. Given $C(3,2)=26$, $C(13,4) \equiv 540318329 \pmod{10^9+7}$. Find $C(10^7, 10^7) \bmod 10^9+7$.
+\section{Analysis}
+\subsection*{Sprague-Grundy Theory}
+
+Since suits are independent (moves in one suit don't affect others), the game's Grundy value is the XOR of individual suit Grundy values. The first player loses iff the total Grundy value is 0.
+
+\subsection*{Single Suit Analysis}
+
+For a single suit with cards $1, \ldots, n$: the visible card is $v$ (or no card visible). The remaining deck cards $v+1, \ldots, n$ can be played in order. The game in one suit is equivalent to a Nim-like game with the number of playable cards.
+
+If visible card is $v$, there are $n - v$ cards that can be played (cards $v+1, \ldots, n$). Each play ad
+\section{Answer}
+
+\[
+\boxed{132996198}
+\]
+
+\end{document}

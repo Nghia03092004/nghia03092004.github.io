@@ -1,0 +1,112 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm,algorithmic}
+
+\title{Problem 92: Square Digit Chains}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define
+\[
+f(n)=\text{sum of the squares of the decimal digits of }n.
+\]
+Starting from a positive integer $n$, repeatedly apply $f$. We must count how many starting values $n<10^7$ eventually arrive at $89$.
+
+\section{Reduction to finitely many states}
+
+If $n<10^7$, then $n$ has at most $7$ decimal digits, so
+\[
+f(n)\le 7\cdot 9^2 = 567.
+\]
+Hence after one application of $f$, every chain lies in the finite set
+\[
+\{0,1,2,\dots,567\}.
+\]
+Therefore the eventual destination of $n$ depends only on $f(n)$.
+
+By explicit computation on this finite set, the only eventual cycles are
+\[
+1\to 1
+\]
+and
+\[
+89\to145\to42\to20\to4\to16\to37\to58\to89.
+\]
+So every positive integer below $10^7$ ends at either $1$ or $89$.
+
+\section{Counting by digit-square-sum}
+
+Every integer $0\le n<10^7$ has a unique 7-digit decimal representation with leading zeros allowed. Thus we may count 7-digit strings
+\[
+d_1d_2\cdots d_7,\qquad d_i\in\{0,1,\dots,9\},
+\]
+by their square-digit sum
+\[
+d_1^2+\cdots+d_7^2.
+\]
+
+Let $C_k(s)$ denote the number of length-$k$ digit strings whose digit-square-sum equals $s$. Then
+\[
+C_0(0)=1,\qquad C_0(s)=0\ \text{for }s\ne 0,
+\]
+and the recurrence is
+\[
+C_{k+1}(s)=\sum_{d=0}^{9} C_k(s-d^2),
+\]
+where terms with negative index are treated as zero.
+
+This follows because if the last digit is $d$, then the first $k$ digits must contribute exactly $s-d^2$.
+
+After computing $C_7(s)$ for all $0\le s\le 567$, the answer is
+\[
+\sum_{\substack{0\le s\le 567\\ s\leadsto 89}} C_7(s),
+\]
+where $s\leadsto 89$ means the chain beginning at $s$ eventually reaches $89$.
+
+The all-zero string contributes only to $s=0$, and $0$ does not reach $89$, so it does not affect the sum.
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count starting values below $10^7$ that end at $89$}
+\begin{algorithmic}[1]
+\STATE For each $s=1,\dots,567$, determine whether iterating $f$ from $s$ ends at $89$
+\STATE Initialize $\mathrm{dp}[0]=1$ and $\mathrm{dp}[s]=0$ for $s>0$
+\FOR{$7$ digit positions}
+    \STATE Create a new zero array $\mathrm{next}[0\ldots 567]$
+    \FOR{each sum $s$}
+        \FOR{each digit $d\in\{0,\dots,9\}$}
+            \STATE $\mathrm{next}[s+d^2] \gets \mathrm{next}[s+d^2] + \mathrm{dp}[s]$
+        \ENDFOR
+    \ENDFOR
+    \STATE $\mathrm{dp}\gets \mathrm{next}$
+\ENDFOR
+\STATE Sum $\mathrm{dp}[s]$ over all $s$ whose chain ends at $89$
+\RETURN the sum
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity}
+
+The DP uses
+\[
+7\times 568\times 10
+\]
+transitions and stores one array of length $568$. Hence
+\[
+\text{time}=O(7\cdot 568\cdot 10),\qquad \text{space}=O(568).
+\]
+
+\section{Answer}
+
+\[
+\boxed{8581146}
+\]
+
+\end{document}

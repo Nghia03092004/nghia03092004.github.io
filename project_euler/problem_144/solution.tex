@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm, algorithmicx, algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 144: Investigating Multiple Reflections of a Laser Beam}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A laser beam enters an elliptical mirror defined by $4x^2 + y^2 = 100$ and reflects internally. The beam enters at $(0, 10.1)$ and first hits at $(1.4, -9.6)$. The exit is at $-0.01 \le x \le 0.01$ on the top. How many reflections occur before exit?
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Ellipse normal]
+For the ellipse $4x^2 + y^2 = 100$, the outward normal at $(x_0, y_0)$ is proportional to $(4x_0, y_0)$.
+\end{theorem}
+
+\begin{proof}
+The ellipse is the level set $F(x,y) = 4x^2 + y^2 - 100 = 0$. The gradient $\nabla F = (8x, 2y) \propto (4x, y)$ is perpendicular to the level curve and outward-pointing.
+\end{proof}
+
+\begin{theorem}[Reflection formula]
+Given incoming direction $\mathbf{d}$ and surface normal $\mathbf{n}$:
+\[
+\mathbf{d}' = \mathbf{d} - 2\frac{\mathbf{d} \cdot \mathbf{n}}{|\mathbf{n}|^2}\,\mathbf{n}
+\]
+\end{theorem}
+
+\begin{proof}
+Decompose $\mathbf{d} = \mathbf{d}_\parallel + \mathbf{d}_\perp$ where $\mathbf{d}_\parallel = \frac{\mathbf{d} \cdot \mathbf{n}}{|\mathbf{n}|^2}\mathbf{n}$. The law of reflection reverses the normal component while preserving the tangential component: $\mathbf{d}' = \mathbf{d}_\perp - \mathbf{d}_\parallel = \mathbf{d} - 2\mathbf{d}_\parallel$.
+\end{proof}
+
+\begin{theorem}[Ray--ellipse intersection]
+A ray from $(x_0, y_0)$ on the ellipse in direction $(d_x, d_y)$ hits the ellipse again at parameter:
+\[
+t = -\frac{2(4x_0 d_x + y_0 d_y)}{4d_x^2 + d_y^2}
+\]
+\end{theorem}
+
+\begin{proof}
+Substituting $(x,y) = (x_0 + td_x, y_0 + td_y)$ into $4x^2 + y^2 = 100$ and using $4x_0^2 + y_0^2 = 100$:
+\[
+t^2(4d_x^2 + d_y^2) + 2t(4x_0 d_x + y_0 d_y) = 0
+\]
+The nonzero root gives the stated formula.
+\end{proof}
+
+\begin{lemma}
+The parameter $t$ is nonzero after each reflection, ensuring the ray always reaches a new point on the ellipse.
+\end{lemma}
+
+\begin{proof}
+The numerator $2(\mathbf{n} \cdot \mathbf{d})$ vanishes only for tangent directions. After reflection, $\mathbf{d}'$ has nonzero normal component, so $t \neq 0$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State $(x, y) \gets (1.4, -9.6)$; $(d_x, d_y) \gets (1.4, -19.7)$; $\text{count} \gets 0$
+\Repeat
+    \State $\text{count} \gets \text{count} + 1$
+    \State $\mathbf{n} \gets (4x, y)$
+    \State $\mathbf{d} \gets \mathbf{d} - 2\frac{\mathbf{d} \cdot \mathbf{n}}{|\mathbf{n}|^2}\,\mathbf{n}$ \Comment{Reflect}
+    \State $t \gets -2(4x\,d_x + y\,d_y)/(4d_x^2 + d_y^2)$ \Comment{Next intersection}
+    \State $(x, y) \gets (x + t\,d_x,\; y + t\,d_y)$
+\Until{$|x| \leq 0.01$ and $y > 0$}
+\State \Return count
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(R)$ where $R = 354$ is the number of reflections. Each step is $O(1)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{354}
+\]
+
+\end{document}

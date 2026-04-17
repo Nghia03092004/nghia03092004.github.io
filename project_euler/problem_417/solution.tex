@@ -1,0 +1,71 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Project Euler Problem 417: Reciprocal Cycles II}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $L(n)$ denote the length of the recurring cycle of $1/n$ in decimal. $L(n) = 0$ if the decimal terminates. Find $\sum_{n=3}^{10^8} L(n)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Multiplicative Order}
+The cycle length of $1/n$ equals the multiplicative order of 10 modulo $n'$, where $n' = n / (2^a \cdot 5^b)$ with all factors of 2 and 5 removed:
+\[
+L(n) = \mathrm{ord}_{n'}(10) = \min\{k > 0 : 10^k \equiv 1 \pmod{n'}\}
+\]
+
+\subsection{Properties}
+\begin{theorem}[Fermat's Little Theorem]
+For prime $p \neq 2, 5$, we have $\mathrm{ord}_p(10) \mid (p-1)$.
+\end{theorem}
+
+\begin{theorem}[Prime Power Extension]
+For most primes $p$:
+\[
+L(p^k) = L(p) \cdot p^{k-1}
+\]
+\end{theorem}
+
+\begin{theorem}[Multiplicativity via LCM]
+For $\gcd(m,n) = 1$:
+\[
+L(m \cdot n) = \mathrm{lcm}(L(m), L(n))
+\]
+\end{theorem}
+
+\subsection{Computing $\mathrm{ord}_p(10)$}
+For each prime $p$, factorize $p-1 = q_1^{e_1} \cdots q_r^{e_r}$. Start with $d = p-1$. For each prime factor $q_i$, repeatedly divide $d$ by $q_i$ while $10^{d/q_i} \equiv 1 \pmod{p}$. The final $d$ is $\mathrm{ord}_p(10)$.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Build a smallest prime factor sieve up to $N = 10^8$.
+    \item For each prime $p \leq N$ ($p \neq 2, 5$), compute $\mathrm{ord}_p(10)$.
+    \item For each $n$ from 3 to $N$, compute $L(n)$ from the prime factorization and sum.
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$
+    \item \textbf{Space:} $O(N)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{446572970925740}
+\]
+
+\end{document}

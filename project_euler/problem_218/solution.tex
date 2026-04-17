@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 218: Perfect Right-angled Triangles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \emph{perfect} right-angled triangle is a primitive Pythagorean triple $(a,b,c)$ whose hypotenuse $c$ is a perfect square. How many such triangles with $c \leq 10^{16}$ have area that is NOT a multiple of 6 AND NOT a multiple of 28?
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Euclid parametrization]
+Every primitive Pythagorean triple $(a,b,c)$ with $b$ even is given by $a = m^2-n^2$, $b = 2mn$, $c = m^2+n^2$, where $m > n > 0$, $\gcd(m,n)=1$, $m \not\equiv n\pmod{2}$.
+\end{theorem}
+
+\begin{proof}
+From $a^2+b^2 = c^2$ with $\gcd(a,b)=1$, exactly one of $a,b$ is even. Taking $b$ even: $b^2 = (c-a)(c+a)$. Since $\gcd(c-a, c+a) = 2$ (as $\gcd(a,c)=1$ and both $c\pm a$ are even), write $c-a = 2n^2$, $c+a = 2m^2$ with $\gcd(m,n)=1$, $m > n > 0$, $m\not\equiv n\pmod{2}$. This gives $a = m^2-n^2$, $b = 2mn$, $c = m^2+n^2$.
+\end{proof}
+
+\begin{lemma}[Area formula]
+The area is $A = mn(m-n)(m+n)$.
+\end{lemma}
+
+\begin{proof}
+$A = ab/2 = (m^2-n^2)(2mn)/2 = mn(m-n)(m+n)$.
+\end{proof}
+
+\begin{theorem}[The answer is zero]
+For every perfect right-angled triangle, $84 \mid A$. In particular, $6 \mid A$ and $28 \mid A$.
+\end{theorem}
+
+\begin{proof}
+Since $c = m^2+n^2 = k^2$ with $\gcd(m,n)=1$ and $m\not\equiv n\pmod{2}$, the triple $(m,n,k)$ is a primitive Pythagorean triple. Parametrize as $m = u^2-v^2$, $n = 2uv$ (or vice versa) with $\gcd(u,v)=1$, $u\not\equiv v\pmod{2}$.
+
+\medskip\noindent\textbf{Divisibility by 3.}
+If $3\nmid m$ and $3\nmid n$, then $m^2+n^2 \equiv 1+1 = 2\pmod{3}$, but squares are $0$ or $1\pmod{3}$, so $k^2\neq 2\pmod{3}$. Contradiction. Hence $3 \mid mn$, so $3 \mid A$.
+
+\medskip\noindent\textbf{Divisibility by 2.}
+Since $m\not\equiv n\pmod{2}$, one of $m,n$ is even, so $2 \mid mn$ and $2 \mid A$. Combined: $6 \mid A$.
+
+\medskip\noindent\textbf{Divisibility by 4.}
+WLOG $n = 2uv$ is even. Since $u\not\equiv v\pmod{2}$, one of $u,v$ is even, so $4 \mid n$ and $4 \mid A$.
+
+\medskip\noindent\textbf{Divisibility by 7.}
+Substitute $m = u^2-v^2$, $n = 2uv$ into $A = mn(m-n)(m+n)$. For all residue pairs $(u\bmod 7, v\bmod 7)$ with $7\nmid u$ and $7\nmid v$, an exhaustive check of the $6\times 6 = 36$ cases shows that at least one of $m, n, m-n, m+n$ vanishes mod~7. If $7\mid u$ or $7\mid v$, then $7\mid n = 2uv$ directly. Hence $7 \mid A$ in all cases.
+
+\medskip
+Since $\gcd(4,3,7)$ are pairwise coprime, $4\cdot 3\cdot 7 = 84$ divides $A$. In particular, $6\mid A$ and $28 \mid A$.
+\end{proof}
+
+\section{Algorithm}
+
+No computation is required. The theorem shows every perfect triangle has area divisible by both 6 and 28.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(1)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0}
+\]
+
+\end{document}

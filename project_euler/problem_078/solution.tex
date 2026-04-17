@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 78: Coin Partitions}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $p(n)$ represent the number of different ways in which $n$ coins can be separated into piles. Find the least value of $n$ for which $p(n)$ is divisible by one million.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Generalized Pentagonal Numbers]
+The \emph{generalized pentagonal numbers} are $\omega_j^{+} = j(3j-1)/2$ and $\omega_j^{-} = j(3j+1)/2$ for $j = 1, 2, 3, \ldots$. In increasing order: $1, 2, 5, 7, 12, 15, 22, 26, \ldots$
+\end{definition}
+
+\begin{theorem}[Euler's Pentagonal Number Theorem]
+\[
+\prod_{k=1}^{\infty}(1 - x^k) = 1 + \sum_{j=1}^{\infty} (-1)^j \left(x^{\omega_j^{+}} + x^{\omega_j^{-}}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+(Franklin's Involution.) The coefficient of $x^n$ in $\prod_{k \geq 1}(1-x^k)$ is $\sum_{\lambda \in \mathcal{D}_n} (-1)^{\ell(\lambda)}$, where $\mathcal{D}_n$ is the set of partitions of $n$ into distinct parts.
+
+For $\lambda = (\lambda_1 > \cdots > \lambda_r)$, let $s = \lambda_r$ (smallest part) and $t$ be the maximal consecutive run length descending from $\lambda_1$. Define the sign-reversing involution $\phi$:
+\begin{itemize}
+    \item \textbf{Move A} ($s < t$, or $s = t$ with $\lambda_r \neq \lambda_1 - t + 1$): remove $\lambda_r$ and add $1$ to each of the $s$ largest parts.
+    \item \textbf{Move B} (otherwise): subtract $1$ from each of the $t$ largest parts and insert $t$ as a new part.
+\end{itemize}
+These are mutual inverses, each changing $\ell(\lambda)$ by $\pm 1$. Fixed points occur at $n = \omega_j^{\pm}$, contributing $(-1)^j$; all other terms cancel pairwise.
+\end{proof}
+
+\begin{theorem}[Partition Recurrence]
+For $n \geq 1$:
+\[
+p(n) = \sum_{j=1}^{\infty} (-1)^{j+1} \left[p\!\left(n - \omega_j^{+}\right) + p\!\left(n - \omega_j^{-}\right)\right],
+\]
+with $p(0) = 1$, $p(m) = 0$ for $m < 0$, and the sum terminating when both arguments become negative.
+\end{theorem}
+
+\begin{proof}
+From $\bigl(\sum_n p(n)x^n\bigr)\bigl(\prod_k (1-x^k)\bigr) = 1$, extract the coefficient of $x^n$ for $n \geq 1$:
+\[
+p(n) + \sum_{j=1}^{\infty} (-1)^j [p(n - \omega_j^{+}) + p(n - \omega_j^{-})] = 0.
+\]
+Rearranging yields the stated recurrence.
+\end{proof}
+
+\begin{lemma}[Pentagonal Number Count]
+The number of generalized pentagonal numbers $\leq n$ is $\Theta(\sqrt{n})$.
+\end{lemma}
+
+\begin{proof}
+From $\omega_j^{+} = j(3j-1)/2 \leq n$, we get $j = O(\sqrt{n})$.
+\end{proof}
+
+\begin{theorem}[Modular Computation]
+Computing $p(n) \bmod M$ via the recurrence requires only $p(k) \bmod M$ for $k < n$. All arithmetic can be performed modulo $M$.
+\end{theorem}
+
+\begin{proof}
+The recurrence is a $\mathbb{Z}$-linear combination with coefficients $\pm 1$. Since addition and subtraction commute with reduction modulo $M$, computing $p(n) \bmod M$ from reduced inputs yields the correct reduced output.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find least $n$ with $p(n) \equiv 0 \pmod{10^6}$}
+\begin{algorithmic}[1]
+\STATE $p[0] \gets 1$; $n \gets 0$; $M \gets 10^6$
+\REPEAT
+    \STATE $n \gets n + 1$; $p_n \gets 0$; $j \gets 1$
+    \WHILE{$\omega_j^{+} \leq n$}
+        \STATE $\text{sign} \gets (-1)^{j+1}$
+        \IF{$n - \omega_j^{+} \geq 0$}
+            \STATE $p_n \gets p_n + \text{sign} \cdot p[n - \omega_j^{+}]$
+        \ENDIF
+        \IF{$n - \omega_j^{-} \geq 0$}
+            \STATE $p_n \gets p_n + \text{sign} \cdot p[n - \omega_j^{-}]$
+        \ENDIF
+        \STATE $j \gets j + 1$
+    \ENDWHILE
+    \STATE $p[n] \gets p_n \bmod M$
+\UNTIL{$p[n] = 0$}
+\RETURN $n$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} Each $p(n)$ computation takes $O(\sqrt{n})$ steps. Total: $\sum_{n=1}^{n^*} O(\sqrt{n}) = O((n^*)^{3/2})$ with $n^* = 55374$.
+
+\textbf{Space:} $O(n^*)$ for the array of $p$-values modulo $10^6$.
+
+\section{Answer}
+
+\[
+\boxed{55374}
+\]
+
+\end{document}

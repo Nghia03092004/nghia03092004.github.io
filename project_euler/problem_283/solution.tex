@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 283: Integer Sided Triangles\\with Integral Area/Perimeter Ratio}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the sum of perimeters of all integer-sided triangles for which $A/P = k$ is a positive integer with $1 \le k \le 1000$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Reduction to Diophantine Equation]
+Let $a,b,c$ be integer sides of a triangle with semi-perimeter $s = (a+b+c)/2$ and area $A$. If $A/P = k$ for a positive integer $k$, then defining $x = s-a$, $y = s-b$, $z = s-c$ with $0 < x \le y \le z$:
+\[
+xyz = 4k^2(x+y+z),
+\]
+with $P = 2(x+y+z)$, and $x,y,z$ are either all integers or all half-integers.
+\end{theorem}
+
+\begin{proof}
+By Heron's formula, $A = \sqrt{s(s-a)(s-b)(s-c)}$. The condition $A = kP = 2ks$ gives $A^2 = 4k^2 s^2$, so $s(s-a)(s-b)(s-c) = 4k^2 s^2$, hence $(s-a)(s-b)(s-c) = 4k^2 s$. Substituting $x = s-a$, $y = s-b$, $z = s-c$ yields $xyz = 4k^2(x+y+z)$.
+
+Since $a,b,c \in \mathbb{Z}^+$, $2s$ is a positive integer. If $2s$ is even then $x,y,z$ are positive integers; if odd then they are positive half-integers. The triangle inequality holds automatically: $a+b-c = 2z > 0$, etc.
+\end{proof}
+
+\begin{lemma}[Enumeration Bounds]
+In the equation $xyz = 4k^2(x+y+z)$ with $0 < x \le y \le z$:
+\begin{enumerate}
+\item $x \le 2k\sqrt{3}$,
+\item $z = \frac{4k^2(x+y)}{xy - 4k^2}$ with the requirement $xy > 4k^2$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+From $x \le y \le z$: $xyz \ge x^3$ and $x+y+z \le 3z$, so $x^2 y \le 12k^2$, giving $x^3 \le 12k^2$, i.e., $x \le (12k^2)^{1/3} \le 2k\sqrt{3}$.
+
+Solving for $z$: $z(xy - 4k^2) = 4k^2(x+y)$, requiring $xy > 4k^2$ for $z > 0$.
+\end{proof}
+
+\begin{lemma}[Odd Perimeter Case]
+When $x,y,z$ are half-integers, set $X = 2x$, $Y = 2y$, $Z = 2z$ (odd positive integers). Then:
+\[
+XYZ = 16k^2(X+Y+Z), \quad Z = \frac{16k^2(X+Y)}{XY - 16k^2}.
+\]
+\end{lemma}
+
+\begin{proof}
+Substituting $x = X/2$, $y = Y/2$, $z = Z/2$ into $xyz = 4k^2(x+y+z)$ and multiplying through by 8.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+for k = 1 to 1000:
+  Case 1 (even P): enumerate x = 1..2k*sqrt(3), then y, compute z
+  Case 2 (odd P):  enumerate odd X, Y, compute Z
+  Check integrality and z >= y; accumulate perimeters
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(K^2 \log K)$ with $K = 1000$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{28038042525570324}
+\]
+
+\end{document}

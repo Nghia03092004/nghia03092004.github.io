@@ -1,8 +1,9 @@
 ---
 import { render } from 'astro:content';
 
-import ProjectEulerStatement from '../../components/ProjectEulerStatement.astro';
-import SourceTabs from '../../components/SourceTabs.astro';
+import ProjectEulerPagination from '../../features/project-euler/components/ProjectEulerPagination.astro';
+import ProjectEulerStatement from '../../features/project-euler/components/ProjectEulerStatement.astro';
+import ProjectEulerSourceTabs from '../../features/project-euler/components/ProjectEulerSourceTabs.astro';
 import PostLayout from '../../layouts/PostLayout.astro';
 import {
 	formatEulerSolvedByCount,
@@ -11,8 +12,8 @@ import {
 	getEulerRecord,
 	getEulerRecords,
 	getEulerSources,
-} from '../../lib/euler';
-import { getEulerMirroredStatement } from '../../lib/euler-statement';
+} from '../../features/project-euler/lib/euler';
+import { getEulerMirroredStatement } from '../../features/project-euler/lib/euler-statement';
 
 export async function getStaticPaths() {
 	const entries = await getEulerRecords();
@@ -30,10 +31,19 @@ if (!record) {
 }
 
 const { Content, headings } = await render(record.entry);
+const allRecords = await getEulerRecords();
 const sources = await getEulerSources(record.problem);
 const mirroredStatement = record.hasMirroredStatement
 	? await getEulerMirroredStatement(record.problem)
 	: undefined;
+const currentIndex = allRecords.findIndex((entry) => entry.id === record.id);
+const previousRecord = currentIndex > 0 ? allRecords[currentIndex - 1] : undefined;
+const nextRecord = currentIndex >= 0 && currentIndex < allRecords.length - 1 ? allRecords[currentIndex + 1] : undefined;
+const tocHeadings = [
+	...(mirroredStatement ? [{ depth: 2, slug: 'problem-statement', text: 'Problem Statement' }] : []),
+	...headings,
+	{ depth: 2, slug: 'code', text: 'Code' },
+];
 
 const metaItems = [
 	{ label: 'Problem', value: formatProblemNumber(record.problem) },
@@ -55,22 +65,23 @@ const metaItems = [
 	eyebrow="Project Euler"
 	backHref="/project-euler"
 	backLabel="All Euler problems"
-	tags={[record.difficultyLabel, 'full solution', ...record.languages]}
+	tags={record.tags}
 	metaItems={metaItems}
-	headings={headings}
+	headings={tocHeadings}
 	primaryLink={{ label: 'View original problem', href: getEulerProblemUrl(record.problem) }}
 	secondaryLinks={[
-		{ label: 'Jump to C++', href: '#cpp-source' },
+		{ label: 'Jump to Code', href: '#code' },
 		{ label: 'Jump to Python', href: '#python-source' },
 	]}
 >
 	{mirroredStatement ? <ProjectEulerStatement problem={record.problem} statement={mirroredStatement} /> : null}
 	<Content />
-	<SourceTabs
+	<ProjectEulerSourceTabs
 		problem={record.problem}
 		cppSource={sources.cpp}
 		pythonSource={sources.python}
 		cppPath={record.sourcePaths.cpp}
 		pythonPath={record.sourcePaths.python}
 	/>
+	<ProjectEulerPagination previous={previousRecord} next={nextRecord} />
 </PostLayout>

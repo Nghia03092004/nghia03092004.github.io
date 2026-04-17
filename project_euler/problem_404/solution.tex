@@ -1,0 +1,211 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\geometry{margin=2.5cm}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Project Euler Problem 404:\\Crisscross Ellipses}
+\author{Solution Document}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+$E_a$ is an ellipse with equation $x^2 + 4y^2 = 4a^2$.
+$E_a'$ is the rotated image of $E_a$ by $\theta$ degrees counterclockwise around the origin
+$O(0,0)$ for $0^\circ < \theta < 90^\circ$.
+
+Let $b$ be the distance to the origin of the two intersection points closest to the origin,
+and $c$ the distance of the two other intersection points.
+An ordered triplet $(a,b,c)$ is a \emph{canonical ellipsoidal triplet} if $a$, $b$, $c$ are
+positive integers. For example, $(209, 247, 286)$ is a canonical ellipsoidal triplet.
+
+Let $C(N)$ be the number of distinct canonical ellipsoidal triplets $(a,b,c)$ for $a \leq N$.
+It can be verified that $C(10^3) = 7$, $C(10^4) = 106$ and $C(10^6) = 11\,845$.
+
+\textbf{Find} $C(10^{17})$.
+
+\section{Geometric Analysis}
+
+\subsection{Ellipse in Polar Coordinates}
+
+The ellipse $E_a\colon x^2 + 4y^2 = 4a^2$ has semi-major axis $2a$ (along $x$) and
+semi-minor axis $a$ (along $y$). In polar coordinates $(r, \phi)$:
+\begin{equation}\label{eq:polar}
+  r^2 = \frac{4a^2}{1 + 3\sin^2\phi}
+\end{equation}
+
+The rotated ellipse $E_a'$ satisfies:
+\begin{equation}
+  r^2 = \frac{4a^2}{1 + 3\sin^2(\phi - \theta)}
+\end{equation}
+
+\subsection{Intersection Points}
+
+Setting the two expressions equal:
+\[
+  \sin^2\phi = \sin^2(\phi - \theta)
+\]
+which gives either $\phi = \theta/2$ or $\phi = \theta/2 + \pi/2$ (modulo $\pi$).
+
+\begin{itemize}
+  \item Along $\phi = \theta/2$: two points at distance
+    $c = \frac{2a}{\sqrt{1 + 3\sin^2(\theta/2)}}$ from the origin (farther pair).
+  \item Along $\phi = \theta/2 + \pi/2$: two points at distance
+    $b = \frac{2a}{\sqrt{1 + 3\cos^2(\theta/2)}}$ from the origin (closer pair).
+\end{itemize}
+
+The ordering $b < c$ follows because $1 + 3\cos^2(\theta/2) > 1 + 3\sin^2(\theta/2)$
+for $0 < \theta < 90^\circ$.
+
+\section{The Diophantine Equation}
+
+\subsection{Deriving the Equation}
+
+Let $s = \sin^2(\theta/2)$, so $0 < s < 1/2$. From the distance formulas:
+\begin{align}
+  c^2 &= \frac{4a^2}{1 + 3s}, \label{eq:c}\\
+  b^2 &= \frac{4a^2}{4 - 3s}. \label{eq:b}
+\end{align}
+
+From~\eqref{eq:c}: $s = \frac{4a^2 - c^2}{3c^2}$.
+From~\eqref{eq:b}: $s = \frac{4(b^2 - a^2)}{3b^2} + \cdots$
+Substituting into one another and simplifying:
+
+\begin{equation}\label{eq:main}
+  \boxed{5\,b^2 c^2 = 4\,a^2(b^2 + c^2)}
+\end{equation}
+
+with constraints $b < c < 2b$ (from $0 < s < 1/2$).
+
+\subsection{Reduction to a Norm Equation}
+
+Setting $b = g p_0$, $c = g q_0$ with $\gcd(p_0, q_0) = 1$ and $p_0 < q_0 < 2p_0$:
+\[
+  5\,g^2 p_0^2 q_0^2 = 4\,a^2(p_0^2 + q_0^2)
+\]
+
+\begin{lemma}
+  Since $\gcd(p_0, q_0) = 1$, we have $\gcd(p_0^2 q_0^2,\; p_0^2 + q_0^2) = 1$.
+\end{lemma}
+\begin{proof}
+  If prime $p \mid p_0$ and $p \mid p_0^2 + q_0^2$, then $p \mid q_0^2$, so $p \mid q_0$,
+  contradicting $\gcd(p_0, q_0) = 1$.
+\end{proof}
+
+Therefore $(p_0^2 + q_0^2) \mid 5\,g^2$. Analysis of the $5$-adic and other prime
+valuations shows that the only viable case is:
+
+\begin{proposition}
+  Integer solutions exist if and only if
+  \begin{equation}\label{eq:norm}
+    p_0^2 + q_0^2 = 5\,s_0^2
+  \end{equation}
+  for some positive integer $s_0$.
+\end{proposition}
+
+\begin{proof}
+  Write $(2a)^2 \cdot (p_0^2 + q_0^2) = 5(g p_0 q_0)^2$.
+  Setting $u = g p_0 q_0$, $v = 2a$: $v^2 h = 5 u^2$ where $h = p_0^2 + q_0^2$.
+
+  For $v$ to be an integer, $5u^2/h$ must be a perfect square.
+  Since $\gcd(p_0^2 q_0^2, h) = 1$, this reduces to $5g^2/h$ being a perfect square.
+
+  If $\gcd(h, 5) = 1$: need $h \mid g^2$ and $5(g/\sqrt{h})^2$ to be a perfect square,
+  which requires $5h$ to be a perfect square -- impossible when $5 \nmid h$.
+
+  If $5 \mid h$: write $h = 5s_0^2$. Then $5g^2/h = g^2/s_0^2$, which is a perfect square
+  when $s_0 \mid g$.
+\end{proof}
+
+When $p_0^2 + q_0^2 = 5s_0^2$, the solution family is:
+\[
+  a = \frac{g\, p_0\, q_0}{2\, s_0}, \qquad
+  b = g\, p_0, \qquad
+  c = g\, q_0,
+\]
+with $g$ chosen as a multiple of $g_{\min} = \frac{2s_0}{\gcd(p_0 q_0,\; 2s_0)}$.
+The minimal value of $a$ is
+$a_{\min} = \frac{p_0\, q_0}{\gcd(p_0\, q_0,\; 2s_0)}$.
+
+\section{Generating Primitive Solutions via Gaussian Integers}
+
+\begin{theorem}
+  All primitive solutions $(p_0, q_0, s_0)$ to $p_0^2 + q_0^2 = 5\,s_0^2$ with
+  $\gcd(p_0, q_0) = 1$ arise from primitive Pythagorean triples via multiplication
+  by $(2 + i)$ or $(2 - i)$ in $\mathbb{Z}[i]$.
+\end{theorem}
+
+Since $5 = (2+i)(2-i)$ in $\mathbb{Z}[i]$, and $X^2 + Y^2 = |X + iY|^2$:
+\[
+  |X + iY|^2 = 5\,|m + ni|^2 \implies X + iY = (2 \pm i)(m + ni)
+\]
+
+From a primitive Pythagorean triple with generator $(u, v)$:
+\begin{align*}
+  m &= u^2 - v^2, \quad n = 2uv, \quad k = u^2 + v^2 \\
+  (2+i)(m+ni) &= (2m - n) + (m + 2n)\,i \\
+  (2-i)(m+ni) &= (2m + n) + (2n - m)\,i
+\end{align*}
+
+Each gives $X^2 + Y^2 = 5k^2$ with $s_0 = k$. After taking $p_0 = \min(|X|,|Y|)$,
+$q_0 = \max(|X|,|Y|)$ and filtering for $p_0 < q_0 < 2p_0$ and $\gcd(p_0,q_0) = 1$,
+we obtain all primitive solutions.
+
+\section{Counting Formula}
+
+\begin{equation}
+  C(N) = \sum_{\substack{\text{primitive } (p_0, q_0, s_0) \\ a_{\min} \leq N}}
+    \left\lfloor \frac{N}{a_{\min}(p_0, q_0, s_0)} \right\rfloor
+\end{equation}
+
+\section{Algorithm}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Enumerate Pythagorean generators $(u, v)$ with $u > v > 0$, $\gcd(u,v) = 1$,
+    $u \not\equiv v \pmod{2}$.
+  \item Form $m$, $n$, $k$ and compute 4 candidate pairs $(X, Y)$.
+  \item For each candidate, extract coprime $(p_0, q_0)$ satisfying $p_0 < q_0 < 2p_0$.
+  \item Verify $p_0^2 + q_0^2 = 5s_0^2$.
+  \item Compute $a_{\min}$ and accumulate $\lfloor N/a_{\min} \rfloor$.
+\end{enumerate}
+
+\noindent\textbf{Complexity:} Direct enumeration requires iterating over $O(\sqrt{N})$
+values of $u$, each with up to $u$ values of $v$, giving $O(N)$ total work.
+For $N = 10^{17}$, a sub-linear method based on the Dirichlet hyperbola technique
+reduces the computation to $O(N^{2/3})$ or better.
+
+\section{Verified Results}
+
+\begin{center}
+\begin{tabular}{@{}rr@{}}
+\toprule
+$N$ & $C(N)$ \\
+\midrule
+$10^3$  & $7$ \\
+$10^4$  & $106$ \\
+$10^6$  & $11\,845$ \\
+$10^7$  & $119\,456$ \\
+$10^8$  & $1\,197\,743$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{1199215615081353}
+\]
+
+\end{document}

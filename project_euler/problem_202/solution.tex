@@ -1,0 +1,116 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 202: Laserbeam}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Three mirrors form an equilateral triangle with reflective inner surfaces and infinitesimal
+gaps at vertices. A laser beam enters vertex~$C$, bounces off exactly $R = 12017639147$
+surfaces, then exits through~$C$. How many distinct beam paths exist?
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Unfolding Principle]
+A laser beam making $R$ reflections inside an equilateral triangle corresponds to a
+straight line in the triangular tessellation of the plane, from the origin to a lattice
+point $(a,b)$ with $a + b = n$, where $n = (R+3)/2$.
+\end{theorem}
+
+\begin{proof}
+Each reflection is equivalent to reflecting the triangle across the mirror wall and
+continuing in a straight line. The beam crosses $R$ edges in the tessellation. Accounting
+for the entry and exit through vertex gaps, the endpoint satisfies
+$a + b = (R+3)/2$. For $R = 12017639147$, we get $n = 6008819575$.
+\end{proof}
+
+\begin{theorem}[Exit Vertex Classification]
+The beam exits through vertex~$C$ if and only if $b \equiv 2 \pmod{3}$, given that
+$n \equiv 1 \pmod{3}$.
+\end{theorem}
+
+\begin{proof}
+In the tessellation, a lattice point $(a,b)$ with $a+b = n$ is a copy of vertex~$C$ precisely when
+$b \not\equiv 0 \pmod{3}$ and $a \not\equiv 0 \pmod{3}$. Since $a = n - b$ and
+$n \equiv 1 \pmod{3}$, we have $a \equiv 1 - b \pmod{3}$. The condition
+$a \not\equiv 0$ becomes $b \not\equiv 1 \pmod{3}$. Combined with $b \not\equiv 0 \pmod{3}$,
+this forces $b \equiv 2 \pmod{3}$.
+\end{proof}
+
+\begin{theorem}[No Intermediate Vertex]
+The beam passes through no intermediate vertex if and only if $\gcd(b, n) = 1$.
+\end{theorem}
+
+\begin{proof}
+If $d = \gcd(a,b) > 1$, the point $(a/d, b/d)$ is an intermediate lattice point on the segment,
+corresponding to a vertex through which the beam would exit prematurely. Since $a = n - b$,
+we have $\gcd(a,b) = \gcd(n,b)$.
+\end{proof}
+
+\begin{theorem}[M\"obius Inversion Count]
+The number of valid paths is
+\[
+\mathrm{Count} = \sum_{d \mid n} \mu(d) \cdot C(d),
+\]
+where $C(d) = \#\{b \in [1, n-1] : d \mid b,\; b \equiv 2 \pmod{3}\}$.
+\end{theorem}
+
+\begin{proof}
+By M\"obius inversion, $[\gcd(b,n)=1] = \sum_{d \mid \gcd(b,n)} \mu(d)$. Exchanging
+summation order:
+\[
+\mathrm{Count} = \sum_{d \mid n} \mu(d) \sum_{\substack{b=1 \\ d \mid b,\; b \equiv 2\!\!\pmod{3}}}^{n-1} 1
+= \sum_{d \mid n} \mu(d) \cdot C(d).
+\]
+Substituting $b = dk$, the inner sum becomes $\#\{k \in [1, n/d - 1] : k \equiv 2d^{-1}\!\!\pmod{3}\}$,
+which evaluates to $\lfloor(n/d - 1 - r)/3\rfloor + 1$ with $r = 2d^{-1}\!\!\bmod 3$.
+\end{proof}
+
+\begin{lemma}[Factorization]
+$n = 6008819575 = 5^2 \times 11 \times 17 \times 23 \times 29 \times 41 \times 47.$
+The 7 distinct primes yield $2^7 = 128$ squarefree divisors.
+\end{lemma}
+
+\begin{proof}
+Verified by trial division. Since $\mu(d) = 0$ for $d$ divisible by any $p^2$, we enumerate
+only squarefree divisors formed from $\{5, 11, 17, 23, 29, 41, 47\}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State $n \gets (R + 3)/2 = 6008819575$
+\State Factor $n$: primes $= [5, 11, 17, 23, 29, 41, 47]$
+\State $\mathrm{count} \gets 0$
+\For{each subset $T \subseteq \mathrm{primes}$}
+    \State $d \gets \prod_{p \in T} p$, \quad $\mu_d \gets (-1)^{|T|}$
+    \State $m \gets n/d$, \quad $r \gets 2 \cdot d^{-1} \bmod 3$
+    \State $C_d \gets \lfloor(m - 1 - r)/3\rfloor + 1$
+    \State $\mathrm{count} \gets \mathrm{count} + \mu_d \cdot C_d$
+\EndFor
+\State \Return count
+\end{algorithmic}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\sqrt{n})$ for factorization, $O(2^k) = O(128)$ for the M\"obius sum.
+    \item \textbf{Space:} $O(k) = O(7)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1209002624}
+\]
+
+\end{document}

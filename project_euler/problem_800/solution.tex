@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 800: Hybrid Integers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An integer of the form $p^q q^p$ with prime numbers $p \neq q$ is called a \emph{hybrid-integer}. For example, $800 = 2^5 \cdot 5^2$ is a hybrid-integer.
+
+We define $C(n)$ to be the number of hybrid-integers less than or equal to $n$. You are given $C(800) = 2$ and $C(800^{800}) = 10790$.
+
+Find $C(800800^{800800})$.
+
+\section{Mathematical Analysis}
+
+\subsection{Logarithmic Transformation}
+A hybrid-integer has the form $p^q \cdot q^p$ where $p < q$ are distinct primes. We need:
+\[
+p^q \cdot q^p \leq 800800^{800800}
+\]
+Taking natural logarithms:
+\[
+q \ln p + p \ln q \leq 800800 \ln 800800
+\]
+
+Let $L = 800800 \ln 800800$. This reduces the problem to counting prime pairs $(p, q)$ with $p < q$ satisfying the linear-logarithmic inequality.
+
+\subsection{Monotonicity}
+For fixed $p$, define $f(q) = q \ln p + p \ln q$. Then:
+\[
+\frac{\partial f}{\partial q} = \ln p + \frac{p}{q} > 0
+\]
+So $f$ is strictly increasing in $q$. This means for each $p$, there is a maximum $q_{\max}(p)$ such that all primes $q \in (p, q_{\max}(p)]$ yield valid pairs.
+
+\subsection{Bound on $p$}
+When $p = q$, $f(p, p) = 2p \ln p$. We need $2p \ln p \leq L$, giving $p \lesssim 800800$. Thus we sieve primes up to approximately $800800$.
+
+For $p = 2$, the maximum $q$ satisfies $q \ln 2 \approx L$, giving $q \approx L / \ln 2 \approx 15{,}700{,}000$.
+
+\subsection{Two-Pointer Technique}
+As $p$ increases, $q_{\max}(p)$ decreases (since more of the budget $L$ is consumed by the $p \ln q$ term). This monotonicity allows a two-pointer approach:
+\begin{enumerate}
+    \item Start with the right pointer at the largest prime below the sieve limit.
+    \item For each prime $p$ (left pointer), shrink the right pointer until the inequality holds.
+    \item Count primes between the two pointers.
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Sieve:} $O(N \log \log N)$ where $N \approx 1.6 \times 10^7$.
+    \item \textbf{Counting:} $O(\pi(N))$ with the two-pointer technique.
+    \item \textbf{Total:} $O(N \log \log N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1412403576}
+\]
+
+\end{document}

@@ -1,0 +1,142 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Problem 57: Square Root Convergents}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The continued fraction for $\sqrt{2}$ is $[1; \overline{2}]$:
+\[
+\sqrt{2} = 1 + \cfrac{1}{2 + \cfrac{1}{2 + \cfrac{1}{2 + \cdots}}}
+\]
+In the first $1000$ expansions, how many fractions $p_n/q_n$ have a numerator with more digits than the denominator?
+
+\section{Mathematical Development}
+
+\begin{definition}[Expansion Sequence]
+Define $p_0/q_0 = 1/1$ and the recurrence
+\begin{align}
+p_n &= p_{n-1} + 2q_{n-1}, \\
+q_n &= p_{n-1} + q_{n-1},
+\end{align}
+for $n \geq 1$. The fraction $p_n/q_n$ is the $n$-th expansion of the continued fraction for $\sqrt{2}$.
+\end{definition}
+
+\begin{theorem}[Recurrence Derivation]
+The $n$-th expansion satisfies $p_n/q_n = 1 + 1/(1 + p_{n-1}/q_{n-1})$, which yields the stated recurrence.
+\end{theorem}
+
+\begin{proof}
+\[
+1 + \frac{1}{1 + \frac{p_{n-1}}{q_{n-1}}} = 1 + \frac{q_{n-1}}{q_{n-1} + p_{n-1}} = \frac{p_{n-1} + 2q_{n-1}}{p_{n-1} + q_{n-1}}.
+\]
+Reading off numerator and denominator gives the recurrence. The base case $p_1/q_1 = 3/2$ matches $1 + 1/2$.
+\end{proof}
+
+\begin{theorem}[Matrix Formulation]
+\[
+\begin{pmatrix} p_n \\ q_n \end{pmatrix}
+= A^n \begin{pmatrix} 1 \\ 1 \end{pmatrix}, \qquad
+A = \begin{pmatrix} 1 & 2 \\ 1 & 1 \end{pmatrix}.
+\]
+\end{theorem}
+
+\begin{proof}
+Direct induction using $A \begin{pmatrix} p_{n-1} \\ q_{n-1} \end{pmatrix} = \begin{pmatrix} p_n \\ q_n \end{pmatrix}$.
+\end{proof}
+
+\begin{lemma}[Eigenvalues]
+The matrix $A$ has eigenvalues $\lambda_1 = 1 + \sqrt{2}$ and $\lambda_2 = 1 - \sqrt{2}$.
+\end{lemma}
+
+\begin{proof}
+The characteristic polynomial $\lambda^2 - 2\lambda - 1 = 0$ yields $\lambda = 1 \pm \sqrt{2}$.
+\end{proof}
+
+\begin{theorem}[Asymptotic Growth]
+Both $p_n$ and $q_n$ grow as $\Theta\bigl((1+\sqrt{2})^n\bigr)$. The number of digits at step $n$ is
+\[
+D_n = \Theta\bigl(n \log_{10}(1+\sqrt{2})\bigr) \approx 0.3827\, n.
+\]
+Since $|\lambda_2| = \sqrt{2} - 1 < 1$, the $\lambda_2^n$ contribution decays exponentially, and $p_n/q_n \to \sqrt{2}$.
+\end{theorem}
+
+\begin{proof}
+Decompose $\binom{1}{1}$ in the eigenbasis. The dominant eigenvalue $\lambda_1 = 1 + \sqrt{2}$ governs growth; $|\lambda_2|^n \to 0$ exponentially.
+\end{proof}
+
+\begin{lemma}[Pell Connection]
+The denominators satisfy $q_n = 2q_{n-1} + q_{n-2}$, the recurrence for half-companion Pell numbers.
+\end{lemma}
+
+\begin{proof}
+From $p_{n-1} = q_n - q_{n-1}$, substitute into the recurrence for $q_{n+1}$:
+\[
+q_{n+1} = p_n + q_n = (p_{n-1} + 2q_{n-1}) + q_n = (q_n - q_{n-1}) + 2q_{n-1} + q_n = 2q_n + q_{n-1}. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Digit Excess Criterion]
+$p_n$ has more digits than $q_n$ if and only if $\lfloor \log_{10} p_n \rfloor > \lfloor \log_{10} q_n \rfloor$, equivalently, if there exists an integer $m$ with $q_n < 10^m \leq p_n$.
+\end{theorem}
+
+\begin{proof}
+The digit count of $x$ is $\lfloor \log_{10} x \rfloor + 1$. A strict inequality holds iff a power of $10$ lies between $q_n$ (exclusive) and $p_n$ (inclusive).
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count Digit-Excess Convergents}
+\begin{algorithmic}[1]
+\State $p \gets 3$, $q \gets 2$, $\textit{count} \gets 0$
+\For{$i = 1$ \textbf{to} $1000$}
+    \If{$\text{digits}(p) > \text{digits}(q)$}
+        \State $\textit{count} \gets \textit{count} + 1$
+    \EndIf
+    \State $(p, q) \gets (p + 2q,\; p + q)$
+\EndFor
+\State \Return \textit{count}
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Time Complexity]
+The algorithm runs in $O(N^2)$ digit-level operations where $N = 1000$.
+\end{theorem}
+
+\begin{proof}
+At step $n$, $p_n$ and $q_n$ have $O(n)$ digits. Each iteration performs two big-integer additions in $O(n)$ time. The total cost is $\sum_{n=1}^{N} O(n) = O(N^2)$.
+\end{proof}
+
+\noindent\textbf{Space:} $O(N)$ for storing two big integers with $\sim 383$ digits at step 1000.
+
+\section{Result}
+The answer is $\boxed{153}$.
+
+\section{Answer}
+
+\[
+\boxed{153}
+\]
+
+\end{document}

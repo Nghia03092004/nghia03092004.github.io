@@ -1,0 +1,47 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algorithmic}
+\title{Problem 886: Coprime Permutations}
+\author{Project Euler}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A permutation $\sigma$ of $\{1,2,\ldots,n\}$ is called \emph{coprime} if $\gcd(i,\sigma(i))=1$ for all $i$. Let $P(n)$ denote the number of coprime permutations. Given $P(4)=2$ and $P(10)=576$, find $P(34) \pmod{83\,456\,729}$.
+
+\section{Mathematical Framework}
+
+\subsection{Matrix Permanent Formulation}
+Define the $n\times n$ matrix $A$ by
+\[
+A_{ij} = \begin{cases} 1 & \text{if } \gcd(i,j)=1, \\ 0 & \text{otherwise.} \end{cases}
+\]
+Then $P(n) = \mathrm{perm}(A)$.
+
+\subsection{Ryser's Formula}
+The permanent is computed via:
+\[
+\mathrm{perm}(A) = (-1)^n \sum_{S \subseteq [n]} (-1)^{|S|} \prod_{i=1}^{n} \sum_{j\in S} A_{ij}.
+\]
+
+\subsection{Gray Code Optimization}
+We enumerate subsets in Gray code order. Each transition flips exactly one element $j$, so we update each row sum $r_i$ by adding or subtracting $A_{ij}$, costing $O(n)$ per transition.
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(2^n \cdot n)$ with $n=34$.
+\item \textbf{Space:} $O(n)$.
+\end{itemize}
+
+\section{Implementation}
+The C++ solution uses Ryser's formula with Gray code enumeration, performing all arithmetic modulo $83\,456\,729$.
+
+\section{Answer}
+
+\[
+\boxed{5570163}
+\]
+
+\end{document}

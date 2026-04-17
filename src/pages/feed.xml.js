@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss';
 import { getPublishedEntries } from '../lib/content';
-import { getEulerRecords } from '../lib/euler';
+import { getEulerRecords } from '../features/project-euler/lib/euler';
 import { withBase } from '../lib/paths';
 import { siteConfig } from '../site.config';
 

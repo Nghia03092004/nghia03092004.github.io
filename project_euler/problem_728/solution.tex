@@ -1,0 +1,57 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 728: Circle of Coins}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+$n$ coins in a circle, each H or T. A move flips $k$ consecutive coins. $F(n,k)$ = number of initial states from which all-H is reachable.
+
+\[
+S(N) = \sum_{n=1}^{N} \sum_{k=1}^{n} F(n,k)
+\]
+
+Given: $S(3) = 22$, $S(10) = 10444$, $S(10^3) \equiv 853837042 \pmod{10^9+7}$.
+
+Find $S(10^7) \bmod 10^9+7$.
+
+\section{Analysis}
+
+\subsection{GF(2) Linear Algebra}
+
+The flip operations generate a subspace of $\text{GF}(2)^n$. The circulant matrix $M(n,k)$ over $\text{GF}(2)$ has first-row polynomial:
+\[
+c(x) = 1 + x + x^2 + \cdots + x^{k-1} = \frac{x^k + 1}{x + 1} \in \text{GF}(2)[x]
+\]
+
+\subsection{Rank Computation}
+
+\[
+F(n,k) = 2^{\text{rank}(M(n,k))} = 2^{n - \deg\gcd(c(x), x^n + 1)}
+\]
+
+where the $\gcd$ is computed in $\text{GF}(2)[x]$.
+
+\subsection{Factorization Approach}
+
+The polynomial $x^n + 1$ over $\text{GF}(2)$ factors as a product of irreducible polynomials. The $\gcd$ with $c(x)$ can be determined by examining which irreducible factors are shared.
+
+For efficient computation:
+\begin{itemize}
+\item Factor $x^n + 1$ using the factorization of cyclotomic polynomials over $\text{GF}(2)$
+\item The order of 2 modulo $d$ (for each $d \mid n$) determines the degrees of irreducible factors
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{709874991}
+\]
+
+\end{document}

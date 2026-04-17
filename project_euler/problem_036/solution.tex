@@ -1,0 +1,124 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 36: Double-base Palindromes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of all natural numbers less than $10^6$ that are palindromic in both base~10 and base~2. Leading zeros are not permitted in either representation.
+
+\section{Definitions}
+
+\begin{definition}
+Let $b \ge 2$. A positive integer $n$ is a \emph{palindrome in base~$b$} if its base-$b$ representation $(a_k, a_{k-1}, \ldots, a_0)_b$ with $a_k \ne 0$ satisfies $a_i = a_{k-i}$ for all $0 \le i \le k$.
+\end{definition}
+
+\begin{definition}
+A positive integer is a \emph{double-base palindrome} if it is simultaneously a palindrome in base~10 and base~2.
+\end{definition}
+
+\section{Theoretical Development}
+
+\begin{theorem}[Parity constraint]
+Every double-base palindrome is odd.
+\end{theorem}
+\begin{proof}
+Let $n$ be a binary palindrome with representation $(b_k, \ldots, b_0)_2$ where $b_k = 1$. By the palindrome property, $b_0 = b_k = 1$, so $n \equiv 1 \pmod{2}$.
+\end{proof}
+
+\begin{corollary}
+All even numbers may be excluded from the search.
+\end{corollary}
+
+\begin{lemma}[Palindrome enumeration]
+\label{lem:enum}
+There are exactly $1998$ base-10 palindromes below $10^6$, partitioned by digit count:
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+Digits $d$ & Form & Free digits & Count \\
+\hline
+1 & $(a)$ & $a \in [1,9]$ & 9 \\
+2 & $(a\,a)$ & $a \in [1,9]$ & 9 \\
+3 & $(a\,b\,a)$ & $a \in [1,9],\; b \in [0,9]$ & 90 \\
+4 & $(a\,b\,b\,a)$ & $a \in [1,9],\; b \in [0,9]$ & 90 \\
+5 & $(a\,b\,c\,b\,a)$ & $a \in [1,9],\; b,c \in [0,9]$ & 900 \\
+6 & $(a\,b\,c\,c\,b\,a)$ & $a \in [1,9],\; b,c \in [0,9]$ & 900 \\
+\hline
+\multicolumn{3}{c}{Total} & 1998 \\
+\hline
+\end{tabular}
+\end{center}
+\end{lemma}
+\begin{proof}
+A $d$-digit palindrome is determined by its first $\lceil d/2 \rceil$ digits. The leading digit has $9$ choices and each subsequent free digit has $10$, giving $9 \cdot 10^{\lceil d/2 \rceil - 1}$ palindromes per digit count. Summing over $d \in \{1,\ldots,6\}$ yields $1998$.
+\end{proof}
+
+\begin{lemma}[Binary palindrome test]
+\label{lem:bintest}
+A positive integer $n$ is a binary palindrome if and only if reversing its $\ell = \lfloor \log_2 n \rfloor + 1$ binary digits yields $n$ itself. The test requires $\Theta(\ell)$ bit operations.
+\end{lemma}
+\begin{proof}
+Construct the bit-reversal $m$ by iterating: extract $n \bmod 2$, accumulate via $m \leftarrow 2m + (n \bmod 2)$, then $n \leftarrow \lfloor n/2 \rfloor$. After $\ell$ steps, $m = \mathrm{rev}_2(n)$. The palindrome condition is $m = n$. Each step is $O(1)$.
+\end{proof}
+
+\begin{theorem}[Efficiency]
+Generating all $P = 1998$ base-10 palindromes and testing each costs $O(P \log N)$ operations, versus $O(N \log N)$ for brute force, a factor-$500$ improvement.
+\end{theorem}
+\begin{proof}
+By Lemma~\ref{lem:enum}, generation produces $P = 1998$ candidates. By Lemma~\ref{lem:bintest}, each test costs $O(\log_2 N) \le 20$. Total: $P \cdot O(\log N) \ll N \cdot O(\log N)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{DoublePalindromeSum}{$N$}
+    \State $\mathit{total} \gets 0$
+    \For{$d = 1$ to $\lfloor \log_{10}(N-1) \rfloor + 1$}
+        \ForAll{base-10 palindromes $p$ of $d$ digits with $p < N$}
+            \If{$\mathrm{rev}_2(p) = p$}
+                \State $\mathit{total} \gets \mathit{total} + p$
+            \EndIf
+        \EndFor
+    \EndFor
+    \State \Return $\mathit{total}$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity}
+
+\begin{proposition}
+The algorithm runs in $O(P \cdot \log N)$ time and $O(1)$ auxiliary space, where $P = 1998$ and $N = 10^6$.
+\end{proposition}
+\begin{proof}
+Palindrome generation uses nested loops with $O(1)$ arithmetic per candidate. The binary palindrome test is $O(\log N)$ per candidate (Lemma~\ref{lem:bintest}). No auxiliary data structures are required.
+\end{proof}
+
+\section{Result}
+\[
+    \boxed{872187}
+\]
+
+\section{Answer}
+
+\[
+\boxed{872187}
+\]
+
+\end{document}

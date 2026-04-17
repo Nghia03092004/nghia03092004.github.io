@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 692: Siegbert and Jo}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+In a Fibonacci Nim variant, define $H(N)$ as the smallest Fibonacci number in the Zeckendorf representation of $N$, and $G(n) = \sum_{k=1}^{n} H(k)$. Find $G(23416728348467685)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Zeckendorf Representation]
+Every positive integer $n$ is uniquely expressible as $n = \sum_{i \in I} F_i$ where $F_0 = 1, F_1 = 2, F_2 = 3, \ldots$ and no two indices in $I$ are consecutive.
+\end{definition}
+
+\begin{lemma}[Subset Counting]
+Let $A(i)$ count non-empty subsets of non-consecutive elements from $\{F_0, \ldots, F_i\}$ and $S(i)$ be the sum of minimum elements over all such subsets. Then:
+\begin{align}
+A(0) &= 1, \quad A(1) = 2, \quad A(i) = A(i-1) + 1 + A(i-2), \\
+S(0) &= 1, \quad S(1) = 3, \quad S(i) = S(i-1) + F_i + S(i-2).
+\end{align}
+\end{lemma}
+
+\begin{proof}
+Partition subsets by whether they contain $F_i$. Subsets without $F_i$: count $A(i-1)$, minimum-sum $S(i-1)$. The singleton $\{F_i\}$: count $1$, minimum $F_i$. Subsets with $F_i$ plus elements from $\{F_0, \ldots, F_{i-2}\}$: count $A(i-2)$, and since $F_j < F_i$ for $j < i$, the minimum comes from the lower elements, contributing $S(i-2)$.
+\end{proof}
+
+\begin{theorem}[Digit DP on Zeckendorf]
+Let $n = F_{z_0} + \cdots + F_{z_{m-1}}$ with $z_0 > \cdots > z_{m-1}$ be the Zeckendorf representation. Then:
+\[
+G(n) = F_{z_{m-1}} + \sum_{j=0}^{m-1} C(j),
+\]
+where $C(0) = S(z_0 - 1)$ (or $0$ if $z_0 = 0$), and for $j \geq 1$:
+\[
+C(j) = F_{z_{j-1}} + S(z_j - 1) \quad (\text{with } S(-1) = 0).
+\]
+\end{theorem}
+
+\begin{proof}
+Numbers in $[1, n]$ are classified by where they first deviate below $n$'s Zeckendorf representation. The term $F_{z_{m-1}}$ accounts for $H(n)$. For each deviation point $j$:
+
+\textbf{Case $j=0$:} Numbers use only $\{F_0, \ldots, F_{z_0 - 1}\}$; their $H$-values sum to $S(z_0 - 1)$.
+
+\textbf{Case $j \geq 1$:} Committed bits $\{z_0, \ldots, z_{j-1}\}$ are all present. An empty subset below contributes $H = F_{z_{j-1}}$. A non-empty subset below has minimum $< F_{z_{j-1}}$, contributing $S(z_j - 1)$ in total. Non-adjacency is guaranteed since $z_{j-1} \geq z_j + 2$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Precompute Fibonacci numbers $F_0, F_1, \ldots$ up to $n$.
+    \item Precompute arrays $A[i]$ and $S[i]$ via their recurrences.
+    \item Find the Zeckendorf representation of $n$ by greedy selection.
+    \item Apply the closed-form digit-DP formula to compute $G(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\log_\varphi n)$ for all steps.
+    \item \textbf{Space:} $O(\log_\varphi n)$ for Fibonacci and auxiliary arrays. Intermediate values require 128-bit arithmetic.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{842043391019219959}
+\]
+
+\end{document}

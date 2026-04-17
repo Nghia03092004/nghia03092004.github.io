@@ -1,0 +1,93 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Project Euler Problem 13: Large Sum}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given $N = 100$ positive integers $a_1, \ldots, a_{100}$, each having exactly $D = 50$ decimal digits, compute the first $10$ digits of their sum $S = \sum_{i=1}^{N} a_i$.
+
+\section{Formal Development}
+
+\begin{theorem}[Upper Bound]
+\label{thm:bound}
+$S < N \cdot 10^D = 10^{52}$, so $S$ has at most $52$ digits.
+\end{theorem}
+
+\begin{proof}
+Each $a_i < 10^{50}$, so $S = \sum_{i=1}^{100} a_i < 100 \cdot 10^{50} = 10^{52}$.
+\end{proof}
+
+\begin{definition}
+The \emph{$t$-digit truncation} of a $D$-digit number $a_i$ is $\tilde{a}_i = \lfloor a_i / 10^{D-t} \rfloor$.
+\end{definition}
+
+\begin{theorem}[Truncation Sufficiency]
+\label{thm:trunc}
+Let $\tilde{S} = \sum_{i=1}^{N} \tilde{a}_i$. Then
+\[
+\tilde{S} \cdot 10^{D-t} \le S < (\tilde{S} + N) \cdot 10^{D-t}.
+\]
+The first $t - \lceil \log_{10} N \rceil - 1$ digits of $S$ are determined exactly by $\tilde{S}$.
+\end{theorem}
+
+\begin{proof}
+Write $a_i = \tilde{a}_i \cdot 10^{D-t} + r_i$ with $0 \le r_i < 10^{D-t}$. Then
+\[
+S = \tilde{S} \cdot 10^{D-t} + R, \quad 0 \le R = \sum_{i=1}^{N} r_i < N \cdot 10^{D-t}.
+\]
+The error $R$ affects at most $\lceil \log_{10} N \rceil$ digit positions above position $D-t$ in the decimal representation of $S$. Therefore the first $t - \lceil \log_{10} N \rceil - 1$ digits of $S$ coincide with those of $\tilde{S} \cdot 10^{D-t}$.
+\end{proof}
+
+\begin{corollary}
+For $N = 100$, $D = 50$, and $r = 10$ desired digits, choosing $t = 15$ guarantees that the first $15 - 2 - 1 = 12 \ge 10$ significant digits are correct.
+\end{corollary}
+
+\begin{proof}
+$\lceil \log_{10} 100 \rceil = 2$. Substituting into Theorem~\ref{thm:trunc}.
+\end{proof}
+
+\begin{remark}
+In languages with arbitrary-precision integers, we compute $S$ exactly. The truncation analysis remains valuable as a proof that fixed-precision approaches (e.g., in C++) using only the first 15 digits are correct.
+\end{remark}
+
+\begin{proposition}[Complexity]
+The exact method runs in $\Theta(ND)$ time and $O(D + \log N)$ auxiliary space.
+\end{proposition}
+
+\begin{proof}
+Each of $N$ additions processes numbers of at most $D + \lceil \log_{10} N \rceil$ digits, costing $O(D)$. The truncation method runs in $O(Nt)$ with $t = O(r + \log N)$; for $N = 100$ and $t = 15$, the truncated sum fits in a 64-bit integer.
+\end{proof}
+
+\section{Result}
+
+The exact sum is:
+\[
+S = 5537376230390876637302048746832985971773659831892\ldots
+\]
+
+\section{Answer}
+
+\[
+\boxed{5537376230}
+\]
+
+\end{document}

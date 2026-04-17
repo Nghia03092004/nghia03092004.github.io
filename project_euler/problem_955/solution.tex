@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 955: Fibonacci Entry Points}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer~$m$, the \textbf{Fibonacci entry point} $\alpha(m)$ is the smallest positive~$k$ such that $m \mid F_k$. Find $\sum_{m=1}^{10^5} \alpha(m)$.
+
+\section{Fundamental Properties}
+
+\begin{theorem}[Divisibility Criterion]
+$F_n \equiv 0 \pmod{m}$ if and only if $\alpha(m) \mid n$.
+\end{theorem}
+
+\begin{proof}
+Write $n = q\alpha(m) + r$ with $0 \le r < \alpha(m)$. Using the identity $F_{a+b} = F_a F_{b+1} + F_{a-1}F_b$ and induction on~$q$, if $F_n \equiv 0$ then $F_r \equiv 0 \pmod{m}$, contradicting minimality unless $r=0$.
+\end{proof}
+
+\begin{theorem}[Wall, 1960]
+For a prime~$p$:
+\begin{itemize}
+\item If $\left(\frac{5}{p}\right) = 1$ (i.e., $p \equiv \pm1 \pmod{5}$), then $\alpha(p) \mid p-1$.
+\item If $\left(\frac{5}{p}\right) = -1$ (i.e., $p \equiv \pm2 \pmod{5}$), then $\alpha(p) \mid 2(p+1)$.
+\end{itemize}
+\end{theorem}
+
+\begin{theorem}[Multiplicativity]
+For $\gcd(a,b) = 1$: $\alpha(ab) = \operatorname{lcm}(\alpha(a), \alpha(b))$.
+\end{theorem}
+
+\begin{proof}
+$ab \mid F_k$ iff $a \mid F_k$ and $b \mid F_k$ (by coprimality), iff $\alpha(a) \mid k$ and $\alpha(b) \mid k$.
+\end{proof}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$m$ & $\alpha(m)$ & $F_{\alpha(m)}$ \\
+\midrule
+2  & 3  & 2 \\
+3  & 4  & 3 \\
+5  & 5  & 5 \\
+7  & 8  & 21 \\
+10 & 15 & 610 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Algorithm}
+
+For each $m$, iterate $F_k \bmod m$ until the first zero:
+\begin{enumerate}
+\item Set $a \gets 0, b \gets 1$.
+\item For $k = 1, 2, \ldots$: compute $(a,b) \gets (b, a+b \bmod m)$; if $a = 0$, return~$k$.
+\end{enumerate}
+Termination is guaranteed since $\pi(m) \le 6m$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Per value:} $O(\alpha(m)) \le O(m)$.
+\item \textbf{Total:} $O(N \cdot \bar\alpha)$ where $\bar\alpha$ is the average entry point.
+\item \textbf{Space:} $O(1)$ per computation.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{6795261671274}
+\]
+
+\end{document}

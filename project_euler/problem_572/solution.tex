@@ -1,0 +1,93 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 572: Idempotent Matrices}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A matrix $M$ is called \textbf{idempotent} if $M^2 = M$. Let $I(n)$ be the number of idempotent $3 \times 3$ matrices whose entries are taken from $\{0, 1, \ldots, n-1\}$ with arithmetic modulo~$n$. Find $\displaystyle\sum_{n=2}^{200} I(n)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[CRT multiplicativity]
+If $n = p_1^{a_1} \cdots p_k^{a_k}$, then $I(n) = \prod_{i=1}^{k} I(p_i^{a_i})$.
+\end{theorem}
+
+\begin{proof}
+By the Chinese Remainder Theorem, $\mathbb{Z}/n\mathbb{Z} \cong \prod_{i} \mathbb{Z}/p_i^{a_i}\mathbb{Z}$ as rings. This extends entry-wise to $M_3(\mathbb{Z}/n\mathbb{Z}) \cong \prod_{i} M_3(\mathbb{Z}/p_i^{a_i}\mathbb{Z})$. A matrix is idempotent in the product iff each component is idempotent.
+\end{proof}
+
+\begin{theorem}[Count over $\mathbb{F}_p$]
+The number of idempotent $3 \times 3$ matrices over $\mathbb{F}_p$ is
+\[
+I(p) = \sum_{r=0}^{3} \binom{3}{r}_{\!p} \cdot p^{r(3-r)},
+\]
+where $\binom{3}{r}_p = \frac{\prod_{i=0}^{r-1}(p^3 - p^i)}{\prod_{i=0}^{r-1}(p^r - p^i)}$ is the Gaussian binomial coefficient.
+\end{theorem}
+
+\begin{proof}
+An idempotent $M$ of rank~$r$ is a projection onto $V = \mathrm{Im}(M)$, an $r$-dimensional subspace, along a complement $W = \ker(M)$. There are $\binom{3}{r}_p$ choices for $V$. Given $V$, the number of complements $W$ with $\mathbb{F}_p^3 = V \oplus W$ is $p^{r(3-r)}$: each of the $3-r$ basis vectors of $W$ can be perturbed by an arbitrary element of $V$, and after accounting for the basis choice, the complement count is $p^{r(3-r)}$. Summing over $r \in \{0,1,2,3\}$ gives the formula.
+\end{proof}
+
+\begin{theorem}[Hensel lifting]
+For a prime $p$ and exponent $a \geq 1$,
+\[
+I(p^a) = \sum_{r=0}^{3} \binom{3}{r}_{\!p} \cdot p^{r(3-r)} \cdot p^{(a-1) \cdot 2r(3-r)}.
+\]
+\end{theorem}
+
+\begin{proof}
+The idempotent variety $\{M \in M_3 : M^2 = M\}$ is smooth at every point. At a rank-$r$ idempotent $\bar{M}$, the tangent space $\{X : \bar{M}X + X\bar{M} = X\}$ has dimension $2r(3-r)$ (in an adapted basis, $X$ has the off-diagonal block form $\bigl(\begin{smallmatrix} 0 & A \\ B & 0 \end{smallmatrix}\bigr)$ with $A \in M_{r \times (3-r)}$, $B \in M_{(3-r) \times r}$). By Hensel's lemma for smooth varieties, each $\mathbb{F}_p$-point lifts to exactly $p^{(a-1) \cdot 2r(3-r)}$ solutions over $\mathbb{Z}/p^a\mathbb{Z}$.
+\end{proof}
+
+\begin{lemma}[Explicit Gaussian binomials]
+\[
+\binom{3}{0}_{\!p} = \binom{3}{3}_{\!p} = 1, \qquad \binom{3}{1}_{\!p} = \binom{3}{2}_{\!p} = p^2 + p + 1.
+\]
+\end{lemma}
+
+\begin{proof}
+$\binom{3}{1}_p = (p^3 - 1)/(p - 1) = p^2 + p + 1$, and $\binom{3}{2}_p = \binom{3}{1}_p$ by Gaussian binomial symmetry.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{Solve}{$N_{\max} = 200$}
+    \State Sieve primes up to $N_{\max}$
+    \State $\textit{total} \gets 0$
+    \For{$n = 2$ \textbf{to} $N_{\max}$}
+        \State $(p_1^{a_1}, \ldots, p_k^{a_k}) \gets$ factorization of $n$
+        \State $I_n \gets \prod_{i=1}^{k} \sum_{r=0}^{3} \binom{3}{r}_{p_i} \cdot p_i^{r(3-r)} \cdot p_i^{(a_i - 1) \cdot 2r(3-r)}$
+        \State $\textit{total} \gets \textit{total} + I_n$
+    \EndFor
+    \State \Return $\textit{total}$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N \cdot \omega(N) \cdot 4)$ where $\omega(N) \leq \log_2 N$. For $N = 200$, this is at most $\sim 2400$ operations.
+    \item \textbf{Space:} $O(N)$ for the prime sieve; $O(1)$ auxiliary per factorization.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{19737656}
+\]
+
+\end{document}

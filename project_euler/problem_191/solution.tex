@@ -1,0 +1,95 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 191: Prize Strings}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Over a 30-day period, how many strings of length 30 over the alphabet $\{O, A, L\}$ satisfy:
+\begin{enumerate}
+    \item At most one $L$ appears in the string.
+    \item No three consecutive $A$'s appear.
+\end{enumerate}
+
+\section{Mathematical Foundation}
+
+Let $\Sigma = \{O, A, L\}$ and let $\mathcal{P}_n \subseteq \Sigma^n$ denote the set of prize strings of length~$n$.
+
+\begin{theorem}
+Let $g(n)$ denote the number of strings of length $n$ over $\{O, A\}$ containing no three consecutive $A$'s. Then
+\[
+    g(n) = g(n-1) + g(n-2) + g(n-3), \quad n \ge 3,
+\]
+with initial values $g(0) = 1$, $g(1) = 2$, $g(2) = 4$.
+\end{theorem}
+
+\begin{proof}
+Partition the valid strings of length $n$ by their suffix:
+\begin{itemize}
+    \item Strings ending in $O$: the prefix of length $n-1$ is any valid string, contributing $g(n-1)$.
+    \item Strings ending in $AO$: the prefix of length $n-2$ is any valid string, contributing $g(n-2)$.
+    \item Strings ending in $AA$ whose character at position $n-3$ is $O$ (since $AAA$ is forbidden): the prefix of length $n-3$ is any valid string, contributing $g(n-3)$.
+\end{itemize}
+These cases are exhaustive and mutually exclusive. The base cases are verified by enumeration: $g(0) = 1$ (empty string), $g(1) = 2$ ($\{O, A\}$), $g(2) = 4$ ($\{OO, OA, AO, AA\}$). \qed
+\end{proof}
+
+\begin{theorem}
+The total number of prize strings of length $n$ is
+\[
+    |\mathcal{P}_n| = g(n) + \sum_{k=0}^{n-1} g(k) \cdot g(n-1-k).
+\]
+\end{theorem}
+
+\begin{proof}
+A prize string either contains zero $L$'s or exactly one $L$.
+
+\textbf{Case 1} (zero $L$'s): The string is over $\{O, A\}$ with no $AAA$, counted by $g(n)$.
+
+\textbf{Case 2} (exactly one $L$ at position $k$): The prefix of length $k$ is a valid no-$L$ string ($g(k)$ choices), and the suffix of length $n-1-k$ is an independent valid no-$L$ string ($g(n-1-k)$ choices). The $L$ resets the consecutive-$A$ counter, making the prefix and suffix constraints independent. Summing over $k \in \{0, \ldots, n-1\}$ gives $\sum_{k=0}^{n-1} g(k) \cdot g(n-1-k)$. \qed
+\end{proof}
+
+\begin{lemma}
+$g(30) = 53798080$, computable in $O(n)$ arithmetic operations.
+\end{lemma}
+
+\begin{proof}
+Direct application of the tribonacci-like recurrence with a sliding window. \qed
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function count_prize_strings(n):
+    g = array of size n+1
+    g[0] = 1; g[1] = 2; g[2] = 4
+    for i from 3 to n:
+        g[i] = g[i-1] + g[i-2] + g[i-3]
+    total = g[n]
+    for k from 0 to n-1:
+        total += g[k] * g[n-1-k]
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n)$ for the recurrence and convolution sum.
+    \item \textbf{Space:} $O(n)$ to store $g(0), \ldots, g(n)$. Reducible to $O(1)$ with a two-pointer accumulation.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1918080160}
+\]
+
+\end{document}

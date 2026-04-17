@@ -1,0 +1,130 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm, algpseudocode}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Project Euler Problem 458:\\Permutations of Project}
+\author{Solution}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider the word \texttt{"project"} with 7 distinct letters $\mathcal{A} = \{p, r, o, j, e, c, t\}$.
+
+Let $T(n)$ be the number of strings of length $n$ over $\mathcal{A}$ that do \emph{not} contain any
+permutation of \texttt{"project"} as a contiguous substring of length 7 (i.e., no window of 7
+consecutive characters contains all 7 distinct letters).
+
+Given: $T(7) = 7^7 - 7! = 823543 - 5040 = 818503$.
+
+\textbf{Goal:} Find $T(10^{12}) \bmod 10^9$.
+
+\section{State Machine Model}
+
+\subsection{State Definition}
+
+Define state $s \in \{0, 1, 2, \ldots, 7\}$ as the length of the longest suffix of the string
+built so far consisting of mutually distinct characters.
+
+\begin{itemize}
+    \item State 0: empty string or the last character creates no distinct suffix (initial state).
+    \item State $s$ for $1 \le s \le 6$: the last $s$ characters are all distinct,
+          but any extension to $s+1$ consecutive distinct chars has not yet occurred at this tail.
+    \item State 7: \textbf{absorbing} --- a permutation of ``project'' has appeared.
+\end{itemize}
+
+\subsection{Transitions}
+
+From state $s$ ($0 \le s \le 6$), adding a character $c \in \mathcal{A}$:
+
+\begin{enumerate}
+    \item \textbf{$c$ is new} (not among the last $s$ distinct chars): There are $7 - s$ such
+          characters. Transition: $s \to s + 1$.
+    \item \textbf{$c$ duplicates the $i$-th character from the right} ($1 \le i \le s$): There is
+          exactly 1 such character for each $i$. The new longest suffix of distinct characters
+          has length $i$ (the last $i-1$ characters before $c$ are still distinct from each other
+          and from $c$, plus $c$ itself). Transition: $s \to i$.
+\end{enumerate}
+
+Total transitions from state $s$: $(7 - s) + s = 7$. \checkmark
+
+From state 7: all 7 characters lead back to state 7 (absorbing).
+
+\subsection{Transition Matrix}
+
+The $8 \times 8$ transition matrix $\mathbf{M}$ with $M_{ij}$ = number of characters causing
+transition from state $j$ to state $i$:
+
+\[
+\mathbf{M} = \begin{pmatrix}
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+7 & 1 & 1 & 1 & 1 & 1 & 1 & 0 \\
+0 & 6 & 1 & 1 & 1 & 1 & 1 & 0 \\
+0 & 0 & 5 & 1 & 1 & 1 & 1 & 0 \\
+0 & 0 & 0 & 4 & 1 & 1 & 1 & 0 \\
+0 & 0 & 0 & 0 & 3 & 1 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 2 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 7
+\end{pmatrix}
+\]
+
+\section{Matrix Exponentiation}
+
+Starting from state vector $\mathbf{v}_0 = (1, 0, 0, 0, 0, 0, 0, 0)^\top$ (state 0):
+\[
+\mathbf{v}_n = \mathbf{M}^n \, \mathbf{v}_0
+\]
+
+The answer is:
+\[
+T(n) = \sum_{s=0}^{6} (\mathbf{M}^n)_{s,0} \pmod{10^9}
+\]
+
+Matrix exponentiation computes $\mathbf{M}^n$ in $O(8^3 \log n)$ operations, which for
+$n = 10^{12}$ requires only about $8^3 \times 40 \approx 20{,}480$ multiplications modulo $10^9$.
+
+\section{Verification}
+
+For $n = 7$:
+\begin{itemize}
+    \item Total strings: $7^7 = 823{,}543$.
+    \item Strings containing a permutation: exactly the $7! = 5{,}040$ permutations themselves
+          (since the string length equals the alphabet size).
+    \item $T(7) = 823{,}543 - 5{,}040 = 818{,}503$. \checkmark
+\end{itemize}
+
+\section{Complexity}
+
+\begin{itemize}
+    \item Matrix size: $8 \times 8$ (constant).
+    \item Exponentiation: $O(\log n)$ matrix multiplications.
+    \item Each multiplication: $O(8^3) = O(512)$ modular multiplications.
+    \item \textbf{Total:} $O(512 \cdot \log_2(10^{12})) \approx O(512 \cdot 40) = O(20{,}480)$.
+\end{itemize}
+
+This runs in microseconds.
+
+\section{Visualization}
+
+\begin{figure}[h]
+\centering
+\IfFileExists{visualization.png}{\includegraphics[width=0.95\textwidth]{visualization.png}}{\fbox{Visualization unavailable in this archive}}
+\caption{Top-left: Transition matrix heatmap. Top-right: Fraction $T(n)/7^n$ of valid strings.
+Bottom-left: State probability distributions. Bottom-right: Growth comparison of $T(n)$ vs $7^n$.}
+\end{figure}
+
+\section{Answer}
+
+\[
+\boxed{423341841}
+\]
+
+\end{document}

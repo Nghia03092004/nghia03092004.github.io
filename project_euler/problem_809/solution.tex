@@ -1,0 +1,29 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 809: Rational Recurrence}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+$f(x)$: if $x$ integer, $f(x)=x$; if $x<1$, $f(x)=f(1/(1-x))$; else $f(x)=f(1/(\lceil x\rceil - x) - 1 + f(x-1))$. Given $f(3/2)=3$, $f(1/6)=65533$, $f(13/10)=7625597484985$. Find $f(22/7) \bmod 10^{15}$.
+\section{Analysis}
+The recursive definition unwraps rational arguments through a sequence of transformations. The key observations:
+
+1. For $0 < x < 1$: $f(x) = f(1/(1-x))$ maps $(0,1)$ to $(1,\infty)$.
+2. For $x > 1$ non-integer: $f(x) = f(1/(\lceil x \rceil - x) - 1 + f(x-1))$.
+
+The function grows extremely fast: $f(13/10) = 7625597484985 = 3^{3^{3^3}} / 3 = 3 \uparrow\uparrow 4 / 3$... Actually $3^{27} = 7625597484987$, close but not exact. The value $7625597484985 = 3^{3^3} \cdot 3^{3^3} - 2$... The exact pattern involves tetration.
+
+The evaluation of $f(22/7)$ requires tracing through the recursion, which p
+\section{Answer}
+
+\[
+\boxed{75353432948733}
+\]
+
+\end{document}

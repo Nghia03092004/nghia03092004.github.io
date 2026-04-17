@@ -1,0 +1,89 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 247: Squares Under a Hyperbola}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Consider the region $\{(x,y):x\ge 1,\;0\le y\le 1/x\}$. Squares are placed greedily (largest first). Each square $S_n$ has index $(a,b)$: $a$ squares to its left, $b$ below. Find the largest $n$ for which $S_n$ has index $(3,3)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Maximal inscribed square]\label{thm:side}
+In a gap with lower-left corner $(x_0,y_0)$ under $y=1/x$, the largest square has side
+\[
+s=\frac{\sqrt{(x_0-y_0)^2+4}-(x_0+y_0)}{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+The upper-right corner touches $y=1/x$: $(x_0+s)(y_0+s)=1$. Expanding gives $s^2+s(x_0+y_0)+x_0y_0-1=0$. The quadratic formula yields $s=\bigl(\sqrt{(x_0-y_0)^2+4}-(x_0+y_0)\bigr)/2$. The discriminant $(x_0-y_0)^2+4>0$ and $s>0$ since $x_0y_0\le 1$.
+\end{proof}
+
+\begin{theorem}[Binary gap decomposition]\label{thm:split}
+Placing a square at $(x_0,y_0)$ creates exactly two child gaps:
+\begin{enumerate}
+\item \textbf{Right gap}: corner $(x_0+s,y_0)$, index $(a+1,b)$.
+\item \textbf{Top gap}: corner $(x_0,y_0+s)$, index $(a,b+1)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Since $(x_0+s)(y_0+s)=1$, the remaining area splits into the region right of $x_0+s$ at height $y_0$, and the region above $y_0+s$ starting at $x_0$. Index components increment by the number of squares added in the corresponding direction.
+\end{proof}
+
+\begin{lemma}[Index pruning]\label{lem:prune}
+A gap with index $(a,b)$ can produce a descendant with index $(3,3)$ only if $a\le 3$ and $b\le 3$.
+\end{lemma}
+
+\begin{proof}
+Index components are non-decreasing along any root-to-leaf path in the gap tree.
+\end{proof}
+
+\begin{theorem}[Greedy ordering]\label{thm:greedy}
+A max-priority-queue keyed by $s$ produces squares in correct greedy order.
+\end{theorem}
+
+\begin{proof}
+$S_n$ is the largest available square. The max-heap extracts this maximum. Child gaps yield strictly smaller squares, so no future extraction can exceed a past one.
+\end{proof}
+
+\section{Algorithm}
+
+Use a max-heap. Start with gap $(1,0)$ indexed $(0,0)$. Extract largest, record index, generate children (pruning by Lemma~\ref{lem:prune}). Track last $n$ with index $(3,3)$.
+
+\begin{verbatim}
+heap = MaxHeap([(s0, 1.0, 0.0, 0, 0)])
+n = 0; last_33 = -1
+while heap not empty:
+    (s, x0, y0, a, b) = heap.extract_max()
+    n += 1
+    if (a,b) == (3,3): last_33 = n
+    if a+1 <= 3: heap.insert(compute(x0+s, y0, a+1, b))
+    if b+1 <= 3: heap.insert(compute(x0, y0+s, a, b+1))
+return last_33
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log N)$ with $N\approx 782{,}252$ heap operations.
+\item \textbf{Space:} $O(N)$ for the priority queue.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{782252}
+\]
+
+\end{document}

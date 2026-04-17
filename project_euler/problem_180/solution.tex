@@ -1,0 +1,64 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 180: Rational Zeros of a Function of Three Variables}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $f = f_1 \cdot f_2 \cdot f_3$ where each factor involves $x^m + y^m - z^m$ for various exponents $m$ related to parameter $n$. Golden triples $(x,y,z)$ have all coordinates as proper fractions $a/b$ with $1 \leq a < b \leq k$ and satisfy $f(x,y,z) = 0$ for some $|n| \leq k$.
+
+Find $p + q$ where $S(35) = p/q$ (reduced), and $S(k)$ is the sum of all distinct $s = x + y + z$ values.
+
+\section{Solution}
+
+\subsection{Key Equations}
+
+The zeros of $f$ reduce to $x^m + y^m = z^m$ for various integers $m$.
+
+By Fermat's Last Theorem (Wiles, 1995), there are no positive rational solutions for $|m| \geq 3$.
+
+The case $m = 0$ gives $1 + 1 = 1$, which is false.
+
+The surviving cases are:
+\begin{align}
+m = 1: &\quad z = x + y \\
+m = 2: &\quad z = \sqrt{x^2 + y^2} \\
+m = -1: &\quad z = \frac{xy}{x+y} \\
+m = -2: &\quad z = \frac{xy}{\sqrt{x^2 + y^2}}
+\end{align}
+
+\subsection{Validity of $z$}
+
+For each pair $(x, y)$ of proper fractions $a/b$ with $1 \leq a < b \leq 35$, compute $z$ in each case and verify:
+\begin{itemize}
+\item $z > 0$ and $z < 1$ (proper fraction)
+\item $z$ in reduced form has denominator $\leq 35$
+\item For $m = \pm 2$: $x^2 + y^2$ must be a perfect square of a rational
+\end{itemize}
+
+\subsection{Summation}
+
+Collect all distinct values of $s = x + y + z$ and compute:
+\[
+S(35) = \sum_{\text{distinct } s} s = \frac{p}{q}
+\]
+
+\subsection{Result}
+
+\[
+p + q = \boxed{285196020571078987}
+\]
+
+\section{Answer}
+
+\[
+\boxed{285196020571078987}
+\]
+
+\end{document}

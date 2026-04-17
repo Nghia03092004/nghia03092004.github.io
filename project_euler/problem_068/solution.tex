@@ -1,0 +1,105 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 68: Magic 5-gon Ring}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Using the numbers 1 to 10, fill in a ``magic'' 5-gon ring such that each line of three numbers sums to the same value. Starting from the group of three with the numerically lowest external node and working clockwise, what is the maximum 16-digit string?
+
+\section{Mathematical Analysis}
+
+\begin{definition}
+A \textbf{magic 5-gon ring} is a graph with 5 outer nodes $o_1, \ldots, o_5$ and 5 inner nodes $i_1, \ldots, i_5$ (forming a pentagon), together with a bijection from $\{1, \ldots, 10\}$ to the nodes, such that all five lines share a common sum $S$:
+\[
+o_k + i_k + i_{(k \bmod 5) + 1} = S, \quad k = 1, \ldots, 5.
+\]
+\end{definition}
+
+\begin{theorem}[Line Sum Constraint]
+The common line sum satisfies $S = 11 + \frac{1}{5}\sum_{k=1}^{5} i_k$. In particular, $5 \mid \sum_{k=1}^{5} i_k$.
+\end{theorem}
+
+\begin{proof}
+Summing all five line equations yields $\sum_{k=1}^{5} o_k + 2\sum_{k=1}^{5} i_k = 5S$. Since each of $1, \ldots, 10$ is used exactly once, $\sum o_k + \sum i_k = 55$, so $\sum o_k = 55 - \sum i_k$. Substituting:
+\[
+55 - \sum i_k + 2\sum i_k = 5S \implies S = \frac{55 + \sum i_k}{5} = 11 + \frac{\sum i_k}{5}.
+\]
+Since $S$ must be a positive integer, $5 \mid \sum i_k$.
+\end{proof}
+
+\begin{theorem}[16-Digit Necessity]
+The string representation has exactly 16 digits if and only if the number 10 occupies an outer node.
+\end{theorem}
+
+\begin{proof}
+Let $d(x)$ denote the number of decimal digits of $x$. Each outer node contributes $d(o_k)$ digits (appearing in one triple); each inner node contributes $2 \cdot d(i_k)$ digits (appearing in two triples). The total digit count is:
+\[
+D = \sum_{k=1}^{5} d(o_k) + 2\sum_{k=1}^{5} d(i_k).
+\]
+For numbers $1$--$9$, $d = 1$; for $10$, $d = 2$.
+
+\textbf{If 10 is outer:} $D = 2 + 4 \times 1 + 2 \times 5 \times 1 = 16$.
+
+\textbf{If 10 is inner:} $D = 5 \times 1 + 2(2 + 4 \times 1) = 17$.
+
+Hence $D = 16$ if and only if 10 is an outer node.
+\end{proof}
+
+\begin{theorem}[Optimal Partition]
+Among all valid 16-digit magic 5-gon rings, the maximum string is achieved with inner nodes $\{1, 2, 3, 4, 5\}$ and outer nodes $\{6, 7, 8, 9, 10\}$, yielding line sum $S = 14$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~2, $10$ must be outer. The inner set $I \subset \{1, \ldots, 9\}$ with $|I| = 5$ must satisfy $5 \mid \sum I$. The minimum feasible sum is $1+2+3+4+5 = 15$. To maximize the string, we want the largest values on the outside (they appear in leading positions of each triple), so we minimize $\sum I$. Choosing $I = \{1,2,3,4,5\}$ gives $\sum I = 15$, $S = 14$, and outer $= \{6,7,8,9,10\}$.
+\end{proof}
+
+\begin{lemma}[Outer Node Determination]
+Given inner permutation $(i_1, \ldots, i_5)$ of $\{1,2,3,4,5\}$ and $S = 14$, the outer nodes are uniquely determined by $o_k = 14 - i_k - i_{(k \bmod 5)+1}$. The configuration is valid if and only if $(o_1, \ldots, o_5)$ is a permutation of $\{6,7,8,9,10\}$.
+\end{lemma}
+
+\begin{proof}
+Immediate from the line equation $o_k + i_k + i_{(k \bmod 5)+1} = 14$.
+\end{proof}
+
+\section{Algorithm}
+
+Enumerate all $5! = 120$ permutations of the inner ring. For each, compute outer values via Lemma~4 and check validity. For valid configurations, construct the string starting from the smallest outer node and reading clockwise. Track the lexicographic maximum.
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time}: $O(5!) = O(120)$, effectively $O(1)$.
+    \item \textbf{Space}: $O(1)$.
+\end{itemize}
+
+\section{Result}
+
+The answer is $\boxed{6531031914842725}$.
+
+The optimal magic 5-gon has line sum $S = 14$:
+\begin{center}
+Lines: $6,5,3 \quad 10,3,1 \quad 9,1,4 \quad 8,4,2 \quad 7,2,5$
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{6531031914842725}
+\]
+
+\end{document}

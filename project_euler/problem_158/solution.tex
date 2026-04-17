@@ -1,0 +1,88 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 158: Exploring Strings with Exactly One Ascent}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For $1 \le n \le 26$, let $p(n)$ be the number of strings of length $n$ formed from $n$ distinct letters chosen from the 26-letter alphabet, such that exactly one character is lexicographically after its left neighbor. Find $\max_{1 \le n \le 26} p(n)$.
+
+\section{Mathematical Derivation}
+
+\subsection{Eulerian Numbers}
+
+An \emph{ascent} in a permutation $\sigma$ of $\{1, \ldots, n\}$ is a position $i$ where $\sigma(i) < \sigma(i+1)$. The Eulerian number $\langle {n \atop k} \rangle$ counts permutations of $n$ elements with exactly $k$ ascents.
+
+For our problem, we count permutations with exactly one ascent: $\langle {n \atop 1} \rangle$.
+
+\subsection{Closed Form}
+
+\begin{theorem}
+$\displaystyle\left\langle {n \atop 1} \right\rangle = 2^n - n - 1$ for $n \ge 1$.
+\end{theorem}
+
+\begin{proof}
+By induction using the recurrence $\langle {n \atop k} \rangle = (k+1)\langle {n-1 \atop k} \rangle + (n-k)\langle {n-1 \atop k-1} \rangle$.
+
+Base: $\langle {1 \atop 1} \rangle = 0 = 2 - 1 - 1$.
+
+Step: $\langle {n \atop 1} \rangle = 2\langle {n-1 \atop 1} \rangle + (n-1)\langle {n-1 \atop 0} \rangle = 2(2^{n-1} - n) + (n-1) = 2^n - n - 1$.
+\end{proof}
+
+\subsection{Main Formula}
+
+Choosing $n$ distinct letters from 26 and counting arrangements with exactly one ascent:
+\[
+p(n) = \binom{26}{n} \cdot (2^n - n - 1)
+\]
+
+\subsection{Maximization}
+
+Computing $p(n)$ for all $n$:
+
+\begin{center}
+\begin{tabular}{|c|r|}
+\hline
+$n$ & $p(n)$ \\
+\hline
+2 & 325 \\
+5 & 1\,623\,414 \\
+10 & 44\,186\,942\,025 \\
+15 & 354\,025\,698\,756 \\
+18 & 409\,511\,334\,375 \\
+20 & 305\,498\,816\,850 \\
+25 & 619\,225 \\
+\hline
+\end{tabular}
+\end{center}
+
+The maximum is achieved at $n = 18$.
+
+\section{Result}
+
+\[
+\max_{1 \le n \le 26} p(n) = p(18) = \binom{26}{18}(2^{18} - 19) = \boxed{409511334375}
+\]
+
+\section{Answer}
+
+\[
+\boxed{409511334375}
+\]
+
+\end{document}

@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 509: Divisor Nim}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A pile contains $n$ stones. On each turn, a player removes $d$ stones where $d$ is a proper divisor of the current pile size ($d \mid n$, $1 \leq d < n$). The player who takes the last stone wins. Classify positions and count winning positions.
+
+\section{Mathematical Analysis}
+By the Sprague--Grundy theorem, each position $n$ has a unique Grundy value:
+\[
+g(n) = \operatorname{mex}\{g(n-d) : d \mid n,\; 1 \leq d < n\}
+\]
+where $\operatorname{mex}(S)$ is the minimum excludant of $S$.
+
+Position $n$ is a \textbf{P-position} (losing for current player) iff $g(n) = 0$.
+
+\section{Derivation}
+Base cases:
+\begin{itemize}
+    \item $g(0) = 0$: no stones, no moves.
+    \item $g(1) = 0$: 1 has no proper divisor $d < 1$.
+\end{itemize}
+
+For $n \geq 2$, we need the proper divisors of $n$ (via sieve in $O(N\log N)$), then compute $g(n)$ from the Grundy values of reachable positions.
+
+\textbf{Observations:}
+\begin{itemize}
+    \item $n = 1$: L (no moves).
+    \item $n = 2$: remove 1 $\to$ 1 (L). So $g(2) = 1$, W.
+    \item $n = 3$: remove 1 $\to$ 2 (W). So $g(3) = 0$, L.
+    \item $n = p$ (odd prime): only move is remove 1 $\to$ $p-1$ (even, typically W). So primes tend to be L.
+\end{itemize}
+
+\section{Proof of Correctness}
+The Sprague--Grundy theorem applies because:
+\begin{enumerate}
+    \item Divisor Nim is an impartial game (same moves for both players).
+    \item The game is finite (pile size strictly decreases).
+    \item It has perfect information and no ties.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Divisor sieve:} $O(N \log N)$ time, $O(N \log N)$ space.
+    \item \textbf{Grundy computation:} $O(N \cdot d(N))$ where $d(N)$ is the average number of divisors.
+    \item \textbf{Total:} $O(N \log N)$ expected.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{151725678}
+\]
+
+\end{document}

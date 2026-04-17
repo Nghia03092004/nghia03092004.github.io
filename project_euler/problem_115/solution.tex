@@ -1,0 +1,104 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 115: Counting Block Combinations II}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $F(m, n)$ count the ways to fill a row of length $n$ with red blocks of minimum length $m$ (any two red blocks separated by at least one black square). For $m = 50$, find the least $n$ with $F(50, n) > 1{,}000{,}000$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Generalized recurrence]
+\[
+F(m, n) = F(m, n-1) + \sum_{L=m}^{n} F(m, n - L - 1)
+\]
+with $F(m, -1) = 1$, $F(m, 0) = 1$.
+\end{theorem}
+
+\begin{proof}
+The leftmost cell is either black (contributing $F(m, n-1)$) or the start of a red block of length $L \ge m$, followed by a mandatory black separator (unless $L = n$), contributing $F(m, n - L - 1)$. The convention $F(m, -1) = 1$ handles $L = n$.
+\end{proof}
+
+\begin{lemma}[Prefix sum optimization]
+With $P(k) = \sum_{j=-1}^{k} F(m, j)$:
+\[
+F(m, n) = F(m, n-1) + P(n - m - 1).
+\]
+\end{lemma}
+
+\begin{proof}
+Substituting $j = n - L - 1$ transforms the sum into $\sum_{j=-1}^{n-m-1} F(m, j) = P(n-m-1)$.
+\end{proof}
+
+\begin{theorem}[Exponential growth]
+For fixed $m$, $F(m, n)$ grows as $\Theta(\lambda^n)$ where $\lambda > 1$ is the unique positive root of $x^{m+1} = x^m + 1$.
+\end{theorem}
+
+\begin{proof}
+The recurrence simplifies to $F(m,n) = F(m,n-1) + F(m,n-m-1)$ with characteristic polynomial $x^{m+1} - x^m - 1 = 0$. By Descartes' rule, there is exactly one positive root $\lambda > 1$, which dominates the asymptotics.
+\end{proof}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{rl}
+\toprule
+$n$ & $F(50, n)$ \\
+\midrule
+50 & 2 \\
+100 & 1302 \\
+150 & 163767 \\
+167 & 812529 \\
+168 & 1053389 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Cross-checks: $F(3, 7) = 17$; $F(3, 29) = 673135$; $F(3, 30) = 1089155$.
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find least $n$ with $F(m, n) > \text{target}$}
+\begin{algorithmic}[1]
+\State $F[-1] \gets 1$; $F[0] \gets 1$; $P[-1] \gets 1$; $P[0] \gets 2$
+\For{$n = 1, 2, 3, \ldots$}
+    \State $s \gets P[n - m - 1]$ if $n \ge m$, else $0$
+    \State $F[n] \gets F[n-1] + s$
+    \State $P[n] \gets P[n-1] + F[n]$
+    \If{$F[n] > \text{target}$}
+        \State \Return $n$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n^*)$ where $n^* = 168$ is the answer. Each step is $O(1)$.
+\item \textbf{Space:} $O(n^*)$ for the arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{168}
+\]
+
+\end{document}

@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 531: Chinese Leftovers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $g(a,n,b,m)$ denote the smallest non-negative integer~$x$ satisfying
+\[
+x \equiv a \pmod{n}, \quad x \equiv b \pmod{m},
+\]
+or~$0$ if no such~$x$ exists. Compute
+\[
+S = \sum_{n=1\,000\,000}^{1\,005\,000}\;\sum_{m=n+1}^{1\,005\,000} g\bigl(\varphi(n),\,n,\,\varphi(m),\,m\bigr),
+\]
+where $\varphi$ denotes Euler's totient function.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Extended Chinese Remainder Theorem]\label{thm:ecrt}
+Let $n,m \ge 1$ and $a,b \in \mathbb{Z}$. The system $x \equiv a \pmod{n}$, $x \equiv b \pmod{m}$ has a solution if and only if $\gcd(n,m) \mid (a-b)$. When a solution exists, it is unique modulo $\operatorname{lcm}(n,m)$.
+\end{theorem}
+
+\begin{proof}
+Set $d = \gcd(n,m)$.
+
+\emph{Necessity.} If $x_0$ satisfies both congruences, then $d \mid n \mid (x_0-a)$ and $d \mid m \mid (x_0-b)$, so $d \mid (a-b)$.
+
+\emph{Sufficiency.} Suppose $d \mid (a-b)$. By B\'{e}zout's identity, choose $u,v \in \mathbb{Z}$ with $un + vm = d$. Define
+\[
+x_0 = a + n \cdot \frac{b-a}{d}\cdot u.
+\]
+Then $x_0 \equiv a \pmod{n}$ since the correction term is a multiple of~$n$. For the second congruence:
+\[
+x_0 - b = (a-b)\Bigl(1 - \frac{nu}{d}\Bigr) = (a-b)\cdot\frac{vm}{d},
+\]
+which is divisible by~$m$ because $d \mid (a-b)$.
+
+\emph{Uniqueness.} If $x_0,x_1$ are both solutions, then $n \mid (x_1 - x_0)$ and $m \mid (x_1 - x_0)$, so $\operatorname{lcm}(n,m) \mid (x_1 - x_0)$.
+\end{proof}
+
+\begin{corollary}
+The smallest non-negative solution is $x_0 \bmod \operatorname{lcm}(n,m)$.
+\end{corollary}
+
+\begin{lemma}[Totient Sieve]\label{lem:sieve}
+$\varphi(k)$ for all $k \le N$ can be computed in $O(N\log\log N)$ time via the Euler product sieve.
+\end{lemma}
+
+\begin{proof}
+Initialize $\varphi(k) = k$. For each prime $p \le N$, update $\varphi(k) \leftarrow \varphi(k)(1 - 1/p)$ for every multiple~$k$ of~$p$. By the product formula $\varphi(k) = k\prod_{p\mid k}(1-1/p)$, each prime factor contributes its term exactly once, so the result is correct. The operation count is $\sum_{p\le N} \lfloor N/p \rfloor = O(N\log\log N)$ by Mertens' theorem.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve $\varphi(k)$ for $k \le 1\,005\,000$ (Lemma~\ref{lem:sieve}).
+\item For each pair $(n,m)$ with $1\,000\,000 \le n < m \le 1\,005\,000$:
+  \begin{enumerate}
+  \item Set $a = \varphi(n)$, $b = \varphi(m)$, $d = \gcd(n,m)$.
+  \item If $d \nmid (a-b)$, the pair contributes~$0$; skip.
+  \item Otherwise, compute $x_0$ via the extended Euclidean algorithm (Theorem~\ref{thm:ecrt}), reduce modulo $\operatorname{lcm}(n,m)$, and add to~$S$.
+  \end{enumerate}
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log\log N + K^2 \log N)$ where $N = 1\,005\,000$ and $K = 5001$.
+\item \textbf{Space:} $O(N)$ for the totient array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4515432351156203105}
+\]
+
+\end{document}

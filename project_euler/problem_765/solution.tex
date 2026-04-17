@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 765: Trillionaire}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Start with 1g gold, 1000 rounds. Each round bet $b\le x$ at 60/40 odds. Maximize probability of reaching $10^{{12}}$g. Find optimal probability to 10 d.p.
+
+\section{Analysis}
+This is a Kelly criterion variant. The optimal bet fraction at each round depends on current wealth relative to target. Since the coin is biased (p=0.6), the Kelly fraction is $2p-1=0.2$ of current wealth. But with a fixed target and finite rounds, the optimal strategy is solved via backward DP.
+
+\section{Answer}
+
+\[
+\boxed{0.2429251641}
+\]
+
+\end{document}

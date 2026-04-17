@@ -1,0 +1,79 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 269: Polynomials with at Least\\One Integer Root}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a positive integer $n$ with digits $a_k a_{k-1} \cdots a_1 a_0$ (in decimal), define the polynomial:
+\[ f_n(x) = a_k x^k + a_{k-1} x^{k-1} + \cdots + a_1 x + a_0 \]
+How many $n \in [1, 10^{16}]$ are there such that $f_n$ has at least one integer root?
+
+\section{Mathematical Analysis}
+
+\subsection{Possible Integer Roots}
+\begin{lemma}
+The only possible integer roots of $f_n$ are $d \in \{0, -1, -2, \ldots, -9\}$.
+\end{lemma}
+
+\begin{proof}
+\begin{itemize}
+    \item For $d \geq 1$: All coefficients $a_i \in [0,9]$ with at least one positive, so $f_n(d) > 0$.
+    \item For $d = 0$: $f_n(0) = a_0 = 0$ iff the units digit is 0.
+    \item For $d \leq -10$: The leading term $a_k d^k$ dominates. Specifically, $|a_k d^k| \geq |d|^k$ while $|\sum_{i<k} a_i d^i| \leq 9 \cdot \frac{|d|^k - 1}{|d|-1} < |d|^k$ for $|d| \geq 10$. Hence $f_n(d) \neq 0$.
+\end{itemize}
+\end{proof}
+
+\subsection{Inclusion--Exclusion}
+For each $d \in \{0, -1, \ldots, -9\}$, let $A_d$ be the set of valid $n$ with $f_n(d) = 0$. We seek $|A_0 \cup A_{-1} \cup \cdots \cup A_{-9}|$, computed via inclusion--exclusion:
+\[ \left|\bigcup_{d} A_d\right| = \sum_{\emptyset \neq S \subseteq \{0,-1,\ldots,-9\}} (-1)^{|S|+1} \left|\bigcap_{d \in S} A_d\right| \]
+
+\subsection{Polynomial Divisibility}
+If $f_n(d_1) = f_n(d_2) = \cdots = f_n(d_s) = 0$ for distinct integers $d_1, \ldots, d_s$, then:
+\[ P_S(x) = \prod_{i=1}^{s} (x - d_i) \mid f_n(x) \]
+
+Writing $d_i = -r_i$ where $r_i \in \{0,1,\ldots,9\}$, we have $P_S(x) = \prod (x + r_i)$.
+
+The count $|\bigcap_{d \in S} A_d|$ equals the number of polynomials $f$ of degree $\leq 15$ (for 16-digit numbers) with coefficients in $[0,9]$, divisible by $P_S(x)$.
+
+\subsection{Carry-Based Dynamic Programming}
+Write $f(x) = P_S(x) \cdot q(x)$ where $\deg(q) = m = 15 - |S|$ (or $14 - |S'|$ if $0 \in S$, where $S' = S \setminus \{0\}$, since $f(0) = 0$ means we factor out $x$).
+
+Expanding $f[i] = \sum_{j} P[i-j] \cdot q[j]$, we process the coefficients of $q$ sequentially. At each step $j$:
+\begin{enumerate}
+    \item $f[j] = \text{carry}[0] + P[0] \cdot q[j]$ must satisfy $0 \leq f[j] \leq 9$.
+    \item This constrains $q[j]$ to a finite range.
+    \item Update carry values: $\text{carry}[t] \leftarrow \text{carry}[t+1] + P[t+1] \cdot q[j]$.
+\end{enumerate}
+
+The DP state consists of $|S|$ carry values. Since the carry values are bounded by the product of roots and digit values, the state space is finite and manageable.
+
+\subsection{Special Case: $n = 10^{16}$}
+The number $10^{16}$ has 17 digits with polynomial $f(x) = x^{16}$, which has root $0$. This is handled as a special case since our main DP covers $n$ up to $10^{16} - 1$.
+
+\section{Complexity}
+\begin{itemize}
+    \item Number of subsets: $2^{10} - 1 = 1023$.
+    \item For each subset: DP over $\leq 16$ coefficients with bounded state space.
+    \item Total: feasible in seconds.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1311109198529286}
+\]
+
+\end{document}

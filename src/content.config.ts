@@ -6,7 +6,10 @@ import { defineCollection } from 'astro/content/config';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-import { normalizeEulerMarkdown, stripEulerProblemStatementSection } from './lib/euler-markdown';
+import {
+	normalizeEulerMarkdown,
+	stripEulerProblemStatementSection,
+} from './features/project-euler/lib/euler-markdown';
 
 const sharedFields = {
 	title: z.string(),

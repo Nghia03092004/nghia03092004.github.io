@@ -1,0 +1,95 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 183: Maximum Product of Parts}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer $N$, partition $N$ into $k$ equal real parts of size $N/k$, yielding product $(N/k)^k$. Let $M(N) = \max_{k \in \mathbb{Z}_{>0}} (N/k)^k$. Define
+\[
+D(N) = \begin{cases} -N & \text{if } M(N) \text{ is a terminating decimal,} \\ +N & \text{otherwise.} \end{cases}
+\]
+Find $\displaystyle\sum_{N=5}^{10000} D(N)$.
+
+\section{Mathematical Development}
+
+\begin{theorem}[Continuous Optimum]
+The function $g(t) = t \ln(N/t)$ for $t > 0$ has a unique global maximum at $t^* = N/e$.
+\end{theorem}
+
+\begin{proof}
+We have $g'(t) = \ln(N/t) - 1$, so $g'(t) = 0$ iff $t = N/e$. Since $g''(t) = -1/t < 0$ for all $t > 0$, the function is strictly concave, and the unique critical point is the global maximum.
+\end{proof}
+
+\begin{corollary}[Discrete Optimum]
+The optimal integer $k^*$ is either $\lfloor N/e \rfloor$ or $\lceil N/e \rceil$.
+\end{corollary}
+
+\begin{proof}
+Strict concavity of $g$ implies that the discrete maximum on $\mathbb{Z}_{>0}$ occurs at one of the two integers nearest to the continuous maximiser $N/e$.
+\end{proof}
+
+\begin{theorem}[Terminating Decimal Criterion]
+A rational $a/b$ in lowest terms terminates in decimal if and only if $b = 2^\alpha \cdot 5^\beta$ for non-negative integers $\alpha, \beta$.
+\end{theorem}
+
+\begin{proof}
+$a/b$ terminates iff $\exists\, n \ge 0$ with $b \mid 10^n = 2^n 5^n$, which holds iff every prime factor of $b$ is $2$ or $5$.
+\end{proof}
+
+\begin{theorem}[Termination of $(N/k)^k$]
+Let $d = \gcd(N, k)$. Then $(N/k)^k$ is a terminating decimal if and only if $k/d$ has no prime factors other than $2$ and $5$.
+\end{theorem}
+
+\begin{proof}
+In lowest terms, $N/k = (N/d)/(k/d)$ with $\gcd(N/d, k/d) = 1$. The denominator of $(N/k)^k$ in lowest terms is $(k/d)^k$. This has only factors $2$ and $5$ iff $k/d$ does, since raising to the $k$-th power preserves the prime factorisation.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{ComputeDSum}{$N_{\max}$}
+    \State $\mathrm{total} \gets 0$
+    \For{$N = 5$ to $N_{\max}$}
+        \State $k_1 \gets \lfloor N/e \rfloor$;\quad $k_2 \gets k_1 + 1$
+        \If{$k_1 \ln(N/k_1) \ge k_2 \ln(N/k_2)$}
+            \State $k^* \gets k_1$
+        \Else
+            \State $k^* \gets k_2$
+        \EndIf
+        \State $d \gets \gcd(N, k^*)$;\quad $\mathrm{denom} \gets k^*/d$
+        \State Remove all factors of $2$ and $5$ from $\mathrm{denom}$
+        \If{$\mathrm{denom} = 1$}
+            $\mathrm{total} \mathrel{-}= N$
+        \Else\
+            $\mathrm{total} \mathrel{+}= N$
+        \EndIf
+    \EndFor
+    \State \Return total
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N_{\max} \log N_{\max})$. Each value requires $O(\log N)$ for the GCD and trial division.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{48861552}
+\]
+
+\end{document}

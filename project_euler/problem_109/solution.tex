@@ -1,0 +1,72 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Problem 109: Darts}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+How many distinct ways can a player check out (reach exactly 0) with a score less than 100, given that the last dart must be a double?
+
+\section{Dart Scoring}
+
+Each dart can score one of 62 distinct values:
+\begin{itemize}
+    \item \textbf{Singles:} $S_1, S_2, \ldots, S_{20}, S_{25}$ (21 darts, scoring $1, 2, \ldots, 20, 25$)
+    \item \textbf{Doubles:} $D_1, D_2, \ldots, D_{20}, D_{25}$ (21 darts, scoring $2, 4, \ldots, 40, 50$)
+    \item \textbf{Trebles:} $T_1, T_2, \ldots, T_{20}$ (20 darts, scoring $3, 6, \ldots, 60$)
+\end{itemize}
+
+\section{Checkout Combinations}
+
+A checkout uses at most 3 darts, with the \emph{last} dart always a double. The non-final darts are \textbf{unordered} (order does not matter).
+
+\subsection{1-dart checkouts}
+
+Choose a double $d$ with $d < 100$. All 21 doubles qualify.
+\[
+C_1 = 21
+\]
+
+\subsection{2-dart checkouts}
+
+Choose one non-final dart from 62 options and one final double from 21 options, with total score $< 100$.
+\[
+C_2 = \sum_{\substack{d_1 \in \text{all 62} \\ d_f \in \text{doubles}}} [d_1 + d_f < 100]
+\]
+
+\subsection{3-dart checkouts}
+
+Choose two non-final darts as an \emph{unordered} pair (with possible repetition) from 62 options, plus one final double. The number of unordered pairs is $\binom{62 + 1}{2} = 1953$.
+
+\[
+C_3 = \sum_{\substack{(d_1, d_2) \text{ unordered} \\ d_f \in \text{doubles}}} [d_1 + d_2 + d_f < 100]
+\]
+
+\subsection{Total}
+
+\[
+\text{Answer} = C_1 + C_2 + C_3 = \boxed{38182}
+\]
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(62^2 \times 21) \approx O(80{,}000)$ --- negligible.
+    \item \textbf{Space:} $O(62)$ to store dart values.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{38182}
+\]
+
+\end{document}

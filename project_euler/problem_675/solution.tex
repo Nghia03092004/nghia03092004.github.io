@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 675: $2^{\omega(n)}$}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Compute $F(N)=\sum_{i=2}^{N} S(i!)$ where $S(n)=\sum_{d\mid n} 2^{\omega(d)}$ and $\omega(d)$ counts distinct prime factors. Given $F(10)=4821$, find $F(10^7)\bmod 1{,}000{,}000{,}087$.
+
+\section{Mathematical Analysis}
+
+Dirichlet convolution: $2^{\omega(n)} = \mu^2 * 1$, followed by a multiplicative-function sieve.
+
+\section{Complexity Analysis}
+
+The sieve runs in $O(N \log \log N)$.
+
+\section{Answer}
+
+\[
+\boxed{416146418}
+\]
+
+\end{document}

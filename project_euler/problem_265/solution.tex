@@ -1,0 +1,42 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 265: Binary Circles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A binary circle of order $N$ is a circular arrangement of $2^N$ binary digits such that all $N$-bit clockwise subsequences are distinct. For $N=5$ (32 bits, 32 distinct 5-bit subsequences), how many such arrangements exist?
+
+We fix the first 5 bits as \texttt{00000} to remove rotational equivalence.
+
+\section{Solution}
+
+\subsection{De Bruijn Graph}
+Construct the de Bruijn graph $G(2, 4)$: vertices are all 4-bit strings, edges represent 5-bit strings. Each vertex has in-degree~2 and out-degree~2.
+
+A binary circle of order 5 corresponds to an Eulerian circuit in this graph starting from vertex \texttt{0000}.
+
+\subsection{Enumeration}
+We enumerate all Eulerian circuits via DFS with backtracking:
+\begin{enumerate}
+\item Start at vertex \texttt{0000}, edge \texttt{00000} (bit 0).
+\item At each step, choose to append 0 or 1.
+\item Track which edges (5-bit strings) have been used.
+\item A complete circuit uses all 32 edges and returns to \texttt{0000}.
+\end{enumerate}
+
+\subsection{Complexity}
+The backtracking explores at most $O(2^{32})$ paths but heavy pruning (dead-end detection) makes it feasible.
+
+\section{Answer}
+
+\[
+\boxed{209110240768}
+\]
+
+\end{document}

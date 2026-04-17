@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 535: Fractal Sequence}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define the \textbf{fractal sequence} (Kimberling's sequence) $a(n)$ as the lexicographically earliest sequence of positive integers such that removing the first occurrence of each value reproduces the original sequence. Compute
+\[
+S(10^{15}) \bmod (10^9 + 7)
+\]
+where $S(n) = \sum_{k=1}^{n} a(k)$.
+
+\section{Self-Similar Structure}
+
+\begin{theorem}[Self-Generation Property]
+Let $b(n)$ be the position of the first occurrence of~$n$ in the sequence. The fractal condition requires that after removing elements at positions $b(1), b(2), b(3), \ldots$, the remaining subsequence is $a(1), a(2), a(3), \ldots$ itself.
+\end{theorem}
+
+\begin{proof}
+This is the defining property. The sequence is uniquely determined by this condition together with the requirement of being lexicographically earliest.
+\end{proof}
+
+\section{Recursive Computation of $S(n)$}
+
+\begin{theorem}
+The partial sum $S(n)$ satisfies recurrences that reduce the argument by a factor of~2 at each step. With memoization, the total number of distinct sub-problems is $O(\log^2 n)$.
+\end{theorem}
+
+\begin{proof}[Sketch]
+The fractal structure splits the sequence at level~$n$ into ``new'' elements (first occurrences) and ``old'' elements (which form a scaled copy of the original). Each split halves the problem size, and the cross-level dependencies create at most $O(\log n)$ branches per level.
+\end{proof}
+
+\section{First Values}
+
+\begin{center}
+\begin{tabular}{cccccccccc}
+\toprule
+$n$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\
+\midrule
+$a(n)$ & 1 & 1 & 2 & 1 & 3 & 2 & 4 & 1 & 5 \\
+$S(n)$ & 1 & 2 & 4 & 5 & 8 & 10 & 14 & 15 & 20 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log^2 n)$ recursive evaluations.
+\item \textbf{Space:} $O(\log^2 n)$ memoization entries.
+\end{itemize}
+
+For $n = 10^{15}$: $\sim 2500$ sub-problems, instant computation.
+
+\section{Answer}
+
+\[
+\boxed{611778217}
+\]
+
+\end{document}

@@ -1,0 +1,91 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 203: Squarefree Binomial Coefficients}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of all distinct squarefree numbers in the first 51 rows (rows~0 through~50)
+of Pascal's triangle.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Kummer, 1852]
+For a prime $p$ and non-negative integers $m, n$, the $p$-adic valuation
+$v_p\binom{m+n}{m}$ equals the number of carries when adding $m$ and $n$ in base~$p$.
+\end{theorem}
+
+\begin{proof}
+By Legendre's formula, $v_p(k!) = \sum_{i=1}^{\infty} \lfloor k/p^i \rfloor$. Therefore:
+\[
+v_p\binom{m+n}{m} = \sum_{i=1}^{\infty}\left(
+\left\lfloor\frac{m+n}{p^i}\right\rfloor
+- \left\lfloor\frac{m}{p^i}\right\rfloor
+- \left\lfloor\frac{n}{p^i}\right\rfloor\right).
+\]
+Each summand is 0 or 1, equaling 1 precisely when there is a carry out of position $i-1$
+in the base-$p$ addition of $m$ and~$n$.
+\end{proof}
+
+\begin{lemma}[Bounded Valuation for Large Primes]
+For $n \leq 50$ and any prime $p \geq 11$, every binomial coefficient $\binom{n}{k}$
+satisfies $v_p\binom{n}{k} \leq 1$.
+\end{lemma}
+
+\begin{proof}
+Since $p \geq 11$ and $n \leq 50 < p^2$, both $k$ and $n-k$ have at most 2 digits in
+base~$p$. Adding two such numbers produces at most 1 carry. By Kummer's theorem,
+$v_p\binom{n}{k} \leq 1$.
+\end{proof}
+
+\begin{theorem}[Squarefreeness Criterion]
+A binomial coefficient $\binom{n}{k}$ with $n \leq 50$ is squarefree if and only if
+it is not divisible by any of $4$, $9$, $25$, or $49$.
+\end{theorem}
+
+\begin{proof}
+A positive integer is squarefree iff $v_p \leq 1$ for every prime~$p$. By the Lemma,
+$v_p\binom{n}{k} \leq 1$ holds automatically for all $p \geq 11$. Thus squarefreeness
+fails only if $p^2 \mid \binom{n}{k}$ for some $p \in \{2,3,5,7\}$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State $S \gets \emptyset$
+\For{$n = 0$ to $50$}
+    \For{$k = 0$ to $n$}
+        \State $v \gets \binom{n}{k}$
+        \If{$4 \nmid v$ and $9 \nmid v$ and $25 \nmid v$ and $49 \nmid v$}
+            \State $S \gets S \cup \{v\}$
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return $\sum_{v \in S} v$
+\end{algorithmic}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N^2)$ to enumerate all binomial coefficients, with $O(1)$
+          squarefreeness test each. Here $N = 50$.
+    \item \textbf{Space:} $O(|S|)$ for the set of distinct squarefree values,
+          where $|S| \leq \binom{51}{2} = 1275$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{34029210557338}
+\]
+
+\end{document}

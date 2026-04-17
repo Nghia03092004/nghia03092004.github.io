@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 577: Counting Hexagons}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An equilateral triangle with integer side length $n \geq 3$ is divided into $n^2$ equilateral triangles with side length 1, forming a triangular lattice with $\frac{(n+1)(n+2)}{2}$ lattice points. Let $H(n)$ be the number of all regular hexagons that can be found by connecting 6 of these lattice points. Find $\displaystyle\sum_{n=3}^{12345} H(n)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Parameterization of Regular Hexagons}
+A regular hexagon in the triangular lattice is determined by two non-negative integers $(a, b)$ with $a + b > 0$. The hexagon has vertices separated by lattice vectors involving steps of $a$ in one direction and $b$ in another. Such a hexagon has side length $\sqrt{a^2 + ab + b^2}$.
+
+\subsection{Counting Placements}
+For a hexagon of type $(a, b)$ placed in a triangle of side $n$, the constraint is $2a + b \leq n$. The number of valid positions is the triangular number:
+\[
+T(n - 2a - b) = \frac{(n-2a-b)(n-2a-b+1)}{2}
+\]
+
+When $a \neq b$, the hexagon can appear in 2 orientations (swapping $a$ and $b$). When $a = b$, only 1 orientation exists.
+
+\subsection{Derivation of $H(n)$}
+\begin{align}
+H(n) &= 2\sum_{a=1}^{\lfloor n/2 \rfloor} \sum_{b=0}^{n-2a} T(n-2a-b) - \sum_{a=1}^{\lfloor n/3 \rfloor} T(n-3a)
+\end{align}
+
+Using the identity $\sum_{k=0}^{m} T(k) = \frac{m(m+1)(m+2)}{6}$ (tetrahedral number $\text{Tet}(m)$):
+
+\begin{align}
+H(n) &= 2\sum_{a=1}^{\lfloor n/2 \rfloor} \text{Tet}(n-2a) - \sum_{a=1}^{\lfloor n/3 \rfloor} T(n-3a)
+\end{align}
+
+\section{Algorithm}
+For each $n$ from 3 to 12345:
+\begin{enumerate}
+    \item Compute $S_1 = 2\sum_{a=1}^{\lfloor n/2 \rfloor} \frac{(n-2a)(n-2a+1)(n-2a+2)}{6}$
+    \item Compute $S_2 = \sum_{a=1}^{\lfloor n/3 \rfloor} \frac{(n-3a)(n-3a+1)}{2}$
+    \item $H(n) = S_1 - S_2$
+    \item Accumulate into total sum
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item Time: $O(N^2)$ where $N = 12345$
+    \item Space: $O(1)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{265695031399260211}
+\]
+
+\end{document}

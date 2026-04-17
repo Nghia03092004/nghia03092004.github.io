@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 497: Drunken Tower of Hanoi}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+In the Drunken Tower of Hanoi, $n$ disks are stacked on peg~1. At each step, a legal move is chosen uniformly at random. Find the expected number of moves $E(n)$ to transfer all disks to peg~3.
+
+\section{Mathematical Analysis}
+
+\subsection{State Space}
+Each state is a tuple $(p_1, \ldots, p_n) \in \{1,2,3\}^n$ giving each disk's peg. The total number of states is $3^n$, and every assignment is a valid configuration.
+
+\subsection{Markov Chain}
+The process defines a random walk on the Tower of Hanoi state graph. From state $s$, the legal moves are determined by which disks sit on top of their respective pegs. If there are $d(s)$ legal moves, each is chosen with probability $1/d(s)$.
+
+\subsection{Linear System}
+The expected hitting time from state $s$ to the goal $g = (3,3,\ldots,3)$ satisfies:
+\[
+E[s] = 1 + \frac{1}{d(s)} \sum_{s' \sim s} E[s']
+\]
+for all $s \ne g$, with $E[g] = 0$.
+
+\section{Derivation}
+
+\subsection{Small Cases}
+For $n = 1$: Two pegs besides peg~1. From $(1)$, legal moves go to $(2)$ or $(3)$, each with probability $\frac{1}{2}$. Let $a = E[(1)]$, $b = E[(2)]$.
+\begin{align}
+a &= 1 + \tfrac{1}{2}(b + 0) \\
+b &= 1 + \tfrac{1}{2}(a + 0)
+\end{align}
+Solving: $a = 2$, $b = 2$. So $E(1) = 2$.
+
+\subsection{Growth Rate}
+The expected time grows roughly as $\left(\frac{10}{3}\right)^n$, which is significantly larger than the optimal $2^n - 1$.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Full Markov chain:} $O(9^n)$ for Gaussian elimination on $3^n$ states.
+    \item \textbf{With symmetry exploitation:} Reduced by identifying symmetric states.
+    \item \textbf{Recursive formula:} $O(n)$ if a closed-form recurrence is known.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{684901360}
+\]
+
+\end{document}

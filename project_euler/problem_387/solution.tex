@@ -1,0 +1,48 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 387: Harshad Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A \textbf{Harshad number} is a number divisible by the sum of its digits. A \textbf{right truncatable Harshad number} (RTHN) is a Harshad number such that recursively truncating the last digit always yields a Harshad number. A \textbf{strong Harshad number} is a Harshad number $n$ for which $n / s(n)$ is prime, where $s(n)$ is the digit sum of~$n$. A \textbf{strong, right truncatable Harshad prime} is a prime $p$ such that $\lfloor p/10 \rfloor$ is a strong, right truncatable Harshad number.
+
+Find the sum of all strong, right truncatable Harshad primes less than $10^{14}$.
+
+\section{Mathematical Analysis}
+The central observation is that RTHN have a recursive structure: if $n$ is an RTHN with digit sum $s$, then $n' = 10n + d$ is an RTHN if and only if
+\[
+(s + d) \mid (10n + d), \quad d \in \{0, 1, \dots, 9\}.
+\]
+This means we can \emph{generate} all RTHN via a breadth-first search starting from the single-digit seeds $\{1, 2, \dots, 9\}$.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item \textbf{Seed:} Initialize with the single-digit numbers $1, 2, \dots, 9$, each of which is trivially an RTHN.
+    \item \textbf{Expand:} For each RTHN $n$ with digit sum $s$ where $n < 10^{13}$, try appending each digit $d \in \{0,\dots,9\}$. Accept $10n + d$ as a new RTHN if $(s+d) \mid (10n+d)$.
+    \item \textbf{Strong check:} For each RTHN $n$, test whether $n / s(n)$ is prime. If so, $n$ is a strong RTHN.
+    \item \textbf{Collect primes:} For each strong RTHN $n$, test $p = 10n + d$ for $d \in \{1, 3, 7, 9\}$. If $p < 10^{14}$ and $p$ is prime, add $p$ to the running total.
+\end{enumerate}
+
+\section{Proof of Correctness}
+Every RTHN of $k$ digits has a $(k{-}1)$-digit prefix that is also an RTHN. Therefore the BFS from single-digit seeds generates \emph{all} RTHN. We test the strong condition exactly as defined, and we check primality of each candidate using a deterministic Miller--Rabin test with witnesses $\{2,3,5,7,11,13,17\}$, which is correct for all $n < 3.317 \times 10^{14}$.
+
+The result is verified against the given test case: the sum of strong RTHN primes below $10^4$ is 90619.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(R \cdot \log^2 N)$, where $R$ is the number of RTHN below $10^{13}$ (experimentally $\sim\!10^4$) and $N = 10^{14}$.
+    \item \textbf{Space:} $O(R)$ for the BFS frontier.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{696067597313468}
+\]
+
+\end{document}

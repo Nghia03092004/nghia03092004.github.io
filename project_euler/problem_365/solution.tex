@@ -1,0 +1,75 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 365: A Huge Binomial Coefficient}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $n = 10^{18}$ and $k = 10^{9}$. For each triple of distinct primes $(p_1, p_2, p_3)$ with $1000 < p_i < 5000$, compute $\binom{n}{k} \bmod (p_1 p_2 p_3)$ via the Chinese Remainder Theorem. Find the sum of all such results over all $\binom{574}{3}$ triples.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Lucas' Theorem]
+Let $p$ be prime. Write $n = \sum_{i} n_i p^i$ and $k = \sum_{i} k_i p^i$ in base~$p$. Then
+\[
+\binom{n}{k} \equiv \prod_{i} \binom{n_i}{k_i} \pmod{p},
+\]
+where $\binom{n_i}{k_i} = 0$ if $k_i > n_i$.
+\end{theorem}
+
+\begin{proof}
+In $\mathbb{F}_p[x]$, $(1+x)^p = 1 + x^p$ since $\binom{p}{j} \equiv 0 \pmod{p}$ for $1 \le j \le p-1$. By induction, $(1+x)^{p^i} = 1 + x^{p^i}$. Therefore
+\[
+(1+x)^n = \prod_i \bigl(1 + x^{p^i}\bigr)^{n_i} \pmod{p}.
+\]
+Extracting the coefficient of $x^k = x^{\sum k_i p^i}$ from both sides gives $\binom{n}{k} \equiv \prod_i \binom{n_i}{k_i}$.
+\end{proof}
+
+\begin{theorem}[Chinese Remainder Theorem]
+Let $m_1, m_2, m_3$ be pairwise coprime. Set $M = m_1 m_2 m_3$ and $M_i = M/m_i$. Given residues $r_i$, the unique solution modulo~$M$ is
+\[
+x \equiv \sum_{i=1}^{3} r_i \cdot M_i \cdot (M_i^{-1} \bmod m_i) \pmod{M}.
+\]
+\end{theorem}
+
+\begin{proof}
+Since $\gcd(M_i, m_i) = 1$, the inverse $M_i^{-1} \bmod m_i$ exists. The term $r_i M_i (M_i^{-1} \bmod m_i)$ is congruent to $r_i$ modulo~$m_i$ and to~$0$ modulo~$m_j$ for $j \neq i$. Summing gives the solution. Uniqueness follows since $|\mathbb{Z}/M\mathbb{Z}| = \prod |\mathbb{Z}/m_i\mathbb{Z}|$.
+\end{proof}
+
+\begin{lemma}[Prime Count]
+There are exactly $574$ primes in $(1000, 5000)$, giving $\binom{574}{3} = 31{,}436{,}024$ triples.
+\end{lemma}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve():
+    primes = sieve(1000, 5000)   // 574 primes
+    for p in primes:
+        r[p] = lucas(10^18, 10^9, p)
+    S = 0
+    for each triple (p1, p2, p3):
+        S += CRT(r[p1], r[p2], r[p3], p1, p2, p3)
+    return S
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\pi^3)$ where $\pi = 574$. Each CRT evaluation is $O(1)$; total $\approx 3.1 \times 10^7$ operations.
+\item \textbf{Space:} $O(\pi)$ for the residue array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{162619462356610313}
+\]
+
+\end{document}

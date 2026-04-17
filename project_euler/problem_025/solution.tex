@@ -1,0 +1,130 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\title{Project Euler Problem 25: 1000-Digit Fibonacci Number}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The Fibonacci sequence is defined by $F_1 = F_2 = 1$ and $F_n = F_{n-1} + F_{n-2}$ for $n \geq 3$. Determine the index of the first term containing 1000 digits.
+
+\section{Definitions}
+
+\begin{definition}[Golden Ratio]
+Let $\varphi = \frac{1+\sqrt{5}}{2}$ and $\psi = \frac{1-\sqrt{5}}{2}$, the roots of $x^2 - x - 1 = 0$.
+\end{definition}
+
+\section{Theorems and Proofs}
+
+\begin{theorem}[Binet's Formula]
+For all $n \geq 1$,
+\[
+F_n = \frac{\varphi^n - \psi^n}{\sqrt{5}}.
+\]
+\end{theorem}
+
+\begin{proof}
+The general solution of $F_n = F_{n-1} + F_{n-2}$ is $F_n = A\varphi^n + B\psi^n$. From the initial conditions $F_1 = F_2 = 1$:
+\begin{align}
+A\varphi + B\psi &= 1, \\
+A\varphi^2 + B\psi^2 &= 1.
+\end{align}
+Using $\varphi^2 = \varphi + 1$ and $\psi^2 = \psi + 1$, the second equation gives $A\varphi + B\psi + A + B = 1$, hence $A + B = 0$. Substituting $B = -A$: $A(\varphi - \psi) = A\sqrt{5} = 1$, so $A = 1/\sqrt{5}$ and $B = -1/\sqrt{5}$.
+\end{proof}
+
+\begin{lemma}[Nearest Integer Property]
+For all $n \geq 1$,
+\[
+\left|F_n - \frac{\varphi^n}{\sqrt{5}}\right| = \frac{|\psi|^n}{\sqrt{5}} < \frac{1}{2}.
+\]
+\end{lemma}
+
+\begin{proof}
+By Binet's formula, the error is $|\psi|^n/\sqrt{5}$. Since $|\psi| < 1$, we have $|\psi|^n/\sqrt{5} \leq |\psi|/\sqrt{5} = (\sqrt{5}-1)/(2\sqrt{5}) = 1/2 - 1/(2\sqrt{5}) < 1/2$.
+\end{proof}
+
+\begin{theorem}[Digit Count]
+The number of digits of $F_n$ is $\lfloor n\log_{10}\varphi - \frac{1}{2}\log_{10}5 \rfloor + 1$.
+\end{theorem}
+
+\begin{proof}
+By Lemma~1, $\log_{10} F_n = n\log_{10}\varphi - \frac{1}{2}\log_{10}5 + \varepsilon_n$ where $|\varepsilon_n|$ is exponentially small and does not affect the floor. Hence $\lfloor\log_{10} F_n\rfloor = \lfloor n\log_{10}\varphi - \frac{1}{2}\log_{10}5 \rfloor$, and the digit count is this value plus~1.
+\end{proof}
+
+\begin{theorem}[Index Formula]
+The smallest $n$ with $F_n \geq 10^{D-1}$ is
+\[
+n = \left\lceil \frac{(D-1) + \frac{1}{2}\log_{10}5}{\log_{10}\varphi} \right\rceil.
+\]
+\end{theorem}
+
+\begin{proof}
+The condition $F_n \geq 10^{D-1}$ is equivalent to $\lfloor\log_{10} F_n\rfloor \geq D-1$, which by Theorem~2 becomes $n\log_{10}\varphi - \frac{1}{2}\log_{10}5 \geq D-1$. The smallest integer $n$ satisfying this is the ceiling.
+\end{proof}
+
+\section{Numerical Evaluation}
+
+For $D = 1000$:
+\begin{align}
+\log_{10}\varphi &\approx 0.20898764, \\
+\tfrac{1}{2}\log_{10}5 &\approx 0.34948500.
+\end{align}
+\[
+n \geq \frac{999 + 0.34949}{0.20899} \approx 4781.859 \implies n = 4782.
+\]
+
+Verification: $\lfloor 4781 \cdot \log_{10}\varphi - \tfrac{1}{2}\log_{10}5\rfloor = 998$ (999 digits), while $\lfloor 4782 \cdot \log_{10}\varphi - \tfrac{1}{2}\log_{10}5\rfloor = 999$ (1000 digits).
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{First Fibonacci Number with $D$ Digits}
+\begin{algorithmic}[1]
+\REQUIRE Number of digits $D$
+\ENSURE Smallest $n$ with $F_n \geq 10^{D-1}$
+\STATE $\ell \gets \log_{10}\!\bigl(\frac{1+\sqrt{5}}{2}\bigr)$
+\STATE $h \gets \frac{1}{2}\log_{10}5$
+\RETURN $\lceil (D - 1 + h) / \ell \rceil$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}[Analytical]
+$O(1)$ time and space.
+\end{proposition}
+
+\begin{proof}
+A fixed number of floating-point operations.
+\end{proof}
+
+\begin{proposition}[Iterative]
+$O(nD)$ time and $O(D)$ space, where $n \approx 4782$ and $D = 1000$.
+\end{proposition}
+
+\begin{proof}
+Each of $n - 2$ iterations adds two $D$-digit integers at $O(D)$ cost. Only two Fibonacci numbers are stored.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{4782}
+\]
+
+\end{document}

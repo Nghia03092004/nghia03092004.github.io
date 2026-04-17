@@ -1,0 +1,130 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Problem 58: Spiral Primes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Starting with 1 and spiralling anticlockwise, a square spiral is formed. What is the side length of the square spiral for which the ratio of primes along both diagonals first falls below~$10\%$?
+
+\section{Mathematical Development}
+
+\begin{definition}[Spiral Layers]
+Layer $k = 0$ is the center (value 1). For $k \geq 1$, layer $k$ has side length $s_k = 2k + 1$.
+\end{definition}
+
+\begin{theorem}[Corner Values]
+For layer $k \geq 1$, the four diagonal corner values are:
+\begin{align}
+c_1(k) &= 4k^2 - 2k + 1 && \text{(top-right)}, \\
+c_2(k) &= 4k^2 + 1 && \text{(top-left)}, \\
+c_3(k) &= 4k^2 + 2k + 1 && \text{(bottom-left)}, \\
+c_4(k) &= (2k+1)^2 && \text{(bottom-right)}.
+\end{align}
+\end{theorem}
+
+\begin{proof}
+The bottom-right corner is $(2k+1)^2$. Consecutive corners are separated by $2k$ positions. Stepping counterclockwise: $(2k+1)^2 - 2k = 4k^2 + 2k + 1$, $(2k+1)^2 - 4k = 4k^2 + 1$, and $(2k+1)^2 - 6k = 4k^2 - 2k + 1$.
+\end{proof}
+
+\begin{lemma}[Composite Corner]
+For $k \geq 1$, $c_4(k) = (2k+1)^2$ is composite.
+\end{lemma}
+
+\begin{proof}
+$(2k+1)^2$ has the nontrivial factor $2k+1 \geq 3$.
+\end{proof}
+
+\begin{theorem}[Diagonal Counts]
+After $k$ layers, the total number of diagonal elements is $T(k) = 4k + 1$, and the prime count is
+\[
+P(k) = \sum_{j=1}^{k} \sum_{i=1}^{3} \mathbf{1}[c_i(j) \text{ is prime}].
+\]
+\end{theorem}
+
+\begin{proof}
+Layer 0 contributes 1 element (non-prime). Each subsequent layer contributes 4 diagonal elements, of which at most 3 can be prime since $c_4$ is always composite.
+\end{proof}
+
+\begin{theorem}[Ratio Decay]
+$P(k)/T(k) \to 0$ as $k \to \infty$.
+\end{theorem}
+
+\begin{proof}
+Corner values are $\Theta(k^2)$. By the Prime Number Theorem, the probability that an integer near $N$ is prime is $\sim 1/\ln N$. For $N \sim k^2$, this is $\sim 1/(2\ln k)$. Thus:
+\[
+P(k) \approx \sum_{j=2}^{k} \frac{3}{2\ln j} \sim \frac{3k}{2\ln k}, \qquad
+\frac{P(k)}{4k+1} \approx \frac{3}{8\ln k} \to 0. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}
+There exists a finite $k_0$ with $P(k_0)/(4k_0 + 1) < 0.10$. The answer is $s = 2k_0 + 1$.
+\end{corollary}
+
+\begin{lemma}[Primality Bound]
+To test $c_i(k)$ by trial division, divisors up to $\lfloor\sqrt{c_i(k)}\rfloor \leq 2k+1$ suffice.
+\end{lemma}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find Spiral Prime Threshold}
+\begin{algorithmic}[1]
+\State $\textit{primes} \gets 0$, $\textit{total} \gets 1$
+\For{$k = 1, 2, 3, \ldots$}
+    \State $s \gets 2k + 1$
+    \State Compute $c_1(k), c_2(k), c_3(k)$
+    \For{each corner $c$}
+        \If{$c$ is prime}
+            \State $\textit{primes} \gets \textit{primes} + 1$
+        \EndIf
+    \EndFor
+    \State $\textit{total} \gets \textit{total} + 4$
+    \If{$\textit{primes} > 0$ \textbf{and} $\textit{primes}/\textit{total} < 0.10$}
+        \State \Return $s$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Time Complexity]
+With trial division, the algorithm runs in $O(K^2)$ time where $K$ is the final layer. With Miller--Rabin, $O(K \log^2 K)$.
+\end{theorem}
+
+\begin{proof}
+At layer $k$, three primality tests are performed on numbers $n \leq (2k+1)^2$. Trial division costs $O(\sqrt{n}) = O(k)$ per test, giving $\sum_{k=1}^K O(k) = O(K^2)$. Miller--Rabin reduces each test to $O(\log^2 n) = O(\log^2 K)$, giving $O(K \log^2 K)$ total.
+\end{proof}
+
+\noindent\textbf{Space:} $O(1)$.
+
+\section{Result}
+The answer is $\boxed{26241}$.
+
+\section{Answer}
+
+\[
+\boxed{26241}
+\]
+
+\end{document}

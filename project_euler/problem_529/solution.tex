@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 529: 10-substrings}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A \textbf{10-substring} of a number is a contiguous subsequence of its digits whose digits sum to~10. A number is \textbf{10-substring-friendly} if every digit belongs to at least one 10-substring.
+
+Let $T(n)$ count the 10-substring-friendly numbers from 1 to $10^n$ inclusive. Given $T(2) = 9$ and $T(5) = 3492$, find $T(10^{18}) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Finite Automaton Model]
+The set of 10-substring-friendly digit strings of length~$n$ is recognized by a finite automaton whose state encodes the suffix of uncovered digits. The state space has size $|S|$ bounded independently of~$n$.
+\end{theorem}
+
+\begin{proof}
+Build the string one digit at a time. Maintain the suffix of digits not yet covered by any 10-substring. Upon appending digit~$d$:
+\begin{enumerate}
+    \item Add $d$ to the uncovered suffix.
+    \item If any contiguous suffix sums to exactly~10, mark those digits as covered.
+    \item The new state is the remaining uncovered suffix.
+\end{enumerate}
+The uncovered suffix always has digit sum $< 10$ (otherwise a 10-substring exists). The state is a composition of an integer $s \in \{0,\ldots,9\}$ using digit parts, giving $|S| \le 512$.
+\end{proof}
+
+\begin{lemma}[Matrix Exponentiation]
+Let $M$ be the $|S| \times |S|$ transition matrix and $\mathbf{v}_0$ the initial state vector. Then
+\[
+T(n) = \mathbf{v}_0^\top M^n \mathbf{1}_A
+\]
+where $\mathbf{1}_A$ is the indicator vector of accepting states (empty uncovered suffix).
+\end{lemma}
+
+\begin{proof}
+The matrix $M^n$ encodes all paths of length~$n$ through the automaton. Entry $(M^n)_{ij}$ counts digit strings of length~$n$ transitioning from state~$i$ to state~$j$. Left-multiplication by the initial vector and right-multiplication by the acceptance indicator extracts the count of accepted strings.
+\end{proof}
+
+\begin{theorem}[Efficient Computation]
+$M^{10^{18}}$ is computed in $O(|S|^3 \log(10^{18}))$ operations modulo $10^9+7$.
+\end{theorem}
+
+\begin{proof}
+Binary (repeated squaring) exponentiation uses $O(\log N)$ matrix multiplications, each $O(|S|^3)$. For $N = 10^{18}$, $\log_2 N < 60$, giving total cost $60 \cdot |S|^3$.
+\end{proof}
+
+\begin{lemma}[Leading Zeros]
+To exclude leading zeros, set the initial state vector~$\mathbf{v}_1$ by processing only first digits $d \in \{1,\ldots,9\}$, then compute $T(n) = \mathbf{v}_1^\top M^{n-1} \mathbf{1}_A$.
+\end{lemma}
+
+\begin{proof}
+The first digit of a positive integer is $\ge 1$. Processing digits $1,\ldots,9$ yields the correct initial distribution, and the remaining $n-1$ digits use the full transition matrix.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Enumerate all automaton states (compositions of integers $0,\ldots,9$).
+    \item Build the $|S| \times |S|$ transition matrix $M$ by simulating each digit $0,\ldots,9$ from each state.
+    \item Compute the initial vector $\mathbf{v}_1$ from first digits $1,\ldots,9$.
+    \item Compute $\mathbf{v}_1^\top M^{10^{18}-1} \mathbf{1}_A \bmod (10^9+7)$ via binary matrix exponentiation.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(|S|^3 \cdot \log N)$ with $|S| \le 512$ and $\log_2(10^{18}) < 60$.
+    \item \textbf{Space:} $O(|S|^2)$ for the transition matrix.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{23624465}
+\]
+
+\end{document}

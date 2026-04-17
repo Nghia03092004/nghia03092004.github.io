@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 262: Mountain Range}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The elevation at $(x,y)$ is
+\[
+h(x,y) = \bigl(5000 - 0.005(x^2{+}y^2{+}xy) + 12.5(x{+}y)\bigr)\,e^{-|0.000001(x^2{+}y^2) - 0.0015(x{+}y) + 0.7|}.
+\]
+A mosquito flies from $A(200,200)$ to $B(1400,1400)$ within $0\le x,y\le 1600$ at constant elevation~$f$. Find $f_{\min}$ and the length of the shortest horizontal path at~$f_{\min}$, to 3 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Symmetry]
+$h(x,y) = h(y,x)$ for all $(x,y)$. The landscape is symmetric about $y=x$.
+\end{theorem}
+
+\begin{proof}
+The expressions $x^2+y^2+xy$, $x^2+y^2$, and $x+y$ are all symmetric in $x,y$.
+\end{proof}
+
+\begin{theorem}[Mountain ridge]
+The exponential factor equals~1 precisely on the circle
+\[
+\mathcal{C}: (x-750)^2 + (y-750)^2 = 425000.
+\]
+Near~$\mathcal{C}$, the elevation is maximal, forming a ring-shaped range.
+\end{theorem}
+
+\begin{proof}
+Setting $g(x,y) = 0.000001(x^2+y^2)-0.0015(x+y)+0.7 = 0$ gives $x^2+y^2-1500(x+y)+700000=0$, i.e., $(x-750)^2+(y-750)^2=425000$. On~$\mathcal{C}$, the exponential achieves its maximum $e^0=1$; away from~$\mathcal{C}$, $|g|>0$ and the exponential decays.
+\end{proof}
+
+\begin{theorem}[Minimax characterization]
+The value $f_{\min}$ is the minimax elevation over paths from~$A$ to~$B$. The barrier $\{h > f_{\min}\}$ is annular, and passage occurs at a pinch point at approximately $(895.483, 0)$ where $h \approx 10396.462$.
+\end{theorem}
+
+\begin{proof}
+Points $A$ and $B$ are separated by the mountain ring. The infimum of~$f$ such that $\{h\le f\}$ connects~$A$ to~$B$ occurs when the barrier ceases to separate them, i.e., at a saddle point (pinch) on the ridge. By symmetry $h(x,y)=h(y,x)$, the relevant saddle lies on the $x$-axis. Numerical optimization of $h(x,0)$ yields the pinch at $x^*\approx 895.483$.
+\end{proof}
+
+\begin{lemma}[Shortest path structure]
+At elevation $f_{\min}$, the shortest path from~$A$ to~$B$ consists of straight segments tangent to the contour $\{h=f_{\min}\}$ and arcs along the contour, threading through the pinch point.
+\end{lemma}
+
+\begin{proof}
+In a region with smooth boundary, the shortest path between exterior points comprises straight segments and boundary arcs (standard in computational geometry). Tangent points $P$ and $Q$ satisfy $\nabla h \perp \overrightarrow{AP}$ and $\nabla h \perp \overrightarrow{QB}$ respectively.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Maximize h(x, 0) to find pinch point; set f_min = h(x*, 0)
+2. Trace contour {h = f_min} via marching squares
+3. Find tangent points P, Q via Newton's method on tangency condition
+4. L = dist(A,P) + arc(P,pinch) + arc(pinch,Q) + dist(Q,B)
+5. Round to 3 decimal places
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N)$ for contour tracing and arc-length integration.
+\item \textbf{Space:} $O(N)$ for contour points.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2531.205}
+\]
+
+\end{document}

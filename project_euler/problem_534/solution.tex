@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 534: Weak Queens}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \textbf{weak queen} attacks only the~8 adjacent squares (king moves). Let $f(n)$ count the number of ways to place~$n$ non-attacking weak queens on an $n\times n$ board, one per row. Compute $\sum_{n=1}^{12} f(n)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Reduction to Constrained Permutations]
+A placement is valid if and only if the column assignment $\sigma \in S_n$ satisfies $|\sigma(i)-\sigma(i+1)|\ge 2$ for all $1\le i\le n-1$.
+\end{theorem}
+
+\begin{proof}
+One queen per row forces a permutation. A weak queen attacks only the~8 cells at Chebyshev distance~1. Two queens in rows~$i,j$ with $|i-j|\ge 2$ cannot attack each other. Queens in consecutive rows $i,i+1$ attack iff $|\sigma(i)-\sigma(i+1)|\le 1$. Hence the non-attacking condition is precisely $|\sigma(i)-\sigma(i+1)|\ge 2$ for all consecutive~$i$.
+\end{proof}
+
+\begin{theorem}[Bitmask DP]
+Define $\mathrm{dp}[\mathrm{mask}][c]$ as the number of valid partial placements using column set~$\mathrm{mask}$ with the last queen in column~$c$. The recurrence
+\[
+\mathrm{dp}[\mathrm{mask}\cup\{c\}][c] \mathrel{+}= \mathrm{dp}[\mathrm{mask}][c'] \quad\text{for } c\notin\mathrm{mask},\;|c-c'|\ge 2
+\]
+with base case $\mathrm{dp}[\{c\}][c] = 1$ satisfies $f(n) = \sum_c \mathrm{dp}[2^n-1][c]$.
+\end{theorem}
+
+\begin{proof}
+The bitmask encodes which columns are used (enforcing the permutation property), and tracking the last column enforces the adjacency constraint. By induction on $|\mathrm{mask}|$: the base case is correct (single queen, any column). For the inductive step, extending from $|\mathrm{mask}|$ to $|\mathrm{mask}|+1$ considers every valid next column~$c$ not yet used and not adjacent to the previous. The sum at $\mathrm{mask} = 2^n-1$ collects all complete valid placements.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item For each~$n$ from 1 to 12, run the bitmask DP.
+\item Base case: $\mathrm{dp}[\{c\}][c] = 1$ for each column~$c$.
+\item Transition: iterate over states with $|\mathrm{mask}|$ bits, extend by one column.
+\item Sum $\mathrm{dp}[2^n-1][c]$ over all~$c$ to get $f(n)$.
+\item Accumulate $\sum f(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n^2 \cdot 2^n)$ per~$n$. For $n=12$: $\sim 590\,000$ operations.
+\item \textbf{Space:} $O(n \cdot 2^n)$. For $n=12$: $\sim 49\,000$ entries.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{11726115562784664}
+\]
+
+\end{document}

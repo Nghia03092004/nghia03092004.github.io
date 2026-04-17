@@ -1,0 +1,78 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 129: Repunit Divisibility}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \emph{repunit} of length $k$ is $R(k) = \underbrace{11\ldots1}_{k}$. For $\gcd(n, 10) = 1$, define $A(n)$ as the least $k$ with $n \mid R(k)$. Find the least $n > 10^6$ with $A(n) > 10^6$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Existence and bound]
+For $\gcd(n, 10) = 1$, $A(n)$ exists and $A(n) \le n$.
+\end{theorem}
+
+\begin{proof}
+Consider $r_k = R(k) \bmod n$ for $k = 1, \ldots, n+1$. If some $r_k = 0$, we are done. Otherwise, by pigeonhole, $r_i = r_j$ for $i < j$. Then $R(j) - R(i) = R(j-i) \cdot 10^i$, and since $\gcd(10^i, n) = 1$, we get $n \mid R(j-i)$ with $j - i \le n$.
+\end{proof}
+
+\begin{theorem}[Multiplicative order connection]
+If $\gcd(n, 9) = 1$, then $A(n) = \mathrm{ord}_n(10)$.
+\end{theorem}
+
+\begin{proof}
+$R(k) = (10^k - 1)/9$. Since $\gcd(9, n) = 1$, $n \mid R(k)$ iff $10^k \equiv 1 \pmod{n}$.
+\end{proof}
+
+\begin{lemma}[Iterative computation]
+$A(n)$ is computed via $r_1 = 1 \bmod n$, $r_k = (10r_{k-1} + 1) \bmod n$. The first $k$ with $r_k = 0$ is $A(n)$.
+\end{lemma}
+
+\begin{proof}
+$R(k) = 10 R(k-1) + 1$, so $r_k \equiv R(k) \pmod{n}$.
+\end{proof}
+
+\begin{theorem}[Search bound]
+Since $A(n) \le n$ and we need $A(n) > 10^6$, any solution has $n > 10^6$.
+\end{theorem}
+
+\begin{proof}
+Immediate from $A(n) \le n$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item For $n = 10^6 + 1, 10^6 + 2, \ldots$:
+\begin{enumerate}
+\item Skip if $\gcd(n, 10) \ne 1$.
+\item Compute $A(n)$ via the recurrence $r_k = (10 r_{k-1} + 1) \bmod n$.
+\item If $A(n) > 10^6$, return $n$.
+\end{enumerate}
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(A(n)) \le O(n) \approx O(10^6)$ per candidate. About 23 candidates are tested. Total: $O(10^6)$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1000023}
+\]
+
+\end{document}

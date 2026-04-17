@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 714: Duodigits}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+\begin{definition}
+A \emph{duodigit} is a positive integer whose decimal representation uses at most two distinct digits.
+\end{definition}
+
+Let $d(n)$ be the smallest positive duodigit that is a multiple of~$n$. Define
+\[
+D(k) = \sum_{n=1}^{k} d(n).
+\]
+Given $D(110)=11047$ and $D(150)=53312$, find $D(50000)$ in scientific notation to 13 significant digits.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Existence]
+For any $n \ge 1$, the value $d(n)$ exists.
+\end{lemma}
+
+\begin{proof}
+Consider repunits $R_j = \underbrace{1\cdots1}_{j}$ for $j=1,\ldots,n+1$. By the pigeonhole principle, two have the same residue modulo~$n$. Their difference $R_j - R_i$ is a duodigit (digits 1 and~0) divisible by~$n$.
+\end{proof}
+
+\begin{theorem}[BFS Correctness]
+For each pair of digits $(a,b)$ with $0 \le a < b \le 9$, BFS on the residue graph modulo~$n$ finds the smallest duodigit multiple of~$n$ using only digits $a$ and~$b$. The minimum over all $\binom{10}{2}+10 = 55$ pairs gives~$d(n)$.
+\end{theorem}
+
+\begin{proof}
+BFS explores numbers in order of digit count, and within each count, in increasing order. The state space (residues mod~$n$) has size~$n$, so BFS terminates. The first number reaching residue~0 is the smallest such multiple for that digit pair.
+\end{proof}
+
+\begin{lemma}
+Each BFS terminates in at most $n$ levels.
+\end{lemma}
+
+\begin{proof}
+There are $n$ distinct residues modulo~$n$, and BFS never revisits a residue, so it terminates within $n$ levels.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function d(n):
+    best = infinity
+    for each digit pair (a, b):
+        result = bfs_duodigit(n, a, b)
+        best = min(best, result)
+    return best
+
+function bfs_duodigit(n, a, b):
+    visited = array[n], all false
+    queue = []
+    for d in {a, b} where d > 0:
+        r = d mod n
+        if r == 0: return d
+        if not visited[r]: visited[r]=true; enqueue (r, d)
+    while queue not empty:
+        (r, val) = dequeue
+        for d in {a, b}:
+            new_r = (r*10 + d) mod n
+            if new_r == 0: return val*10 + d
+            if not visited[new_r]: visited[new_r]=true; enqueue
+    return infinity
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(55 \cdot n)$ per value of~$n$; total $O(k^2)$ for $D(k)$. Practical runtime benefits from early BFS termination.
+    \item \textbf{Space:} $O(n)$ per BFS call.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2.452767775565e20}
+\]
+
+\end{document}

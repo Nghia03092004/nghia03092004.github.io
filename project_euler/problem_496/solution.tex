@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 496: Incenter and Circumcenter of Triangle}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a triangle with integer side lengths $a \le b \le c$, the incenter $I$ and circumcenter $O$ satisfy Euler's formula:
+\[
+OI^2 = R(R - 2r)
+\]
+where $R$ is the circumradius and $r$ is the inradius. Count triangles with $1 \le a \le b \le c \le N$ for which $OI^2$ is a positive perfect square of a rational number.
+
+\section{Mathematical Analysis}
+
+\subsection{Key Formulas}
+For a triangle with semi-perimeter $s = (a+b+c)/2$ and area $\Delta = \sqrt{s(s-a)(s-b)(s-c)}$:
+\begin{align}
+R &= \frac{abc}{4\Delta}, \quad r = \frac{\Delta}{s} \\[6pt]
+OI^2 &= R^2 - 2Rr = \frac{(abc)^2}{16\Delta^2} - \frac{abc}{2s}
+\end{align}
+
+\subsection{Simplified Form}
+Let $x = s-a$, $y = s-b$, $z = s-c$. Then $a = y+z$, $b = x+z$, $c = x+y$, $s = x+y+z$, and:
+\[
+OI^2 = \frac{abc \cdot [abc - 8xyz]}{16\,s\,xyz}
+\]
+
+For $OI^2$ to be a perfect square of a rational, after reducing $\text{num}/\text{den}$ to lowest terms, both numerator and denominator must be perfect squares.
+
+\section{Derivation}
+Starting from Euler's formula and substituting:
+\begin{align}
+OI^2 &= \frac{a^2b^2c^2}{16\Delta^2} - \frac{abc}{2s} \\
+&= \frac{(abc)^2}{s \cdot 2(s-a) \cdot 2(s-b) \cdot 2(s-c)} \cdot \frac{1}{1} - \frac{abc}{2s}
+\end{align}
+
+Bringing to a common denominator over $s \cdot (s-a)(s-b)(s-c)$:
+\[
+OI^2 = \frac{abc\bigl[abc - (2(s-a))(2(s-b))(2(s-c))\bigr]}{2s \cdot (2(s-a))(2(s-b))(2(s-c))}
+\]
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Brute force:} $O(N^2)$ time --- for each $(a, b)$ pair, iterate valid $c$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2042473533769142717}
+\]
+
+\end{document}

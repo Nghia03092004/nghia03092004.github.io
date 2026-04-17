@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\title{Problem 894: Summation of Summations}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Compute the $m$-fold iterated partial sum:
+\[
+S^{(m)}_n = \underbrace{\sum_{i_1=1}^{n}\sum_{i_2=1}^{i_1}\cdots\sum_{i_m=1}^{i_{m-1}}}_{m} a_{i_m}
+\]
+
+\section{Key Results}
+
+\begin{theorem}[Hockey Stick Reduction]
+\[
+S^{(m)}_n = \sum_{k=1}^{n} \binom{n-k+m-1}{m-1}\, a_k
+\]
+\end{theorem}
+
+\begin{proof}
+The element $a_k$ is counted once per chain $k \le i_m \le \cdots \le i_1 \le n$. By stars and bars, the number of weakly increasing chains of length $m$ from $k$ to $n$ is $\binom{n-k+m-1}{m-1}$.
+\end{proof}
+
+\begin{corollary}
+For $a_k = 1$: $S^{(m)}_n = \binom{n+m-1}{m}$. For $a_k = k$: $S^{(m)}_n = \binom{n+m}{m+1}$.
+\end{corollary}
+
+\begin{theorem}[Matrix Formulation]
+$S^{(m)}_n = (L^m \mathbf{a})_n$ where $L_{ij} = [i \ge j]$, and $(L^m)_{ij} = \binom{i-j+m-1}{m-1}$.
+\end{theorem}
+
+\section{Example}
+For $a_k=k$, $m=3$, $n=5$:
+\[
+S^{(3)}_5 = 15\cdot 1 + 10\cdot 2 + 6\cdot 3 + 3\cdot 4 + 1\cdot 5 = 70 = \binom{8}{4}.
+\]
+
+\section{Complexity}
+\begin{center}
+\begin{tabular}{l|c}
+Method & Time \\ \hline
+Nested loops & $O(n^m)$ \\
+Prefix sums ($m$ passes) & $O(mn)$ \\
+Closed-form & $O(n)$
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{0.7718678168}
+\]
+
+\end{document}

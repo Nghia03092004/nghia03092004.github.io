@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 896: Divisible Ranges}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A contiguous range of positive integers is called a \textbf{divisible range} if all the integers in the range can be arranged in a row such that the $n$-th term is a multiple of~$n$.
+
+For example, the range $[6..9]$ is a divisible range because the numbers can be arranged as $7, 6, 9, 8$ (where $7 \mid 1$, $6 \mid 2$, $9 \mid 3$, and $8 \mid 4$). It is the 4th divisible range of length~4, the first three being $[1..4]$, $[2..5]$, $[3..6]$.
+
+Find the 36th divisible range of length~36. Give as answer the smallest number in the range.
+
+\section{Mathematical Analysis}
+
+\subsection{Bipartite Matching Formulation}
+
+We model the problem as a bipartite matching. Given a range $[a, a+1, \ldots, a+n-1]$ of length $n$:
+\begin{itemize}
+    \item Left vertices: positions $1, 2, \ldots, n$.
+    \item Right vertices: values $a, a+1, \ldots, a+n-1$.
+    \item Edge $(k, v)$ exists if and only if $k \mid v$.
+\end{itemize}
+
+The range is divisible if and only if a perfect matching exists in this bipartite graph.
+
+\subsection{Hall's Condition}
+
+By Hall's Marriage Theorem, a perfect matching exists if and only if for every subset $S \subseteq \{1, 2, \ldots, n\}$:
+\[
+\left| \bigcup_{k \in S} N(k) \right| \geq |S|
+\]
+where $N(k)$ is the set of values in $[a, a+n-1]$ divisible by $k$:
+\[
+N(k) = \{ v \in [a, a+n-1] : k \mid v \} .
+\]
+
+The cardinality of $N(k)$ is:
+\[
+|N(k)| = \left\lfloor \frac{a+n-1}{k} \right\rfloor - \left\lfloor \frac{a-1}{k} \right\rfloor .
+\]
+
+\subsection{Algorithm}
+
+We enumerate starting values $a = 1, 2, 3, \ldots$ and for each $a$:
+\begin{enumerate}
+    \item Construct the bipartite graph with the divisibility edges.
+    \item Apply the Hopcroft--Karp algorithm to find a maximum matching.
+    \item If the matching has size $n = 36$, increment a counter.
+    \item Stop when the counter reaches 36.
+\end{enumerate}
+
+\subsection{Hopcroft--Karp Algorithm}
+
+The Hopcroft--Karp algorithm finds a maximum matching in a bipartite graph $G = (U \cup V, E)$ in time $O(|E| \sqrt{|U| + |V|})$. It alternates between:
+\begin{itemize}
+    \item A BFS phase that finds shortest augmenting paths.
+    \item A DFS phase that augments along vertex-disjoint shortest paths.
+\end{itemize}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item Building the graph for each $a$: $O\!\left(\sum_{k=1}^{n} \frac{n}{k}\right) = O(n \ln n)$.
+    \item Hopcroft--Karp per candidate: $O(|E| \sqrt{n})$ where $|E| = O(n \ln n)$.
+    \item Total: depends on how many candidates are tested before finding the 36th divisible range.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{274229635640}
+\]
+
+\end{document}

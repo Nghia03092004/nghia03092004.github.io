@@ -1,0 +1,52 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Problem 253: Tidying Up}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A caterpillar of length $n=40$ is a row of 40 cells. Cells are filled one at a time in random order. At each step, count the number of segments (maximal contiguous blocks of filled cells). Find the expected maximum number of segments during the entire filling process, to 6 decimal places.
+
+\section{Analysis}
+
+\subsection{Segment Count Evolution}
+After placing $k$ cells, let $S_k$ be the number of segments. When placing a cell:
+\begin{itemize}
+    \item If neither neighbor is filled: $S_k = S_{k-1} + 1$ (new isolated segment).
+    \item If exactly one neighbor is filled: $S_k = S_{k-1}$ (extends existing segment).
+    \item If both neighbors are filled: $S_k = S_{k-1} - 1$ (merges two segments).
+\end{itemize}
+
+\subsection{State Space DP}
+Track the configuration of gaps between segments. After placing $k$ cells with $s$ segments, the $n-k$ empty cells form gaps of various sizes. The gap configuration, along with the maximum segments seen so far $m$, defines the state.
+
+Using a DP on ``gap profiles'' (multisets of gap sizes) with the current and historical maximum segment count, we can compute the expected maximum.
+
+\subsection{Probability Computation}
+\[
+E\!\left[\max_{k} S_k\right] = \sum_{m=1}^{20} m \cdot P\!\left(\max_k S_k = m\right)
+\]
+
+Alternatively:
+\[
+E\!\left[\max_{k} S_k\right] = \sum_{m=1}^{20} P\!\left(\max_k S_k \ge m\right)
+\]
+
+\section{Result}
+\[
+\boxed{11.492847}
+\]
+
+\section{Answer}
+
+\[
+\boxed{11.492847}
+\]
+
+\end{document}

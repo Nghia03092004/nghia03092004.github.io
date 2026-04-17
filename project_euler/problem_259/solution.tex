@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 259: Reachable Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given the digit string ``123456789'', insert operators $+, -, \times, \div$ between groups of consecutive digits (with free parenthesization) to produce numerical values. Find the sum of all positive integers that can be reached.
+
+\section{Interval Dynamic Programming}
+
+\subsection{Setup}
+
+Let digits $d_1 = 1, d_2 = 2, \ldots, d_9 = 9$. For indices $1 \le i \le j \le 9$, define $R(i,j)$ as the set of all rational numbers obtainable from the substring $d_i d_{i+1} \cdots d_j$.
+
+\subsection{Base Case}
+
+The concatenated number $\overline{d_i d_{i+1} \cdots d_j}$ is always in $R(i,j)$. For example:
+\[
+R(2,4) \ni 234, \quad R(1,1) = \{1\}
+\]
+
+\subsection{Recursive Case}
+
+For each split point $k$ with $i \le k < j$:
+\[
+R(i,j) \supseteq \left\{ a \circ b : a \in R(i,k),\; b \in R(k+1,j),\; \circ \in \{+,-,\times,\div\},\; b \ne 0 \text{ if } \circ = \div \right\}
+\]
+
+\subsection{Final Answer}
+
+The answer is:
+\[
+\sum_{\substack{r \in R(1,9) \\ r \in \mathbb{Z}^+}} r
+\]
+
+\section{Implementation}
+
+\begin{itemize}
+    \item Use exact rational arithmetic (fractions) to handle division.
+    \item Memoize $R(i,j)$ as sets of fractions.
+    \item The total number of subproblems is $\binom{9}{2} + 9 = 45$.
+    \item Each subproblem explores $O(j-i)$ split points with 4 operators.
+\end{itemize}
+
+\section{Complexity}
+
+The sets $R(i,j)$ have bounded size (empirically at most a few thousand elements for $n = 9$). Total computation is very fast --- well under a second.
+
+\section{Result}
+
+\[
+\boxed{20101196798}
+\]
+
+\section{Answer}
+
+\[
+\boxed{20101196798}
+\]
+
+\end{document}

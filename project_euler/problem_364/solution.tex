@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 364: Comfortable Distance}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A row of $n$ seats is filled one person at a time. Each person chooses the seat maximizing their minimum distance to any occupied seat (leftmost in case of ties; the first person takes an end seat). Let $f(n)$ be the number of distinct valid filling orderings. Compute $f(n) \bmod 10^8$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Gap Splitting]
+When a person sits in a contiguous gap of $L$ empty seats, they occupy position $m = \lceil L/2 \rceil$ from the left boundary, producing independent sub-gaps of sizes $m-1$ and $L-m$.
+\end{theorem}
+
+\begin{proof}
+The greedy rule maximizes the minimum distance to occupied neighbors. In a gap of $L$ seats, the midpoint $\lceil L/2 \rceil$ achieves this maximum. The resulting two sub-gaps share no seats and are filled independently.
+\end{proof}
+
+\begin{lemma}[Interleaving Count]
+If $k$ independent sub-gaps require $n_1, \ldots, n_k$ people, the number of valid filling orderings across all gaps is
+\[
+\binom{n_1 + \cdots + n_k}{n_1,\, n_2,\, \ldots,\, n_k}.
+\]
+\end{lemma}
+
+\begin{proof}
+Within each sub-gap, the filling order is determined by the greedy rule. The only choice is which sub-gap to fill at each time step when multiple gaps tie. This is equivalent to interleaving $k$ fixed sequences, giving the multinomial coefficient.
+\end{proof}
+
+\begin{theorem}[Recursive Formula]
+Let $C(L)$ be the number of valid orderings for a gap of size~$L$. Then $C(0) = C(1) = 1$ and for $L \ge 2$:
+\[
+C(L) = \binom{L-1}{\lceil L/2 \rceil - 1} \cdot C\!\left(\lceil L/2 \rceil - 1\right) \cdot C\!\left(L - \lceil L/2 \rceil\right).
+\]
+\end{theorem}
+
+\begin{proof}
+The first placement in a gap of size~$L$ goes to position $m = \lceil L/2\rceil$, leaving sub-gaps of sizes $a = m-1$ and $b = L - m$ with $a + b = L - 1$ remaining people. The interleaving count is $\binom{L-1}{a}$. Each sub-gap contributes $C(a)$ and $C(b)$ internal orderings.
+\end{proof}
+
+\begin{lemma}[First Person]
+The first person sits at seat~1, creating one gap of size $n-1$. Hence $f(n) = C(n-1)$.
+\end{lemma}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(n):
+    M = 10^8
+    precompute fact[0..n], inv_fact[0..n] mod M
+    memo = {}
+    function C(L):
+        if L <= 1: return 1
+        if L in memo: return memo[L]
+        m = ceil(L / 2)
+        result = binom(L-1, m-1) * C(m-1) * C(L-m) mod M
+        memo[L] = result
+        return result
+    return C(n - 1)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n)$ for factorials; $O(\log n)$ for the recursion (gap sizes halve).
+\item \textbf{Space:} $O(n)$ for factorials; $O(\log n)$ for memoization.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{44855254}
+\]
+
+\end{document}

@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 306: Paper-strip Game}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Two players alternate turns on a strip of $n$ white squares. Each turn, a player picks two contiguous white squares and paints them black. The first player unable to move loses (normal play convention).
+
+For $1 \leq n \leq 1{,}000{,}000$, how many values of $n$ allow the first player to force a win?
+
+\section{Sprague--Grundy Analysis}
+
+\subsection{Game Decomposition}
+When a player paints positions $i$ and $i+1$ on a strip of length $n$, the strip decomposes into two independent subgames of lengths $i$ and $n-2-i$. By the Sprague--Grundy theorem:
+
+\begin{equation}
+    G(n) = \operatorname{mex}\{G(i) \oplus G(n-2-i) : 0 \leq i \leq n-2\}
+\end{equation}
+
+\subsection{Base Cases}
+\begin{align}
+    G(0) &= 0 \\
+    G(1) &= 0 \\
+    G(2) &= 1
+\end{align}
+
+\subsection{Periodicity}
+The Grundy values become eventually periodic with period~34, starting at $n = 53$. This is verified computationally.
+
+Within each period of 34 values, there are 29 winning positions ($G(n) \neq 0$) and 5 losing positions ($G(n) = 0$).
+
+\subsection{Counting}
+The first player wins if and only if $G(n) \neq 0$.
+
+\begin{enumerate}
+    \item Compute $G(n)$ directly for $n = 0, 1, \ldots, 52$ and count wins for $n = 1, \ldots, 52$.
+    \item For $n = 53$ to $10^6$: $10^6 - 53 + 1 = 999{,}948$ values.
+    \item $999{,}948 = 29{,}410 \times 34 + 8$.
+    \item Total wins from periods: $29{,}410 \times 29$ plus wins in the 8 leftover values.
+    \item Add wins from the initial segment.
+\end{enumerate}
+
+\section{Result}
+\[
+    \boxed{852938}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(n^2)$ for initial Grundy computation, then $O(1)$ via periodicity.
+    \item \textbf{Space:} $O(1)$ beyond initial values.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{852938}
+\]
+
+\end{document}

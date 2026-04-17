@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 165: Intersections}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+5000 line segments $L_1, \ldots, L_{5000}$ are generated using the Blum Blum Shub pseudo-random number generator:
+\begin{align*}
+s_0 &= 290797 \\
+s_{n+1} &= s_n^2 \bmod 50515093 \\
+t_n &= s_n \bmod 500
+\end{align*}
+The endpoints of $L_n$ are $(t_{4n-3}, t_{4n-2})$ and $(t_{4n-1}, t_{4n})$.
+
+How many \textbf{distinct interior intersection points} are there?
+
+An interior intersection point of two segments is a point that lies strictly in the interior of both segments (not at any endpoint).
+
+\section{Mathematical Analysis}
+
+\subsection{Segment Intersection Test}
+
+Given segments $P_1P_2$ and $P_3P_4$, parametrize:
+\begin{align*}
+P &= P_1 + t(P_2 - P_1), \quad t \in [0,1] \\
+P &= P_3 + u(P_4 - P_3), \quad u \in [0,1]
+\end{align*}
+
+Setting equal and solving:
+\[
+t = \frac{(x_3 - x_1)(y_3 - y_4) - (y_3 - y_1)(x_3 - x_4)}{(x_1 - x_2)(y_3 - y_4) - (y_1 - y_2)(x_3 - x_4)}
+\]
+\[
+u = \frac{(x_1 - x_2)(y_3 - y_1) - (y_1 - y_2)(x_3 - x_1)}{(x_1 - x_2)(y_3 - y_4) - (y_1 - y_2)(x_3 - x_4)}
+\]
+
+Let $D = (x_1 - x_2)(y_3 - y_4) - (y_1 - y_2)(x_3 - x_4)$.
+
+\textbf{Interior intersection} requires: $D \neq 0$ and $0 < t < 1$ and $0 < u < 1$ (strictly).
+
+\subsection{Exact Arithmetic}
+
+To count \textbf{distinct} points, we need exact coordinates. The intersection point is:
+\[
+\left(\frac{x_1 D + t_{\text{num}} (x_2 - x_1)}{D}, \quad \frac{y_1 D + t_{\text{num}} (y_2 - y_1)}{D}\right)
+\]
+
+where $t_{\text{num}}$ is the numerator of $t$. We reduce each coordinate to lowest terms $p/q$ with $q > 0$ and store the pair $((p_x, q_x), (p_y, q_y))$ to identify distinct points.
+
+\subsection{Strict Interior Condition}
+
+With integer coordinates, $D$ and the numerators are integers. The condition $0 < t < 1$ translates to:
+\begin{itemize}
+    \item If $D > 0$: $0 < t_{\text{num}} < D$
+    \item If $D < 0$: $D < t_{\text{num}} < 0$
+\end{itemize}
+Similarly for $u$.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Generate 5000 segments from the BBS generator.
+    \item For each pair of segments, compute the intersection.
+    \item If it is an interior intersection, compute the exact rational coordinates.
+    \item Store in a set and count distinct points.
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time}: $O(N^2)$ where $N = 5000$, giving $\binom{5000}{2} \approx 12.5 \times 10^6$ pairs.
+    \item \textbf{Space}: $O(K)$ where $K$ is the number of distinct intersection points.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2868868}
+\]
+
+\end{document}

@@ -1,0 +1,38 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 707: Lights Out}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider a $w \times h$ grid where each cell is ON or OFF. Selecting a cell toggles it and all edge-adjacent neighbors. A state is \textbf{solvable} if some sequence of selections turns all cells OFF. $F(w,h)$ counts solvable states.
+
+Using Fibonacci numbers $f_1=f_2=1$, $f_n=f_{n-1}+f_{n-2}$, define $S(w,n)=\sum_{k=1}^n F(w,f_k)$. Find $S(199,199) \bmod 10^9+7$.
+
+\section{Analysis}
+
+\subsection{Linear Algebra over $\mathbb{F}_2$}
+The puzzle is a linear system over $\mathbb{F}_2$. The toggle matrix $A$ is $wh \times wh$ with block tridiagonal structure:
+\[
+A = \begin{pmatrix} B & I \\ I & B & I \\ & \ddots & \ddots & \ddots \\ & & I & B \end{pmatrix}
+\]
+where $B$ is the $w \times w$ adjacency-plus-identity matrix. The number of solvable states is $F(w,h) = 2^{\operatorname{rank}(A)}$.
+
+\subsection{Nullity Computation}
+The nullity of $A$ decomposes via eigenvalues of $B$ over extensions of $\mathbb{F}_2$. For each eigenvalue $\lambda$, we analyze a Chebyshev-type recurrence modulo 2.
+
+\subsection{Periodicity}
+For fixed $w$, the nullity of $A$ as a function of $h$ is periodic. Combined with Pisano periods for Fibonacci numbers, we efficiently compute $S(w,n)$.
+
+\section{Answer}
+
+\[
+\boxed{652907799}
+\]
+
+\end{document}

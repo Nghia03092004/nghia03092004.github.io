@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Problem 60: Prime Pair Sets}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the lowest sum for a set of five primes for which any two primes concatenate (in either order) to produce another prime.
+
+\section{Mathematical Development}
+
+\begin{definition}[Concatenation]
+For positive integers $a$ and $b$, define
+\[
+a \| b = a \cdot 10^{d(b)} + b,
+\]
+where $d(b) = \lfloor \log_{10} b \rfloor + 1$ is the digit count of $b$.
+\end{definition}
+
+\begin{definition}[Prime Pair]
+Primes $p$ and $q$ form a \emph{prime pair}, written $p \sim q$, if both $p \| q$ and $q \| p$ are prime.
+\end{definition}
+
+\begin{definition}[Prime Pair Graph]
+The \emph{prime pair graph} is $G = (V, E)$ where $V$ is a set of primes and $\{p, q\} \in E$ iff $p \sim q$.
+\end{definition}
+
+\begin{theorem}[Modular Necessary Condition]
+\label{thm:mod3}
+Let $p, q > 3$ be distinct primes with $p \not\equiv q \pmod{3}$. Then $p \not\sim q$.
+\end{theorem}
+
+\begin{proof}
+Since $10 \equiv 1 \pmod{3}$:
+\[
+p \| q = p \cdot 10^{d(q)} + q \equiv p + q \pmod{3}.
+\]
+If $p \equiv 1$ and $q \equiv 2 \pmod{3}$ (or vice versa), then $p + q \equiv 0 \pmod{3}$, making $p \| q$ divisible by~3. Since $p \| q > 3$, it is composite. The same argument applies to $q \| p$.
+\end{proof}
+
+\begin{corollary}[Residue Class Constraint]
+In any prime pair set of primes $> 3$, all elements share the same residue modulo~3.
+\end{corollary}
+
+\begin{lemma}[Special Role of 3]
+The prime 3 can pair with primes of either residue class modulo~3, since $3 + p \equiv p \pmod{3} \not\equiv 0$ for $p > 3$.
+\end{lemma}
+
+\begin{theorem}[Graph-Theoretic Reduction]
+Finding a prime pair set of size~5 with minimum sum is equivalent to finding a minimum-weight 5-clique in the prime pair graph.
+\end{theorem}
+
+\begin{proof}
+A prime pair set of size~5 is, by definition, a set of 5 pairwise-adjacent vertices in $G$, i.e., a 5-clique. The weight is the sum of the vertex labels.
+\end{proof}
+
+\begin{lemma}[Search Bound]
+It suffices to search primes below $B = 10{,}000$. If a clique with sum $\Sigma$ is found, any clique containing a prime $> \Sigma$ has sum $> \Sigma$.
+\end{lemma}
+
+\begin{lemma}[Primality of Concatenations]
+For primes below $10{,}000$, all concatenations are below $10^8$. Deterministic Miller--Rabin with witnesses $\{2, 3, 5, 7, 11, 13\}$ is correct for all $n < 3.2 \times 10^{14}$.
+\end{lemma}
+
+\begin{theorem}[Incremental Clique Search]
+The 5-clique search proceeds by depth-first enumeration in increasing order with:
+\begin{enumerate}
+    \item Adjacency-intersection pruning at each depth.
+    \item Branch-and-bound: prune when partial sum plus minimum remaining contribution exceeds best known.
+    \item Mod-3 filtering per Theorem~\ref{thm:mod3}.
+\end{enumerate}
+\end{theorem}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find Minimum-Weight 5-Clique}
+\begin{algorithmic}[1]
+\State Sieve primes below $B$; build adjacency lists via pairwise primality tests
+\State $\textit{best} \gets \infty$
+\For{each $p_1$}
+    \State $S_1 \gets \{p > p_1 : p_1 \sim p\}$
+    \For{each $p_2 \in S_1$}
+        \State $S_2 \gets \{p \in S_1 : p > p_2,\; p_2 \sim p\}$
+        \For{each $p_3 \in S_2$}
+            \State $S_3 \gets \{p \in S_2 : p > p_3,\; p_3 \sim p\}$
+            \For{each $p_4 \in S_3$}
+                \State $S_4 \gets \{p \in S_3 : p > p_4,\; p_4 \sim p\}$
+                \For{each $p_5 \in S_4$}
+                    \State $\textit{best} \gets \min(\textit{best},\; p_1 + p_2 + p_3 + p_4 + p_5)$
+                \EndFor
+            \EndFor
+        \EndFor
+    \EndFor
+\EndFor
+\State \Return $\textit{best}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{theorem}[Pair Precomputation]
+Building the adjacency structure requires $O(P^2 \log^2 B)$ time, where $P = \pi(B) = 1229$.
+\end{theorem}
+
+\begin{proof}
+There are $\binom{P}{2} = O(P^2)$ pairs. Each pair test performs two concatenations and two Miller--Rabin tests, each costing $O(\log^2 B)$.
+\end{proof}
+
+\begin{theorem}[Clique Search]
+The worst-case clique search is $O(P^5)$, but adjacency-intersection and branch-and-bound pruning reduce the practical cost far below this bound. The dominant cost is the $O(P^2)$ pair precomputation.
+\end{theorem}
+
+\noindent\textbf{Space:} $O(P^2)$ for the adjacency structure.
+
+\section{Result}
+The answer is $\boxed{26033}$, from the set $\{13, 5197, 5701, 6733, 8389\}$.
+
+\section{Answer}
+
+\[
+\boxed{26033}
+\]
+
+\end{document}

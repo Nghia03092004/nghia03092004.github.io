@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\title{Problem 168: Number Rotations}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of the last 5 digits of all integers $n$, $10 \le n < 10^{100}$, such that moving the last digit to the front yields a multiple of $n$.
+
+\section{Mathematical Analysis}
+
+Let $n$ be a $d$-digit number ($d \ge 2$). Write $n = 10q + r$ where $r$ is the last digit. The rotated number is:
+\[
+m = r \cdot 10^{d-1} + q
+\]
+We require $m = kn$ for some positive integer $k$.
+
+\subsection{Digit-by-Digit Construction}
+Write $n = a_1 a_2 \cdots a_d$. Then $m = a_d a_1 a_2 \cdots a_{d-1}$ and $m = k \cdot n$.
+
+Consider the multiplication $k \cdot n$ digit by digit from right to left. Let $c_j$ be the carry into position $j$:
+\begin{align}
+k \cdot a_d + c_d &\equiv a_{d-1} \pmod{10}, \quad c_{d-1} = \lfloor (k \cdot a_d + c_d)/10 \rfloor \\
+k \cdot a_{d-1} + c_{d-1} &\equiv a_{d-2} \pmod{10}, \quad c_{d-2} = \lfloor (k \cdot a_{d-1} + c_{d-1})/10 \rfloor \\
+&\vdots \\
+k \cdot a_1 + c_1 &\equiv a_d \pmod{10}, \quad \text{and final carry} = 0
+\end{align}
+
+Starting with $a_d = r$ and carry $c = 0$, we iterate:
+\[
+a_{d-1} = (k \cdot r + 0) \bmod 10, \quad c = \lfloor (k \cdot r)/10 \rfloor
+\]
+and continue. After $d$ steps, we need the generated digit to equal $r$ and the carry to be 0. This happens at cycle lengths dividing some period.
+
+\subsection{Algorithm}
+For each $k \in \{1,\ldots,9\}$ and $r \in \{1,\ldots,9\}$, simulate the digit generation. The state is $(a_i, c_i)$ which cycles with period at most 90. For each valid cycle length $d \in [2, 99]$, compute the last 5 digits of $n$ and add to the running sum.
+
+\section{Result}
+\[
+\boxed{59206}
+\]
+
+\section{Answer}
+
+\[
+\boxed{59206}
+\]
+
+\end{document}

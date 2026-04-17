@@ -1,0 +1,97 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 192: Best Approximations}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For each non-perfect-square $d$ with $2 \leq d \leq 100000$, find the best rational approximation $p/q$ to $\sqrt{d}$ with $q \leq 10^{12}$. Sum all such $q$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Continued Fraction of $\sqrt{d}$]
+For non-square $d$, $\sqrt{d}$ has a periodic continued fraction:
+\[
+\sqrt{d} = [a_0; \overline{a_1, a_2, \ldots, a_T}]
+\]
+where $a_0 = \lfloor \sqrt{d} \rfloor$ and $a_T = 2a_0$. The partial quotients are computed via:
+\begin{align}
+m_0 &= 0, \quad d_0 = 1, \quad a_0 = \lfloor \sqrt{d} \rfloor, \\
+m_{n+1} &= a_n d_n - m_n, \quad d_{n+1} = \frac{d - m_{n+1}^2}{d_n}, \quad a_{n+1} = \left\lfloor \frac{a_0 + m_{n+1}}{d_{n+1}} \right\rfloor.
+\end{align}
+\end{theorem}
+
+\begin{proof}
+Classical result due to Lagrange. The state $(m_n, d_n)$ satisfies $d_n \mid (d - m_n^2)$ and $0 < m_n < \sqrt{d}$, so finitely many states exist, forcing periodicity. \qed
+\end{proof}
+
+\begin{theorem}[Convergent Recurrence]
+The convergents $h_k / k_k$ satisfy:
+\[
+h_k = a_k h_{k-1} + h_{k-2}, \quad k_k = a_k k_{k-1} + k_{k-2},
+\]
+with $h_{-1} = 1$, $h_{-2} = 0$, $k_{-1} = 0$, $k_{-2} = 1$.
+\end{theorem}
+
+\begin{proof}
+By induction, using the matrix identity:
+\[
+\begin{pmatrix} h_k & h_{k-1} \\ k_k & k_{k-1} \end{pmatrix} = \prod_{i=0}^{k} \begin{pmatrix} a_i & 1 \\ 1 & 0 \end{pmatrix}.
+\]
+\qed
+\end{proof}
+
+\begin{theorem}[Best Approximation]
+For bound $Q$ on the denominator, the best approximation to an irrational $\alpha$ with denominator $\leq Q$ is either a convergent $h_k/k_k$ with $k_k \leq Q$, or a semiconvergent $\frac{m h_k + h_{k-1}}{m k_k + k_{k-1}}$ for some $1 \leq m < a_{k+1}$ where $k_{k+1} > Q$.
+\end{theorem}
+
+\begin{proof}
+Every best approximation of the second kind is a convergent or semiconvergent (Hardy \& Wright, Ch.~10). Convergents alternate above and below $\alpha$, and semiconvergents interpolate monotonically between consecutive convergents. \qed
+\end{proof}
+
+\begin{lemma}[Semiconvergent Selection]
+Let $\alpha = \sqrt{d}$. The semiconvergent with $m = \lfloor(Q - k_{n-2})/k_{n-1}\rfloor$ is better than convergent $h_{n-1}/k_{n-1}$ iff:
+\[
+(q_s^2 d - h_s^2)^2 \cdot k_{n-1}^2 < (k_{n-1}^2 d - h_{n-1}^2)^2 \cdot q_s^2
+\]
+where $q_s = m k_{n-1} + k_{n-2}$, $h_s = m h_{n-1} + h_{n-2}$. This uses only exact integer arithmetic.
+\end{lemma}
+
+\begin{proof}
+Squaring $|q_s \sqrt{d} - h_s| < |k_{n-1}\sqrt{d} - h_{n-1}|$ and substituting $(\sqrt{d})^2 = d$ yields the stated integer inequality. \qed
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function best_denominator(d, Q):
+    Compute CF of sqrt(d), generating convergents
+    When k_next > Q:
+        Try semiconvergent with m = floor((Q - k2) / k1)
+        Compare via integer inequality
+        Return better of semiconvergent and last convergent
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N^{3/2})$ total, since each CF period is $O(\sqrt{d})$ and we sum over $d \leq N = 10^5$.
+    \item \textbf{Space:} $O(1)$ per $d$ (streaming computation).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{57060635927998347}
+\]
+
+\end{document}

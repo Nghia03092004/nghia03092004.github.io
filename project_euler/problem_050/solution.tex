@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 50: Consecutive Prime Sum}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Which prime, below one million, can be written as the sum of the most consecutive primes?
+
+\section{Formal Development}
+
+\begin{definition}[Consecutive Prime Sum]
+Let $p_1 = 2 < p_2 = 3 < p_3 = 5 < \cdots$ be the primes in ascending order. A \emph{consecutive prime sum} of length $L$ starting at index~$i$ is
+\[
+S(i, L) = \sum_{k=i}^{i+L-1} p_k.
+\]
+\end{definition}
+
+\begin{theorem}[Prefix Sum Formulation]\label{thm:prefix}
+Define $P_0 = 0$ and $P_n = \sum_{k=1}^{n} p_k$. Then $S(i, L) = P_{i+L-1} - P_{i-1}$, computable in $O(1)$ after $O(\pi(N))$ preprocessing.
+\end{theorem}
+
+\begin{proof}
+Telescoping: $S(i,L) = \sum_{k=i}^{i+L-1} p_k = P_{i+L-1} - P_{i-1}$.
+\end{proof}
+
+\begin{lemma}[Maximum Feasible Length]\label{lem:maxlen}
+Let $L_{\max} = \max\{L : P_L < N\}$. For all $L > L_{\max}$ and all $i \geq 1$, $S(i, L) \geq N$.
+\end{lemma}
+
+\begin{proof}
+$S(1, L) = P_L$ is the minimum possible sum of $L$ consecutive primes (starting from the smallest). If $P_L \geq N$, then $S(i, L) \geq S(1, L) \geq N$ for all $i$.
+\end{proof}
+
+\begin{theorem}[Correctness of Descending Search]\label{thm:correct}
+Searching lengths $L = L_{\max}, L_{\max}-1, \ldots, 1$ and returning the first prime $S(i,L) < N$ found yields the prime with the longest consecutive prime sum below $N$.
+\end{theorem}
+
+\begin{proof}
+Since lengths are tested in decreasing order, the first prime found has maximal $L$. By Lemma~\ref{lem:maxlen}, no length $> L_{\max}$ is feasible. For $L = 1$, every prime $p_i < N$ is a valid sum of length~$1$, so termination is guaranteed.
+\end{proof}
+
+\begin{theorem}\label{thm:answer}
+The prime below $10^6$ expressible as the longest consecutive prime sum is $997651$, the sum of $543$ consecutive primes starting from $p_4 = 7$.
+\end{theorem}
+
+\begin{proof}
+Applying the Sieve of Eratosthenes yields $\pi(10^6) = 78\,498$ primes. The prefix sums give $L_{\max} = 546$. The descending search finds that for $L = 543$ and starting index $i = 4$ (i.e., $p_4 = 7$):
+\[
+S(4, 543) = P_{546} - P_3 = 997651.
+\]
+Primality of $997651$ is confirmed by the sieve. No lengths $544$, $545$, or $546$ produce a prime sum below $10^6$.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{proposition}[Time]
+$O(N \log \log N)$ for the sieve, plus $O(\pi(N)^2)$ worst-case for the search (with early termination reducing this substantially in practice).
+\end{proposition}
+
+\begin{proof}
+The sieve is $O(N \log \log N)$. The nested loop examines at most $\sum_{L} (\pi(N) - L + 1) = O(\pi(N)^2)$ pairs, each costing $O(1)$ via sieve lookup. Early termination upon finding the first prime dramatically reduces the practical cost.
+\end{proof}
+
+\begin{proposition}[Space]
+$O(N)$ for the sieve; $O(\pi(N))$ for primes and prefix sums.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{997651}
+\]
+
+\end{document}

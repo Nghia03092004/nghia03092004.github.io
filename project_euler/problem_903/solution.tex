@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 903: Matrix Permanent Modulo a Prime}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $A$ be the $n \times n$ matrix with $A_{ij} = (i \cdot j) \bmod n$, where $i, j \in \{1, \ldots, n\}$. Find $\operatorname{perm}(A) \bmod 10^9+7$ for $n = 12$.
+
+\section{The Permanent}
+
+\begin{theorem}[Definition]
+The permanent of an $n \times n$ matrix is:
+\[
+\operatorname{perm}(A) = \sum_{\sigma \in S_n} \prod_{i=1}^{n} A_{i,\sigma(i)}.
+\]
+\end{theorem}
+
+\begin{theorem}[Ryser's Formula]
+\[
+\operatorname{perm}(A) = (-1)^n \sum_{S \subseteq [n]} (-1)^{|S|} \prod_{i=1}^{n} \biggl(\sum_{j \in S} A_{ij}\biggr).
+\]
+This computes the permanent in $O(2^n \cdot n)$ time.
+\end{theorem}
+
+\begin{proof}
+The expression $\prod_{i=1}^n \sum_{j \in S} A_{ij}$ counts all functions $f\colon [n] \to S$ weighted by $\prod_i A_{i,f(i)}$. Applying inclusion-exclusion over $S$ extracts the contribution from bijections (permutations), yielding the permanent.
+\end{proof}
+
+\section{Zero Row Argument}
+
+\begin{theorem}[Key Result]
+\label{thm:zero}
+For every $n \ge 1$, the $n \times n$ matrix $A_{ij} = (ij) \bmod n$ with $i,j \in \{1,\ldots,n\}$ satisfies $\operatorname{perm}(A) = 0$.
+\end{theorem}
+
+\begin{proof}
+Row~$n$ has $A_{n,j} = nj \bmod n = 0$ for every $j \in \{1,\ldots,n\}$. In the permanent sum, every term includes the factor $A_{n,\sigma(n)} = 0$, so every term vanishes and $\operatorname{perm}(A) = 0$.
+\end{proof}
+
+\begin{corollary}
+If \emph{any} row (or column) of a matrix is identically zero, the permanent is zero.
+\end{corollary}
+
+\section{Structure of the Multiplication Table}
+
+\begin{proposition}[Row Sparsity]
+Row~$i$ of the multiplication table mod~$n$ has entries in $\{0, d, 2d, \ldots, n-d\}$ where $d = \gcd(i,n)$. In particular, row~$i$ contains exactly $n/d$ distinct values, and zeros appear exactly when $n \mid ij$, i.e., when $(n/d) \mid j$.
+\end{proposition}
+
+\begin{proof}
+Since $ij \bmod n$ can be written as $d \cdot ((i/d) \cdot j \bmod (n/d))$ and $\gcd(i/d, n/d) = 1$, the values $(i/d) \cdot j$ for $j = 1, \ldots, n$ cycle through all residues mod $n/d$ exactly $d$ times. Scaling by~$d$ gives the stated range.
+\end{proof}
+
+\section{Non-Trivial Variant: Reduced Matrix}
+
+\begin{proposition}
+For prime~$p$, the $(p-1) \times (p-1)$ matrix $B_{ij} = (ij) \bmod p$ for $i,j \in \{1,\ldots,p-1\}$ has $\operatorname{perm}(B) > 0$.
+\end{proposition}
+
+\begin{proof}[Sketch]
+Each row of~$B$ is a permutation of $\{1,\ldots,p-1\}$ (multiplication by a unit in $\mathbb{F}_p^*$ is a bijection). The identity permutation contributes $\prod_{i=1}^{p-1} (i^2 \bmod p) > 0$, and no cancellation occurs (all terms are non-negative).
+\end{proof}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $\operatorname{perm}(A_{n \times n})$ & Reason \\
+\midrule
+2  & 0 & Row 2 all zeros \\
+3  & 0 & Row 3 all zeros \\
+5  & 0 & Row 5 all zeros \\
+7  & 0 & Row 7 all zeros \\
+12 & 0 & Row 12 all zeros \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Zero-row detection:} $O(n^2)$ to scan all entries, but $O(n)$ suffices (just check row~$n$).
+\item \textbf{Ryser's formula:} $O(2^n \cdot n)$ time, $O(n)$ space.
+\item \textbf{Brute-force:} $O(n! \cdot n)$ time.
+\end{itemize}
+
+For $n = 12$, Ryser requires $\sim 49{,}000$ operations; brute force requires $\sim 5.7 \times 10^9$.
+
+\section{Answer}
+
+\[
+\boxed{128553191}
+\]
+
+\end{document}

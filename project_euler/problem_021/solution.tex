@@ -1,0 +1,113 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\title{Project Euler Problem 21: Amicable Numbers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $d(n)$ denote the sum of proper divisors of~$n$. If $d(a) = b$ and $d(b) = a$ with $a \neq b$, then $a$ and $b$ form an \emph{amicable pair}. Compute the sum of all amicable numbers below $10000$.
+
+\section{Definitions}
+
+\begin{definition}[Divisor-Sum Functions]
+For $n \in \mathbb{Z}_{>0}$, define $\sigma_1(n) = \sum_{d \mid n} d$ and $s(n) = \sigma_1(n) - n$.
+\end{definition}
+
+\begin{definition}[Amicable Pair]
+Distinct positive integers $a, b$ form an \emph{amicable pair} if $s(a) = b$ and $s(b) = a$.
+\end{definition}
+
+\section{Theorems and Proofs}
+
+\begin{theorem}[Multiplicativity of $\sigma_1$]
+If $\gcd(m, n) = 1$, then $\sigma_1(mn) = \sigma_1(m)\,\sigma_1(n)$. Consequently,
+\[
+\sigma_1\!\Bigl(\prod_{i=1}^{k} p_i^{a_i}\Bigr) = \prod_{i=1}^{k} \frac{p_i^{a_i+1} - 1}{p_i - 1}.
+\]
+\end{theorem}
+
+\begin{proof}
+The map $(d_1, d_2) \mapsto d_1 d_2$ is a bijection from $\{d_1 : d_1 \mid m\} \times \{d_2 : d_2 \mid n\}$ to $\{d : d \mid mn\}$, by unique factorization and coprimality. Hence
+\[
+\sigma_1(mn) = \sum_{d_1 \mid m}\;\sum_{d_2 \mid n} d_1 d_2 = \sigma_1(m)\,\sigma_1(n).
+\]
+For a prime power, $\sigma_1(p^a) = \sum_{j=0}^{a} p^j = (p^{a+1}-1)/(p-1)$ by the geometric series. The product formula follows by induction on the number of distinct prime factors.
+\end{proof}
+
+\begin{lemma}[Trial-Division Computation]
+The value $s(n)$ can be computed in $O(\sqrt{n})$ arithmetic operations.
+\end{lemma}
+
+\begin{proof}
+Divisors of $n$ pair as $(d, n/d)$ for $1 \leq d \leq \sqrt{n}$, so
+\[
+\sigma_1(n) = \sum_{\substack{d=1 \\ d \mid n}}^{\lfloor\sqrt{n}\rfloor} \!\bigl(d + n/d\bigr) - \epsilon(n), \quad
+\epsilon(n) = \begin{cases} \sqrt{n} & \text{if } \lfloor\sqrt{n}\rfloor^2 = n, \\ 0 & \text{otherwise.}\end{cases}
+\]
+The loop runs $\lfloor\sqrt{n}\rfloor$ iterations at $O(1)$ each, giving $O(\sqrt{n})$ total. Then $s(n) = \sigma_1(n) - n$.
+\end{proof}
+
+\begin{theorem}[Enumeration]
+The complete set of amicable pairs $(a,b)$ with $a < b < 10000$ is:
+\[
+\{(220, 284),\; (1184, 1210),\; (2620, 2924),\; (5020, 5564),\; (6232, 6368)\}.
+\]
+\end{theorem}
+
+\begin{proof}
+Exhaustive computation: for each $n \in [2, 9999]$, compute $m = s(n)$; if $m \neq n$ and $s(m) = n$, record $\{n, m\}$. This finite, deterministic enumeration yields exactly the five pairs listed.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Sum of Amicable Numbers below $N$}
+\begin{algorithmic}[1]
+\REQUIRE Upper bound $N$
+\ENSURE Sum of all amicable numbers in $[2, N)$
+\STATE $\mathrm{total} \gets 0$
+\FOR{$n = 2$ \TO $N - 1$}
+    \STATE $m \gets s(n)$
+    \IF{$m \neq n$ \AND $m > 0$ \AND $s(m) = n$}
+        \STATE $\mathrm{total} \gets \mathrm{total} + n$
+    \ENDIF
+\ENDFOR
+\RETURN $\mathrm{total}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(N^{3/2})$ time and $O(1)$ auxiliary space.
+\end{proposition}
+
+\begin{proof}
+The outer loop iterates $N - 2$ times, each calling $s(\cdot)$ at most twice at cost $O(\sqrt{N})$ per call (by Lemma~1). Total: $O(N \sqrt{N})$. No arrays beyond loop variables are needed.
+
+A divisor-sum sieve computes all $s(n)$ for $n \leq N$ in $O(N \log N)$ time and $O(N)$ space, yielding an improved $O(N \log N)$ algorithm.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{31626}
+\]
+
+\end{document}

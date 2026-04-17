@@ -1,0 +1,62 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Problem 279: Triangles with Integral Sides and an Integral Angle}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many triangles with integer sides and perimeter $\le 10^8$ have at least one angle that is an integer number of degrees?
+
+\section{Solution}
+
+\subsection{Niven's Theorem}
+By Niven's theorem, the only angles $\theta \in (0^\circ, 180^\circ)$ with $\theta$ an integer degree and $\cos\theta$ rational are $60^\circ$, $90^\circ$, and $120^\circ$. Since integer sides require rational cosine via the law of cosines, only these angles are possible.
+
+\subsection{120-Degree Family}
+$c^2 = a^2 + b^2 + ab$. Primitive parametrization ($m > n > 0$, $\gcd(m,n)=1$, $3 \nmid (m-n)$):
+\begin{align}
+\text{sides:} &\quad m^2-n^2,\; 2mn+n^2,\; m^2+mn+n^2 \\
+\text{perimeter:} &\quad (2m+n)(m+n)
+\end{align}
+
+\subsection{60-Degree Family (Non-Equilateral)}
+$b^2 = a^2 + c^2 - ac$. Two cases of primitive triples with the same conditions on $m,n$:
+
+\textbf{Case 1:} sides $(m^2-n^2,\; m^2+mn+n^2,\; m(m+2n))$, perimeter $3m(m+n)$.
+
+\textbf{Case 2:} sides $(n(2m+n),\; m^2+mn+n^2,\; m(m+2n))$, perimeter $(2m+n)(m+2n)$.
+
+\subsection{90-Degree Family (Pythagorean)}
+$c^2 = a^2 + b^2$. Primitive parametrization ($m > n > 0$, $\gcd(m,n)=1$, $m-n$ odd):
+\begin{align}
+\text{sides:} &\quad m^2-n^2,\; 2mn,\; m^2+n^2 \\
+\text{perimeter:} &\quad 2m(m+n)
+\end{align}
+
+\subsection{Equilateral}
+$a = b = c$, perimeter $3a$. Count: $\lfloor N/3 \rfloor$.
+
+\subsection{No Overlap}
+The three families are disjoint:
+\begin{itemize}
+\item $60^\circ + 90^\circ$: third angle $30^\circ$ has $\cos 30^\circ = \sqrt{3}/2 \notin \mathbb{Q}$.
+\item $60^\circ + 120^\circ$: sum $= 180^\circ$, impossible.
+\item $90^\circ + 120^\circ$: sum $> 180^\circ$, impossible.
+\end{itemize}
+
+\subsection{Counting}
+For each primitive triple with perimeter $p_0$, the scaled copies with perimeter $\le N$ number $\lfloor N/p_0 \rfloor$. Sum over all primitive triples in all four categories.
+
+\section{Answer}
+
+\[
+\boxed{416577688}
+\]
+
+\end{document}

@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 681: Maximal Area}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For positive integers $a \le b \le c \le d$, let $M(a,b,c,d)$ denote the maximum area of a quadrilateral with consecutive side lengths $a, b, c, d$. Define
+\[
+SP(n) = \sum_{\substack{a \le b \le c \le d \\ M(a,b,c,d) \in \{1,\ldots,n\}}} (a + b + c + d).
+\]
+Given: $SP(10) = 186$, $SP(100) = 23238$. Find $SP(10^{16})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Brahmagupta]
+Among all quadrilaterals with prescribed side lengths $a, b, c, d > 0$ satisfying $d < a+b+c$, the maximum area is attained uniquely by the cyclic quadrilateral and equals
+\[
+M(a,b,c,d) = \sqrt{(s-a)(s-b)(s-c)(s-d)},
+\]
+where $s = (a+b+c+d)/2$ is the semi-perimeter.
+\end{theorem}
+
+\begin{proof}
+For a quadrilateral with sides $a,b,c,d$ and opposite angle pairs $(\alpha,\gamma)$, $(\beta,\delta)$, the area satisfies
+\[
+A = \sqrt{(s-a)(s-b)(s-c)(s-d) - abcd\cos^2\!\Bigl(\frac{\alpha+\gamma}{2}\Bigr)}.
+\]
+Since $\cos^2((\alpha+\gamma)/2) \ge 0$ with equality iff $\alpha+\gamma=\pi$ (the cyclic condition), the maximum is $\sqrt{(s-a)(s-b)(s-c)(s-d)}$.
+\end{proof}
+
+\begin{lemma}[Change of Variables]
+Define $w = s-a$, $x = s-b$, $y = s-c$, $z = s-d$. Then:
+\begin{enumerate}
+  \item $a+b+c+d = w+x+y+z$ and $s = (w+x+y+z)/2$.
+  \item $a \le b \le c \le d \iff w \ge x \ge y \ge z$.
+  \item The polygon inequality $d < a+b+c$ holds iff $z > 0$.
+  \item $M(a,b,c,d) \in \mathbb{Z}^+$ requires $w+x+y+z$ even and $wxyz$ a perfect square.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+We have $w+x+y+z = 4s - 2s = 2s = a+b+c+d$. Part~(2): $a \le b$ iff $s-w \le s-x$ iff $w \ge x$. Part~(3): $d < a+b+c$ iff $s-z < 3s-(w+x+y)$, simplifying (via $w+x+y+z=2s$) to $z > 0$. Part~(4): $M \in \mathbb{Z}^+$ requires $s \in \mathbb{Z}$ (even perimeter) and $wxyz$ a perfect square.
+\end{proof}
+
+\begin{lemma}[Enumeration Bijection]
+There is a bijection between valid quadrilateral tuples $(a,b,c,d)$ with integer $M = A$ and factorizations $A^2 = wxyz$ with $w \ge x \ge y \ge z \ge 1$ and $w+x+y+z$ even.
+\end{lemma}
+
+\begin{proof}
+Given such a factorization, set $s=(w+x+y+z)/2$ and recover $(a,b,c,d)=(s-w,s-x,s-y,s-z)$. By the previous lemma, this yields a valid ordered quadrilateral with $M=A$. The map is invertible.
+\end{proof}
+
+\section{Algorithm}
+
+Enumerate all 4-fold factorizations of $A^2$ for each $A = 1,\ldots,n$:
+\begin{enumerate}
+  \item For $z = 1$ to $A^{1/2}$: if $z \mid A^2$, set $R_1 = A^2/z$.
+  \item For $y = z$ to $R_1^{1/3}$: if $y \mid R_1$, set $R_2 = R_1/y$.
+  \item For $x = y$ to $R_2^{1/2}$: if $x \mid R_2$, set $w = R_2/x$.
+  \item If $w+x+y+z$ is even, accumulate $w+x+y+z$ into $SP(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O\bigl(\sum_{A=1}^{n} d_4(A^2)\bigr) = O(n\log^3 n)$ on average.
+  \item \textbf{Space:} $O(n)$ with sieve, or $O(\sqrt{n})$ with trial division.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2611227421428}
+\]
+
+\end{document}

@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 275: Balanced Sculptures}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A balanced sculpture of order~$n$ consists of a plinth at $(0,0)$ and $n$ blocks at $y \ge 1$, forming a connected polyomino with $\sum x_i = 0$. Reflections about the $y$-axis are identified. Find the count for order~18.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Burnside for Reflection]
+Let $T$ = fixed balanced count, $S$ = reflection-symmetric count. The number of distinct sculptures up to reflection is $(T+S)/2$.
+\end{theorem}
+
+\begin{proof}
+The group $G = \{e, \sigma\}$ ($\sigma$: reflection $x \mapsto -x$) acts on fixed sculptures. By Burnside's lemma, the orbit count is
+\[
+\frac{|\mathrm{Fix}(e)| + |\mathrm{Fix}(\sigma)|}{2} = \frac{T + S}{2}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Forced Cell]
+In any balanced sculpture of order $n \ge 1$, the cell $(0,1)$ is occupied.
+\end{lemma}
+
+\begin{proof}
+The plinth is at $(0,0)$ and all blocks have $y \ge 1$. The only cell at $y \ge 1$ adjacent to the plinth is $(0,1)$; without it, no block connects to the plinth, violating connectivity.
+\end{proof}
+
+\begin{lemma}[Balance = Zero-Sum]
+$\sum_{i=1}^n x_i = 0$ iff the centre of mass of the blocks has $x$-coordinate zero.
+\end{lemma}
+
+\begin{proof}
+$\bar{x} = \frac{1}{n}\sum x_i = 0$ iff $\sum x_i = 0$.
+\end{proof}
+
+\begin{theorem}[Redelmeier Enumeration]
+Fixed polyominoes rooted at the plinth are enumerated without duplication by maintaining a placed set~$P$, an ordered frontier~$U$, and an excluded set~$E$. At each step the smallest frontier cell~$c$ is either added to~$P$ or permanently excluded. The excluded set prevents re-addition of skipped cells.
+\end{theorem}
+
+\begin{proof}
+By induction on placed cells. At each branch the sub-trees partition polyominoes into those containing~$c$ and those not. The lexicographic ordering and excluded set together guarantee each polyomino is generated exactly once.
+\end{proof}
+
+\begin{lemma}[Balance Pruning]
+If $|x_{\mathrm{sum}}| > r \cdot x_{\max}$ where $r$ is the number of remaining cells, the branch is infeasible.
+\end{lemma}
+
+\begin{proof}
+Each remaining cell changes $|x_{\mathrm{sum}}|$ by at most $x_{\max}$, so balance cannot be restored.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Run Redelmeier DFS for fixed balanced sculptures to obtain $T$.
+    \item Run a second DFS restricted to symmetric configurations to obtain $S$.
+    \item Return $(T + S)/2$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} Exponential in $n$ but tractable for $n = 18$ with pruning. Approximately 60 seconds in optimized C++.
+    \item \textbf{Space:} $O(n \cdot W)$ for the DFS stack and frontier/excluded arrays, where $W$ is the grid width.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{15030564}
+\]
+
+\end{document}

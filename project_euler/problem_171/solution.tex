@@ -1,0 +1,107 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 171: Finding Numbers for Which the Sum of the Squares\\of the Digits Is a Perfect Square}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer $n$, let $f(n)$ denote the sum of the squares of the digits of $n$ in base~10. Find the last nine digits of
+\[
+\sum_{\substack{0 < n < 10^{20} \\ f(n) \text{ is a perfect square}}} n.
+\]
+
+\section{Mathematical Development}
+
+\begin{definition}
+For $n$ with base-10 representation $d_1 d_2 \cdots d_D$, define $f(n) = \sum_{i=1}^{D} d_i^2$.
+\end{definition}
+
+\begin{theorem}[Digit-square-sum bound]
+For any non-negative integer $n$ representable with at most $D$ decimal digits, $f(n) \leq 81D$. The attainable perfect-square values of $f$ form the set $\{j^2 : 1 \leq j \leq \lfloor\sqrt{81D}\rfloor\}$.
+\end{theorem}
+
+\begin{proof}
+Each digit $d_i \in \{0,1,\ldots,9\}$ satisfies $d_i^2 \leq 81$. Summing over $D$ digits gives $f(n) \leq 81D$. The perfect squares in $\{1,\ldots,M\}$ are $\{1^2,2^2,\ldots,\lfloor\sqrt{M}\rfloor^2\}$.
+\end{proof}
+
+\begin{corollary}
+For $D = 20$: $f(n) \leq 1620$, $\lfloor\sqrt{1620}\rfloor = 40$. The target perfect-square sums are $\{1,4,9,\ldots,1600\}$.
+\end{corollary}
+
+\begin{lemma}[Digit-append identity]
+Let $\mathcal{S}$ be any finite set of non-negative integers and $d \in \{0,\ldots,9\}$. Then
+\[
+\sum_{x \in \mathcal{S}} (10x + d) = 10\sum_{x \in \mathcal{S}} x \;+\; d \cdot |\mathcal{S}|.
+\]
+\end{lemma}
+
+\begin{proof}
+Immediate from linearity: $\sum_{x \in \mathcal{S}} (10x+d) = 10\sum_{x} x + \sum_{x} d = 10\sum_{x} x + d|\mathcal{S}|$.
+\end{proof}
+
+\begin{theorem}[Digit DP correctness]
+Define for $k \geq 0$ and $0 \leq s \leq 81D$:
+\begin{itemize}
+    \item $C[k][s]$ = number of $k$-character decimal strings with digit-square-sum~$s$.
+    \item $T[k][s]$ = sum (mod $10^9$) of numerical values of all such strings.
+\end{itemize}
+With base case $C[0][0] = 1$, $T[0][0] = 0$, and recurrence for $d \in \{0,\ldots,9\}$:
+\begin{align}
+C[k+1][s + d^2] &\mathrel{+}= C[k][s], \\
+T[k+1][s + d^2] &\mathrel{+}= 10 \cdot T[k][s] + d \cdot C[k][s],
+\end{align}
+the answer is $\sum_{j=1}^{40} T[20][j^2] \pmod{10^9}$.
+\end{theorem}
+
+\begin{proof}
+Represent every integer in $\{0,\ldots,10^{20}-1\}$ as a zero-padded 20-character string. The DP builds these strings left to right. By the digit-append identity (Lemma~1), the transition for $T$ correctly maintains the aggregate numerical value. After 20 layers, restricting to perfect-square sums and totaling yields the answer. The string $00\cdots0$ ($n=0$) satisfies $f(0) = 0 = 0^2$ but contributes~0 to the sum, so excluding $n > 0$ requires no correction.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State $\textsc{Mod} \gets 10^9$; $S_{\max} \gets 1620$
+\State $C[0 \ldots S_{\max}] \gets 0$; $T[0 \ldots S_{\max}] \gets 0$; $C[0] \gets 1$
+\For{$k = 1$ to $20$}
+    \State $C'[\cdot],\, T'[\cdot] \gets 0$
+    \For{$s = 0$ to $S_{\max}$}
+        \If{$C[s] = 0$} \textbf{continue} \EndIf
+        \For{$d = 0$ to $9$}
+            \State $s' \gets s + d^2$
+            \If{$s' > S_{\max}$} \textbf{break} \EndIf
+            \State $C'[s'] \gets C'[s'] + C[s]$
+            \State $T'[s'] \gets (T'[s'] + 10\,T[s] + d\,C[s]) \bmod \textsc{Mod}$
+        \EndFor
+    \EndFor
+    \State $C \gets C'$; $T \gets T'$
+\EndFor
+\State \Return $\sum_{j=1}^{40} T[j^2] \bmod \textsc{Mod}$
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(D \cdot S_{\max} \cdot 10)$ where $D=20$, $S_{\max}=1620$, yielding $\approx 3.24 \times 10^5$ operations.
+    \item \textbf{Space:} $O(S_{\max})$ via rolling arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{142989277}
+\]
+
+\end{document}

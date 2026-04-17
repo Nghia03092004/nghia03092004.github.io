@@ -1,0 +1,83 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 159: Digital Root Sums of Factorisations}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define the digital root $\mathrm{dr}(n)$ as the iterated digit sum until a single digit remains. For a composite $n$ with factorization $n = a_1 \cdot a_2 \cdots a_k$ (each $a_i > 1$), the digital root sum is $\mathrm{drs} = \mathrm{dr}(a_1) + \cdots + \mathrm{dr}(a_k)$. The maximal digital root sum $\mathrm{mdrs}(n)$ is the maximum over all such factorizations.
+
+Compute $\displaystyle\sum_{n=2}^{999999} \mathrm{mdrs}(n)$.
+
+\section{Mathematical Foundation}
+
+\subsection{Digital Root Formula}
+
+\begin{theorem}
+For $n \ge 1$:
+\[
+\mathrm{dr}(n) = 1 + ((n-1) \bmod 9)
+\]
+\end{theorem}
+
+\begin{proof}
+Since the digit sum satisfies $S(n) \equiv n \pmod{9}$ and iterating preserves this congruence, the fixed point is the unique single digit $d \in \{1, \ldots, 9\}$ with $d \equiv n \pmod{9}$.
+\end{proof}
+
+\subsection{Sieve-based Dynamic Programming}
+
+\begin{theorem}
+$\mathrm{mdrs}(n)$ satisfies:
+\[
+\mathrm{mdrs}(n) = \max\!\left(\mathrm{dr}(n),\; \max_{\substack{a \mid n \\ 2 \le a \le \sqrt{n}}} \left\{\mathrm{dr}(a) + \mathrm{mdrs}(n/a)\right\}\right)
+\]
+\end{theorem}
+
+\begin{proof}
+Any factorization of $n$ into factors $> 1$ either consists of $n$ alone (giving $\mathrm{dr}(n)$) or has a smallest factor $a \ge 2$ with remaining product $n/a \ge a$. The remaining product is then optimally factored, contributing $\mathrm{mdrs}(n/a)$.
+\end{proof}
+
+\subsection{Algorithm}
+
+Initialize $\mathrm{mdrs}(n) = \mathrm{dr}(n)$ for all $n$.
+
+For $a = 2, 3, \ldots, 999$:
+\begin{itemize}
+    \item For each $j = a, a+1, \ldots$ such that $n = a \cdot j \le 999999$:
+    \[
+    \mathrm{mdrs}(n) \leftarrow \max(\mathrm{mdrs}(n),\; \mathrm{dr}(a) + \mathrm{mdrs}(j))
+    \]
+\end{itemize}
+
+\section{Complexity}
+
+$O(N \log N)$ where $N = 999999$, from the harmonic sum $\sum_{a=2}^{\sqrt{N}} N/a$.
+
+\section{Result}
+
+\[
+\sum_{n=2}^{999999} \mathrm{mdrs}(n) = \boxed{14489159}
+\]
+
+\section{Answer}
+
+\[
+\boxed{14489159}
+\]
+
+\end{document}

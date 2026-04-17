@@ -1,0 +1,50 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 495: Writing $n$ as the Product of $k$ Distinct Divisors}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $W(n, k)$ denote the number of ways to write $n$ as the product of exactly $k$ distinct integers, each greater than~1 (order does not matter). Define $S(n) = \sum_{k=1}^{\infty} W(n, k)$.
+
+\section{Mathematical Analysis}
+\subsection{Recursive Formulation}
+Define $W(n, k, m)$ as the number of ways to write $n$ as a product of $k$ distinct factors in $[2, m]$:
+\[
+W(n, k, m) = \sum_{\substack{d \mid n \\ 2 \le d \le m}} W\!\left(\frac{n}{d},\; k-1,\; d-1\right)
+\]
+with base case $W(1, 0, m) = 1$ for all $m$, and $W(n, 0, m) = 0$ for $n > 1$.
+
+Then $W(n, k) = W(n, k, n)$.
+
+\subsection{Bounds on $k$}
+Since the $k$ factors are distinct integers $\ge 2$, the minimum product with $k$ factors is:
+\[
+2 \cdot 3 \cdot 4 \cdots (k+1) = (k+1)!
+\]
+Thus $W(n, k) = 0$ whenever $n < (k+1)!$, and in particular $k \le O(\log n / \log\log n)$.
+
+\subsection{Generating Function}
+The Dirichlet generating function for the total count is:
+\[
+\sum_{n=1}^{\infty} S(n)\, n^{-s} = \prod_{d=2}^{\infty} (1 + d^{-s}) - 1
+\]
+This product converges for $\operatorname{Re}(s) > 1$.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Recursive with memoization:} The number of states is bounded by the number of distinct $(n/d, k, m)$ triples, which depends on the divisor structure.
+    \item \textbf{For large $N$:} Requires Dirichlet series techniques or sieve-based approaches.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{789107601}
+\]
+
+\end{document}

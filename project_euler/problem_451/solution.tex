@@ -1,0 +1,127 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+
+\title{Problem 451: Modular Inverses}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer $n$, define $I(n)$ as the largest positive integer $m < n-1$ such that
+$m^2 \equiv 1 \pmod{n}$. If no such $m$ exists, set $I(n) = 1$.
+
+Known values: $I(7) = 1$, $I(15) = 11$, $I(100) = 51$.
+
+Compute
+\[
+    \sum_{n=3}^{2 \times 10^7} I(n).
+\]
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+A number $m$ with $1 \le m < n$ and $\gcd(m, n) = 1$ is a \emph{self-inverse} modulo $n$ if
+$m^2 \equiv 1 \pmod{n}$.
+\end{definition}
+
+\begin{theorem}[CRT factorization of self-inverses]\label{thm:crt}
+Let $n = p_1^{a_1} p_2^{a_2} \cdots p_k^{a_k}$. Then
+\[
+    m^2 \equiv 1 \pmod{n} \iff m^2 \equiv 1 \pmod{p_i^{a_i}} \text{ for all } i = 1, \ldots, k.
+\]
+\end{theorem}
+
+\begin{proof}
+By the Chinese Remainder Theorem, $\mathbb{Z}/n\mathbb{Z} \cong \prod_{i=1}^{k} \mathbb{Z}/p_i^{a_i}\mathbb{Z}$. The equation $m^2 - 1 \equiv 0$ holds in the product ring if and only if it holds in each factor.
+\end{proof}
+
+\begin{lemma}[Solutions modulo prime powers]\label{lem:pp}
+The solutions of $x^2 \equiv 1 \pmod{p^a}$ are:
+\begin{itemize}
+    \item For $p$ odd: exactly 2 solutions, $x \equiv \pm 1 \pmod{p^a}$.
+    \item For $p = 2$:
+    \begin{itemize}
+        \item $a = 1$: 1 solution ($x = 1$).
+        \item $a = 2$: 2 solutions ($x \in \{1, 3\}$).
+        \item $a \ge 3$: 4 solutions ($x \in \{1,\; 2^{a-1}-1,\; 2^{a-1}+1,\; 2^a-1\}$).
+    \end{itemize}
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+For odd $p$, $(\mathbb{Z}/p^a\mathbb{Z})^*$ is cyclic of order $\varphi(p^a) = p^{a-1}(p-1)$. In a cyclic group, the equation $x^2 = e$ has at most 2 solutions, and $\pm 1$ are always solutions, so there are exactly 2.
+
+For $p = 2$ and $a \ge 3$, we have $(\mathbb{Z}/2^a\mathbb{Z})^* \cong \mathbb{Z}/2 \times \mathbb{Z}/2^{a-2}$, so the equation $x^2 = 1$ has $2 \times 2 = 4$ solutions (the identity and the unique element of order 2 in each cyclic factor). These are verified directly:
+\begin{align*}
+    1^2 &\equiv 1, \\
+    (2^{a-1}-1)^2 &= 2^{2a-2} - 2^a + 1 \equiv 1, \\
+    (2^{a-1}+1)^2 &= 2^{2a-2} + 2^a + 1 \equiv 1, \\
+    (2^a - 1)^2 &= 2^{2a} - 2^{a+1} + 1 \equiv 1 \pmod{2^a}.
+\end{align*}
+The cases $a = 1$ and $a = 2$ are checked by exhaustion.
+\end{proof}
+
+\begin{corollary}
+The total number of self-inverses modulo $n = \prod p_i^{a_i}$ is $\prod_{i=1}^{k} s(p_i^{a_i})$, where $s(p^a)$ denotes the count from Lemma~\ref{lem:pp}.
+\end{corollary}
+
+\begin{theorem}[Characterization of $I(n)$]\label{thm:In}
+Given the complete set of self-inverses modulo $n$ (constructed via CRT from Theorem~\ref{thm:crt} and Lemma~\ref{lem:pp}), $I(n)$ equals the second-largest element of this set. The largest is always $n-1$; if the only solutions are $\{1, n-1\}$, then $I(n) = 1$.
+\end{theorem}
+
+\begin{proof}
+Since $(n-1)^2 = n^2 - 2n + 1 \equiv 1 \pmod{n}$, the value $m = n-1$ is always a self-inverse. By definition, $I(n)$ is the largest self-inverse strictly less than $n-1$. If no non-trivial self-inverse exists, the only candidate below $n-1$ is $m = 1$, giving $I(n) = 1$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute $\sum I(n)$ via SPF sieve and CRT}
+\begin{algorithmic}[1]
+\State Compute smallest prime factor $\text{spf}[i]$ for $2 \le i \le N$ via sieve of Eratosthenes.
+\State $\text{total} \gets 0$
+\For{$n = 3$ to $N$}
+    \State Factor $n$ using $\text{spf}$: obtain prime powers $p_1^{a_1}, \ldots, p_k^{a_k}$.
+    \State $\text{sols} \gets \{1\}$, $\text{mod} \gets 1$
+    \For{each $(p_i, p_i^{a_i})$}
+        \State Compute local solutions $L_i$ of $x^2 \equiv 1 \pmod{p_i^{a_i}}$ via Lemma~\ref{lem:pp}.
+        \State $\text{sols} \gets \{\ \text{CRT}(s_1, \text{mod},\ s_2, p_i^{a_i}) : s_1 \in \text{sols},\ s_2 \in L_i\ \}$
+        \State $\text{mod} \gets \text{mod} \times p_i^{a_i}$
+    \EndFor
+    \State $I(n) \gets \max\{s \in \text{sols} : 1 < s < n-1\}$ (or $1$ if no such $s$)
+    \State $\text{total} \gets \text{total} + I(n)$
+\EndFor
+\State \Return total
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log \log N)$ for the SPF sieve. For each $n$, factoring via SPF takes $O(\log n)$. The CRT reconstruction processes $\omega(n)$ prime factors with up to $2^{\omega(n)}$ solutions. Since $\omega(n) \le O(\log n / \log \log n)$ and on average $\omega(n) \approx \log \log n$, the amortized cost per $n$ is small. Overall: $O(N \log \log N)$.
+    \item \textbf{Space:} $O(N)$ for the SPF array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{153651073760956}
+\]
+
+\end{document}

@@ -1,0 +1,87 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{booktabs}
+
+\title{Problem 106: Special Subset Sums: Meta-testing}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $S(A)$ represent the sum of elements in set $A$ of size $n$. We call it a \emph{special sum set} if for any two non-empty disjoint subsets $B$ and $C$:
+\begin{enumerate}
+    \item $S(B) \neq S(C)$
+    \item If $|B| > |C|$ then $S(B) > S(C)$
+\end{enumerate}
+
+Assuming condition~2 is satisfied, we only need to verify condition~1 for pairs where $|B| = |C|$. For $n = 12$, how many such pairs need testing?
+
+\section{Mathematical Analysis}
+
+\subsection{Counting Equal-Size Disjoint Pairs}
+
+For subsets $B, C$ with $|B| = |C| = k$, the total number of unordered disjoint pairs is:
+\[
+\binom{n}{2k} \cdot \frac{1}{2}\binom{2k}{k}
+\]
+
+\subsection{Pairs Guaranteed by the Ordering Condition}
+
+When we interleave the sorted elements of $B$ and $C$, if the interleaving is \emph{non-crossing} (every $b_i$ and $c_i$ paired by rank satisfy a consistent inequality), the ordering condition already guarantees $S(B) \neq S(C)$.
+
+The number of non-crossing interleavings of $k$ $B$-elements and $k$ $C$-elements is exactly the $k$-th Catalan number:
+\[
+C_k = \frac{1}{k+1}\binom{2k}{k}
+\]
+
+Thus the number of pairs guaranteed safe for a given $2k$-element subset is $C_k$, and over all such subsets:
+\[
+\text{Guaranteed pairs} = \binom{n}{2k} \cdot C_k
+\]
+
+\subsection{Pairs Requiring Testing}
+
+\[
+T = \sum_{k=2}^{\lfloor n/2 \rfloor} \binom{n}{2k} \left[ \frac{1}{2}\binom{2k}{k} - C_k \right]
+\]
+
+\subsection{Computation for $n = 12$}
+
+\begin{center}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+$k$ & $\binom{12}{2k}$ & $\frac{1}{2}\binom{2k}{k}$ & $C_k$ & Difference & Contribution \\
+\midrule
+2 & 495 & 3 & 2 & 1 & 495 \\
+3 & 924 & 10 & 5 & 5 & 4620 \\
+4 & 495 & 35 & 14 & 21 & 10395 \\
+5 & 66 & 126 & 42 & 84 & 5544 \\
+6 & 1 & 462 & 132 & 330 & 330 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\[
+T = 495 + 4620 + 10395 + 5544 + 330 = \boxed{21384}
+\]
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n)$ --- one pass over valid values of $k$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{21384}
+\]
+
+\end{document}

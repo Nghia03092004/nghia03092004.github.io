@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Project Euler Problem 424: Kakuro}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Solve a collection of Kakuro puzzles. Each puzzle is a grid where blank cells are filled with digits $1$--$9$ such that each horizontal/vertical run of consecutive blanks sums to a given clue with no repeated digits. Compute the sum of 3-digit numbers formed by designated cells across all puzzles.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Constraint Characterization]
+For a run of length $\ell$ with target sum $s$, the valid digit subsets are
+\[
+\mathcal{C}(\ell, s) = \{D \subseteq \{1,\ldots,9\} : |D| = \ell,\; \textstyle\sum_{d \in D} d = s\}.
+\]
+\end{theorem}
+
+\begin{proof}
+A valid assignment uses $\ell$ distinct digits from $\{1,\ldots,9\}$ summing to $s$. Each such assignment corresponds to a subset $D \in \mathcal{C}(\ell,s)$ together with an arrangement of its elements into the run's cells.
+\end{proof}
+
+\begin{theorem}[Uniqueness]
+Each well-posed Kakuro puzzle has exactly one solution.
+\end{theorem}
+
+\begin{proof}
+The search space is finite (each cell has at most 9 values, finitely many cells). By the design guarantee, the constraint system has a unique satisfying assignment.
+\end{proof}
+
+\begin{lemma}[Arc Consistency]
+For a cell $c$ at the intersection of horizontal run $H$ and vertical run $V$:
+\[
+\mathrm{dom}(c) = \biggl(\bigcup_{D_H \in \mathcal{C}(\ell_H, s_H)} D_H\biggr) \cap \biggl(\bigcup_{D_V \in \mathcal{C}(\ell_V, s_V)} D_V\biggr).
+\]
+Iterative propagation reduces domains without eliminating solutions.
+\end{lemma}
+
+\begin{proof}
+The value of $c$ must belong to some valid subset for both $H$ and $V$. The intersection gives all feasible values. Removing infeasible values preserves all solutions.
+\end{proof}
+
+\begin{lemma}[Backtracking Termination]
+Backtracking search with constraint propagation terminates in finite time.
+\end{lemma}
+
+\begin{proof}
+Each branch either fixes a cell (reducing domain size) or triggers backtracking via domain wipeout. Since domains are finite and strictly decrease along each path, the search tree is finite.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Parse each puzzle grid to identify runs (cell lists, target sums).
+    \item For each run of length $\ell$ with sum $s$, enumerate $\mathcal{C}(\ell,s)$ (at most $2^9 = 512$ subsets to check).
+    \item Initialize cell domains by intersecting valid digits from crossing runs.
+    \item Apply constraint propagation: when $|\mathrm{dom}(c)| = 1$, remove that digit from all peers.
+    \item If stuck, branch on the most constrained cell (smallest domain $>1$) and recurse.
+    \item Extract the 3-digit number from designated cells; sum across all puzzles.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} Worst case $O(9^n)$ for $n$ blank cells. In practice, constraint propagation reduces this to near-linear for well-constrained puzzles. Subset enumeration: $O(2^9)$ per run.
+    \item \textbf{Space:} $O(n \cdot 9)$ for domains; $O(r \cdot 2^9)$ for valid subsets across $r$ runs.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1059760019628}
+\]
+
+\end{document}

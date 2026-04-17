@@ -1,0 +1,73 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 220: Heighway Dragon}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The Heighway Dragon curve is defined by the L-system:
+\begin{itemize}
+    \item Axiom: $F_a$
+    \item Rules: $F_a \to F_a R F_b$, $F_b \to F_a L F_b$
+\end{itemize}
+Starting at the origin $(0, 0)$ facing up (north), find the position after $10^{12}$ drawing steps at expansion level 50.
+
+\section{Recursive Decomposition}
+
+\subsection{Structure}
+At level $n$, symbol $F_a$ expands to a sequence with $2^n$ forward moves. The expansion is:
+\[
+F_a^{(n)} = F_a^{(n-1)} \; R \; F_b^{(n-1)}, \qquad F_b^{(n)} = F_a^{(n-1)} \; L \; F_b^{(n-1)}
+\]
+
+\subsection{Precomputed Tables}
+For each level $n$ and symbol $s \in \{a, b\}$ and starting direction $d \in \{0,1,2,3\}$ (encoding N, E, S, W):
+
+\begin{itemize}
+    \item $\Delta x(n, s, d)$ and $\Delta y(n, s, d)$: net displacement
+    \item $\text{rot}(n, s)$: net rotation (mod 4)
+\end{itemize}
+
+\subsection{Base Case}
+At level 0, both $F_a$ and $F_b$ are a single forward step:
+\begin{align}
+\Delta x(0, *, 0) &= 0, \; \Delta y(0, *, 0) = 1 \quad \text{(facing north)} \\
+\text{rot}(0, *) &= 0
+\end{align}
+
+\subsection{Recursive Step}
+For $F_a^{(n)}$ starting in direction $d$:
+\begin{enumerate}
+    \item Execute $F_a^{(n-1)}$ in direction $d$: displacement $(\Delta x_1, \Delta y_1)$, end direction $d_1 = d + \text{rot}(n{-}1, a)$.
+    \item Turn right: direction becomes $d_2 = d_1 + 1$.
+    \item Execute $F_b^{(n-1)}$ in direction $d_2$: displacement $(\Delta x_2, \Delta y_2)$.
+\end{enumerate}
+Total displacement: $(\Delta x_1 + \Delta x_2, \; \Delta y_1 + \Delta y_2)$.
+
+\subsection{Query Algorithm}
+To find position after $k$ steps of $F_s^{(n)}$ starting at direction $d$:
+\begin{itemize}
+    \item If $n = 0$: move one step in direction $d$.
+    \item If $k \leq 2^{n-1}$: recurse into the first half (always $F_a^{(n-1)}$).
+    \item If $k > 2^{n-1}$: take full first half, apply turn, recurse into second half ($F_b^{(n-1)}$) with remaining steps.
+\end{itemize}
+
+\section{Result}
+After $10^{12}$ steps:
+\[
+\boxed{139776,963904}
+\]
+
+\section{Answer}
+
+\[
+\boxed{139776,963904}
+\]
+
+\end{document}

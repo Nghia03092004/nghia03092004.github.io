@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 133: Repunit Nonfactors}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of all primes below $100{,}000$ that will never be a factor of $R(10^n)$ for any positive integer~$n$, where $R(k) = \frac{10^k - 1}{9}$ is the $k$-digit repunit.
+
+\section{Mathematical Development}
+
+\begin{theorem}[5-Smooth Order Criterion]
+For a prime $p$ with $p \nmid 10$ and $p \neq 3$, there exists $n \geq 1$ such that $p \mid R(10^n)$ if and only if $\mathrm{ord}_p(10)$ is $5$-smooth (i.e., has no prime factor other than~2 and~5).
+\end{theorem}
+
+\begin{proof}
+We have $p \mid R(10^n) \iff \mathrm{ord}_p(10) \mid 10^n = 2^n \cdot 5^n$.
+
+$(\Rightarrow)$ If $\mathrm{ord}_p(10) \mid 2^n \cdot 5^n$ for some~$n$, then every prime factor of $\mathrm{ord}_p(10)$ divides $2^n \cdot 5^n$, so $\mathrm{ord}_p(10)$ is 5-smooth.
+
+$(\Leftarrow)$ If $\mathrm{ord}_p(10) = 2^a \cdot 5^b$, take $n = \max(a, b)$; then $\mathrm{ord}_p(10) \mid 10^n$.
+\end{proof}
+
+\begin{lemma}[Permanent Nonfactors]
+The primes $2$, $3$, and $5$ never divide $R(10^n)$ for any $n \geq 1$.
+\end{lemma}
+
+\begin{proof}
+The repunit $R(k) = \underbrace{11\ldots 1}_k$ is odd (so $2 \nmid R(k)$) and ends in digit~1 (so $5 \nmid R(k)$). For $p = 3$: since $\mathrm{ord}_{27}(10) = 3$, we have $3 \mid R(k) \iff 3 \mid k$. Since $\gcd(3, 10) = 1$ implies $3 \nmid 10^n$, the prime~3 never divides $R(10^n)$.
+\end{proof}
+
+\begin{lemma}[Efficient Testing]
+For $p < 10^5$, the condition ``$\mathrm{ord}_p(10)$ is $5$-smooth'' is equivalent to $10^{10^{20}} \equiv 1 \pmod{p}$.
+\end{lemma}
+
+\begin{proof}
+Since $\mathrm{ord}_p(10) \mid p - 1 < 10^5$, any 5-smooth order satisfies $\mathrm{ord}_p(10) = 2^a \cdot 5^b$ with $a \leq 16$ and $b \leq 7$, so $\mathrm{ord}_p(10) \mid 2^{20} \cdot 5^{20} = 10^{20}$. Conversely, $10^{10^{20}} \equiv 1 \pmod{p}$ implies $\mathrm{ord}_p(10) \mid 10^{20}$, hence 5-smooth.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Sieve primes up to $N = 100{,}000$.
+    \item For each prime $p$: if $p \in \{2, 3, 5\}$, add to the nonfactor sum. Otherwise, compute $d = \mathrm{ord}_p(10)$ by factoring $p - 1$ and refining. If $d$ is not 5-smooth, add $p$ to the sum.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log\log N)$ for the sieve, plus $O(\sqrt{p} + \log p)$ per prime for order computation. Total: $O(N^{3/2} / \log N)$ worst case.
+    \item \textbf{Space:} $O(N)$ for the sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{453647705}
+\]
+
+\end{document}

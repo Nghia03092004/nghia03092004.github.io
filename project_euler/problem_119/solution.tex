@@ -1,0 +1,47 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 119: Digit Power Sum}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define the sequence $\{a_n\}$ of integers $\ge 10$ such that each $a_n$ equals a power of its own digit sum: $a_n = s^k$ where $s = \text{digitsum}(a_n)$ and $k \ge 2$. The sequence is sorted in ascending order. Find $a_{30}$.
+
+\section{Solution}
+
+\subsection{Method}
+Instead of testing every integer, we enumerate candidates of the form $s^k$:
+\begin{itemize}
+\item For $s = 2, 3, \ldots, S_{\max}$:
+\item For $k = 2, 3, \ldots$ while $s^k \le N_{\max}$:
+\item Compute $n = s^k$ and check if $\text{digitsum}(n) = s$.
+\item If so, record $n$.
+\end{itemize}
+
+\subsection{Bounds}
+A number $n$ with $d$ digits has digit sum at most $9d$. Since $d = \lfloor \log_{10} n \rfloor + 1$, the base $s$ is bounded by $9(\lfloor k \log_{10} s \rfloor + 1)$. For the 30th term, an upper bound of $10^{18}$ on $n$ and $s \le 500$ suffices.
+
+\subsection{Result}
+Collecting and sorting all valid candidates:
+\[
+\boxed{a_{30} = 248155780267521}
+\]
+
+\section{Complexity}
+\begin{itemize}
+\item \textbf{Time:} $O(S_{\max} \cdot K_{\max} \cdot \log N_{\max})$ where the $\log$ factor is for digit sum computation.
+\item \textbf{Space:} $O(T)$ for storing $T$ candidates.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{248155780267521}
+\]
+
+\end{document}

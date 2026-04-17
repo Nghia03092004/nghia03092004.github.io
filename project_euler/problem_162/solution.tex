@@ -1,0 +1,83 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 162: Hexadecimal Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+In the hexadecimal number system (digits $0$--$9$ and $A$--$F$), how many hexadecimal numbers containing at most 16 digits exist with all of the digits $0$, $1$, and $A$ present at least once? Give the answer as an uppercase hexadecimal number.
+
+\section{Definitions}
+
+\begin{definition}
+An \emph{$n$-digit hexadecimal number} is a string $d_1 d_2 \cdots d_n$ over $\{0,\ldots,9,A,\ldots,F\}$ with $d_1 \neq 0$.
+\end{definition}
+
+\section{Mathematical Development}
+
+\begin{theorem}[Inclusion-exclusion formula]
+Let $N(n)$ count $n$-digit hex numbers whose digit set contains $\{0,1,A\}$. Then:
+\[
+N(n) = 15 \cdot 16^{n-1} - 15^n - 2 \cdot 14 \cdot 15^{n-1} + 2 \cdot 14^n + 13 \cdot 14^{n-1} - 13^n.
+\]
+\end{theorem}
+
+\begin{proof}
+Define $A_0, A_1, A_A$ as the sets of $n$-digit hex numbers missing digit $0$, $1$, $A$ respectively. By inclusion-exclusion, $N(n) = |S_n| - |A_0 \cup A_1 \cup A_A|$ where $|S_n| = 15 \cdot 16^{n-1}$.
+
+The individual and intersection counts are:
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Set & Digit pool (first / rest) & Count \\
+\midrule
+$A_0$ & $\{1,\ldots,F\}$ / same & $15^n$ \\
+$A_1$ & $\{2,\ldots,F\} \setminus\{1\}$ / $\{0,\ldots,F\}\setminus\{1\}$ & $14 \cdot 15^{n-1}$ \\
+$A_A$ & $\{1,\ldots,F\}\setminus\{A\}$ / $\{0,\ldots,F\}\setminus\{A\}$ & $14 \cdot 15^{n-1}$ \\
+$A_0 \cap A_1$ & $\{2,\ldots,F\}$ / same & $14^n$ \\
+$A_0 \cap A_A$ & $\{1,\ldots,9,B,\ldots,F\}$ / same & $14^n$ \\
+$A_1 \cap A_A$ & $\{2,\ldots,9,B,\ldots,F\}$ / $+\{0\}$ & $13 \cdot 14^{n-1}$ \\
+$A_0 \cap A_1 \cap A_A$ & $\{2,\ldots,9,B,\ldots,F\}$ / same & $13^n$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Substituting into the inclusion-exclusion formula yields the claimed expression.
+\end{proof}
+
+\begin{theorem}[Summation]
+The answer is $T = \sum_{n=1}^{16} N(n)$.
+\end{theorem}
+
+\begin{proof}
+We sum over all valid digit lengths. Note $N(1) = N(2) = 0$ since at least 3 digits are needed to contain three distinct values with a non-zero leading digit constraint.
+\end{proof}
+
+\begin{corollary}[Closed-form evaluation]
+Each of the six terms in $N(n)$ yields a geometric series over $n = 1, \ldots, 16$, e.g., $\sum_{n=1}^{16} 15 \cdot 16^{n-1} = 16^{16} - 1$. All values fit in 64-bit unsigned integers.
+\end{corollary}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(16)$ multiplications, or $O(1)$ via closed-form geometric series.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{\texttt{3D58725572C62302}}
+\]
+
+\end{document}

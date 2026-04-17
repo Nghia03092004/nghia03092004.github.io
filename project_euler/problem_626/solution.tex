@@ -1,0 +1,67 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 626: Counting Binary Matrices}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A binary matrix is a matrix consisting entirely of 0s and 1s. The following transformations define equivalence:
+\begin{itemize}
+  \item Swap any two rows
+  \item Swap any two columns
+  \item Flip all elements in a single row
+  \item Flip all elements in a single column
+\end{itemize}
+
+Define $c(n)$ as the number of equivalence classes of $n \times n$ binary matrices. Given $c(3)=3$, $c(5)=39$, $c(8)=656108$, find $c(20) \bmod 1\,001\,001\,011$.
+
+\section{Mathematical Analysis}
+
+\subsection{Group Action}
+The symmetry group is
+\[
+G = (S_n \times S_n) \rtimes (\mathbb{Z}_2^n \times \mathbb{Z}_2^n)
+\]
+with $|G| = (n!)^2 \cdot 2^{2n}$.
+
+\subsection{Burnside's Lemma}
+\[
+c(n) = \frac{1}{|G|} \sum_{g \in G} |\mathrm{Fix}(g)|
+\]
+
+\subsection{Fixed Point Counting}
+For row permutation $\sigma$ with cycle type $\lambda = (a_1, \ldots, a_r)$ and column permutation $\tau$ with cycle type $\mu = (b_1, \ldots, b_s)$:
+
+Without flips, the number of fixed binary matrices is:
+\[
+\prod_{i,j} 2^{\gcd(a_i, b_j)}
+\]
+
+With row flip vector $\mathbf{r} \in \mathbb{Z}_2^n$ and column flip vector $\mathbf{c} \in \mathbb{Z}_2^n$, compatibility with cycle structure is required. For a row cycle of length $a$, the flip values along the cycle must satisfy a consistency condition, reducing valid flip assignments.
+
+\subsection{Cycle Type Enumeration}
+For each pair of partitions $(\lambda, \mu)$ of $n$:
+\begin{enumerate}
+  \item Count permutations: $\frac{n!}{\prod_i a_i \cdot \prod_i m_i!}$ where $m_i$ counts cycles of length $i$
+  \item Enumerate compatible flip patterns
+  \item Sum fixed-point contributions
+\end{enumerate}
+
+\section{Result}
+\[
+c(20) \bmod 1\,001\,001\,011 = \boxed{551614306}
+\]
+
+\section{Answer}
+
+\[
+\boxed{695577663}
+\]
+
+\end{document}

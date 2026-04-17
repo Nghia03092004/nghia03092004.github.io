@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 393: Migrating Ants}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An $n \times n$ grid of squares contains $n^2$ ants, one ant per square. All ants decide to move simultaneously to an adjacent square (up, down, left, or right). We define $f(n)$ to be the number of ways this can happen without any ants ending on the same square and without any two ants crossing the same edge between two squares. Given that $f(4) = 88$, find $f(10)$.
+
+\section{Mathematical Analysis}
+Each valid configuration is a permutation $\sigma$ on the $n^2$ grid cells satisfying:
+\begin{enumerate}
+    \item \textbf{Adjacency:} $\sigma(v)$ is a grid neighbor of $v$ for every cell $v$.
+    \item \textbf{Bijection:} No two ants land on the same cell (implied by permutation).
+    \item \textbf{No crossing:} If $\sigma(u) = v$ then $\sigma(v) \neq u$ (no 2-cycles).
+\end{enumerate}
+
+Such a permutation decomposes into directed cycles of length $\geq 3$ on the grid graph. Since the grid is bipartite (checkerboard coloring), every cycle has even length, so $n^2$ must be even. Therefore $f(n) = 0$ for all odd~$n$.
+
+\section{Algorithm}
+We use \textbf{profile dynamic programming}, processing the grid row by row.
+
+\subsection{State Representation}
+At the boundary between consecutive rows, each column~$j$ has a vertical flow state:
+\[
+(d_j, u_j) \in \{(0,0),\; (0,1),\; (1,0)\}
+\]
+where $d_j = 1$ means an ant crosses downward and $u_j = 1$ means an ant crosses upward. The pair $(1,1)$ is forbidden by the no-crossing constraint (vertical swap). This gives $3^n$ boundary states.
+
+\subsection{Row Processing}
+For a given top-boundary state, we process columns left to right within the row. At each cell, exactly one ant arrives and one departs. The flow-conservation equations are:
+\[
+\underbrace{d_j^{\text{top}}}_{\text{from above}} + \underbrace{r_{\text{in}}}_{\text{from left}} + \underbrace{u_j^{\text{bot}}}_{\text{from below}} + \underbrace{l_{\text{in}}}_{\text{from right}} = 1
+\]
+\[
+\underbrace{u_j^{\text{top}}}_{\text{to above}} + \underbrace{l_{\text{out}}}_{\text{to left}} + \underbrace{d_j^{\text{bot}}}_{\text{to below}} + \underbrace{r_{\text{out}}}_{\text{to right}} = 1
+\]
+The no-crossing constraint additionally forbids simultaneous rightward and leftward flow at any column boundary (horizontal swap).
+
+\subsection{Transfer}
+Starting from the zero state (no flow above row~0), we transfer through each row, accumulating counts. After all $n$ rows, $f(n)$ is the count at the zero state (no flow below row~$n-1$).
+
+\section{Proof of Correctness}
+\begin{itemize}
+    \item \textbf{Completeness:} Every valid permutation assigns each cell one incoming and one outgoing adjacent direction. The row-by-row enumeration covers all such assignments.
+    \item \textbf{Soundness:} The flow-conservation equations enforce the bijection and adjacency constraints. The forbidden states $(d=1, u=1)$ and $(r=1, l=1)$ enforce the no-crossing constraint.
+    \item \textbf{No overcounting:} Each configuration maps to a unique sequence of boundary states and is counted exactly once.
+\end{itemize}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Boundary states:} $3^n$. For $n = 10$: $3^{10} = 59049$.
+    \item \textbf{Per-row work:} $O(n \cdot 3^n)$ (column-by-column DP with constant branching per cell).
+    \item \textbf{Total:} $O(n^2 \cdot 3^n)$ time, $O(3^n)$ space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{112398351350823112}
+\]
+
+\end{document}

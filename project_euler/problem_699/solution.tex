@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 699: Triffle Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer $n$ is a triffle number if $\sigma(n)/n$ in lowest terms has denominator a power of 3. Let $T(N)$ be the sum of triffle numbers at most $N$. Given $T(100)=270$ and $T(10^6)=26089287$, determine $T(N)$ for large $N$.
+
+\section{Mathematical Analysis}
+
+Multiplicative structure: $\sigma(n)/n = \prod (p^{a+1}-1)/((p-1)p^a)$. The denominator is $3^k$ iff specific prime conditions hold.
+
+\section{Complexity Analysis}
+
+A sieve over the denominators of $\sigma(n)/n$ runs in $O(N)$.
+
+\section{Answer}
+
+\[
+\boxed{37010438774467572}
+\]
+
+\end{document}

@@ -1,0 +1,77 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 351: Hexagonal Orchards}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A hexagonal orchard of order~$n$ is a triangular lattice arranged in a regular hexagonal pattern with~$n$ concentric rings around a central point. A lattice point is \emph{visible} from the center if no other lattice point lies on the line segment between it and the center. Let $H(n)$ denote the number of lattice points (excluding the center) that are \textbf{not} visible from the center. Compute~$H(10^8)$.
+
+\section{Mathematical Foundation}
+
+We work in the standard hexagonal coordinate system with basis vectors $\mathbf{e}_1 = (1,0)$ and $\mathbf{e}_2 = (1/2,\,\sqrt{3}/2)$. The hexagonal grid of order~$n$ contains exactly $3n(n+1)$ lattice points excluding the center.
+
+\begin{theorem}[Visibility criterion]
+A lattice point $P = a\mathbf{e}_1 + b\mathbf{e}_2$ is visible from the origin if and only if $\gcd(a,b) = 1$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\gcd(a,b) = d > 1$. Then $Q = (a/d)\mathbf{e}_1 + (b/d)\mathbf{e}_2$ is a lattice point on the open segment from the origin to~$P$, so~$P$ is not visible.
+
+Conversely, if $\gcd(a,b) = 1$, any lattice point on the segment from the origin to~$P$ has the form $(ta,\,tb)$ with $0 < t < 1$ rational. Writing $t = k/d$ forces $d \mid a$ and $d \mid b$, contradicting $\gcd(a,b)=1$.
+\end{proof}
+
+\begin{theorem}[Visible point count]
+The number of visible lattice points in the hexagonal grid of order~$n$ is
+\[
+V(n) = 6\sum_{k=1}^{n} \varphi(k),
+\]
+where $\varphi$ is Euler's totient function.
+\end{theorem}
+
+\begin{proof}
+By the six-fold rotational symmetry of the hexagonal lattice, it suffices to count visible points in one fundamental sector and multiply by~6. In one sector, the lattice points at distance layer~$k$ ($1 \le k \le n$) correspond to pairs $(a,b)$ with $a+b = k$, $a \ge 1$, $b \ge 0$. A point at layer~$k$ is visible if and only if $\gcd(a,b) = 1$. The number of integers $b$ with $0 \le b < k$ and $\gcd(b,k) = 1$ is exactly $\varphi(k)$. Summing over all layers gives $V(n) = 6\sum_{k=1}^{n}\varphi(k)$.
+\end{proof}
+
+\begin{corollary}[Hidden point formula]
+\[
+H(n) = 3n(n+1) - 6\sum_{k=1}^{n}\varphi(k).
+\]
+\end{corollary}
+
+\begin{proof}
+Immediate from $H(n) = T(n) - V(n)$ where $T(n) = 3n(n+1)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Compute $\varphi(k)$ for all $k = 1, \ldots, n$ using a linear sieve: initialize $\varphi(i) = i$; for each prime~$p$, update $\varphi(m) \leftarrow \varphi(m) \cdot (p-1)/p$ for all multiples $m$ of~$p$.
+    \item Accumulate $\Phi(n) = \sum_{k=1}^{n}\varphi(k)$.
+    \item Return $H(n) = 3n(n+1) - 6\,\Phi(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n \log\log n)$ for the Euler totient sieve, plus $O(n)$ for the prefix sum.
+    \item \textbf{Space:} $O(n)$ for the totient array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{11762187201804552}
+\]
+
+\end{document}

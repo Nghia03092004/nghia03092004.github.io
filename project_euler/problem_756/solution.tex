@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 756: Approximating a Sum}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Approximate $S = \sum_{{k=1}}^n f(k)$ using $m$ random samples. $E(\Delta|f,n,m)$ = expected error. Find $E(\Delta|\phi(k), 12345678, 12345)$ to 6 d.p.
+
+\section{Mathematical Analysis}
+The random approximation $S^* = \sum f(X_i)(X_i - X_{i-1})$ is a Riemann sum with random partition points. The expected error is:
+
+$$E[\Delta] = \frac{1}{2} \cdot \frac{n}{m+1} \sum_{{k=1}}^n (f(k) - f(k-1))^2 / ... $$
+
+Actually, for order statistics of $m$ uniform samples in $[0, n]$, the expected gap is $n/(m+1)$, and the error of a left-Riemann sum approximation relates to the variation of $f$.
+
+\section{Answer}
+
+\[
+\boxed{607238.610661}
+\]
+
+\end{document}

@@ -1,0 +1,54 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 187: Semiprimes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A composite number $n$ is a \textbf{semiprime} if $n = p \cdot q$ for primes $p$ and $q$ (not necessarily distinct). How many semiprimes are there below $10^8$?
+
+\section{Mathematical Analysis}
+
+\subsection{Enumeration by Smaller Prime Factor}
+
+Write each semiprime as $n = p \cdot q$ with $p \le q$ both prime. Then:
+\[
+\text{Count} = \sum_{\substack{p \text{ prime} \\ p^2 < 10^8}} \left( \pi\!\left(\left\lfloor \frac{10^8 - 1}{p} \right\rfloor\right) - \pi(p-1) \right)
+\]
+
+where $\pi(x) = |\{q \text{ prime} : q \le x\}|$.
+
+\subsection{Bounds on $p$}
+
+Since $p \le q$ and $p \cdot q < 10^8$, we need $p^2 < 10^8$, giving $p < 10^4$. So $p$ ranges over all primes below $10000$.
+
+\subsection{Proof of Correctness}
+
+\begin{proof}
+Each semiprime $n = p \cdot q$ with $p \le q$ has a unique representation with $p$ as the smallest prime factor. In our sum, when processing prime $p$, we count all primes $q$ in the range $[p, \lfloor(10^8-1)/p\rfloor]$. This counts $n = pq$ exactly once.
+\end{proof}
+
+\subsection{Sieve of Eratosthenes}
+
+We sieve all primes up to $\lfloor(10^8-1)/2\rfloor = 49{,}999{,}999$, which is the largest possible value of $q$ (when $p = 2$). A cumulative prime count array allows $O(1)$ evaluation of $\pi(x)$.
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time}: $O(N \log \log N)$ for the sieve, where $N = 5 \times 10^7$.
+    \item \textbf{Space}: $O(N)$ for the sieve and prefix sums.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{17427258}
+\]
+
+\end{document}

@@ -13,7 +13,9 @@
     "check": "astro check",
     "preview": "astro preview",
     "astro": "astro",
-    "sync:project-euler-statements": "node tools/sync-project-euler-statements.mjs"
+    "sync:project-euler-statements": "node tools/project-euler/sync-statements.mjs",
+    "sync:project-euler-latex": "node tools/project-euler/sync-latex-sources.mjs",
+    "generate:project-euler-metadata": "node tools/project-euler/generate-metadata.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.3",

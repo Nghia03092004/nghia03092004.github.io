@@ -1,0 +1,100 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\title{Problem 880: Cyclic Polyhedra}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \emph{cyclic polyhedron} has all vertices on a sphere. Enumerate combinatorial types of convex polyhedra on $n$ vertices. By Steinitz's theorem, this is equivalent to counting 3-connected planar graphs.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Euler's Polyhedral Formula]
+For any convex polyhedron with $V$ vertices, $E$ edges, $F$ faces:
+\[
+V - E + F = 2.
+\]
+\end{theorem}
+
+\begin{proof}
+The surface is homeomorphic to $S^2$. The Euler characteristic $\chi(S^2) = 2$ (from $H_0 \cong \mathbb{Z}$, $H_1 = 0$, $H_2 \cong \mathbb{Z}$). The polyhedral faces give a CW-decomposition with $c_0 = V$, $c_1 = E$, $c_2 = F$, so $\chi = V - E + F = 2$.
+\end{proof}
+
+\begin{theorem}[Steinitz, 1922]
+A graph $G$ is the 1-skeleton of a 3D convex polytope iff $G$ is 3-connected and planar.
+\end{theorem}
+
+\begin{proof}
+$(\Rightarrow)$ 3-connectivity: Balinski's theorem. Removing any two vertices leaves the polytope surface (a sphere minus two points) path-connected, so the graph remains connected. Planarity: the Schlegel diagram (projection through a face) gives a planar embedding.
+
+$(\Leftarrow)$ By the Koebe--Andreev--Thurston circle packing theorem, every 3-connected planar graph has a circle packing on $S^2$, which lifts to a convex polytope realization.
+\end{proof}
+
+\begin{theorem}[Edge-Face Bounds]
+For any convex polyhedron:
+\begin{enumerate}
+\item $E \le 3V - 6$ (equality iff simplicial),
+\item $E \le 3F - 6$ (equality iff simple),
+\item $F \le 2V - 4$ and $V \le 2F - 4$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each face has $\ge 3$ edges, each edge borders 2 faces: $2E \ge 3F$. Euler gives $F = 2 - V + E$, so $2E \ge 6 - 3V + 3E$, i.e., $E \le 3V - 6$. By duality ($2E \ge 3V$, $V = 2 - F + E$): $E \le 3F - 6$. Combining: $F \le 2V-4$ and $V \le 2F-4$.
+\end{proof}
+
+\begin{lemma}[Handshaking]
+With $f_k$ = number of $k$-gonal faces, $v_k$ = number of degree-$k$ vertices:
+\[
+\sum_{k \ge 3} k f_k = 2E = \sum_{k \ge 3} k v_k.
+\]
+\end{lemma}
+
+\begin{proof}
+Each edge borders 2 faces (face side) and is incident to 2 vertices (vertex side).
+\end{proof}
+
+\begin{lemma}[Low-Degree Elements]
+Every convex polyhedron satisfies:
+\[
+\sum_{k=3}^{5}(6-k)f_k + \sum_{k=3}^{5}(6-k)v_k \ge 12.
+\]
+In particular, there exists a face with $\le 5$ sides or a vertex of degree $\le 5$.
+\end{lemma}
+
+\begin{proof}
+From $12 = 6(V-E+F)$, use $2E = \sum k v_k = \sum k f_k$ to rewrite as $12 = \sum_k (6-k)v_k + \sum_k (6-k)f_k$. Terms with $k \ge 7$ are non-positive, so the positive contributions ($k \le 5$) must sum to $\ge 12$.
+\end{proof}
+
+\section{Algorithm}
+
+Use the plantri algorithm (Brinkmann--McKay) to enumerate all 3-connected planar graphs on $n$ vertices in $O(1)$ amortized time per graph.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(P(n))$ where $P(n) \sim c \cdot \gamma^n \cdot n^{-7/2}$, $\gamma \approx 21.32$.
+\item \textbf{Space:} $O(n^2)$ per graph if processed sequentially.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{r|r}
+$n$ & $P(n)$ \\ \hline
+4 & 1 \\ 5 & 2 \\ 6 & 7 \\ 7 & 34 \\ 8 & 257 \\ 9 & 2{,}606 \\ 10 & 32{,}300
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{522095328}
+\]
+
+\end{document}

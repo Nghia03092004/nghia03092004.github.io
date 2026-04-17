@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 223: Almost Right-angled Triangles I}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count ordered triples $(a, b, c)$ with $a \leq b \leq c$, $a^2 + b^2 = c^2 + 1$, and $a + b + c \leq L = 25{,}000{,}000$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Difference-of-Squares Factorization]
+The equation $a^2 + b^2 = c^2 + 1$ is equivalent to $(c-b)(c+b) = (a-1)(a+1)$.
+\end{theorem}
+\begin{proof}
+$a^2 + b^2 = c^2 + 1 \iff c^2 - b^2 = a^2 - 1 \iff (c-b)(c+b) = (a-1)(a+1)$.
+\end{proof}
+
+\begin{lemma}[Change of Variables]
+Setting $d = c - b$, $e = c + b$: $b = (e-d)/2$, $c = (e+d)/2$, perimeter $= a + e$.
+\end{lemma}
+\begin{proof}
+Direct algebraic substitution.
+\end{proof}
+
+\begin{theorem}[Case $a = 1$]
+When $a = 1$, the equation gives $b = c$, contributing $(L-1)/2 = 12{,}499{,}999$ solutions.
+\end{theorem}
+\begin{proof}
+$(a-1)(a+1) = 0$ forces $d = 0$, so $b = c$. The perimeter constraint $1 + 2b \leq L$ gives $b \leq (L-1)/2$.
+\end{proof}
+
+\begin{theorem}[Coprime Factorization, Even $a$]
+For even $a \geq 2$, $n = (a-1)(a+1)$ is odd and $\gcd(a-1, a+1) = 1$. Every divisor of $n$ factors uniquely as a product of divisors of $a-1$ and $a+1$.
+\end{theorem}
+\begin{proof}
+Both $a-1$ and $a+1$ are odd and differ by~2, so their gcd is~1. The claim follows from the Chinese Remainder Theorem.
+\end{proof}
+
+\begin{theorem}[Coprime Factorization, Odd $a$]
+For odd $a \geq 3$, writing $d = 2d'$, $e = 2e'$ gives $d'e' = \frac{a-1}{2} \cdot \frac{a+1}{2}$ with $\gcd\!\left(\frac{a-1}{2}, \frac{a+1}{2}\right) = 1$.
+\end{theorem}
+\begin{proof}
+Both $a \pm 1$ are even, so $4 \mid n$. For $b, c$ to be integers, $d$ and $e$ must share parity; since $n$ is even, both must be even. Then $d'e' = n/4 = \frac{a-1}{2} \cdot \frac{a+1}{2}$. The two factors differ by~1, hence are coprime.
+\end{proof}
+
+\begin{lemma}[Constraints]
+A valid triple requires: (i) $d \leq e$, (ii) $e - d \geq 2a$, (iii) $a + e \leq L$.
+\end{lemma}
+\begin{proof}
+(i) ensures $b \leq c$; (ii) ensures $b \geq a$; (iii) is the perimeter bound.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Precompute a smallest-prime-factor sieve up to $L/3$.
+\item For each $a$ from $2$ to $L/3$: enumerate divisor pairs of the coprime factorization, check constraints, and count valid triples.
+\item Add $(L-1)/2$ for the $a = 1$ case.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(L \log L)$, from divisor enumeration averaged over all~$a$.
+\item \textbf{Space:} $O(L/3)$ for the SPF sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{61614848}
+\]
+
+\end{document}

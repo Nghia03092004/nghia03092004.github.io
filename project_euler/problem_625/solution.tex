@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 625: GCDSUM}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $G(N) = \sum_{j=1}^{N}\sum_{i=1}^{j}\gcd(i,j)$. Compute $G(10^{11}) \bmod 998244353$.
+
+\section{Totient Identity}
+
+\begin{theorem}[Gauss]
+For every positive integer~$n$:
+\[
+n = \sum_{d \mid n} \varphi(d).
+\]
+\end{theorem}
+
+\begin{proof}
+Partition $\{1, \ldots, n\}$ by $\gcd(k, n)$: for each $d \mid n$, exactly $\varphi(n/d)$ elements satisfy $\gcd(k,n) = d$. Equivalently, $\sum_{d \mid n}\varphi(d) = n$.
+\end{proof}
+
+\begin{corollary}
+$\gcd(i,j) = \sum_{d \mid \gcd(i,j)} \varphi(d)$.
+\end{corollary}
+
+\section{Sum Transformation}
+
+\begin{theorem}
+\[
+G(N) = \sum_{d=1}^{N} \varphi(d) \cdot T\!\left(\left\lfloor\frac{N}{d}\right\rfloor\right)
+\]
+where $T(m) = m(m+1)/2$.
+\end{theorem}
+
+\begin{proof}
+Replace $\gcd$ by totient and swap summation:
+\[
+G(N) = \sum_{d=1}^N \varphi(d) \!\!\sum_{\substack{1 \le i \le j \le N \\ d \mid i,\; d \mid j}} \!\!1 = \sum_{d=1}^N \varphi(d) \binom{\lfloor N/d\rfloor + 1}{2}. \qedhere
+\]
+\end{proof}
+
+\section{Block Decomposition}
+
+\begin{proposition}
+$\lfloor N/d \rfloor$ takes at most $2\sqrt{N}$ distinct values as $d$ ranges from~$1$ to~$N$.
+\end{proposition}
+
+For each block $[l, r]$ where $q = \lfloor N/d \rfloor$ is constant:
+\[
+\sum_{d=l}^{r} \varphi(d)\,T(q) = T(q)\bigl(\Phi(r) - \Phi(l-1)\bigr)
+\]
+where $\Phi(n) = \sum_{k=1}^n \varphi(k)$ is the \textbf{totient summatory function}.
+
+\section{Sub-Linear Totient Summation}
+
+\begin{lemma}
+\[
+\Phi(n) = \frac{n(n+1)}{2} - \sum_{d=2}^{n} \Phi\!\left(\left\lfloor\frac{n}{d}\right\rfloor\right).
+\]
+\end{lemma}
+
+\begin{proof}
+From $\sum_{n=1}^N \sum_{d \mid n}\varphi(d) = \sum_{n=1}^N n = N(N+1)/2$. The left side equals $\sum_{d=1}^N \varphi(d)\lfloor N/d\rfloor = \Phi(N) + \sum_{d=2}^N \Phi(\lfloor N/d\rfloor)$ after rearranging.
+\end{proof}
+
+This identity, applied recursively with memoization and block decomposition internally, computes $\Phi(n)$ for all needed arguments in $O(N^{2/3})$ total time.
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$N$ & $G(N)$ & $G(N) / N^2$ \\
+\midrule
+1   & 1      & 1.000 \\
+2   & 4      & 1.000 \\
+5   & 29     & 1.160 \\
+10  & 138    & 1.380 \\
+100 & 12614  & 1.261 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Sieve:} $O(N^{2/3})$ for Euler's totient up to $N^{2/3}$.
+\item \textbf{$\Phi$ computation:} $O(N^{2/3})$ total over all recursive calls.
+\item \textbf{Block sum:} $O(\sqrt{N})$ blocks for the outer sum.
+\item \textbf{Total:} $O(N^{2/3})$ time, $O(N^{2/3})$ space.
+\end{itemize}
+
+For $N = 10^{11}$, $N^{2/3} \approx 2.15 \times 10^7$.
+
+\section{Answer}
+
+\[
+\boxed{551614306}
+\]
+
+\end{document}

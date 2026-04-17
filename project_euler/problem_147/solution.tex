@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 147: Rectangles in Cross-hatched Grids}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A cross-hatched grid of size $m \times n$ consists of a rectangular grid with both horizontal/vertical lines and both diagonals drawn through every unit cell. Rectangles can be placed either axis-aligned or tilted at $45^\circ$.
+
+Find the total number of rectangles that could be situated within a $47 \times 43$ cross-hatched grid. The total counts rectangles across \textbf{all} sub-grid sizes $(w,h)$ for $1 \le w \le 47$, $1 \le h \le 43$.
+
+\section{Analysis}
+
+\subsection{Axis-Aligned Rectangles}
+For a $w \times h$ grid:
+\[
+A(w,h) = \frac{w(w+1)}{2} \cdot \frac{h(h+1)}{2}
+\]
+
+\subsection{Diagonal Rectangles}
+No closed-form formula is known. We use an algorithmic enumeration.
+
+\subsubsection{Doubled-Coordinate System}
+To avoid floating-point arithmetic, multiply all coordinates by 2. The grid occupies $[0, 2w] \times [0, 2h]$ in doubled coordinates.
+
+The diagonal grid creates two types of diamond-shaped unit cells distinguished by \emph{parity}:
+\begin{itemize}
+    \item \textbf{Parity 0}: center at $(2i+1, 2j+2)$ in doubled coords, for $0 \le i < a$, $0 \le j < b$.
+    \item \textbf{Parity 1}: center at $(2i+2, 2j+1)$ in doubled coords.
+\end{itemize}
+where $a = \max(w,h)$, $b = \min(w,h)$.
+
+\subsubsection{Enumeration Algorithm}
+For each starting cell $(i, j, \text{parity})$:
+\begin{enumerate}
+    \item Set $(\text{startX}, \text{startY})$ based on parity.
+    \item Expand along the ``width'' direction: move to $(\text{startX}+k, \text{startY}-k)$ for increasing $k$.
+    \item For each width, expand along the ``height'' direction: move to $(X+h, Y+h)$ for increasing $h$.
+    \item Count each valid rectangle (endpoint within the grid boundary).
+    \item Track maximum height to prune further expansion.
+\end{enumerate}
+
+This counts each diagonal rectangle exactly once.
+
+\subsection{Total Count}
+\[
+\text{Total} = \sum_{w=1}^{47} \sum_{h=1}^{43} \bigl[ A(w,h) + D(w,h) \bigr]
+\]
+where $D(w,h)$ is the diagonal rectangle count. Since $D(w,h) = D(h,w)$, results are cached.
+
+\section{Complexity}
+\begin{itemize}
+    \item Axis-aligned: $O(MN)$ in total.
+    \item Diagonal: $O(w \cdot h \cdot \min(w,h))$ per sub-grid, with caching for symmetric cases.
+    \item Total: under 1 second.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{846910284}
+\]
+
+\end{document}

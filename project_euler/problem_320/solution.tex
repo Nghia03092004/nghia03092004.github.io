@@ -1,0 +1,63 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 320: Factorials Divisible by a Huge Integer}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $N(i)$ be the smallest $n$ such that $(i!)^E \mid n!$, where $E = 1234567890$.
+
+Define $S(u) = \sum_{i=10}^{u} N(i)$. Given $S(1000) = 614538266565663$, find $S(10^6) \bmod 10^{18}$.
+
+\section{Solution}
+
+\subsection{Legendre's Formula}
+For prime $p$:
+\[
+\nu_p(m!) = \sum_{k=1}^{\infty} \left\lfloor \frac{m}{p^k}\right\rfloor
+\]
+
+The condition $(i!)^E \mid n!$ requires $\nu_p(n!) \ge E \cdot \nu_p(i!)$ for every prime $p \le i$.
+
+\subsection{Computing $N(i)$}
+For each prime $p \le i$, define the target $T_p = E \cdot \nu_p(i!)$. Binary search for the smallest $n_p$ with $\nu_p(n_p!) \ge T_p$. Then:
+\[
+N(i) = \max_{\substack{p \text{ prime} \\ p \le i}} n_p
+\]
+
+\subsection{Incremental Optimization}
+Since $\nu_p(i!) = \nu_p((i-1)!) + \nu_p(i)$, the target $T_p$ only changes when $p \mid i$.
+
+\textbf{Key property:} $T_p(i)$ is non-decreasing in $i$, so $n_p(i)$ is non-decreasing, and therefore $N(i) = \max_p n_p(i)$ is also non-decreasing.
+
+\textbf{Algorithm:}
+\begin{enumerate}
+\item Maintain running targets $T_p$ and values $n_p$ for each prime.
+\item For each $i$ from 2 to $10^6$:
+  \begin{itemize}
+    \item Factorize $i$ (via smallest-prime-factor sieve).
+    \item For each prime factor $p$ with $\nu_p(i) = v$: update $T_p \mathrel{+}= Ev$, recompute $n_p$ by binary search, update running maximum.
+  \end{itemize}
+\item $N(i) = \text{current\_max}$ for $i \ge 10$.
+\end{enumerate}
+
+\subsection{Complexity}
+Total updates: $\sum_{p\text{ prime}} 10^6/p \approx 3 \times 10^6$. Each binary search: $O(\log^2(E \cdot 10^6))$. Overall: $O(N \log\log N \cdot \log^2(EN))$.
+
+\section{Result}
+\[
+S(10^6) \bmod 10^{18} = \boxed{278157919195482643}
+\]
+
+\section{Answer}
+
+\[
+\boxed{278157919195482643}
+\]
+
+\end{document}

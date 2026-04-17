@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 401: Sum of Squares of Divisors}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $\sigma_2(n) = \sum_{d \mid n} d^2$ denote the sum of the squares of the divisors of~$n$. Define
+\[
+  \Sigma_2(n) = \sum_{i=1}^{n} \sigma_2(i).
+\]
+The first six values are $\Sigma_2(1) = 1,\; \Sigma_2(2) = 6,\; \Sigma_2(3) = 16,\; \Sigma_2(4) = 37,\; \Sigma_2(5) = 63,\; \Sigma_2(6) = 113$.
+
+\medskip\noindent
+\textbf{Find} $\Sigma_2(10^{15}) \bmod 10^9$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Divisor-sum interchange]
+For all positive integers~$n$,
+\[
+  \Sigma_2(n) = \sum_{d=1}^{n} d^2 \left\lfloor \frac{n}{d} \right\rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+We have
+\[
+  \Sigma_2(n) = \sum_{i=1}^{n}\sum_{d \mid i} d^2
+             = \sum_{d=1}^{n} d^2 \cdot \#\{i \in [1,n] : d \mid i\}
+             = \sum_{d=1}^{n} d^2 \left\lfloor \frac{n}{d}\right\rfloor.
+\]
+The interchange of summation is justified because each pair $(d,i)$ with $d \mid i$ and $1 \le i \le n$ is counted exactly once on both sides.
+\end{proof}
+
+\begin{lemma}[Distinct floor quotients]
+The function $d \mapsto \lfloor n/d \rfloor$ takes at most $2\lfloor\sqrt{n}\rfloor$ distinct values for $d \in [1,n]$.
+\end{lemma}
+
+\begin{proof}
+If $d \le \sqrt{n}$, there are at most $\lfloor\sqrt{n}\rfloor$ values of~$d$.  If $d > \sqrt{n}$, then $\lfloor n/d \rfloor < \sqrt{n}$, so the quotient takes at most $\lfloor\sqrt{n}\rfloor$ distinct values.  In total, at most $2\lfloor\sqrt{n}\rfloor$ distinct values arise.
+\end{proof}
+
+\begin{theorem}[Dirichlet hyperbola method]
+\label{thm:hyperbola}
+Let $s = \lfloor\sqrt{n}\rfloor$ and $P(m) = \frac{m(m+1)(2m+1)}{6}$.  Then
+\[
+  \Sigma_2(n) = \underbrace{\sum_{d=1}^{s} d^2 \left\lfloor\frac{n}{d}\right\rfloor}_{\text{Part 1}}
+              + \underbrace{\sum_{q=1}^{s} q\,\bigl(P(h_q) - P(\ell_q - 1)\bigr)}_{\text{Part 2}}
+\]
+where $h_q = \lfloor n/q\rfloor$, $\ell_q = \max(\lfloor n/(q{+}1)\rfloor + 1,\; s{+}1)$, and terms with $\ell_q > h_q$ are omitted.
+\end{theorem}
+
+\begin{proof}
+By Theorem~1, $\Sigma_2(n) = \sum_{d=1}^{n} d^2 \lfloor n/d\rfloor$.  We split at $d = s$:
+\begin{itemize}
+  \item Part~1 handles $d \in [1,s]$ directly.
+  \item For $d \in [s{+}1, n]$, the quotient $q = \lfloor n/d\rfloor$ ranges over $\{1,\ldots,s\}$.  For each~$q$, the values of~$d$ producing this quotient form a contiguous interval $[\ell_q, h_q]$, contributing $q \cdot \sum_{d=\ell_q}^{h_q} d^2 = q(P(h_q) - P(\ell_q - 1))$.
+\end{itemize}
+The constraint $\ell_q \ge s{+}1$ prevents double-counting with Part~1.
+\end{proof}
+
+\begin{lemma}[Modular evaluation of $P(m)$]
+The formula $P(m) = m(m{+}1)(2m{+}1)/6$ can be computed modulo $M = 10^9$ by exact integer division by~$6$ before reduction, since $6 \mid m(m{+}1)(2m{+}1)$ for all non-negative integers~$m$.
+\end{lemma}
+
+\begin{proof}
+Among $m$ and $m{+}1$, one is even.  For divisibility by~$3$: $m \equiv 0 \Rightarrow 3 \mid m$; $m \equiv 1 \Rightarrow 3 \mid (2m{+}1)$; $m \equiv 2 \Rightarrow 3 \mid (m{+}1)$.  Thus $6 \mid m(m{+}1)(2m{+}1)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{Sigma2Mod}{$n, M$}
+  \State $s \gets \lfloor\sqrt{n}\rfloor$; \; $\mathit{result} \gets 0$
+  \For{$d = 1$ \textbf{to} $s$} \Comment{Part 1: small divisors}
+    \State $\mathit{result} \gets \bigl(\mathit{result} + (d^2 \bmod M)\cdot(\lfloor n/d\rfloor \bmod M)\bigr) \bmod M$
+  \EndFor
+  \For{$q = 1$ \textbf{to} $s$} \Comment{Part 2: small quotients}
+    \State $h \gets \lfloor n/q\rfloor$; \; $\ell \gets \lfloor n/(q{+}1)\rfloor + 1$
+    \If{$\ell \le s$} $\ell \gets s + 1$ \EndIf
+    \If{$\ell > h$} \textbf{continue} \EndIf
+    \State $\mathit{result} \gets \bigl(\mathit{result} + q \cdot (P_{\mathrm{mod}}(h) - P_{\mathrm{mod}}(\ell{-}1) + M)\bigr) \bmod M$
+  \EndFor
+  \State \Return $\mathit{result}$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(\sqrt{n})$.  Both loops iterate at most $\lfloor\sqrt{n}\rfloor$ times.  For $n = 10^{15}$, this is ${\sim}3.16 \times 10^7$ iterations.
+  \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{281632621}
+\]
+
+\end{document}

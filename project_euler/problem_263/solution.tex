@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 263: An Engineers' Dream Come True}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $n$ to be an \textbf{engineer's paradise} if:
+\begin{enumerate}
+\item $(n{-}9,\, n{-}3,\, n{+}3,\, n{+}9)$ are four consecutive primes (a triple-pair of sexy primes).
+\item $n{-}8,\, n{-}4,\, n,\, n{+}4,\, n{+}8$ are all practical numbers.
+\end{enumerate}
+Find the sum of the first four engineers' paradises.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+A positive integer $m$ is \textbf{practical} if every integer $1 \le k \le m$ can be represented as a sum of distinct divisors of~$m$.
+\end{definition}
+
+\begin{theorem}[Stewart's criterion]
+A positive integer $m \ge 2$ is practical if and only if $m$ is even and, writing $m = p_1^{a_1}\cdots p_r^{a_r}$ with $p_1 < \cdots < p_r$, for each $i \ge 2$:
+\[
+p_i \le 1 + \sigma(p_1^{a_1}\cdots p_{i-1}^{a_{i-1}}).
+\]
+\end{theorem}
+
+\begin{proof}
+See Stewart (1954). If $p_i > 1 + \sigma(p_1^{a_1}\cdots p_{i-1}^{a_{i-1}})$, the integer $1 + \sigma(p_1^{a_1}\cdots p_{i-1}^{a_{i-1}})$ is not representable as a sum of distinct divisors of~$m$, since all divisors involving $p_i$ or higher primes exceed this value, and the sum of all divisors involving only $p_1,\ldots,p_{i-1}$ equals $\sigma(p_1^{a_1}\cdots p_{i-1}^{a_{i-1}})$. Conversely, if the condition holds for all~$i$, an inductive argument on the number of prime factors shows every integer up to $\sigma(m) \ge m$ is representable.
+\end{proof}
+
+\begin{lemma}[Modular constraints]
+If $n-9, n-3, n+3, n+9$ are all primes greater than~5, then $n \equiv 10$ or $20\pmod{30}$.
+\end{lemma}
+
+\begin{proof}
+\emph{Mod~2:} All four must be odd, so $n$ is even.
+\emph{Mod~3:} All four are $\equiv n\pmod{3}$; none divisible by~3 requires $n\not\equiv 0\pmod{3}$.
+\emph{Mod~5:} The residues modulo~5 are $n{+}1, n{+}2, n{+}3, n{+}4$; none zero requires $n\equiv 0\pmod{5}$.
+By the Chinese Remainder Theorem, $n \equiv 10$ or $20\pmod{30}$.
+\end{proof}
+
+\begin{lemma}[Consecutivity]
+For the four primes to be consecutive, the intermediate odd values $n \pm 7$, $n \pm 5$, $n \pm 1$ must all be composite.
+\end{lemma}
+
+\begin{proof}
+Since $n$ is even, the integers strictly between consecutive members of $\{n{-}9, n{-}3, n{+}3, n{+}9\}$ that could be prime are exactly the odd values $n{-}7, n{-}5, n{-}1, n{+}1, n{+}5, n{+}7$. All must be composite for the four primes to be consecutive.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+1. Sieve primes up to 1.2e9
+2. Iterate n = 10, 20 (mod 30):
+   - Check n-9, n-3, n+3, n+9 prime
+   - Check n-7, n-5, n-1, n+1, n+5, n+7 composite
+   - Check n-8, n-4, n, n+4, n+8 practical (Stewart)
+   - Collect first 4 hits
+3. Return sum
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log\log N)$ for sieving up to $N \approx 1.2 \times 10^9$; $O(N/15)$ candidate checks, each requiring $O(\sqrt{n})$ for trial-division factoring in the practical-number test.
+\item \textbf{Space:} $O(N)$ for the sieve bitmap.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2039506520}
+\]
+
+\end{document}

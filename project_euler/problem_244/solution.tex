@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 244: Sliders}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A sliding puzzle on a grid contains Red (R), Blue (B), and one White/empty (W) tile. Tiles slide into the empty space. Each move is encoded by the direction the empty space moves: L\,(76), R\,(82), U\,(85), D\,(68) using ASCII values.
+
+For a move sequence $m_1,\ldots,m_k$, the \emph{checksum} is
+\[
+C=\left(\sum_{i=1}^{k}d_i\cdot 243^{k-i}\right)\bmod 100000007.
+\]
+
+Find the sum of checksums over all reachable configurations using shortest paths.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[State space finiteness]
+For a grid with $r$ red, $b$ blue, and $1$ white tile on $N$ positions, the state count is $N!/(r!\,b!\,1!)$.
+\end{theorem}
+
+\begin{proof}
+Each state is a placement of indistinguishable coloured tiles on $N$ positions. The multinomial coefficient counts distinct arrangements.
+\end{proof}
+
+\begin{theorem}[BFS optimality]
+Breadth-first search from the initial state discovers every reachable state at minimum distance.
+\end{theorem}
+
+\begin{proof}
+Standard BFS correctness: states are explored in non-decreasing distance order. A state first dequeued at distance $k$ cannot have a path of length $<k$.
+\end{proof}
+
+\begin{lemma}[Checksum recurrence]\label{lem:checksum}
+If state $s'$ is reached from $s$ by move with code $d$, and $s$ has checksum $C_s$, then $C_{s'}=(243\cdot C_s+d)\bmod 100000007$.
+\end{lemma}
+
+\begin{proof}
+$C_{s'}=\sum_{i=1}^{k+1}d_i\cdot 243^{k+1-i}=243\cdot C_s+d_{k+1}$.
+\end{proof}
+
+\section{Algorithm}
+
+Run BFS from the initial state. For each newly discovered state, compute its checksum using Lemma~\ref{lem:checksum} and add to a running total.
+
+\begin{verbatim}
+function SolveSliders(initial_state):
+    queue = deque([(initial_state, 0)])
+    visited = {initial_state}
+    total = 0
+    while queue not empty:
+        state, cs = queue.popleft()
+        total = (total + cs) % 100000007
+        for direction d in {L, R, U, D}:
+            new_state = apply_move(state, d)
+            if new_state not in visited:
+                visited.add(new_state)
+                new_cs = (cs * 243 + ascii(d)) % 100000007
+                queue.append((new_state, new_cs))
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(|V|+|E|)$ where $|V|\le 560$ states and $|E|\le 2240$ edges. Effectively $O(1)$.
+\item \textbf{Space:} $O(|V|)=O(560)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{96356848}
+\]
+
+\end{document}

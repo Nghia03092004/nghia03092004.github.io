@@ -49,18 +49,6 @@ Then for every integer $i \in [2, N]$, $A[i] = \mathrm{true}$ if and only if $i$
 
 **Corollary 1.** Running the Sieve of Eratosthenes up to $N = 115000$ and extracting the $n$-th entry equal to true (counting from $i = 2$) yields $p_n$ for any $n$ with $p_n \le N$. By Proposition 1, this includes $n = 10001$.
 
-### Complexity Analysis
-
-**Theorem 4 (Sieve complexity).** The Sieve of Eratosthenes on $[0, N]$ runs in $O(N \log \log N)$ time and $O(N)$ space.
-
-*Proof.* **Time.** The total number of marking operations is
-$$\sum_{\substack{p \le \sqrt{N} \\ p \text{ prime}}} \left\lfloor \frac{N}{p} \right\rfloor \le \sum_{\substack{p \le N \\ p \text{ prime}}} \frac{N}{p} = N \sum_{\substack{p \le N \\ p \text{ prime}}} \frac{1}{p}.$$
-By Mertens' second theorem (1874), $\sum_{p \le x} 1/p = \ln \ln x + M + O(1/\ln x)$, where $M \approx 0.2615$ is the Meissel--Mertens constant. Hence the sum is $O(N \log \log N)$. The subsequent linear scan to locate $p_n$ costs $O(N)$, which is dominated.
-
-**Space.** The Boolean array has $N + 1$ entries, giving $O(N)$ space. $\square$
-
-**Corollary 2.** With $N = O(n \log n)$ by Theorem 2, the overall time complexity for finding $p_n$ is $O(n \log n \cdot \log \log(n \log n))$ and space complexity is $O(n \log n)$.
-
 ## Algorithm
 
 ```
@@ -115,6 +103,18 @@ $$p_{10001} = 104743.$$
 - there are exactly $10001$ primes less than or equal to $104743$.
 
 Therefore $104743$ is the $10001$-st prime. $\square$
+
+## Complexity Analysis
+
+**Theorem 4 (Sieve complexity).** The Sieve of Eratosthenes on $[0, N]$ runs in $O(N \log \log N)$ time and $O(N)$ space.
+
+*Proof.* **Time.** The total number of marking operations is
+$$\sum_{\substack{p \le \sqrt{N} \\ p \text{ prime}}} \left\lfloor \frac{N}{p} \right\rfloor \le \sum_{\substack{p \le N \\ p \text{ prime}}} \frac{N}{p} = N \sum_{\substack{p \le N \\ p \text{ prime}}} \frac{1}{p}.$$
+By Mertens' second theorem (1874), $\sum_{p \le x} 1/p = \ln \ln x + M + O(1/\ln x)$, where $M \approx 0.2615$ is the Meissel--Mertens constant. Hence the sum is $O(N \log \log N)$. The subsequent linear scan to locate $p_n$ costs $O(N)$, which is dominated.
+
+**Space.** The Boolean array has $N + 1$ entries, giving $O(N)$ space. $\square$
+
+**Corollary 2.** With $N = O(n \log n)$ by Theorem 2, the overall time complexity for finding $p_n$ is $O(n \log n \cdot \log \log(n \log n))$ and space complexity is $O(n \log n)$.
 
 ## Answer
 

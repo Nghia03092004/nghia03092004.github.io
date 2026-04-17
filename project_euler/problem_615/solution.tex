@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 615: The Millionth Number with at Least One Million Prime Factors}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $\Omega(n)$ denote the number of prime factors of~$n$ counted with multiplicity. Define
+\[
+S = \{n \ge 2 : \Omega(n) \ge 10^6\}.
+\]
+Find the $10^6$-th smallest element of~$S$, modulo $p = 982451653$.
+
+\section{Fundamental Identity}
+
+\begin{theorem}[Unique Representation]
+Every element of~$S$ is uniquely determined by its prime exponent vector $(a_1, a_2, a_3, \ldots)$ where $n = 2^{a_1} \cdot 3^{a_2} \cdot 5^{a_3} \cdots$ and $\sum_i a_i \ge 10^6$.
+\end{theorem}
+
+\begin{proof}
+Immediate from the Fundamental Theorem of Arithmetic.
+\end{proof}
+
+\section{Ordering by Logarithm}
+
+\begin{proposition}[Log-Faithful Ordering]
+The map $n \mapsto \log n = \sum_i a_i \log p_i$ is a strictly monotone bijection from~$S$ to a subset of~$\mathbb{R}_{>0}$. In particular, ordering elements of~$S$ by~$n$ is equivalent to ordering by $\sum_i a_i \log p_i$.
+\end{proposition}
+
+\begin{proof}
+$\log$ is strictly increasing on $\mathbb{R}_{>0}$, and distinct positive integers have distinct logarithms.
+\end{proof}
+
+\section{Enumeration Algorithm}
+
+\subsection{Heap-Based Method}
+
+\begin{enumerate}
+\item Initialize a min-heap with the state $(K, 0, 0, \ldots)$ representing $2^K$ (the smallest element of~$S$).
+\item Extract the minimum by log-key; this is the next element of~$S$ in order.
+\item Generate successors:
+    \begin{itemize}
+    \item \textbf{Transfer:} For each index~$i$ with $a_i > 0$, create a new state with $a_i \leftarrow a_i - 1$ and $a_{i+1} \leftarrow a_{i+1} + 1$.
+    \item \textbf{Augment:} Create a new state with $a_0 \leftarrow a_0 + 1$.
+    \end{itemize}
+\item Insert new states into the heap (with duplicate detection).
+\item Repeat until $M = 10^6$ elements are extracted.
+\end{enumerate}
+
+\subsection{Modular Result}
+
+For the $M$-th extracted state $(a_1, a_2, \ldots)$:
+\[
+n \bmod p = \prod_i p_i^{a_i} \bmod p
+\]
+computed via fast modular exponentiation.
+
+\section{Concrete Values (small $K$)}
+
+For $K = 3$, the first elements of~$S$ are:
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Rank & $n$ & Factorization & $\Omega(n)$ \\
+\midrule
+1  & 8  & $2^3$               & 3 \\
+2  & 12 & $2^2 \cdot 3$       & 3 \\
+3  & 16 & $2^4$               & 4 \\
+4  & 18 & $2 \cdot 3^2$       & 3 \\
+5  & 20 & $2^2 \cdot 5$       & 3 \\
+6  & 24 & $2^3 \cdot 3$       & 4 \\
+7  & 27 & $3^3$               & 3 \\
+8  & 28 & $2^2 \cdot 7$       & 3 \\
+9  & 30 & $2 \cdot 3 \cdot 5$ & 3 \\
+10 & 32 & $2^5$               & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Proof of Correctness}
+
+\begin{theorem}
+The heap-based algorithm produces elements of~$S$ in strictly increasing order.
+\end{theorem}
+
+\begin{proof}
+The heap invariant ensures the minimum log-value is extracted at each step. The successor generation (transfer + augment) reaches every exponent vector $(a_1, a_2, \ldots)$ with $\sum a_i \ge K$ from the initial vector $(K, 0, \ldots)$: any target vector can be reached by a sequence of transfers (moving exponents from smaller to larger primes) and augmentations (adding factors of~2). The visited set prevents duplicates.
+\end{proof}
+
+\begin{lemma}[Bounded Search]
+The $M$-th element satisfies $n \le 2^K \cdot (3/2)^M$, so the search terminates.
+\end{lemma}
+
+\begin{proof}
+Each transfer replaces a factor of~$p_i$ with~$p_{i+1}$, multiplying~$n$ by at most $p_{i+1}/p_i \le 3/2$ for the smallest case. After $M$ operations from $2^K$, the upper bound follows.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(M \log M)$ heap operations, each $O(\log M)$.
+\item \textbf{Space:} $O(M)$ for the visited set and heap.
+\item \textbf{Modular exponentiation:} $O(\log K)$ for the final answer.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{108424772}
+\]
+
+\end{document}

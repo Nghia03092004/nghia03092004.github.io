@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 177: Integer Angled Quadrilaterals}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count non-similar convex quadrilaterals where both diagonals split every vertex angle into integer-degree sub-angles (8 sub-angles total, all positive integers).
+
+\section{Solution}
+
+\subsection{Intersection Angle}
+Let the diagonals intersect at $P$ with angle $p$. The 8 sub-angles satisfy:
+\begin{align*}
+\alpha + \gamma &= 180 - p \\
+\delta + \varepsilon &= p \\
+\zeta + \eta &= 180 - p \\
+\theta + \beta &= p
+\end{align*}
+
+\subsection{Closure Condition}
+From the sine rule applied to the four sub-triangles at $P$:
+\[
+\sin\alpha \cdot \sin\delta \cdot \sin\zeta \cdot \sin\theta = \sin\beta \cdot \sin\gamma \cdot \sin\varepsilon \cdot \sin\eta
+\]
+
+This necessary and sufficient condition ensures the diagonal segments have consistent lengths.
+
+\subsection{Solving for $\theta$}
+Given $p, \alpha, \delta, \zeta$, the closure condition yields:
+\[
+\tan\theta = \frac{R \cdot \sin p}{L + R \cdot \cos p}
+\]
+where $L = \sin\alpha \cdot \sin\delta \cdot \sin\zeta$ and $R = \sin\gamma \cdot \sin\varepsilon \cdot \sin\eta$.
+
+\subsection{Symmetry Group}
+The dihedral group $D_4$ of order 8 acts on the 8-tuple $(\alpha,\beta,\gamma,\delta,\varepsilon,\zeta,\eta,\theta)$ via:
+\begin{align*}
+r &: (\alpha,\beta,\gamma,\delta,\varepsilon,\zeta,\eta,\theta) \mapsto (\delta,\gamma,\varepsilon,\zeta,\eta,\theta,\beta,\alpha) \\
+s &: (\alpha,\beta,\gamma,\delta,\varepsilon,\zeta,\eta,\theta) \mapsto (\beta,\alpha,\theta,\eta,\zeta,\varepsilon,\delta,\gamma)
+\end{align*}
+Two tuples in the same orbit represent similar quadrilaterals.
+
+\subsection{Enumeration}
+For each $p \in [2, 178]$:
+\begin{itemize}
+\item $\alpha \in [1, 179-p]$, $\delta \in [1, p-1]$, $\zeta \in [1, 179-p]$
+\item Solve for $\theta$; check integrality and range $[1, p-1]$
+\item Verify convexity: $A, B, C, D < 180$
+\item Canonicalize under $D_4$ and insert into a set
+\end{itemize}
+
+\subsection{Result}
+\[
+\boxed{129325}
+\]
+
+\section{Answer}
+
+\[
+\boxed{129325}
+\]
+
+\end{document}

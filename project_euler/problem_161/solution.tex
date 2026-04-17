@@ -1,0 +1,115 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 161: Triominoes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A triomino is a shape consisting of three unit squares joined edge-to-edge. There are two combinatorial types: the I-triomino (three collinear squares, 2 orientations) and the L-triomino (three squares in an ``L,'' 4 orientations), giving 6 placement types in total. Determine the number of distinct tilings of a $9 \times 12$ grid by triominoes.
+
+\section{Definitions}
+
+\begin{definition}
+A \emph{tiling} of a rectangular grid $R$ by triominoes is a partition of the unit cells of $R$ into triominoes, where each cell belongs to exactly one piece.
+\end{definition}
+
+\begin{definition}
+The \emph{broken profile} at cell $(r,c)$ during a row-major traversal is the bitmask encoding which cells ahead of $(r,c)$ in the traversal order are already occupied by previously placed triominoes.
+\end{definition}
+
+\section{Mathematical Development}
+
+\begin{theorem}[Existence and finiteness]
+The number of distinct tilings of the $9 \times 12$ grid by triominoes is a well-defined non-negative integer.
+\end{theorem}
+
+\begin{proof}
+The grid has $9 \times 12 = 108$ cells. Each triomino covers exactly 3 cells, and $3 \mid 108$, so the necessary divisibility condition is satisfied. The set of valid tilings is a finite subset of all partitions of 108 cells into groups of 3.
+\end{proof}
+
+\begin{lemma}[Placement geometry]
+Each of the 6 triomino placement types, anchored at the topmost-leftmost cell in row-major order, occupies cells at the following offsets $(dr, dc)$:
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Type & Offsets & Row span & Column span \\
+\midrule
+L-A  & $(0,0),\,(0,1),\,(1,0)$ & 2 & 2 \\
+L-B  & $(0,0),\,(0,1),\,(1,1)$ & 2 & 2 \\
+L-C  & $(0,0),\,(1,0),\,(1,1)$ & 2 & 2 \\
+L-D  & $(0,0),\,(1,-1),\,(1,0)$ & 2 & 2 \\
+I-H  & $(0,0),\,(0,1),\,(0,2)$ & 1 & 3 \\
+I-V  & $(0,0),\,(1,0),\,(2,0)$ & 3 & 1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{lemma}
+
+\begin{proof}
+By direct enumeration. Each L-triomino is a $2 \times 2$ block minus one corner.
+\end{proof}
+
+\begin{theorem}[Broken-profile DP correctness]
+Processing the grid cell-by-cell in row-major order, the state at each cell is fully characterized by a bitmask of width at most $W = 12$ bits (the number of columns). The tiling count equals $\mathrm{dp}[0]$ after processing the final cell.
+\end{theorem}
+
+\begin{proof}
+At cell $(r,c)$, any anchored triomino occupies cells whose row-major offset from $(r,c)$ is at most $2 \cdot 12 = 24$. After shifting out the current cell at each step, the profile requires at most $\mathrm{COLS}$ bits. If the current cell is filled (bit~0 set), we skip; otherwise we try all 6 placements whose cells lie in-bounds with unoccupied bits, marking them. After all 108 cells, $\mathrm{dp}[0]$ counts exactly the valid tilings.
+\end{proof}
+
+\begin{lemma}[State space bound]
+The number of reachable profiles at any step is at most $2^{12} = 4096$, but empirically much smaller due to consistency constraints.
+\end{lemma}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{CountTilings}{$\mathrm{ROWS}=9, \mathrm{COLS}=12$}
+    \State $\mathrm{dp}[0] \gets 1$
+    \For{$r = 0$ \textbf{to} $\mathrm{ROWS}-1$}
+        \For{$c = 0$ \textbf{to} $\mathrm{COLS}-1$}
+            \State $\mathrm{ndp} \gets \text{empty map}$
+            \ForAll{$(\mathrm{mask}, w)$ in dp}
+                \If{$\mathrm{mask} \mathbin{\&} 1 = 1$}
+                    \State $\mathrm{ndp}[\mathrm{mask} \gg 1] \mathrel{+}= w$
+                \Else
+                    \ForAll{placement $P$ in 6 types}
+                        \If{$P$ fits in bounds and all bits free}
+                            \State $\mathrm{ndp}[\mathrm{nmask} \gg 1] \mathrel{+}= w$
+                        \EndIf
+                    \EndFor
+                \EndIf
+            \EndFor
+            \State $\mathrm{dp} \gets \mathrm{ndp}$
+        \EndFor
+    \EndFor
+    \State \Return $\mathrm{dp}[0]$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(\mathrm{ROWS} \cdot \mathrm{COLS} \cdot |\mathcal{S}| \cdot 6)$ where $|\mathcal{S}| \le 2^{12} = 4096$. Worst case: $O(108 \cdot 4096 \cdot 6) \approx O(2.7 \times 10^6)$.
+    \item \textbf{Space:} $O(|\mathcal{S}|) = O(2^{12})$ for the DP hash map at each step.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{20574308184277971}
+\]
+
+\end{document}

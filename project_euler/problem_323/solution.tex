@@ -1,0 +1,57 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 323: Bitwise-OR Operations on Random Integers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $y_0, y_1, \ldots$ be random unsigned 32-bit integers (each bit i.i.d.\ $\mathrm{Bernoulli}(1/2)$). Define $x_0 = 0$ and $x_i = x_{i-1} \mathbin{|} y_i$. Let $N = \min\{i : x_i = 2^{32}-1\}$. Find $E[N]$.
+
+\section{Solution}
+
+\subsection{Independent Bit Analysis}
+Each bit $j$ independently first appears in some $y_{N_j}$, where $N_j \sim \mathrm{Geom}(1/2)$. Then $N = \max(N_1, \ldots, N_{32})$.
+
+\subsection{CDF of the Maximum}
+\[
+P(N \le k) = \prod_{j=1}^{32} P(N_j \le k) = \left(1 - 2^{-k}\right)^{32}
+\]
+
+\subsection{Expected Value}
+Using $E[N] = \sum_{k=0}^{\infty} P(N > k)$:
+\[
+E[N] = \sum_{k=0}^{\infty} \left[1 - \left(1 - 2^{-k}\right)^{32}\right]
+\]
+
+By the binomial theorem:
+\[
+\left(1-2^{-k}\right)^{32} = \sum_{j=0}^{32} \binom{32}{j}(-1)^j 2^{-jk}
+\]
+
+Swapping the order of summation (justified by absolute convergence):
+\begin{align}
+E[N] &= \sum_{j=1}^{32} \binom{32}{j} (-1)^{j+1} \sum_{k=0}^{\infty} 2^{-jk} \\
+     &= \sum_{j=1}^{32} \frac{(-1)^{j+1} \binom{32}{j}}{1 - 2^{-j}}
+\end{align}
+
+\subsection{Numerical Result}
+Evaluating the finite sum to high precision:
+\[
+E[N] = \boxed{6.3551758451}
+\]
+
+\section{Complexity}
+$O(32)$ arithmetic operations.
+
+\section{Answer}
+
+\[
+\boxed{6.3551758451}
+\]
+
+\end{document}

@@ -1,0 +1,40 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 750: Optimal Card Stacking}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Cards labeled 1 to N at positions $3^n \bmod (N+1)$. Merge into ordered stack with minimum total drag distance $G(N)$. Given $G(6)=8$, $G(16)=47$. Find $G(976)$.
+
+\section{Mathematical Analysis}
+\subsection*{Permutation Sorting by Block Moves}
+
+The card positions form a permutation determined by powers of 3 modulo $N+1$. $G(N)$ is the minimum total distance to sort this permutation by moving consecutive subsequences.
+
+\subsection*{Greedy / DP Approach}
+
+The optimal strategy identifies the longest already-ordered subsequence and moves the remaining cards to their correct positions. This connects to the **longest increasing subsequence** (LIS) of the permutation.
+
+\subsection*{Connection to Cyclic Structures}
+
+Since the permutation is $\sigma(n) = 3^n \bmod (N+1)$, the cycle structure of this permutation (orbits of multiplication by 3 modulo $N+1$) determines the sorting difficulty.
+
+\section{Answer}
+
+\[
+\boxed{160640}
+\]
+
+\end{document}

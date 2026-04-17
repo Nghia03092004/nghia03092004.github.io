@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 915: Digit Power Sum Sequences}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $f(n) = \sum_{d \in \mathrm{digits}(n)} d^5$. Starting from any~$n$, the sequence $n, f(n), f(f(n)), \ldots$ eventually enters a cycle. Find the sum of all starting values $n \leq 10^6$ that eventually reach~1.
+
+\section{Orbit Contraction}
+
+\begin{theorem}
+For any $n$ with $k \geq 7$ digits, $f(n) < n$. Hence every orbit eventually enters $[1, 413343]$ and must cycle.
+\end{theorem}
+
+\begin{proof}
+A $k$-digit number satisfies $n \geq 10^{k-1}$. The maximum of~$f$ on $k$-digit numbers is $k \cdot 9^5 = 59049k$. For $k = 7$: $59049 \cdot 7 = 413343 < 10^6 \leq n$, so $f(n) < n$. The orbit is strictly decreasing until entering $[1, 413343]$, where it must revisit some value by the pigeonhole principle.
+\end{proof}
+
+\section{Fixed Points and Armstrong Numbers}
+
+\begin{definition}
+An \emph{Armstrong number} (narcissistic number) for power~$p$ is an integer $n$ such that $n = f(n)$, i.e., $n$ equals the sum of the $p$-th powers of its digits.
+\end{definition}
+
+\begin{proposition}
+The Armstrong numbers for $p = 5$ are: $1, 4150, 4151, 54748, 92727, 93084, 194979$.
+\end{proposition}
+
+\begin{proof}
+Exhaustive search: for each digit count $k$, we need $10^{k-1} \leq n \leq \min(10^k - 1,\; k \cdot 9^5)$. The upper bound $k \cdot 9^5$ limits the search to $k \leq 6$, since $7 \cdot 9^5 = 413343$ has only 6~digits.
+\end{proof}
+
+\section{5-Happy Numbers}
+
+\begin{definition}
+A number~$n$ is \emph{5-happy} if its orbit under~$f$ eventually reaches~1.
+\end{definition}
+
+\begin{lemma}
+The number~1 is a fixed point: $f(1) = 1^5 = 1$.
+\end{lemma}
+
+\begin{theorem}
+The set of 5-happy numbers is closed under the relation: $n$ is 5-happy iff $f(n)$ is 5-happy.
+\end{theorem}
+
+\begin{proof}
+Immediate: the orbit of~$n$ is $\{n\} \cup \mathrm{orbit}(f(n))$.
+\end{proof}
+
+\section{Memoized Classification}
+
+\begin{theorem}
+The following algorithm classifies all $n \leq N$ in $O(N)$ total time:
+\begin{enumerate}
+    \item For each $n$ from 1 to $N$, follow the orbit until reaching a cached value or detecting a cycle.
+    \item If the orbit reaches a value already classified, inherit its classification.
+    \item Cache the classification for every value along the current path.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each value is visited at most twice: once as part of its own orbit, once when another orbit passes through. The orbit length from any $n \leq 10^6$ is bounded (enters $[1, 354294]$ in one step), so total work is $O(N)$.
+\end{proof}
+
+\section{Concrete Examples}
+
+\begin{center}
+\begin{tabular}{ccl}
+\toprule
+$n$ & $f(n)$ & Orbit \\
+\midrule
+1 & 1 & $1 \to 1$ (fixed point, 5-happy) \\
+10 & 1 & $10 \to 1$ (5-happy) \\
+100 & 1 & $100 \to 1$ (5-happy) \\
+4150 & 4150 & $4150 \to 4150$ (Armstrong, not 5-happy) \\
+999 & 177147 & $999 \to 177147 \to \cdots$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$ amortized. Each value processed once; orbit steps cost $O(\log n)$ per step.
+    \item \textbf{Space:} $O(N)$ for the memoization table.
+    \item \textbf{Per-step:} $O(\log n)$ to extract digits (at most 6 for $n \leq 10^6$).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{55601924}
+\]
+
+\end{document}

@@ -1,0 +1,79 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 486: Palindrome-Containing Strings}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $F_5(n)$ be the number of binary strings of length at most~$n$ containing a palindromic substring of length $\ge 5$. Given $F_5(4)=0$, $F_5(5)=8$, $F_5(6)=42$, $F_5(11)=3844$. Let $D(L)$ count integers $n$ with $5\le n\le L$ and $87654321\mid F_5(n)$. Given $D(10^7)=0$, $D(5\times 10^9)=51$. Find $D(10^{18})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Complementary counting]
+Let $G(n)$ be the number of length-$n$ binary strings with no palindromic substring of length $\ge 5$. Then
+\[
+F_5(n) = \sum_{k=5}^n\bigl(2^k - G(k)\bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+For $k\le 4$, no string of length $k$ can contain a palindrome of length $\ge 5$, contributing~0. For $k\ge 5$, exactly $2^k - G(k)$ strings of length $k$ contain such a palindrome. Summing gives $F_5(n)$.
+\end{proof}
+
+\begin{theorem}[Transfer matrix]
+The palindrome-free count $G(n)$ for $n\ge 5$ satisfies a linear recurrence governed by a $16\times 16$ matrix $M$ over states $(a,b,c,d)\in\{0,1\}^4$ (the last four characters). The transition $(a,b,c,d)\to(b,c,d,e)$ is allowed unless $e=a$ and $d=b$ (which would create the palindrome $abcba$). Then
+\[
+G(n) = \mathbf{1}^T M^{n-4}\mathbf{v}_4
+\]
+where $\mathbf{v}_4$ is the all-ones vector of length~16.
+\end{theorem}
+
+\begin{proof}
+A binary palindrome of length~5 has the form $abcba$, detected by $s_i=s_{i+4}$ and $s_{i+1}=s_{i+3}$. Any palindromic substring of length $\ge 6$ contains one of length exactly~5 (a palindrome of length $2m\ge 6$ contains one of length $2m-1\ge 5$; one of length $2m+1\ge 7$ contains one of length $2m-1\ge 5$). So avoiding all length-5 palindromes suffices. The state $(s_{i-3},s_{i-2},s_{i-1},s_i)$ fully determines whether appending $s_{i+1}$ creates a new palindrome. All $2^4$ length-4 strings are palindrome-free (w.r.t.\ length $\ge 5$), giving $\mathbf{v}_4 = \mathbf{1}$.
+\end{proof}
+
+\begin{theorem}[Periodicity]
+The sequence $F_5(n)\bmod m$ is eventually periodic with period dividing $\operatorname{lcm}\bigl(\operatorname{ord}_m(2),\,T_M\bigr)$, where $\operatorname{ord}_m(2)$ is the multiplicative order of~2 modulo~$m$ and $T_M$ is the period of $M^k\bmod m$.
+\end{theorem}
+
+\begin{proof}
+$2^n\bmod m$ is periodic with period $\operatorname{ord}_m(2)$. The sequence $G(n)\bmod m$ is periodic since $M^{n-4}\mathbf{v}_4\bmod m$ is periodic with period $T_M$. The cumulative sum $F_5(n)\bmod m$ of two periodic sequences is eventually periodic with period dividing the LCM of the individual periods.
+\end{proof}
+
+\begin{lemma}[Matrix geometric series]
+\[
+\sum_{k=5}^n G(k) = \mathbf{1}^T\bigl(M + M^2 + \cdots + M^{n-4}\bigr)\mathbf{v}_4.
+\]
+When $I-M$ is invertible modulo~$m$, the partial sum equals $\mathbf{1}^T M(I-M)^{-1}(I-M^{n-4})\mathbf{v}_4$.
+\end{lemma}
+
+\begin{proof}
+Standard matrix geometric series identity.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Build the $16\times 16$ transfer matrix $M$ with forbidden transitions.
+\item Factor $m = 87654321$ and compute the period $T = \operatorname{lcm}(\operatorname{ord}_m(2), T_M)$.
+\item Scan one full period to count zeros of $F_5(n)\bmod m$.
+\item Extrapolate: $D(L) = \lfloor(L-4)/T\rfloor\cdot z + z'$, where $z$ is zeros per period and $z'$ accounts for the partial period.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(16^3\log T)$ for matrix exponentiation $+$ $O(T)$ to scan one period.
+\item \textbf{Space:} $O(16^2 + T) = O(T)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{11408450515}
+\]
+
+\end{document}

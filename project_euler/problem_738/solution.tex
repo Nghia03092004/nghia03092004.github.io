@@ -1,0 +1,35 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 738: Counting Ordered Factorisations}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+$d(n,k)$ counts non-decreasing factorizations $n = x_1 x_2 \cdots x_k$ with $1 \le x_1 \le \cdots \le x_k$. Compute $D(10^{10}, 10^{10}) \bmod 10^9+7$.
+
+\section{Multiplicative Structure}
+\begin{theorem}
+For large $K$, $D(N,K) = D(N, \infty) = \sum_{n=1}^{N} f(n)$ where $f(n)$ counts all non-decreasing factorizations of $n$. This is the ``multiplicative partition'' function.
+\end{theorem}
+
+\section{Verification}
+$D(10,10) = 153$, $D(100,100) = 35384$.
+
+\section{Answer}
+
+\[
+\boxed{143091030}
+\]
+
+\end{document}

@@ -1,0 +1,76 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 522: Hilbert's Blackout}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider a $2^n \times 2^n$ grid of lights indexed by an order-$n$ Hilbert curve. A blackout operation turns off lights at positions along the curve satisfying specific arithmetic conditions. Determine the number of lights remaining on after the blackout.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Hilbert Curve Bijection]
+For every $n \ge 1$, the order-$n$ Hilbert curve defines a bijection
+\[
+H_n : \{0, 1, \ldots, 4^n - 1\} \to \{0, \ldots, 2^n - 1\}^2
+\]
+such that consecutive indices map to grid-adjacent cells.
+\end{theorem}
+
+\begin{proof}
+We proceed by induction on~$n$.
+
+\emph{Base case} ($n = 1$): The order-1 curve visits the four cells of a $2 \times 2$ grid in the order $(0,0) \to (0,1) \to (1,1) \to (1,0)$. Each consecutive pair is adjacent, and the map is a bijection on a 4-element set.
+
+\emph{Inductive step}: Assume $H_{n-1}$ is a bijection on the $(2^{n-1})^2$ grid with the adjacency property. Partition the $2^n \times 2^n$ grid into four $2^{n-1} \times 2^{n-1}$ quadrants. Define $H_n$ by traversing:
+\begin{enumerate}
+    \item Bottom-left quadrant using $H_{n-1}$ rotated $90^\circ$ clockwise,
+    \item Top-left quadrant using $H_{n-1}$ unmodified,
+    \item Top-right quadrant using $H_{n-1}$ unmodified,
+    \item Bottom-right quadrant using $H_{n-1}$ rotated $90^\circ$ counter-clockwise.
+\end{enumerate}
+Each quadrant contributes $4^{n-1}$ cells, giving $4 \cdot 4^{n-1} = 4^n$ total. The junction points between quadrants are adjacent by construction. By induction, within each quadrant consecutive indices are adjacent. Hence $H_n$ is a bijection with the adjacency property.
+\end{proof}
+
+\begin{lemma}[Self-Similar Counting]
+Let $C_n$ denote the count of surviving lights after the blackout on an order-$n$ grid. If the blackout condition respects the 4-fold recursive structure of the Hilbert curve, then $C_n$ satisfies a linear recurrence
+\[
+C_n = \alpha \cdot C_{n-1} + \beta
+\]
+for constants $\alpha, \beta$ determined by the blackout rule.
+\end{lemma}
+
+\begin{proof}
+When the blackout condition depends only on $d \bmod 4^k$ for some fixed~$k$, the number of blackout positions in each quadrant of an order-$n$ curve is determined by the count in an order-$(n-1)$ curve, shifted by a fixed offset modulo~$4^k$. Since the four quadrants tile the index space $[0, 4^n)$ into four contiguous blocks of size~$4^{n-1}$, each block's count depends on $C_{n-1}$ plus a bounded correction that is constant in~$n$ for $n > k$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item \textbf{Base case:} For small $n$, enumerate all $4^n$ positions, apply the Hilbert $d \to (x,y)$ mapping, and count non-blackout positions.
+    \item \textbf{Recursive case:} Exploit the self-similar structure to express $C_n$ in terms of $C_{n-1}$ (and rotated variants), solving in $O(n)$ time.
+    \item The $d \to (x,y)$ conversion uses iterative bit-pair extraction with quadrant rotations, running in $O(n)$ per point.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time (direct):} $O(4^n)$ to enumerate all positions.
+    \item \textbf{Time (recursive):} $O(n)$ if the blackout rule respects the fractal structure.
+    \item \textbf{Space:} $O(n)$ for the recursion stack.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{96772715}
+\]
+
+\end{document}

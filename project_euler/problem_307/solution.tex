@@ -1,0 +1,72 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 307: Chip Defects}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$k = 20000$ defects are randomly distributed among $n = 1000000$ chips, each defect independently and uniformly at random. Find the probability that no chip has 3 or more defects, rounded to 10 decimal places.
+
+\section{Mathematical Derivation}
+
+\subsection{Combinatorial Setup}
+The total number of ways to assign $k$ defects to $n$ chips is $n^k$. We count assignments where every chip receives at most 2 defects.
+
+If exactly $j$ chips receive 2 defects, then $k - 2j$ chips receive exactly 1 defect, and the remaining $n - j - (k-2j) = n - k + j$ chips receive 0 defects.
+
+\subsection{Exact Formula}
+\begin{equation}
+    P = \sum_{j=0}^{\lfloor k/2 \rfloor} \binom{n}{j}\binom{n-j}{k-2j}\frac{k!}{2^j \cdot n^k}
+\end{equation}
+
+\subsection{Efficient Computation via Ratios}
+Let $T_j$ denote the $j$-th term of the sum. Then:
+\begin{equation}
+    T_0 = \binom{n}{k}\frac{k!}{n^k} = \frac{n!}{(n-k)! \cdot n^k} = \prod_{i=0}^{k-1}\frac{n-i}{n}
+\end{equation}
+
+The ratio of consecutive terms:
+\begin{equation}
+    \frac{T_{j+1}}{T_j} = \frac{(k - 2j)(k - 2j - 1)}{2(j+1)(n - k + j + 1)}
+\end{equation}
+
+\begin{proof}
+    From the formula:
+    \begin{align}
+        \frac{T_{j+1}}{T_j} &= \frac{\binom{n}{j+1}\binom{n-j-1}{k-2j-2}}{\binom{n}{j}\binom{n-j}{k-2j}} \cdot \frac{1}{2} \\
+        &= \frac{n-j}{j+1} \cdot \frac{(k-2j)!(n-k+j)!}{(k-2j-2)!(n-k+j+1)!} \cdot \frac{1}{2} \\
+        &= \frac{(k-2j)(k-2j-1)}{2(j+1)(n-k+j+1)}
+    \end{align}
+\end{proof}
+
+\subsection{Numerical Computation}
+We compute in log-space for stability:
+\begin{equation}
+    \log T_0 = \sum_{i=0}^{k-1} \log\left(\frac{n-i}{n}\right)
+\end{equation}
+
+Then accumulate $T_j$ using the ratio, summing via Kahan summation for precision.
+
+\section{Result}
+\begin{equation}
+    P = \boxed{0.7311720251}
+\end{equation}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(k)$
+    \item \textbf{Space:} $O(1)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.7311720251}
+\]
+
+\end{document}

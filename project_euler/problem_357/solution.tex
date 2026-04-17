@@ -1,0 +1,51 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\title{Problem 357: Prime Generating Integers}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of all positive integers $n \leq 10^8$ such that for every divisor $d$ of $n$,
+$d + n/d$ is prime.
+
+\section{Solution}
+
+\subsection{Necessary Conditions}
+\begin{enumerate}
+    \item Setting $d = 1$: we need $1 + n$ to be prime, so $n + 1$ must be prime.
+    \item $n$ must be even (or $n = 1$), since if $n$ is odd and $> 1$, some pair
+          $d + n/d$ will be even and $> 2$.
+    \item If $n$ is divisible by an odd prime squared $p^2$, then $d = p$ gives
+          $p + n/p$, and $d = p^2$ gives $p^2 + n/p^2$. These provide additional
+          constraints that make such $n$ very unlikely to work.
+\end{enumerate}
+
+\subsection{Algorithm}
+\begin{enumerate}
+    \item Sieve primes up to $10^8 + 1$.
+    \item For each prime $p \leq 10^8 + 1$, let $n = p - 1$.
+    \item If $n = 1$ or $n$ is even, check all divisors $d$ of $n$ with $d \leq \sqrt{n}$:
+          verify that $d + n/d$ is prime.
+    \item Sum all qualifying $n$.
+\end{enumerate}
+
+\subsection{Complexity}
+The sieve runs in $O(N \log \log N)$. Divisor checking for each candidate is $O(\sqrt{n})$
+in the worst case, but most candidates are eliminated quickly by small divisors.
+
+\subsection{Result}
+\[
+\boxed{1739023853137}
+\]
+
+\section{Answer}
+
+\[
+\boxed{1739023853137}
+\]
+
+\end{document}

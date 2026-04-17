@@ -1,0 +1,104 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 151: Paper Sheets of Standard Sizes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A printing shop runs 16 batches per job. For each batch, one sheet is drawn uniformly at random from an envelope. Initially the envelope contains a single A1 sheet. Whenever an A$n$ sheet ($n < 5$) is drawn, it is cut to produce one each of A$(n{+}1)$, \ldots, A5; one A5 is used for the batch and the rest are returned. An A5 sheet is simply consumed. Find the expected number of times (excluding the first and last batches) the envelope contains exactly one sheet.
+
+\section{Mathematical Development}
+
+\begin{definition}
+A \emph{state} is a tuple $\mathbf{s} = (a_2, a_3, a_4, a_5) \in \mathbb{Z}_{\ge 0}^4$, where $a_k$ is the number of A$k$ sheets in the envelope.
+\end{definition}
+
+\begin{lemma}[State Transitions]
+\label{lem:transitions}
+When an A$k$ sheet is drawn:
+\begin{itemize}
+    \item $k = 5$: $a_5 \mapsto a_5 - 1$.
+    \item $k = 4$: $a_4 \mapsto a_4 - 1,\; a_5 \mapsto a_5 + 1$.
+    \item $k = 3$: $a_3 \mapsto a_3 - 1,\; a_4 \mapsto a_4 + 1,\; a_5 \mapsto a_5 + 1$.
+    \item $k = 2$: $a_2 \mapsto a_2 - 1,\; a_3 \mapsto a_3 + 1,\; a_4 \mapsto a_4 + 1,\; a_5 \mapsto a_5 + 1$.
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+Cutting A$k$ ($k < 5$) by successive halving produces sheets A$(k{+}1), \ldots, \text{A4}$ and two copies of A5. One A5 is consumed for the batch. The net effect is: remove one A$k$, add one each of A$(k{+}1), \ldots, \text{A5}$. For $k = 5$, the sheet is consumed outright.
+\end{proof}
+
+\begin{lemma}[Initial State]
+After the first batch, the state is $(1, 1, 1, 1)$.
+\end{lemma}
+
+\begin{proof}
+The A1 sheet yields one each of A2, A3, A4, and two A5 sheets. One A5 is consumed, leaving $(1,1,1,1)$.
+\end{proof}
+
+\begin{lemma}[State Space Bound]
+\label{lem:bound}
+The reachable state space satisfies $a_2 \le 1$, $a_3 \le 2$, $a_4 \le 4$, $a_5 \le 8$, with the invariant $W(\mathbf{s}) = 8a_2 + 4a_3 + 2a_4 + a_5 \le 15$. Hence $|\mathcal{S}| \le 270$.
+\end{lemma}
+
+\begin{proof}
+Define $W(\mathbf{s}) = \sum_k 2^{5-k} a_k$, the A5-equivalent count. Initially $W = 15$. Each batch decreases $W$ by exactly 1 (one A5-equivalent consumed, no mass created). Since $W$ is non-increasing and non-negative, the bounds on each $a_k$ follow inductively: no A2 is ever created, so $a_2 \le 1$; each A2 cut creates at most one A3, so $a_3 \le 2$; and so on.
+\end{proof}
+
+\begin{theorem}[Expectation Recursion]
+\label{thm:recursion}
+Let $E(\mathbf{s})$ denote the expected number of single-sheet encounters from state $\mathbf{s}$ onward, excluding the terminal batch. Let $T = a_2 + a_3 + a_4 + a_5$. Then $E(\mathbf{0}) = 0$ and for $\mathbf{s} \neq \mathbf{0}$:
+\[
+E(\mathbf{s}) = \mathbf{1}\!\bigl[T = 1 \;\wedge\; \mathbf{s} \neq (0,0,0,1)\bigr] + \sum_{\substack{k=2 \\ a_k > 0}}^{5} \frac{a_k}{T} \cdot E(\mathbf{s}_k)
+\]
+where $\mathbf{s}_k$ is the successor state after drawing an A$k$ sheet.
+\end{theorem}
+
+\begin{proof}
+The process is a finite acyclic Markov chain (since $W$ strictly decreases). At state $\mathbf{s}$ with $T \ge 1$ sheets, the worker observes a single sheet iff $T = 1$. State $(0,0,0,1)$ is excluded as the terminal batch. Each sheet type $k$ is drawn with probability $a_k/T$. By the tower property of conditional expectation, $E(\mathbf{s})$ decomposes as the indicator of the current event plus the probability-weighted sum of future expectations. The recursion terminates at $\mathbf{0}$, and acyclicity guarantees well-definedness.
+\end{proof}
+
+\begin{corollary}
+The answer is $E(1,1,1,1)$.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function E(a2, a3, a4, a5):
+    if (a2, a3, a4, a5) == (0,0,0,0): return 0
+    T = a2 + a3 + a4 + a5
+    result = 1 if (T == 1 and state != (0,0,0,1)) else 0
+    for each k in {2,3,4,5} with a_k > 0:
+        result += (a_k / T) * E(transition(state, k))
+    return result
+
+answer = E(1, 1, 1, 1)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(|\mathcal{S}|)$ where $|\mathcal{S}| \le 270$. Each state requires $O(1)$ work. Total: $O(1)$.
+    \item \textbf{Space:} $O(|\mathcal{S}|) = O(1)$ for memoization.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.464399}
+\]
+
+\end{document}

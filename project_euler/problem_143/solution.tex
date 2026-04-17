@@ -1,0 +1,101 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm, algorithmicx, algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 143: Investigating the Torricelli Point of a Triangle}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+For a triangle with all angles less than $120^\circ$, let $T$ be the Torricelli point and $p, q, r$ the distances from $T$ to the three vertices. Find
+\[
+\sum_{\substack{p+q+r \le 120000 \\ \text{distinct}}} (p+q+r)
+\]
+where $p, q, r$ are positive integers satisfying the Torricelli point conditions.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Torricelli angle property]
+At the Torricelli point of a triangle with all angles less than $120^\circ$, each pair of vertices subtends $120^\circ$. By the law of cosines with $\cos 120^\circ = -1/2$:
+\[
+c^2 = p^2 + pq + q^2
+\]
+and similarly for the other sides.
+\end{theorem}
+
+\begin{proof}
+The Torricelli point minimizes $|AT|+|BT|+|CT|$ and lies in the interior with $\angle ATB = \angle BTC = \angle ATC = 120^\circ$. Applying the cosine rule to triangle $ATB$:
+\[
+c^2 = p^2 + q^2 - 2pq\cos(120^\circ) = p^2 + q^2 + pq.
+\]
+The other equations follow by cyclic symmetry.
+\end{proof}
+
+\begin{theorem}[Parametrization of primitive 120-compatible pairs]
+All primitive solutions to $u^2 + uv + v^2 = s^2$ with $\gcd(u,v) = 1$ are given by:
+\[
+u = m^2 - n^2, \quad v = 2mn + n^2, \quad s = m^2 + mn + n^2
+\]
+where $m > n \geq 1$, $\gcd(m,n) = 1$, and $m \not\equiv n \pmod{3}$.
+\end{theorem}
+
+\begin{proof}
+Direct expansion verifies:
+\[
+(m^2-n^2)^2 + (m^2-n^2)(2mn+n^2) + (2mn+n^2)^2 = (m^2+mn+n^2)^2.
+\]
+If $m \equiv n \pmod{3}$, then both $u$ and $v$ are divisible by 3, violating primitivity. The condition $\gcd(m,n) = 1$ with $m \not\equiv n \pmod{3}$ ensures $\gcd(u,v) = 1$, verifiable via the Eisenstein integer norm $N(\alpha) = |\alpha|^2$ in $\mathbb{Z}[\omega]$ where $\omega = e^{2\pi i/3}$.
+\end{proof}
+
+\begin{lemma}[Scaling]
+All 120-compatible pairs are $(ku, kv)$ for primitive $(u,v)$ and $k \geq 1$.
+\end{lemma}
+
+\begin{proof}
+If $\gcd(U,V) = g$, then $U^2+UV+V^2 = g^2(u^2+uv+v^2)$, so the reduced pair $(u,v)$ is also 120-compatible and primitive.
+\end{proof}
+
+\begin{lemma}[Graph reduction]
+A valid Torricelli triple $(p,q,r)$ corresponds to a 3-clique in the graph whose edges are 120-compatible pairs.
+\end{lemma}
+
+\begin{proof}
+The three Torricelli equations require each of $(p,q)$, $(p,r)$, $(q,r)$ to be 120-compatible.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State Generate all 120-compatible pairs $(u,v)$ with $u+v \leq L$ using the parametrization
+\State Build adjacency lists: for each vertex $u$, store all compatible $v$
+\For{each vertex $p$}
+    \For{each neighbor $q < p$}
+        \For{each $r \in \text{neighbors}(p) \cap \text{neighbors}(q)$ with $r < q$}
+            \If{$p+q+r \leq L$} add $p+q+r$ to result set \EndIf
+        \EndFor
+    \EndFor
+\EndFor
+\State \Return sum of all distinct values in result set
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(L^{3/2})$ in the worst case. Pair generation is $O(L \sqrt{L})$; clique enumeration depends on graph density.
+\item \textbf{Space:} $O(L + E)$ for adjacency lists, where $E$ is the number of 120-compatible pairs.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{30758397}
+\]
+
+\end{document}

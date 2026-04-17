@@ -1,0 +1,99 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 62: Cubic Permutations}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the smallest cube for which exactly five permutations of its digits are also cubes.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+For a positive integer $m$, define the \emph{canonical digit signature} $\sigma(m)$ as the string obtained by sorting the decimal digits of $m$ in non-decreasing order.
+\end{definition}
+
+\begin{theorem}[Permutation equivalence]
+Two positive integers $a$ and $b$ are digit permutations of each other if and only if $\sigma(a) = \sigma(b)$.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) If $b$ is a permutation of $a$'s digits, both share the same digit multiset, so sorting produces identical strings.
+
+($\Leftarrow$) If $\sigma(a) = \sigma(b)$, the digit multisets coincide, so one is a rearrangement of the other.
+\end{proof}
+
+\begin{lemma}[Digit count preservation]
+If $m^3$ and $n^3$ are digit permutations of each other ($m, n \ge 1$), then $m^3$ and $n^3$ have the same number of digits.
+\end{lemma}
+
+\begin{proof}
+Digit permutations preserve the total digit count, and neither cube has leading zeros since $m, n \ge 1$.
+\end{proof}
+
+\begin{theorem}[Digit-count finality]
+Let $D(k) = \lfloor \log_{10} k \rfloor + 1$ for $k > 0$. For fixed digit count $d$, let $\mathcal{C}_d = \{n^3 : D(n^3) = d\}$. If a canonical signature class within $\mathcal{C}_d$ has exactly 5 members, no cube outside $\mathcal{C}_d$ can join it.
+\end{theorem}
+
+\begin{proof}
+By the lemma, any cube that is a digit permutation of a $d$-digit cube must itself have $d$ digits, hence belongs to $\mathcal{C}_d$. Once all $d$-digit cubes are enumerated, class sizes are final.
+\end{proof}
+
+\begin{lemma}[Range of $d$-digit cubes]
+The $d$-digit cubes are $n^3$ for $n \in [\lceil 10^{(d-1)/3} \rceil,\; \lfloor (10^d - 1)^{1/3} \rfloor]$, giving $|I_d| = \Theta(10^{d/3})$.
+\end{lemma}
+
+\begin{proof}
+The condition $10^{d-1} \le n^3 \le 10^d - 1$ is equivalent to $10^{(d-1)/3} \le n \le (10^d - 1)^{1/3}$.
+\end{proof}
+
+\begin{corollary}
+The algorithm can finalize all $d$-digit classes as soon as the first $(d+1)$-digit cube is encountered.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find smallest cube with exactly 5 cubic digit permutations}
+\begin{algorithmic}[1]
+\STATE $\mathrm{groups} \gets \{\}$ \COMMENT{canonical signature $\to$ list of cubes}
+\STATE $\mathrm{prev\_digits} \gets 0$
+\FOR{$n = 1, 2, 3, \ldots$}
+    \STATE $\mathrm{cube} \gets n^3$,\quad $d \gets D(\mathrm{cube})$
+    \IF{$d > \mathrm{prev\_digits}$}
+        \STATE Search groups for classes of size 5; return minimum if found
+        \STATE Reset groups, $\mathrm{prev\_digits} \gets d$
+    \ENDIF
+    \STATE $\mathrm{groups}[\sigma(\mathrm{cube})].\mathrm{append}(\mathrm{cube})$
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} Let $K$ be the index at termination. Per cube: $O(d \log d)$ for sorting digits plus $O(d)$ for hashing. With $K = 5027$ and $d = 12$: total $\approx O(2.4 \times 10^5)$.
+
+\textbf{Space:} $O(|I_d|)$ for active groups within the current digit count.
+
+\section{Answer}
+
+\[
+\boxed{127035954683}
+\]
+
+\end{document}

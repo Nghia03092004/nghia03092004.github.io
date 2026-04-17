@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 30: Digit Fifth Powers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the sum of all numbers $n \geq 2$ that can be written as the sum of fifth powers of their digits.
+
+\section{Mathematical Development}
+
+\begin{definition}[Digit Power Sum]
+For a positive integer $n$ with decimal digits $d_1, \ldots, d_m$, the \emph{digit power sum of order~$k$} is $\sigma_k(n) = \sum_{i=1}^{m} d_i^k$. A number $n \geq 2$ is \emph{narcissistic of order~$k$} if $\sigma_k(n) = n$.
+\end{definition}
+
+\begin{theorem}[Finiteness]\label{thm:finite}
+For fixed $k \geq 2$, the set $\{n \geq 2 : \sigma_k(n) = n\}$ is finite.
+\end{theorem}
+
+\begin{proof}
+A $d$-digit number satisfies $n \geq 10^{d-1}$ but $\sigma_k(n) \leq d \cdot 9^k$. Since $10^{d-1}$ grows exponentially while $d \cdot 9^k$ grows linearly, there exists $D_k$ such that $d > D_k$ implies $d \cdot 9^k < 10^{d-1}$, making $\sigma_k(n) = n$ impossible for $d$-digit numbers.
+\end{proof}
+
+\begin{lemma}[Upper Bound for $k = 5$]\label{lem:bound}
+If $\sigma_5(n) = n$, then $n \leq 354294$.
+\end{lemma}
+
+\begin{proof}
+We have $9^5 = 59049$. For $d = 7$: $7 \cdot 59049 = 413343 < 10^6$. Hence no 7-digit (or longer) number can satisfy $\sigma_5(n) = n$. The upper bound is $6 \cdot 9^5 = 354294$.
+\end{proof}
+
+\begin{theorem}[Enumeration]\label{thm:enum}
+The narcissistic numbers of order~5 (with $n \geq 2$) are exactly $4150$, $4151$, $54748$, $92727$, $93084$, and $194979$.
+\end{theorem}
+
+\begin{proof}
+Exhaustive search over $[2, 354294]$. By Lemma~\ref{lem:bound}, this range contains all candidates. Each value is verified:
+\begin{align*}
+4150 &= 4^5 + 1^5 + 5^5 + 0^5, \\
+4151 &= 4^5 + 1^5 + 5^5 + 1^5, \\
+54748 &= 5^5 + 4^5 + 7^5 + 4^5 + 8^5, \\
+92727 &= 9^5 + 2^5 + 7^5 + 2^5 + 7^5, \\
+93084 &= 9^5 + 3^5 + 0^5 + 8^5 + 4^5, \\
+194979 &= 1^5 + 9^5 + 4^5 + 9^5 + 7^5 + 9^5. \qedhere
+\end{align*}
+\end{proof}
+
+\begin{corollary}
+The sum of all narcissistic numbers of order~5 is
+\[
+4150 + 4151 + 54748 + 92727 + 93084 + 194979 = 443839.
+\]
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Sum of Digit Fifth Powers}
+\begin{algorithmic}[1]
+\REQUIRE None
+\ENSURE Sum of all $n \geq 2$ with $\sigma_5(n) = n$
+\STATE Precompute $\texttt{pow5}[d] \gets d^5$ for $d = 0, \ldots, 9$
+\STATE $U \gets 6 \cdot 9^5 = 354294$
+\STATE $\text{total} \gets 0$
+\FOR{$n = 2$ \TO $U$}
+    \STATE Compute $s = \sigma_5(n)$ using digit extraction and \texttt{pow5} lookup
+    \IF{$s = n$}
+        \STATE $\text{total} \gets \text{total} + n$
+    \ENDIF
+\ENDFOR
+\RETURN total
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(U)$ time and $O(1)$ space, where $U = 354294$.
+\end{proposition}
+
+\begin{proof}
+Each of the $U - 1$ iterations extracts at most $\lfloor \log_{10} U \rfloor + 1 = 6$ digits, performing an $O(1)$ table lookup per digit. The precomputed table has fixed size~10.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{443839}
+\]
+
+\end{document}

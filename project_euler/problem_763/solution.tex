@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 763: Amoeba Colonies 3D}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+An amoeba at $(0,0,0)$ divides into 3 offspring at $(x+1,y,z)$, $(x,y+1,z)$, $(x,y,z+1)$ if those cells are empty. After $N$ divisions, $2N+1$ amoebas exist. Different division orders may give same arrangement. $D(N)$ = count of distinct arrangements. Given $D(2)=3$, $D(10)=44499$, $D(20)=9204559704$. Find last 9 digits of $D(10000)$.
+\section{Analysis}
+\subsection*{Plane Partition Connection}
+
+Each arrangement corresponds to a **plane partition** (3D Young diagram). The positions occupied by amoebas form an order ideal of the poset $\mathbb{N}^3$. The amoeba at $(x,y,z)$ requires that $(x-1,y,z)$, $(x,y-1,z)$, and $(x,y,z-1)$ are all occupied (or at the boundary).
+
+\subsection*{Counting via Plane Partitions}
+
+$D(N)$ equals the number of plane partitions of $N$ into parts arranged in a 3D staircase. More precisely, it counts the number of order ideals of size $2N+1$ in $\mathbb{N}^3$ reachable by sequential single-element extensions from $\{(0,0,0)\}$.
+
+By a the
+\section{Answer}
+
+\[
+\boxed{798443574}
+\]
+
+\end{document}

@@ -1,0 +1,111 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Problem 27: Quadratic Primes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the product $a \cdot b$ for the quadratic $n^2 + an + b$, where $|a| < 1000$ and $|b| \leq 1000$, that produces the maximum number of primes for consecutive values of~$n$ starting with $n = 0$.
+
+\section{Mathematical Development}
+
+\begin{definition}
+For integers $a, b$, define $f_{a,b}(n) = n^2 + an + b$. The \emph{prime chain length} $L(a,b)$ is the largest $m \geq 0$ such that $f_{a,b}(n)$ is prime for all $0 \leq n < m$.
+\end{definition}
+
+\begin{lemma}[Necessity of $b$ Prime]\label{lem:bprime}
+If $L(a,b) \geq 1$, then $b$ is a positive prime.
+\end{lemma}
+
+\begin{proof}
+$f_{a,b}(0) = b$ must be prime, so $b \geq 2$.
+\end{proof}
+
+\begin{lemma}[Parity Constraint]\label{lem:parity}
+If $b \geq 5$ is an odd prime and $L(a,b) \geq 2$, then $a$ is odd.
+\end{lemma}
+
+\begin{proof}
+$f_{a,b}(1) = 1 + a + b$ has parity equal to that of~$a$ (since $b$ is odd). If $a$ is even, then $f_{a,b}(1)$ is even, forcing $f_{a,b}(1) = 2$, i.e., $a = 1 - b$. Then $f_{a,b}(2) = 6 - b < 2$ for $b \geq 5$, contradicting $L(a,b) \geq 2$.
+\end{proof}
+
+\begin{theorem}[Connection to Heegner Numbers]\label{thm:heegner}
+The discriminant of $n^2 + n + 41$ is $\Delta = -163$. By the Stark--Heegner theorem, $h(-163) = 1$, and by Rabinowitz's theorem, $n^2 + n + 41$ is prime for $n = 0, \ldots, 39$.
+\end{theorem}
+
+\begin{proof}
+The class number $h(-163) = 1$ implies $\mathbb{Z}\bigl[\frac{1+\sqrt{-163}}{2}\bigr]$ is a PID. By Rabinowitz (1913), $n^2 + n + p$ produces primes for $n = 0, \ldots, p-2$ if and only if $h(1-4p) = 1$. For $p = 41$: $1 - 4(41) = -163$, confirming the result.
+\end{proof}
+
+\begin{remark}
+The quadratic $n^2 - 79n + 1601 = (n-40)^2 + (n-40) + 41$ is a reindexing of Euler's polynomial.
+\end{remark}
+
+\begin{theorem}[Optimal Coefficients]\label{thm:optimal}
+The pair $(a, b) = (-61, 971)$ uniquely maximizes $L(a,b) = 71$ among $|a| < 1000$, $|b| \leq 1000$. Its discriminant is $61^2 - 4 \cdot 971 = -163$.
+\end{theorem}
+
+\begin{proof}
+Exhaustive search over the 168 primes $b \leq 1000$ and admissible values of~$a$ (applying Lemmas~\ref{lem:bprime}--\ref{lem:parity}) yields a maximum chain length of 71, achieved uniquely at $(-61, 971)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Quadratic Primes}
+\begin{algorithmic}[1]
+\REQUIRE Bounds $A_{\max}$, $B_{\max}$
+\ENSURE Product $a \times b$ for optimal $(a, b)$
+\STATE Compute prime sieve up to $A_{\max}^2 + A_{\max} \cdot B_{\max} + B_{\max}$
+\STATE $\mathcal{B} \gets \{p \leq B_{\max} : p \text{ is prime}\}$
+\STATE $\text{best} \gets 0$, $\text{result} \gets 0$
+\FOR{each $b \in \mathcal{B}$}
+    \FOR{$a = -(A_{\max}-1)$ \TO $A_{\max}-1$ (odd $a$ only when $b \geq 5$ is odd)}
+        \STATE $n \gets 0$
+        \WHILE{$n^2 + an + b \geq 2$ \AND $n^2 + an + b$ is prime}
+            \STATE $n \gets n + 1$
+        \ENDWHILE
+        \IF{$n > \text{best}$}
+            \STATE $\text{best} \gets n$, $\text{result} \gets a \times b$
+        \ENDIF
+    \ENDFOR
+\ENDFOR
+\RETURN $\text{result}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}
+The algorithm runs in $O(|\mathcal{B}| \cdot |A| \cdot C)$ time and $O(S)$ space, where $|\mathcal{B}| = 168$, $|A| \leq 1000$ (after parity pruning), $C \leq 71$, and $S \approx 10^5$ is the sieve size.
+\end{proposition}
+
+\begin{proof}
+The triple loop performs at most $168 \times 1000 \times 71 \approx 1.2 \times 10^7$ sieve lookups, each costing $O(1)$.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{-59231}
+\]
+
+\end{document}

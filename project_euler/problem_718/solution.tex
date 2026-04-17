@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 718: Unreachable Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a parameter~$p$, let $G(p)$ be the sum of all positive integers that cannot be represented as non-negative integer linear combinations of specific generators depending on~$p$. Given $G(1)=8253$ and $G(2)=60258000$, find $G(6) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+The \emph{Frobenius number} $g(a_1,\ldots,a_k)$ is the largest integer not representable as $\sum x_i a_i$ with $x_i \ge 0$, when $\gcd(a_1,\ldots,a_k)=1$.
+\end{definition}
+
+\begin{theorem}[Sylvester--Frobenius, Two Generators]
+For coprime $a,b$: $g(a,b) = ab - a - b$. The count of non-representable integers is $(a-1)(b-1)/2$, and their sum is
+\[
+\frac{(a-1)(b-1)(2ab-a-b-1)}{12}.
+\]
+\end{theorem}
+
+\begin{proof}
+An integer~$n$ with $n = qa + r$, $0 \le r < a$, is representable iff $n \ge y_0 b$ where $y_0 = (-r b^{-1} \bmod a)$. Non-representable values for residue~$r$ are $\{r, r+a, \ldots, r+(y_0-1)a\}$. Summing over all residues gives the formulas.
+\end{proof}
+
+\begin{lemma}
+For $k \ge 3$ generators, no closed form exists in general; the Frobenius problem is NP-hard.
+\end{lemma}
+
+\begin{proof}
+See Ram\'irez-Alfons\'in (2005), \emph{The Diophantine Frobenius Problem}.
+\end{proof}
+
+\begin{theorem}[DP Computation]
+The sum of unreachable values is computed by dynamic programming on $[0, F]$ where $F \le a_1 a_2$ bounds the Frobenius number.
+\end{theorem}
+
+\begin{proof}
+Set $\mathrm{reach}[0]=\mathrm{true}$ and $\mathrm{reach}[n]=\bigvee_i \mathrm{reach}[n-a_i]$. All integers beyond $g(a_1,\ldots,a_k)$ are reachable, and $g \le a_1 a_2 - a_1 - a_2 < a_1 a_2$.
+\end{proof}
+
+\begin{lemma}
+The Frobenius number satisfies $g(a_1,\ldots,a_k) < a_1 a_2$ for any two coprime generators.
+\end{lemma}
+
+\begin{proof}
+Adding generators can only make more values representable, so $g(a_1,\ldots,a_k) \le g(a_1,a_2) = a_1 a_2 - a_1 - a_2 < a_1 a_2$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function G(p, mod):
+    gens = compute_generators(p)
+    F = gens[0] * gens[1]
+    reach = [false] * (F + 1)
+    reach[0] = true
+    for n = 1 to F:
+        for a in gens:
+            if n >= a and reach[n - a]:
+                reach[n] = true; break
+    total = 0
+    for n = 1 to F:
+        if not reach[n]:
+            total = (total + n) % mod
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(F \cdot k)$ where $F$ is the Frobenius bound and $k$ the number of generators.
+    \item \textbf{Space:} $O(F)$ for the reachability array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{228579116}
+\]
+
+\end{document}

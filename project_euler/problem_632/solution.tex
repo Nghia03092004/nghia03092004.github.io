@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 632: Sum of Divisors of Sum of Divisors}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $\sigma(n)=\sum_{d\mid n}d$. Compute $S(N)=\sum_{n=1}^{N}\sigma(\sigma(n))$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Multiplicativity]
+$\sigma$ is multiplicative: $\sigma(mn)=\sigma(m)\sigma(n)$ for $\gcd(m,n)=1$.
+\end{theorem}
+
+\begin{proof}
+Every divisor $d\mid mn$ with $\gcd(m,n)=1$ factors uniquely as $d=d_1 d_2$ with $d_1\mid m$, $d_2\mid n$. Hence $\sigma(mn)=\sum_{d_1\mid m}\sum_{d_2\mid n}d_1 d_2=\sigma(m)\sigma(n)$.
+\end{proof}
+
+\begin{lemma}[Prime Power Formula]
+$\sigma(p^k)=(p^{k+1}-1)/(p-1)$ for prime $p$ and $k\ge 1$.
+\end{lemma}
+
+\begin{proof}
+The divisors of $p^k$ are $1,p,\ldots,p^k$, summing to the geometric series $(p^{k+1}-1)/(p-1)$.
+\end{proof}
+
+\begin{theorem}[Divisor Sieve Correctness]
+The additive sieve computing $\sigma(n)$ for $n\le N$ runs correctly in $O(N\log N)$ time.
+\end{theorem}
+
+\begin{proof}
+For each $d\le N$, the sieve adds $d$ to every multiple $m$ of $d$ with $m\le N$. Since every divisor $d$ of $n\le N$ satisfies $d\le n\le N$, all terms $\sum_{d\mid n}d$ are accumulated. The total number of operations is $\sum_{d=1}^{N}\lfloor N/d\rfloor = O(N\log N)$.
+\end{proof}
+
+\begin{theorem}[Average Order]
+$\sum_{n=1}^{N}\sigma(n)=\frac{\pi^2}{12}N^2+O(N\log N)$.
+\end{theorem}
+
+\begin{proof}
+Interchange the order of summation: $\sum_{n=1}^N \sigma(n) = \sum_{d=1}^N d\lfloor N/d\rfloor$. Using $\lfloor N/d\rfloor = N/d - \{N/d\}$ and the asymptotic $\sum_{d=1}^N 1/d^2 \to \pi^2/6$, the leading term is $\frac{\pi^2}{12}N^2$.
+\end{proof}
+
+\begin{lemma}[Sieve Range]
+$\sigma(n)\le n(1+\ln n)\le N(1+\ln N)$ for $n\le N$, so the sieve must extend to $M=O(N\log N)$.
+\end{lemma}
+
+\begin{proof}
+$\sigma(n)/n = \sum_{d\mid n}1/d \le H_n \le 1+\ln n$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve $\sigma(n)$ for $n=1,\ldots,M$ where $M=O(N\log N)$ in $O(M\log M)$ time.
+\item For each $n=1,\ldots,N$, look up $\sigma(\sigma(n))$ and accumulate.
+\item Return $S(N)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log^2 N)$ for the sieve up to $M=O(N\log N)$.
+\item \textbf{Space:} $O(N\log N)$ for the sieve array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{728378714}
+\]
+
+\end{document}

@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 103: Special Subset Sums: Optimum}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A set $A = \{a_1 < \cdots < a_n\}$ of positive integers is a \emph{special sum set} if for any two non-empty disjoint subsets $B, C \subseteq A$:
+\begin{enumerate}
+\item $S(B) \neq S(C)$ \quad (distinct sums).
+\item $|B| > |C| \implies S(B) > S(C)$ \quad (size ordering).
+\end{enumerate}
+For $n = 7$, with near-optimum starting point $\{20, 31, 38, 39, 40, 42, 45\}$, find the optimum set minimizing $S(A)$.
+
+\section{Mathematical Development}
+
+\begin{theorem}[Equivalent Form of Property 2]
+\label{thm:prop2}
+For sorted $a_1 < a_2 < \cdots < a_n$, Property~2 holds if and only if
+\[
+\sum_{i=1}^{k+1} a_i > \sum_{i=n-k+1}^{n} a_i \quad \text{for all } k = 1, \ldots, \lfloor n/2 \rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+$(\Rightarrow)$: Instantiate Property~2 with $B = \{a_1, \ldots, a_{k+1}\}$ and $C = \{a_{n-k+1}, \ldots, a_n\}$, which are disjoint since $k+1 \leq n-k+1$.
+
+$(\Leftarrow)$: For arbitrary disjoint $B, C$ with $|B| = m > \ell = |C|$, the smallest $m$-element subset sum is $\sum_{i=1}^m a_i$ and the largest $\ell$-element subset sum is $\sum_{i=n-\ell+1}^n a_i$. Hence
+\[
+S(B) \geq \sum_{i=1}^m a_i \geq \sum_{i=1}^{\ell+1} a_i > \sum_{i=n-\ell+1}^n a_i \geq S(C). \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Reduction to Global Uniqueness]
+Property~1 holds if and only if all $2^n - 1$ non-empty subset sums are pairwise distinct.
+\end{theorem}
+
+\begin{proof}
+If two distinct subsets $B', C'$ have $S(B') = S(C')$, removing common elements $D = B' \cap C'$ yields disjoint non-empty $B = B' \setminus D$ and $C = C' \setminus D$ with $S(B) = S(C)$, violating Property~1.
+\end{proof}
+
+\section{Algorithm}
+
+Starting from the near-optimum set ($S = 255$), perturb each element by at most $\pm 3$ and retain the valid special sum set with minimum total sum. Property~2 serves as a fast $O(n)$ filter before the $O(2^n)$ Property~1 check.
+
+\section{Complexity}
+
+\begin{itemize}
+\item \textbf{Time:} $O(7^7 \cdot 2^7) \approx 10^8$ in the worst case; aggressive pruning (sum bound, Property~2 filter) reduces this to $\sim 10^6$.
+\item \textbf{Space:} $O(2^n) = O(128)$ for subset sums.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{20313839404245}
+\]
+
+\end{document}

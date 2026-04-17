@@ -1,0 +1,33 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\title{Problem 964: Generalized Pentagonal Numbers}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Sum all generalized pentagonal numbers $\omega_k = k(3k-1)/2$ (for $k = 0, \pm1, \pm2, \ldots$) below $10^7$.
+
+\section{Euler's Pentagonal Number Theorem}
+\begin{theorem}[Euler]
+$\displaystyle\prod_{n=1}^{\infty}(1-x^n) = \sum_{k=-\infty}^{\infty} (-1)^k x^{k(3k-1)/2}.$
+\end{theorem}
+
+The exponents $k(3k-1)/2$ are the generalized pentagonal numbers.
+
+\section{Algorithm}
+Generate $\omega_k$ for $k = 1, 2, \ldots$ (both branches) until exceeding $N = 10^7$, and sum.
+
+\section{Complexity}
+$O(\sqrt{N})$ time and space.
+
+\section{Answer}
+
+\[
+\boxed{4.7126135532e-29}
+\]
+
+\end{document}

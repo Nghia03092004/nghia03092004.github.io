@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 484: Arithmetic Derivative}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+The \emph{arithmetic derivative} is defined by: $p'=1$ for any prime~$p$; $(ab)'=a'b+ab'$ (Leibniz rule); $0'=0$ and $1'=0$. Compute sums of arithmetic derivatives over specified ranges.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Closed form]
+For $n = p_1^{a_1}\cdots p_k^{a_k}$ with $n\ge 2$:
+\[
+n' = n\sum_{i=1}^k \frac{a_i}{p_i} = \sum_{i=1}^k a_i\cdot\frac{n}{p_i}.
+\]
+\end{theorem}
+
+\begin{proof}
+By strong induction on $\Omega(n) = \sum_i a_i$.
+
+\emph{Base case:} $\Omega(n)=1$, so $n=p$ prime. Then $n'=1=p\cdot(1/p)$. \checkmark
+
+\emph{Inductive step:} Write $n=p\cdot m$ with $p\mid n$ prime. By the Leibniz rule, $n' = m + pm'$.
+
+If $\gcd(p,m)=1$: by induction $m' = m\sum_{i\ge 2}a_i/p_i$, so
+\[
+n' = m\bigl(1+p\textstyle\sum_{i\ge 2}a_i/p_i\bigr) = n\bigl(1/p+\textstyle\sum_{i\ge 2}a_i/p_i\bigr).
+\]
+
+If $p\mid m$: write $m=p^{a_1-1}\prod_{i\ge 2}p_i^{a_i}$. By induction $m'=m\bigl((a_1-1)/p+\sum_{i\ge 2}a_i/p_i\bigr)$, so
+\[
+n' = m\bigl(a_1+p\textstyle\sum_{i\ge 2}a_i/p_i\bigr) = n\bigl(a_1/p+\textstyle\sum_{i\ge 2}a_i/p_i\bigr). \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Summation interchange]
+\[
+\sum_{n=2}^N n' = \sum_{p\le N}\frac{1}{p}\sum_{\substack{n\le N\\p\mid n}} n\cdot v_p(n).
+\]
+\end{theorem}
+
+\begin{proof}
+Substitute $n' = \sum_{p\mid n}v_p(n)\cdot n/p$ and exchange the order of summation (all terms non-negative).
+\end{proof}
+
+\begin{lemma}[Inner sum decomposition]
+For a fixed prime $p$:
+\[
+\sum_{\substack{n\le N\\p\mid n}} n\cdot v_p(n) = \sum_{a=1}^{\lfloor\log_p N\rfloor} a\cdot p^a \sum_{\substack{m\le N/p^a\\\gcd(m,p)=1}} m.
+\]
+\end{lemma}
+
+\begin{proof}
+Write $n = p^a m$ with $a=v_p(n)\ge 1$ and $\gcd(m,p)=1$, then group by~$a$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item \textbf{Sieve method:} Compute smallest prime factors via sieve of Eratosthenes. For each $n$, factorize using the SPF table and apply the closed-form formula.
+\item \textbf{Prime-sum method:} Iterate over primes $p\le N$. For each $p$ and exponent $a$, compute $\sum_{\substack{m\le N/p^a\\\gcd(m,p)=1}}m$ via inclusion-exclusion. Accumulate $a\cdot p^{a-1}\cdot S$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Sieve method:} $O(N\log N)$ time, $O(N)$ space.
+\item \textbf{Prime-sum method:} $O(N)$ time (sum over $p$ of $\log_p N$ terms), $O(\sqrt{N})$ space for segmented sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{8907904768686152599}
+\]
+
+\end{document}

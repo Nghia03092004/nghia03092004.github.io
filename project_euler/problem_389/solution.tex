@@ -1,0 +1,121 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{Project Euler Problem 389:\\Platonic Dice}
+\author{Solution via Law of Total Variance}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+An unbiased single 4-sided die is thrown and its value, $T$, is noted.
+$T$ unbiased 6-sided dice are thrown and their scores are added together. The sum, $C$, is noted.
+$C$ unbiased 8-sided dice are thrown and their scores are added together. The sum, $O$, is noted.
+$O$ unbiased 12-sided dice are thrown and their scores are added together. The sum, $D$, is noted.
+$D$ unbiased 20-sided dice are thrown and their scores are added together. The sum, $I$, is noted.
+
+Find $\operatorname{Var}(I)$, rounded to 4 decimal places.
+
+\section{Preliminaries}
+
+\subsection{Single Fair Die}
+
+For a single fair $n$-sided die with faces $1, 2, \ldots, n$:
+\begin{align}
+    \mathbb{E}[X] &= \frac{n+1}{2} \label{eq:die_mean} \\[6pt]
+    \operatorname{Var}(X) &= \frac{n^2 - 1}{12} \label{eq:die_var}
+\end{align}
+
+\subsection{Law of Total Variance}
+
+For any random variables $X$ and $Y$ with finite second moments:
+\begin{equation}
+    \operatorname{Var}(X) = \mathbb{E}\bigl[\operatorname{Var}(X \mid Y)\bigr]
+        + \operatorname{Var}\bigl(\mathbb{E}[X \mid Y]\bigr)
+    \label{eq:lotv}
+\end{equation}
+
+\subsection{Compound Sum}
+
+Let $X = \sum_{i=1}^{Y} Z_i$, where $Z_i$ are i.i.d.\ fair $n$-sided dice and $Y$ is a
+non-negative integer-valued random variable independent of $\{Z_i\}$. Then:
+\begin{align}
+    \mathbb{E}[X \mid Y] &= Y \cdot \frac{n+1}{2} \\[4pt]
+    \operatorname{Var}(X \mid Y) &= Y \cdot \frac{n^2-1}{12}
+\end{align}
+
+Applying~\eqref{eq:lotv}:
+\begin{align}
+    \mathbb{E}[X] &= \mathbb{E}[Y] \cdot \frac{n+1}{2}
+    \label{eq:prop_mean} \\[6pt]
+    \operatorname{Var}(X) &= \mathbb{E}[Y] \cdot \frac{n^2-1}{12}
+        + \operatorname{Var}(Y) \cdot \left(\frac{n+1}{2}\right)^{\!2}
+    \label{eq:prop_var}
+\end{align}
+
+\section{Layer-by-Layer Derivation}
+
+We define $\mu_k = \frac{n_k+1}{2}$ and $\sigma_k^2 = \frac{n_k^2-1}{12}$ for
+die type $k$, and propagate using~\eqref{eq:prop_mean}--\eqref{eq:prop_var}.
+
+\subsection{Layer 0: $T \sim \mathrm{d}4$}
+\begin{align*}
+    \mathbb{E}[T] &= \frac{5}{2} = 2.5 \\
+    \operatorname{Var}(T) &= \frac{15}{12} = 1.25
+\end{align*}
+
+\subsection{Layer 1: $C = \sum_{i=1}^{T} Z_i^{(6)}$}
+\begin{align*}
+    \mathbb{E}[C] &= 2.5 \times 3.5 = 8.75 \\
+    \operatorname{Var}(C) &= 2.5 \times \frac{35}{12} + 1.25 \times 3.5^2
+        = 7.29167 + 15.3125 = 22.60417
+\end{align*}
+
+\subsection{Layer 2: $O = \sum_{i=1}^{C} Z_i^{(8)}$}
+\begin{align*}
+    \mathbb{E}[O] &= 8.75 \times 4.5 = 39.375 \\
+    \operatorname{Var}(O) &= 8.75 \times \frac{63}{12} + 22.60417 \times 4.5^2
+        = 45.9375 + 457.73438 = 503.67188
+\end{align*}
+
+\subsection{Layer 3: $D = \sum_{i=1}^{O} Z_i^{(12)}$}
+\begin{align*}
+    \mathbb{E}[D] &= 39.375 \times 6.5 = 255.9375 \\
+    \operatorname{Var}(D) &= 39.375 \times \frac{143}{12} + 503.67188 \times 6.5^2
+        = 469.21875 + 21280.03516 = 21749.25391
+\end{align*}
+
+\subsection{Layer 4: $I = \sum_{i=1}^{D} Z_i^{(20)}$}
+\begin{align*}
+    \mathbb{E}[I] &= 255.9375 \times 10.5 = 2687.34375 \\
+    \operatorname{Var}(I) &= 255.9375 \times \frac{399}{12} + 21749.25391 \times 10.5^2 \\
+        &= 8509.92188 + 2397866.44043 \\
+        &= 2406376.36230
+\end{align*}
+
+\section{Result}
+
+\begin{equation}
+    \boxed{\operatorname{Var}(I) = 2406376.3623}
+\end{equation}
+
+\section{Complexity}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(1)$ --- five layers of constant-time arithmetic.
+    \item \textbf{Space:} $O(1)$ --- only two running scalars (mean and variance).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2406376.3623}
+\]
+
+\end{document}

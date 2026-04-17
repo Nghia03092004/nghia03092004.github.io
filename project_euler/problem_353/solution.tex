@@ -1,0 +1,77 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 353: Risky Moon}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A spaceship travels on the surface of a sphere from the north pole to the south pole, hopping between lattice points. For a sphere of integer radius~$r$, the lattice points are integer triples $(a,b,c)$ with $a^2+b^2+c^2 = r^2$. The risk of traveling a great-circle arc of length~$\theta$ is $(\theta/2)^2$. For each prime $r \le 14$, find the minimum total risk from $(0,0,r)$ to $(0,0,-r)$. Compute the sum of these minima, rounded to 10~decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Risk reduction by splitting]
+For points $P_1, Q, P_2$ on the sphere with arc half-lengths $\alpha = \theta(P_1,Q)/2$ and $\beta = \theta(Q,P_2)/2$, we have
+\[
+\alpha^2 + \beta^2 \le (\alpha + \beta)^2 \le \left(\frac{\theta(P_1,P_2)}{2}\right)^2\!,
+\]
+so inserting intermediate points can only reduce total risk.
+\end{lemma}
+
+\begin{proof}
+Since $\alpha, \beta > 0$, we have $\alpha^2 + \beta^2 < (\alpha+\beta)^2$. By the spherical triangle inequality, $\alpha + \beta \ge \theta(P_1,P_2)/2$, but the total risk $\alpha^2 + \beta^2$ is strictly less than the single-hop risk $(\alpha+\beta)^2$ whenever the triangle inequality is tight. Hence subdividing arcs reduces risk.
+\end{proof}
+
+\begin{theorem}[Optimal path via Dijkstra]
+For each prime~$r$, the minimum-risk path from $(0,0,r)$ to $(0,0,-r)$ is found by Dijkstra's algorithm on the complete graph of lattice points on the sphere of radius~$r$, with edge weight
+\[
+\rho(P_i, P_j) = \left(\frac{1}{2}\arccos\!\left(\frac{P_i \cdot P_j}{r^2}\right)\right)^{\!2}.
+\]
+\end{theorem}
+
+\begin{proof}
+The risk is additive, non-negative, and defined on a finite graph. Dijkstra's algorithm is correct for shortest paths in graphs with non-negative edge weights. The graph is complete (all pairwise hops are available) and finite (finitely many lattice points on a sphere of fixed radius), so the algorithm terminates and returns the global optimum.
+\end{proof}
+
+\begin{lemma}[Lattice point enumeration]
+The integer solutions to $a^2+b^2+c^2 = r^2$ for a given~$r$ can be enumerated in $O(r^2)$ time by iterating $c \in [-r, r]$ and finding all $(a,b)$ with $a^2+b^2 = r^2 - c^2$.
+\end{lemma}
+
+\begin{proof}
+For each of the $2r+1$ values of~$c$, the equation $a^2+b^2 = r^2-c^2$ is solved by iterating $a \in [0, \lfloor\sqrt{r^2-c^2}\rfloor]$ and checking whether $r^2-c^2-a^2$ is a perfect square. This takes $O(r)$ per value of~$c$, for a total of $O(r^2)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item For each prime $r \in \{2,3,5,7,11,13\}$:
+    \begin{enumerate}
+        \item Enumerate all lattice points $(a,b,c)$ with $a^2+b^2+c^2 = r^2$.
+        \item Build a complete graph with risk-weighted edges.
+        \item Run Dijkstra from $(0,0,r)$ to $(0,0,-r)$.
+    \end{enumerate}
+    \item Sum the minimum risks over all primes.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n^2)$ per prime, where $n = r_3(r^2)$ is the number of lattice points. For $r \le 13$, $n$ is at most a few hundred.
+    \item \textbf{Space:} $O(n)$ for Dijkstra's priority queue and distance array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1.2759860331}
+\]
+
+\end{document}

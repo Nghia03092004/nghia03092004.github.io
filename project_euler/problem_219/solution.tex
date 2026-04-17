@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 219: Skew-cost Coding}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Build a prefix-free binary code for $N = 10^9$ symbols. A \texttt{0} bit costs 1, a \texttt{1} bit costs 4. Minimize the total cost (sum of all codeword costs).
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Greedy optimality]
+The minimum total cost is achieved by repeatedly splitting the minimum-cost leaf. Splitting a leaf of cost $c$ removes it and creates leaves of costs $c+1$ and $c+4$.
+\end{theorem}
+
+\begin{proof}
+Suppose an optimal code has a non-split leaf $\ell_1$ of cost $c_1$ and a split leaf $\ell_2$ of cost $c_2 > c_1$. Swapping (making $\ell_2$ a leaf and splitting $\ell_1$ instead) changes the total cost by $c_1 - c_2 < 0$, contradicting optimality. By induction on the number of splits ($N-1$ total, starting from one leaf), the greedy strategy of always splitting the cheapest leaf is optimal.
+\end{proof}
+
+\begin{lemma}[Cost accounting]
+Each split of a leaf with cost $c$ increases total cost by $c + 5$ and leaf count by $1$.
+\end{lemma}
+
+\begin{proof}
+Removing cost $c$ and adding $c+1$ and $c+4$: net cost change is $(c{+}1)+(c{+}4)-c = c+5$. Net leaf change: $2-1=1$.
+\end{proof}
+
+\begin{theorem}[Total cost formula]
+After $N-1$ splits starting from a single leaf of cost~0:
+\[
+\mathrm{Total} = 5(N-1) + \sum_{i=0}^{N-2} c_i,
+\]
+where $c_i$ is the cost of the leaf split at step $i$.
+\end{theorem}
+
+\begin{proof}
+Initial cost is 0. By the lemma, split $i$ adds $c_i + 5$. Summing over all splits: $\mathrm{Total} = \sum_{i=0}^{N-2}(c_i+5) = 5(N{-}1) + \sum c_i$.
+\end{proof}
+
+\begin{theorem}[Bulk simulation]
+If all $k$ leaves at the current minimum cost $c$ are split simultaneously, the result is identical to $k$ sequential greedy splits. Total cost increases by $k(c+5)$.
+\end{theorem}
+
+\begin{proof}
+All $k$ leaves share the minimum cost $c$, so they are the next $k$ candidates for the greedy algorithm. Since the splits operate on distinct leaves and produce independent children, the order is immaterial, and the bulk update (remove $k$ at cost $c$; add $k$ at $c{+}1$ and $k$ at $c{+}4$) is correct.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Maintain a histogram mapping each cost level to its leaf count.
+\item Initialize: one leaf at cost 0, total $= 0$, leaf count $= 1$.
+\item While leaf count $< N$:
+  \begin{enumerate}
+  \item Let $c$ be the minimum cost, $k$ its count (capped at $N - \text{leaves}$).
+  \item Update: total $\mathrel{+}= k(c+5)$, leaves $\mathrel{+}= k$.
+  \item Histogram: remove $k$ from cost $c$; add $k$ to costs $c{+}1$ and $c{+}4$.
+  \end{enumerate}
+\item Return total.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} The minimum cost advances by at least 1 per iteration, and the maximum cost is $O(\sqrt{N})$ (leaf count grows super-linearly with cost). Total: $O(\sqrt{N}\log N)$.
+\item \textbf{Space:} $O(\sqrt{N})$ distinct cost levels in the histogram.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{64564225042}
+\]
+
+\end{document}

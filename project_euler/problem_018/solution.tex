@@ -1,0 +1,96 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 18: Maximum Path Sum I}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given a triangular array $T$ of $n = 15$ rows, find the maximum sum over all adjacent
+paths from the apex to the base, where each step moves to a directly adjacent entry
+in the next row.
+
+\section{Formal Development}
+
+\begin{definition}
+A \emph{triangular array} of $n$ rows has entries $T[r][c]$ for $0 \le r \le n-1$,
+$0 \le c \le r$. An \emph{adjacent path} is a sequence $(c_0, c_1, \ldots, c_{n-1})$
+with $c_0 = 0$ and $c_{r+1} \in \{c_r, c_r + 1\}$. Its sum is $\sum_{r=0}^{n-1} T[r][c_r]$.
+\end{definition}
+
+\begin{definition}
+The \emph{optimal value function} is
+\[
+M[r][c] = \max\!\left\{\sum_{i=r}^{n-1} T[i][c_i] \;\middle|\;
+c_r = c,\; c_{i+1} \in \{c_i, c_i+1\}\right\}.
+\]
+\end{definition}
+
+\begin{theorem}[Bellman equation]
+\label{thm:bellman}
+\[
+M[r][c] = \begin{cases}
+T[n{-}1][c] & r = n-1, \\
+T[r][c] + \max\bigl(M[r{+}1][c],\; M[r{+}1][c{+}1]\bigr) & 0 \le r < n-1.
+\end{cases}
+\]
+The answer is $M[0][0]$.
+\end{theorem}
+
+\begin{proof}
+By induction on $n - 1 - r$. The base case $r = n - 1$ is immediate. For $r < n - 1$,
+every path from $(r, c)$ passes through $(r{+}1, c)$ or $(r{+}1, c{+}1)$. By the inductive
+hypothesis, the optimal continuations from these nodes are $M[r{+}1][c]$ and $M[r{+}1][c{+}1]$,
+respectively. Taking the maximum and adding $T[r][c]$ yields the recurrence.
+\end{proof}
+
+\begin{theorem}[Greedy suboptimality]
+No locally greedy strategy is guaranteed to find the optimal path.
+\end{theorem}
+
+\begin{proof}
+Counterexample: $T[0]=[1]$, $T[1]=[2,3]$, $T[2]=[100,0,0]$.
+Greedy: $1 \to 3 \to 0 = 4$. Optimal: $1 \to 2 \to 100 = 103$.
+\end{proof}
+
+\begin{theorem}[In-place bottom-up evaluation]
+The recurrence can be computed using a single array of length~$n$.
+\end{theorem}
+
+\begin{proof}
+Initialize $A[c] = T[n{-}1][c]$. For $r = n{-}2$ down to~$0$, set
+$A[c] \gets T[r][c] + \max(A[c], A[c{+}1])$ for $c = 0, \ldots, r$. Since we process
+left-to-right and index $c{+}1$ has not yet been overwritten, the reads are correct.
+After all iterations, $A[0] = M[0][0]$.
+\end{proof}
+
+\section{Complexity}
+
+\begin{proposition}
+The algorithm performs $\frac{n(n-1)}{2} = 105$ operations in $\Theta(n^2)$ time
+and $\Theta(n)$ auxiliary space.
+\end{proposition}
+
+\begin{proof}
+The inner loop at iteration $r$ runs $r + 1$ times. Summing:
+$\sum_{r=0}^{n-2}(r+1) = \frac{(n-1)n}{2}$. Each step is $O(1)$.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{1074}
+\]
+
+\end{document}

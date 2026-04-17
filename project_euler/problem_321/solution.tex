@@ -1,0 +1,88 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 321: Swapping Counters}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A horizontal row of $2n+1$ squares contains $n$ red counters on the left and $n$ blue counters on the right, separated by one empty square.  Counters may advance one square or jump over one opposing counter.  Let $M(n)=n(n+2)$ be the minimum number of moves to reverse the two sets.  Find the sum of the first 40 positive integers $n$ for which $M(n)$ is triangular.
+
+\section{Reduction to a Pell-Type Equation}
+
+\begin{theorem}\label{thm:pell}
+The equation $n(n+2)=\tfrac{k(k+1)}{2}$ with $n,k\ge 1$ is equivalent, under the substitution $x=2k+1$, $y=n+1$, to the generalised Pell equation
+\[
+x^2 - 8y^2 = -7.
+\]
+\end{theorem}
+
+\begin{proof}
+Multiplying $n(n+2)=\tfrac{k(k+1)}{2}$ by 8:
+\[
+8n^2+16n = 4k^2+4k.
+\]
+Completing the square: $8(n+1)^2-8=(2k+1)^2-1$.  Setting $x=2k+1$, $y=n+1$ yields $x^2-8y^2=-7$.  Since $n\ge 1$ forces $y\ge 2$ and $k\ge 1$ forces $x\ge 3$ odd, the correspondence is bijective.
+\end{proof}
+
+\section{Enumeration of Solutions}
+
+\begin{lemma}[Fundamental solutions]\label{lem:fund}
+The equation $x^2-8y^2=-7$ has exactly two classes of solutions, represented by $(1,1)$ and $(5,2)$.
+\end{lemma}
+
+\begin{proof}
+Direct verification: $1^2-8\cdot 1^2=-7$ and $5^2-8\cdot 4=-7$.  For $y\ge 3$, we have $x^2\ge 65$, and the next solutions from the recurrence below are $y=4$ and $y=7$, confirming no intermediate solutions.
+\end{proof}
+
+\begin{theorem}[Recurrence]\label{thm:rec}
+If $(x_i,y_i)$ solves $x^2-8y^2=-7$, then so does
+\[
+x_{i+1}=3x_i+8y_i,\qquad y_{i+1}=x_i+3y_i.
+\]
+Within each family, $y_{i+2}=6y_{i+1}-y_i$, whence
+\[
+n_{i+2}=6\,n_{i+1}-n_i+4.
+\]
+\end{theorem}
+
+\begin{proof}
+The fundamental solution of $u^2-8v^2=1$ is $(u,v)=(3,1)$.  In $\mathbb{Z}[\sqrt{8}]$, multiplying $(x_i+y_i\sqrt{8})$ by the unit $3+\sqrt{8}$ preserves the norm $-7$.  Explicitly:
+\[
+(x_i+y_i\sqrt{8})(3+\sqrt{8})=(3x_i+8y_i)+(x_i+3y_i)\sqrt{8}.
+\]
+For the second-order recurrence, eliminating $x_i$ between $y_{i+1}=x_i+3y_i$ and the next iterate gives $y_{i+2}=6y_{i+1}-y_i$.  Substituting $n_i=y_i-1$:
+\[
+(n_{i+2}+1)=6(n_{i+1}+1)-(n_i+1) \implies n_{i+2}=6n_{i+1}-n_i+4. \qedhere
+\]
+\end{proof}
+
+\section{Two Families}
+
+\textbf{Family A} (from $(1,1)$): $n=0,3,22,133,798,4785,\ldots$
+
+\textbf{Family B} (from $(5,2)$): $n=1,10,55,322,1929,11566,\ldots$
+
+Discarding $n=0$ and merging both families in sorted order, the first 40 positive values sum to:
+\[
+\boxed{2470433131948040}
+\]
+
+\section{Complexity}
+$O(N)$ time and space, where $N=40$.
+
+\section{Answer}
+
+\[
+\boxed{2470433131948040}
+\]
+
+\end{document}

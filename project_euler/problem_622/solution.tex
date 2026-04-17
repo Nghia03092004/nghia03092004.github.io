@@ -1,0 +1,118 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 622: Riffle Shuffles}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A \textbf{perfect (out-)riffle shuffle} on a deck of $2n$ cards maps position~$i$ to position $2i \bmod (2n+1)$ for $1 \le i \le 2n-1$ (positions 0 and $2n$ are fixed). Let $s(n)$ be the minimum number of such shuffles needed to restore the original order. Find
+\[
+\sum_{\substack{n \ge 1 \\ s(n) = 60}} 2n.
+\]
+
+\section{Reduction to Multiplicative Order}
+
+\begin{theorem}
+The shuffle order equals the multiplicative order of~$2$ modulo $2n+1$:
+\[
+s(n) = \mathrm{ord}_{2n+1}(2).
+\]
+\end{theorem}
+
+\begin{proof}
+After $k$ shuffles, position~$i$ maps to $2^k i \bmod (2n+1)$. The deck is restored when $2^k \equiv 1 \pmod{2n+1}$, and the smallest such~$k$ is $\mathrm{ord}_{2n+1}(2)$.
+\end{proof}
+
+\section{Characterising Order 60}
+
+\begin{proposition}[Prime-Divisor Criterion]
+\label{prop:order}
+$\mathrm{ord}_m(2) = 60$ if and only if $m \mid 2^{60} - 1$ and $2^{60/p} \not\equiv 1 \pmod{m}$ for each prime $p \mid 60$, i.e., for $p \in \{2, 3, 5\}$.
+\end{proposition}
+
+\begin{proof}
+Let $d = \mathrm{ord}_m(2)$. Then $d \mid 60$, so $d = 60$ iff $d \nmid 30$, $d \nmid 20$, and $d \nmid 12$. Equivalently, $2^{30}, 2^{20}, 2^{12} \not\equiv 1 \pmod{m}$.
+\end{proof}
+
+\section{Factorisation of $2^{60} - 1$}
+
+\begin{equation}
+2^{60} - 1 = 3^2 \cdot 5^2 \cdot 7 \cdot 11 \cdot 13 \cdot 31 \cdot 41 \cdot 61 \cdot 151 \cdot 331 \cdot 1321.
+\end{equation}
+
+The number of divisors is $(2+1)(2+1)(1+1)^8 = 2304$.
+
+\begin{proposition}[Cyclotomic Structure]
+The prime factorisation of $2^{60}-1$ partitions via cyclotomic polynomials:
+\[
+2^{60} - 1 = \prod_{d \mid 60} \Phi_d(2).
+\]
+Each prime $p$ dividing $\Phi_d(2)$ satisfies $\mathrm{ord}_p(2) = d$.
+\end{proposition}
+
+\section{Composite Orders}
+
+\begin{lemma}[CRT for Orders]
+For $\gcd(m_1, m_2) = 1$:
+\[
+\mathrm{ord}_{m_1 m_2}(2) = \mathrm{lcm}\bigl(\mathrm{ord}_{m_1}(2),\; \mathrm{ord}_{m_2}(2)\bigr).
+\]
+\end{lemma}
+
+\begin{proof}
+By the Chinese Remainder Theorem, $2^k \equiv 1 \pmod{m_1 m_2}$ iff $2^k \equiv 1$ modulo both $m_1$ and $m_2$. The minimum such~$k$ is $\mathrm{lcm}$ of the individual orders.
+\end{proof}
+
+This means composite $m$ with $\mathrm{ord}_m(2) = 60$ arise by combining prime powers whose orders have $\mathrm{lcm} = 60$.
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Deck size $2n$ & $m = 2n+1$ & $\mathrm{ord}_m(2)$ & Valid? \\
+\midrule
+2    & 3    & 2  & No \\
+4    & 5    & 4  & No \\
+6    & 7    & 3  & No \\
+8    & 9    & 6  & No \\
+1320 & 1321 & 60 & Yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Enumerate all $2304$ divisors of $2^{60}-1$ via Cartesian product of exponent ranges.
+\item For each divisor $m > 1$, check $\mathrm{ord}_m(2) = 60$ using Proposition~\ref{prop:order}.
+\item Sum $m - 1$ for all valid~$m$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Divisor enumeration:} $O(2304)$ divisors.
+\item \textbf{Order check:} $O(\log 2^{60}) = O(60)$ per divisor (three modular exponentiations).
+\item \textbf{Total:} $O(2304 \times 60) \approx 1.4 \times 10^5$ operations.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3010983666182123972}
+\]
+
+\end{document}

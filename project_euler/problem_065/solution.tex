@@ -1,0 +1,110 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{Problem 65: Convergents of $e$}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the sum of digits in the numerator of the 100th convergent of the continued fraction for $e$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Euler, 1737]
+The continued fraction expansion of $e$ is
+\[
+e = [2; 1, 2, 1, 1, 4, 1, 1, 6, 1, 1, 8, \ldots]
+\]
+where $a_0 = 2$ and for $k \ge 1$:
+\[
+a_k = \begin{cases} \frac{2(k+1)}{3} & \text{if } k \equiv 2 \pmod{3} \\ 1 & \text{otherwise.} \end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+Euler derived this from the relationship between $e$ and the confluent hypergeometric function. Using the identity
+\[
+\frac{e+1}{e-1} = [2; 6, 10, 14, \ldots]
+\]
+and applying equivalence transformations of continued fractions yields the stated regular continued fraction for $e$. A complete proof appears in Perron's \emph{Die Lehre von den Kettenbr\"uchen} (1929).
+\end{proof}
+
+\begin{theorem}[Convergent Recurrence]
+The convergents $h_n/k_n = [a_0; a_1, \ldots, a_n]$ satisfy
+\[
+h_n = a_n h_{n-1} + h_{n-2}, \quad k_n = a_n k_{n-1} + k_{n-2}
+\]
+with $h_{-1} = 1$, $h_0 = a_0$, $k_{-1} = 0$, $k_0 = 1$.
+\end{theorem}
+
+\begin{proof}
+Define $M_i = \begin{pmatrix} a_i & 1 \\ 1 & 0 \end{pmatrix}$. We prove by induction that
+\[
+\begin{pmatrix} h_n & h_{n-1} \\ k_n & k_{n-1} \end{pmatrix} = M_0 M_1 \cdots M_n.
+\]
+
+\textbf{Base case} ($n=0$): $M_0 = \begin{pmatrix} a_0 & 1 \\ 1 & 0 \end{pmatrix}$ gives $h_0 = a_0$, $k_0 = 1$.
+
+\textbf{Inductive step}: Multiply by $M_n$:
+\[
+\begin{pmatrix} h_{n-1} & h_{n-2} \\ k_{n-1} & k_{n-2} \end{pmatrix} \begin{pmatrix} a_n & 1 \\ 1 & 0 \end{pmatrix} = \begin{pmatrix} a_n h_{n-1} + h_{n-2} & h_{n-1} \\ a_n k_{n-1} + k_{n-2} & k_{n-1} \end{pmatrix}.
+\]
+The recurrence follows. That $h_n/k_n = [a_0; \ldots, a_n]$ is verified by replacing $a_n$ with $a_n + 1/\alpha$ and using the inductive hypothesis.
+\end{proof}
+
+\begin{lemma}[Coprimality]
+For all $n \ge 0$, $\gcd(h_n, k_n) = 1$.
+\end{lemma}
+
+\begin{proof}
+Taking determinants: $h_n k_{n-1} - h_{n-1} k_n = \prod_{i=0}^{n} \det(M_i) = (-1)^{n+1}$. Since $h_n k_{n-1} - h_{n-1} k_n = \pm 1$, we have $\gcd(h_n, k_n) = 1$.
+\end{proof}
+
+\begin{lemma}[Growth Rate]
+The numerator $h_{99}$ has approximately 58 decimal digits.
+\end{lemma}
+
+\begin{proof}
+From $h_n \ge a_n h_{n-1}$, we get $\log_{10} h_n \ge \sum_{k=0}^n \log_{10} a_k$. The non-unity partial quotients at $k \equiv 2 \pmod{3}$ are $2, 4, 6, \ldots, 66$, contributing $\sum_{j=1}^{33} \log_{10}(2j) \approx 42$. The additive correction from $h_{n-2}$ terms accumulates to yield a 58-digit result.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute digit sum of the numerator of the 100th convergent of $e$}
+\begin{algorithmic}[1]
+\STATE Compute partial quotients $a_0 = 2$; for $k \ge 1$: $a_k = \frac{2(k+1)}{3}$ if $k \equiv 2 \pmod 3$, else $a_k = 1$
+\STATE $h_{-1} \gets 1$, $h_0 \gets 2$
+\FOR{$k = 1$ \TO $99$}
+    \STATE $h_k \gets a_k \cdot h_{k-1} + h_{k-2}$
+    \STATE Update: $h_{k-2} \gets h_{k-1}$, $h_{k-1} \gets h_k$
+\ENDFOR
+\RETURN $\mathrm{digit\_sum}(h_{99})$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} 100 iterations, each involving one big-integer multiply and one addition on numbers with $d \approx 58$ digits. Total: $O(100 \cdot d) = O(5800)$.
+
+\textbf{Space:} $O(d) = O(58)$ for three big integers.
+
+\section{Answer}
+
+\[
+\boxed{272}
+\]
+
+\end{document}

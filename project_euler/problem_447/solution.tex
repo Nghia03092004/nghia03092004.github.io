@@ -1,0 +1,107 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 447: Retractions C}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An affine map $f_{n,a,b}(x) = ax + b \pmod{n}$ (with $a, b \in \{0, \ldots, n-1\}$) is a \textbf{retraction} if $f \circ f = f$. Let $R(n)$ be the retraction count. Compute
+\[
+\sum_{n=2}^{10^7} R(n) \pmod{10^9 + 7}.
+\]
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Retraction Characterization]
+$f(x) = ax + b$ is a retraction modulo~$n$ iff $a^2 \equiv a \pmod{n}$ and $ab \equiv 0 \pmod{n}$.
+\end{theorem}
+
+\begin{proof}
+$f(f(x)) = a^2 x + ab + b$. Setting $f(f(x)) = f(x) = ax + b$ for all~$x$: coefficient of~$x$ gives $a^2 \equiv a$; constant term gives $ab \equiv 0$.
+\end{proof}
+
+\begin{theorem}[Product Formula]
+\label{thm:product}
+\[
+R(n) = \prod_{p^e \,\|\, n} (1 + p^e).
+\]
+In particular, $R$ is multiplicative.
+\end{theorem}
+
+\begin{proof}
+Since $\gcd(a, a-1) = 1$, the condition $a(a-1) \equiv 0 \pmod{n}$ decomposes via CRT: for each $p^e \| n$, either $p^e \mid a$ or $p^e \mid (a-1)$. This yields $2^{\omega(n)}$ idempotents.
+
+For idempotent~$a$, the condition $ab \equiv 0 \pmod{n}$ has $\gcd(a,n)$ solutions. At prime power~$p^e$:
+\begin{itemize}
+\item $a \equiv 0$: $\gcd(a, p^e) = p^e$, contributing $p^e$.
+\item $a \equiv 1$: $\gcd(a, p^e) = 1$, contributing $1$.
+\end{itemize}
+Local factor: $1 + p^e$. By CRT independence, $R(n) = \prod(1 + p^e)$.
+\end{proof}
+
+\begin{lemma}[Verification]
+Direct enumeration confirms: $R(2) = 3$, $R(3) = 4$, $R(4) = 5$, $R(6) = 12$.
+\end{lemma}
+
+\begin{proof}
+For $n = 6$: idempotents $a \in \{0,1,3,4\}$; $\gcd$ values $6, 1, 3, 2$; sum $= 12 = (1+2)(1+3)$.
+\end{proof}
+
+\begin{lemma}[Linear Sieve Correctness]
+Writing $n = p^e \cdot m$ with $p = \operatorname{spf}(n)$ and $\gcd(m,p) = 1$, the recurrence $R(n) = R(m) \cdot (1 + p^e)$ is exact.
+\end{lemma}
+
+\begin{proof}
+By multiplicativity of~$R$ and coprimality of $p^e$ and~$m$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Compute $\operatorname{spf}(n)$ for $n = 1, \ldots, N$ via a linear sieve.
+\item For each $n \geq 2$: extract $p = \operatorname{spf}(n)$, compute $e = v_p(n)$, set $m = n/p^e$.
+\item $R(n) = R(m) \cdot (1 + p^e) \bmod (10^9 + 7)$.
+\item Accumulate $\sum R(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N)$. The linear sieve and multiplicative function computation are both linear. Extracting $p^e$ is $O(\log n)$ per~$n$, amortized $O(1)$.
+\item \textbf{Space:} $O(N)$ for $\operatorname{spf}$ and $R$ arrays.
+\end{itemize}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & Factorization & $R(n)$ \\
+\midrule
+2  & $2^1$            & 3 \\
+3  & $3^1$            & 4 \\
+4  & $2^2$            & 5 \\
+6  & $2 \cdot 3$      & 12 \\
+8  & $2^3$            & 9 \\
+12 & $2^2 \cdot 3$    & 20 \\
+30 & $2 \cdot 3 \cdot 5$ & 72 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{530553372}
+\]
+
+\end{document}

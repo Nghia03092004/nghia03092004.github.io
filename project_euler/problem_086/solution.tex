@@ -1,0 +1,107 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 86: Cuboid Route}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For cuboid dimensions $1 \leq a \leq b \leq c \leq M$, find the least $M$ such that the number of cuboids with integer shortest surface path first exceeds one million.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Shortest Surface Path]
+For a cuboid with ordered dimensions $a \leq b \leq c$, the shortest surface path from one corner to the diagonally opposite corner has squared length
+\[
+d^2 = (a + b)^2 + c^2.
+\]
+\end{theorem}
+
+\begin{proof}
+Unfolding the cuboid yields three candidate straight-line paths with squared lengths:
+\begin{align}
+d_1^2 &= (a+b)^2 + c^2, \\
+d_2^2 &= (a+c)^2 + b^2, \\
+d_3^2 &= (b+c)^2 + a^2.
+\end{align}
+
+We show $d_1^2 \leq d_2^2 \leq d_3^2$ when $a \leq b \leq c$:
+
+\emph{$d_1^2 \leq d_2^2$:} Simplifies to $b(2a+b) \leq c(2a+c)$. The function $g(x) = x(2a+x)$ is strictly increasing for $x > 0$ (since $g'(x) = 2a + 2x > 0$), and $b \leq c$.
+
+\emph{$d_2^2 \leq d_3^2$:} Simplifies to $2c(a - b) \leq (a - b)(a + b)$. Since $a \leq b$, the factor $a - b \leq 0$. When $a < b$, dividing by $a - b < 0$ reverses the inequality to $2c \geq a + b$, which holds since $c \geq b \geq a$. When $a = b$, both sides equal zero.
+\end{proof}
+
+\begin{lemma}[Integer Path Criterion]
+The shortest surface path has integer length if and only if $(a+b, c, d)$ is a Pythagorean triple for some positive integer~$d$.
+\end{lemma}
+
+\begin{proof}
+By Theorem~1, $d = \sqrt{(a+b)^2 + c^2}$ is an integer iff $(a+b)^2 + c^2$ is a perfect square.
+\end{proof}
+
+\begin{lemma}[Valid Pair Count]
+For a Pythagorean triple with legs $s = a+b$ and $c$, the number of pairs $(a,b)$ with $1 \leq a \leq b \leq c$ and $a + b = s$ is:
+\[
+N(s, c) = \max\!\left(0,\; \left\lfloor \frac{s}{2} \right\rfloor - \max(1, s-c) + 1\right).
+\]
+\end{lemma}
+
+\begin{proof}
+The constraints $a \leq b$ and $a + b = s$ give $a \leq \lfloor s/2 \rfloor$. The constraint $b \leq c$ gives $a \geq s - c$. Combined with $a \geq 1$, the variable $a$ ranges over the integer interval $[\max(1, s-c),\; \lfloor s/2 \rfloor]$, whose cardinality is as stated (or zero if the interval is empty).
+\end{proof}
+
+\begin{theorem}[Cumulative Count]
+The number of qualifying cuboids with $c \leq M$ is:
+\[
+\mathrm{Count}(M) = \sum_{c=1}^{M} \sum_{\substack{s=2 \\ s^2 + c^2 = \square}}^{2c} N(s, c).
+\]
+\end{theorem}
+
+\begin{proof}
+For each largest dimension $c \in \{1, \ldots, M\}$, we have $s = a + b \in [2, 2c]$ (since $1 \le a \le b \le c$). Only values of $s$ with $s^2 + c^2$ a perfect square contribute (Lemma~2). For each such $(s, c)$, Lemma~3 counts the valid decompositions. Summing over $c$ yields the total.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Cuboid Route}
+\begin{algorithmic}[1]
+\STATE $\text{count} \gets 0$, $c \gets 0$
+\WHILE{$\text{count} \leq 1{,}000{,}000$}
+    \STATE $c \gets c + 1$
+    \FOR{$s = 2$ \TO $2c$}
+        \IF{$s^2 + c^2$ is a perfect square}
+            \STATE $\text{count} \gets \text{count} + \max(0,\; \lfloor s/2 \rfloor - \max(1, s-c) + 1)$
+        \ENDIF
+    \ENDFOR
+\ENDWHILE
+\RETURN $c$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(M^2)$ for the direct approach. Optimizable to $O(M\sqrt{M})$ via parametric generation of Pythagorean triples.
+    \item \textbf{Space:} $O(1)$ auxiliary.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1818}
+\]
+
+\end{document}

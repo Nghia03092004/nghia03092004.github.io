@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 512: Sums of Totients of Powers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $\varphi$ denote Euler's totient function. Compute $\sum_{n=1}^{N}\varphi(n^k)$ for given $N$ and $k$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Power Reduction]
+For all positive integers $n$ and $k \geq 1$,
+\[
+\varphi(n^k) = n^{k-1}\,\varphi(n).
+\]
+\end{theorem}
+
+\begin{proof}
+Let $n = \prod_i p_i^{a_i}$. Then
+\[
+\varphi(n^k) = \prod_i \varphi(p_i^{ka_i}) = \prod_i p_i^{ka_i - 1}(p_i - 1) = \prod_i p_i^{(k-1)a_i} \cdot \prod_i p_i^{a_i-1}(p_i - 1) = n^{k-1}\,\varphi(n). \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Gauss Identity]
+For all positive integers $n$, $\sum_{d \mid n}\varphi(d) = n$.
+\end{theorem}
+
+\begin{proof}
+Partition $\{1, 2, \ldots, n\}$ by $\gcd(\cdot, n)$: for each divisor $d \mid n$, exactly $\varphi(n/d)$ integers $m \in \{1,\ldots,n\}$ satisfy $\gcd(m,n) = d$. Summing over all divisors yields $\sum_{d \mid n}\varphi(d) = n$.
+\end{proof}
+
+\begin{lemma}[Summatory Totient Recursion]
+Define $\Phi(N) = \sum_{n=1}^{N}\varphi(n)$. Then
+\[
+\Phi(N) = \frac{N(N+1)}{2} - \sum_{d=2}^{N}\Phi\!\left(\left\lfloor\frac{N}{d}\right\rfloor\right).
+\]
+\end{lemma}
+
+\begin{proof}
+Summing the Gauss identity $\sum_{d \mid n}\varphi(d) = n$ over $n = 1,\ldots,N$ and exchanging the order of summation:
+\[
+\frac{N(N+1)}{2} = \sum_{n=1}^{N}\sum_{d \mid n}\varphi(d) = \sum_{d=1}^{N}\sum_{q=1}^{\lfloor N/d\rfloor}\varphi(q) = \sum_{d=1}^{N}\Phi\!\left(\left\lfloor\frac{N}{d}\right\rfloor\right).
+\]
+Isolating $d = 1$ gives the stated recursion.
+\end{proof}
+
+\begin{theorem}[Sublinear Evaluation]
+Using the recursion with memoization and the fact that $\lfloor N/d \rfloor$ takes $O(\sqrt{N})$ distinct values, $\Phi(N)$ can be computed in $O(N^{2/3})$ time after pre-sieving $\varphi$ for $n \leq N^{2/3}$.
+\end{theorem}
+
+\begin{proof}
+Pre-sieving $\varphi(n)$ for $n \leq B = N^{2/3}$ provides $\Phi(m)$ for all $m \leq B$ via prefix sums. The remaining $O(N^{1/3})$ recursive calls for $m > B$ each use the $\lfloor m/d \rfloor$-grouping trick, requiring $O(\sqrt{m})$ work per call. The total work is bounded by $O(N^{2/3})$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Pre-sieve $\varphi(n)$ for $n = 1, \ldots, B$ where $B = \lfloor N^{2/3} \rfloor$.
+    \item Compute prefix sums $\Phi(m)$ for $m \leq B$.
+    \item For $m > B$, evaluate $\Phi(m)$ recursively with memoization using the $\lfloor m/d \rfloor$ grouping.
+    \item For general $k$: sieve $\varphi$ up to $N$, then sum $\sum n^{k-1}\varphi(n)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Sieve approach (general $k$):} $O(N \log\log N)$ time, $O(N)$ space.
+    \item \textbf{Sublinear method ($k = 1$):} $O(N^{2/3})$ time, $O(N^{2/3})$ space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{50660591862310323}
+\]
+
+\end{document}

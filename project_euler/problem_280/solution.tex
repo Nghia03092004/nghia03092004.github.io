@@ -1,0 +1,50 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Problem 280: Ant and Seeds}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A 5$\times$5 grid has seeds in each cell of the top row. An ant starts at center $(2,2)$ and random-walks to adjacent cells. It picks up a seed when entering a top-row cell with one (while not carrying). It deposits when entering an \textbf{empty} bottom-row cell while carrying. Find the expected steps to fill all 5 bottom-row cells.
+
+\section{Solution}
+
+\subsection{State Space}
+State: $(\text{position}, \text{top\_mask}, \text{bottom\_mask}, \text{carrying})$
+
+Conservation: $|\text{top}| + |\text{bottom}| + \text{carrying} = 5$
+
+Terminal: $\text{top}=0$, $\text{bottom}=31$, $\text{carry}=0$.
+
+\subsection{Transition}
+The ant moves to a uniformly random adjacent cell. Upon arrival:
+\begin{itemize}
+    \item Row 0 + seed present + not carrying $\Rightarrow$ pick up
+    \item Row 4 + carrying + cell empty $\Rightarrow$ deposit
+\end{itemize}
+
+\subsection{Value Iteration}
+For non-terminal state $s$:
+\[
+E(s) = 1 + \frac{1}{|\mathcal{N}(s)|} \sum_{s' \in \mathcal{N}(s)} E\bigl(\tau(s, s')\bigr)
+\]
+where $\tau(s, s')$ applies the transition rules.
+
+Iterate until $\max_s |E^{(n+1)}(s) - E^{(n)}(s)| < 10^{-10}$. Convergence in $\sim$2000 iterations.
+
+\subsection{Key Insight}
+The ant can only deposit in an \textbf{empty} bottom-row cell. As the bottom row fills, the ant may need to walk along row 4 searching for an empty cell, significantly increasing the expected time compared to a model where stacking is allowed.
+
+\section{Answer}
+
+\[
+\boxed{430.088247}
+\]
+
+\end{document}

@@ -1,0 +1,181 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 3: Largest Prime Factor}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+What is the largest prime factor of the number $600\,851\,475\,143$?
+
+\section{Mathematical Development}
+
+\subsection{Fundamental Theorems}
+
+\begin{definition}
+An integer $p \ge 2$ is \emph{prime} if its only positive divisors are $1$ and $p$. An integer $n \ge 2$ that is not prime is \emph{composite}.
+\end{definition}
+
+\begin{theorem}[Smallest Divisor is Prime]
+\label{thm:smallest}
+If $n \ge 2$ is an integer and $d$ is the smallest integer $\ge 2$ that divides $n$, then $d$ is prime.
+\end{theorem}
+
+\begin{proof}
+Suppose for contradiction that $d$ is composite: $d = ab$ with $1 < a < d$ and $b > 1$. Since $a \mid d$ and $d \mid n$, transitivity gives $a \mid n$ with $2 \le a < d$, contradicting the minimality of~$d$.
+\end{proof}
+
+\begin{theorem}[Square Root Bound]
+\label{thm:sqrt}
+If $n \ge 2$ is composite, then $n$ has a prime factor $p \le \lfloor\sqrt{n}\rfloor$.
+\end{theorem}
+
+\begin{proof}
+Write $n = ab$ with $1 < a \le b < n$. Then $a^2 \le ab = n$, so $a \le \sqrt{n}$. Let $p$ be the smallest divisor of $a$ with $p \ge 2$. By Theorem~\ref{thm:smallest}, $p$ is prime. Since $p \mid a$ and $a \mid n$, we have $p \mid n$ with $p \le a \le \sqrt{n}$.
+\end{proof}
+
+\begin{corollary}[Primality Test]
+\label{cor:prime-test}
+An integer $n \ge 2$ is prime if and only if no prime $p \le \lfloor\sqrt{n}\rfloor$ divides $n$.
+\end{corollary}
+
+\begin{proof}
+The forward direction is trivial. The contrapositive of the reverse direction is Theorem~\ref{thm:sqrt}.
+\end{proof}
+
+\subsection{Correctness of Trial Division}
+
+\begin{theorem}[Correctness]
+\label{thm:correct}
+The trial division procedure (Algorithm~1) correctly produces the prime factorization of $n$ and identifies the largest prime factor.
+\end{theorem}
+
+\begin{proof}
+Let $n_0$ denote the original input. We maintain the invariant:
+
+\smallskip
+\noindent\textbf{Invariant $\mathcal{I}(d)$:} $n_0 = n \cdot Q$ where $Q$ is the product of all extracted factors, and $n$ has no prime factor $< d$.
+\smallskip
+
+\emph{Initialization.} At $d=2$: $Q=1$, $n = n_0$, and ``no prime factor $< 2$'' is vacuous.
+
+\emph{Maintenance.} When $d \mid n$: by $\mathcal{I}(d)$, the smallest divisor of $n$ that is $\ge 2$ is $\ge d$; since $d \mid n$, this smallest divisor is exactly $d$. By Theorem~\ref{thm:smallest}, $d$ is prime. We divide out all copies of $d$, then increment $d$, preserving $\mathcal{I}(d+1)$.
+
+\emph{Termination.} When $d^2 > n$ and $n > 1$: if $n$ were composite, Theorem~\ref{thm:sqrt} would give a prime factor $\le \sqrt{n} < d$, contradicting $\mathcal{I}(d)$. Hence $n$ is prime and is the largest prime factor.
+\end{proof}
+
+\begin{theorem}[Termination]
+\label{thm:term}
+Trial division terminates for all inputs $n \ge 2$.
+\end{theorem}
+
+\begin{proof}
+In each inner iteration $n$ decreases by a factor $\ge 2$; in each outer iteration $d$ increases by~1. The measure $\mu = n + (\lfloor\sqrt{n}\rfloor - d)$ strictly decreases, and the loop condition ensures $\mu \ge 0$.
+\end{proof}
+
+\subsection{Factorization of $600\,851\,475\,143$}
+
+\begin{lemma}
+\label{lem:factorization}
+$600\,851\,475\,143 = 71 \times 839 \times 1471 \times 6857$.
+\end{lemma}
+
+\begin{proof}
+Direct computation: $71 \times 839 = 59\,569$; then $59\,569 \times 1471 = 87\,625\,999$; then $87\,625\,999 \times 6857 = 600\,851\,475\,143$.
+\end{proof}
+
+\begin{lemma}
+\label{lem:primes}
+Each of $71$, $839$, $1471$, $6857$ is prime.
+\end{lemma}
+
+\begin{proof}
+By Corollary~\ref{cor:prime-test}, it suffices to verify that no prime $p \le \lfloor\sqrt{n}\rfloor$ divides each factor $n$:
+\begin{itemize}
+    \item $71$: $\lfloor\sqrt{71}\rfloor = 8$. Check primes $2,3,5,7$: $71$ is odd, $3 \nmid 71$ (digit sum $8$, $3\nmid 8$), not divisible by 5 or 7.
+    \item $839$: $\lfloor\sqrt{839}\rfloor = 28$. Check primes $2,3,5,7,11,13,17,19,23$: none divide $839$.
+    \item $1471$: $\lfloor\sqrt{1471}\rfloor = 38$. Check primes up to $37$: none divide $1471$.
+    \item $6857$: $\lfloor\sqrt{6857}\rfloor = 82$. Check primes up to $79$: none divide $6857$.
+\end{itemize}
+\end{proof}
+
+\begin{theorem}
+The largest prime factor of $600\,851\,475\,143$ is $6857$.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:factorization}, $600\,851\,475\,143 = 71 \times 839 \times 1471 \times 6857$. By Lemma~\ref{lem:primes}, all factors are prime. By the Fundamental Theorem of Arithmetic, this factorization is unique. The largest factor is $6857$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{\textsc{LargestPrimeFactor}$(n)$}
+\begin{algorithmic}[1]
+\STATE $d \gets 2$
+\WHILE{$d \cdot d \le n$}
+    \WHILE{$n \bmod d = 0$}
+        \STATE $n \gets n / d$
+    \ENDWHILE
+    \STATE $d \gets d + 1$
+\ENDWHILE
+\IF{$n > 1$}
+    \RETURN $n$
+\ELSE
+    \RETURN $d - 1$
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Execution trace for $n = 600\,851\,475\,143$:}
+
+\begin{center}
+\begin{tabular}{rll}
+\toprule
+$d$ & Action & Remaining $n$ \\
+\midrule
+$71$   & $71 \mid n$; divide & $8\,462\,696\,833$ \\
+$839$  & $839 \mid n$; divide & $10\,086\,647$ \\
+$1471$ & $1471 \mid n$; divide & $6\,857$ \\
+$1472$ & $d^2 > n$; exit & $6\,857$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Return $n = 6857$.
+
+\section{Complexity Analysis}
+
+\begin{theorem}
+Trial division runs in $O(\sqrt{n_0})$ time and $O(1)$ space, where $n_0$ is the input.
+\end{theorem}
+
+\begin{proof}
+\emph{Time.} The outer loop increments $d$ from $2$ up to at most $\lfloor\sqrt{n_0}\rfloor$: at most $\sqrt{n_0}$ outer iterations. The total number of inner iterations across all $d$ is at most $\lfloor\log_2 n_0\rfloor$ (each halves $n$ at minimum). Total: $O(\sqrt{n_0} + \log n_0) = O(\sqrt{n_0})$.
+
+\emph{Tightness.} When $n_0$ is prime, the inner loop never executes and the outer loop runs $\lfloor\sqrt{n_0}\rfloor - 1$ times, giving $\Theta(\sqrt{n_0})$.
+
+\emph{Space.} Only the variables $d$ and $n$ are stored: $O(1)$.
+
+For $n_0 = 600\,851\,475\,143$, the worst-case bound is $\sqrt{n_0} \approx 775\,146$ iterations.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{6857}
+\]
+
+\end{document}

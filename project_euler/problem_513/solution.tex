@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 513: Integral Median}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A triangle has integer sides $a \leq b \leq c$. The median to side $a$ has length
+\[
+m_a = \frac{1}{2}\sqrt{2b^2 + 2c^2 - a^2}.
+\]
+Let $T(N)$ count triangles with $a \leq b \leq c \leq N$ for which $m_a$ is a positive integer. Find $T(10^8)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Median Diophantine Reduction]
+The condition $m_a \in \mathbb{Z}^+$ is equivalent to the existence of a positive even integer $d = 2m_a$ such that
+\[
+a^2 + d^2 = 2(b^2 + c^2).
+\]
+\end{theorem}
+
+\begin{proof}
+The condition $m_a \in \mathbb{Z}^+$ requires $2b^2 + 2c^2 - a^2 = (2m_a)^2$. Setting $d = 2m_a$ and rearranging gives $a^2 + d^2 = 2(b^2 + c^2)$.
+\end{proof}
+
+\begin{lemma}[Sum-Difference Substitution]
+Setting $s = b + c$, $t = c - b$ with $s \equiv t \pmod{2}$, the equation becomes $a^2 + d^2 = s^2 + t^2$.
+\end{lemma}
+
+\begin{proof}
+Since $b^2 + c^2 = \frac{s^2 + t^2}{2}$, we obtain $a^2 + d^2 = 2 \cdot \frac{s^2 + t^2}{2} = s^2 + t^2$.
+\end{proof}
+
+\begin{theorem}[Two-Square Parametrization]
+The equation $a^2 + d^2 = s^2 + t^2$ can be parametrized via Gaussian integer factorization: $(a + di)(a - di) = (s + ti)(s - ti)$ in $\mathbb{Z}[i]$. Distinct two-square representations arise from different groupings of the Gaussian prime factors.
+\end{theorem}
+
+\begin{proof}
+By unique factorization in $\mathbb{Z}[i]$ (a PID) and norm-multiplicativity $N(\alpha\beta) = N(\alpha)N(\beta)$, every representation $n = x^2 + y^2$ corresponds to a factorization $n = (x + yi)(x - yi)$. Different representations arise from regrouping the Gaussian prime factors.
+\end{proof}
+
+\begin{lemma}[Constraint Translation]
+The triangle inequality $a + b > c$ becomes $a > t$. The ordering $a \leq b$ requires $a \leq (s - t)/2$, and $c \leq N$ requires $(s + t)/2 \leq N$.
+\end{lemma}
+
+\begin{proof}
+Direct substitution: $a + b > c \Leftrightarrow a > c - b = t$. Also $a \leq b = (s-t)/2$ and $c = (s+t)/2 \leq N$.
+\end{proof}
+
+\section{Algorithm}
+
+Iterate over pairs $(b, c)$ with $1 \leq b \leq c \leq N$. For each pair, compute $v = 2b^2 + 2c^2$. For each valid $a$ (with $1 \leq a \leq b$ and $a + b > c$), check whether $v - a^2$ is a perfect square divisible by~4. If so, increment the count.
+
+The optimized version uses the two-square parametrization to reduce enumeration.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N^2)$ with optimized $(b,c)$ enumeration and $O(1)$ per perfect-square check.
+    \item \textbf{Space:} $O(N)$ for auxiliary arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2925619196}
+\]
+
+\end{document}

@@ -1,0 +1,79 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 735: Divisors of $2n^2$}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f(n)$ be the number of divisors of $2n^2$ that are no greater than $n$. For example, $f(15) = 8$ because the divisors of $2 \cdot 15^2 = 450$ that do not exceed 15 are: $\{1, 2, 3, 5, 6, 9, 10, 15\}$.
+
+Define $F(N) = \sum_{n=1}^{N} f(n)$.
+
+Given: $F(15) = 63$, $F(1000) = 15066$.
+
+Find $F(10^{12})$.
+
+\section{Mathematical Analysis}
+
+\subsection{Reformulation}
+
+We have:
+\[
+F(N) = \sum_{n=1}^{N} f(n) = \sum_{n=1}^{N} \sum_{\substack{d \mid 2n^2 \\ d \leq n}} 1
+= \sum_{n=1}^{N} \sum_{\substack{d \mid 2n^2 \\ d \leq n}} 1
+\]
+
+Swapping the order of summation:
+\[
+F(N) = \sum_{d=1}^{N} \#\{n : d \leq n \leq N,\ d \mid 2n^2\}
+\]
+
+\subsection{Condition $d \mid 2n^2$}
+
+For each $d$, define $m(d)$ as the smallest positive integer such that $d \mid 2m(d)^2$. Then $d \mid 2n^2$ if and only if $m(d) \mid n$.
+
+The function $m(d)$ is computed as follows. If $d = 2^a \cdot \prod p_i^{e_i}$ (with $p_i$ odd), then:
+\[
+m(d) = 2^{\max(0, \lceil (a-1)/2 \rceil)} \cdot \prod_{p_i} p_i^{\lceil e_i/2 \rceil}
+\]
+
+\subsection{Summation}
+
+For each $d$, the number of valid $n$ in $[d, N]$ with $m(d) \mid n$ is:
+\[
+\left\lfloor \frac{N}{m(d)} \right\rfloor - \left\lfloor \frac{d-1}{m(d)} \right\rfloor
+\]
+
+So:
+\[
+F(N) = \sum_{d=1}^{N} \left( \left\lfloor \frac{N}{m(d)} \right\rfloor - \left\lfloor \frac{d-1}{m(d)} \right\rfloor \right)
+\]
+
+\subsection{Efficient Evaluation}
+
+This sum can be evaluated efficiently using a combination of:
+\begin{itemize}
+\item Sieve methods to compute $m(d)$ for all $d$ up to a threshold
+\item The Dirichlet hyperbola method to reduce the complexity to $O(N^{2/3})$
+\end{itemize}
+
+\section{Complexity}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^{2/3})$
+\item \textbf{Space:} $O(N^{1/3})$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{174848216767932}
+\]
+
+\end{document}

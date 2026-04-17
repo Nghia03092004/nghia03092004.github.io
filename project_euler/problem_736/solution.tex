@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 736: Paths to Equality}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Two maps $r(x,y) = (x+1,2y)$ and $s(x,y) = (2x,y+1)$ on lattice points. Find the shortest odd-length path from $(45,90)$ ending at $x = y$.
+
+\section{Analysis}
+
+\begin{theorem}
+After $n$ steps, coordinates grow as $O(2^n)$, with exact values depending on the sequence of $r$ and $s$ applications. The final equality $x_n = y_n$ defines a Diophantine constraint on the binary choice sequence.
+\end{theorem}
+
+\section{Algorithm}
+Enumerate all $2^n$ paths for odd $n = 1, 3, 5, \ldots$ until a valid path is found. Check that all intermediate points have $x \ne y$.
+
+\section{Complexity}
+$O(2^n)$ per candidate length. Exponential in worst case, but the answer has moderate length.
+
+\section{Answer}
+
+\[
+\boxed{25332747903959376}
+\]
+
+\end{document}

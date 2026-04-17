@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 942: Polygonal Number Chains}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Longest chain of shared polygonal numbers $P(s,k)$ for $3 \leq s \leq 8$, values $\leq 10^4$.
+
+\section{Polygonal Numbers}
+\begin{definition}
+$P(s,k) = k((s-2)k-(s-4))/2$.
+\end{definition}
+
+\section{Graph Approach}
+\begin{proposition}
+Build graph of shared values across polygonal types; find longest path.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{557539756}
+\]
+
+\end{document}

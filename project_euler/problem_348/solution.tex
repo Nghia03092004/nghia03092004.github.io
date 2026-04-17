@@ -1,0 +1,76 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 348: Sum of a Square and a Cube}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of the five smallest palindromic numbers that can each be expressed as $a^2 + b^3$ (with $a, b \ge 1$) in exactly 4 different ways.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Representation Count]
+For $n \in \mathbb{Z}_{>0}$, define
+\[
+r(n) = \#\{(a,b) \in \mathbb{Z}_{>0}^2 : a^2 + b^3 = n\}.
+\]
+This quantity is finite: $b < n^{1/3}$ and for each $b$, at most one positive $a$ satisfies $a^2 = n - b^3$.
+\end{theorem}
+
+\begin{proof}
+The constraint $b^3 < n$ bounds $b < n^{1/3}$, a finite range. For each such $b$, $n - b^3 > 0$ and the equation $a^2 = n - b^3$ has at most one positive solution $a = \sqrt{n - b^3}$ (if this is a positive integer).
+\end{proof}
+
+\begin{lemma}[Palindrome Structure]
+A $d$-digit palindrome is determined by its first $\lceil d/2 \rceil$ digits. There are $9 \times 10^{\lceil d/2 \rceil - 1}$ such palindromes.
+\end{lemma}
+
+\begin{proof}
+The digits satisfy $a_i = a_{d+1-i}$. The free digits are $a_1, \ldots, a_{\lceil d/2\rceil}$ with $a_1 \ne 0$.
+\end{proof}
+
+\begin{lemma}[Search Bound]
+Palindromes up to $L = 10^9$ suffice. For each, checking all cubes $b^3 < L$ requires $b < 10^3$ iterations.
+\end{lemma}
+
+\begin{proof}
+Empirically, the five target palindromes lie below $10^9$. For each candidate $n$, $b^3 < n < 10^9$ gives $b < 10^3$. Verifying whether $n - b^3$ is a perfect square is $O(1)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+results = []
+for each palindrome n in increasing order:
+    count = 0
+    for b = 1 to floor(n^(1/3)):
+        r = n - b^3
+        if r <= 0: break
+        a = isqrt(r)
+        if a*a == r and a >= 1: count += 1
+    if count == 4:
+        results.append(n)
+        if len(results) == 5: return sum(results)
+\end{verbatim}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(P \cdot L^{1/3})$ where $P \approx 10^5$ palindromes and $L^{1/3} \approx 10^3$, giving $O(10^8)$.
+    \item \textbf{Space:} $O(1)$ (palindromes generated on the fly).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1004195061}
+\]
+
+\end{document}

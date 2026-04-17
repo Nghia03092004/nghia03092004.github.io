@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 373: Circumscribed Circles}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer~$n$, let $L(n) = r_2(n)$ denote the number of lattice points on the circle $x^2+y^2=n$. Every triple of distinct lattice points on such a circle determines a non-degenerate inscribed triangle. Define $T(N) = \sum_{n=1}^{N}\binom{L(n)}{3}$. Compute~$T(N)$ for the given bound~$N$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Sum-of-Two-Squares Representation Count]
+The number of representations of~$n$ as a sum of two squares (with order and signs) is
+\[
+r_2(n) = 4\sum_{d \mid n}\chi(d) = 4\bigl(d_1(n) - d_3(n)\bigr),
+\]
+where $\chi$ is the non-principal character modulo~4, $d_1(n)$ counts divisors $\equiv 1\pmod{4}$, and $d_3(n)$ counts divisors $\equiv 3\pmod{4}$.
+\end{theorem}
+
+\begin{proof}
+This is a classical result from the arithmetic of the Gaussian integers $\mathbb{Z}[i]$. The norm $N(a+bi)=a^2+b^2$ is multiplicative. For primes: $p=2$ ramifies, $p\equiv 1\pmod{4}$ splits as $p=\pi\bar\pi$, and $p\equiv 3\pmod{4}$ remains inert. The formula follows from counting units $\{\pm 1,\pm i\}$ and the multiplicativity of $\sum_{d\mid n}\chi(d)$.
+\end{proof}
+
+\begin{lemma}[Non-Degeneracy]
+Any three distinct points on a circle of finite radius form a non-degenerate triangle.
+\end{lemma}
+
+\begin{proof}
+A line meets a circle in at most two points. Hence three distinct points on a circle cannot be collinear.
+\end{proof}
+
+\begin{lemma}[Representability Criterion]
+$r_2(n) > 0$ if and only if every prime factor $p\equiv 3\pmod{4}$ of~$n$ appears to an even power.
+\end{lemma}
+
+\begin{proof}
+Since $p\equiv 3\pmod{4}$ is inert in $\mathbb{Z}[i]$, $p^a$ is a norm only when $a$ is even. The result follows by multiplicativity.
+\end{proof}
+
+\begin{theorem}[Triangle Count]
+For each $n$ with $r_2(n) \ge 3$, the number of lattice triangles inscribed in $x^2+y^2=n$ is $\binom{r_2(n)}{3}$. Hence
+\[
+T(N) = \sum_{\substack{n=1\\r_2(n)\ge 3}}^{N}\binom{r_2(n)}{3}.
+\]
+\end{theorem}
+
+\begin{proof}
+By the non-degeneracy lemma, every 3-element subset of the $r_2(n)$ lattice points forms a valid triangle.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve(N):
+    spf[1..N] = smallest_prime_factor_sieve(N)
+    for n = 1 to N:
+        Compute r2[n] multiplicatively from prime factorization
+    total = 0
+    for n = 1 to N:
+        m = r2[n]
+        if m >= 3: total += m*(m-1)*(m-2)/6
+    return total
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N\log\log N)$ for the sieve, $O(N)$ for summation. Total: $O(N\log\log N)$.
+\item \textbf{Space:} $O(N)$ for sieve and $r_2$ arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{727227472448913}
+\]
+
+\end{document}

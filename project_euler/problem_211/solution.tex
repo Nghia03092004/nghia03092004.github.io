@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 211: Divisor Square Sum}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For a positive integer $n$, let $\sigma_2(n) = \sum_{d \mid n} d^2$. Find the sum of all $n$, $0 < n < 64{,}000{,}000$, such that $\sigma_2(n)$ is a perfect square.
+
+\section{Mathematical Development}
+
+\begin{definition}
+For $k \in \mathbb{Z}_{\geq 0}$, the \emph{divisor power sum function} is $\sigma_k(n) = \sum_{d \mid n} d^k$.
+\end{definition}
+
+\begin{theorem}[Multiplicativity of $\sigma_2$]
+If $\gcd(a, b) = 1$, then $\sigma_2(ab) = \sigma_2(a) \cdot \sigma_2(b)$.
+\end{theorem}
+
+\begin{proof}
+Let $\gcd(a,b) = 1$. The map $\varphi\colon \{d_1 : d_1 \mid a\} \times \{d_2 : d_2 \mid b\} \to \{d : d \mid ab\}$ defined by $\varphi(d_1, d_2) = d_1 d_2$ is a bijection. For surjectivity: given $d \mid ab$, factor $d = d_1 d_2$ by assigning to $d_1$ exactly the prime-power factors of $d$ dividing $a$ (possible since $\gcd(a,b)=1$). For injectivity: if $d_1 d_2 = d_1' d_2'$ with $d_1,d_1' \mid a$ and $d_2,d_2' \mid b$, then $d_1 \mid d_1'$ (using $\gcd(d_1,d_2')=1$) and symmetrically $d_1' \mid d_1$, so $d_1 = d_1'$ and $d_2 = d_2'$. Therefore:
+\[
+\sigma_2(ab) = \sum_{d \mid ab} d^2 = \sum_{d_1 \mid a}\sum_{d_2 \mid b}(d_1 d_2)^2 = \biggl(\sum_{d_1 \mid a} d_1^2\biggr)\biggl(\sum_{d_2 \mid b} d_2^2\biggr) = \sigma_2(a)\,\sigma_2(b). \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Geometric sum for prime powers]
+For a prime $p$ and integer $a \geq 0$,
+\[
+\sigma_2(p^a) = \sum_{j=0}^{a} p^{2j} = \frac{p^{2(a+1)} - 1}{p^2 - 1}.
+\]
+\end{lemma}
+
+\begin{proof}
+The divisors of $p^a$ are $1, p, \ldots, p^a$, so $\sigma_2(p^a) = \sum_{j=0}^{a} p^{2j}$, a geometric series with ratio $p^2$ and $a+1$ terms.
+\end{proof}
+
+\begin{theorem}[Divisor sieve correctness]
+Initialize $S[n] \leftarrow 0$ for all $n$. For each $d = 1, \ldots, N{-}1$ and each multiple $k = d, 2d, \ldots < N$, execute $S[k] \mathrel{+}= d^2$. Then $S[n] = \sigma_2(n)$ for all $1 \leq n < N$.
+\end{theorem}
+
+\begin{proof}
+After completion, $S[n] = \sum_{\substack{d=1 \\ d \mid n}}^{N-1} d^2$. Since $n < N$, every divisor $d$ of $n$ satisfies $d \leq n < N$, so all divisors are included. Thus $S[n] = \sigma_2(n)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Initialize array $S[1..N{-}1]$ of unsigned 64-bit integers to zero.
+\item For each $d = 1$ to $N{-}1$: for each multiple $k = d, 2d, \ldots < N$, set $S[k] \mathrel{+}= d^2$.
+\item For each $n = 1$ to $N{-}1$: compute $r = \lfloor\sqrt{S[n]}\rfloor$; if $r^2 = S[n]$, add $n$ to the answer.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} The sieve executes $\sum_{d=1}^{N-1}\lfloor N/d\rfloor = N\ln N + O(N)$ additions by the harmonic number estimate. The square check runs in $\Theta(N)$. Total: $\Theta(N\log N)$.
+\item \textbf{Space:} $\Theta(N)$ for the array of 64-bit integers ($8N$ bytes).
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1922364685}
+\]
+
+\end{document}

@@ -1,0 +1,103 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{Project Euler Problem 394: Eating Pie}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Jeff eats a circular pie by making an initial radial cut, then repeatedly:
+\begin{enumerate}
+    \item Choosing one of the two exposed edges uniformly at random,
+    \item Cutting at angle $\alpha \sim \text{Uniform}(0, \theta)$ from that edge (where $\theta$ is the remaining angle),
+    \item Eating the resulting slice.
+\end{enumerate}
+
+Let $E(n)$ be the expected number of slices Jeff eats until the remaining pie has angle less than $1/n$ of the original. Find:
+\[
+    \lceil E(10) \rceil + \lceil E(100) \rceil + \lceil E(1000) \rceil.
+\]
+
+\section{Solution}
+
+\subsection{Reduction to Uniform Products}
+
+Normalize the full pie angle to 1. After each cut, the remaining fraction satisfies:
+\[
+    \theta_{k+1} = \theta_k - \alpha_k, \qquad \alpha_k \sim \text{Uniform}(0, \theta_k).
+\]
+
+By symmetry, the choice of edge does not affect the distribution. Writing $V_k = 1 - \alpha_k/\theta_k \sim \text{Uniform}(0,1)$:
+\[
+    \theta_k = \prod_{i=1}^{k} V_i, \qquad V_i \overset{\text{iid}}{\sim} \text{Uniform}(0,1).
+\]
+
+\subsection{Reduction to Exponential Sums}
+
+We need $N = \min\{k : \theta_k < 1/n\}$, i.e.,
+\[
+    N = \min\left\{k : \sum_{i=1}^{k} (-\ln V_i) > \ln n\right\}.
+\]
+
+Since $X_i = -\ln V_i \sim \text{Exp}(1)$, this is the first passage time of a standard Poisson process past level $t = \ln n$.
+
+\subsection{Exact Expectation}
+
+\begin{theorem}
+    If $X_1, X_2, \ldots \overset{\text{iid}}{\sim} \text{Exp}(1)$ and $S_k = \sum_{i=1}^k X_i$, then for $N = \min\{k : S_k > t\}$ with $t > 0$:
+    \[
+        E[N] = 1 + t.
+    \]
+\end{theorem}
+
+\begin{proof}
+    \begin{align*}
+        E[N] &= \sum_{k=0}^{\infty} P(N > k) = \sum_{k=0}^{\infty} P(S_k \leq t).
+    \end{align*}
+    Since $S_k \sim \text{Gamma}(k,1)$ and using the Poisson--Gamma duality:
+    \[
+        P(S_k \leq t) = P\bigl(\text{Poisson}(t) \geq k\bigr) = \sum_{j=k}^{\infty} \frac{e^{-t} t^j}{j!}.
+    \]
+    Therefore:
+    \begin{align*}
+        E[N] &= \sum_{k=0}^{\infty} \sum_{j=k}^{\infty} \frac{e^{-t} t^j}{j!}
+             = \sum_{j=0}^{\infty} (j+1) \frac{e^{-t} t^j}{j!} \\
+             &= e^{-t} \left( \sum_{j=0}^{\infty} \frac{j \, t^j}{j!} + \sum_{j=0}^{\infty} \frac{t^j}{j!} \right)
+             = e^{-t}(t e^t + e^t)
+             = t + 1.
+    \end{align*}
+\end{proof}
+
+\subsection{Final Computation}
+
+With $E(n) = 1 + \ln n$:
+
+\begin{center}
+\begin{tabular}{@{}cccc@{}}
+    \toprule
+    $n$ & $E(n) = 1 + \ln n$ & $\lceil E(n) \rceil$ \\
+    \midrule
+    10   & 3.30259 & 4 \\
+    100  & 5.60517 & 6 \\
+    1000 & 7.90776 & 8 \\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{3.2370342194}
+\]
+
+\end{document}

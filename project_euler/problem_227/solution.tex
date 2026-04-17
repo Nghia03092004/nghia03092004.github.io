@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 227: The Chase}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+``The Chase'' is played on a circular board of 100 spaces. Two players start 50 spaces apart. Each turn, both roll two dice and move toward each other. Find the expected number of turns until they meet, to 6 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[State Reduction]
+The game state is fully determined by the shorter-arc distance $d \in \{0, 1, \ldots, 50\}$ between the players.
+\end{theorem}
+\begin{proof}
+The board has rotational symmetry, so only relative distance matters. The shorter arc gives $d = \min(d_{\text{cw}}, 100 - d_{\text{cw}}) \in \{0, \ldots, 50\}$.
+\end{proof}
+
+\begin{theorem}[Absorbing Markov Chain]
+Let $E(d)$ be the expected turns from distance $d$. Then $E(0) = 0$ and for $1 \leq d \leq 50$:
+\[
+E(d) = 1 + \sum_{d'=1}^{50} T(d, d') \cdot E(d').
+\]
+\end{theorem}
+\begin{proof}
+Standard first-step decomposition for expected hitting times. After one turn, the chain transitions to $d'$ with probability $T(d, d')$ or is absorbed at $d' = 0$.
+\end{proof}
+
+\begin{lemma}[Transition Probabilities]
+If the combined movement is $m$ (sum of both players' movements), the new distance is
+\[
+d' = \min\bigl((d-m) \bmod 100, \; 100 - ((d-m) \bmod 100)\bigr).
+\]
+The distribution of $m$ is the convolution of the two players' individual movement distributions.
+\end{lemma}
+\begin{proof}
+On the circular board, the raw gap becomes $(d-m) \bmod 100$. The shorter-arc distance is $\min(r, 100-r)$.
+\end{proof}
+
+\begin{theorem}[Unique Solution]
+The system $(I - T)\mathbf{E} = \mathbf{1}$ has a unique solution.
+\end{theorem}
+\begin{proof}
+State 0 is absorbing and reachable from every transient state $d \in \{1, \ldots, 50\}$. By the theory of absorbing Markov chains, the fundamental matrix $(I - T)^{-1}$ exists, so the system has a unique solution.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute the movement distribution for each player from two-dice rolls.
+\item Form the combined distribution by convolution.
+\item Build the $50 \times 50$ transition matrix $T$.
+\item Solve $(I - T)\mathbf{E} = \mathbf{1}$ by Gaussian elimination with partial pivoting.
+\item Return $E(50)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(n^3)$ with $n = 50$, i.e., $O(125{,}000)$ operations.
+\item \textbf{Space:} $O(n^2) = O(2500)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3780.618622}
+\]
+
+\end{document}

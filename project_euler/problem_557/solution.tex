@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 557: Cutting Triangles}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A triangle is cut into four pieces by two straight lines (cevians), each starting at one vertex and ending on the opposite edge. This results in three smaller triangles and one quadrilateral, all with integer areas.
+
+A triangle cutting quadruple $(a, b, c, d)$ is a valid integral division where $a$ is the area between the two cut vertices, $d$ is the quadrilateral area, and $b \leq c$ are the other two triangle areas.
+
+Let $S(n)$ be the sum of total areas $(a+b+c+d)$ over all valid quadruples with $a + b + c + d \leq n$. Given $S(20) = 259$, find $S(10000)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Cevian Intersection}
+Consider triangle $ABC$ with cevians $AD$ and $BE$ intersecting at $P$. Let $BD:DC = s:(1-s)$ and $AE:EC = t:(1-t)$ for parameters $s,t \in (0,1)$.
+
+The four areas satisfy a key constraint derived from the cevian properties. If the four areas are $a, b, c, d$ (with $a + b + c + d = T$), then:
+\[
+a \cdot d = b \cdot c
+\]
+
+\subsection{Derivation of Constraint}
+By Ceva-like analysis, the areas of the four regions formed by two non-concurrent cevians from different vertices satisfy the product relation $ad = bc$. This arises because area ratios along each cevian multiply consistently.
+
+\subsection{Counting Valid Quadruples}
+We need integer solutions $(a, b, c, d)$ with:
+\begin{enumerate}
+    \item $a, b, c, d \geq 1$
+    \item $b \leq c$
+    \item $ad = bc$
+    \item $a + b + c + d \leq n$
+\end{enumerate}
+
+For each valid factorization of $ad = bc$, we enumerate solutions efficiently.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item For each pair $(a, b)$ with $a \geq 1, b \geq 1$, iterate over divisors of $ab$ to find valid $(c, d)$.
+    \item The constraint $ad = bc$ means $d = bc/a$, so $a \mid bc$.
+    \item Check $b \leq c$ and $a + b + c + d \leq n$.
+    \item Sum the total area $T = a + b + c + d$ for each valid quadruple.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(n^2 \log n)$ with divisor enumeration
+    \item \textbf{Space:} $O(1)$
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2699929328}
+\]
+
+\end{document}

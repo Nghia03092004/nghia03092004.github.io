@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 720: Unpredictable Permutations}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A permutation~$P$ of $\{1,\ldots,N\}$ is \emph{unpredictable} if no three indices $i<j<k$ satisfy $P(j)-P(i)=P(k)-P(j)$ (i.e., $P(i),P(j),P(k)$ form an arithmetic progression). Let $S(N)$ be the 1-based lexicographic index of the first unpredictable permutation. Given $S(4)=3$ and $S(8)=2295$, find $S(2^{25}) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+A sequence is \emph{3-AP-free} if no three terms in positional order form an arithmetic progression in their values.
+\end{definition}
+
+\begin{lemma}[Connection to Salem--Spencer Sets]
+An unpredictable permutation avoids 3-term APs among values at ordered positions. This differs from Salem--Spencer sets, which avoid APs within a subset.
+\end{lemma}
+
+\begin{proof}
+A Salem--Spencer set $A \subseteq \{1,\ldots,N\}$ avoids APs among its elements. An unpredictable permutation constrains ordered triples of positions, which is structurally different.
+\end{proof}
+
+\begin{theorem}[Recursive Construction]
+For $N = 2^n$, the lexicographically first unpredictable permutation admits a divide-and-conquer construction. At each position, the smallest available value maintaining the 3-AP-free property is chosen.
+\end{theorem}
+
+\begin{proof}
+The greedy construction is well-defined: at each step, finitely many values are available, and the 3-AP-free condition is verifiable. The process terminates and yields the lexicographically first valid permutation by construction.
+\end{proof}
+
+\begin{lemma}[Lehmer Code]
+The lexicographic index of permutation~$P$ is
+\[
+S = 1 + \sum_{i=1}^{N} c_i \cdot (N-i)!,
+\]
+where $c_i$ counts elements smaller than $P(i)$ appearing after position~$i$.
+\end{lemma}
+
+\begin{proof}
+Standard result: the Lehmer code uniquely encodes a permutation, and the weighted sum with factorials gives the 0-based rank. Adding~1 gives the 1-based index.
+\end{proof}
+
+\begin{theorem}[Efficient Computation]
+For $N=2^n$, the recursive structure allows computing Lehmer code entries without explicitly constructing the full permutation. Combined with precomputed factorials modulo~$p$, the index is evaluated in $O(N\log N)$ time.
+\end{theorem}
+
+\begin{proof}
+The divide-and-conquer structure of the permutation means Lehmer code entries decompose into sub-problems of half the size. Factorial precomputation costs $O(N)$. A Fenwick tree enables $O(\log N)$ per Lehmer code entry, totalling $O(N\log N)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function S(N, mod):
+    fact = precompute_factorials(N, mod)
+    perm = build_first_unpredictable(N)  // recursive
+
+    fenwick = FenwickTree(N)
+    for i = 1 to N: fenwick.update(i, 1)
+
+    index = 0
+    for i = 1 to N:
+        c_i = fenwick.query(perm[i] - 1)
+        index = (index + c_i * fact[N-i]) % mod
+        fenwick.update(perm[i], -1)
+
+    return (index + 1) % mod
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$ where $N = 2^{25} = 33\,554\,432$. Dominated by Fenwick tree operations and recursive permutation construction.
+    \item \textbf{Space:} $O(N)$ for the permutation, factorial table, and Fenwick tree.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{688081048}
+\]
+
+\end{document}

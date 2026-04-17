@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 907: Minimum Path Sum in Triangle}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a triangle of $N = 1000$ rows with entry $T(i,j) = ((i+1)(j+1)\cdot 37 + 13) \bmod 100$ for $0 \le j \le i$, find the minimum path sum from apex to base, where each step descends to an adjacent entry.
+
+\section{Bellman Equation}
+
+\begin{theorem}[Optimal Substructure]
+The minimum cost $V(i,j)$ from position $(i,j)$ to the base satisfies:
+\[
+V(i,j) = T(i,j) + \min\bigl(V(i+1,j),\; V(i+1,j+1)\bigr), \qquad V(N-1,j) = T(N-1,j).
+\]
+\end{theorem}
+
+\begin{proof}
+Any path from $(i,j)$ to the base must first step to $(i+1,j)$ or $(i+1,j+1)$. The total cost is $T(i,j)$ plus the cost of the remaining path. By the principle of optimality, the remaining path must be optimal from whichever child is visited.
+\end{proof}
+
+\section{Bottom-Up Dynamic Programming}
+
+\begin{lemma}[In-Place Safety]
+Processing $j = 0, 1, \ldots, i$ when updating row~$i$: the value $dp[j+1]$ from row $i+1$ is read before index $j+1$ is overwritten.
+\end{lemma}
+
+\begin{proof}
+At iteration~$j$, only $dp[j]$ is written. Since $j+1 > j$, the value $dp[j+1]$ retains its row-$(i+1)$ value.
+\end{proof}
+
+\section{Entry Distribution}
+
+\begin{proposition}
+The map $(i,j) \mapsto ((i+1)(j+1)\cdot 37 + 13) \bmod 100$ produces pseudo-random values in $\{0,\ldots,99\}$. Since $\gcd(37, 100) = 1$, fixing~$i$, the map $j \mapsto T(i,j)$ cycles through residues with period dividing 100.
+\end{proposition}
+
+\section{Expected Value}
+
+\begin{proposition}
+For i.i.d.\ uniform $[0, M-1]$ entries, the expected per-row contribution of the optimal path is approximately $M/3$.
+\end{proposition}
+
+\begin{proof}[Sketch]
+At each step, the path chooses the smaller of two adjacent entries. For independent uniform variables $X, Y$ on $[0, M-1]$: $\mathbb{E}[\min(X,Y)] = (M-1)/3$.
+\end{proof}
+
+For $M = 100$, $N = 1000$: expected min path $\approx 33{,}000$.
+
+\section{Greedy Suboptimality}
+
+\begin{proposition}
+The greedy algorithm (always descend to the smaller neighbor) is not optimal in general.
+\end{proposition}
+
+\begin{proof}
+Counterexample: $T = \{(0,0){:}1,\; (1,0){:}99,\; (1,1){:}2,\; (2,0){:}1,\; (2,1){:}99,\; (2,2){:}99\}$. Greedy path: $1 \to 2 \to 99 = 102$. Optimal: $1 \to 99 \to 1 = 101$.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Bottom-up DP:} $O(N^2)$ time ($\sum_{i=0}^{N-1}(i+1) = N(N+1)/2$ operations), $O(N)$ space.
+\item \textbf{Brute-force:} $O(2^N)$ paths --- infeasible for $N = 1000$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{196808901}
+\]
+
+\end{document}

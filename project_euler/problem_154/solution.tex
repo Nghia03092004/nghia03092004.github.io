@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 154: Exploring Pascal's Triangle}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many entries $\binom{200000}{i,j,k} = \frac{200000!}{i!\,j!\,k!}$ with $i+j+k=200000$ are divisible by $10^{12}$?
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Legendre's Formula]
+For a prime $p$ and non-negative integer $n$:
+\[
+v_p(n!) = \sum_{m=1}^{\infty} \left\lfloor \frac{n}{p^m} \right\rfloor
+\]
+\end{theorem}
+
+\begin{proof}
+Each $k \in \{1, \ldots, n\}$ contributes $v_p(k) = \sum_{m \ge 1} \mathbf{1}[p^m \mid k]$ to $v_p(n!)$. Swapping summation: $v_p(n!) = \sum_{m \ge 1} \lfloor n / p^m \rfloor$.
+\end{proof}
+
+\begin{theorem}[Trinomial Valuation]
+For $i + j + k = n$:
+\[
+v_p\!\left(\binom{n}{i,j,k}\right) = v_p(n!) - v_p(i!) - v_p(j!) - v_p(k!)
+\]
+\end{theorem}
+
+\begin{proof}
+Immediate from $\binom{n}{i,j,k} = n!/(i!\,j!\,k!)$ and additivity of $v_p$.
+\end{proof}
+
+\begin{lemma}[Divisibility Condition]
+$10^{12} \mid \binom{n}{i,j,k}$ if and only if $v_2\!\left(\binom{n}{i,j,k}\right) \ge 12$ and $v_5\!\left(\binom{n}{i,j,k}\right) \ge 12$.
+\end{lemma}
+
+\begin{proof}
+Since $10^{12} = 2^{12} \cdot 5^{12}$ with $\gcd(2^{12}, 5^{12}) = 1$, both prime-power conditions are necessary and sufficient.
+\end{proof}
+
+\begin{lemma}[Symmetry Reduction]
+Iterate over $i \le j \le k$ with $i+j+k = n$. Apply multiplier: $6$ if $i < j < k$; $3$ if exactly two equal; $1$ if $i = j = k$.
+\end{lemma}
+
+\begin{proof}
+The trinomial coefficient is symmetric in $(i,j,k)$. The number of distinct permutations of the triple gives the multiplier.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+Precompute f2[m] = v_2(m!) and f5[m] = v_5(m!) for m = 0..n
+For i = 0 to n/3:
+    For j = i to (n-i)/2:
+        k = n - i - j
+        if V2 - f2[i] - f2[j] - f2[k] >= 12
+        and V5 - f5[i] - f5[j] - f5[k] >= 12:
+            count += symmetry_factor(i, j, k)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(n)$ precomputation $+$ $O(n^2/6)$ main loop iterations at $O(1)$ each $= O(n^2)$.
+    \item \textbf{Space:} $O(n)$ for the valuation arrays.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{479742450}
+\]
+
+\end{document}

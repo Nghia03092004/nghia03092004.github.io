@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 85: Counting Rectangles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the area of the rectangular grid whose number of contained axis-aligned rectangles is nearest to $T = 2{,}000{,}000$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Rectangle Counting Formula]
+An $m \times n$ grid contains exactly
+\[
+R(m, n) = \binom{m+1}{2} \binom{n+1}{2} = \frac{m(m+1)}{2} \cdot \frac{n(n+1)}{2}
+\]
+axis-aligned rectangles.
+\end{theorem}
+
+\begin{proof}
+An $m \times n$ grid is delineated by $m+1$ vertical lines and $n+1$ horizontal lines. An axis-aligned rectangle is uniquely determined by choosing 2 of the $m+1$ vertical lines (left and right edges) and 2 of the $n+1$ horizontal lines (top and bottom edges). These choices are independent, giving $\binom{m+1}{2} \cdot \binom{n+1}{2}$.
+\end{proof}
+
+\textbf{Verification:} For $m = 3, n = 2$: $R(3,2) = 6 \cdot 3 = 18$. $\checkmark$
+
+\begin{lemma}[Search Bound]
+We need only search $m$ values satisfying $\frac{m(m+1)}{2} \leq T$, i.e., $m = O(\sqrt{T})$.
+\end{lemma}
+
+\begin{proof}
+Since $R(m, n) \geq R(m, 1) = \frac{m(m+1)}{2}$ for all $n \geq 1$, once $\frac{m(m+1)}{2} > T$ the rectangle count exceeds the target for every valid $n$. The quadratic inequality $m(m+1)/2 \le T$ yields $m \le \lfloor(-1 + \sqrt{1 + 8T})/2\rfloor = O(\sqrt{T})$.
+\end{proof}
+
+\begin{lemma}[Optimal $n$ for Fixed $m$]
+For fixed $m$, the real root $n^*$ of $R(m, n^*) = T$ is
+\[
+n^* = \frac{-1 + \sqrt{1 + 8T/[m(m+1)]}}{2}.
+\]
+The optimal integer $n$ is either $\lfloor n^* \rfloor$ or $\lceil n^* \rceil$, since $R(m,n)$ is strictly increasing in~$n$.
+\end{lemma}
+
+\begin{proof}
+Setting $R(m,n) = T$ gives $n(n+1) = 4T/[m(m+1)]$. The quadratic formula yields the stated positive root. Strict monotonicity of $R$ in $n$ ensures the closest integer value lies at the floor or ceiling.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find Grid with Nearest Rectangle Count to $T$}
+\begin{algorithmic}[1]
+\STATE $\text{best\_diff} \gets \infty$, $\text{best\_area} \gets 0$
+\FOR{$m = 1, 2, 3, \ldots$}
+    \STATE $T_m \gets m(m+1)/2$
+    \IF{$T_m > T$}
+        \STATE \textbf{break}
+    \ENDIF
+    \STATE $n^* \gets \frac{-1 + \sqrt{1 + 8T/[m(m+1)]}}{2}$
+    \FOR{$n \in \{\lfloor n^* \rfloor, \lceil n^* \rceil\}$}
+        \IF{$n \geq 1$}
+            \STATE $R \gets T_m \cdot n(n+1)/2$
+            \IF{$|R - T| < \text{best\_diff}$}
+                \STATE Update $\text{best\_diff}$ and $\text{best\_area} \gets m \cdot n$
+            \ENDIF
+        \ENDIF
+    \ENDFOR
+\ENDFOR
+\RETURN $\text{best\_area}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(\sqrt{T})$. The loop runs while $m(m+1)/2 \leq T$, so $m = O(\sqrt{T})$. Each iteration does $O(1)$ work.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2772}
+\]
+
+\end{document}

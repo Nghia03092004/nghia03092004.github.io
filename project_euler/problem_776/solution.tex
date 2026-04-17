@@ -1,0 +1,138 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+
+\begin{document}
+
+\section*{Problem 776: Digit Sum Division}
+
+\section{Problem Statement}
+
+For a positive integer $n$, let $d(n)$ be the sum of its decimal digits, and define
+\[
+F(N)=\sum_{n=1}^{N}\frac{n}{d(n)}.
+\]
+The stated checks are
+\[
+F(10)=19,\qquad
+F(123)\approx 1.187764610390\mathrm e3,\qquad
+F(12345)\approx 4.855801996238\mathrm e6.
+\]
+We must compute $F(1234567890123456789)$ in scientific notation with $12$ digits after the decimal point.
+
+\section{Grouping by Digit Sum}
+
+For each $s\ge 1$, define
+\[
+T_s(N)=\sum_{\substack{1\le n\le N\\ d(n)=s}} n.
+\]
+Then
+\[
+F(N)=\sum_{s\ge 1}\frac{T_s(N)}{s}.
+\]
+
+If $N$ has $L$ decimal digits, then $d(n)\le 9L$. For the target value, $L=19$, so only $1\le s\le 171$ can occur.
+
+\section{Suffix DP}
+
+For $r\ge 0$ and $s\ge 0$, let:
+\begin{itemize}
+\item $C[r][s]$ be the number of $r$-digit strings (leading zeros allowed) with digit sum $s$;
+\item $S[r][s]$ be the sum of the numeric values of those strings.
+\end{itemize}
+
+The base case is
+\[
+C[0][0]=1,\qquad S[0][0]=0.
+\]
+
+For $r\ge 1$, choose the first digit $x$. Then the remaining $r-1$ digits must sum to $s-x$, so
+\[
+C[r][s]=\sum_{x=0}^{9} C[r-1][s-x],
+\]
+with out-of-range terms omitted.
+
+If the suffix begins with $x$, its value is
+\[
+x\cdot 10^{r-1}+u,
+\]
+where $u$ is the remaining $(r-1)$-digit suffix. Therefore
+\[
+S[r][s]
+=
+\sum_{x=0}^{9}
+\left(
+x\cdot 10^{r-1}\, C[r-1][s-x] + S[r-1][s-x]
+\right).
+\]
+
+\section{Prefix Scan}
+
+Write the digits of $N$ as
+\[
+a_0a_1\dots a_{L-1}.
+\]
+Process them from left to right. Suppose the processed prefix has numeric value $P$ and digit sum $\sigma$.
+
+At position $i$, let the current digit of $N$ be $a_i$, and let $r=L-1-i$ be the number of remaining digits.
+For every smaller digit $x<a_i$, and every suffix of length $r$ with digit sum $t$, the full number equals
+\[
+(10P+x)10^r + u.
+\]
+Hence the total contribution to the bucket with digit sum $\sigma+x+t$ is
+\[
+\bigl((10P+x)10^r\bigr)\,C[r][t] + S[r][t].
+\]
+
+After processing all smaller digits, continue with the actual digit:
+\[
+P \leftarrow 10P+a_i,\qquad \sigma \leftarrow \sigma + a_i.
+\]
+After the last digit, add the exact endpoint $N$ to $T_{d(N)}(N)$.
+
+\section{Correctness}
+
+\textbf{Lemma 1.} The arrays $C[r][s]$ and $S[r][s]$ correctly count and sum all $r$-digit suffixes with digit sum $s$.
+
+\textbf{Proof.} The claim is immediate for $r=0$. For $r\ge 1$, partition all suffixes by their first digit $x$. The remaining $r-1$ digits contribute exactly the recurrences above, both for counting and for summing values. Induction on $r$ proves the lemma. $\square$
+
+\textbf{Lemma 2.} During the prefix scan, the quantity
+\[
+\bigl((10P+x)10^r\bigr)\,C[r][t] + S[r][t]
+\]
+is exactly the sum of all numbers whose current prefix is $10P+x$ and whose remaining suffix has length $r$ and digit sum $t$.
+
+\textbf{Proof.} There are $C[r][t]$ such suffixes. Each contributes the common prefix part $(10P+x)10^r$, and the suffix values themselves sum to $S[r][t]$ by Lemma 1. Adding these parts gives the stated formula. $\square$
+
+\textbf{Lemma 3.} For every $s\ge 1$, the algorithm computes $T_s(N)$ exactly.
+
+\textbf{Proof.} Every integer $1\le n<N$ has a unique first position where it is smaller than $N$; the algorithm counts it in exactly that branch $x<a_i$. The endpoint $N$ is added separately. By Lemma 2, each branch contributes the correct numeric total to the correct digit-sum bucket. Hence every $T_s(N)$ is exact. $\square$
+
+\textbf{Theorem.} The algorithm returns the correct value of $F(N)$.
+
+\textbf{Proof.} By Lemma 3, all quantities $T_s(N)$ are computed exactly. Since
+\[
+F(N)=\sum_{s\ge 1}\frac{T_s(N)}{s},
+\]
+the final summation is exact as well. $\square$
+
+\section{Complexity Analysis}
+
+Let $L$ be the number of decimal digits of $N$.
+
+The DP tables have $O(L\cdot 9L)=O(L^2)$ states, each with at most $10$ transitions, and the prefix scan also visits $O(L^2)$ digit-sum states. Therefore:
+\begin{itemize}
+\item Time: $O(L^2)$.
+\item Space: $O(L^2)$.
+\end{itemize}
+
+For $L=19$, this is easily fast enough.
+
+\section{Answer}
+
+The computation yields
+\[
+\boxed{9.627509725002e33}
+\]
+
+\end{document}

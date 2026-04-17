@@ -1,0 +1,105 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\geometry{margin=1in}
+
+\title{Problem 42: Coded Triangle Numbers}
+\author{Project Euler Solutions}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem*{remark}{Remark}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The $n$-th triangle number is $T_n = \frac{n(n+1)}{2}$. By converting each letter in a word to its alphabetical position ($A=1, B=2, \ldots, Z=26$) and summing, we obtain a \emph{word value}. A word is a \emph{triangle word} if its word value is a triangle number. Determine how many words in the provided list are triangle words.
+
+\section{Definitions}
+
+\begin{definition}
+The \emph{alphabetical value} of a letter $c \in \{A, \ldots, Z\}$ is $\operatorname{pos}(c) = \operatorname{ord}(c) - \operatorname{ord}(A) + 1 \in \{1, \ldots, 26\}$.
+\end{definition}
+
+\begin{definition}
+The \emph{word value} of $w = c_1 c_2 \cdots c_L$ is $V(w) = \sum_{i=1}^{L} \operatorname{pos}(c_i)$.
+\end{definition}
+
+\begin{definition}
+A positive integer $v$ is \emph{triangular} if $v = T_n$ for some $n \in \mathbb{Z}^+$.
+\end{definition}
+
+\section{Mathematical Development}
+
+\begin{theorem}[Triangular number characterization]
+A positive integer $v$ is triangular if and only if $8v + 1$ is a perfect square.
+\end{theorem}
+
+\begin{proof}
+$(\Rightarrow)$ If $v = \frac{n(n+1)}{2}$, then $8v + 1 = (2n+1)^2$.
+
+$(\Leftarrow)$ Suppose $8v + 1 = m^2$. Since $8v + 1 \equiv 1 \pmod{8}$ and even squares are $\equiv 0$ or $4 \pmod{8}$, $m$ must be odd. Write $m = 2n + 1$; then $v = \frac{n(n+1)}{2} = T_n$ with $n \geq 1$.
+\end{proof}
+
+\begin{corollary}[Constant-time test]
+The triangular number test requires $O(1)$ arithmetic operations: compute $\Delta = 8v+1$, take $s = \lfloor \sqrt{\Delta} \rfloor$, and verify $s^2 = \Delta$.
+\end{corollary}
+
+\begin{lemma}[Word value bounds]
+For a non-empty word of length $L$, the word value satisfies $L \leq V(w) \leq 26L$.
+\end{lemma}
+
+\begin{proof}
+Each letter contributes at least 1 (for A) and at most 26 (for Z). Summing over $L$ letters gives the result.
+\end{proof}
+
+\begin{remark}
+For the Project Euler word list, the maximum word length is 14, giving $V(w) \leq 364$. The largest relevant triangle number is $T_{26} = 351$.
+\end{remark}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Count Triangle Words}
+\begin{algorithmic}[1]
+\State $\text{count} \gets 0$
+\For{each word $w$ in the word list}
+    \State $v \gets \sum_{c \in w} \operatorname{pos}(c)$
+    \If{$\textsc{IsTriangular}(v)$}
+        \State $\text{count} \gets \text{count} + 1$
+    \EndIf
+\EndFor
+\State \Return count
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{proposition}[Time complexity]
+The algorithm runs in $O(W \cdot \bar{L})$ time, where $W$ is the number of words and $\bar{L}$ is the average word length.
+\end{proposition}
+
+\begin{proof}
+Computing each word value takes $O(L_i)$ for word $i$. The triangular test is $O(1)$. Total: $O\bigl(\sum_{i=1}^W L_i\bigr) = O(W \cdot \bar{L})$.
+\end{proof}
+
+\begin{proposition}[Space complexity]
+$O(W \cdot \bar{L})$ for the word list; $O(1)$ auxiliary.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{162}
+\]
+
+\end{document}

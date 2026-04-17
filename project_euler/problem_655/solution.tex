@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 655: Divisible Palindromes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count the palindromes below $10^{32}$ that are divisible by $10{,}000{,}019$.
+
+\section{Mathematical Foundation}
+
+Fix a digit length $d \in \{1,\dots,32\}$ and write a $d$-digit palindrome as
+\[
+  n = \sum_{i=0}^{h-1} x_i w_i,
+\]
+where $h = \lceil d/2 \rceil$ and $x_0,\dots,x_{h-1}$ are the free digits. Here
+\[
+  w_i =
+  \begin{cases}
+    10^{d-1-i} + 10^i & \text{if } i < d-1-i,\\
+    10^{d-1-i} & \text{if } i = d-1-i.
+  \end{cases}
+\]
+
+\begin{lemma}
+A $d$-digit palindrome is uniquely determined by its first $h=\lceil d/2\rceil$ digits.
+\end{lemma}
+
+\begin{proof}
+The remaining digits are forced by the symmetry relation $a_i = a_{d-1-i}$.
+\end{proof}
+
+\begin{lemma}
+For fixed $d$, counting palindromes divisible by $M=10{,}000{,}019$ is equivalent to counting digit vectors $(x_0,\dots,x_{h-1})$ with $x_0 \in \{1,\dots,9\}$, $x_i \in \{0,\dots,9\}$ for $i \ge 1$, and
+\[
+  \sum_{i=0}^{h-1} x_i w_i \equiv 0 \pmod M.
+\]
+\end{lemma}
+
+\begin{proof}
+By the previous lemma each palindrome corresponds to exactly one free-digit vector, and divisibility by $M$ is exactly the displayed congruence.
+\end{proof}
+
+\begin{theorem}
+The count for each length $d$ can be computed by meet-in-the-middle.
+\end{theorem}
+
+\begin{proof}
+Split the free digits into left and right blocks:
+\[
+  \sum_{i=0}^{h-1} x_i w_i
+  =
+  \sum_{i \in L} x_i w_i + \sum_{i \in R} x_i w_i.
+\]
+For every right-half assignment, store its residue modulo $M$. Then enumerate all left-half assignments and count how many right-half residues equal the additive inverse of the left residue. Every full assignment splits uniquely into its two halves, so this counts each valid palindrome exactly once.
+\end{proof}
+
+\section{Algorithm}
+
+For each length $d=1,\dots,32$:
+\begin{enumerate}
+  \item Compute the weights $w_i \bmod M$.
+  \item Split the $h$ free positions into two parts, with the right part of size at most $8$.
+  \item Enumerate all right-half assignments and count their residues modulo $M$.
+  \item Enumerate all left-half assignments, respecting the leading-digit condition, and add the number of matching right-half residues.
+  \item Sum over all lengths.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+For a fixed length $d$, the larger half has size at most $8$, so the meet-in-the-middle phase costs
+\[
+  O(10^{h_1} + 10^{h_2}),
+\]
+with $\max(h_1,h_2)\le 8$. The memory usage is $O(M)$ for the residue-count table.
+
+\section{Answer}
+
+\[
+\boxed{2000008332}
+\]
+
+\end{document}

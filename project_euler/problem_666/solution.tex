@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+
+\title{Problem 666: Polymorphic Bacteria}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Species $S_{k,m}$ has $k$ bacterial types. Lifecycle rules from pseudo-random sequence $r_n$ ($r_0 = 306$, $r_{n+1} = r_n^2 \bmod 10007$). Find extinction probability $P_{500,10}$.
+
+\section{Multi-Type Branching Process}
+
+\begin{theorem}[Extinction Probability]
+The extinction probability vector $\mathbf{q} = (q_0, \ldots, q_{k-1})$ is the smallest fixed point in $[0,1]^k$ of:
+\[
+q_i = \frac{1}{m} \sum_{j=0}^{m-1} g_{ij}(\mathbf{q})
+\]
+where $g_{ij}$ is the PGF for rule~$j$ of type~$i$.
+\end{theorem}
+
+\begin{proof}
+Monotone iteration from $\mathbf{q}^{(0)} = \mathbf{0}$ converges to the smallest fixed point by the monotone convergence theorem applied to probability generating functions.
+\end{proof}
+
+\section{Rule PGFs}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$q \bmod 5$ & Action & PGF \\
+\midrule
+0 & Die & $1$ \\
+1 & Clone & $s_i$ \\
+2 & Mutate & $s_{(i+1) \bmod k}$ \\
+3 & Split $\times 3$ & $s_i^3$ \\
+4 & Spawn & $s_i \cdot s_{(i+1) \bmod k}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{0.48023168}
+\]
+
+\end{document}

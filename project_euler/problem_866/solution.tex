@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 866: Tidying Up B}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A small child has a ``number caterpillar'' consisting of $N$ jigsaw pieces numbered $1$ to $N$. The father picks up pieces at random and places them in their correct positions. When a segment of length $k$ is formed, the $k$-th hexagonal number $H_k = k(2k-1)$ is recorded. The product of all recorded numbers is computed.
+
+Find the expected value of this product for $N = 100$, modulo $987654319$.
+
+\section{Mathematical Analysis}
+
+\subsection{Hexagonal Numbers}
+The $k$-th hexagonal number is:
+\[
+H_k = k(2k - 1)
+\]
+
+\subsection{Segment Dynamics}
+When piece at position $i$ is placed (at some random time), the following cases arise:
+\begin{itemize}
+    \item \textbf{Isolated}: No neighbors filled. New segment of length 1. Record $H_1 = 1$.
+    \item \textbf{Extend}: One neighbor filled, extending segment from length $m$ to $m+1$. Record $H_{m+1}$.
+    \item \textbf{Merge}: Both neighbors filled, merging segments of lengths $m_1, m_2$ into $m_1 + m_2 + 1$. Record $H_{m_1+m_2+1}$.
+\end{itemize}
+
+\subsection{Expected Product via DP}
+We define a DP over intervals. Consider building the caterpillar by inserting pieces into $[1, N]$. The key insight is that the expected product can be decomposed by considering which piece is placed \emph{last} in each contiguous interval.
+
+For an interval $[a, b]$ of length $L = b - a + 1$, define $E(L)$ as the expected product of hexagonal numbers generated when filling this interval. The piece placed last in the interval contributes $H_L$ to the product, and the two sub-intervals to its left and right contribute independently.
+
+\[
+E(L) = H_L \cdot \frac{1}{L} \sum_{i=1}^{L} \binom{L-1}{i-1} \cdot \frac{(i-1)!(L-i)!}{(L-1)!} \cdot E(i-1) \cdot E(L-i)
+\]
+
+Simplifying:
+\[
+E(L) = \frac{H_L}{L} \sum_{i=1}^{L} E(i-1) \cdot E(L-i)
+\]
+
+with $E(0) = 1$.
+
+\subsection{Modular Arithmetic}
+All computations are performed modulo $p = 987654319$, which is prime. We use Fermat's little theorem for modular inverses: $a^{-1} \equiv a^{p-2} \pmod{p}$.
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Compute $E(L)$ for $L = 0, 1, \ldots, 100$ using the recurrence above.
+    \item The answer is $E(100) \bmod 987654319$.
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time}: $O(N^2)$ for the DP.
+    \item \textbf{Space}: $O(N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{492401720}
+\]
+
+\end{document}

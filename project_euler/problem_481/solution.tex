@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\title{Project Euler Problem 481: Chef Showdown}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A group of $n$ chefs compete in a turn-based elimination game. Chef~$k$ has skill level $S(k) = F_k/F_{n+1}$, where $F_k$ is the $k$-th Fibonacci number ($F_1 = F_2 = 1$). On a chef's turn, they cook a dish that is favorably rated with probability $S(k)$; upon success, they eliminate one other chef. Turns cycle sequentially among remaining chefs. All chefs play optimally. Given $E(7) = 42.28176050$, find $E(14)$ to 8 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Game state]
+A \emph{state} is a pair $(\mathcal{S},\tau)$ where $\mathcal{S}\subseteq\{1,\ldots,n\}$ is the set of remaining chefs with $|\mathcal{S}|=m\ge 1$, and $\tau$ is the index within the ordered set $\mathcal{S}$ indicating whose turn begins the next round.
+\end{definition}
+
+\begin{theorem}[Geometric round structure]\label{thm:round}
+Let the turn order within state $(\mathcal{S},\tau)$ be $(c_1,\ldots,c_m)$ and $q_i = 1 - S(c_i)$. Then:
+\begin{enumerate}
+\item[(i)] The probability that no chef succeeds in a full round is $Q(\mathcal{S}) = \prod_{i=1}^m q_i$.
+\item[(ii)] The probability that $c_j$ is the first to succeed is $P_j(\mathcal{S}) = S(c_j)\prod_{i=1}^{j-1}q_i$.
+\item[(iii)] $\sum_{j=1}^m P_j(\mathcal{S}) = 1 - Q(\mathcal{S})$.
+\item[(iv)] The number of completely failed rounds before the first success is $\operatorname{Geom}\bigl(1-Q(\mathcal{S})\bigr)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each chef's outcome is an independent Bernoulli trial.
+
+(i) A complete failure requires all $m$ chefs to fail: $\Pr[\text{all fail}] = \prod_{i=1}^m q_i$.
+
+(ii) Chef $c_j$ succeeds first iff $c_1,\ldots,c_{j-1}$ all fail and $c_j$ succeeds, giving probability $S(c_j)\prod_{i<j}q_i$ by independence.
+
+(iii) By induction on $m$. For $m=1$: $S(c_1) = 1-q_1$. For the inductive step, adding chef $c_m$ contributes $S(c_m)\prod_{i=1}^{m-1}q_i = (1-q_m)\prod_{i=1}^{m-1}q_i$. The running sum becomes $(1-\prod_{i=1}^{m-1}q_i) + (1-q_m)\prod_{i=1}^{m-1}q_i = 1 - \prod_{i=1}^m q_i$.
+
+(iv) Rounds are independent (each round's outcome depends only on fresh Bernoulli trials), so the count of failed rounds is geometrically distributed with success parameter $1-Q(\mathcal{S})$.
+\end{proof}
+
+\begin{corollary}\label{cor:cond}
+Conditioned on a success occurring, the probability that $c_j$ succeeds is $P_j(\mathcal{S})/(1-Q(\mathcal{S}))$.
+\end{corollary}
+
+\begin{proof}
+Immediate from the law of total probability and the memoryless property of the geometric distribution.
+\end{proof}
+
+\begin{theorem}[Optimal elimination]\label{thm:opt}
+When chef $c_j$ succeeds in state $(\mathcal{S},\tau)$, the optimal target is
+\[
+t^* = \arg\max_{t\in\mathcal{S}\setminus\{c_j\}} W\bigl(c_j,\,\mathcal{S}\setminus\{t\},\,\tau'(t)\bigr),
+\]
+where $W(c_j,\mathcal{S}',\tau')$ is the winning probability of $c_j$ in state $(\mathcal{S}',\tau')$, with ties broken by choosing the chef whose turn comes soonest after $c_j$.
+\end{theorem}
+
+\begin{proof}
+By backward induction on $|\mathcal{S}|$. Base case: $|\mathcal{S}|=1$, the lone chef wins with probability~1; no decision is required. Inductive step: winning probabilities in all substates $\mathcal{S}\setminus\{t\}$ are determined by the inductive hypothesis. A rational agent maximizes their own winning probability over the finite set of targets, yielding the stated rule. The tie-breaking rule is deterministic and consistent.
+\end{proof}
+
+\begin{theorem}[Expected dishes]\label{thm:exp}
+The expected number of dishes from state $(\mathcal{S},\tau)$ satisfies
+\[
+E(\mathcal{S},\tau) = \frac{m\cdot Q(\mathcal{S}) + E_{\mathrm{partial}}(\mathcal{S},\tau)}{1-Q(\mathcal{S})} + \sum_{j=1}^m \frac{P_j(\mathcal{S})}{1-Q(\mathcal{S})}\cdot E(\mathcal{S}\setminus\{t_j^*\},\tau_j'),
+\]
+where $E_{\mathrm{partial}} = \sum_{j=1}^m j\cdot P_j(\mathcal{S})$, and the base case is $E(\{c\},\cdot)=0$.
+\end{theorem}
+
+\begin{proof}
+Let $R$ denote the number of completely failed rounds before the first success, so $R\sim\operatorname{Geom}(1-Q)$. In each failed round, $m$ dishes are cooked, contributing $m\cdot\mathbb{E}[R] = mQ/(1-Q)$ in expectation. In the successful round, position $j$ is reached with probability $P_j/(1-Q)$ (Corollary~\ref{cor:cond}), and $j$ dishes have been cooked in that round, giving partial-round contribution $E_{\mathrm{partial}}/(1-Q)$. After elimination, the game recurses on $(\mathcal{S}\setminus\{t_j^*\},\tau_j')$ with conditional probability $P_j/(1-Q)$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute Fibonacci numbers $F_1,\ldots,F_{n+1}$ and skill levels $S(k)=F_k/F_{n+1}$.
+\item Enumerate all states $(\text{bitmask},\text{start index})$ in increasing order of $|\mathcal{S}|$.
+\item For each state, compute $Q$, the first-success probabilities $P_j$, optimal targets $t_j^*$, winning probabilities $W$, and expected dishes $E$ via Theorems~\ref{thm:opt}--\ref{thm:exp}.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(n^2\cdot 2^n)$. For $n=14$: $\approx 3.2\times 10^6$ operations.
+\item \textbf{Space:} $O(n\cdot 2^n)$ for arrays $W[\text{mask}][\text{start}][k]$ and $E[\text{mask}][\text{start}]$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{729.12106947}
+\]
+
+\end{document}

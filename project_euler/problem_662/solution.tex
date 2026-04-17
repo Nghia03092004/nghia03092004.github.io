@@ -1,0 +1,66 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 662: Fibonacci Paths}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+From $(0,0)$, Alice steps to $(a+x, b+y)$ with $x,y \ge 0$ and $\sqrt{x^2+y^2}$ a Fibonacci number. Let $F(W,H)$ count paths to $(W,H)$. Given $F(3,4)=278$ and $F(10,10)=215846462$, find $F(10000,10000) \bmod 10^9+7$.
+
+\section{Mathematical Foundation}
+
+\begin{lemma}[Step Enumeration]
+For Fibonacci number $F_k$, the valid steps are all $(x,y) \in \mathbb{Z}_{\ge 0}^2$ with $x^2+y^2 = F_k^2$. This always includes $(0,F_k)$ and $(F_k,0)$, plus Pythagorean decompositions.
+\end{lemma}
+
+\begin{proof}
+The axis-aligned pairs satisfy the norm condition trivially. Additional solutions correspond to representations of $F_k^2$ as a sum of two positive squares.
+\end{proof}
+
+\begin{theorem}[Path Counting Recurrence]
+With $\mathcal{S} = \bigcup_k \mathcal{S}_k$ the full step set:
+\[
+F(x,y) = \sum_{(dx,dy) \in \mathcal{S}} F(x-dx,\, y-dy), \qquad F(0,0) = 1,\quad F(x,y)=0 \text{ for } x<0 \text{ or } y<0.
+\]
+\end{theorem}
+
+\begin{proof}
+Every path to $(x,y)$ ends with a final step $(dx,dy) \in \mathcal{S}$. The number of such paths equals $F(x-dx,y-dy)$. Since $dx,dy \ge 0$, the quantity $x+y$ strictly decreases along path prefixes, establishing a valid topological order. Summing over all possible last steps gives the recurrence.
+\end{proof}
+
+\begin{lemma}[Finiteness]
+The number of relevant Fibonacci numbers is $O(\log_\varphi N)$ where $N = \max(W,H)$, so $|\mathcal{S}| = O(\log N)$.
+\end{lemma}
+
+\begin{proof}
+A valid step requires $F_k \le \sqrt{W^2+H^2}$. Since $F_k \sim \varphi^k/\sqrt{5}$, only $O(\log_\varphi N)$ Fibonacci numbers are relevant.
+\end{proof}
+
+\section{Algorithm}
+
+Standard 2D dynamic programming over $(x,y)$ in row-major order, summing contributions from all steps in $\mathcal{S}$, modulo $10^9+7$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(WH|\mathcal{S}|) = O(WH\log N)$. For $W=H=10000$: $\sim 4 \times 10^9$ operations.
+\item \textbf{Space:} $O(D \cdot H)$ with rolling array, where $D = \max_{(dx,dy)\in\mathcal{S}} dx$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{860873428}
+\]
+
+\end{document}

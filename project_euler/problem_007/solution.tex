@@ -1,0 +1,169 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 7: 10001st Prime}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Determine the 10001st prime number, where primes are indexed as $p_1 = 2,\; p_2 = 3,\; p_3 = 5,\; \ldots$
+
+\section{Mathematical Development}
+
+\subsection{Definitions}
+
+\begin{definition}
+A natural number $n \ge 2$ is \emph{prime} if its only positive divisors are $1$ and $n$. A natural number $n \ge 2$ that is not prime is \emph{composite}.
+\end{definition}
+
+\begin{definition}
+The \emph{prime-counting function} $\pi(x)$ denotes the number of primes $p$ with $p \le x$. We write $p_n$ for the $n$-th smallest prime.
+\end{definition}
+
+\subsection{Upper Bound on $p_n$}
+
+\begin{theorem}[Prime Number Theorem]
+As $x \to \infty$, $\pi(x) \sim x / \ln x$. Equivalently, $p_n \sim n \ln n$ as $n \to \infty$.
+\end{theorem}
+
+\begin{theorem}[Rosser, 1941]\label{thm:rosser}
+For every integer $n \ge 6$,
+\[
+p_n < n(\ln n + \ln \ln n).
+\]
+\end{theorem}
+
+\noindent\textit{Reference.} J.\,B.~Rosser, ``Explicit bounds for some functions of prime numbers,'' \emph{Amer.\ J.\ Math.}\ \textbf{63} (1941), 211--232.
+
+\begin{proposition}[Sieve bound for $n = 10001$]\label{prop:bound}
+The 10001st prime satisfies $p_{10001} < 114320$.
+\end{proposition}
+
+\begin{proof}
+Since $10001 \ge 6$, Theorem~\ref{thm:rosser} applies:
+\begin{align*}
+\ln(10001) &= 9.21044\ldots, \\
+\ln(\ln(10001)) &= \ln(9.21044\ldots) = 2.22069\ldots, \\
+10001 \times (9.21044 + 2.22069) &= 10001 \times 11.43113\ldots = 114319.4\ldots
+\end{align*}
+Hence $p_{10001} < 114320$. We set the sieve limit $N = 115000$.
+\end{proof}
+
+\subsection{Correctness of the Sieve of Eratosthenes}
+
+\begin{theorem}[Sieve of Eratosthenes]\label{thm:sieve}
+Let $N \ge 2$. After the sieve procedure (initialize $A[0..N]$ to \texttt{true}, set $A[0]=A[1]=\texttt{false}$, then for each $p$ from $2$ to $\lfloor\sqrt{N}\rfloor$ with $A[p]=\texttt{true}$ mark $A[kp]=\texttt{false}$ for $k \ge p$ with $kp \le N$), we have $A[i] = \texttt{true}$ if and only if $i$ is prime, for $2 \le i \le N$.
+\end{theorem}
+
+\begin{proof}
+\textbf{Every composite is marked.} Let $m \in [2, N]$ be composite, so $m = ab$ with $2 \le a \le b$. Then $a \le \sqrt{m} \le \sqrt{N}$. The smallest prime factor $p$ of $m$ satisfies $p \le a \le \sqrt{N}$. When processing $p$, all multiples of $p$ from $p^2$ onward are marked. Since $m \ge pa \ge p^2$, the entry $A[m]$ is marked false.
+
+\textbf{No prime is marked.} Let $q \in [2,N]$ be prime. For any prime $p \le \sqrt{N}$ with $p \ne q$, the marking phase sets $A[kp] = \texttt{false}$ for $k \ge p$. Since $q$ is prime and $q \ne p$, we have $p \nmid q$, so $q$ is never among the marked entries.
+\end{proof}
+
+\begin{corollary}
+Running the sieve up to $N = 115000$ and extracting the 10001st true entry (counting from $i = 2$) yields $p_{10001}$.
+\end{corollary}
+
+\subsection{Complexity Analysis}
+
+\begin{theorem}[Sieve complexity]\label{thm:complexity}
+The Sieve of Eratosthenes on $[0, N]$ runs in $O(N \log\log N)$ time and $O(N)$ space.
+\end{theorem}
+
+\begin{proof}
+\textbf{Time.} The total marking operations satisfy
+\[
+\sum_{\substack{p \le \sqrt{N} \\ p \text{ prime}}} \left\lfloor \frac{N}{p} \right\rfloor
+\;\le\; N \sum_{\substack{p \le N \\ p \text{ prime}}} \frac{1}{p}.
+\]
+By Mertens' second theorem (1874), $\sum_{p \le x} 1/p = \ln\ln x + M + O(1/\ln x)$, where $M \approx 0.2615$ is the Meissel--Mertens constant. Hence the sum is $O(N \log\log N)$. The linear scan to locate $p_n$ costs $O(N)$, which is dominated.
+
+\textbf{Space.} The Boolean array has $N+1$ entries: $O(N)$.
+\end{proof}
+
+\begin{corollary}
+With $N = O(n \log n)$ by Theorem~\ref{thm:rosser}, the overall time is $O(n \log n \cdot \log\log(n \log n))$ and space is $O(n \log n)$.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find the $n$-th prime}
+\begin{algorithmic}[1]
+\REQUIRE $n \ge 1$
+\IF{$n \ge 6$}
+    \STATE $N \gets \lceil n(\ln n + \ln\ln n) \rceil + 100$
+\ELSE
+    \STATE $N \gets 20$
+\ENDIF
+\STATE Initialize $A[0..N] \gets \texttt{true}$; set $A[0] \gets A[1] \gets \texttt{false}$
+\FOR{$p = 2$ \textbf{to} $\lfloor\sqrt{N}\rfloor$}
+    \IF{$A[p]$}
+        \FOR{$k = p^2$ \textbf{to} $N$ \textbf{step} $p$}
+            \STATE $A[k] \gets \texttt{false}$
+        \ENDFOR
+    \ENDIF
+\ENDFOR
+\STATE $\mathrm{count} \gets 0$
+\FOR{$i = 2$ \textbf{to} $N$}
+    \IF{$A[i]$}
+        \STATE $\mathrm{count} \gets \mathrm{count} + 1$
+        \IF{$\mathrm{count} = n$}
+            \RETURN $i$
+        \ENDIF
+    \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Algorithm correctness]
+For every $n \ge 1$, the algorithm returns the $n$-th prime number.
+\end{theorem}
+
+\begin{proof}
+If $n < 6$, the algorithm uses the explicit bound $N = 20$, and the primes up to $20$ are
+\[
+2, 3, 5, 7, 11, 13, 17, 19,
+\]
+so the $n$-th prime certainly lies in $[2,20]$.
+
+If $n \ge 6$, the algorithm sets
+\[
+N = \left\lceil n(\ln n + \ln\ln n)\right\rceil + 100.
+\]
+By Theorem~\ref{thm:rosser}, $p_n < n(\ln n + \ln\ln n) \le N$, so $p_n \le N$.
+
+By Theorem~\ref{thm:sieve}, after the sieve phase the entries marked \texttt{true} are exactly the primes in $[2,N]$. The final scan visits these integers in strictly increasing order and increments \texttt{count} once for each prime encountered. Therefore when $\texttt{count} = n$, the current value is exactly the $n$-th prime. Hence the returned value is $p_n$.
+\end{proof}
+
+\subsection*{Numerical Evaluation}
+
+\begin{proposition}
+\[
+p_{10001} = 104743.
+\]
+\end{proposition}
+
+\begin{proof}
+By Proposition~\ref{prop:bound}, it is enough to sieve up to $N = 115000$. Running the algorithm on this interval shows that there are exactly $10000$ primes strictly less than $104743$ and exactly $10001$ primes less than or equal to $104743$. Therefore $104743$ is the $10001$-st prime.
+\end{proof}
+
+\section{Answer}
+
+\[
+\boxed{104743}
+\]
+
+\end{document}

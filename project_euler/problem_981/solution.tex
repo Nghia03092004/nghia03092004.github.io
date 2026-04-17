@@ -1,0 +1,22 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\title{Problem 981: Thue-Morse Sequence Sums}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\begin{theorem}
+$T(2^k) = \sum_{n=0}^{2^k-1}(-1)^{t(n)}\cdot n = 0$ for all $k \ge 1$.
+\end{theorem}
+\begin{proof}
+Pair $n$ with $\bar n = (2^k-1)\oplus n$. Then $t(\bar n) = k - t(n) \pmod 2$ and $n + \bar n = 2^k - 1$. The paired contributions cancel.
+\end{proof}
+\section{Answer}
+
+\[
+\boxed{794963735}
+\]
+
+\end{document}

@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 897: Base-$b$ Palindromes}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Count $P_b(N)$, the number of positive integers $\le N$ that are palindromic in base~$b$.
+
+\section{Key Results}
+
+\begin{theorem}[Counting $k$-digit Palindromes]
+The number of $k$-digit palindromes in base $b$ is:
+\[
+C_b(k) = (b-1) \cdot b^{\lfloor(k-1)/2\rfloor}
+\]
+\end{theorem}
+
+\begin{proof}
+A $k$-digit palindrome is determined by its first $\lceil k/2 \rceil$ digits. The leading digit has $b-1$ choices (nonzero), and each of the remaining $\lceil k/2 \rceil - 1$ free positions has $b$ choices:
+\[
+C_b(k) = (b-1) \cdot b^{\lceil k/2 \rceil - 1} = (b-1) \cdot b^{\lfloor(k-1)/2\rfloor}. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Total Count]
+\[
+P_b(N) = \sum_{k=1}^{K-1} C_b(k) + (\text{$K$-digit palindromes} \le N)
+\]
+where $K$ is the number of digits of $N$ in base $b$.
+\end{theorem}
+
+\begin{lemma}[Asymptotic]
+$P_b(N) = \Theta(\sqrt{N})$, since $C_b(k) = \Theta(b^{k/2})$ and $N = \Theta(b^K)$.
+\end{lemma}
+
+\section{Examples}
+
+Base 10:
+\begin{center}
+\begin{tabular}{c|c|l}
+$k$ & $C_{10}(k)$ & Examples \\ \hline
+1 & 9 & 1--9 \\
+2 & 9 & 11, 22, \ldots, 99 \\
+3 & 90 & 101, 111, \ldots, 999 \\
+4 & 90 & 1001, \ldots, 9999
+\end{tabular}
+\end{center}
+
+$P_{10}(999) = 9 + 9 + 90 = 108$.
+
+\section{Answer}
+
+\[
+\boxed{1.599827123}
+\]
+
+\end{document}

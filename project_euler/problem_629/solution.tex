@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 629: Scatterstone Nim}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+In Scatterstone Nim, a player removes stones from one pile and may redistribute some to other piles, but the total must strictly decrease. Determine Grundy values.
+
+\section{Sprague-Grundy Theory}
+
+\begin{theorem}[Sprague-Grundy]
+Every impartial game position~$P$ has a unique Grundy value $\mathcal{G}(P) = \mathrm{mex}\{\mathcal{G}(Q) : P \to Q\}$. Position~$P$ is losing iff $\mathcal{G}(P) = 0$.
+\end{theorem}
+
+\begin{theorem}
+For Scatterstone Nim with total-decrease constraint:
+\[
+\mathcal{G}(n_1, \ldots, n_k) = n_1 \oplus n_2 \oplus \cdots \oplus n_k.
+\]
+\end{theorem}
+
+\begin{proof}
+Each move from $(n_1, \ldots, n_k)$ reaches some $(n_1', \ldots, n_k')$ with $\sum n_i' < \sum n_i$ and all $n_i' \ge 0$. The XOR function satisfies the Sprague-Grundy mex criterion: from any position with $\bigoplus n_i = g > 0$, one can reach $\bigoplus n_i' = 0$; and from $g = 0$, every move gives $g' > 0$. The redistribution freedom does not change this since XOR can be reduced to any smaller value by modifying a single pile.
+\end{proof}
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+Position & $\mathcal{G}$ & P/N \\
+\midrule
+$(0)$ & 0 & P \\
+$(1)$ & 1 & N \\
+$(1,1)$ & 0 & P \\
+$(2,1)$ & 3 & N \\
+$(3,1)$ & 2 & N \\
+$(2,2)$ & 0 & P \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Answer}
+
+\[
+\boxed{626616617}
+\]
+
+\end{document}

@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 333: Special Partitions}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer is a \emph{3-smooth power} if it has the form $2^a \cdot 3^b$ with $a, b \ge 0$. A prime $p$ is \emph{special} if it can be written in exactly one way as a sum of distinct 3-smooth powers. Find the sum of all special primes below $10^6$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}
+Let $T = \{2^a \cdot 3^b : a \ge 0, b \ge 0\}$.
+\end{definition}
+
+\begin{lemma}[Finiteness]
+$|T \cap [1, N]| = O(\log^2 N)$.
+\end{lemma}
+
+\begin{proof}
+Each element requires $a \le \log_2 N$ and $b \le \log_3 N$, giving at most $(\lfloor \log_2 N \rfloor + 1)(\lfloor \log_3 N \rfloor + 1)$ elements.
+\end{proof}
+
+\begin{theorem}[Generating Function]
+The number of ways to write $n$ as a sum of distinct elements of $T \cap [1,N]$ equals the coefficient of $x^n$ in
+\[
+\prod_{t \in T \cap [1,N]} (1 + x^t).
+\]
+\end{theorem}
+
+\begin{proof}
+Expanding the product, each term $x^{t_{i_1} + \cdots + t_{i_k}}$ corresponds to choosing a distinct subset $\{t_{i_1}, \ldots, t_{i_k}\} \subseteq T$. The coefficient of $x^n$ counts such subsets summing to $n$.
+\end{proof}
+
+\begin{lemma}[DP Correctness]
+The standard 0--1 knapsack algorithm (reverse-order update) correctly computes the number of representations $\mathrm{dp}[s]$ for each $s$.
+\end{lemma}
+
+\begin{proof}
+By induction on the number of items processed. The reverse-order traversal ensures each item contributes at most once: when computing $\mathrm{dp}[s + t_k] \mathrel{+}= \mathrm{dp}[s]$, the value $\mathrm{dp}[s]$ reflects only subsets of $\{t_1, \ldots, t_{k-1}\}$.
+\end{proof}
+
+\begin{theorem}[Special Primes]
+A prime $p < 10^6$ is special iff $\mathrm{dp}[p] = 1$. The answer is $\sum_{p \text{ special}} p$.
+\end{theorem}
+
+\begin{proof}
+By definition, $p$ is special iff it has exactly one representation as a sum of distinct 3-smooth powers, which is $\mathrm{dp}[p] = 1$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Generate all 3-smooth powers $t \le 10^6$ (approximately $260$ terms).
+    \item Run 0--1 knapsack DP with counts capped at $2$.
+    \item Sieve primes below $10^6$.
+    \item Sum primes $p$ with $\mathrm{dp}[p] = 1$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log^2 N)$ for the knapsack, $O(N \log \log N)$ for the sieve.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{3053105}
+\]
+
+\end{document}

@@ -1,0 +1,135 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{algpseudocode}
+
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 403: Lattice Points Enclosed by Parabola and Line}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For integers $a$ and $b$, define
+\[
+D(a,b) = \bigl\{(x,y) \in \mathbb{R}^2 \mid x^2 \le y \le ax + b \bigr\}.
+\]
+Let $L(a,b)$ denote the number of lattice points in $D(a,b)$.  Define
+\[
+S(N) = \sum_{\substack{|a| \le N,\; |b| \le N \\ \operatorname{Area}(D(a,b)) \in \mathbb{Q}}} L(a,b).
+\]
+Given $S(5) = 344$ and $S(100) = 26\,709\,528$.
+
+\medskip\noindent\textbf{Find} $S(10^{12}) \bmod 10^8$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Rational area condition]
+\label{thm:rational}
+The area of $D(a,b)$ is rational if and only if $\Delta = a^2 + 4b$ is a non-negative perfect square.
+\end{theorem}
+
+\begin{proof}
+The intersections of $y = x^2$ and $y = ax+b$ occur at roots of $x^2 - ax - b = 0$, with $r_{1,2} = (a \mp \sqrt{\Delta})/2$ where $\Delta = a^2 + 4b$.  The enclosed area is
+\[
+\operatorname{Area} = \int_{r_1}^{r_2}(ax+b-x^2)\,dx = \frac{(r_2-r_1)^3}{6} = \frac{\Delta^{3/2}}{6}.
+\]
+Since $\Delta^{3/2} = \Delta \cdot \sqrt{\Delta}$, this is rational iff $\sqrt{\Delta} \in \mathbb{Q}$, iff $\Delta$ is a perfect square (or zero).
+\end{proof}
+
+\begin{lemma}[Parity constraint]
+If $\Delta = s^2$ and $b = (s^2 - a^2)/4 \in \mathbb{Z}$, then $a \equiv s \pmod{2}$.
+\end{lemma}
+
+\begin{proof}
+$4 \mid (s-a)(s+a)$ requires $s \equiv a \pmod{2}$, since if they have different parity then $(s-a)(s+a)$ is odd.
+\end{proof}
+
+\begin{theorem}[Closed form for $L$]
+\label{thm:L}
+When $\Delta = s^2$ with $s \ge 0$,
+\[
+L(s) = \frac{(s+1)(s^2 - s + 6)}{6}.
+\]
+\end{theorem}
+
+\begin{proof}
+The roots $r_1 = (a-s)/2$ and $r_2 = (a+s)/2$ are integers.  Substituting $t = x - r_1$:
+\[
+L(a,b) = \sum_{t=0}^{s}\bigl[t(s-t)+1\bigr] = \frac{s(s+1)(s-1)}{6} + (s+1) = \frac{(s+1)(s^2-s+6)}{6}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Reparametrization]
+Setting $a = s + 2u$, we get $b = -u(s+u)$ with constraints $|s+2u| \le N$, $|u(s+u)| \le N$, $s \ge 0$.
+\end{lemma}
+
+\begin{proof}
+From $s^2 = a^2 + 4b$: $b = (s^2-(s+2u)^2)/4 = -u(s+u)$.
+\end{proof}
+
+\begin{theorem}[Prefix sum]
+\label{thm:prefix}
+$P(K) := \sum_{s=0}^{K} L(s) = \frac{(K+1)(K+2)(K^2 - K + 12)}{24}$.
+\end{theorem}
+
+\begin{proof}
+Sum $L(s) = (s+1)(s^2-s+6)/6$ using standard power-sum identities for $\sum(s+1)$, $\sum s(s+1)$, $\sum s^2(s+1)$, then factor the result.
+\end{proof}
+
+\begin{theorem}[Sub-linear computation]
+$S(N)$ is computable in $O(\sqrt{N})$ time by splitting the sum over $u$:
+\begin{enumerate}
+  \item $u=0$: contribution $P(N)$.
+  \item $u \ge 1$: direct iteration for $u \le \lfloor\sqrt{N}\rfloor$ (since $u^2 \le N$).
+  \item $u \le -1$, $v=-u$: for $v \le \sqrt{N}$, direct; for $v > \sqrt{N}$, group by $q = \lfloor N/v \rfloor$, giving $O(\sqrt{N})$ groups with $O(1)$ work each via Faulhaber's formulas.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For $u \ge 1$: $|u(s+u)| \le N$ with $s \ge 0$ forces $u^2 \le N$.  For $v > \sqrt{N}$: $\lfloor N/v\rfloor$ takes $O(\sqrt{N})$ distinct values.  Within each group, contributions are degree-4 polynomials in~$v$, summable via $\sum v^k$ ($k = 0,\ldots,4$) in $O(1)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{$S_{\mathrm{mod}}$}{$N, M$}
+  \State $\mathit{result} \gets P(N) \bmod M$ \Comment{Case $u=0$}
+  \For{$u = 1$ \textbf{to} $\lfloor\sqrt{N}\rfloor$} \Comment{Case $u \ge 1$}
+    \State $s_{\max} \gets \min\!\bigl(\lfloor(N-u^2)/u\rfloor,\; N-2u\bigr)$
+    \If{$s_{\max} \ge 0$} $\mathit{result} \mathrel{+}= P(s_{\max})$ \EndIf
+  \EndFor
+  \For{$v = 1$ \textbf{to} $\lfloor\sqrt{N}\rfloor$} \Comment{Case $v \le \sqrt{N}$}
+    \State Compute valid $s$-range $[s_{\mathrm{lo}}, s_{\mathrm{hi}}]$; add $P(s_{\mathrm{hi}}) - P(s_{\mathrm{lo}}-1)$
+  \EndFor
+  \For{$q = 1$ \textbf{to} $\lfloor\sqrt{N}\rfloor$} \Comment{Case $v > \sqrt{N}$, grouped by $q$}
+    \State Sum degree-4 polynomial in $v$ via Faulhaber formulas over group
+  \EndFor
+  \State \Return $\mathit{result} \bmod M$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(\sqrt{N})$.  All cases iterate over at most $O(\sqrt{N})$ values, each with $O(1)$ work.
+  \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{18224771}
+\]
+
+\end{document}

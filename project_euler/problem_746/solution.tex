@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 746: A Messy Dinner}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+There are $n$ families of~$4$ (father, mother, son, daughter) seated at a circular table with $4n$ seats, alternating genders. $M(n)$ counts arrangements with no two members of the same family adjacent. $S(n) = \sum_{k=2}^{n} M(k)$.
+
+Given: $M(1)=0$, $M(2)=896$, $M(3)=890\,880$. Find $S(2021) \bmod (10^9+7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Gender-Constrained Circular Permutation]
+The alternating-gender constraint partitions seats into $2n$ male and $2n$ female positions. Fixing one male to remove rotational symmetry, the unconstrained count is $(2n-1)!\cdot(2n)!$.
+\end{theorem}
+
+\begin{proof}
+Fix one male's position. The remaining $2n-1$ males permute in $(2n-1)!$ ways; the $2n$ females permute in $(2n)!$ ways.
+\end{proof}
+
+\begin{theorem}[Inclusion-Exclusion]
+For bad events $B_i$ (family~$i$ has adjacent members):
+\[
+M(n) = \sum_{S \subseteq [n]} (-1)^{|S|} N(S)
+\]
+where $N(S)$ counts arrangements in which every family in~$S$ has at least two adjacent members.
+\end{theorem}
+
+\begin{proof}
+Standard inclusion-exclusion over the $n$ bad events.
+\end{proof}
+
+\begin{lemma}[Family Adjacency Structure]
+Two family members are adjacent iff they form a male-female pair on neighboring seats. Each male seat has exactly~$2$ adjacent female seats, yielding a bipartite forbidden-adjacency problem.
+\end{lemma}
+
+\begin{proof}
+Adjacent seats alternate gender. Male seat at position $2j-1$ neighbors female seats $2j-2$ and $2j$ (cyclically).
+\end{proof}
+
+\begin{theorem}[Linear Recurrence]
+The sequence $M(n) \bmod p$ satisfies a linear recurrence of order~$r$, discoverable via the Berlekamp--Massey algorithm from $2r$ initial terms. The $n$-th term is then computable in $O(r\log r\log n)$ time via Kitamasa's method.
+\end{theorem}
+
+\begin{proof}
+$M(n)$ counts configurations of a finite-state transfer matrix system, so its generating function is rational with denominator degree~$r$. Berlekamp--Massey recovers the minimal polynomial from $2r$ values. Kitamasa's polynomial exponentiation evaluates the recurrence at any index in $O(r\log r\log n)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Compute $M(k) \bmod p$ for $k = 2,\ldots,2r_{\max}$ via direct transfer-matrix evaluation.
+\item Apply Berlekamp--Massey to find the minimal recurrence of order~$r$.
+\item Derive the prefix-sum recurrence for $S(n)$ (order $r+1$).
+\item Evaluate $S(2021) \bmod p$ via Kitamasa's method.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(r^2)$ for Berlekamp--Massey; $O(r\log r\log N)$ for Kitamasa.
+\item \textbf{Space:} $O(r)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{867150922}
+\]
+
+\end{document}

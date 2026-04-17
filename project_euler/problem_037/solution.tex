@@ -1,0 +1,114 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 37: Truncatable Primes}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the sum of the only eleven primes that are both truncatable from left to right and right to left. Single-digit primes are excluded.
+
+\section{Definitions}
+
+\begin{definition}
+Let $p$ be a prime with decimal digits $d_1 d_2 \cdots d_k$ where $k \ge 2$. Define the \emph{right-truncations} $R_i(p) = \overline{d_1 \cdots d_i}$ for $1 \le i \le k$ and \emph{left-truncations} $L_i(p) = \overline{d_i \cdots d_k}$ for $1 \le i \le k$.
+\end{definition}
+
+\begin{definition}
+A prime $p$ with $k \ge 2$ digits is \emph{truncatable} if $R_i(p)$ is prime for all $1 \le i \le k$ and $L_i(p)$ is prime for all $1 \le i \le k$.
+\end{definition}
+
+\section{Theoretical Development}
+
+\begin{theorem}[Digit constraints]
+\label{thm:digits}
+If $p = d_1 d_2 \cdots d_k$ is truncatable with $k \ge 2$, then:
+\begin{enumerate}
+    \item $d_1 \in \{2, 3, 5, 7\}$.
+    \item $d_k \in \{3, 7\}$.
+    \item $d_i \in \{1, 3, 7, 9\}$ for $2 \le i \le k-1$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+\begin{enumerate}
+    \item $R_1(p) = d_1$ is prime, so $d_1 \in \{2,3,5,7\}$.
+    \item $L_k(p) = d_k$ is prime, so $d_k \in \{2,3,5,7\}$. But $d_k \in \{2,5\}$ implies $p$ (with $k \ge 2$ digits) is even or divisible by~5, contradicting primality of~$p$.
+    \item For $2 \le i \le k-1$, $R_i(p) = \overline{d_1 \cdots d_i}$ is a multi-digit prime. Its units digit $d_i$ cannot be even or~5, leaving $d_i \in \{1,3,7,9\}$. \qedhere
+\end{enumerate}
+\end{proof}
+
+\begin{theorem}[Finiteness]
+\label{thm:finite}
+The set of right-truncatable primes is finite, with $|\mathcal{R}| = 83$. Consequently, the set of truncatable primes is finite.
+\end{theorem}
+\begin{proof}
+Right-truncatable primes form a tree rooted at $\{2,3,5,7\}$ with branching factor $\le 4$. By the prime number theorem, the density of primes among $k$-digit numbers is $O(1/k)$, so all branches terminate. Complete enumeration yields $|\mathcal{R}| = 83$, the largest being $73\,939\,133$. Every truncatable prime is right-truncatable, so $\mathcal{T} \subseteq \mathcal{R}$.
+\end{proof}
+
+\begin{theorem}[Complete classification]
+There are exactly $11$ truncatable primes:
+\[
+    \mathcal{T} = \{23,\; 37,\; 53,\; 73,\; 313,\; 317,\; 373,\; 797,\; 3137,\; 3797,\; 739397\}.
+\]
+\end{theorem}
+\begin{proof}
+By Theorem~\ref{thm:finite}, $\mathcal{T} \subseteq \mathcal{R}$. Testing each of the $83$ right-truncatable primes for left-truncatability yields exactly these $11$ elements. Alternatively, a sieve-based search over all primes below $10^6$ confirms the result.
+\end{proof}
+
+\begin{lemma}[Verification]
+$3797$ is truncatable: right-truncations $3797, 379, 37, 3$ are all prime; left-truncations $3797, 797, 97, 7$ are all prime.
+\end{lemma}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\Function{TruncatablePrimeSum}{$N$}
+    \State $\mathit{is\_prime} \gets \Call{Sieve}{N}$
+    \State $\mathit{total} \gets 0$, $\mathit{count} \gets 0$
+    \For{$p = 11$ to $N-1$}
+        \If{$\mathit{is\_prime}[p]$ \textbf{and} \Call{RightTrunc}{$p$} \textbf{and} \Call{LeftTrunc}{$p$}}
+            \State $\mathit{total} \gets \mathit{total} + p$
+            \State $\mathit{count} \gets \mathit{count} + 1$
+            \If{$\mathit{count} = 11$} \textbf{break} \EndIf
+        \EndIf
+    \EndFor
+    \State \Return $\mathit{total}$
+\EndFunction
+\end{algorithmic}
+
+\section{Complexity}
+
+\begin{proposition}
+The algorithm runs in $O(N \log \log N + \pi(N) \log_{10} N)$ time and $O(N)$ space.
+\end{proposition}
+\begin{proof}
+The sieve costs $O(N \log \log N)$. Each of the $\pi(N)$ primes undergoes $O(\log_{10} N)$ truncation checks at $O(1)$ each. With $N = 10^6$: sieve dominates at $O(N \log \log N)$; space is $O(N)$ for the boolean array.
+\end{proof}
+
+\section{Result}
+\[
+    23 + 37 + 53 + 73 + 313 + 317 + 373 + 797 + 3137 + 3797 + 739397 = \boxed{748317}
+\]
+
+\section{Answer}
+
+\[
+\boxed{748317}
+\]
+
+\end{document}

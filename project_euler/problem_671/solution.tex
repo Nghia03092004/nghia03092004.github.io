@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm2e}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 671: Colouring a Loop}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Extend the tiling of Problem~670 to a $2 \times n$ \textbf{loop} (cylinder). Let $F_k(n)$ count the number of valid colourings of a $2 \times n$ cylindrical grid using at most $k$ colours, where adjacent cells must have different colours. Given:
+\begin{itemize}
+  \item $F_4(3) = 104$,
+  \item $F_5(7) = 3\,327\,300$,
+  \item $F_6(101) \equiv 75\,309\,980 \pmod{1\,000\,004\,321}$.
+\end{itemize}
+Find $F_{10}(10\,004\,003\,002\,001) \bmod 1\,000\,004\,321$.
+
+\section{Mathematical Foundation}
+
+Let $\mathcal{S}$ denote the set of valid column states for a $2 \times 1$ column with $k$ colours, and let $T$ be the $|\mathcal{S}| \times |\mathcal{S}|$ transfer matrix where $T_{ij} = 1$ if column state~$j$ can follow column state~$i$.
+
+\begin{theorem}[Trace Formula for Cylindrical Tilings]
+The number of valid $k$-colourings of a $2 \times n$ cylinder is
+\[
+  F_k(n) = \operatorname{tr}(T^n) = \sum_{i=1}^{s} \lambda_i^n,
+\]
+where $\lambda_1, \ldots, \lambda_s$ are the eigenvalues of~$T$ counted with algebraic multiplicity, and $s = |\mathcal{S}|$.
+\end{theorem}
+
+\begin{proof}
+A valid colouring of the cylinder is a closed walk of length~$n$ in the state graph: a sequence of states $q_0, q_1, \ldots, q_{n-1}$ with $q_0 = q_{n-1}$ such that each consecutive pair is compatible. The number of closed walks of length~$n$ starting and ending at state~$i$ is $(T^n)_{ii}$. Summing over all starting states yields $\sum_i (T^n)_{ii} = \operatorname{tr}(T^n)$. By diagonalisation (or Jordan normal form), $\operatorname{tr}(T^n) = \sum_i \lambda_i^n$.
+\end{proof}
+
+\begin{theorem}[Cayley--Hamilton Recurrence]
+Let $\chi_T(\lambda) = \lambda^s - c_1 \lambda^{s-1} - \cdots - c_s$ be the characteristic polynomial of~$T$. Then the sequence $a_n = \operatorname{tr}(T^n)$ satisfies the linear recurrence
+\[
+  a_n = c_1\, a_{n-1} + c_2\, a_{n-2} + \cdots + c_s\, a_{n-s} \quad \text{for all } n \ge s.
+\]
+\end{theorem}
+
+\begin{proof}
+By the Cayley--Hamilton theorem, $T^s = c_1 T^{s-1} + \cdots + c_s I$. Taking the trace of $T^n = T^{n-s} \cdot T^s$ and applying linearity of trace:
+\[
+  \operatorname{tr}(T^n) = c_1 \operatorname{tr}(T^{n-1}) + \cdots + c_s \operatorname{tr}(T^{n-s}). \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Modular Exponentiation of Recurrence]
+Given a linear recurrence of order~$s$ over $\mathbb{Z}/p\mathbb{Z}$, the $n$-th term can be computed in $O(s^2 \log n)$ arithmetic operations using Kitamasa's method.
+\end{lemma}
+
+\begin{proof}
+Represent the shift operator as multiplication by~$x$ in the quotient ring $(\mathbb{Z}/p\mathbb{Z})[x]/(\chi_T(x))$. Computing $x^n \bmod \chi_T(x)$ by repeated squaring requires $O(\log n)$ polynomial multiplications, each costing $O(s^2)$. Reading off~$a_n$ from the resulting polynomial and the initial values is $O(s)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Build the transfer matrix~$T$ of size $s \times s$ for $k = 10$ colours.
+  \item Compute the characteristic polynomial $\chi_T$ modulo $p = 1\,000\,004\,321$.
+  \item Compute initial values $a_0, \ldots, a_{s-1}$ via iterated matrix--vector multiplication.
+  \item Use Kitamasa's method: compute $x^n \bmod \chi_T(x)$ in $\mathbb{F}_p[x]$ by repeated squaring.
+  \item Recover $F_k(n) = \sum_j [\text{coeff}_j] \cdot a_j \bmod p$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(s^2 k^2)$ to build~$T$, $O(s^3)$ for the characteristic polynomial, $O(s^2 \log n)$ for Kitamasa's method. Total: $O(k^6 + k^4 \log n)$.
+  \item \textbf{Space:} $O(s^2) = O(k^4)$ for the transfer matrix.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{946106780}
+\]
+
+\end{document}

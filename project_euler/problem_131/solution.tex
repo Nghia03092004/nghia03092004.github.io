@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 131: Prime Cube Partnership}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+There are some primes $p$ for which there exists a positive integer $n$ such that $n^3 + n^2 p$ is a perfect cube. How many primes below one million satisfy this property?
+
+\section{Mathematical Development}
+
+\begin{theorem}[Characterization]
+A prime $p$ satisfies $n^3 + n^2 p = k^3$ for some positive integers $n, k$ if and only if $p = (s+1)^3 - s^3$ for some positive integer~$s$.
+\end{theorem}
+
+\begin{proof}
+$(\Rightarrow)$ Suppose $n^3 + n^2 p = k^3$ for positive integers $n, k$. Factor the left-hand side:
+\begin{equation}\label{eq:factor}
+n^2(n + p) = k^3.
+\end{equation}
+Since $k^3 > n^3$, we have $k > n$. Write $k = nr/s$ with $\gcd(r, s) = 1$ and $r > s \geq 1$. Since $k$ is a positive integer and $\gcd(r,s) = 1$, we need $s \mid n$. Set $n = s^3 q$ for a positive integer $q$, so $k = s^2 q r$. Substituting into~\eqref{eq:factor}:
+\[
+s^6 q^2(s^3 q + p) = s^6 q^3 r^3.
+\]
+Canceling $s^6 q^2 > 0$ yields $p = q(r^3 - s^3)$.
+
+Since $p$ is prime, $q \geq 1$, and $r^3 - s^3 \geq 1$, exactly one factor equals~1.
+
+\textbf{Case 1:} $q = 1$ and $r^3 - s^3 = p$. Factor $r^3 - s^3 = (r - s)(r^2 + rs + s^2)$. Since $r^2 + rs + s^2 \geq 3 > 1$ for $r, s \geq 1$, the primality of $p$ forces $r - s = 1$. Then $r = s + 1$ and
+\[
+p = (s+1)^3 - s^3 = 3s^2 + 3s + 1.
+\]
+
+\textbf{Case 2:} $r^3 - s^3 = 1$ and $q = p$. This requires $r = 1, s = 0$, contradicting $s \geq 1$.
+
+$(\Leftarrow)$ If $p = (s+1)^3 - s^3$, set $n = s^3$. Then:
+\[
+n^3 + n^2 p = s^9 + s^6\bigl[(s+1)^3 - s^3\bigr] = s^6(s+1)^3 = \bigl[s^2(s+1)\bigr]^3,
+\]
+a perfect cube with $k = s^2(s+1)$.
+\end{proof}
+
+\begin{lemma}[Search Bound]
+The condition $3s^2 + 3s + 1 < 10^6$ is equivalent to $s \leq 577$.
+\end{lemma}
+
+\begin{proof}
+The quadratic $3s^2 + 3s + 1 < 10^6$ gives $s < \frac{-3 + \sqrt{9 + 12(10^6 - 1)}}{6} \approx 577.35$. Verification: $3(577)^2 + 3(577) + 1 = 998{,}788 < 10^6$ and $3(578)^2 + 3(578) + 1 = 1{,}002{,}469 > 10^6$.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Sieve primes up to $N = 10^6$.
+    \item For $s = 1, 2, \ldots$ while $3s^2 + 3s + 1 < N$, compute $p = (s+1)^3 - s^3$ and test primality via sieve lookup.
+    \item Count the primes found.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log\log N)$ for the sieve, plus $O(\sqrt{N})$ for the enumeration loop. Total: $O(N \log\log N)$.
+    \item \textbf{Space:} $O(N)$ for the sieve array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{173}
+\]
+
+\end{document}

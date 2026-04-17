@@ -1,0 +1,97 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 46: Goldbach's Other Conjecture}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+It was proposed by Christian Goldbach that every odd composite number can be written as the sum of a prime and twice a square:
+\begin{align*}
+9 &= 7 + 2 \times 1^2, \quad 15 = 7 + 2 \times 2^2, \quad 21 = 3 + 2 \times 3^2, \\
+25 &= 7 + 2 \times 3^2, \quad 27 = 19 + 2 \times 2^2, \quad 33 = 31 + 2 \times 1^2.
+\end{align*}
+It turns out that the conjecture was false. What is the smallest odd composite that cannot be written as the sum of a prime and twice a square?
+
+\section{Formal Development}
+
+\begin{definition}[Goldbach Representability]
+An odd integer $n > 1$ is \emph{Goldbach-representable} if there exist a prime $p$ and an integer $k \geq 1$ such that $n = p + 2k^2$. Let $\mathcal{G}$ denote the set of all such integers.
+\end{definition}
+
+\begin{definition}[Odd Composites]
+Let $\mathcal{C}_{\mathrm{odd}} = \{n \in \mathbb{Z} : n > 1,\ n \text{ is odd and composite}\}$.
+\end{definition}
+
+\begin{lemma}[Bound on Square Index]\label{lem:bound}
+If $n \in \mathcal{C}_{\mathrm{odd}} \cap \mathcal{G}$, then there exists a witness $(p,k)$ with $1 \leq k \leq \lfloor\sqrt{(n-2)/2}\rfloor$.
+\end{lemma}
+
+\begin{proof}
+If $n = p + 2k^2$ with $p$ prime, then $p \geq 2$ implies $2k^2 \leq n - 2$, whence $k \leq \sqrt{(n-2)/2}$.
+\end{proof}
+
+\begin{lemma}[Parity]\label{lem:parity}
+For odd $n$ and any integer $k \geq 1$, $n - 2k^2$ is odd.
+\end{lemma}
+
+\begin{proof}
+The difference of an odd integer and an even integer is odd.
+\end{proof}
+
+\begin{lemma}[Reduction to Primality Testing]\label{lem:reduce}
+An odd composite $n$ belongs to $\mathcal{G}$ if and only if there exists $k \in \{1, \ldots, \lfloor\sqrt{(n-2)/2}\rfloor\}$ such that $n - 2k^2$ is prime.
+\end{lemma}
+
+\begin{proof}
+Immediate from the definition and Lemma~\ref{lem:bound}.
+\end{proof}
+
+\begin{theorem}\label{thm:main}
+$\min(\mathcal{C}_{\mathrm{odd}} \setminus \mathcal{G}) = 5777$.
+\end{theorem}
+
+\begin{proof}
+The proof has three parts.
+
+\emph{Part 1 ($5777 \in \mathcal{C}_{\mathrm{odd}}$).} We factor $5777 = 53 \times 109$, both primes, so $5777$ is odd and composite.
+
+\emph{Part 2 ($5777 \notin \mathcal{G}$).} By Lemma~\ref{lem:reduce}, it suffices to verify that $5777 - 2k^2$ is composite for all $k \in \{1, \ldots, 53\}$ (since $\lfloor\sqrt{2887.5}\rfloor = 53$). Exhaustive computation confirms this.
+
+\emph{Part 3 (Minimality).} For every odd composite $n$ with $9 \leq n < 5777$, at least one $k \in \{1, \ldots, \lfloor\sqrt{(n-2)/2}\rfloor\}$ yields a prime $n - 2k^2$, verified by sieve-assisted computation.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{proposition}[Time]
+Let $N = 5777$. The algorithm runs in $O(N\sqrt{N})$ time.
+\end{proposition}
+
+\begin{proof}
+The sieve costs $O(N \log \log N)$. The main loop examines $O(N)$ odd integers, each requiring $O(\sqrt{N})$ primality checks at $O(1)$ each. The dominant term is $O(N\sqrt{N})$.
+\end{proof}
+
+\begin{proposition}[Space]
+The algorithm uses $O(N)$ space for the prime sieve.
+\end{proposition}
+
+\section{Answer}
+
+\[
+\boxed{5777}
+\]
+
+\end{document}

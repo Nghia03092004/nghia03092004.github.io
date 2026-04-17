@@ -1,0 +1,28 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 797: Cyclogenic Polynomials}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+A monic polynomial $p(x)$ is $n$-cyclogenic if $p(x)q(x) = x^n - 1$ for some monic $q(x) \in \mathbb{Z}[x]$, with $n$ minimal. $P_n(x)$ = sum of all $n$-cyclogenic polynomials. $Q_N(x) = \sum_{n=1}^N P_n(x)$. Given $Q_{10}(2) = 5598$. Find $Q_{10^7}(2) \bmod 10^9+7$.
+\section{Analysis}
+An $n$-cyclogenic polynomial divides $x^n - 1$ in $\mathbb{Z}[x]$ and does not divide $x^m - 1$ for any $m < n$. The divisors of $x^n - 1$ are products of cyclotomic polynomials $\Phi_d(x)$ for $d | n$.
+
+A monic divisor of $x^n-1$ is a product $\prod_{d \in S} \Phi_d(x)$ for some subset $S \subseteq \{d : d|n\}$. It is $n$-cyclogenic if $n$ is the minimal such value, meaning $S$ contains at least one $d$ for which $n$ is the smallest multiple.
+
+Equivalently, the polynomial is $n$-cyclogenic iff $\text{lcm}(S) = n$, where $S$ is the set of cyclotomic indices used.
+
+$P_n(x)$ is the sum over all 
+\section{Answer}
+
+\[
+\boxed{47722272}
+\]
+
+\end{document}

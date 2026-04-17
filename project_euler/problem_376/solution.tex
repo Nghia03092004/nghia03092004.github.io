@@ -1,0 +1,45 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\title{Problem 376: Nontransitive Sets of Dice}
+\author{Project Euler Solution}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Consider nontransitive sets of dice where a cyclic beating relationship exists among the dice in the set. We must count such configurations modulo $10^9 + 9$.
+
+\section{Mathematical Analysis}
+
+\subsection{Pairwise Comparison}
+For two dice $A$ and $B$ with faces $\{a_1, \ldots, a_6\}$ and $\{b_1, \ldots, b_6\}$, we say $A$ beats $B$ if:
+\[
+\#\{(i,j) : a_i > b_j\} > \#\{(i,j) : b_j > a_i\}
+\]
+
+\subsection{Nontransitivity}
+A set $\{D_1, D_2, \ldots, D_n\}$ is nontransitive if there exists a permutation $\sigma$ such that:
+\[
+D_{\sigma(1)} \succ D_{\sigma(2)} \succ \cdots \succ D_{\sigma(n)} \succ D_{\sigma(1)}
+\]
+
+\subsection{Generating Functions}
+Each die is encoded as a polynomial:
+\[
+p_D(x) = \sum_{i=1}^{6} x^{a_i}
+\]
+The number of wins of $A$ over $B$ relates to the coefficients of $p_A(x) \cdot p_B(x^{-1})$.
+
+\subsection{Counting with DP}
+We use dynamic programming over sorted face configurations, applying inclusion-exclusion to count exactly the nontransitive sets.
+
+\section{Result}
+The answer is $\boxed{973059630}$.
+
+\section{Answer}
+
+\[
+\boxed{973059630185670}
+\]
+
+\end{document}

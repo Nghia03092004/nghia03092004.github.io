@@ -1,0 +1,108 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 111: Primes with Runs}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For $n$-digit primes, define:
+\begin{itemize}
+    \item $M(n, d)$: the maximum number of times digit $d$ can appear in an $n$-digit prime,
+    \item $N(n, d)$: the count of $n$-digit primes achieving $M(n, d)$ repetitions of $d$,
+    \item $S(n, d)$: the sum of all such primes.
+\end{itemize}
+Compute $\displaystyle S(10) = \sum_{d=0}^{9} S(10, d)$.
+
+\section{Mathematical Development}
+
+\begin{theorem}[Repdigit composite bound]
+A repdigit number $\underbrace{dd \cdots d}_{n}$ with $n \ge 2$ and $1 \le d \le 9$ is composite.
+\end{theorem}
+
+\begin{proof}
+Write $\underbrace{dd \cdots d}_{n} = d \cdot R_n$ where $R_n = (10^n - 1)/9$ is the repunit of length~$n$. For $n \ge 2$ we have $R_n \ge 11$, so the factorization $d \cdot R_n$ is nontrivial.
+\end{proof}
+
+\begin{corollary}
+For all $n \ge 2$ and digits $d \in \{0,1,\ldots,9\}$, $M(n,d) \le n - 1$.
+\end{corollary}
+
+\begin{proof}
+If $d = 0$, an $n$-digit number cannot have all $n$ digits equal to~0. If $d \ge 1$, the repdigit $\underbrace{dd\cdots d}_n$ is composite by Theorem~1. In both cases, no $n$-digit prime consists of a single repeated digit.
+\end{proof}
+
+\begin{theorem}[Candidate enumeration]
+For fixed $n$, $d$, and $k$ (the number of positions holding digit~$d$), the raw candidate count is $\binom{n}{n-k} \cdot 9^{n-k}$, from which those with a leading zero are discarded.
+\end{theorem}
+
+\begin{proof}
+Select which $n - k$ of the $n$ positions hold a digit other than~$d$: $\binom{n}{n-k}$ ways. Each such position admits 9 choices from $\{0,\ldots,9\}\setminus\{d\}$, yielding $\binom{n}{n-k}\cdot 9^{n-k}$ candidates total. Candidates with leading digit~0 are invalid $n$-digit numbers and are excluded.
+\end{proof}
+
+\begin{lemma}[Deterministic Miller--Rabin]
+The Miller--Rabin test with witnesses $\{2,3,5,7,11,13\}$ is deterministic for all integers below $3.2 \times 10^{13}$ (Jaeschke, 1993). This covers every 10-digit number.
+\end{lemma}
+
+\begin{theorem}[Greedy descent correctness]
+Starting from $k = n-1$ and descending, the first $k$ at which at least one $n$-digit prime with exactly $k$ copies of digit~$d$ is found equals $M(n,d)$.
+\end{theorem}
+
+\begin{proof}
+By Corollary~1, $M(n,d) \le n-1$. At each level $k$, the algorithm exhaustively enumerates all valid candidates (Theorem~2) and applies a correct primality test (Lemma~3). Therefore the first non-empty level is the maximum, which is $M(n,d)$ by definition.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Compute $S(10)$}
+\begin{algorithmic}[1]
+\State $\text{total} \gets 0$
+\For{$d = 0$ to $9$}
+    \For{$k = 9$ \textbf{downto} $1$}
+        \State $\text{primes} \gets \emptyset$
+        \ForAll{subsets $P \subseteq \{0,\ldots,9\}$ with $|P| = 10-k$}
+            \ForAll{digit assignments to positions in $P$ from $\{0,\ldots,9\}\setminus\{d\}$}
+                \State Construct number $N$ with digit $d$ at all positions $\notin P$
+                \If{leading digit of $N$ is nonzero \textbf{and} $\textsc{IsPrime}(N)$}
+                    \State $\text{primes} \gets \text{primes} \cup \{N\}$
+                \EndIf
+            \EndFor
+        \EndFor
+        \If{$\text{primes} \neq \emptyset$}
+            \State $\text{total} \gets \text{total} + \sum_{p \in \text{primes}} p$
+            \State \textbf{break}
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return total
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} At worst $k = 8$ (two free positions), giving $\binom{10}{2} \cdot 9^2 = 3645$ candidates per digit and at most $36{,}450$ total. Each Miller--Rabin test with 6 witnesses costs $O(\log^2 n)$ where $n < 10^{10}$, which is bounded by a constant. Overall: $O(1)$.
+\item \textbf{Space:} $O(1)$ auxiliary storage.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{612407567715}
+\]
+
+\end{document}

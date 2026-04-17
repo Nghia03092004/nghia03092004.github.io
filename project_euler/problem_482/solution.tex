@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 482: The Incenter of a Triangle}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$ABC$ is an integer-sided triangle with incenter $I$ and perimeter $p$. The segments $IA$, $IB$, $IC$ have integral length. Let $L = p + |IA| + |IB| + |IC|$ and $S(P) = \sum L$ for all such triangles with $p \le P$. Given $S(10^3) = 3619$, find $S(10^7)$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Incenter distance formula]
+For a triangle with sides $a,b,c$, semiperimeter $s=(a+b+c)/2$, and incenter $I$:
+\[
+|IA|^2 = \frac{bc(s-a)}{s},\quad |IB|^2 = \frac{ac(s-b)}{s},\quad |IC|^2 = \frac{ab(s-c)}{s}.
+\]
+\end{theorem}
+
+\begin{proof}
+The inradius is $r = K/s$ where $K = \sqrt{s(s-a)(s-b)(s-c)}$. Using $|IA| = r/\sin(A/2)$ and the half-angle identity $\sin(A/2) = \sqrt{(s-b)(s-c)/(bc)}$:
+\[
+|IA| = \frac{K}{s}\cdot\sqrt{\frac{bc}{(s-b)(s-c)}} = \sqrt{\frac{(s-a)\cdot bc}{s}}.
+\]
+The other two follow by cyclic symmetry.
+\end{proof}
+
+\begin{lemma}[Change of variables]
+Setting $x = s-a$, $y = s-b$, $z = s-c$ (so $a=y+z$, $b=x+z$, $c=x+y$, $s=x+y+z$):
+\begin{align}
+|IA|^2 &= \frac{x(x+y)(x+z)}{x+y+z},\\[4pt]
+|IB|^2 &= \frac{y(x+z)(y+z)}{x+y+z},\\[4pt]
+|IC|^2 &= \frac{z(x+y)(y+z)}{x+y+z}.
+\end{align}
+Each must be a perfect square for the incenter distances to be integers.
+\end{lemma}
+
+\begin{proof}
+Direct substitution into Theorem~1.
+\end{proof}
+
+\begin{lemma}[Parity constraint]
+The perimeter $p = 2(x+y+z)$ is even, and $x,y,z \ge 1$ automatically satisfy the triangle inequality.
+\end{lemma}
+
+\begin{proof}
+For $x,y,z$ to be positive integers, $s$ must be a positive integer, so $p=2s$ is even. The inequality $a < b+c$ is equivalent to $x > 0$, which holds.
+\end{proof}
+
+\begin{theorem}[Product identity]
+\[
+|IA|^2\cdot|IB|^2\cdot|IC|^2 = \frac{xyz\,(x+y)^2(y+z)^2(x+z)^2}{(x+y+z)^3}.
+\]
+\end{theorem}
+
+\begin{proof}
+Multiply the three expressions from Lemma~1.
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Enumerate positive integers $x \le y \le z$ with $2(x+y+z) \le P$.
+\item For each triple, verify $s \mid x(x+y)(x+z)$ and that the quotient is a perfect square; similarly for $|IB|^2$ and $|IC|^2$.
+\item For valid triples, compute $L = 2s + |IA| + |IB| + |IC|$ and account for distinct permutations.
+\item Accumulate $S(P)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Time:} $O(P^{3/2})$ worst case, heavily pruned by divisibility and perfect-square tests.
+\item \textbf{Space:} $O(1)$ auxiliary.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1400824879147}
+\]
+
+\end{document}

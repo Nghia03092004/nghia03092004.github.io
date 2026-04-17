@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 418: Factorisation Triples}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An integer triple $(a, b, c)$ is a factorisation triple of $n$ if $1 \leq a \leq b \leq c$ and $a \cdot b \cdot c = n$. Define $f(n) = a + b + c$ for the unique triple minimizing $c/a$. Find $f(43!)$.
+
+\section{Mathematical Analysis}
+
+\subsection{Prime Factorization of $43!$}
+By Legendre's formula:
+\[
+43! = 2^{39} \cdot 3^{19} \cdot 5^9 \cdot 7^6 \cdot 11^3 \cdot 13^3 \cdot 17^2 \cdot 19^2 \cdot 23 \cdot 29 \cdot 31 \cdot 37 \cdot 41 \cdot 43
+\]
+
+\subsection{Optimization Criterion}
+To minimize $c/a$ with $abc = n$ and $a \leq b \leq c$:
+\[
+\frac{c}{a} = \frac{n}{a^2 b}
+\]
+This is minimized when $a^2 b$ is maximized, subject to $a \leq b \leq n/(ab)$.
+
+\subsection{Near Cube Root}
+The optimal $a, b, c$ are close to $\sqrt[3]{n}$:
+\[
+\sqrt[3]{43!} \approx 1.6827 \times 10^{17}
+\]
+
+We search for divisors of $43!$ in a narrow band around this value.
+
+\subsection{Divisor Search}
+\begin{enumerate}
+    \item Generate divisors of $43!$ near $\sqrt[3]{43!}$ using the prime factorization.
+    \item For each candidate $a \leq \sqrt[3]{43!}$, find the best $b$ such that $a \leq b \leq c = n/(ab)$ and $c/a$ is minimal.
+    \item The search space is reduced from $\sim 5 \times 10^8$ divisors to $\sim 1000$ candidates.
+\end{enumerate}
+
+\section{Algorithm}
+\begin{enumerate}
+    \item Compute $43!$ and its prime factorization.
+    \item Enumerate divisors near $\sqrt[3]{43!}$.
+    \item For each candidate pair $(a, b)$, compute $c = 43!/(ab)$ and check validity.
+    \item Track the triple with minimum $c/a$ ratio.
+    \item Output $a + b + c$.
+\end{enumerate}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(D \log D)$ where $D$ is the number of near-cube-root divisors.
+    \item \textbf{Space:} $O(D)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1177163565297340320}
+\]
+
+\end{document}

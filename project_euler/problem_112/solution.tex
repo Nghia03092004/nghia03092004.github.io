@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+\title{Problem 112: Bouncy Numbers}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A positive integer is \textbf{increasing} if its digits form a non-decreasing sequence, \textbf{decreasing} if non-increasing, and \textbf{bouncy} if neither. Find the least positive integer $n$ such that the proportion of bouncy numbers among $\{1,2,\ldots,n\}$ is exactly $99\%$.
+
+\section{Mathematical Development}
+
+\begin{definition}
+Let $n$ have decimal digits $d_1 d_2 \cdots d_k$. We call $n$ \emph{increasing} if $d_i \le d_{i+1}$ for all $i$, \emph{decreasing} if $d_i \ge d_{i+1}$ for all $i$, and \emph{bouncy} if it is neither.
+\end{definition}
+
+\begin{theorem}[Small numbers are non-bouncy]
+Every positive integer $n < 100$ is non-bouncy.
+\end{theorem}
+
+\begin{proof}
+Single-digit numbers vacuously satisfy both monotonicity conditions. For two-digit numbers $d_1 d_2$, either $d_1 \le d_2$ or $d_1 > d_2$ by the trichotomy of the integers, so the number is increasing or decreasing.
+\end{proof}
+
+\begin{theorem}[Bouncy density]
+Let $B(n)$ denote the count of bouncy integers in $\{1,\ldots,n\}$. Then $B(n)/n \to 1$ as $n \to \infty$.
+\end{theorem}
+
+\begin{proof}
+The non-bouncy count below $10^k$ is $O(k^{10})$ (a polynomial in the digit count, from the stars-and-bars formula of Problem~113). The total count $10^k - 1$ is exponential in $k$. Since $k^{10}/10^k \to 0$, the non-bouncy fraction vanishes.
+\end{proof}
+
+\begin{lemma}[Divisibility constraint]
+If $B(n)/n = 99/100$, then $100 \mid n$.
+\end{lemma}
+
+\begin{proof}
+$100 B(n) = 99n$ implies $n = 100(n - B(n))$, and $n - B(n)$ is a positive integer, so $100 \mid n$.
+\end{proof}
+
+\begin{theorem}[Existence and computability]
+There exists a least $n$ with $B(n)/n = 99/100$, and a sequential scan finds it in finite time.
+\end{theorem}
+
+\begin{proof}
+By Theorem~2, $B(n)/n$ eventually exceeds $99/100$. At $n = 100$, $B(100) = 0 < 99$ (Theorem~1). Since the non-bouncy count grows polynomially while $n/100$ grows linearly, a crossing must occur. The scan examines every integer and maintains an exact count, so the first qualifying $n$ cannot be missed.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find least $n$ with $B(n)/n = 99/100$}
+\begin{algorithmic}[1]
+\State $b \gets 0$
+\For{$n = 1, 2, 3, \ldots$}
+    \If{$n$ is bouncy}
+        \State $b \gets b + 1$
+    \EndIf
+    \If{$100b = 99n$}
+        \State \Return $n$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+A number is bouncy if and only if its digit sequence contains both a strict increase ($d_i < d_{i+1}$ for some $i$) and a strict decrease ($d_j > d_{j+1}$ for some $j$).
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N \log N)$ where $N = 1{,}587{,}000$. Each bouncy check costs $O(\log n)$ for digit extraction.
+\item \textbf{Space:} $O(\log N)$ for the digit representation.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1587000}
+\]
+
+\end{document}

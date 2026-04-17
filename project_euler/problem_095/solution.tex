@@ -1,0 +1,89 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 95: Amicable Chains}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Define $s(n) = \sigma(n) - n$, the sum of proper divisors of~$n$. An \emph{amicable chain} of length~$k$ is a cycle $n_1 \xrightarrow{s} n_2 \xrightarrow{s} \cdots \xrightarrow{s} n_k \xrightarrow{s} n_1$ of~$k$ distinct positive integers. Find the smallest element of the longest amicable chain with all elements~$\le 10^6$.
+
+\section{Mathematical Foundation}
+
+\begin{definition}[Sum of proper divisors]
+For $n \ge 1$, let $s(n) = \sigma(n) - n = \sum_{\substack{d \mid n,\; d < n}} d$.
+\end{definition}
+
+\begin{definition}[Amicable chain]
+A sequence $(n_1, \ldots, n_k)$ of $k$ distinct positive integers with $s(n_i) = n_{i+1}$ for $i < k$ and $s(n_k) = n_1$.
+\end{definition}
+
+\begin{theorem}[Divisor sum sieve]
+\label{thm:sieve}
+$s(n)$ for all $n \le N$ can be computed in $O(N \log N)$ time and $O(N)$ space.
+\end{theorem}
+\begin{proof}
+For each $d = 1, \ldots, N$, add $d$ to $s[kd]$ for $k = 2, 3, \ldots, \lfloor N/d \rfloor$. Each proper divisor $d < n$ of~$n$ is added exactly once. The total work is
+\[
+\sum_{d=1}^{N} \left(\left\lfloor \frac{N}{d} \right\rfloor - 1\right) \le N H_N = O(N \log N). \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Cycle detection]
+\label{lem:cycle}
+For any starting point $n_0$, following $n \mapsto s(n)$ while recording visited elements correctly identifies whether $n_0$ lies on a cycle: return to~$n_0$ indicates a cycle; reaching a value outside $[1, N]$ or a previously classified element indicates no cycle through~$n_0$.
+\end{lemma}
+\begin{proof}
+Since $s$ is a deterministic function on $\mathbb{Z}_{>0}$ and the exploration set $[1, N]$ is finite, the orbit must eventually revisit an element or exit $[1, N]$. If the first revisited element is~$n_0$, the trajectory forms a cycle. Otherwise, $n_0$ lies on a tail and belongs to no cycle within the bound.
+\end{proof}
+
+\begin{theorem}[Amortized chain detection cost]
+\label{thm:amortized}
+Using a visited-flag array, total chain-detection work across all starting points is $O(N)$.
+\end{theorem}
+\begin{proof}
+Once flagged visited, a number is never a starting point and immediately terminates any exploration encountering it. Each number is visited at most twice across all explorations (once as a fresh element, once as a terminator). Total steps: $\le 2N = O(N)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Find longest amicable chain with elements $\le N$}
+\begin{algorithmic}[1]
+\STATE Compute $s[n]$ for $n = 1, \ldots, N$ via sieve (Theorem~\ref{thm:sieve})
+\STATE $\text{visited}[1..N] \gets \text{false}$, $\text{best\_len} \gets 0$, $\text{best\_min} \gets \infty$
+\FOR{$\text{start} = 2$ \TO $N$}
+    \IF{$\text{visited}[\text{start}]$} \STATE \textbf{continue} \ENDIF
+    \STATE Trace: $n \gets \text{start}$; record path and positions
+    \STATE Follow $n \mapsto s[n]$ until cycle detected or exit (Lemma~\ref{lem:cycle})
+    \IF{cycle found at position $j$}
+        \STATE Extract cycle $= \text{path}[j..]$; update best if longer
+    \ENDIF
+    \STATE Mark all path elements visited
+\ENDFOR
+\RETURN best\_min
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+\textbf{Time:} $O(N \log N)$ for the sieve (Theorem~\ref{thm:sieve}) $+ O(N)$ for cycle detection (Theorem~\ref{thm:amortized}) $= O(N \log N)$.
+
+\textbf{Space:} $O(N)$ for $s[\cdot]$ and $\text{visited}[\cdot]$.
+
+\section{Answer}
+
+\[
+\boxed{14316}
+\]
+
+\end{document}

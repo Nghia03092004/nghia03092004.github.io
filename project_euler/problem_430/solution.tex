@@ -1,0 +1,63 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 430:\\Range Flips}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$N$ disks in a row, initially white. Each turn, random $A,B \in [1,N]$ chosen uniformly; disks from $\min(A,B)$ to $\max(A,B)$ are flipped. Find $E(10^{10}, 4000)$ rounded to 2 decimal places.
+
+\section{Derivation}
+
+\subsection{Flip Probability}
+The probability that disk $i$ is flipped in one turn:
+\[
+p_i = 1 - \frac{(i-1)^2 + (N-i)^2}{N^2}
+\]
+
+\begin{proof}
+There are $N^2$ equally likely pairs $(A,B)$. Disk $i$ is \emph{not} flipped when both $A$ and $B$ are either all $< i$ or all $> i$. The count of pairs not flipping disk $i$ is $(i-1)^2 + (N-i)^2$.
+\end{proof}
+
+\subsection{Even Flip Probability}
+After $M$ independent turns, the probability of an even number of flips:
+\[
+P(\text{white after } M) = \frac{1 + (1-2p_i)^M}{2}
+\]
+
+\subsection{Expected Value}
+By linearity of expectation:
+\[
+E(N,M) = \sum_{i=1}^{N} \frac{1 + (1-2p_i)^M}{2} = \frac{N}{2} + \frac{1}{2}\sum_{i=1}^{N} (1-2p_i)^M
+\]
+
+\subsection{Continuous Approximation}
+Let $t = i/N$. Then $1 - 2p_i \approx (2t-1)^2$ and:
+\[
+\sum_{i=1}^{N} (1-2p_i)^M \approx N \int_0^1 (2t-1)^{2M}\,dt = \frac{N}{2M+1}
+\]
+
+\subsection{Euler--Maclaurin Correction}
+The Euler--Maclaurin formula provides corrections:
+\[
+\sum_{i=1}^{N} f(i) = N\int_0^1 f(Nt)\,dt + \frac{f(1)+f(N)}{2} + \sum_{k=1}^{K} \frac{B_{2k}}{(2k)!} \left(f^{(2k-1)}(N) - f^{(2k-1)}(1)\right) + \cdots
+\]
+where $f(i) = (1-2p_i)^M$ and $B_{2k}$ are Bernoulli numbers.
+
+\section{Result}
+\[
+\boxed{E(10^{10}, 4000) = 5000624921.38}
+\]
+
+\section{Answer}
+
+\[
+\boxed{5000624921.38}
+\]
+
+\end{document}

@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 163: Cross-hatched Triangles}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+An equilateral triangle of side $n$ is subdivided by a triangular grid and cross-hatched by lines from each vertex through lattice points on the opposite side. For $n=1$ there are 13 triangles; for $n=2$ there are 104. How many triangles are formed for $n = 36$?
+
+\section{Definitions}
+
+\begin{definition}
+In oblique coordinates $(u,v)$, the main triangle has vertices $(0,0)$, $(n,0)$, $(0,n)$ and interior $\{(u,v): u \ge 0,\; v \ge 0,\; u+v \le n\}$.
+\end{definition}
+
+\section{Mathematical Development}
+
+\begin{theorem}[Line families]
+The cross-hatched triangle of size $n$ contains 6 line families:
+\begin{center}
+\begin{tabular}{@{}ccl@{}}
+\toprule
+Family & Equation & Parameter range \\
+\midrule
+$F_1$ & $u = k$       & $k = 0, \ldots, n$ \\
+$F_2$ & $v = k$       & $k = 0, \ldots, n$ \\
+$F_3$ & $u + v = k$   & $k = 0, \ldots, n$ \\
+$F_4$ & $u - v = k$   & $k = -(n-1), \ldots, n-1$ \\
+$F_5$ & $u + 2v = k$  & $k = 1, \ldots, 2n-1$ \\
+$F_6$ & $2u + v = k$  & $k = 1, \ldots, 2n-1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+All six direction vectors are pairwise non-parallel.
+\end{theorem}
+
+\begin{proof}
+$F_1$--$F_3$ form the standard triangular grid. $F_4$--$F_6$ arise from the cross-hatching. The direction vectors $(1,0)$, $(0,1)$, $(1,1)$, $(1,-1)$, $(1,2)$, $(2,1)$ are pairwise non-parallel: all $\binom{6}{2}$ cross-products $a_i b_j - a_j b_i$ are nonzero.
+\end{proof}
+
+\begin{theorem}[Triangle formation]
+Three lines from three distinct families form a non-degenerate triangle inside the main figure if and only if they are not concurrent and all three pairwise intersection points lie within the closed main triangle.
+\end{theorem}
+
+\begin{proof}
+Lines from distinct families are non-parallel, so each pair intersects in exactly one point. Three non-concurrent non-parallel lines determine a non-degenerate triangle. Containment within the main figure requires all three vertices to satisfy $u \ge 0$, $v \ge 0$, $u + v \le n$.
+\end{proof}
+
+\begin{lemma}[Rational intersection]
+The intersection of $a_1 u + b_1 v = c_1$ and $a_2 u + b_2 v = c_2$ with $D = a_1 b_2 - a_2 b_1 \neq 0$ is:
+\[
+u = \frac{c_1 b_2 - c_2 b_1}{D}, \qquad v = \frac{a_1 c_2 - a_2 c_1}{D}.
+\]
+All numerators and denominators are integers bounded by $O(n^2)$.
+\end{lemma}
+
+\begin{lemma}[Containment and concurrency tests]
+The point $(p/d, q/d)$ with $d > 0$ lies in the main triangle iff $p \ge 0$, $q \ge 0$, $p + q \le nd$. Two rational points $(p_1/d_1, q_1/d_1)$ and $(p_2/d_2, q_2/d_2)$ coincide iff $p_1 d_2 = p_2 d_1$ and $q_1 d_2 = q_2 d_1$.
+\end{lemma}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O\bigl(\binom{6}{3} \cdot n^3\bigr) = O(20 n^3)$. For $n = 36$: $\approx 10^6$ tests.
+    \item \textbf{Space:} $O(n)$ for line storage, $O(1)$ working space.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{343047}
+\]
+
+\end{document}

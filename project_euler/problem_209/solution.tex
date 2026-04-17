@@ -1,0 +1,67 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 209: Circular Logic}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many 6-input binary truth tables $\tau$ satisfy
+\[
+\tau(a,b,c,d,e,f) \;\wedge\; \tau\bigl(b,c,d,e,f,\;a \oplus (b \wedge c)\bigr) = 0
+\]
+for all $(a,b,c,d,e,f) \in \{0,1\}^6$?
+
+\section{Mathematical Analysis}
+
+\subsection{The Permutation $\sigma$}
+Define $\sigma : \{0,1\}^6 \to \{0,1\}^6$ by:
+\[
+\sigma(a,b,c,d,e,f) = \bigl(b,\, c,\, d,\, e,\, f,\, a \oplus (b \wedge c)\bigr).
+\]
+This is a bijection, since given the output $(b,c,d,e,f,g)$, we recover $a = g \oplus (b \wedge c)$.
+
+\subsection{Constraint Reformulation}
+The condition $\tau(x) \wedge \tau(\sigma(x)) = 0$ means: for each $x$, the pair $(x, \sigma(x))$ cannot both have $\tau = 1$. This is an \emph{independent set} constraint along the orbits of $\sigma$.
+
+\subsection{Cycle Decomposition}
+Since $\sigma$ is a permutation on a set of 64 elements, it decomposes into disjoint cycles. On each cycle of length $n$, the number of binary labelings where no two adjacent elements (in the cyclic order) are both 1 is the \textbf{Lucas number}:
+\[
+L(n) = F(n-1) + F(n+1)
+\]
+where $F(k)$ denotes the $k$-th Fibonacci number with $F(1)=1, F(2)=1$.
+
+For a cycle of length 1 (fixed point): $L(1) = 1 + 2 = 3$? No --- $L(1)$ corresponds to one node with a self-loop: we need $\tau(x) \wedge \tau(x) = 0$, so $\tau(x) = 0$. That gives $L(1) = 1$. Actually, for a fixed point $\sigma(x) = x$, the constraint is $\tau(x)^2 = 0$, so $\tau(x) = 0$ (1 choice). The Lucas formula gives $L(1) = 1$ if we use the convention $F(0) = 0, F(2) = 1$: $L(1) = F(0) + F(2) = 0 + 1 = 1$. \checkmark
+
+For a cycle of length 2: $L(2) = F(1) + F(3) = 1 + 2 = 3$. Indeed, two nodes in a cycle: $(0,0), (1,0), (0,1)$ --- 3 choices. \checkmark
+
+\subsection{Final Computation}
+The answer is the product of Lucas numbers over all cycles:
+\[
+\text{Answer} = \prod_{\text{cycle } C} L(|C|).
+\]
+
+Computing $\sigma$'s cycle structure on $\{0,1\}^6$ and multiplying the corresponding Lucas numbers yields the answer.
+
+\section{Result}
+\[
+\boxed{15{,}964{,}587{,}728{,}784}
+\]
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(64)$ to find cycles, $O(\max \text{cycle length})$ for Lucas numbers.
+    \item \textbf{Space:} $O(64)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{15964587728784}
+\]
+
+\end{document}

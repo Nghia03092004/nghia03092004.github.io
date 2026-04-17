@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 383: Divisibility Comparison between Factorials}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $f_5(n)$ denote the largest integer $k$ such that $5^k \mid n$. Define $D(N) = \sum_{i=2}^{N} f_5\!\bigl(\binom{2i}{i}\bigr)$. Find $D(10^{12})$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Legendre's Formula]
+For a prime $p$ and positive integer $n$:
+\[
+v_p(n!) = \sum_{j=1}^{\infty} \left\lfloor \frac{n}{p^j} \right\rfloor = \frac{n - s_p(n)}{p - 1},
+\]
+where $s_p(n)$ is the sum of the base-$p$ digits of $n$.
+\end{theorem}
+
+\begin{proof}
+The number of multiples of $p^j$ in $\{1, \ldots, n\}$ is $\lfloor n/p^j \rfloor$. Summing over all $j$ counts each factor of $p$ in $n!$ exactly once. For the second equality, write $n = \sum d_j p^j$ and telescope.
+\end{proof}
+
+\begin{theorem}[Kummer's Theorem]
+For a prime $p$ and $m \ge n \ge 0$:
+\[
+v_p\binom{m}{n} = c_p(n,\, m-n),
+\]
+where $c_p(n, m-n)$ is the number of carries when adding $n$ and $m - n$ in base $p$.
+\end{theorem}
+
+\begin{proof}
+From Legendre's formula:
+\[
+v_p\binom{m}{n} = \frac{s_p(n) + s_p(m-n) - s_p(m)}{p-1}.
+\]
+The numerator equals $(p-1)$ times the number of carries in the base-$p$ addition $n + (m-n) = m$.
+\end{proof}
+
+\begin{lemma}[Central Binomial 5-adic Valuation]
+For $p = 5$:
+\[
+v_5\binom{2i}{i} = \text{number of carries when adding } i + i \text{ in base } 5.
+\]
+\end{lemma}
+
+\begin{proof}
+Direct application of Kummer's theorem with $m = 2i$, $n = i$.
+\end{proof}
+
+\begin{lemma}[Carry Propagation]
+When doubling $i$ in base $5$, a carry at position $j$ occurs iff $2d_j + c_j \ge 5$, where $d_j$ is the $j$-th base-5 digit and $c_j \in \{0,1\}$ is the incoming carry ($c_0 = 0$). The outgoing carry is $c_{j+1} = \lfloor(2d_j + c_j)/5\rfloor \in \{0,1\}$.
+\end{lemma}
+
+\begin{proof}
+Since $d_j \in \{0,\ldots,4\}$ and $c_j \in \{0,1\}$, we have $2d_j + c_j \le 9 < 2 \cdot 5$, so the carry is at most~1.
+\end{proof}
+
+\section{Algorithm}
+
+The sum $D(N)$ counts total carries when doubling each $i \in [2, N]$ in base~5. This admits a digit DP over the base-5 representation of $N$.
+
+\begin{verbatim}
+function D(N):
+    digits = base5_digits(N)
+    DP state: (position, carry_in, tight)
+    DP value: (count, total_carries)
+    For each digit position, expand all (digit, carry) transitions
+    Return total carries summed over terminal states
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(\log_5 N)$. The DP has $O(\log_5 N)$ positions with $O(1)$ states each (at most $5 \times 2 \times 2 = 20$ transitions per position).
+\item \textbf{Space:} $O(\log N)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{22173624649806}
+\]
+
+\end{document}

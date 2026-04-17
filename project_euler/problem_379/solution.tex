@@ -1,0 +1,48 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\title{Problem 379: Least Common Multiple Count}
+\author{Project Euler Solution}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $f(n)$ be the number of pairs $(x,y)$ with $1 \leq x \leq y$ such that $\text{lcm}(x,y) = n$. Compute:
+\[
+S = \sum_{n=1}^{N} f(n) \quad \text{where } N = 10^{12}
+\]
+
+\section{Mathematical Analysis}
+
+\subsection{Structure of f(n)}
+For $n = p_1^{a_1} \cdots p_k^{a_k}$, the number of ordered pairs $(x,y)$ with $\text{lcm}(x,y) = n$ is:
+\[
+g(n) = \prod_{i=1}^{k} (2a_i + 1)
+\]
+Then $f(n) = \lceil g(n)/2 \rceil$ (for unordered pairs with $x \leq y$).
+
+\subsection{Summation Technique}
+The sum $\sum_{n=1}^{N} g(n)$ can be decomposed:
+\[
+\sum_{n=1}^{N} g(n) = \sum_{n=1}^{N} \sum_{d^2 | n} \mu^2(d) \cdot \tau(n/d^2) \cdot \ldots
+\]
+
+Using Dirichlet convolution identities and the hyperbola method, we can compute this in $O(N^{2/3})$ time.
+
+\subsection{Hyperbola Method}
+The key identity relates the sum to:
+\[
+S = \sum_{a=1}^{N} \left\lfloor \frac{N}{a} \right\rfloor \cdot h(a)
+\]
+for an appropriate arithmetic function $h$, which can be evaluated efficiently.
+
+\section{Result}
+The answer is $\boxed{132314136838185}$.
+
+\section{Answer}
+
+\[
+\boxed{132314136838185}
+\]
+
+\end{document}

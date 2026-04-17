@@ -1,0 +1,34 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 680: Yarra Gnisrever}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $A[0..N-1]$ satisfy $A[i]=i$ initially. Perform $K$ reversal operations. Define $R(N,K)=\sum iA[i]$ after the reversals. Find $R(10^{18}, 10^6)\bmod 10^9$.
+
+\section{Mathematical Analysis}
+
+Balanced BST / treap for reversals, or algebraic analysis of reversal permutations
+
+\section{Complexity Analysis}
+
+A naive method is $O(KN)$, while a treap-based method is $O(K \log N)$.
+
+\section{Answer}
+
+\[
+\boxed{563917241}
+\]
+
+\end{document}

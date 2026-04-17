@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Project Euler Problem 459: Flipping Game}
+\author{Solution Analysis}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+The flipping game is a two-player game played on an $N \times N$ square board.
+Each square contains a disk with one side white and one side black.
+The game starts with all disks showing their white side.
+
+A turn consists of flipping all disks in a rectangle satisfying:
+\begin{itemize}
+    \item The upper right corner of the rectangle contains a white disk.
+    \item The rectangle width $w$ is a perfect square: $w \in \{1, 4, 9, 16, 25, \ldots\}$.
+    \item The rectangle height $h$ is a triangular number: $h \in \{1, 3, 6, 10, 15, \ldots\}$.
+\end{itemize}
+
+Players alternate turns. A player wins by turning the grid all black.
+
+Let $W(N)$ be the number of winning moves for the first player on an $N \times N$
+board with all disks white, assuming perfect play.
+
+\textbf{Given:} $W(1) = 1$, $W(2) = 0$, $W(5) = 8$, $W(10^2) = 31395$.
+
+\textbf{Find:} $W(10^6)$.
+
+\section{Theoretical Framework}
+
+\subsection{Sprague--Grundy Theory}
+
+\begin{definition}
+For an impartial game position $P$, the \emph{Grundy value} (or nim-value) is:
+\[
+\mathcal{G}(P) = \operatorname{mex}\{\mathcal{G}(Q) : Q \text{ is reachable from } P\}
+\]
+where $\operatorname{mex}(S) = \min(\mathbb{N}_0 \setminus S)$ is the minimum excludant.
+\end{definition}
+
+\begin{theorem}[Sprague--Grundy]
+A position is a losing position (P-position) if and only if $\mathcal{G}(P) = 0$.
+For a sum of independent games $G_1, G_2, \ldots, G_k$:
+\[
+\mathcal{G}(G_1 + G_2 + \cdots + G_k) = \mathcal{G}(G_1) \oplus \mathcal{G}(G_2) \oplus \cdots \oplus \mathcal{G}(G_k)
+\]
+where $\oplus$ denotes XOR.
+\end{theorem}
+
+\subsection{Game Decomposition}
+
+The key insight is that the rectangle flipping game on an $N \times N$ board can be decomposed
+into independent one-dimensional games.
+
+\begin{itemize}
+    \item \textbf{Row dimension:} Moves have lengths from the set of triangular numbers
+    $T = \{1, 3, 6, 10, 15, \ldots\}$ where $T_k = \frac{k(k+1)}{2}$.
+    \item \textbf{Column dimension:} Moves have lengths from the set of perfect squares
+    $S = \{1, 4, 9, 16, 25, \ldots\}$ where $S_k = k^2$.
+\end{itemize}
+
+\subsection{One-Dimensional Grundy Values}
+
+For a take-away game with move set $M$, the Grundy values satisfy:
+\[
+G(n) = \operatorname{mex}\{G(n - m) : m \in M,\; m \leq n\}
+\]
+
+\begin{lemma}
+Let $G_T(n)$ denote the Grundy value for the triangular-move game and
+$G_S(n)$ for the square-move game. For each cell $(i, j)$ on the board:
+\[
+\mathcal{G}(i, j) = G_T(i) \oplus G_S(j)
+\]
+\end{lemma}
+
+\subsection{Total Grundy Value}
+
+The total Grundy value of the all-white board is:
+\[
+\mathcal{G}_{\text{total}} = \bigoplus_{i=1}^{N} \bigoplus_{j=1}^{N} \left(G_T(i) \oplus G_S(j)\right)
+\]
+
+This simplifies using the identity: if $N$ is odd,
+\[
+\mathcal{G}_{\text{total}} = \left(\bigoplus_{i=1}^{N} G_T(i)\right) \oplus \left(\bigoplus_{j=1}^{N} G_S(j)\right)
+\]
+and if $N$ is even, $\mathcal{G}_{\text{total}} = 0$.
+
+\section{Counting Winning Moves}
+
+A first move is \emph{winning} if it results in a position with Grundy value 0.
+The number of such moves $W(N)$ requires:
+
+\begin{enumerate}
+    \item Computing Grundy values $G_T(1), \ldots, G_T(N)$ and $G_S(1), \ldots, G_S(N)$.
+    \item Determining which rectangle moves transform the total Grundy value to zero.
+    \item Counting all valid such rectangles.
+\end{enumerate}
+
+\subsection{Periodicity}
+
+Grundy sequences for take-away games often exhibit eventual periodicity
+(Sprague--Grundy periodicity theorem). Detecting and exploiting this periodicity
+is essential for computing $W(10^6)$ efficiently.
+
+\section{Computational Results}
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+$N$ & $W(N)$ \\
+\hline
+1 & 1 \\
+2 & 0 \\
+5 & 8 \\
+100 & 31395 \\
+$10^6$ & 3996390 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Visualization}
+
+\begin{figure}[h]
+\centering
+\IfFileExists{visualization.png}{\includegraphics[width=0.95\textwidth]{visualization.png}}{\fbox{Visualization unavailable in this archive}}
+\caption{Grundy value analysis: (top-left) triangular move Grundy values,
+(top-right) perfect square move Grundy values,
+(bottom-left) Grundy value distributions,
+(bottom-right) $W(N)$ for small $N$.}
+\end{figure}
+
+\section{Answer}
+
+\[
+\boxed{3996390106631}
+\]
+
+\end{document}

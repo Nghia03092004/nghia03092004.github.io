@@ -1,0 +1,44 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 669: The King's Banquet}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+$n = F_{86} - 1$ knights at a round table. Adjacent knights' numbers must sum to a Fibonacci number. Find the knight in chair $10^{16}$.
+
+\section{Fibonacci Sum Graph}
+
+\begin{theorem}[Unique Hamiltonian Path]
+For $n = F_k - 1$, the Fibonacci-sum graph on $\{1,\ldots,n\}$ has a unique Hamiltonian path.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Induction on~$k$. The graph decomposes into two Fibonacci sub-intervals with unique cross-connections at the boundaries.
+\end{proof}
+
+\begin{lemma}[Zeckendorf Representation]
+Every $m \in \{1,\ldots,n\}$ has a unique representation $m = \sum_{i \in S} F_i$ with no two consecutive indices.
+\end{lemma}
+
+\section{Recursive Lookup}
+
+The $m$-th knight is found in $O(\log_\varphi n)$ time by recursively determining which sub-interval contains position~$m$.
+
+\section{Answer}
+
+\[
+\boxed{56342087360542122}
+\]
+
+\end{document}

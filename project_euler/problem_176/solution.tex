@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Problem 176: Right-angled Triangles That Share a Cathetus}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Find the smallest integer that can be a leg (cathetus) of exactly 47547 right triangles with integer sides.
+
+\section{Theory}
+
+\subsection{Counting Formulas}
+
+For a fixed leg $a$ with prime factorization $a = 2^{e_0} \cdot p_1^{e_1} \cdots p_k^{e_k}$:
+
+\textbf{Odd case} ($e_0 = 0$):
+\[
+f(a) = \frac{\prod_{i=1}^k (2e_i + 1) - 1}{2}
+\]
+
+\textbf{Even case} ($e_0 \geq 1$):
+\[
+f(a) = \frac{(2e_0 - 1) \prod_{i=1}^k (2e_i + 1) - 1}{2}
+\]
+
+\textit{Proof.} The equation $a^2 + b^2 = c^2$ is equivalent to $(c-b)(c+b) = a^2$.
+For odd $a$, all divisor pairs have the same parity, giving $f(a) = (d(a^2) - 1)/2$.
+For even $a$, we require both factors even; substituting $c - b = 2s$, $c + b = 2t$ gives $st = a^2/4$, and the count is $(d(a^2/4) - 1)/2$. \qed
+
+\subsection{Solving for 47547 Triangles}
+
+We require $f(a) = 47547$, which means finding the minimum $a$ such that the product of the relevant odd factors equals:
+\[
+2 \times 47547 + 1 = 95095 = 5 \times 7 \times 11 \times 13 \times 19
+\]
+
+\subsection{Optimization}
+
+Enumerate all multiplicative partitions of 95095 into factors $\geq 2$. For each partition:
+\begin{itemize}
+\item \textbf{Odd case:} factor $f_i \mapsto$ exponent $(f_i - 1)/2$ assigned to odd primes.
+\item \textbf{Even case:} one factor $f_0 \mapsto e_0 = (f_0 + 1)/2$ for prime 2; rest to odd primes.
+\end{itemize}
+
+To minimize, assign largest exponents to smallest primes.
+
+\subsection{Result}
+
+The optimal partition assigns 19 to prime 2 ($e_0 = 10$) and the remaining factors $\{13, 11, 7, 5\}$ to primes $\{3, 5, 7, 11\}$ (exponents $6, 5, 3, 2$):
+\[
+a = 2^{10} \times 3^6 \times 5^5 \times 7^3 \times 11^2 = \boxed{96818198400000}
+\]
+
+\textbf{Verification:} $(2 \cdot 10 - 1)(2 \cdot 6 + 1)(2 \cdot 5 + 1)(2 \cdot 3 + 1)(2 \cdot 2 + 1) = 19 \times 13 \times 11 \times 7 \times 5 = 95095$.
+
+\section{Complexity}
+$O(P(95095))$ where $P$ is the number of multiplicative partitions, which is very small. Effectively $O(1)$.
+
+\section{Answer}
+
+\[
+\boxed{96818198400000}
+\]
+
+\end{document}

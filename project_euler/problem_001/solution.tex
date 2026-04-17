@@ -1,0 +1,195 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,algorithm,algorithmic}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 1: Multiples of 3 and 5}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Find the sum of all the multiples of 3 or 5 below 1000. That is, compute
+\[
+S = \sum_{\substack{1 \le k < 1000 \\ 3 \mid k \;\text{or}\; 5 \mid k}} k.
+\]
+
+\section{Mathematical Development}
+
+\subsection{Preliminaries}
+
+\begin{definition}
+For a positive integer $m$ and a positive integer $N$, define $A_m(N) = \{k \in \mathbb{Z}^+ : m \mid k,\; k < N\}$. For a finite set $X \subset \mathbb{Z}$, define $\sigma(X) = \sum_{x \in X} x$.
+\end{definition}
+
+\subsection{The Arithmetic Series Identity}
+
+\begin{theorem}[Sum of the First $n$ Natural Numbers]
+\label{thm:gauss}
+For every positive integer $n$,
+\[
+\sum_{k=1}^{n} k = \frac{n(n+1)}{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+By induction on $n$.
+
+\emph{Base case.} $n = 1$: $\sum_{k=1}^{1} k = 1 = \frac{1 \cdot 2}{2}$.
+
+\emph{Inductive step.} Assume the identity holds for some $n \ge 1$. Then
+\[
+\sum_{k=1}^{n+1} k = \frac{n(n+1)}{2} + (n+1) = (n+1)\!\left(\frac{n}{2} + 1\right) = \frac{(n+1)(n+2)}{2}.
+\]
+By the principle of mathematical induction, the identity holds for all $n \ge 1$.
+\end{proof}
+
+\begin{corollary}[Sum of Multiples]
+\label{cor:sum-mult}
+$\sigma(A_m(N)) = m \cdot \dfrac{p(p+1)}{2}$ where $p = \lfloor (N-1)/m \rfloor$.
+\end{corollary}
+
+\begin{proof}
+The elements of $A_m(N)$ are $m, 2m, \ldots, pm$. Factoring out $m$ and applying Theorem~\ref{thm:gauss}:
+\[
+\sigma(A_m(N)) = \sum_{j=1}^{p} jm = m \sum_{j=1}^{p} j = m \cdot \frac{p(p+1)}{2}. \qedhere
+\]
+\end{proof}
+
+\subsection{Inclusion-Exclusion}
+
+\begin{theorem}[Inclusion-Exclusion for Sums over Two Sets]
+\label{thm:ie}
+Let $A$ and $B$ be finite subsets of $\mathbb{Z}$. Then
+\[
+\sigma(A \cup B) = \sigma(A) + \sigma(B) - \sigma(A \cap B).
+\]
+\end{theorem}
+
+\begin{proof}
+Partition $A \cup B$ into three pairwise disjoint sets:
+\[
+A \cup B = (A \setminus B) \;\sqcup\; (B \setminus A) \;\sqcup\; (A \cap B).
+\]
+By additivity of summation over disjoint unions,
+\begin{equation}
+\sigma(A \cup B) = \sigma(A \setminus B) + \sigma(B \setminus A) + \sigma(A \cap B). \tag{$\ast$}
+\end{equation}
+Since $A = (A \setminus B) \sqcup (A \cap B)$, we have $\sigma(A \setminus B) = \sigma(A) - \sigma(A \cap B)$. Likewise $\sigma(B \setminus A) = \sigma(B) - \sigma(A \cap B)$. Substituting into ($\ast$):
+\[
+\sigma(A \cup B) = [\sigma(A) - \sigma(A \cap B)] + [\sigma(B) - \sigma(A \cap B)] + \sigma(A \cap B) = \sigma(A) + \sigma(B) - \sigma(A \cap B). \qedhere
+\]
+\end{proof}
+
+\subsection{Characterizing the Intersection}
+
+\begin{lemma}[Intersection of Multiples via LCM]
+\label{lem:lcm}
+For positive integers $m_1, m_2$ and $N \ge 2$,
+\[
+A_{m_1}(N) \cap A_{m_2}(N) = A_{\operatorname{lcm}(m_1, m_2)}(N).
+\]
+\end{lemma}
+
+\begin{proof}
+Let $\ell = \operatorname{lcm}(m_1, m_2)$.
+
+($\supseteq$) If $k \in A_\ell(N)$, then $\ell \mid k$ and $k < N$. Since $m_1 \mid \ell$ and $m_2 \mid \ell$, we have $m_1 \mid k$ and $m_2 \mid k$, so $k \in A_{m_1}(N) \cap A_{m_2}(N)$.
+
+($\subseteq$) If $k \in A_{m_1}(N) \cap A_{m_2}(N)$, then $m_1 \mid k$ and $m_2 \mid k$. By the universal property of the least common multiple, $\ell \mid k$. Since also $k < N$, we have $k \in A_\ell(N)$.
+\end{proof}
+
+\begin{corollary}
+Since $\gcd(3,5) = 1$, we have $\operatorname{lcm}(3,5) = 15$, so $A_3(N) \cap A_5(N) = A_{15}(N)$.
+\end{corollary}
+
+\subsection{Main Result}
+
+\begin{theorem}[Closed-Form Solution]
+\label{thm:main}
+\[
+\sigma(A_3(N) \cup A_5(N)) = 3 \cdot \frac{p_3(p_3+1)}{2} + 5 \cdot \frac{p_5(p_5+1)}{2} - 15 \cdot \frac{p_{15}(p_{15}+1)}{2}
+\]
+where $p_m = \lfloor (N-1)/m \rfloor$ for $m \in \{3, 5, 15\}$.
+\end{theorem}
+
+\begin{proof}
+Apply Theorem~\ref{thm:ie} with $A = A_3(N)$ and $B = A_5(N)$:
+\[
+\sigma(A_3(N) \cup A_5(N)) = \sigma(A_3(N)) + \sigma(A_5(N)) - \sigma(A_3(N) \cap A_5(N)).
+\]
+By Lemma~\ref{lem:lcm} and the fact that $\operatorname{lcm}(3,5)=15$, the intersection term is $\sigma(A_{15}(N))$. Corollary~\ref{cor:sum-mult} gives the closed forms for all three summands. Substituting them yields the stated expression.
+\end{proof}
+
+\subsection{Numerical Evaluation}
+
+\begin{proposition}
+$S(1000) = 233168$.
+\end{proposition}
+
+\begin{proof}
+\begin{itemize}
+    \item $p_3 = \lfloor 999/3 \rfloor = 333$, so $\sigma(A_3) = 3 \cdot \frac{333 \cdot 334}{2} = 3 \cdot 55611 = 166833$.
+    \item $p_5 = \lfloor 999/5 \rfloor = 199$, so $\sigma(A_5) = 5 \cdot \frac{199 \cdot 200}{2} = 5 \cdot 19900 = 99500$.
+    \item $p_{15} = \lfloor 999/15 \rfloor = 66$, so $\sigma(A_{15}) = 15 \cdot \frac{66 \cdot 67}{2} = 15 \cdot 2211 = 33165$.
+\end{itemize}
+Therefore $S(1000) = 166833 + 99500 - 33165 = 233168$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{\textsc{SumMultiples}$(N)$}
+\begin{algorithmic}[1]
+\STATE $p_3 \gets \lfloor (N-1)/3 \rfloor$
+\STATE $p_5 \gets \lfloor (N-1)/5 \rfloor$
+\STATE $p_{15} \gets \lfloor (N-1)/15 \rfloor$
+\RETURN $3 \cdot p_3(p_3+1)/2 + 5 \cdot p_5(p_5+1)/2 - 15 \cdot p_{15}(p_{15}+1)/2$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Correctness]
+\textsc{SumMultiples}$(N)$ returns $\sigma(A_3(N) \cup A_5(N))$ for all $N \ge 2$.
+\end{theorem}
+
+\begin{proof}
+The algorithm computes the three integers
+\[
+p_3 = \left\lfloor \frac{N-1}{3} \right\rfloor,\qquad
+p_5 = \left\lfloor \frac{N-1}{5} \right\rfloor,\qquad
+p_{15} = \left\lfloor \frac{N-1}{15} \right\rfloor,
+\]
+and returns
+\[
+3 \cdot \frac{p_3(p_3+1)}{2} + 5 \cdot \frac{p_5(p_5+1)}{2} - 15 \cdot \frac{p_{15}(p_{15}+1)}{2}.
+\]
+By Theorem~\ref{thm:main}, this is exactly $\sigma(A_3(N) \cup A_5(N))$.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{theorem}
+\textsc{SumMultiples}$(N)$ runs in $O(1)$ time and $O(1)$ space.
+\end{theorem}
+
+\begin{proof}
+The algorithm performs exactly 3 floor divisions, 3 additions, 6 multiplications, 3 divisions by 2, 1 addition, and 1 subtraction---a fixed number of arithmetic operations independent of $N$. It stores 6 intermediate values ($p_3, p_5, p_{15}$ and three partial sums), which is $O(1)$ space.
+\end{proof}
+
+\emph{Remark.} A brute-force approach testing each integer in $\{1, \ldots, N-1\}$ requires $\Theta(N)$ time and $O(1)$ space. The closed-form method removes the scan and reduces the running time to $\Theta(1)$.
+
+\section{Answer}
+
+\[
+\boxed{233168}
+\]
+
+\end{document}

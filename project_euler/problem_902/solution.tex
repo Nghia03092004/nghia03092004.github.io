@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\title{Problem 902: Permutation Cycles}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $C(n)$ be the number of permutations of $\{1,2,\ldots,n\}$ whose longest cycle has length exactly $\lfloor n/2 \rfloor$. Find $C(20) \bmod 10^9+7$.
+
+Since $\lfloor 20/2 \rfloor = 10$, we count permutations of 20 elements with maximum cycle length exactly~10.
+
+\section{Exponential Generating Functions}
+
+\begin{theorem}[Exponential Formula]
+The EGF for permutations with all cycle lengths in $\{1,\ldots,m\}$ is:
+\[
+F_m(x) = \exp\!\left(\sum_{k=1}^{m} \frac{x^k}{k}\right).
+\]
+\end{theorem}
+
+\begin{proof}
+A permutation with bounded cycle length is a \emph{set} of cycles, each of length at most~$m$. The EGF for a single labeled $k$-cycle is $x^k/k$ (there are $(k-1)!$ distinct cycles on $k$ labeled elements, so the EGF contribution is $(k-1)! \cdot x^k/k! = x^k/k$). By the exponential formula for sets of labeled structures:
+\[
+F_m(x) = \exp\!\Bigl(\sum_{k=1}^{m} \frac{x^k}{k}\Bigr). \qedhere
+\]
+\end{proof}
+
+\begin{corollary}
+Denoting $a(n,m) = n!\,[x^n]\,F_m(x)$, the number of permutations of~$[n]$ with all cycle lengths $\le m$, we have:
+\[
+C(n) = a\bigl(n, \lfloor n/2 \rfloor\bigr) - a\bigl(n, \lfloor n/2 \rfloor - 1\bigr).
+\]
+\end{corollary}
+
+\section{Cycle-Building Recurrence}
+
+\begin{lemma}
+Let $D(s, m)$ be the number of permutations of $[s]$ with all cycles $\le m$. Then:
+\[
+D(s, m) = \sum_{k=1}^{\min(s,m)} \frac{(s-1)!}{(s-k)!} \cdot D(s-k, m), \qquad D(0, m) = 1.
+\]
+\end{lemma}
+
+\begin{proof}
+Fix element~1. It lies in a $k$-cycle for some $1 \le k \le \min(s,m)$. Choose $k-1$ companions from $\{2,\ldots,s\}$: $\binom{s-1}{k-1}$ ways. Arrange these $k$ elements in a cycle with element~1 fixed as anchor: $(k-1)!$ cyclic orderings. The product $\binom{s-1}{k-1}(k-1)! = (s-1)!/(s-k)!$ is the falling factorial. The remaining $s-k$ elements form a permutation with all cycles $\le m$, contributing $D(s-k, m)$.
+\end{proof}
+
+\section{Connection to the Dickman Function}
+
+\begin{proposition}
+As $n \to \infty$,
+\[
+\Pr[\text{max cycle length} \le \alpha n] \longrightarrow \rho(1/\alpha),
+\]
+where $\rho$ is the Dickman function satisfying $u\rho'(u) + \rho(u-1) = 0$ for $u > 1$, with $\rho(u) = 1$ for $0 \le u \le 1$.
+\end{proposition}
+
+For $\alpha = 1/2$: $\rho(2) = 1 - \ln 2 \approx 0.3069$, so about $30.7\%$ of permutations have max cycle $\le n/2$.
+
+\section{Concrete Values}
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+$n$ & $\lfloor n/2 \rfloor$ & $a(n, \lfloor n/2 \rfloor)$ & $C(n)$ & $C(n)/n!$ \\
+\midrule
+2  & 1 & 1     & 1     & 0.5000 \\
+4  & 2 & 10    & 9     & 0.3750 \\
+6  & 3 & 396   & 326   & 0.4528 \\
+8  & 4 & 22770 & 18594 & 0.4613 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EGF Coefficient Recurrence}
+
+Setting $f_j = [x^j]\,F_m(x)$, differentiation of $F_m = e^g$ gives $F_m' = g' F_m$, i.e.:
+\[
+j \cdot f_j = \sum_{i=1}^{\min(j,m)} f_{j-i}.
+\]
+This allows $O(nm)$ computation of all $f_j$ for $j = 0, 1, \ldots, n$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{EGF recurrence:} $O(nm)$ per coefficient, total $O(n^2)$ with $m = n/2$.
+\item \textbf{Cycle DP:} same $O(n^2)$ cost.
+\item \textbf{Space:} $O(n)$.
+\item \textbf{Brute force:} $O(n! \cdot n)$ --- infeasible for $n = 20$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{343557869}
+\]
+
+\end{document}

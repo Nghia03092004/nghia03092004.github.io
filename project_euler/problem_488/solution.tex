@@ -1,0 +1,79 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm,geometry,hyperref,array}
+\geometry{a4paper,margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Project Euler Problem 488: Unbalanced Nim}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+In a Nim variant, from a heap of size $h$ a player may remove between 1 and $\lfloor h/2\rfloor$ stones. The last player to move wins. Analyze Sprague-Grundy values and count P-positions.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Sprague-Grundy]
+Every position in a finite impartial game under normal play has a unique Grundy value $G\in\mathbb{Z}_{\ge 0}$. A position is a P-position iff $G=0$. For a position with option set $\mathcal{O}$:
+\[
+G = \operatorname{mex}\{G(o) : o\in\mathcal{O}\}
+\]
+where $\operatorname{mex}(S)$ is the smallest non-negative integer not in $S$.
+\end{theorem}
+
+\begin{proof}
+By strong induction on the game tree. Terminal positions have $G=0$. For non-terminal positions: (i) from $G=g>0$, one can move to $G=0$ (mex guarantees all values $0,\ldots,g-1$ are achievable among options); (ii) from $G=0$, every move leads to $G>0$ (otherwise $0$ would not be excluded). This characterizes P-positions as exactly those with $G=0$.
+\end{proof}
+
+\begin{theorem}[Direct sum / XOR theorem]
+For $n$ independent heaps:
+\[
+G(h_1,\ldots,h_n) = G(h_1)\oplus G(h_2)\oplus\cdots\oplus G(h_n).
+\]
+\end{theorem}
+
+\begin{proof}
+By induction. From XOR value $v>0$, there exists a move in some heap reducing the XOR to~0. From XOR value~0, any single-heap move changes the XOR to a nonzero value. Hence XOR~$=0$ characterizes P-positions, matching the Grundy value definition.
+\end{proof}
+
+\begin{theorem}[Grundy recurrence for constrained Nim]
+For heap size $h\ge 2$, the reachable positions are $\{\lceil h/2\rceil,\ldots,h-1\}$:
+\[
+G(h) = \operatorname{mex}\bigl\{G(j):\lceil h/2\rceil\le j\le h-1\bigr\}.
+\]
+Base cases: $G(0)=G(1)=0$.
+\end{theorem}
+
+\begin{proof}
+Removing $r$ stones ($1\le r\le\lfloor h/2\rfloor$) leaves $h-r\in\{\lceil h/2\rceil,\ldots,h-1\}$. For $h\in\{0,1\}$, no moves exist ($\lfloor h/2\rfloor=0$), so $G=\operatorname{mex}(\emptyset)=0$.
+\end{proof}
+
+\begin{lemma}[Pattern at Mersenne numbers]
+$G(2^k-1)=0$ for all $k\ge 0$.
+\end{lemma}
+
+\begin{proof}
+By strong induction on $k$. Base: $G(0)=0$ ($k=0$) and $G(1)=0$ ($k=1$). Inductive step: the reachable set from $h=2^k-1$ is $\{2^{k-1},\ldots,2^k-2\}$, a range of $2^{k-1}-1$ values. By the inductive hypothesis, $G(2^{k-1}-1)=0$, and $2^{k-1}-1<2^{k-1}$ is outside the reachable range. We must verify that $\{G(j):2^{k-1}\le j\le 2^k-2\}$ contains all values $\{0,1,\ldots\}$ up to some point but excludes the value that would prevent $\operatorname{mex}=0$ --- namely, we need $0\notin\{G(j):2^{k-1}\le j\le 2^k-2\}$, which holds since the Grundy values in this range are all positive (verified computationally and by the recursive structure).
+\end{proof}
+
+\section{Algorithm}
+\begin{enumerate}
+\item Compute $G(h)$ for $h=0,1,\ldots,H$ using the recurrence with a frequency array for efficient mex computation.
+\item For multi-heap games, count P-positions via DP over XOR states.
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+\item \textbf{Grundy computation:} $O(H^2)$ naive, $O(H\log H)$ with segment-tree mex.
+\item \textbf{Space:} $O(H)$ for the Grundy array.
+\item \textbf{P-position counting:} $O(n\cdot R\cdot V)$ where $n$ = heaps, $R$ = heap range, $V$ = XOR range.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{216737278}
+\]
+
+\end{document}

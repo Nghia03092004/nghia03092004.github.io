@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\title{Problem 556: Squarefree Gaussian Integers}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A Gaussian integer is a number $z = a + bi$ where $a, b$ are integers and $i^2 = -1$. A \emph{proper} Gaussian integer satisfies $a > 0$ and $b \geq 0$.
+
+A Gaussian integer is \emph{squarefree} if its prime factorization over $\mathbb{Z}[i]$ does not contain repeated proper Gaussian primes.
+
+Let $f(n)$ be the count of proper squarefree Gaussian integers with $a^2 + b^2 \leq n$.
+
+Given: $f(10) = 7$, $f(10^2) = 54$, $f(10^4) = 5218$, $f(10^8) = 52126906$.
+
+Find $f(10^{14})$.
+
+\section{Mathematical Analysis}
+
+\subsection{Gaussian Primes}
+The Gaussian primes fall into three categories:
+\begin{enumerate}
+    \item $(1+i)$, associated with the rational prime 2, with norm 2.
+    \item $a + bi$ where $a^2 + b^2 = p$ for rational primes $p \equiv 1 \pmod{4}$. Each such $p$ splits into two conjugate Gaussian primes.
+    \item Rational primes $p \equiv 3 \pmod{4}$, which remain prime (inert) in $\mathbb{Z}[i]$.
+\end{enumerate}
+
+\subsection{Squarefree Counting}
+A proper Gaussian integer $z = a + bi$ is squarefree if no Gaussian prime $\pi$ satisfies $\pi^2 \mid z$. Using M\"obius inversion on Gaussian ideals:
+\[
+f(n) = \sum_{\substack{(c,d) \\ c^2+d^2 \leq \sqrt{n}}} \mu_G(c+di) \cdot G\!\left(\frac{n}{(c^2+d^2)^2}\right)
+\]
+where $G(m)$ counts the number of proper Gaussian integers with norm at most $m$.
+
+\subsection{Lattice Point Counting}
+\[
+G(m) = \#\{(a,b) \in \mathbb{Z}^2 : a > 0,\, b \geq 0,\, a^2 + b^2 \leq m\}
+\]
+This equals approximately $\frac{\pi m}{4}$ with corrections from the Gauss circle problem.
+
+\subsection{Reduction to Ordinary M\"obius Function}
+The sum reduces to:
+\[
+f(n) = \sum_{k=1}^{\lfloor n^{1/4} \rfloor} h(k) \cdot G\!\left(\frac{n}{k^2}\right)
+\]
+where $h(k)$ is a multiplicative function derived from the Gaussian M\"obius function, summed over norms.
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(n^{1/2} \cdot \text{polylog}(n))$ using hyperbola method
+    \item \textbf{Space:} $O(n^{1/4})$ for segmented sieve
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{52126939292957}
+\]
+
+\end{document}

@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 775: Saving Paper}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+Wrap $n$ unit cubes together vs separately. $g(n)$ = max paper savings. $G(N)=\sum g(n)$. Given $G(18)=530, G(10^6)\equiv 951640919 \pmod{10^9+7}$. Find $G(10^{{16}}) \bmod 10^9+7$.
+
+\section{Analysis}
+$g(n)$ = $6n - S(n)$ where $S(n)$ is the surface area of the optimal rectangular box containing $n$ unit cubes. $S(n) = \min_{{abc\ge n}} 2(ab+bc+ca)$ where $a,b,c$ are positive integers. The sum $G(N)$ involves summing over all $n$ the minimum-surface-area box.
+
+\section{Answer}
+
+\[
+\boxed{946791106}
+\]
+
+\end{document}

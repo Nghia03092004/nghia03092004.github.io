@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Problem 157: Solving the Equation $\frac{1}{a}+\frac{1}{b}=\frac{p}{10^n}$}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+For each $n$ from 1 to 9, count the number of solutions $(a, b, p)$ with $a \le b$ and $a, b, p$ positive integers to:
+\[
+\frac{1}{a} + \frac{1}{b} = \frac{p}{10^n}
+\]
+Sum these counts over all $n$.
+
+\section{Mathematical Derivation}
+
+\subsection{Key Transformation}
+
+Let $N = 10^n$. From $\frac{1}{a} + \frac{1}{b} = \frac{p}{N}$:
+\[
+N(a + b) = pab
+\]
+
+Rearranging and completing the product:
+\[
+pab - Na - Nb = 0 \implies p^2ab - Npa - Npb + N^2 = N^2
+\]
+\[
+(pa - N)(pb - N) = N^2
+\]
+
+\subsection{Enumeration via Divisors}
+
+Let $u = pa - N$ and $v = pb - N$ with $uv = N^2 = 10^{2n}$.
+
+Both must be positive (if both negative, $|u||v| = N^2$ but $|u|, |v| < N$, giving $|u||v| < N^2$, a contradiction).
+
+For each divisor $u$ of $10^{2n}$ with $1 \le u \le N = 10^n$ (ensuring $a \le b$):
+\begin{enumerate}
+    \item Set $v = N^2 / u$.
+    \item Compute $g = \gcd(N + u,\, N + v)$.
+    \item Each positive divisor $p$ of $g$ yields a valid solution with $a = (N+u)/p$ and $b = (N+v)/p$.
+    \item The contribution is $\tau(g)$, the number of positive divisors of $g$.
+\end{enumerate}
+
+\subsection{Proof of Correctness}
+
+Given a divisor pair $(u, v)$ with $uv = N^2$, and any positive divisor $p$ of $\gcd(N+u, N+v)$:
+\begin{itemize}
+    \item $a = (N+u)/p$ and $b = (N+v)/p$ are positive integers.
+    \item $pa - N = u$, $pb - N = v$, so $(pa - N)(pb - N) = uv = N^2$.
+    \item Expanding: $p^2ab - Np(a+b) + N^2 = N^2$, giving $N(a+b) = pab$.
+    \item Hence $\frac{1}{a} + \frac{1}{b} = \frac{p}{N}$ with $a \le b$ (since $u \le v$). \qed
+\end{itemize}
+
+Conversely, every solution $(a,b,p)$ with $a \le b$ corresponds to exactly one divisor pair $(u,v)$ with $u \le v$ and one divisor $p$ of $\gcd(N+u, N+v)$.
+
+\section{Formula}
+
+\[
+\text{Answer} = \sum_{n=1}^{9} \sum_{\substack{u \mid 10^{2n} \\ 1 \le u \le 10^n}} \tau\!\left(\gcd(10^n + u,\; 10^n + 10^{2n}/u)\right)
+\]
+
+\section{Per-$n$ Results}
+
+\begin{center}
+\begin{tabular}{|c|r|}
+\hline
+$n$ & Solutions \\
+\hline
+1 & 20 \\
+2 & 102 \\
+3 & 356 \\
+4 & 958 \\
+5 & 2{,}192 \\
+6 & 4{,}456 \\
+7 & 8{,}260 \\
+8 & 14{,}088 \\
+9 & 23{,}058 \\
+\hline
+\textbf{Total} & \textbf{53{,}490} \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Complexity}
+
+The number of divisors of $10^{2n}$ is $(2n+1)^2$. For $n=9$, this is 361. The total work is bounded by $\sum_{n=1}^{9} \lceil(2n+1)^2/2\rceil \approx 900$ divisor pairs, each requiring a GCD computation and divisor counting. This runs in negligible time.
+
+\section{Result}
+
+\[
+\boxed{53490}
+\]
+
+\section{Answer}
+
+\[
+\boxed{53490}
+\]
+
+\end{document}

@@ -1,0 +1,92 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{Problem 901: Digital Root Patterns}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Let $d(n)$ denote the digital root of~$n$ (the single digit obtained by repeatedly summing digits). Define $S(N) = \sum_{k=1}^{N} k \cdot d(k)$. Find $S(10^6) \bmod 10^9+7$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Digital Root Formula]
+For every positive integer~$n$,
+\[
+d(n) = 1 + \bigl((n-1) \bmod 9\bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+Write $n = 9q + r$ where $r \in \{0, 1, \ldots, 8\}$. If $r \ge 1$, then $n \equiv r \pmod{9}$ and $d(n) = r = 1 + (n-1) \bmod 9$. If $r = 0$, then $n \equiv 0 \pmod{9}$ and $d(n) = 9$, while $1 + (n-1) \bmod 9 = 1 + (9q - 1) \bmod 9 = 1 + 8 = 9$. In both cases the formula holds.
+\end{proof}
+
+\begin{lemma}[Block Sum]
+For each integer $m \ge 0$, the contribution of the block $\{9m+1, \ldots, 9m+9\}$ to~$S$ is
+\[
+B(m) = \sum_{j=1}^{9}(9m+j)\cdot j = 405m + 285.
+\]
+\end{lemma}
+
+\begin{proof}
+Expand:
+\[
+B(m) = 9m\sum_{j=1}^{9} j + \sum_{j=1}^{9} j^2 = 9m \cdot 45 + 285 = 405m + 285,
+\]
+using $\sum_{j=1}^{9} j = 45$ and $\sum_{j=1}^{9} j^2 = 285$.
+\end{proof}
+
+\begin{theorem}[Closed-Form Evaluation]
+Let $N = 9q + r$ with $q = \lfloor N/9 \rfloor$ and $0 \le r < 9$. Then
+\[
+S(N) = 405 \cdot \frac{q(q-1)}{2} + 285q + \sum_{j=1}^{r}(9q+j)\cdot j.
+\]
+\end{theorem}
+
+\begin{proof}
+Partition $\{1, \ldots, N\}$ into $q$ complete blocks of~9 and a remainder of~$r$ terms. By the Block Sum Lemma, the complete blocks contribute
+\[
+\sum_{m=0}^{q-1} B(m) = \sum_{m=0}^{q-1}(405m + 285) = 405 \cdot \frac{q(q-1)}{2} + 285q.
+\]
+The remainder block contributes $\sum_{j=1}^{r}(9q+j) \cdot j$. Summing yields the result.
+\end{proof}
+
+\begin{corollary}
+For $N = 10^6$: $q = 111111$, $r = 1$, and the remainder contributes $(9 \cdot 111111 + 1) \cdot 1 = 1000000$. Hence
+\[
+S(10^6) = 405 \cdot \frac{111111 \cdot 111110}{2} + 285 \cdot 111111 + 1000000 = 2499999166667.
+\]
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Compute $q = \lfloor N/9 \rfloor$ and $r = N \bmod 9$.
+\item Evaluate $\text{total} = 405 \cdot q(q-1)/2 + 285q$.
+\item Add $\sum_{j=1}^{r}(9q+j) \cdot j$ (at most 8 terms).
+\item Return $\text{total} \bmod (10^9+7)$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(1)$ (the remainder loop runs at most 8 iterations).
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2.364497769}
+\]
+
+\end{document}

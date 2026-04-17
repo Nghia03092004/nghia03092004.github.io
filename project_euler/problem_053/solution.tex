@@ -1,0 +1,110 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 53: Combinatoric Selections}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+How many values of $\binom{n}{r}$ for $1 \leq n \leq 100$ and $0 \leq r \leq n$ are greater than one million ($10^6$)?
+
+\section{Formal Development}
+
+\begin{definition}[Binomial Coefficient]
+For non-negative integers $n \geq r$, $\binom{n}{r} = \frac{n!}{r!(n-r)!}$.
+\end{definition}
+
+\begin{theorem}[Unimodality]
+\label{thm:unimodal}
+For fixed $n \geq 1$, the sequence $\binom{n}{0}, \binom{n}{1}, \ldots, \binom{n}{n}$ is strictly unimodal with maximum at $r = \lfloor n/2 \rfloor$.
+\end{theorem}
+
+\begin{proof}
+The ratio $\binom{n}{r}/\binom{n}{r-1} = (n - r + 1)/r$ exceeds~1 if and only if $r < (n+1)/2$. Hence the sequence strictly increases for $r < (n+1)/2$ and strictly decreases for $r > (n+1)/2$.
+\end{proof}
+
+\begin{theorem}[Symmetry]
+For all $0 \leq r \leq n$: $\binom{n}{r} = \binom{n}{n-r}$.
+\end{theorem}
+
+\begin{proof}
+Immediate from the definition: $\binom{n}{n-r} = n!/((n-r)!\,r!) = \binom{n}{r}$.
+\end{proof}
+
+\begin{corollary}[Contiguous Exceedance]
+\label{cor:contiguous}
+For threshold $T > 0$ and fixed $n$, the set $E_T(n) = \{r : \binom{n}{r} > T\}$ is either empty or a contiguous interval $\{r_{\min}, \ldots, n - r_{\min}\}$ with $|E_T(n)| = n - 2r_{\min} + 1$.
+\end{corollary}
+
+\begin{proof}
+Follows from unimodality (Theorem~\ref{thm:unimodal}) and symmetry: the exceedance set is a connected, symmetric sublevel set of a unimodal function.
+\end{proof}
+
+\begin{lemma}[Pascal's Recurrence]
+For $1 \leq r \leq n - 1$: $\binom{n}{r} = \binom{n-1}{r-1} + \binom{n-1}{r}$.
+\end{lemma}
+
+\begin{proof}
+Partition the $r$-element subsets of $\{1, \ldots, n\}$ by membership of element~$n$: those containing~$n$ number $\binom{n-1}{r-1}$; those not containing~$n$ number $\binom{n-1}{r}$.
+\end{proof}
+
+\begin{lemma}[Overflow Avoidance]
+\label{lem:cap}
+Define $\hat{C}(n, r) = \min(\binom{n}{r}, T+1)$. This satisfies the capped recurrence $\hat{C}(n, r) = \min(\hat{C}(n-1, r-1) + \hat{C}(n-1, r),\; T+1)$, and $\binom{n}{r} > T \iff \hat{C}(n,r) = T + 1$.
+\end{lemma}
+
+\begin{proof}
+By induction. If both capped summands equal their true values (both $\leq T$), the sum is exact; if any summand is capped at $T+1$, the true sum exceeds $T$, and capping to $T+1$ preserves the exceedance property.
+\end{proof}
+
+\begin{theorem}[Counting Formula]
+The total count is $\sum_{n=1}^{100} |E_{10^6}(n)|$.
+\end{theorem}
+
+\section{Algorithm}
+
+\begin{enumerate}
+    \item Initialize $\mathrm{prev} \gets [1]$ (row $n = 0$), $\mathrm{count} \gets 0$.
+    \item For $n = 1$ to $100$:
+    \begin{enumerate}
+        \item Compute row $n$ via Pascal's recurrence with capping (Lemma~\ref{lem:cap}).
+        \item Add $|\{r : \hat{C}(n, r) > T\}|$ to count.
+    \end{enumerate}
+    \item Return count.
+\end{enumerate}
+
+\section{Complexity}
+
+\begin{proposition}[Time]
+$O(N^2)$ where $N = 100$. Specifically, $\sum_{n=1}^{100}(n+1) = 5150$ operations.
+\end{proposition}
+
+\begin{proposition}[Space]
+$O(N)$ for one row of Pascal's triangle (at most 101 entries).
+\end{proposition}
+
+\section{Result}
+\[
+\boxed{4075}
+\]
+
+\section{Answer}
+
+\[
+\boxed{4075}
+\]
+
+\end{document}

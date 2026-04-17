@@ -1,0 +1,109 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 281: Pizza Toppings}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A pizza is cut into $m \cdot n$ equal slices. Let $f(m,n)$ denote the number of distinct distributions of $m$ distinct toppings ($m \ge 2$), each on exactly $n$ slices ($n \ge 1$), where rotations are identified but reflections are distinct.
+
+Find $\displaystyle\sum_{\substack{m \ge 2,\; n \ge 1 \\ f(m,n) \le 10^{15}}} f(m,n)$.
+
+\section{Mathematical Development}
+
+The problem is equivalent to counting necklaces of $N = mn$ beads with $m$ distinct colors, each appearing exactly $n$ times, under the cyclic group $C_N$.
+
+\begin{theorem}[Burnside Counting Formula]
+Let $N = mn$. Then
+\[
+f(m,n) = \frac{1}{mn} \sum_{t \mid n} \phi\!\left(\frac{n}{t}\right) \cdot \frac{(mt)!}{(t!)^m}.
+\]
+\end{theorem}
+
+\begin{proof}
+By Burnside's lemma,
+\[
+f(m,n) = \frac{1}{N} \sum_{k=0}^{N-1} |\operatorname{Fix}(r^k)|.
+\]
+
+\textbf{Step 1 (Fixed-point characterization).} A coloring is fixed by the rotation $r^k$ if and only if it has period dividing $g = \gcd(k,N)$. Such a coloring comprises $N/g$ identical blocks of length~$g$, each containing $g/m$ copies of each color. This requires $m \mid g$; otherwise $|\operatorname{Fix}(r^k)| = 0$.
+
+\textbf{Step 2 (Block counting).} When $m \mid g$, the number of valid blocks of length $g$ is the multinomial coefficient
+\[
+\frac{g!}{\bigl((g/m)!\bigr)^m}.
+\]
+
+\textbf{Step 3 (Grouping by gcd).} For each divisor $g$ of $N$, exactly $\phi(N/g)$ values of $k \in \{0,\ldots,N-1\}$ satisfy $\gcd(k,N) = g$. Hence
+\[
+f(m,n) = \frac{1}{N} \sum_{\substack{g \mid N \\ m \mid g}} \phi\!\left(\frac{N}{g}\right) \cdot \frac{g!}{\bigl((g/m)!\bigr)^m}.
+\]
+
+\textbf{Step 4 (Substitution $g = mt$).} Setting $g = mt$ with $t \mid n$, and noting $N/g = n/t$, $(g/m)! = t!$:
+\[
+f(m,n) = \frac{1}{mn} \sum_{t \mid n} \phi\!\left(\frac{n}{t}\right) \cdot \frac{(mt)!}{(t!)^m}. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Verification]
+The formula reproduces the given values: $f(2,1)=1$, $f(2,2)=2$, $f(3,1)=2$, $f(3,2)=16$.
+\end{lemma}
+
+\begin{proof}
+Direct computation:
+\begin{align*}
+f(2,1) &= \tfrac{1}{2}\,\phi(1)\,\tfrac{2!}{(1!)^2} = 1, \\
+f(2,2) &= \tfrac{1}{4}\bigl[\phi(2)\,\tfrac{2!}{(1!)^2} + \phi(1)\,\tfrac{4!}{(2!)^2}\bigr] = \tfrac{1}{4}[2+6] = 2, \\
+f(3,1) &= \tfrac{1}{3}\,\phi(1)\,\tfrac{3!}{(1!)^3} = 2, \\
+f(3,2) &= \tfrac{1}{6}\bigl[\phi(2)\,\tfrac{3!}{(1!)^3} + \phi(1)\,\tfrac{6!}{(2!)^3}\bigr] = \tfrac{1}{6}[6+90] = 16. \qedhere
+\end{align*}
+\end{proof}
+
+\begin{lemma}[Search Bounds]
+It suffices to search $2 \le m \le 18$ and $1 \le n \le 29$.
+\end{lemma}
+
+\begin{proof}
+Since $f(m,1) = (m-1)!$ and $18! > 10^{15}$, we need $m \le 18$. For fixed $m$, $f(m,n)$ grows super-exponentially in $n$, so numerical evaluation confirms $n \le 29$ suffices.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+function solve():
+    total = 0
+    for m = 2 to 18:
+        for n = 1 to 29:
+            val = f(m, n)
+            if val <= 10^15: total += val
+    return total
+
+function f(m, n):
+    result = 0
+    for each divisor t of n:
+        result += euler_phi(n/t) * (m*t)! / (t!)^m
+    return result / (m*n)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(1)$, as all parameters are bounded by small constants (at most $493$ pairs, each with $O(1)$ divisor iterations).
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1485776387445623}
+\]
+
+\end{document}

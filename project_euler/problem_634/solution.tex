@@ -1,0 +1,77 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 634: Numbers of the Form $a^2 b^3$}
+\author{Project Euler Solutions}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count powerful (squarefull) numbers up to $N$: integers $n$ such that $p\mid n \Rightarrow p^2\mid n$ for every prime $p$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Canonical Representation]
+Every powerful number $n$ has a unique representation $n = a^2 b^3$ with $b$ squarefree.
+\end{theorem}
+
+\begin{proof}
+Let $n = \prod_i p_i^{e_i}$ with $e_i \ge 2$. For each $p_i$, set $r_i = e_i \bmod 2 \in \{0,1\}$ and $q_i = (e_i - 3r_i)/2$. Then $a = \prod_i p_i^{q_i}$, $b = \prod_{r_i=1}p_i$ gives $n = a^2 b^3$ with $b$ squarefree. The decomposition $e_i = 2q_i + 3r_i$ with $r_i \in \{0,1\}$ is unique.
+\end{proof}
+
+\begin{theorem}[Counting Formula]
+\[
+P(N) = \sum_{\substack{b=1 \\ \mu^2(b)=1}}^{\lfloor N^{1/3}\rfloor} \left\lfloor \sqrt{N/b^3}\,\right\rfloor.
+\]
+\end{theorem}
+
+\begin{proof}
+By the canonical representation, powerful $n \le N$ biject with pairs $(a,b)$ satisfying $a^2 b^3 \le N$ and $b$ squarefree. For fixed $b$, there are $\lfloor\sqrt{N/b^3}\rfloor$ valid values of $a$. The constraint $b^3 \le N$ bounds $b \le N^{1/3}$.
+\end{proof}
+
+\begin{lemma}[Squarefree Indicator]
+$\mu^2(b) = \sum_{d^2 \mid b}\mu(d)$.
+\end{lemma}
+
+\begin{proof}
+For squarefree $b$, the only $d$ with $d^2\mid b$ is $d=1$, giving 1. For non-squarefree $b$, some prime $p$ has $v_p(b)\ge 2$; the terms $d=1$ and $d=p$ contribute $1+(-1)=0$, and the product over primes with $v_p \ge 2$ vanishes.
+\end{proof}
+
+\begin{theorem}[Asymptotic]
+$P(N) \sim \dfrac{\zeta(3/2)}{\zeta(3)}\sqrt{N} \approx 2.173\sqrt{N}$.
+\end{theorem}
+
+\begin{proof}
+$P(N) = \sqrt{N}\sum_{b\text{ sqfree}}b^{-3/2} + O(N^{1/3})$. The Euler product $\sum_{b\text{ sqfree}}b^{-3/2} = \prod_p(1+p^{-3/2}) = \zeta(3/2)/\zeta(3)$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Sieve squarefree numbers up to $B = \lfloor N^{1/3}\rfloor$.
+\item For each squarefree $b \le B$: add $\lfloor\sqrt{N/b^3}\rfloor$ to count.
+\item Return count.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(N^{1/3})$.
+\item \textbf{Space:} $O(N^{1/3})$ for the squarefree sieve.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{4019680944}
+\]
+
+\end{document}

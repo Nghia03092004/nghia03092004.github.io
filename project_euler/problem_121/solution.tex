@@ -1,0 +1,92 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 121: Disc Game Prize Fund}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A bag contains one red disc and one blue disc. Each turn, a red disc is added, then a disc is drawn at random and set aside. After $n = 15$ turns the player wins if more blue discs than red were drawn. Determine the maximum prize fund the banker should allocate.
+
+\section{Mathematical Development}
+
+\begin{definition}
+At turn $k$ ($1 \le k \le n$), the bag contains 1 blue and $k$ red discs, for $k + 1$ total.
+\end{definition}
+
+\begin{theorem}[Turn probabilities]
+$\Pr(\text{blue at turn } k) = \frac{1}{k+1}$ and $\Pr(\text{red at turn } k) = \frac{k}{k+1}$. The turns are independent.
+\end{theorem}
+
+\begin{proof}
+The bag composition at turn $k$ is deterministic ($k + 1$ discs, exactly 1 blue). By a symmetry argument on the marginal draw probabilities, each turn's outcome is independent with the stated distribution.
+\end{proof}
+
+\begin{theorem}[Winning probability]
+\[
+P(\text{win}) = \frac{N}{(n+1)!}, \quad N = \sum_{\substack{T \subseteq \{1,\ldots,n\} \\ |T| \le \lfloor n/2 \rfloor}} \prod_{k \in T} k,
+\]
+where $T$ indexes turns on which red is drawn.
+\end{theorem}
+
+\begin{proof}
+For an outcome where blue is drawn on turns in $S$ and red on turns in $T = \{1,\ldots,n\} \setminus S$:
+\[
+\Pr(S) = \prod_{k \in S} \frac{1}{k+1} \cdot \prod_{k \in T} \frac{k}{k+1} = \frac{\prod_{k \in T} k}{\prod_{k=1}^{n}(k+1)} = \frac{\prod_{k \in T} k}{(n+1)!}.
+\]
+The player wins when $|S| > n/2$, i.e., $|T| \le \lfloor n/2 \rfloor$. Summing numerators over qualifying $T$ yields $N$.
+\end{proof}
+
+\begin{lemma}[Elementary symmetric polynomial recurrence]
+Let $e(i,j)$ be the sum of products of all $j$-element subsets of $\{1,\ldots,i\}$. Then
+\[
+e(i,j) = e(i-1,j) + i \cdot e(i-1,j-1), \quad e(0,0) = 1,
+\]
+and $N = \sum_{j=0}^{\lfloor n/2 \rfloor} e(n,j)$.
+\end{lemma}
+
+\begin{proof}
+Partition $j$-element subsets of $\{1,\ldots,i\}$ by membership of $i$: those excluding $i$ contribute $e(i-1,j)$; those including $i$ contribute $i \cdot e(i-1,j-1)$. The sum $\sum_{j=0}^{\lfloor n/2\rfloor} e(n,j)$ collects all products $\prod_{k \in T} k$ over subsets $T$ of size at most $\lfloor n/2 \rfloor$.
+\end{proof}
+
+\begin{theorem}[Maximum prize fund]
+The maximum prize fund is $\lfloor (n+1)!/N \rfloor$.
+\end{theorem}
+
+\begin{proof}
+The player pays \$1. For prize $M$, expected payout is $M \cdot N/(n+1)!$. Non-negative expected profit requires $M \le (n+1)!/N$, so the maximum integer prize is $\lfloor (n+1)!/N \rfloor$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Initialize $dp[0] = 1$, $dp[j] = 0$ for $1 \le j \le \lfloor n/2 \rfloor$.
+\item For $i = 1$ to $n$: for $j = \min(i, \lfloor n/2 \rfloor)$ down to $1$: update $dp[j] \mathrel{+}= i \cdot dp[j-1]$.
+\item Compute $N = \sum_{j=0}^{\lfloor n/2 \rfloor} dp[j]$.
+\item Return $\lfloor (n+1)!/N \rfloor$.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(n \cdot \lfloor n/2 \rfloor) = O(n^2)$, where $n = 15$.
+\item \textbf{Space:} $O(n)$ for the rolling DP array.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{2269}
+\]
+
+\end{document}

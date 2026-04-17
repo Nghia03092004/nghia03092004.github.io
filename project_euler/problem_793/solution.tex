@@ -1,0 +1,31 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\title{Problem 793: Median of Products}
+\author{Project Euler Solutions}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem Statement}
+Pseudorandom $S_0=290797$, $S_{i+1}=S_i^2 \bmod 50515093$. $M(n)$ = median of all pairwise products $S_iS_j$ for $0 \le i < j < n$. Given $M(3) = 3878983057768$, $M(103) = 492700616748525$. Find $M(1000003)$.
+\section{Analysis}
+\subsection*{Problem Scale}
+
+For $n = 1000003$, there are $\binom{n}{2} \approx 5 \times 10^{11}$ pairwise products. The median is the $\lceil \binom{n}{2}/2 \rceil$-th smallest product.
+
+\subsection*{Algorithm: Binary Search on Value}
+
+1. Sort the $n$ values $S_0, S_1, \ldots, S_{n-1}$.
+2. Binary search on the median value $V$: for each candidate $V$, count how many pairs $(i,j)$ have $S_i \cdot S_j \le V$.
+3. For sorted values, counting pairs with product $\le V$ uses a two-pointer technique: for each $S_i$, find the largest $j$ with $S_j \le V/S_i$. This takes $O(n)$ per query.
+4. Total: $O(n \log V_{\max})$ w
+\section{Answer}
+
+\[
+\boxed{475808650131120}
+\]
+
+\end{document}

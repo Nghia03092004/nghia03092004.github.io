@@ -1,0 +1,92 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm,algorithmic}
+
+\title{Problem 93: Arithmetic Expressions}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Choose four distinct digits
+\[
+\{a,b,c,d\}\subset\{1,2,\dots,9\},\qquad a<b<c<d.
+\]
+Using each digit exactly once, together with the operations $+,-,\times,\div$ and arbitrary parentheses, we obtain a set of values. We seek the digit set for which the obtainable positive integers contain the longest consecutive run
+\[
+1,2,\dots,n.
+\]
+The required output is the concatenation $abcd$.
+
+\section{Exact rational search}
+
+Every valid expression evaluates to a rational number, so the search can be carried out exactly in $\mathbb{Q}$.
+
+For a multiset $S$ of rational numbers, let $R(S)$ be the set of all rational values obtainable by combining the elements of $S$ with the four binary operations, using every element of $S$ exactly once.
+
+\subsection*{Recursive characterization}
+
+If $|S|=1$, then $R(S)=S$.
+
+If $|S|\ge 2$, choose two distinct elements $x,y\in S$, remove them, and replace them by one of
+\[
+x+y,\qquad x-y,\qquad y-x,\qquad xy,\qquad x/y\ (y\ne 0),\qquad y/x\ (x\ne 0).
+\]
+Then recurse on the smaller multiset.
+
+This recursion is complete. Any recursive contraction sequence clearly corresponds to a fully parenthesized expression. Conversely, every full binary expression tree has a lowest internal node whose two children are leaves; evaluating that node first contracts two operands into one value and reduces the number of leaves by one. Repeating this process yields a recursive contraction sequence. Thus the recursion generates exactly all obtainable values.
+
+\section{Complexity}
+
+For a multiset of size $m$, there are at most $\binom{m}{2}$ choices of unordered pair, and for each pair at most $6$ legal replacement values. Hence the number of terminal branches for one digit set is bounded by
+\[
+6\binom{4}{2}\cdot 6\binom{3}{2}\cdot 6\binom{2}{2}
+=3888.
+\]
+
+There are
+\[
+\binom{9}{4}=126
+\]
+possible digit sets, so the total search is very small.
+
+\section{Algorithm}
+
+\begin{algorithm}[H]
+\caption{Search all 4-digit sets}
+\begin{algorithmic}[1]
+\STATE $\mathrm{best\_run}\gets 0$, $\mathrm{best\_digits}\gets \text{``''}$
+\FOR{each 4-element subset $D\subset\{1,\dots,9\}$}
+    \STATE Compute all exact rational values reachable from $D$ by recursive pair contraction
+    \STATE Keep only positive integers
+    \STATE Compute the largest $n$ such that $1,2,\dots,n$ are all reachable
+    \IF{$n>\mathrm{best\_run}$}
+        \STATE Update $\mathrm{best\_run}$ and $\mathrm{best\_digits}$
+    \ENDIF
+\ENDFOR
+\RETURN $\mathrm{best\_digits}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Result}
+
+The optimal set is
+\[
+\{1,2,5,8\},
+\]
+which yields every positive integer from $1$ through $51$. Therefore the required concatenation is
+\[
+\boxed{1258}.
+\]
+
+\section{Answer}
+
+\[
+\boxed{1258}
+\]
+
+\end{document}

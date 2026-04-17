@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 205: Dice Game}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Peter has nine 4-sided dice (faces 1--4). Colin has six 6-sided dice (faces 1--6).
+They each roll all their dice and compare totals. Find $\Pr(\text{Peter beats Colin})$,
+rounded to 7 decimal places.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Convolution of Discrete Uniform Distributions]
+Let $X_1, \ldots, X_n$ be independent, each uniform on $\{1, \ldots, d\}$. The number of
+outcomes giving sum $S_n = s$ is the coefficient of $x^s$ in $(x + x^2 + \cdots + x^d)^n$.
+\end{theorem}
+
+\begin{proof}
+For independent discrete variables, $P(S_n = s) = \sum_{k=1}^{d} P(S_{n-1} = s-k) \cdot P(X_n = k)$,
+which is the convolution of the individual PMFs. The generating function representation
+follows from the product rule for GFs of independent variables.
+\end{proof}
+
+\begin{theorem}[Winning Probability]
+Let $P$ denote Peter's total and $C$ Colin's total. Then:
+\[
+\Pr(P > C) = \frac{1}{4^9 \cdot 6^6}
+\sum_{p=9}^{36} f_P(p) \cdot F_C(p-1),
+\]
+where $f_P(p)$ is the number of outcomes giving Peter total $p$, and
+$F_C(t) = \sum_{c=6}^{t} f_C(c)$ is Colin's cumulative frequency.
+\end{theorem}
+
+\begin{proof}
+Since $P$ and $C$ are independent:
+\[
+\Pr(P > C) = \sum_{p=9}^{36} \Pr(P=p) \cdot \Pr(C < p)
+= \sum_{p=9}^{36} \frac{f_P(p)}{4^9} \cdot \frac{F_C(p-1)}{6^6}.
+\]
+Factoring out the denominators yields the formula.
+\end{proof}
+
+\begin{lemma}[Range Constraints]
+Peter's sum ranges over $[9, 36]$ with $4^9 = 262144$ total outcomes.
+Colin's sum ranges over $[6, 36]$ with $6^6 = 46656$ total outcomes.
+\end{lemma}
+
+\begin{proof}
+The minimum sum of $n$ dice each showing at least~1 is $n$; the maximum with $d$-sided
+dice is $nd$. For Peter: $[9, 36]$. For Colin: $[6, 36]$.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State Build frequency table $f_P[0\ldots 36]$ via 9-fold convolution of the uniform distribution on $\{1,2,3,4\}$
+\State Build frequency table $f_C[0\ldots 36]$ via 6-fold convolution of the uniform distribution on $\{1,\ldots,6\}$
+\State Compute cumulative $F_C[t] = \sum_{c=6}^{t} f_C[c]$ for $t = 6, \ldots, 36$
+\State $\mathrm{win} \gets \sum_{p=9}^{36} f_P[p] \cdot F_C[p-1]$
+\State \Return $\mathrm{win} \;/\; (4^9 \cdot 6^6)$, rounded to 7 decimal places
+\end{algorithmic}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(n_P \cdot d_P \cdot s_{\max} + n_C \cdot d_C \cdot s_{\max} + s_{\max})
+          = O(9 \cdot 4 \cdot 36 + 6 \cdot 6 \cdot 36 + 36) = O(1)$.
+    \item \textbf{Space:} $O(s_{\max}) = O(36) = O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{0.5731441}
+\]
+
+\end{document}

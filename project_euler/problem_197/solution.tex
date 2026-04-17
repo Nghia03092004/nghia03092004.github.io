@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 197: Recursively Defined Sequence}
+\author{Project Euler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Define $f(x) = \lfloor 2^{30.403243784 - x^2} \rfloor \cdot 10^{-9}$ and $u_0 = -1$, $u_{n+1} = f(u_n)$. Find $\lfloor(u_n + u_{n+1}) \times 10^9\rfloor$ for large $n$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[2-Cycle Convergence]
+The sequence $\{u_n\}$ converges to a 2-cycle $(a, b)$ with $f(a) = b$, $f(b) = a$, and $a \neq b$.
+\end{theorem}
+
+\begin{proof}
+Define $g = f \circ f$. Since $f$ maps $\mathbb{R}$ into a bounded interval $[0, C]$, the map $g: [0,C] \to [0,C]$ has a fixed point $a$ by Brouwer's theorem. Setting $b = f(a)$, we get $f(b) = g(a) = a$.
+
+No fixed point of $f$ exists: the equation $\lfloor 2^{30.403\ldots - a^2}\rfloor = a \times 10^9$ has no solution (verified numerically), so $a \neq b$.
+
+The derivative $|g'(a)| = |f'(b)|\cdot|f'(a)| \approx 0.35 < 1$, so $g$ is a contraction near $a$. By Banach's fixed-point theorem, $g^n(u_0) \to a$ exponentially. \qed
+\end{proof}
+
+\begin{theorem}[Sum Stability]
+For all sufficiently large $n$:
+\[
+u_n + u_{n+1} = a + b.
+\]
+\end{theorem}
+
+\begin{proof}
+Even $n$: $u_{2k} + u_{2k+1} \to a + b$. Odd $n$: $u_{2k+1} + u_{2k+2} \to b + a = a + b$. \qed
+\end{proof}
+
+\begin{lemma}[Convergence Rate]
+After $\sim 100$ iterations, the sum is stable to full double-precision accuracy.
+\end{lemma}
+
+\begin{proof}
+Error bound: $|g^n(u_0) - a| \leq 0.35^n \cdot |u_0 - a|$. For $n = 50$: $0.35^{50} < 10^{-22}$. \qed
+\end{proof}
+
+\section{Algorithm}
+
+\begin{verbatim}
+u = -1.0
+repeat 1000 times:
+    u = floor(2^(30.403243784 - u*u)) * 1e-9
+u_next = floor(2^(30.403243784 - u*u)) * 1e-9
+answer = floor((u + u_next) * 1e9)
+\end{verbatim}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$ for $N \approx 1000$ iterations, each $O(1)$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1.710637717}
+\]
+
+\end{document}

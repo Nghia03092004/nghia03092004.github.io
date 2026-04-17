@@ -1,0 +1,58 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 726: Falling Bottles}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A stack of wine bottles is arranged in $n$ layers (triangular arrangement). When a bottle is removed, cascading rules apply:
+\begin{itemize}
+\item No bottle above: nothing happens
+\item One bottle above: it drops down
+\item Two bottles above: one drops (two choices)
+\end{itemize}
+
+Let $f(n)$ be the number of distinct ways to remove all bottles. Given $f(1) = 1$, $f(2) = 6$, $f(3) = 1008$.
+
+Define $S(n) = \sum_{k=1}^{n} f(k)$. Find $S(10^4) \bmod 1{,}000{,}000{,}033$.
+
+\section{Analysis}
+
+\subsection{Triangular Grid}
+
+The stack has $\binom{n+1}{2}$ bottles arranged in a triangle. Each bottle at position $(i,j)$ (row $i$, column $j$) rests on bottles at $(i+1,j)$ and $(i+1,j+1)$.
+
+\subsection{Counting Removals}
+
+The count $f(n)$ is the product of:
+\begin{enumerate}
+\item The number of valid removal sequences (linear extensions of the poset)
+\item The number of cascade choice sequences (factor of 2 for each two-above cascade event)
+\end{enumerate}
+
+\subsection{Modular Computation}
+
+Since $p = 1{,}000{,}000{,}033$ is prime, we work in $\mathbb{F}_p$ and use:
+\begin{itemize}
+\item Fermat's little theorem for modular inverses
+\item Fast exponentiation
+\item Dynamic programming with states encoded as grid configurations
+\end{itemize}
+
+\section{Complexity}
+
+The problem has difficulty rating 100\%, requiring sophisticated transfer matrix or bijective combinatorial methods.
+
+\section{Answer}
+
+\[
+\boxed{578040951}
+\]
+
+\end{document}

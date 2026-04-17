@@ -1,0 +1,87 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{Problem 128: Hexagonal Tile Differences}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Hexagonal tiles are arranged in concentric rings around tile 1. Define $PD(n)$ as the number of prime differences between tile $n$ and its six neighbors. Find the 2000th tile with $PD(n) = 3$.
+
+\section{Mathematical Foundation}
+
+\begin{theorem}[Ring formulas]
+Ring $r$ ($r \ge 1$) has first tile $S(r) = 3r(r-1) + 2$ and last tile $E(r) = 3r(r+1) + 1$.
+\end{theorem}
+
+\begin{proof}
+Rings $1, \ldots, r-1$ contain $\sum_{i=1}^{r-1} 6i = 3r(r-1)$ tiles. Adding tile~1, the first tile of ring $r$ is $3r(r-1) + 2$. The last tile is $S(r) + 6r - 1 = 3r(r+1) + 1$.
+\end{proof}
+
+\begin{theorem}[Classification]
+For $n > 1$, $PD(n) = 3$ only when $n = S(r)$ or $n = E(r)$. Interior tiles have $PD \le 2$.
+\end{theorem}
+
+\begin{proof}
+Interior tiles have at least four non-prime differences (values 1, or even $\ge 4$), leaving at most 2 prime candidates. Only endpoint tiles have the special neighbor configuration allowing exactly 3 prime differences.
+\end{proof}
+
+\begin{theorem}[Differences for $S(r)$]
+For $r \ge 2$, $PD(S(r)) = 3$ iff $6r-1$, $6r+1$, and $12r+5$ are all prime.
+\end{theorem}
+
+\begin{proof}
+The six differences of $S(r)$ are: 1, $6(r-1)$, $6r$, $6r-1$, $6r+1$, $12r+5$. The first three are never prime for $r \ge 3$. The last three are the only candidates.
+\end{proof}
+
+\begin{theorem}[Differences for $E(r)$]
+For $r \ge 2$, $PD(E(r)) = 3$ iff $6r-1$, $6r+5$, and $12r-7$ are all prime.
+\end{theorem}
+
+\begin{proof}
+The six differences of $E(r)$ include two values of 1, two even values ($6r$ and $6(r+1)$), and three candidates: $6r-1$, $6r+5$, $12r-7$.
+\end{proof}
+
+\begin{lemma}
+$PD(1) = 3$: neighbors 2--7 give differences $1,2,3,4,5,6$; primes are $2,3,5$.
+\end{lemma}
+
+\begin{proof}
+Direct computation.
+\end{proof}
+
+\section{Algorithm}
+
+\begin{enumerate}
+\item Start with tile 1 (count = 1).
+\item For $r = 1, 2, 3, \ldots$:
+\begin{enumerate}
+\item If $6r-1$, $6r+1$, $12r+5$ all prime, add $S(r)$.
+\item If $r \ge 2$ and $6r-1$, $6r+5$, $12r-7$ all prime, add $E(r)$.
+\end{enumerate}
+\item Stop at count = 2000. Use deterministic Miller-Rabin for primality (bases $\{2,3,5,7,11,13,17,19,23\}$, correct for $n < 3.3 \times 10^{24}$).
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+\item \textbf{Time:} $O(R \log^2 M)$ where $R$ is the final ring number and $M \sim 12R$.
+\item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{14516824220}
+\]
+
+\end{document}

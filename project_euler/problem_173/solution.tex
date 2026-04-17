@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm,algpseudocode}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Problem 173: Using Up to One Million Tiles How Many Different\\``Hollow'' Square Laminae Can Be Formed?}
+\author{Project Euler Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A hollow square lamina is formed by removing a smaller concentric square hole from a larger square. Using up to $N = 10^6$ unit-square tiles, how many distinct hollow square laminae can be formed?
+
+\section{Mathematical Development}
+
+\begin{definition}
+A \emph{hollow square lamina} is parameterized by $(a,b)$ with $a > b \geq 1$, $a \equiv b \pmod{2}$, where $a$ is the outer side length and $b$ the inner side length.
+\end{definition}
+
+\begin{theorem}[Tile count]
+A hollow square lamina $(a,b)$ uses exactly $t(a,b) = a^2 - b^2$ tiles.
+\end{theorem}
+
+\begin{proof}
+The lamina consists of $a^2$ cells minus the $b^2$ removed interior cells.
+\end{proof}
+
+\begin{lemma}[Factored form]
+With border width $k = (a{-}b)/2 \geq 1$: $t = 4k(a{-}k)$. For fixed $k$, $a$ ranges over $a \geq 2k{+}1$ subject to $4k(a{-}k) \leq N$.
+\end{lemma}
+
+\begin{proof}
+$t = (a{-}b)(a{+}b) = 2k(2a{-}2k) = 4k(a{-}k)$. Condition $b \geq 1$ gives $a \geq 2k+1$.
+\end{proof}
+
+\begin{lemma}[Range of $a$]
+The minimum tile count for outer side $a$ is $t_{\min}(a) = 4(a{-}1)$ (at $b = a{-}2$). Hence $a \leq N/4 + 1$.
+\end{lemma}
+
+\begin{proof}
+$a^2 - (a{-}2)^2 = 4a - 4 = 4(a{-}1)$. Requiring $4(a{-}1) \leq N$ gives $a \leq N/4 + 1$.
+\end{proof}
+
+\begin{theorem}[Counting formula]
+For each $a \geq 3$ with $4(a{-}1) \leq N$, define $b_{\max} = a - 2$ and $b_{\min}$ as the smallest positive integer with $b_{\min} \equiv a \pmod{2}$ and $b_{\min}^2 \geq a^2 - N$. The number of valid laminae with outer side $a$ is
+\[
+\operatorname{count}(a) = \left\lfloor\frac{b_{\max} - b_{\min}}{2}\right\rfloor + 1
+\]
+provided $b_{\min} \leq b_{\max}$, and zero otherwise.
+\end{theorem}
+
+\begin{proof}
+Valid values of $b$ form the arithmetic progression $\{b_{\min}, b_{\min}{+}2, \ldots, b_{\max}\}$ with common difference~2. Its cardinality is $\lfloor(b_{\max} - b_{\min})/2\rfloor + 1$.
+\end{proof}
+
+\begin{corollary}
+The total is $\sum_{a=3}^{\lfloor N/4+1\rfloor}\operatorname{count}(a)$.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{algorithmic}[1]
+\State $N \gets 10^6$;\; $\text{total} \gets 0$
+\For{$a = 3, 4, \ldots$ while $4(a{-}1) \leq N$}
+    \State $b_{\max} \gets a - 2$
+    \State $b_{\min} \gets \lceil\sqrt{\max(1,\, a^2 - N)}\,\rceil$, adjusted to satisfy $b_{\min} \equiv a \pmod{2}$
+    \If{$b_{\min} \leq b_{\max}$}
+        \State $\text{total} \mathrel{+}= \lfloor(b_{\max} - b_{\min})/2\rfloor + 1$
+    \EndIf
+\EndFor
+\State \Return total
+\end{algorithmic}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time:} $O(N/4)$ iterations, each $O(1)$. Total: $O(N)$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{Answer}
+
+\[
+\boxed{1572729}
+\]
+
+\end{document}

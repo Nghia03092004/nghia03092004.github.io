@@ -1,0 +1,55 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\title{Project Euler Problem 679: Freefarea}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Let $S=\{A,E,F,R\}$. For $n\ge 0$, $S^*(n)$ is the set of words of length~$n$ over~$S$.
+Keywords: \texttt{FREE}, \texttt{FARE}, \texttt{AREA}, \texttt{REEF}.
+Let $f(n)$ count words in $S^*(n)$ containing each keyword exactly once as a substring.
+Given $f(9)=1$ and $f(15)=72863$, find $f(30)$.
+
+\section{Solution}
+
+\subsection{Aho-Corasick Automaton}
+We build an Aho-Corasick automaton from the four keywords. Let $V$ be the set of automaton nodes and $\delta(v,c)$ the transition function. The output function $\mathrm{out}(v)\subseteq\{0,1,2,3\}$ records which keywords end at node~$v$ (including via failure links).
+
+\subsection{DP Formulation}
+Define $\mathrm{dp}[t][v][m]$ as the number of words of length~$t$ such that:
+\begin{itemize}
+  \item The automaton is in node~$v$ after reading the word.
+  \item $m\in\{0,\ldots,15\}$ is a bitmask of keywords seen exactly once.
+\end{itemize}
+
+\textbf{Base case:} $\mathrm{dp}[0][0][0] = 1$.
+
+\textbf{Transition:} For each $(v,m)$ and character $c\in S$:
+\begin{enumerate}
+  \item Compute $v' = \delta(v,c)$.
+  \item Let $o = \mathrm{out}(v')$.
+  \item If $o \cap m \ne \emptyset$: skip (keyword would appear twice).
+  \item Otherwise: $\mathrm{dp}[t+1][v'][m\cup o] \mathrel{+}= \mathrm{dp}[t][v][m]$.
+\end{enumerate}
+
+\textbf{Answer:}
+\[
+  f(n) = \sum_{v\in V} \mathrm{dp}[n][v][15].
+\]
+
+\subsection{Complexity}
+With $|V|\approx 13$ nodes and $16$ mask values, each step processes $\le 208\times 4 = 832$ transitions.
+For $n=30$ steps, total work is $O(24960)$.
+
+\section{Answer}
+
+\[
+\boxed{644997092988678}
+\]
+
+\end{document}
