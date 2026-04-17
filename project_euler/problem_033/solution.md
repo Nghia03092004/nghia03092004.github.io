@@ -58,20 +58,17 @@ Since $\gcd(1, 100) = 1$, the fraction is already in lowest terms. The denominat
 
 ## Algorithm
 
-```
-DIGIT-CANCELLING-FRACTIONS():
-    results <- []
-    for a <- 1 to 9:
-        for b <- 1 to 9:
-            if (9*a + b) does not divide 10*a*b: continue
-            e <- 10*a*b / (9*a + b)
-            if e < 1 or e > 9: continue
-            n <- 10*a + b;  d <- 10*b + e
-            if n >= d: continue
-            results.append((n, d))
-    num_prod <- product of numerators in results
-    den_prod <- product of denominators in results
-    return den_prod / gcd(num_prod, den_prod)
+We use the algebraic relation derived for non-trivial digit cancellation to avoid checking all two-digit fractions directly. The search runs over the nonzero digits $a$ and $b$, computes the candidate cancelled denominator digit $e$ from the divisibility condition, and retains only those cases that produce a proper fraction. The valid fractions are then multiplied together in cancelled form, and the denominator of the reduced product is returned.
+
+## Pseudocode
+
+```text
+Algorithm: Product of Non-trivial Digit-cancelling Fractions
+Require: Digits drawn from {1, 2, ..., 9}.
+Ensure: The denominator, in lowest terms, of the product of all non-trivial digit-cancelling fractions.
+1: Initialize N ← 1 and D ← 1.
+2: For each pair of digits (a, b) in {1, 2, ..., 9}^2, compute e ← 10ab/(9a + b) whenever the quotient is an integer digit in {1, 2, ..., 9}; if the resulting fraction (10a + b)/(10b + e) is proper, update N ← N · a and D ← D · e.
+3: Return D / gcd(N, D).
 ```
 
 ## Complexity Analysis

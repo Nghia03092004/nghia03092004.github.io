@@ -9,7 +9,9 @@ $$0.123456789101112131415161718192021\ldots$$
 If $d_n$ represents the $n$-th digit of the fractional part, find the value of:
 $$d_1 \times d_{10} \times d_{100} \times d_{1000} \times d_{10000} \times d_{100000} \times d_{1000000}$$
 
-## Mathematical Foundation
+## Mathematical Development
+
+### Mathematical Foundation
 
 **Definition.** *Champernowne's constant* (base 10) is $C_{10} = 0.123456789101112\ldots$, formed by concatenating all positive integers in order. We denote by $d_n$ the $n$-th digit of the fractional part.
 
@@ -59,26 +61,28 @@ $$d_1 \times d_{10} \times d_{100} \times d_{1000} \times d_{10000} \times d_{10
 
 ## Algorithm
 
-```
-CHAMPERNOWNE-DIGIT(n):
-    k ← 1
-    count ← 9
-    start ← 1
-    while n > count × k:
-        n ← n - count × k
-        k ← k + 1
-        count ← count × 10
-        start ← start × 10
-    // n is now the offset within the k-digit block
-    number ← start + ⌊(n - 1) / k⌋
-    digit_index ← (n - 1) mod k
-    return digit at position digit_index in number
+We use the block decomposition of Champernowne's constant by digit length. For any requested position $n$, the procedure first determines which block of $k$-digit integers contains that position by removing the contributions of all shorter blocks. The remaining offset identifies the exact integer in the $k$-digit block and the exact digit inside that integer. Repeating this extraction for the seven positions $10^0,10^1,\ldots,10^6$ and multiplying the resulting digits yields the required product.
 
-SOLVE():
-    product ← 1
-    for i ← 0 to 6:
-        product ← product × CHAMPERNOWNE-DIGIT(10^i)
-    return product
+## Pseudocode
+
+```text
+Algorithm: Digit of Champernowne's Constant
+Require: An integer n >= 1.
+Ensure: The digit d_n in the fractional part of Champernowne's constant.
+
+1: Determine the unique digit length k for which n lies inside the block of k-digit positive integers, and compute the residual offset r within that block.
+2: Compute q ← 10^(k - 1) + ⌊(r - 1) / k⌋ and j ← (r - 1) mod k.
+3: Return the j-th digit from the left in the decimal expansion of q.
+```
+
+```text
+Algorithm: Champernowne Digit Product
+Require: The target positions {10^0, 10^1, ..., 10^6}.
+Ensure: The product ∏_{i=0}^6 d_{10^i}.
+
+1: Initialize P ← 1.
+2: For each i in {0, 1, ..., 6}, update P ← P · DigitOfChampernowneConstant(10^i).
+3: Return P.
 ```
 
 ## Complexity Analysis

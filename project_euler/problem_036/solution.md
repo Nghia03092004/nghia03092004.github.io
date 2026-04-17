@@ -4,13 +4,15 @@
 
 Find the sum of all natural numbers less than $10^6$ that are palindromic in both base 10 and base 2. Leading zeros are not permitted in either representation.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** Let $b \ge 2$ be an integer. A positive integer $n$ is a *palindrome in base $b$* if its base-$b$ representation $(a_k, a_{k-1}, \ldots, a_1, a_0)_b$ with $a_k \ne 0$ satisfies $a_i = a_{k-i}$ for all $0 \le i \le k$.
 
 **Definition 2.** A positive integer $n$ is a *double-base palindrome* if it is simultaneously a palindrome in base 10 and a palindrome in base 2.
 
-## Theoretical Development
+### Theoretical Development
 
 **Theorem 1 (Parity constraint).** *Every double-base palindrome is odd.*
 
@@ -41,26 +43,17 @@ Find the sum of all natural numbers less than $10^6$ that are palindromic in bot
 
 ## Algorithm
 
-```
-DOUBLE-BASE-PALINDROME-SUM(N):
-    total <- 0
-    for d <- 1 to floor(log_10(N-1)):
-        for each base-10 palindrome p of d digits with p < N:
-            if REV_2(p) = p:
-                total <- total + p
-    return total
+We avoid scanning all integers below $10^6$ by generating only the decimal palindromes in that range. Each such palindrome is obtained by mirroring its free leading digits, and then its binary representation is tested for the same palindromic property. Summing exactly those candidates that pass both tests yields the required total.
 
-GENERATE-PALINDROME(d, digits):
-    // Construct d-digit palindrome from ceil(d/2) free digits
-    p <- mirror the free digits to form the full d-digit number
-    return p
+## Pseudocode
 
-REV_2(n):
-    m <- 0, t <- n
-    while t > 0:
-        m <- 2*m + (t mod 2)
-        t <- floor(t / 2)
-    return m
+```text
+Algorithm: Sum of Double-base Palindromes
+Require: A bound N > 1.
+Ensure: The sum of all integers n < N that are palindromic in both base 10 and base 2.
+1: Enumerate every decimal palindrome p with 1 <= p < N by constructing it from its free leading digits.
+2: For each such p, determine whether the binary expansion of p is also palindromic; if so, update T ← T + p.
+3: Return T.
 ```
 
 ## Complexity Analysis

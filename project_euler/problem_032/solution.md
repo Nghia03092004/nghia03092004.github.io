@@ -36,28 +36,17 @@ Subject to $1 \le \alpha \le \beta$ and $\alpha + \beta = 5$, the admissible pai
 
 ## Algorithm
 
-```
-PANDIGITAL-PRODUCTS():
-    products <- empty set
-    // Case (1,4)
-    for a <- 1 to 9:
-        for b <- 1234 to 9876:
-            p <- a * b
-            if d(p) != 4: continue
-            if IS-PANDIGITAL-9(a, b, p):
-                products.add(p)
-    // Case (2,3)
-    for a <- 12 to 98:
-        for b <- 123 to 987:
-            p <- a * b
-            if d(p) != 4: continue
-            if IS-PANDIGITAL-9(a, b, p):
-                products.add(p)
-    return SUM(products)
+We enumerate only the feasible factor-length patterns identified in the mathematical development: a 1-digit multiplicand times a 4-digit multiplier, or a 2-digit multiplicand times a 3-digit multiplier. For each candidate pair $(a,b)$, we compute the product $p$, test whether the concatenation of the decimal representations of $a$, $b$, and $p$ uses each digit from 1 to 9 exactly once, and insert valid products into a set so that duplicates are counted only once in the final sum.
 
-IS-PANDIGITAL-9(a, b, p):
-    s <- concatenate digits of a, b, p
-    return |s| = 9 and sorted(s) = "123456789"
+## Pseudocode
+
+```text
+Algorithm: Sum of Pandigital Products
+Require: The decimal digit set {1, 2, ..., 9}.
+Ensure: The sum of all distinct products p for which there exists a pandigital identity a · b = p.
+1: Initialize P ← ∅.
+2: Enumerate the two admissible factor-length patterns, namely (1 digit) · (4 digits) and (2 digits) · (3 digits); for each admissible pair (a, b), compute p ← a · b and test whether the decimal concatenation of a, b, and p uses each digit 1, 2, ..., 9 exactly once. If so, insert p into P.
+3: Return ∑_{x ∈ P} x.
 ```
 
 ## Complexity Analysis

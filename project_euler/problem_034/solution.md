@@ -54,19 +54,17 @@ No other value in the search range satisfies the factorion condition. $\square$
 
 ## Algorithm
 
-```
-DIGIT-FACTORIALS():
-    fact[0..9] <- precomputed factorials
-    total <- 0
-    for n <- 3 to 2540160:
-        s <- 0
-        temp <- n
-        while temp > 0:
-            s <- s + fact[temp mod 10]
-            temp <- floor(temp / 10)
-        if s = n:
-            total <- total + n
-    return total
+We perform a bounded exhaustive search using the upper bound established in the mathematical development. The factorials of the digits 0 through 9 are precomputed once, then every candidate from 3 up to $7 \cdot 9!$ is tested by summing the factorials of its decimal digits. Whenever this digit-factorial sum equals the original number, the candidate is added to the running total.
+
+## Pseudocode
+
+```text
+Algorithm: Sum of Digit Factorials
+Require: The decimal digit set {0, 1, ..., 9}.
+Ensure: The sum of all integers n >= 3 satisfying n = ∑_{d ∈ Digits(n)} d!.
+1: Precompute the table F(d) ← d! for d ∈ {0, 1, ..., 9}, and set U ← 7 · 9!.
+2: For each integer n in {3, 4, ..., U}, compute s ← ∑_{d ∈ Digits(n)} F(d); if s = n, update T ← T + n.
+3: Return T.
 ```
 
 ## Complexity Analysis

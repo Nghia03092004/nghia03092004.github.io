@@ -4,14 +4,16 @@
 
 For which value of $p \le 1000$ is the number of integer-sided right triangles with perimeter $p$ maximized?
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** A *Pythagorean triple* $(a, b, c)$ is a triple of positive integers satisfying $a^2 + b^2 = c^2$. It is *primitive* if $\gcd(a, b, c) = 1$.
 
 **Definition 2.** For a positive integer $p$, define
 $$N(p) = \#\{(a, b, c) \in \mathbb{Z}_{>0}^3 : a \le b < c,\; a^2 + b^2 = c^2,\; a + b + c = p\}.$$
 
-## Theoretical Development
+### Theoretical Development
 
 **Theorem 1 (Euclid's parametrization).** *Every primitive Pythagorean triple $(a, b, c)$ with $a$ odd and $b$ even is uniquely given by*
 $$a = m^2 - n^2, \quad b = 2mn, \quad c = m^2 + n^2,$$
@@ -70,23 +72,17 @@ Exhaustive computation over all even $p \le 1000$ confirms no other perimeter ac
 
 ## Algorithm
 
-```
-MAX-PYTHAGOREAN-PERIMETER(P):
-    best_p <- 0
-    best_count <- 0
-    for p <- 2 to P step 2:
-        count <- 0
-        for a <- 1 to floor(p/3) - 1:
-            num <- p * (p - 2*a)
-            den <- 2 * (p - a)
-            if den divides num:
-                b <- num / den
-                if b >= a:
-                    count <- count + 1
-        if count > best_count:
-            best_count <- count
-            best_p <- p
-    return best_p
+We examine only even perimeters, since odd perimeters cannot occur for Pythagorean triples. For each admissible perimeter $p \le P$, we enumerate the smallest side $a$ in its valid range, recover the unique candidate value of $b$ from the derived closed formula, and count the cases in which $b$ is an integer satisfying $b \ge a$. The perimeter with the largest count is retained throughout the scan.
+
+## Pseudocode
+
+```text
+Algorithm: Perimeter with the Most Integer Right Triangles
+Require: A perimeter bound P >= 2.
+Ensure: A value p* <= P maximizing the number of integer right triangles with perimeter p*.
+1: Initialize p* ← 0 and M ← 0.
+2: For each even perimeter p with 2 <= p <= P, compute the number of admissible sides a satisfying 1 <= a < p/3 for which b ← p(p - 2a)/(2(p - a)) is integral and b >= a; denote this count by N(p). If N(p) > M, update (p*, M) ← (p, N(p)).
+3: Return p*.
 ```
 
 ## Complexity Analysis

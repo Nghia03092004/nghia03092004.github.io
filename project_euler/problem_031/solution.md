@@ -47,14 +47,17 @@ After all $k$ iterations, $\mathrm{dp}[n] = f(k, n) = p(n; S)$. The outer loop r
 
 ## Algorithm
 
-```
-COIN-CHANGE-COUNT(n, coins):
-    dp[0..n] <- 0
-    dp[0] <- 1
-    for each c in coins:
-        for j <- c to n:
-            dp[j] <- dp[j] + dp[j - c]
-    return dp[n]
+We use one-dimensional dynamic programming over the available coin denominations. The array `dp[t]` stores the number of ways to form the total $t$, and we process the coin values in increasing order so that each unordered combination is counted exactly once rather than once per permutation. For each coin, we traverse all reachable totals from that coin value up to the target and add the number of ways obtained by appending the current coin.
+
+## Pseudocode
+
+```text
+Algorithm: Coin Change Count
+Require: A target sum n >= 0 and an ordered list of coin denominations C = (c_1, c_2, ..., c_m).
+Ensure: W(n), the number of unordered representations of n using coins from C.
+1: Initialize W on {0, 1, ..., n} by W(0) ← 1 and W(t) ← 0 for 1 <= t <= n.
+2: For each coin denomination c in C and for each total t with c <= t <= n, update W(t) ← W(t) + W(t - c).
+3: Return W(n).
 ```
 
 ## Complexity Analysis

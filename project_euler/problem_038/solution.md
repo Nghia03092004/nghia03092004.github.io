@@ -4,7 +4,9 @@
 
 For a fixed positive integer $x$, form the concatenated product of $x$ with $(1, 2, \ldots, n)$ for some $n > 1$. What is the largest 1-to-9 pandigital 9-digit number achievable?
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** The *concatenated product* of $x$ with the tuple $(1, 2, \ldots, n)$, denoted $\mathrm{CP}(x, n)$, is the integer obtained by concatenating the decimal representations of $x \cdot 1, x \cdot 2, \ldots, x \cdot n$:
 $$\mathrm{CP}(x, n) = \overline{(x) \| (2x) \| \cdots \| (nx)},$$
@@ -12,7 +14,7 @@ where $\|$ denotes string concatenation interpreted as a decimal numeral.
 
 **Definition 2.** An integer is *1-to-9 pandigital* if its decimal representation consists of the digits $\{1, 2, 3, 4, 5, 6, 7, 8, 9\}$ each appearing exactly once.
 
-## Theoretical Development
+### Theoretical Development
 
 **Theorem 1 (Digit count constraint).** *For $\mathrm{CP}(x, n)$ to be a 9-digit pandigital number with $n \ge 2$, we require*
 $$\sum_{k=1}^{n} \lfloor \log_{10}(kx) \rfloor + 1 = 9.$$
@@ -51,21 +53,17 @@ To verify maximality, observe that for $x > 9327$ starting with "93": $x \in [93
 
 ## Algorithm
 
-```
-LARGEST-PANDIGITAL-MULTIPLE():
-    best <- 0
-    for x <- 1 to 9999:
-        concat <- ""
-        n <- 0
-        while |concat| < 9:
-            n <- n + 1
-            concat <- concat || str(x * n)
-        if n >= 2 and |concat| = 9 and IS-PANDIGITAL(concat):
-            best <- max(best, int(concat))
-    return best
+We enumerate every possible base integer $x$ for which the concatenated product could still fit within nine digits, namely $1 \le x \le 9999$. For each $x$, we append the products $x, 2x, 3x, \ldots$ until the concatenation has at least nine digits, and we keep the value only when the concatenation has exactly nine digits, uses each of the digits 1 through 9 exactly once, and involves at least two factors. The maximum such value is the answer.
 
-IS-PANDIGITAL(s):
-    return (|s| = 9) and (sorted characters of s = "123456789")
+## Pseudocode
+
+```text
+Algorithm: Largest Pandigital Concatenated Product
+Require: The decimal digit set {1, 2, ..., 9}.
+Ensure: The largest 9-digit pandigital number of the form CP(x, n) with n > 1.
+1: Initialize B ← 0.
+2: For each integer x in {1, 2, ..., 9999}, form the concatenated product CP(x, n) by appending x, 2x, 3x, ... in order until the decimal length is at least 9; if n > 1, the final length is exactly 9, and the resulting string is 1-to-9 pandigital, update B ← max(B, CP(x, n)).
+3: Return B.
 ```
 
 ## Complexity Analysis

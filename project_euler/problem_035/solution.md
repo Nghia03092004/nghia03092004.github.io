@@ -46,24 +46,17 @@ Therefore, all digits must be odd and not 0 or 5, leaving $\{1, 3, 7, 9\}$. $\sq
 
 ## Algorithm
 
-```
-CIRCULAR-PRIMES(N):
-    is_prime[0..N-1] <- SIEVE(N)
-    count <- 0
-    for p <- 2 to N-1:
-        if not is_prime[p]: continue
-        k <- number of digits of p
-        pow10 <- 10^(k-1)
-        r <- p
-        is_circular <- true
-        for j <- 1 to k-1:
-            r <- (r mod 10) * pow10 + floor(r / 10)
-            if r < 0 or r >= N or not is_prime[r]:
-                is_circular <- false
-                break
-        if is_circular:
-            count <- count + 1
-    return count
+We first sieve all primes below the bound so that primality tests for rotations are constant-time lookups. Then we scan the primes in increasing order, form every cyclic rotation of the decimal expansion of each prime, and declare the prime circular only if every rotation also lies below the bound and remains prime. The final count is the number of primes that satisfy this rotation test.
+
+## Pseudocode
+
+```text
+Algorithm: Count Circular Primes
+Require: A bound N >= 2.
+Ensure: The number of primes p < N such that every cyclic rotation of the decimal expansion of p is also prime and below N.
+1: Construct a primality table for the interval {0, 1, ..., N - 1}.
+2: For each prime p < N, form the set of all cyclic rotations of the decimal expansion of p; if every such rotation is marked prime, increment the running count.
+3: Return the final count.
 ```
 
 ## Complexity Analysis

@@ -4,7 +4,9 @@
 
 Find the sum of the only eleven primes that are both truncatable from left to right and right to left. Single-digit primes (2, 3, 5, 7) are excluded.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** Let $p$ be a prime with decimal representation $d_1 d_2 \cdots d_k$ where $k \ge 2$. Define:
 - $R_i(p) = \overline{d_1 d_2 \cdots d_i}$ for $1 \le i \le k$ (right-truncations).
@@ -12,7 +14,7 @@ Find the sum of the only eleven primes that are both truncatable from left to ri
 
 **Definition 2.** A prime $p$ with $k \ge 2$ digits is *right-truncatable* if $R_i(p)$ is prime for every $1 \le i \le k$. It is *left-truncatable* if $L_i(p)$ is prime for every $1 \le i \le k$. It is *(two-sided) truncatable* if it is both.
 
-## Theoretical Development
+### Theoretical Development
 
 **Theorem 1 (Digit constraints).** *Let $p = d_1 d_2 \cdots d_k$ be a truncatable prime with $k \ge 2$. Then:*
 1. *$d_1 \in \{2, 3, 5, 7\}$.*
@@ -44,31 +46,17 @@ $$\mathcal{T} = \{23,\, 37,\, 53,\, 73,\, 313,\, 317,\, 373,\, 797,\, 3137,\, 37
 
 ## Algorithm
 
-```
-TRUNCATABLE-PRIMES(N):
-    is_prime <- SIEVE-OF-ERATOSTHENES(N)
-    total <- 0
-    count <- 0
-    for p <- 11 to N-1:
-        if not is_prime[p]: continue
-        if IS-RIGHT-TRUNCATABLE(p, is_prime) and IS-LEFT-TRUNCATABLE(p, is_prime):
-            total <- total + p
-            count <- count + 1
-            if count = 11: break
-    return total
+We precompute all primes below a search bound with the Sieve of Eratosthenes, then scan the primes from 11 upward. For each prime, we test every right truncation and every left truncation against the sieve table; if both families remain prime, the number is truncatable and contributes to the running sum. The search stops once the known total of eleven truncatable primes has been found.
 
-IS-RIGHT-TRUNCATABLE(p, is_prime):
-    while p >= 10:
-        p <- floor(p / 10)
-        if not is_prime[p]: return false
-    return is_prime[p]
+## Pseudocode
 
-IS-LEFT-TRUNCATABLE(p, is_prime):
-    pow <- 10
-    while pow < p:
-        if not is_prime[p mod pow]: return false
-        pow <- pow * 10
-    return true
+```text
+Algorithm: Sum of Truncatable Primes
+Require: A bound N exceeding the largest truncatable prime.
+Ensure: The sum of all primes below N that are truncatable from both left to right and right to left.
+1: Construct a primality table for the interval {0, 1, ..., N - 1}, and initialize T ← 0 and m ← 0.
+2: For each prime p in {11, 12, ..., N - 1}, compute all right truncations and all left truncations of p; if every truncation remains prime, update T ← T + p and m ← m + 1, and stop once m = 11.
+3: Return T.
 ```
 
 ## Complexity Analysis
