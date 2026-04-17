@@ -1,164 +1,222 @@
-# Notes & Numbers
+# Personal Website
 
-Blog/site ca nhan duoc build bang Astro, chia ro 3 luong noi dung:
+This repository contains a personal website built with Astro. It is the main long-term working repo for a broader personal web presence: essays, technical notes, engineering logs, and a large Project Euler archive.
 
-- `essays`: bai viet dai, ghi chep, suy nghi
-- `code`: build logs, snippets, implementation notes
-- `project-euler`: archive cho bai Project Euler, co filter theo status / difficulty / language
+Project Euler is an important section of the site, but it is not the whole identity of the repository.
 
-## Chay local
+## Main source layout
+
+```text
+.
+|- .github/workflows/deploy.yml
+|- project_euler/
+|  |- problem_XXX/
+|  |  |- solution.md
+|  |  |- solution.cpp
+|  |  |- solution.py
+|  |  `- statement.html        # optional mirrored Project Euler statement
+|- public/
+|  |- favicon.ico
+|  |- favicon.svg
+|  `- project-euler-media/     # optional mirrored statement media
+|- src/
+|  |- components/
+|  |- data/
+|  |  |- code/
+|  |  |- essays/
+|  |  `- euler-solved-counts.json
+|  |- layouts/
+|  |- lib/
+|  |- pages/
+|  |- site.config.ts
+|  `- styles/
+|- tools/
+|  |- project-euler-latex-fallback.mjs
+|  `- sync-project-euler-statements.mjs
+|- astro.config.mjs
+|- package.json
+|- package-lock.json
+`- tsconfig.json
+```
+
+## Local development
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Start the local development server:
+
+```bash
 npm run dev
 ```
 
-Build production:
+Build the site for production:
 
 ```bash
 npm run build
 ```
 
-Mac dinh site da duoc set san cho GitHub Pages root site:
+Run Astro's checks:
 
 ```bash
-npm run build
+npm run check
 ```
 
-Neu can custom domain rieng, override `SITE_URL`:
+## Main places to edit
 
-```bash
-SITE_URL=https://your-domain.com npm run build
-```
+General site metadata:
 
-## Cho canh chinh nhanh
+- `src/site.config.ts`
 
-Sua metadata chung trong `src/site.config.ts`:
+Key pages and layout:
 
-- ten site
-- author
-- email
-- social links
-- tagline
+- `src/pages/index.astro`
+- `src/pages/about.astro`
+- `src/pages/project-euler/index.astro`
+- `src/pages/project-euler/[slug].astro`
+- `src/layouts/BaseLayout.astro`
+- `src/styles/global.css`
 
-## Cau truc noi dung
+Essay and code content:
 
-Noi dung nam trong `src/data/`:
+- `src/data/essays/`
+- `src/data/code/`
+
+Project Euler content:
+
+- `project_euler/problem_XXX/solution.md`
+- `project_euler/problem_XXX/solution.cpp`
+- `project_euler/problem_XXX/solution.py`
+
+Project Euler loading and metadata:
+
+- `src/content.config.ts`
+- `src/lib/euler.ts`
+- `src/lib/euler-markdown.ts`
+- `src/lib/euler-statement.ts`
+
+## How Project Euler content works
+
+Project Euler pages are not loaded from `src/data/project-euler/`.
+
+The active implementation reads directly from the folder-based archive under:
 
 ```text
-src/data/
-  essays/
-  code/
-  project-euler/
+project_euler/problem_XXX/
 ```
 
-Chi can them file `.md` hoac `.mdx` vao dung thu muc la route se duoc tao tu dong.
+Each problem directory contains the local solution sources:
 
-## Mau frontmatter
+- `solution.md`
+- `solution.cpp`
+- `solution.py`
 
-Essay / code:
+It may also contain:
 
-```yaml
----
-title: Sample title
-description: Short summary
-published: 2026-03-26
-updated: 2026-03-27 # optional
-featured: false
-draft: false
-readingTime: 5 min
-tags:
-  - tag-one
-  - tag-two
----
-```
+- `statement.html`
 
-Project Euler:
+The custom Euler collection in `src/content.config.ts` scans `project_euler/`, renders each `solution.md`, and creates the `/project-euler/problem-XXXX/` routes.
 
-```yaml
----
-title: Problem title
-description: Short summary
-published: 2026-03-26
-problem: 1
-status: solved # solved | working | revisit
-difficulty: warmup # warmup | medium | hard
-languages:
-  - Python
-answer: "233168" # optional
-tags:
-  - arithmetic-series
----
-```
+If `statement.html` exists, the site renders that mirrored statement above the local write-up and automatically suppresses the duplicated `## Problem Statement` section from `solution.md`.
 
-## Routes chinh
+## Syncing Project Euler statements
 
-- `/`: landing page
-- `/essays`: danh sach essays
-- `/code`: danh sach code notes
-- `/project-euler`: archive Euler co filter
-- `/about`: gioi thieu
-- `/feed.xml`: RSS
-
-## Deploy
-
-Day la static site, co the deploy len:
-
-- Vercel
-- Netlify
-- Cloudflare Pages
-- GitHub Pages
-
-## GitHub Pages
-
-Repo da duoc them workflow tai `.github/workflows/deploy.yml`.
-
-Chi can:
-
-1. Tao repo tren GitHub.
-2. `git remote add origin <repo-url>`
-3. `git push -u origin master`
-
-Workflow se tu build va deploy len GitHub Pages cho ca 2 truong hop:
-
-- repo ten `username.github.io`
-- repo thuong, deploy duoi duong dan `https://username.github.io/<repo>/`
-
-De chuyen site nay thanh root site cua ban, doi ten repo thanh `nghia03092004.github.io`.
-
-Sau khi rename, workflow se tu build voi:
-
-- `SITE_URL=https://nghia03092004.github.io`
-- `BASE_PATH=/`
-
-Neu can domain rieng, sau nay co the them `public/CNAME`.
-
-## Sync Project Euler statements
-
-Trang problem Euler co the render full statement tu local TeX archive trong `../Project Euler/build_statement_books`, kem theo image/gif neu problem co media.
-
-De dong bo lai toan bo statement:
+The repository includes an optional sync script:
 
 ```bash
 npm run sync:project-euler-statements -- --all
 ```
 
-Co the dong bo mot problem hoac mot khoang:
+You can also sync one problem or a range:
 
 ```bash
 npm run sync:project-euler-statements -- --problem 96
 npm run sync:project-euler-statements -- --from 1 --to 100
 ```
 
-Script se:
+### What the sync script uses
 
-- build HTML tu local TeX statement books bang `make4ht`
-- tach moi problem thanh mot fragment rieng
-- copy media tu `../Project Euler/Images/` ve `public/project-euler-media/`
-- luu fragment vao `project_euler_unified/problem_XXX/statement.html`
+`tools/sync-project-euler-statements.mjs` works from a local Project Euler TeX archive, not from the Astro content tree alone.
 
-Neu local TeX archive khong co compile-safe fragment cho mot problem, script se giu lai `statement.html` hien co lam fallback. Site se uu tien render statement nay o dau trang problem, va tu dong bo phan `## Problem Statement` trong file `solution.md` de tranh lap noi dung.
+It expects:
 
-## Ghi chu ve Project Euler
+- a local `../Project Euler/` directory, or `PROJECT_EULER_BOOK_ROOT`
+- built statement books under `build_statement_books/`
+- `make4ht`
+- Playwright installed in this repo
 
-Main problem content cua Project Euler duoc cap phep theo `CC BY-NC-SA 4.0`. Neu ban public statement mirror tren site, can giu attribution va khong dung cho muc dich thuong mai. Xem them tai `https://projecteuler.net/copyright`.
+The script:
+
+- builds book HTML with `make4ht`
+- extracts per-problem statement fragments
+- falls back to local LaTeX extraction when the book HTML is not compile-safe
+- copies statement media into `public/project-euler-media/`
+- writes fragments to `project_euler/problem_XXX/statement.html`
+
+If no safe local fragment is available for a problem, the script keeps the existing `statement.html` as the fallback.
+
+### Playwright requirement
+
+Playwright is only needed for statement syncing. It is not required for normal editing, local page development, or a regular Astro build.
+
+If the browser binary is missing, run:
+
+```bash
+npx playwright install chromium
+```
+
+`.tmp-playwright` is not part of the repo's normal workflow and is not required. The repo uses its own local `playwright` dependency.
+
+### Important deployment note
+
+Generated `statement.html` files and `public/project-euler-media/` assets are part of the site source once created. If you want mirrored statements on GitHub Pages, commit and push them like any other source file.
+
+## Deployment
+
+GitHub Pages deployment is handled by:
+
+```text
+.github/workflows/deploy.yml
+```
+
+Pushes to `main` trigger the workflow.
+
+The workflow supports both:
+
+- a root site repository named `username.github.io`
+- a standard repository deployed under `https://username.github.io/<repo>/`
+
+For this repository, when the repo name is `nghia03092004.github.io`, the workflow builds with:
+
+- `SITE_URL=https://nghia03092004.github.io`
+- `BASE_PATH=/`
+
+If the repository name changes, the workflow keeps the same site URL and switches `BASE_PATH` to `/<repo-name>`.
+
+If you later move to a custom domain, add:
+
+```text
+public/CNAME
+```
+
+## Generated and removable local items
+
+These are local/generated items, not long-term source files:
+
+- `dist/`
+- `.astro/`
+- `node_modules/`
+- `build-*.log`
+
+They can be deleted safely. Recreate dependencies with `npm install`, and recreate build output with `npm run build`.
+
+## Project Euler copyright
+
+Mirrored Project Euler problem content is licensed under **CC BY-NC-SA 4.0**.
+
+If you publish mirrored statements, preserve attribution and follow the original licensing terms:
+
+https://projecteuler.net/copyright

@@ -2,12 +2,11 @@ import { createRequire } from 'node:module';
 import { promises as fs } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { extractBookLatexStatements } from './project-euler-latex-fallback.mjs';
 
 const require = createRequire(import.meta.url);
 const PROJECT_ROOT = process.cwd();
-const EULER_ROOT = path.join(PROJECT_ROOT, 'project_euler_unified');
+const EULER_ROOT = path.join(PROJECT_ROOT, 'project_euler');
 const MEDIA_ROOT = path.join(PROJECT_ROOT, 'public', 'project-euler-media');
 const BOOK_PROJECT_ROOT = process.env.PROJECT_EULER_BOOK_ROOT
 	? path.resolve(PROJECT_ROOT, process.env.PROJECT_EULER_BOOK_ROOT)
@@ -117,13 +116,8 @@ async function loadPlaywright() {
 	try {
 		return require('playwright');
 	} catch {
-		const fallbackRoot = path.resolve(PROJECT_ROOT, '..', '.tmp-playwright', 'node_modules', 'playwright');
-		if (await fileExists(fallbackRoot)) {
-			return import(pathToFileURL(path.join(fallbackRoot, 'index.mjs')).href);
-		}
-
 		throw new Error(
-			'Playwright is not available. Install it in this repo or keep the workspace-level .tmp-playwright package.',
+			'Playwright is not installed in this repo. Run npm install and, if needed, npx playwright install chromium.',
 		);
 	}
 }

@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-const EULER_ROOT = path.resolve(process.cwd(), 'project_euler_unified');
+const EULER_ROOT = path.resolve(process.cwd(), 'project_euler');
 const STATEMENT_LICENSE_URL = 'https://projecteuler.net/copyright';
 const statementCache = new Map<number, Promise<EulerMirroredStatement | undefined>>();
 

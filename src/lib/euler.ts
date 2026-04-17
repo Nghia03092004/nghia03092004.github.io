@@ -5,7 +5,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 import eulerSolvedCountsData from '../data/euler-solved-counts.json';
 
-const EULER_ROOT = path.resolve(process.cwd(), 'project_euler_unified');
+const EULER_ROOT = path.resolve(process.cwd(), 'project_euler');
 const SOURCE_FILE_NAMES = {
 	cpp: 'solution.cpp',
 	python: 'solution.py',

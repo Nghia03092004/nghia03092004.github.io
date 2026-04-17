@@ -45,7 +45,7 @@ const euler = defineCollection({
 	loader: {
 		name: 'euler-loader',
 		load: async ({ config, parseData, renderMarkdown, store, generateDigest }) => {
-			const rootPath = path.join(fileURLToPath(config.root), 'project_euler_unified');
+			const rootPath = path.join(fileURLToPath(config.root), 'project_euler');
 			const directoryEntries = await fs.readdir(rootPath, { withFileTypes: true });
 			const untouchedEntries = new Set(store.keys());
 
