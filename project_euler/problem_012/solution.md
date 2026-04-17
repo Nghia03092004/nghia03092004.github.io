@@ -4,13 +4,15 @@
 
 The $n$-th triangular number is $T_n = \frac{n(n+1)}{2}$. Find the smallest $T_n$ with $\tau(T_n) > 500$, where $\tau(m)$ denotes the number of positive divisors of $m$.
 
-## Definitions and Notation
+## Mathematical Development
+
+### Definitions and Notation
 
 **Definition 1.** For $m \in \mathbb{Z}^+$ with prime factorization $m = p_1^{a_1} p_2^{a_2} \cdots p_k^{a_k}$, the *divisor function* is $\tau(m) = \#\{d \in \mathbb{Z}^+ : d \mid m\}$.
 
 **Definition 2.** The *$n$-th triangular number* is $T_n = \sum_{i=1}^{n} i = \frac{n(n+1)}{2}$.
 
-## Theorems
+### Theorems
 
 **Theorem 1 (Divisor count formula).** If $m = p_1^{a_1} \cdots p_k^{a_k}$, then $\tau(m) = \prod_{i=1}^{k}(a_i + 1)$.
 

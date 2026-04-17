@@ -4,7 +4,7 @@
 
 Given that 1 January 1900 was a Monday, determine the number of Sundays that fell on the first of the month during the period 1 January 1901 to 31 December 2000 (inclusive).
 
-## Formal Development
+## Mathematical Development
 
 **Definition 1 (Day-of-week encoding).** Encode days of the week as elements of $\mathbb{Z}/7\mathbb{Z}$: Sunday $\equiv 0$, Monday $\equiv 1$, Tuesday $\equiv 2$, ..., Saturday $\equiv 6$.
 

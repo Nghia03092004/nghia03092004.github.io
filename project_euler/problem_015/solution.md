@@ -6,13 +6,15 @@ Starting at the top-left corner of a $20 \times 20$ grid, how many routes exist 
 
 Formally: count the number of monotone lattice paths from $(0,0)$ to $(20,20)$ using unit steps $(+1,0)$ (right) and $(0,+1)$ (down).
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** A *monotone lattice path* from $(0,0)$ to $(m,n)$ is a sequence of $m + n$ unit steps, each either $R = (+1,0)$ or $D = (0,+1)$, such that exactly $m$ steps are $R$ and exactly $n$ steps are $D$.
 
 **Definition 2.** Let $P(i,j)$ denote the number of monotone lattice paths from $(0,0)$ to $(i,j)$.
 
-## Theorems
+### Theorems
 
 **Theorem 1 (Closed-form path count).** The number of monotone lattice paths from $(0,0)$ to $(m,n)$ is
 
@@ -54,6 +56,10 @@ For integrality of partial products: $\prod_{k=1}^{j} \frac{n+k}{k} = \frac{(n+1
 
 *Proof.* At step $k$, the running product equals $\binom{n+k}{k} \cdot \frac{(n+k-1)!}{(n+k-1)!}$... more directly: after multiplying by $(n+k)$ and dividing by $k$, the result equals $\binom{n+k}{k}$, which is an integer by Theorem 3. $\square$
 
+### Numerical Evaluation
+
+$$\binom{40}{20} = \frac{40!}{(20!)^2} = 137\,846\,528\,820.$$
+
 ## Algorithm
 
 ```
@@ -77,10 +83,6 @@ $$\log_2 \binom{2n}{n} = 2n - \frac{1}{2}\log_2(\pi n) + O(1/n) \approx 2n.$$
 If arbitrary-precision arithmetic is used, each multiplication costs $O(n)$ bit operations, giving $O(n^2)$ total. With machine-word arithmetic (valid for $n = 20$ since $\binom{40}{20} \approx 1.38 \times 10^{11} < 2^{63}$), the cost is $O(n)$. $\square$
 
 **Remark.** The dynamic programming approach (Theorem 2) requires $O(n^2)$ time and $O(n)$ space (using row-by-row computation).
-
-## Computation for $n = 20$
-
-$$\binom{40}{20} = \frac{40!}{(20!)^2} = 137\,846\,528\,820.$$
 
 ## Answer
 

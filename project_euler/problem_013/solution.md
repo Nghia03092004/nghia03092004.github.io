@@ -4,13 +4,15 @@
 
 Given $N = 100$ positive integers, each having exactly $D = 50$ decimal digits, compute the first $10$ digits of their sum $S = \sum_{i=1}^{N} a_i$.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** For a positive integer $x$ with decimal representation $x = \sum_{k=0}^{m} d_k \cdot 10^k$, the *leading $t$ digits* of $x$ are the string formed by the $t$ most significant digits, i.e., $\lfloor x / 10^{m+1-t} \rfloor$ expressed in decimal.
 
 **Definition 2.** The *$t$-digit truncation* of a $D$-digit number $a_i$ is $\tilde{a}_i = \lfloor a_i / 10^{D-t} \rfloor$.
 
-## Theorems
+### Theorems
 
 **Theorem 1 (Upper bound on the sum).** Let each $a_i$ satisfy $10^{D-1} \le a_i < 10^D$. Then
 

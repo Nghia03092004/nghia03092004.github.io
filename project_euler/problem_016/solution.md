@@ -4,7 +4,7 @@
 
 Let $S(m)$ denote the sum of the decimal digits of a positive integer $m$. Compute $S(2^{1000})$.
 
-## Formal Development
+## Mathematical Development
 
 **Definition 1.** For a positive integer $m$ with base-10 representation $m = \sum_{k=0}^{d-1} a_k \cdot 10^k$, where $0 \le a_k \le 9$ and $a_{d-1} \ne 0$, define the *digit sum* $S(m) = \sum_{k=0}^{d-1} a_k$.
 

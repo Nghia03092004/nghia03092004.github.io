@@ -8,13 +8,15 @@ $$C(n) = \begin{cases} n/2 & \text{if } 2 \mid n, \\ 3n + 1 & \text{if } 2 \nmid
 
 The *Collatz sequence* from $n_0$ is $(n_0, C(n_0), C^2(n_0), \ldots)$. The *chain length* $L(n)$ is the number of terms in the sequence before and including the first occurrence of $1$. Find $\arg\max_{1 \le n < 10^6} L(n)$.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** The *Collatz orbit* of $n$ is the sequence $(C^k(n))_{k \ge 0}$. The *stopping time* (or chain length) is $L(n) = \min\{k \ge 0 : C^k(n) = 1\} + 1$.
 
 **Definition 2.** For $n > 1$, define $C^{(k)}(n) = C(C^{(k-1)}(n))$ with $C^{(0)}(n) = n$.
 
-## Theorems
+### Theorems
 
 **Theorem 1 (Recursive structure).** $L(1) = 1$, and for $n > 1$:
 

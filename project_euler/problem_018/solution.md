@@ -4,7 +4,7 @@
 
 Let $T$ be a triangular array of 15 rows. A *path* from the apex to the base selects one entry per row such that each successive entry is adjacent (directly below or below-right) to its predecessor. Find the maximum sum over all such paths.
 
-## Formal Development
+## Mathematical Development
 
 **Definition 1.** A *triangular array* $T$ of $n$ rows is a collection of entries $T[r][c]$ for $0 \le r \le n-1$ and $0 \le c \le r$. An *adjacent path* is a sequence $(c_0, c_1, \ldots, c_{n-1})$ with $c_0 = 0$ and $c_{r+1} \in \{c_r, c_r + 1\}$ for $0 \le r < n - 1$. The *path sum* is $\sum_{r=0}^{n-1} T[r][c_r]$.
 

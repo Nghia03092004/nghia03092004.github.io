@@ -4,7 +4,9 @@
 
 Let $G = (g_{i,j})_{0 \le i,j \le 19}$ be a $20 \times 20$ matrix of non-negative integers (given below). Find the greatest product of four adjacent entries along any horizontal, vertical, or diagonal line.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** For a direction vector $(d_r, d_c) \in \{(0,1),(1,0),(1,1),(1,-1)\}$, define the *$(d_r,d_c)$-product of length $\ell$ starting at $(i,j)$* as
 
@@ -16,7 +18,7 @@ provided all indices $i + kd_r, j + kd_c \in [0, n-1]$ for $k = 0, \ldots, \ell-
 
 $$\mathcal{F}_{d_r,d_c} = \bigl\{(i,j) \in [0,n-1]^2 : i+(\ell-1)d_r \in [0,n-1] \text{ and } j+(\ell-1)d_c \in [0,n-1]\bigr\}.$$
 
-## Theorems
+### Theorems
 
 **Theorem 1 (Completeness of four directions).** The four direction vectors $(0,1)$, $(1,0)$, $(1,1)$, $(1,-1)$ suffice to enumerate every set of $\ell$ collinear adjacent entries in the grid. No products are missed and none are double-counted.
 

@@ -6,7 +6,7 @@ Let $\ell(n)$ denote the number of letters (excluding spaces and hyphens) in the
 
 **Convention.** British English uses "and" after "hundred" when a nonzero remainder follows (e.g., "three hundred and forty-two").
 
-## Formal Development
+## Mathematical Development
 
 **Definition 1 (Atomic letter counts).** Define the following lookup tables:
 

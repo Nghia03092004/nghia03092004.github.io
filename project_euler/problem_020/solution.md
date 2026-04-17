@@ -4,7 +4,7 @@
 
 Let $S(m)$ denote the sum of the decimal digits of a positive integer $m$. Compute $S(100!)$.
 
-## Formal Development
+## Mathematical Development
 
 **Definition 1 (Digit sum).** For a positive integer $m = \sum_{k=0}^{d-1} a_k \cdot 10^k$ with digits $a_k \in \{0, \ldots, 9\}$ and $a_{d-1} \ne 0$, define $S(m) = \sum_{k=0}^{d-1} a_k$.
 
