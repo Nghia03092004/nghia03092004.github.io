@@ -50,32 +50,22 @@ $$\sum_{a=1}^{9} N(a) = 1 + 1 + 1 + 2 + 3 + 4 + 6 + 10 + 21 = 49.$$
 
 ## Algorithm
 
-```
-POWERFUL_DIGIT_COUNTS():
-    count = 0
-    for a = 1 to 9:
-        if a == 1:
-            n_max = 1
-        else:
-            n_max = floor(1 / (1 - log10(a)))
-        count += n_max
-    return count
-```
+The theorem reduces the search to bases $1$ through $9$, and for each such base the admissible exponents are counted directly by a logarithmic formula. The algorithm therefore does not enumerate powers. Instead, it computes the contribution of each base and adds those contributions together, with the base $1$ handled separately because it contributes exactly one valid exponent.
 
 ## Pseudocode
 
 ```text
-count = 0
+Initialize the total count to zero.
 
-for a in {1, 2, ..., 9}:
-    if a = 1:
-        count = count + 1
-        continue
+For each base a from 1 through 9:
+    if a is 1:
+        contribute exactly one valid exponent
+    otherwise:
+        compute the largest admissible exponent from the logarithmic bound
 
-    n_max = floor(1 / (1 - log10(a)))
-    count = count + n_max
+    add that contribution to the running total
 
-return count
+Return the final total.
 ```
 
 ## Complexity Analysis

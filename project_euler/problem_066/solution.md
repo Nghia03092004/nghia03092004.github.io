@@ -69,42 +69,28 @@ The period ends when $a_n = 2a_0$.
 
 ## Algorithm
 
-```
-For each non-square D from 2 to 1000:
-    Compute continued fraction of sqrt(D)
-    Compute convergents until x^2 - D*y^2 = 1
-    Record the minimal x
-Return D with largest minimal x
-```
+We scan all non-square values of $D$ up to $1000$. For each one, we compute the period of the continued fraction of $\sqrt{D}$ and use its parity to determine which convergent yields the fundamental solution of Pell's equation. We then generate convergents up to that index, extract the minimal numerator $x$, and keep the value of $D$ for which this minimal $x$ is largest.
 
 ## Pseudocode
 
 ```text
-best_D = 0
-best_x = 0
+Initialize the best pair as
+    current best D = 0
+    current best minimal x = 0
 
-for D from 2 to 1000:
-    a0 = floor(sqrt(D))
-    if a0^2 = D:
-        continue
+For each integer D from 2 through 1000:
+    if D is a perfect square, move on to the next value
 
-    compute the period r of the continued fraction of sqrt(D)
-    using the standard recurrence for (m, d, a)
+    compute the period length of the continued fraction of sqrt(D)
+    from that parity, determine which convergent carries the fundamental solution
 
-    if r is even:
-        target = r - 1
-    else:
-        target = 2r - 1
+    regenerate the continued fraction up to the required convergent
+    read off its numerator x
 
-    restart the continued-fraction recurrence
-    generate convergents up to index target
-    let x be the numerator of that convergent
+    if x is larger than the current best minimal x:
+        replace the recorded best pair by (D, x)
 
-    if x > best_x:
-        best_x = x
-        best_D = D
-
-return best_D
+Return the recorded value of D.
 ```
 
 ## Complexity

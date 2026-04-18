@@ -55,25 +55,18 @@ We can modify the triangle array in place, working from the bottom row upward, s
 
 ## Algorithm
 
-```
-1. Load the triangle T with n rows
-2. For i = n-2 down to 0:
-     For j = 0 to i:
-       T[i][j] += max(T[i+1][j], T[i+1][j+1])
-3. Return T[0][0]
-```
+We solve the triangle by bottom-up dynamic programming. Starting from the second-last row, each entry is replaced by its own value plus the larger of the two entries directly below it. After this sweep reaches the top row, the single remaining top entry equals the maximum path sum from top to bottom.
 
 ## Pseudocode
 
 ```text
-Load the triangle into a mutable array T.
+Read the triangle into a mutable table.
 
-for each row i from the second-last row up to the top:
-    for each position j in row i:
-        replace T[i][j] by
-            T[i][j] + max(T[i+1][j], T[i+1][j+1])
+Process the rows from bottom to top, stopping at the first row:
+    within each row, examine every entry
+    replace that entry by its own value plus the larger of its two children
 
-return T[0][0]
+Once the top row has been updated, return its lone entry.
 ```
 
 ## Complexity

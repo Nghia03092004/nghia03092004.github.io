@@ -60,44 +60,24 @@ Since $h_n k_{n-1} - h_{n-1} k_n = \pm 1$, we have $\gcd(h_n, k_n) = 1$. $\squar
 
 ## Algorithm
 
-```
-CONVERGENTS_OF_E(target=100):
-    // Generate partial quotients a_0 through a_99
-    a[0] = 2
-    for k = 1 to 99:
-        if k mod 3 == 2:
-            a[k] = 2 * (k + 1) / 3
-        else:
-            a[k] = 1
-
-    // Compute numerator using recurrence
-    h_prev2 = 1     // h_{-1}
-    h_prev1 = a[0]  // h_0
-    for k = 1 to 99:
-        h_curr = a[k] * h_prev1 + h_prev2
-        h_prev2 = h_prev1
-        h_prev1 = h_curr
-
-    // Sum digits of h_99
-    return digit_sum(h_prev1)
-```
+We use Euler's explicit pattern for the continued fraction of $e$ to determine the first $100$ partial quotients. The numerator of the convergents is then obtained from the standard recurrence, so only the two previous numerators need to be retained throughout the computation. Once the numerator of the $100$th convergent has been reached, we sum its decimal digits.
 
 ## Pseudocode
 
 ```text
-Define the partial quotient a_k by
-    a_0 = 2
-    a_k = 2(k + 1) / 3 when k ≡ 2 (mod 3)
-    a_k = 1 otherwise
+Determine the partial quotients of $e$ from Euler's pattern:
+    the first term is 2
+    every third later term is an even number
+    all remaining terms are 1
 
-h_prev2 = 1
-h_prev1 = a_0
+Initialize the recurrence with the two starting numerators.
 
-for k = 1, 2, ..., 99:
-    h_curr = a_k * h_prev1 + h_prev2
-    shift (h_prev2, h_prev1) forward to (h_prev1, h_curr)
+Advance through the first 100 convergents:
+    form the next numerator from the current partial quotient
+    then shift the two stored numerators forward
 
-return the sum of the decimal digits of h_prev1
+After the last update, compute the decimal digit sum of the current numerator.
+Return that sum.
 ```
 
 ## Complexity Analysis

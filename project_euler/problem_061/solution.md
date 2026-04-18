@@ -62,65 +62,30 @@ Then a valid solution to the problem corresponds to a directed 6-cycle $v_1 \to 
 
 ## Algorithm
 
-```
-CYCLICAL_FIGURATE_SEARCH():
-    // Step 1: Generate all 4-digit polygonal numbers, build adjacency
-    for s in {3, 4, 5, 6, 7, 8}:
-        for n in [n_min(s), n_max(s)]:
-            N = P(s, n)
-            prefix = N / 100
-            suffix = N mod 100
-            if suffix >= 10:
-                adj[prefix].append((suffix, s, N))
-
-    // Step 2: DFS with backtracking over all starting edges
-    for each starting type t and value v:
-        prefix = v / 100, suffix = v mod 100
-        result = DFS(start=prefix, current=suffix,
-                     used_types={t}, chain=[v], depth=1)
-        if result found: return sum(result)
-
-    DFS(start, current, used_types, chain, depth):
-        if depth == 6:
-            return chain if current == start, else None
-        for (next_node, type, value) in adj[current]:
-            if type not in used_types:
-                result = DFS(start, next_node,
-                             used_types + {type},
-                             chain + [value], depth + 1)
-                if result is not None: return result
-        return None
-```
+We first enumerate all 4-digit polygonal numbers of types $3$ through $8$ and keep only those whose last two digits form a valid two-digit suffix. Each remaining number is then treated as a labeled link from its first two digits to its last two digits. Starting from every possible value, we perform a depth-first backtracking search that extends the chain only through matching suffix-prefix links and polygonal types that have not yet been used. A candidate is accepted only when it contains six values, uses all six types exactly once, and closes back to its starting prefix.
 
 ## Pseudocode
 
 ```text
-Build the 4-digit polygonal values of each type s = 3, ..., 8.
-Discard any value whose last two digits do not form a genuine two-digit suffix.
+Generate the 4-digit polygonal numbers of each required type.
+Ignore any value whose final two digits do not form a valid link.
 
-Index the remaining values by their first two digits:
-    by_prefix[s][p] = all type-s values beginning with p
+Organize the remaining values by polygonal type and by their first two digits.
 
-for each polygonal type t:
-    for each starting value v of type t:
-        let start_prefix be the first two digits of v
-        let current_suffix be the last two digits of v
-        search recursively from the chain [v]
+For each possible starting value:
+    begin a chain containing only that value
+    mark its polygonal type as used
+    try to extend the chain recursively
 
-procedure extend(chain, used_types, current_suffix, start_prefix):
-    if six values have been chosen:
-        if current_suffix = start_prefix:
-            return the sum of the chain
-        backtrack
+During the recursive search:
+    if the chain already contains six values:
+        accept it only when the current suffix matches the opening prefix
 
-    for each unused polygonal type s:
-        for each candidate in by_prefix[s][current_suffix]:
-            extend(chain followed by candidate,
-                   used_types with s added,
-                   suffix(candidate),
-                   start_prefix)
+    otherwise, for each polygonal type not yet used:
+        inspect the values of that type whose prefix matches the current suffix
+        extend the chain by each such value in turn
 
-Return the first successful sum.
+Return the sum of the first chain that closes cyclically.
 ```
 
 ## Complexity Analysis

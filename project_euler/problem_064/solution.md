@@ -59,53 +59,24 @@ If $r$ is even, $(-1)^r = 1$, giving a solution to Pell's equation. If $r$ is od
 
 ## Algorithm
 
-```
-ODD_PERIOD_COUNT(N_max):
-    count = 0
-    for N = 2 to N_max:
-        a0 = floor(sqrt(N))
-        if a0 * a0 == N:
-            continue          // skip perfect squares
-
-        // Compute continued fraction period
-        m = 0, d = 1, a = a0
-        period = 0
-        repeat:
-            m = d * a - m
-            d = (N - m * m) / d
-            a = floor((a0 + m) / d)
-            period += 1
-        until a == 2 * a0
-
-        if period is odd:
-            count += 1
-    return count
-```
+We examine each non-square $N \le 10000$ separately. For each such value, we generate the continued fraction of $\sqrt{N}$ by the standard recurrence on the complete quotient parameters $(m,d,a)$ and stop when the term $2a_0$ appears, which marks the end of one full period. If that period length is odd, we increase the count. Perfect squares are skipped immediately because they do not contribute nontrivial periodic expansions.
 
 ## Pseudocode
 
 ```text
-count = 0
+Set the count of odd periods to zero.
 
-for N from 2 to N_max:
-    a0 = floor(sqrt(N))
-    if a0^2 = N:
-        continue
+For each integer N from 2 up to the limit:
+    compute a0 = floor(sqrt(N))
+    if N is a perfect square, skip it
 
-    m, d, a = 0, 1, a0
-    period = 0
+    begin the continued-fraction recurrence from m = 0, d = 1, and a = a0
+    repeat the standard update of m, d, and a until the term 2a0 appears
+    record how many updates were required
 
-    repeat
-        m = d*a - m
-        d = (N - m^2) / d
-        a = floor((a0 + m) / d)
-        period = period + 1
-    until a = 2*a0
+    if that period length is odd, increase the count
 
-    if period is odd:
-        count = count + 1
-
-return count
+Return the final count.
 ```
 
 ## Complexity Analysis

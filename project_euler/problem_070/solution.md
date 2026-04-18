@@ -58,40 +58,26 @@ For $n = p^2$, we have $\varphi(p^2) = p(p-1)$ and $n/\varphi(n) = p/(p-1)$, whi
 
 ## Algorithm
 
-```
-1. Sieve primes up to 10^7
-2. For each prime p with p^2 < 10^7:
-     For each prime q >= p with p*q < 10^7:
-       phi = (p-1)*(q-1)
-       If sorted_digits(p*q) == sorted_digits(phi):
-         If p*q / phi < best_ratio:
-           Update best
-3. Return best n
-```
+The search is restricted to semiprimes $n = pq$, because the ratio $n/\varphi(n)$ is minimized there among non-prime candidates, especially when $p$ and $q$ are large and close to $\sqrt{10^7}$. We enumerate prime pairs $(p,q)$ with $p \le q$ and $pq < 10^7$, compute $\varphi(pq) = (p-1)(q-1)$, and test whether $\varphi(pq)$ is a digit permutation of $pq$. Among all pairs passing that test, we keep the one with the smallest ratio $n/\varphi(n)$.
 
 ## Pseudocode
 
 ```text
-Generate all primes below 10^7.
+Generate the primes below the search bound.
+Begin with no candidate and with the best ratio larger than every feasible value.
 
-best_n = 0
-best_ratio = infinity
+For each prime p whose square is still below 10^7:
+    pair p with primes q starting from p itself
+    stop the inner scan once pq reaches the bound
 
-for each prime p in increasing order with p^2 < 10^7:
-    for each prime q >= p:
-        n = p * q
-        if n >= 10^7:
-            break
+    for each admissible product n = pq:
+        compute phi(n) = (p - 1)(q - 1)
+        compare the decimal digit multisets of n and phi(n)
 
-        phi = (p - 1)(q - 1)
-        if the digit signature of n does not match the digit signature of phi:
-            continue
+        if they are permutations of one another and the ratio n / phi(n) improves the current best:
+            record this n as the new best candidate
 
-        if n / phi < best_ratio:
-            best_ratio = n / phi
-            best_n = n
-
-return best_n
+Return the recorded best candidate.
 ```
 
 ## Complexity

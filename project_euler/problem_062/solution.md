@@ -34,50 +34,24 @@ where $[c] = \{m^3 : \sigma(m^3) = \sigma(c),\; D(m^3) = d\}$. Then no cube with
 
 ## Algorithm
 
-```
-CUBIC_PERMUTATIONS(target_count=5):
-    groups = {}          // map: canonical_form -> list of cubes
-    prev_digits = 0
-
-    for n = 1, 2, 3, ...:
-        cube = n^3
-        d = number_of_digits(cube)
-
-        if d > prev_digits and prev_digits > 0:
-            // All prev_digits-digit cubes have been enumerated
-            for each (key, cubes_list) in groups with |key| == prev_digits:
-                if |cubes_list| == target_count:
-                    record min(cubes_list) as candidate
-            if candidate found: return min over all candidates
-            groups = {}
-            prev_digits = d
-        if prev_digits == 0: prev_digits = d
-
-        key = sigma(cube)
-        groups[key].append(cube)
-```
+We generate cubes in increasing order and group them by their canonical digit signatures, but only within a fixed digit length. This digit-length partition is important because once the number of digits increases, no later cube can belong to any group from the previous layer. At each such transition we inspect the completed groups from the previous digit length, and if one of them contains exactly five cubes, the smallest cube in that group is the answer. Otherwise we discard the old groups and continue with the next digit length.
 
 ## Pseudocode
 
 ```text
-Let groups map each digit signature to the cubes having that signature.
-Let current_digits record the digit length of the layer being processed.
+Initialize the grouping structure for the current digit length.
+Start with no active digit length.
 
-for n = 1, 2, 3, ...:
-    cube = n^3
-    d = number of digits of cube
+For each positive integer n:
+    compute the cube c = n^3
+    determine the number of digits of c
 
-    if current_digits = 0:
-        current_digits = d
+    if this is the first cube of a new digit length:
+        inspect every group from the previous digit length
+        if one of them contains exactly five cubes, return its smallest element
+        reset the grouping structure for the new digit length
 
-    if d > current_digits:
-        inspect every signature class from the previous digit length
-        if some class contains exactly five cubes:
-            return the smallest cube in that class
-        clear groups
-        current_digits = d
-
-    append cube to groups[sorted digits of cube]
+    place c into the group indexed by its sorted digit signature
 ```
 
 ## Complexity Analysis
