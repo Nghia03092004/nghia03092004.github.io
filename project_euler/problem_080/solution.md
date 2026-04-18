@@ -42,14 +42,30 @@ Taking the floor: $x_{k+1} \geq s$.
 (iv) *Quadratic convergence:* Let $e_k = x_k - s$. Then $e_{k+1} \leq e_k^2/(2x_k)$, which follows from the standard Newton's method analysis. The number of iterations is $O(\log \log N)$. $\square$
 
 ## Editorial
-For the first 100 natural numbers, find the total of the digital sums of the first 100 decimal digits for all irrational square roots. We compute floor(sqrt(n * 10^198)). Finally, sum first 100 digits.
+The filtering step is immediate: only non-squares matter, because perfect squares have rational square roots and are excluded by the statement. For every remaining $n$, we scale by $10^{198}$ so that
+
+$$
+\left\lfloor \sqrt{n \cdot 10^{198}} \right\rfloor
+$$
+
+contains the first 100 significant digits of $\sqrt{n}$ as an integer. That turns a decimal-digit problem into an integer square-root problem.
+
+After computing that integer root, we read off its first 100 decimal digits, sum them, and add the result to the global total. So the candidates are simply the non-squares from $1$ to $100$, and the only filtering is the perfect-square check before the high-precision extraction.
 
 ## Pseudocode
 
 ```text
-while true
-Compute floor(sqrt(n * 10^198))
-Sum first 100 digits
+Precompute the perfect squares up to 100.
+Set the running total to 0.
+
+For each n from 1 to 100:
+    If n is a perfect square, skip it
+
+    Compute r = floor(sqrt(n x 10^198))
+    Read the first 100 decimal digits of r
+    Add their digit sum to the running total
+
+Return the running total.
 ```
 
 ## Complexity Analysis

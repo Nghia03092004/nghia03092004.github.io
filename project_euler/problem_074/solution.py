@@ -15,6 +15,8 @@ def solve():
     fact = [math.factorial(d) for d in range(10)]
 
     def digit_fact_sum(n):
+        if n == 0:
+            return fact[0]
         s = 0
         while n > 0:
             s += fact[n % 10]
@@ -29,22 +31,32 @@ def solve():
             return cache[n]
 
         chain = []
-        seen = set()
+        position = {}
         cur = n
-        while cur not in seen:
-            if cur in cache:
-                total = len(chain) + cache[cur]
-                for i, val in enumerate(chain):
-                    cache[val] = total - i
-                return cache.get(n, total)
-            seen.add(cur)
+        while cur not in position and cur not in cache:
+            position[cur] = len(chain)
             chain.append(cur)
             cur = digit_fact_sum(cur)
 
-        total = len(chain)
-        for i, val in enumerate(chain):
-            cache[val] = total - i
-        return total
+        if cur in cache:
+            length = cache[cur]
+            for val in reversed(chain):
+                length += 1
+                cache[val] = length
+            return cache[n]
+
+        cycle_start = position[cur]
+        cycle_length = len(chain) - cycle_start
+
+        for i in range(cycle_start, len(chain)):
+            cache[chain[i]] = cycle_length
+
+        length = cycle_length
+        for i in range(cycle_start - 1, -1, -1):
+            length += 1
+            cache[chain[i]] = length
+
+        return cache[n]
 
     count = 0
     for start in range(1, LIMIT):
@@ -56,5 +68,5 @@ def solve():
 
 if __name__ == "__main__":
     answer = solve()
-assert answer == 402
-print(answer)
+    assert answer == 402
+    print(answer)

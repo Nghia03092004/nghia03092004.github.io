@@ -48,13 +48,26 @@ Multiplying through by $-1$ and using $(-1)^{j} \cdot (-1) = (-1)^{j+1}$ yields 
 *Proof.* Since addition and subtraction in $\mathbb{Z}/M\mathbb{Z}$ satisfy $(a + b) \bmod M = ((a \bmod M) + (b \bmod M)) \bmod M$ and $(a - b) \bmod M = ((a \bmod M) - (b \bmod M)) \bmod M$, the modular reduction commutes with the recurrence at each step. $\blacksquare$
 
 ## Editorial
-We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+Euler's pentagonal recurrence is the whole algorithm. It expresses $p(n)$ as an alternating sum of earlier partition values taken at offsets given by the generalized pentagonal numbers. So instead of building partitions explicitly, we generate only the offsets that can actually contribute and combine previously computed values with the required signs.
+
+Because the problem only asks when $p(n)$ becomes divisible by one million, we never need the full integers. Reducing modulo $10^6$ after every step preserves the divisibility test and keeps the numbers small. The candidates in each recurrence step are the pentagonal offsets not exceeding the current $n$; larger offsets are ignored because they would reference negative indices. We advance $n$ in order and stop as soon as the partition value becomes $0 \pmod{10^6}$.
 
 ## Pseudocode
 
 ```text
-while true
-while true
+Precompute the generalized pentagonal numbers up to a safe search limit, together with their alternating signs.
+Set p(0) = 1.
+
+For n from 1 upward:
+    start the new partition value at 0
+
+    For each precomputed pentagonal offset that does not exceed n:
+        add or subtract the previously computed partition value indicated by its sign
+
+    Reduce the result modulo one million
+
+    If the result is 0:
+        return n
 ```
 
 ## Complexity Analysis

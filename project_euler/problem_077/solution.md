@@ -44,25 +44,24 @@ After all primes $p \leq N$ are processed, $\mathrm{dp}[n] = q(n)$ for $n \leq N
 *Proof.* The function $q(n)$ is monotonically non-decreasing for $n \geq 2$ (since every partition of $n-1$ into primes can be extended by adding $1$ to some part or by inclusion). Direct computation yields $q(71) = 5007 > 5000$, confirming the bound. $\blacksquare$
 
 ## Editorial
-What is the first value which can be written as the sum of primes in over five thousand different ways?. We iterate over p in primes.
+The structure is the same as the ordinary partition DP, except the allowed part sizes are now primes. We first generate all primes up to a safe search bound, then process them one by one in increasing order. After a prime $p$ has been processed, each table entry counts the representations that use only primes up to $p$.
+
+Adding prime $p$ works exactly like the unbounded-knapsack transition: every way to make $j-p$ can be extended by one more copy of $p$, so it contributes to the count for $j$. Using primes in increasing order prevents different orders of the same sum from being counted separately. Once the table is filled, we scan upward and stop at the first value whose count exceeds 5000.
 
 ## Pseudocode
 
 ```text
-    N = 100 # sufficient upper bound
-    primes = sieve_primes(N) # [2, 3, 5, 7, 11, ...]
-    dp = array[0..N] initialized to 0
-    dp[0] = 1
+Choose a search bound that is known to contain the answer.
+Generate every prime up to that bound.
 
-    for p in primes:
-        For j from p to N:
-            dp[j] += dp[j - p]
+Create a counting table for totals up to the bound and set the value for 0 to 1.
 
-    For n from 2 to N:
-        If dp[n] > threshold then
-            Return n
+For each prime:
+    For each total that is at least that prime:
+        add the number of representations for the reduced total
 
-    Return -1 # unreachable given the bound
+Scan the totals from 2 upward.
+Return the first total whose count is greater than 5000.
 ```
 
 ## Complexity Analysis

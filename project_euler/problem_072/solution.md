@@ -51,20 +51,29 @@ Primes are correctly identified during the sieve: $d$ is prime if and only if $\
 By a classical result in analytic number theory, $\sum_{d=1}^{N} \varphi(d) = \frac{3N^2}{\pi^2} + O(N \log N)$. For $N = 10^6$, this gives approximately $3.04 \times 10^{11}$.
 
 ## Editorial
-Count the number of reduced proper fractions n/d with d <= 1,000,000. By Theorem 3, the answer is sum of phi(d) for d = 2 to 1,000,000. Computed via Euler totient sieve in O(N log log N).
+The denominator-by-denominator interpretation is the key simplification. For a fixed $d$, exactly $\varphi(d)$ numerators produce reduced proper fractions, so the whole problem becomes the summatory totient
+
+$$
+\sum_{d=2}^{10^6} \varphi(d).
+$$
+
+Computing each $\varphi(d)$ independently would waste work because nearby values share prime factors. The sieve avoids that. We begin with $\varphi(d) = d$ for every $d$, and whenever we discover a prime $p$, we apply the factor $(1 - 1/p)$ to every multiple of $p$. By the time the sieve finishes, every denominator has been filtered by exactly its distinct prime divisors, so the array contains the correct totients and summing it gives the answer.
 
 ## Pseudocode
 
 ```text
-    phi[1..N] = [1, 2, ..., N]
-    For d from 2 to N:
-        if phi[d] == d: # d is prime
-            for m = d, 2d, ..., N:
-                phi[m] = phi[m] / d * (d - 1)
-    Return sum(phi[2], phi[3], ..., phi[N])
+Create an array phi with phi[d] = d for every d from 0 to N.
+
+For each integer p from 2 to N:
+    If phi[p] is still equal to p, then p is prime
+        For each multiple m of p:
+            replace phi[m] by phi[m] x (p - 1) / p
+
+Add phi[2] through phi[N].
+Return that total.
 ```
 
-## Complexity
+## Complexity Analysis
 
 **Time:** The sieve visits, for each prime $p \leq N$, all $\lfloor N/p \rfloor$ multiples. By Mertens' second theorem:
 

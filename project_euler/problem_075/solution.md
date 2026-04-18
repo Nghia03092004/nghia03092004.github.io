@@ -63,27 +63,36 @@ A perimeter $L$ is called **singular** if there is exactly one Pythagorean tripl
 **Proof.** By Theorem 3, each Pythagorean triple with perimeter $L$ corresponds to a unique factorization $L = kL_0$ with $L_0$ primitive and $k \geq 1$. Distinct primitive perimeters $L_0$ dividing $L$ give distinct triples. $\square$
 
 ## Editorial
-Count values of L <= 1,500,000 for which exactly one integer-sided right triangle can be formed with perimeter L. By Theorems 1-3, generate all primitive Pythagorean triple perimeters via Euclid's parametrization L0 = 2m(m+n), then count multiples. A perimeter is "singular" iff it is hit exactly once.
+Euclid's parametrization gives a clean generation scheme for all primitive triples. Every valid pair $(m,n)$ with opposite parity and $\gcd(m,n)=1$ produces exactly one primitive perimeter
+
+$$
+L_0 = 2m(m+n).
+$$
+
+That already handles candidate generation. The filtering comes from the Euclid conditions: pairs with the same parity or a common factor do not produce primitive triples, so we discard them immediately. Once a primitive perimeter is known, every multiple of it corresponds to a non-primitive triple, so we mark all multiples in a counter array. After the sweep, a perimeter is singular precisely when its counter is equal to one.
 
 ## Pseudocode
 
 ```text
-    count[1..L_max] = 0
-    m_max = floor(sqrt(L_max / 2))
+Create a counter array for all perimeters up to the limit.
+Compute the largest necessary value of m.
 
-    For m from 2 to m_max:
-        For n from 1 to m - 1:
-            If (m - n) is even then continue
-            If gcd(m, n) != 1 then continue
-            L0 = 2 * m * (m + n)
-            If L0 > L_max then stop this loop
-            for L = L0, 2*L0, 3*L0, ..., <= L_max:
-                count[L] += 1
+For each m starting from 2:
+    For each n with 1 <= n < m:
+        If m and n have the same parity, skip this pair
+        If gcd(m, n) is greater than 1, skip this pair
 
-    Return |{L : count[L] == 1}|
+        Compute the primitive perimeter L0 = 2m(m + n)
+        If L0 is above the limit, stop increasing n for this m
+
+        For every multiple of L0 within the limit:
+            increase the corresponding perimeter counter
+
+Count how many perimeters were hit exactly once.
+Return that count.
 ```
 
-## Complexity
+## Complexity Analysis
 
 **Outer loop:** The iterations over $(m, n)$ pairs total $\sum_{m=2}^{m_{\max}} (m-1) = O(m_{\max}^2) = O(L_{\max})$ before filtering.
 

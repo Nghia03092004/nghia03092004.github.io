@@ -70,19 +70,22 @@ since the forward iteration (increasing $j$) allows the value $\mathrm{dp}[j - k
 **Remark.** The problem asks for partitions into at least two parts, which excludes the trivial partition $n = n$. The answer is therefore $p(100) - 1$.
 
 ## Editorial
-How many different ways can 100 be written as a sum of at least two positive integers?. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
+This is the standard partition DP in unbounded-knapsack form. We process possible part sizes in increasing order, and after part size $k$ is handled, the table entry for a sum $j$ represents the number of partitions of $j$ that use only parts up to $k$.
+
+The update is natural: every partition of $j-k$ can be extended by adding one more part of size $k$, so we add the number of ways to make $j-k$ into the number of ways to make $j$. Because part sizes are introduced in sorted order, the same multiset is never counted in different orders. That is exactly why the DP counts partitions rather than compositions. At the end we subtract one to remove the trivial partition consisting of $100$ alone.
 
 ## Pseudocode
 
 ```text
-    dp = array[0..n] initialized to 0
-    dp[0] = 1
+Create a table for sums from 0 to 100 and fill it with zeros.
+Set the entry for sum 0 to 1.
 
-    For k from 1 to n:
-        For j from k to n:
-            dp[j] += dp[j - k]
+For each allowed part size from 1 to 100:
+    For each target sum that can include this part:
+        add the number of ways to form the remaining sum after taking one such part
 
-    Return dp[n] - 1 # subtract 1 for the trivial partition n = n
+Subtract one to exclude the single-part partition 100.
+Return the resulting count.
 ```
 
 ## Complexity Analysis

@@ -24,35 +24,42 @@ int main() {
     int count = 0;
     for (int start = 1; start < LIMIT; start++) {
         vector<int> chain;
-        unordered_set<int> seen;
+        unordered_map<int, int> position;
         int cur = start;
-        while (seen.find(cur) == seen.end()) {
-            if (cur < CACHE_SIZE && chain_len[cur] > 0) {
-                int total = (int)chain.size() + chain_len[cur];
-                for (int i = (int)chain.size() - 1; i >= 0; i--) {
-                    int val = chain[i];
-                    int len = total - i;
-                    if (val < CACHE_SIZE && chain_len[val] == 0)
-                        chain_len[val] = len;
-                }
-                if (total == 60) count++;
-                goto next;
-            }
-            seen.insert(cur);
+        while (position.find(cur) == position.end() && !(cur < CACHE_SIZE && chain_len[cur] > 0)) {
+            position[cur] = (int)chain.size();
             chain.push_back(cur);
             cur = digit_fact_sum(cur);
         }
-        {
-            int total = (int)chain.size();
+
+        if (cur < CACHE_SIZE && chain_len[cur] > 0) {
+            int length = chain_len[cur];
             for (int i = (int)chain.size() - 1; i >= 0; i--) {
+                length += 1;
                 int val = chain[i];
-                int len = total - i;
-                if (val < CACHE_SIZE && chain_len[val] == 0)
-                    chain_len[val] = len;
+                if (val < CACHE_SIZE)
+                    chain_len[val] = length;
             }
-            if (total == 60) count++;
+        } else {
+            int cycle_start = position[cur];
+            int cycle_length = (int)chain.size() - cycle_start;
+
+            for (int i = cycle_start; i < (int)chain.size(); i++) {
+                int val = chain[i];
+                if (val < CACHE_SIZE)
+                    chain_len[val] = cycle_length;
+            }
+
+            int length = cycle_length;
+            for (int i = cycle_start - 1; i >= 0; i--) {
+                length += 1;
+                int val = chain[i];
+                if (val < CACHE_SIZE)
+                    chain_len[val] = length;
+            }
         }
-        next:;
+
+        if (chain_len[start] == 60) count++;
     }
 
     cout << count << endl;

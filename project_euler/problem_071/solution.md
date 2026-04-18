@@ -53,21 +53,29 @@ $$\frac{3}{7} - \frac{a}{b} \geq \frac{2}{7b} \geq \frac{2}{7 \times 10^6} > \fr
 (the middle inequality is strict since $2/10^6 > 1/999997$), confirming that $428570/999997$ is the unique left neighbor. $\square$
 
 ## Editorial
-By Theorem 2, d is the largest integer <= N with d = 5 (mod 7), and n = (3d - 1) / 7.
+For each denominator $d$, there is only one numerator worth considering: the largest integer $n$ with $n/d < 3/7$, namely $n = \lfloor (3d-1)/7 \rfloor$. Any smaller numerator gives a fraction farther to the left, so once $d$ is fixed there is no reason to check anything else.
+
+The implementation scans all denominators up to $10^6$, skips multiples of $7$ because those would hit $3/7$ exactly, and compares the resulting candidate fraction with the current best one using cross-multiplication. This keeps the search simple while still exploiting the main observation: candidate fractions are generated directly from the inequality against $3/7$, and only the largest candidate for each denominator survives.
 
 ## Pseudocode
 
 ```text
-Closed-form:
-    r = N mod 7
-    d = N - ((r - 5) mod 7) # largest d <= N with d = 5 (mod 7)
-    n = (3 * d - 1) / 7
-    Return n
+Start with the best fraction equal to 0/1.
+
+For each denominator from 1 to 1,000,000:
+    If the denominator is divisible by 7, skip it
+
+    Compute the largest numerator whose fraction stays strictly below 3/7
+
+    If this candidate fraction is larger than the current best fraction:
+        replace the current best pair with this numerator and denominator
+
+Return the numerator from the best pair.
 ```
 
-## Complexity
+## Complexity Analysis
 
-- **Time:** $O(1)$ -- a constant number of arithmetic operations.
+- **Time:** $O(N)$ with $N = 10^6$, since we inspect each denominator once.
 - **Space:** $O(1)$.
 
 ## Answer

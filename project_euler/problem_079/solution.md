@@ -53,14 +53,29 @@ We prove the output $v_{\sigma(1)}, \ldots, v_{\sigma(|V|)}$ is a valid topologi
 At each step, exactly one vertex has in-degree $0$, confirming uniqueness by Theorem 3. $\blacksquare$
 
 ## Editorial
-Given 50 successful login attempts (3-digit subsequences), determine the shortest possible secret passcode via topological sort of the precedence DAG. We iterate over each attempt d1 d2 d3 in attempts. Finally, kahn's algorithm.
+Each login attempt gives relative-order information, not exact positions. So the natural model is a precedence graph: from a triple $abc$ we learn that $a$ must come before $b$, $a$ before $c$, and $b$ before $c$. Repeating this over all attempts produces a directed graph on the digits that actually appear.
+
+Once the graph is built, the shortest passcode is just a topological ordering of that graph. No extra digits are needed, because every distinct digit in the graph must appear at least once and a valid topological order already satisfies every subsequence constraint. Kahn's algorithm generates the passcode by repeatedly taking a digit whose remaining in-degree is zero, appending it to the answer, and deleting its outgoing constraints. In this dataset the choice is unique at every stage, so the passcode is forced.
 
 ## Pseudocode
 
 ```text
-for each attempt d1 d2 d3 in attempts
-Kahn's algorithm
-while queue is not empty
+Collect the distinct digits that appear in the login attempts.
+
+For each three-digit attempt:
+    add the precedence edges implied by its relative order
+
+Compute the in-degree of every digit.
+Place all digits with in-degree zero into the processing queue.
+
+While the queue is not empty:
+    remove the next digit from the queue and append it to the passcode
+
+    For each digit that must come after it:
+        decrease that digit's in-degree
+        if the in-degree becomes zero, place it into the queue
+
+Return the concatenation of the chosen digits.
 ```
 
 ## Complexity Analysis
