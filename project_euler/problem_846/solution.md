@@ -36,11 +36,16 @@ Since bracelets are equivalence classes of cycles under the dihedral group, we n
 
 The sum of potencies over all bracelets equals the sum over all valid cycles of their vertex sums, divided by $2n$ for each cycle of length $n$.
 
-### Algorithm
+### Editorial
+A bracelet uses beads with values in {1, 2, p^k, 2p^k} for odd primes p. Two adjacent beads a,b must satisfy: ab = x^2 + 1 for some integer x. All beads distinct, bracelet length >= 3. F(N) = sum of potencies of all magic bracelets using values <= N. We build the adjacency graph on valid numbers up to $N$. We then enumerate all simple cycles of length $\geq 3$. Finally, iterate over each cycle of length $n$, add (sum of vertices) / $2n$ to the total (since each cycle is counted $2n$ times by rotations and reflections).
 
-1. Build the adjacency graph on valid numbers up to $N$.
-2. Enumerate all simple cycles of length $\geq 3$.
-3. For each cycle of length $n$, add (sum of vertices) / $2n$ to the total (since each cycle is counted $2n$ times by rotations and reflections).
+### Pseudocode
+
+```text
+Build the adjacency graph on valid numbers up to $N$
+Enumerate all simple cycles of length $\geq 3$
+For each cycle of length $n$, add (sum of vertices) / $2n$ to the total (since each cycle is counted $2n$ times by rotations and reflections)
+```
 
 ## Complexity Analysis
 

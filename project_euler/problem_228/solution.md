@@ -39,21 +39,15 @@ $$\theta_k^{(n)} = \frac{\pi(2k + 1)}{n}, \quad k = 0, 1, \ldots, n - 1.$$
 
 **Proof.** For $q \geq 2$, $S_q$ is directly a summand. For $q = 1$, the direction $\pi \cdot 1/1 = \pi$ appears in $S_n$ for any odd $n$, e.g., $S_3$. $\square$
 
-## Algorithm
+## Editorial
+.. + S_1864, where S_n is a regular n-gon. The number of sides equals the number of distinct edge normal directions across all the regular polygons in the sum. We compute Euler's totient via sieve. Finally, else.
 
-```
-function count_sides(N = 1864):
-    // Compute Euler's totient via sieve
-    phi = totient_sieve(N)
+## Pseudocode
 
-    total = phi[1]    // q = 1 contributes phi(1) = 1
-    for q = 2 to N:
-        if q is odd:
-            total += phi[q]
-        else:
-            total += 2 * phi[q]
-
-    return total
+```text
+Compute Euler's totient via sieve
+if q is odd
+else
 ```
 
 ## Complexity Analysis

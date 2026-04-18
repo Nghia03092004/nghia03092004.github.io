@@ -36,34 +36,14 @@ $$f(i, s) = \sum_{x=0}^{\min(m, s)} f(i-1, s-x), \quad f(0, 0) = 1, \quad f(0, s
 
 **Proof.** The recurrence follows by conditioning on the value of $x_i$. For the prefix-sum optimization, note that $f(i, s) = \sum_{x=0}^{\min(m,s)} f(i-1, s-x) = F(s) - F(s - m - 1)$ where $F(s) = \sum_{t=0}^{s} f(i-1, t)$ is the prefix sum. Computing $F$ takes $O(n)$, and each $f(i,s)$ is then $O(1)$. $\square$
 
-## Algorithm
+## Editorial
+Count distributions of n beans into k bowls, each with capacity m. B(n,k,m) = sum_{j=0}^{floor(n/(m+1))} (-1)^j * C(k,j) * C(n-j(m+1)+k-1, k-1). We method: Inclusion-exclusion with modular arithmetic. Finally, precompute factorials and inverse factorials mod p.
 
-```
-function BeansInBowls(n, k, m, p):
-    # Method: Inclusion-exclusion with modular arithmetic
-    # Precompute factorials and inverse factorials mod p
-    fact = [1] * (n + k)
-    for i = 1 to n+k-1:
-        fact[i] = fact[i-1] * i mod p
-    inv_fact = [1] * (n + k)
-    inv_fact[n+k-1] = pow(fact[n+k-1], p-2, p)
-    for i = n+k-2 downto 0:
-        inv_fact[i] = inv_fact[i+1] * (i+1) mod p
+## Pseudocode
 
-    function C(a, b):   # binomial coefficient mod p
-        if b < 0 or b > a: return 0
-        return fact[a] * inv_fact[b] % p * inv_fact[a-b] % p
-
-    result = 0
-    sign = 1
-    for j = 0 to k:
-        rem = n - j * (m + 1)
-        if rem < 0: break
-        term = C(k, j) * C(rem + k - 1, k - 1) mod p
-        result = (result + sign * term) mod p
-        sign = -sign
-
-    return result mod p
+```text
+Method: Inclusion-exclusion with modular arithmetic
+Precompute factorials and inverse factorials mod p
 ```
 
 ## Complexity Analysis

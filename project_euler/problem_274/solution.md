@@ -25,22 +25,15 @@ Conversely, if $10m \equiv 1 \pmod{p}$, then $q(1 - 10m) \equiv 0 \pmod{p}$ for 
 
 **Proof.** The extended GCD computes $s, t$ with $10s + pt = 1$, giving $10^{-1} \equiv s \pmod{p}$. The algorithm runs in $O(\log(\min(10, p))) = O(\log p)$ steps. $\square$
 
-## Algorithm
+## Editorial
+For each prime p coprime to 10, the divisibility multiplier m(p) is the smallest positive integer m < p such that for the operation f(n) = floor(n/10) + (n mod 10) * m, if p | n then p | f(n). This is equivalent to m(p) = 10^{-1} mod p (modular inverse of 10 mod p). Find the sum of m(p) for all primes p coprime to 10 with p < 10^7. We sieve of Eratosthenes. Finally, sum modular inverses.
 
-```
-function solve(N = 10^7):
-    # Step 1: Sieve of Eratosthenes
-    is_prime = sieve(N)
+## Pseudocode
 
-    # Step 2: Sum modular inverses
-    total = 0
-    for p in range(3, N):
-        if is_prime[p] and p != 5:
-            # Compute 10^{-1} mod p via modular exponentiation
-            m = pow(10, p - 2, p)
-            total += m
-
-    return total
+```text
+Sieve of Eratosthenes
+Sum modular inverses
+Compute 10^{-1} mod p via modular exponentiation
 ```
 
 ## Complexity Analysis

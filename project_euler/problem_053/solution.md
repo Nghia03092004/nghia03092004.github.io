@@ -62,7 +62,7 @@ In both cases, $\hat{C}(n,r) > T \iff \binom{n}{r} > T$. $\blacksquare$
 
 $$\sum_{n=1}^{100} |E_{10^6}(n)| = \sum_{\substack{n=1 \\ E_{10^6}(n) \neq \emptyset}}^{100} (n - 2r_{\min}(n) + 1).$$
 
-## Algorithm
+## Editorial
 
 We examine every pair $(n,r)$ with $1 \leq n \leq 100$ and $0 \leq r \leq n$, determine the corresponding binomial coefficient, and count those exceeding one million. A practical implementation can either evaluate the coefficients directly or generate them row by row using Pascal's recurrence with capping to avoid large intermediate values; both approaches enumerate exactly the same set of coefficients and apply the same threshold test.
 

@@ -24,21 +24,22 @@ $$S_k = 2^f \cdot 2^{k-1} + 2^{f-1} \cdot 2^{(k-1)/2} + \sum_{i=1}^{f} 2^{f-1} \
 
 **Proof.** Each palindrome has value $V = 2^{k-1} + (\text{mirror contributions}) + b_0$ (for even $k$, $b_0 = b_{k-1} = 1$). The leading and trailing bits contribute $2^{k-1} + 1$ to each palindrome. Each free bit $b_i$ at position $k-1-i$ also appears at the mirror position $i$, contributing $2^{k-1-i} + 2^i$ when $b_i = 1$. Over all $2^f$ palindromes, each free bit is 1 in exactly half, giving factor $2^{f-1}$. For odd $k$, the middle bit at position $(k-1)/2$ is its own mirror. $\square$
 
-## Algorithm
+## Editorial
+Compute the sum of all binary palindromes less than 2^30. A binary palindrome is a positive integer whose binary representation reads the same forwards and backwards (no leading zeros). Generation strategy: For each bit length k (1..30), generate palindromes by choosing the first ceil(k/2) bits (with MSB = 1), then mirroring to produce the full k-bit palindrome. Results:.
 
-```
-function SumBinaryPalindromes(max_bits):
+## Pseudocode
+
+```text
     total = 0
-    for k = 1 to max_bits:
-        for half = 2^(ceil(k/2) - 1) to 2^ceil(k/2) - 1:
+    For k from 1 to max_bits:
+        For half from 2^(ceil(k/2) - 1) to 2^ceil(k/2) - 1:
             palindrome = BuildPalindrome(half, k)
             total += palindrome
-    return total
+    Return total
 
-function BuildPalindrome(half, k):
     bits = binary_digits(half, ceil(k/2))
-    full = bits + reverse(bits[0 : floor(k/2)])   // mirror first half
-    return binary_to_int(full)
+    full = bits + reverse(bits[0 : floor(k/2)]) // mirror first half
+    Return binary_to_int(full)
 ```
 
 ## Complexity Analysis

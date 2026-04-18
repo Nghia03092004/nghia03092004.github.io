@@ -46,32 +46,34 @@ $$A_j = \sum_{\ell=1}^{K-1} (x_{\ell+1} - x_\ell) \cdot L_\ell$$
 
 *Proof.* The algorithm maintains the invariant that $[c, d]$ is the current maximal merged interval. Since the intervals are sorted by left endpoint, any new interval $[a_k, b_k]$ either extends the current interval (if $a_k < d$) or starts a disjoint component (if $a_k \geq d$). In the latter case, $[c, d]$ is closed and its length added to $\lambda$. The final addition accounts for the last open interval. Correctness follows by induction on $m$. $\square$
 
-## Algorithm
+## Editorial
+We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function CombinedVolume(cuboids[1..n]):
+## Pseudocode
+
+```text
     Z = sorted distinct set of {z0, z0 + dz} for all cuboids
     V = 0
 
-    for j = 1 to |Z| - 1:
+    For j from 1 to |Z| - 1:
         dz = Z[j+1] - Z[j]
         active = {c in cuboids : c.z0 <= Z[j] and Z[j+1] <= c.z0 + c.dz}
-        if active is empty: continue
+        If active is empty then continue
 
         X = sorted distinct set of {c.x0, c.x0 + c.dx} for c in active
         area = 0
 
-        for l = 1 to |X| - 1:
+        For l from 1 to |X| - 1:
             dx = X[l+1] - X[l]
             intervals = [(c.y0, c.y0 + c.dy) : c in active, c.x0 <= X[l], X[l+1] <= c.x0 + c.dx]
-            if intervals is empty: continue
+            If intervals is empty then continue
             sort intervals by left endpoint
             Ly = GreedyMergeLength(intervals)
             area += dx * Ly
 
         V += dz * area
 
-    return V
+    Return V
 ```
 
 ## Complexity Analysis

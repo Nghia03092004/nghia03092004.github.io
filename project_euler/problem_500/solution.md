@@ -31,16 +31,16 @@ We maintain a min-heap of candidate values:
 
 We perform 500500 iterations, always picking the smallest candidate.
 
-## Algorithm
+## Editorial
+We generate primes up to ~7500000 (about 500500 primes needed). We then initialize a min-heap with all these primes. Finally, return the answer.
 
-```
-1. Generate primes up to ~7500000 (about 500500 primes needed).
-2. Initialize a min-heap with all these primes.
-3. For i = 1 to 500500:
-   a. Pop the smallest value v from the heap.
-   b. Multiply the answer by v (mod 500500507).
-   c. Push v^2 onto the heap.
-4. Return the answer.
+## Pseudocode
+
+```text
+Generate primes up to ~7500000 (about 500500 primes needed)
+Initialize a min-heap with all these primes
+For i = 1 to 500500:
+Return the answer
 ```
 
 ## Correctness

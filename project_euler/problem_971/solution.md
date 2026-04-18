@@ -34,33 +34,16 @@ Let $\mathbb{Z}[i] = \{a + bi : a, b \in \mathbb{Z}\}$ denote the ring of Gaussi
 
 **Proof.** This follows directly from Theorem 2, restricting the classification to the given region. Note that $1+i$ has $a = b = 1 > 0$ and $N(1+i) = 2$, which is prime, so it is counted among the interior primes. The point $(0,0)$ is not prime (it is zero). $\square$
 
-## Algorithm
+## Editorial
+Count Gaussian primes a + bi in the first quadrant with 0 <= a, b <= 500. A Gaussian integer a + bi is prime if:. We sieve of Eratosthenes up to 2*N^2. Finally, interior Gaussian primes (a > 0, b > 0).
 
-```
-function CountGaussianPrimes(N):
-    // Step 1: Sieve of Eratosthenes up to 2*N^2
-    max_val = 2 * N * N
-    is_prime = SieveOfEratosthenes(max_val)
+## Pseudocode
 
-    count = 0
-
-    // Step 2: Interior Gaussian primes (a > 0, b > 0)
-    for a = 1 to N:
-        for b = 1 to N:
-            if is_prime[a*a + b*b]:
-                count = count + 1
-
-    // Step 3: Axis primes on b = 0
-    for a = 2 to N:
-        if is_prime[a] and a mod 4 == 3:
-            count = count + 1
-
-    // Step 4: Axis primes on a = 0
-    for b = 2 to N:
-        if is_prime[b] and b mod 4 == 3:
-            count = count + 1
-
-    return count
+```text
+Sieve of Eratosthenes up to 2*N^2
+Interior Gaussian primes (a > 0, b > 0)
+Axis primes on b = 0
+Axis primes on a = 0
 ```
 
 ## Complexity Analysis

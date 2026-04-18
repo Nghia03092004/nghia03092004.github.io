@@ -27,39 +27,18 @@ Thus $R(d) < r$ iff $m \cdot P_k > \dfrac{\prod(1-1/p_i)}{r - \prod(1-1/p_i)}$, 
 
 **Proof.** Since $m$ introduces no new prime factors, $\phi(m \cdot P_k) = m \cdot P_k \prod_{i=1}^k (1 - 1/p_i)$. Dividing by $m \cdot P_k - 1$ gives the formula. Rearranging $R(d) < r$ yields the stated bound. $\square$
 
-## Algorithm
+## Editorial
+Strategy: 1. The ratio phi(d)/d = prod(1 - 1/p) for p | d is minimized by primorial numbers. 2. Find the first primorial P_k with R(P_k) < target. 3. Search d = m * P_j for j < k and small multipliers m. We check if P itself satisfies the bound. We then p_k works; but a smaller multiple of P_{k-1} might also work. Finally, search d = m * P_{k-1} for m = 2, 3, ... (only smooth m).
 
-```
-function SmallestResilient(r = 15499/94744):
-    primes = [2, 3, 5, 7, 11, 13, ...]
-    P = 1       # primorial
-    totient_ratio = 1   # product of (1 - 1/p)
+## Pseudocode
 
-    for k = 1, 2, ...:
-        P = P * primes[k]
-        totient_ratio = totient_ratio * (1 - 1/primes[k])
-
-        # Check if P itself satisfies the bound
-        if totient_ratio * P / (P - 1) < r:
-            # P_k works; but a smaller multiple of P_{k-1} might also work
-            # We already checked P_{k-1} and it failed, so search
-            # multiples m * P_{k-1}
-            break
-
-    # Search d = m * P_{k-1} for m = 2, 3, ... (only smooth m)
-    prev_P = P / primes[k]
-    prev_ratio = totient_ratio / (1 - 1/primes[k])
-
-    best = P  # fallback
-    for m = 2, 3, ...:
-        d = m * prev_P
-        if d >= best: break
-        # Compute R(d) using Euler's product
-        R_d = d / (d - 1) * totient_ratio_for(d)
-        if R_d < r:
-            best = min(best, d)
-
-    return best
+```text
+Check if P itself satisfies the bound
+P_k works; but a smaller multiple of P_{k-1} might also work
+We already checked P_{k-1} and it failed, so search
+multiples m * P_{k-1}
+Search d = m * P_{k-1} for m = 2, 3, ... (only smooth m)
+Compute R(d) using Euler's product
 ```
 
 ## Complexity Analysis

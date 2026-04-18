@@ -26,22 +26,24 @@ We claim $k \geq 1$. If $k = 0$, then $S = p_1$ and $p_2 \mid p_1$. But $p_2 > p
 
 **Proof.** By Fermat's little theorem, $a^{p_2 - 1} \equiv 1 \pmod{p_2}$ for $\gcd(a, p_2) = 1$. Hence $a^{-1} \equiv a^{p_2 - 2} \pmod{p_2}$. $\square$
 
-## Algorithm
+## Editorial
+For consecutive primes p1, p2 with 5 <= p1 <= 1000003, find S(p1,p2): smallest positive integer ending in p1 and divisible by p2. Sum all S values.
 
-```
-function sum_prime_pair_connections():
-    primes = sieve_primes(1100000)     // slightly above 1000003
+## Pseudocode
+
+```text
+    primes = sieve_primes(1100000) // slightly above 1000003
     total = 0
-    for i in range where primes[i] >= 5 and primes[i+1] <= 1000003:
+    For each i in range where primes[i] >= 5 and primes[i+1] <= 1000003:
         p1 = primes[i]
         p2 = primes[i+1]
         d = number_of_digits(p1)
         pow10 = 10^d
-        inv = modular_inverse(pow10, p2)    // via extended GCD or Fermat
+        inv = modular_inverse(pow10, p2) // via extended GCD or Fermat
         k = (-p1 * inv) mod p2
         S = p1 + k * pow10
         total += S
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

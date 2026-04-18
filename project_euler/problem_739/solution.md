@@ -64,12 +64,17 @@ $$\binom{2n-(k+1)-3}{n-(k+1)} = \binom{2n-k-4}{n-k-1} = \binom{2n-k-3}{n-k} \cdo
 
 This allows iterative computation with modular inverses.
 
-## Algorithm
+## Editorial
+Compute f(n) for the Lucas-like sequence using binomial coefficient weights. f(n) = sum_{k=2}^{n} C(2n-2-k, n-k) * L_k mod 10^9+7 This Python version verifies with small cases. For n=10^8, use the C++ solution. We precompute factorials and inverse factorials modulo $10^9+7$ up to $2n$. We then compute Lucas sequence values $L_k$ modulo $10^9+7$ iteratively. Finally, iterate over each $k$ from 2 to $n$, compute $\binom{2n-k-3}{n-k}$ using precomputed factorials.
 
-1. Precompute factorials and inverse factorials modulo $10^9+7$ up to $2n$.
-2. Compute Lucas sequence values $L_k$ modulo $10^9+7$ iteratively.
-3. For each $k$ from 2 to $n$, compute $\binom{2n-k-3}{n-k}$ using precomputed factorials.
-4. Accumulate $\text{ans} = \sum c_k \cdot L_k \bmod 10^9+7$.
+## Pseudocode
+
+```text
+Precompute factorials and inverse factorials modulo $10^9+7$ up to $2n$
+Compute Lucas sequence values $L_k$ modulo $10^9+7$ iteratively
+For each $k$ from 2 to $n$, compute $\binom{2n-k-3}{n-k}$ using precomputed factorials
+Accumulate $\text{ans} = \sum c_k \cdot L_k \bmod 10^9+7$
+```
 
 ## Correctness
 

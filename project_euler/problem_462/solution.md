@@ -32,31 +32,16 @@ from which the mantissa and exponent are extracted.
 
 **Proof.** This follows directly from taking $\log_{10}$ of the hook-length formula. The mantissa $m$ and exponent $e$ satisfy $\log_{10} F = e + m$ with $0 \le m < 1$, giving $F = 10^m \times 10^e$. $\square$
 
-## Algorithm
+## Editorial
+We build the Young diagram. We then compute conjugate partition. Finally, compute log10(F) via hook-length formula. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function ComputeF(N):
-    // Step 1: Build the Young diagram
-    m = floor(log_3(N))
-    for i = 0 to m:
-        lambda[i] = floor(log_2(N / 3^i)) + 1
-    n = sum(lambda)
+## Pseudocode
 
-    // Step 2: Compute conjugate partition
-    max_col = lambda[0]
-    for j = 0 to max_col - 1:
-        lambda'[j] = |{i : lambda[i] > j}|
-
-    // Step 3: Compute log10(F) via hook-length formula
-    log_F = sum_{k=1}^{n} log10(k)             // = log10(n!)
-    for each cell (i, j) in lambda:
-        h = (lambda[i] - j) + (lambda'[j] - i) - 1
-        log_F -= log10(h)
-
-    // Step 4: Extract mantissa and exponent
-    exponent = floor(log_F)
-    mantissa = 10^(log_F - exponent)
-    return mantissa, exponent   // F ~ mantissa * 10^exponent
+```text
+Build the Young diagram
+Compute conjugate partition
+Compute log10(F) via hook-length formula
+Extract mantissa and exponent
 ```
 
 ## Complexity Analysis

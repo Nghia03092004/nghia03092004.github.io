@@ -59,22 +59,19 @@ These allow computing $F_n \bmod p$ in $O(\log n)$ time without matrix multiplic
 | 10 | 55 | 143 | 143 |
 | 20 | 6765 | 17710 | 17710 |
 
-## Algorithm
+## Editorial
+To compute $Q^n$ in $O(\log n)$ multiplications. We compute $F_{N+2} \bmod p$ where $N = 10^7$ using matrix exponentiation or fast doubling. We then write $n$ in binary: $n = b_k b_{k-1} \cdots b_0$. Finally, iterate over each bit from MSB to LSB: $R \leftarrow R^2$; if $b_i = 1$: $R \leftarrow R \cdot Q$.
 
-1. Compute $F_{N+2} \bmod p$ where $N = 10^7$ using matrix exponentiation or fast doubling.
-2. Return $(F_{N+2} - 1) \bmod p$.
+## Pseudocode
 
-Matrix exponentiation: raise $Q = \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}$ to power $N+1$ modulo $p$. Then $F_{N+2} = Q^{N+1}[0][0]$.
-
-### Binary Exponentiation Detail
-
-To compute $Q^n$ in $O(\log n)$ multiplications:
-1. Write $n$ in binary: $n = b_k b_{k-1} \cdots b_0$.
-2. Initialize $R = I$ (identity).
-3. For each bit from MSB to LSB: $R \leftarrow R^2$; if $b_i = 1$: $R \leftarrow R \cdot Q$.
-4. Each $2 \times 2$ matrix multiplication uses 8 multiplications and 4 additions modulo $p$.
-
-For $n = 10^7 + 1$: $\lceil \log_2 n \rceil = 24$ squarings and at most 24 multiplications = about 48 matrix multiplications total.
+```text
+Compute $F_{N+2} \bmod p$ where $N = 10^7$ using matrix exponentiation or fast doubling
+Return $(F_{N+2} - 1) \bmod p$
+Write $n$ in binary: $n = b_k b_{k-1} \cdots b_0$
+Initialize $R = I$ (identity)
+For each bit from MSB to LSB: $R \leftarrow R^2$; if $b_i = 1$: $R \leftarrow R \cdot Q$
+Each $2 \times 2$ matrix multiplication uses 8 multiplications and 4 additions modulo $p$
+```
 
 ## Proof of Correctness
 

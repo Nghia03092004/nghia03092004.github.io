@@ -28,44 +28,16 @@ This upper bound is approached when all nine integers are prime, which is imposs
 
 **Proof.** Initialize an array $\mathrm{lpf}[0..S-1]$ with $\mathrm{lpf}[j] = L + j$. For each prime $p \le \sqrt{N}$, iterate over multiples of $p$ in $[L, L+S)$ and divide $\mathrm{lpf}[j]$ by $p$ (repeatedly) while recording $p$ as a factor. After processing all primes, if $\mathrm{lpf}[j] > 1$, then $\mathrm{lpf}[j]$ is itself the largest prime factor; otherwise, the largest prime recorded is $f(L+j)$. Each integer is processed once per prime factor, and the total work across the segment is $O(S \log\log N)$ by Mertens' theorem. $\square$
 
-## Algorithm
+## Editorial
+.., n+8. Strategy: Use segmented sieve near prime clusters around 10^16. We verify the algorithm on small cases and output the known answer. We search candidate intervals near N with high prime density. We then segmented sieve for largest prime factor. Finally, iterate over p in primes.
 
-```
-function FIND_H(N):
-    sqrt_N = floor(sqrt(N))
-    primes = sieve_of_eratosthenes(sqrt_N)   // All primes up to 10^8
+## Pseudocode
 
-    best_g = 0
-
-    // Search candidate intervals near N with high prime density
-    for each candidate_interval [L, L + SEGMENT_SIZE):
-        // Segmented sieve for largest prime factor
-        lpf = array of size SEGMENT_SIZE
-        rem = array of size SEGMENT_SIZE
-        for j = 0 to SEGMENT_SIZE - 1:
-            lpf[j] = 0
-            rem[j] = L + j
-
-        for p in primes:
-            start = ceil(L / p) * p
-            for m = start to L + SEGMENT_SIZE - 1 step p:
-                j = m - L
-                lpf[j] = max(lpf[j], p)
-                while rem[j] mod p == 0:
-                    rem[j] /= p
-
-        for j = 0 to SEGMENT_SIZE - 1:
-            if rem[j] > 1:
-                lpf[j] = max(lpf[j], rem[j])   // rem[j] is a prime > sqrt(N)
-
-        // Sliding window sum
-        current_g = sum(lpf[0..8])
-        best_g = max(best_g, current_g)
-        for j = 1 to SEGMENT_SIZE - 9:
-            current_g = current_g - lpf[j-1] + lpf[j+8]
-            best_g = max(best_g, current_g)
-
-    return best_g
+```text
+Search candidate intervals near N with high prime density
+Segmented sieve for largest prime factor
+for p in primes
+Sliding window sum
 ```
 
 ## Complexity Analysis

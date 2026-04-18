@@ -34,32 +34,23 @@ Summing $d$ times this over all $d$ gives the result. $\square$
 
 **Proof.** For any $M$, the function $m \mapsto \lfloor M/m \rfloor$ takes at most $2\sqrt{M}$ distinct values (a classical result). Grouping terms by equal $\lfloor C/(dk) \rfloor$ reduces the sum from $O(C)$ terms to $O(\sqrt{C})$ groups. $\square$
 
-## Algorithm
+## Editorial
+The implementation requires. We precompute: Mobius function sieve up to threshold. We then use Meissel-like summation for large C. Finally, count how many (d, k) pairs give floor(C/(dk)) = v.
 
+## Pseudocode
+
+```text
+Precompute: Mobius function sieve up to threshold
+Use Meissel-like summation for large C
+Hyperbolic summation over d*k = m
+Count how many (d, k) pairs give floor(C/(dk)) = v
+Weight by d * mu(k)
+Multiply by H(v, n) mod p
+The implementation requires
+Efficient computation of $\sum_{k \le K} \mu(k)$ (Mertens function) for large $K$
+Modular exponentiation for $v^n \bmod p$
+Hyperbolic summation to handle the large range of $C$
 ```
-function solve():
-    C = binom(10^7, 5)   // huge number, work mod p
-    n = 5
-    p = 999999937
-
-    // Precompute: Mobius function sieve up to threshold
-    // Use Meissel-like summation for large C
-
-    // Hyperbolic summation over d*k = m
-    total = 0
-    for each distinct value v of floor(C / m):
-        // Count how many (d, k) pairs give floor(C/(dk)) = v
-        // Weight by d * mu(k)
-        // Multiply by H(v, n) mod p
-        total += contribution mod p
-
-    return total mod p
-```
-
-The implementation requires:
-1. Efficient computation of $\sum_{k \le K} \mu(k)$ (Mertens function) for large $K$
-2. Modular exponentiation for $v^n \bmod p$
-3. Hyperbolic summation to handle the large range of $C$
 
 ## Complexity Analysis
 

@@ -36,32 +36,14 @@ $$t_w \cdot \prod_{v} (2-1)! = 2^{2^4 - 5} \cdot 1^{2^4} = 2^{11} = 2048$$
 
 **Proof.** The BEST theorem gives the total number of Eulerian circuits starting from a fixed edge. For $G(2, 4)$ with 16 vertices each of out-degree 2 and 32 edges, the formula gives $t_w \cdot \prod_v 1! = 2^{11} = 2048$ circuits starting from any fixed edge. But the problem answer $209110240768$ indicates we must count all Eulerian circuits (starting from vertex $0000$ with first bit sequence $00000$) without the BEST simplification -- the discrepancy arises because the BEST formula counts circuits up to a particular equivalence, while the problem counts all distinct 32-bit circular strings. The correct count is obtained by exhaustive enumeration (DFS backtracking) on $G(2, 4)$. $\square$
 
-## Algorithm
+## Editorial
+Place 2^N binary digits in a circle so all N-bit clockwise subsequences are distinct. Encode each arrangement as a number: start from the all-zeros subsequence, read clockwise, concatenate bits. S(N) = sum of all such encodings. For N=5: 32 bits in a circle, all 32 possible 5-bit strings appear exactly once. Start reading from 00000. The 32-bit binary number is the encoding. Find S(5). We enumerate Eulerian circuits in G(2, 4) starting from vertex 0000, edge 00000. Finally, hierholzer pruning: check if remaining graph stays connected.
 
-```
-// Enumerate Eulerian circuits in G(2, 4) starting from vertex 0000, edge 00000
-graph: 16 vertices (4-bit strings), 32 edges (5-bit strings)
-used[32] = {false}  // track used edges
-sequence[0] = 0     // first bit is 0
-used[0] = true       // edge 00000 is used
-count = 0
+## Pseudocode
 
-DFS(current_vertex, step):
-    if step == 32:
-        if current_vertex == 0000:
-            count += 1
-        return
-    for each outgoing edge e from current_vertex:
-        if not used[e]:
-            // Hierholzer pruning: check if remaining graph stays connected
-            used[e] = true
-            next_vertex = target(e)
-            sequence[step] = bit_of(e)
-            DFS(next_vertex, step + 1)
-            used[e] = false
-
-DFS(0000, 1)
-return count
+```text
+Enumerate Eulerian circuits in G(2, 4) starting from vertex 0000, edge 00000
+Hierholzer pruning: check if remaining graph stays connected
 ```
 
 ## Complexity Analysis

@@ -40,27 +40,14 @@ $$S(N) = S(F_k) + (N - F_k) + S(N - F_k).$$
 
 **Proof.** At each step, $N$ is replaced by $N - F_k$ where $F_k \geq N/\varphi$ (since $F_k > N - F_{k-1} \geq N - N/\varphi = N/\varphi^2$, and actually $F_k \geq N/\varphi$ follows from $F_{k+1} > N$ and $F_{k+1}/F_k \to \varphi$). Thus $N - F_k \leq N(1 - 1/\varphi) = N/\varphi^2$, and after $j$ steps, $N$ is reduced to at most $N/\varphi^{2j}$. The recursion terminates when $N < F_2 = 2$, requiring $O(\log_\varphi N)$ steps. $\square$
 
-## Algorithm
+## Editorial
+Fibonacci: F[0]=1, F[1]=2, F[2]=3, F[3]=5, ... S(N) = sum of z(n) for n in [1, N). At Fibonacci boundaries: S(F[k+1]) = S(F[k]) + S(F[k-1]) + F[k-1] General recursion (F[k] <= N < F[k+1]): S(N) = S(F[k]) + (N - F[k]) + S(N - F[k]). We precompute Fibonacci numbers and S(F_k). Finally, recursive computation of S(N).
 
-```
-function solve(N):
-    // Precompute Fibonacci numbers and S(F_k)
-    F[1] = 1, F[2] = 2
-    while F[last] < N:
-        F[next] = F[last] + F[last-1]
+## Pseudocode
 
-    SF[1] = 0    // S(F_1) = S(1) = 0
-    SF[2] = 1    // S(F_2) = S(2) = z(1) = 1
-    for k = 2 to max_k - 1:
-        SF[k+1] = SF[k] + SF[k-1] + F[k-1]
-
-    // Recursive computation of S(N)
-    function S(N):
-        if N <= 1: return 0
-        find k such that F[k] <= N < F[k+1]
-        return SF[k] + (N - F[k]) + S(N - F[k])
-
-    return S(N)
+```text
+Precompute Fibonacci numbers and S(F_k)
+Recursive computation of S(N)
 ```
 
 ## Complexity Analysis

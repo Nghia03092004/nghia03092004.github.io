@@ -97,7 +97,7 @@ $\square$
 
 **Proof.** By Lemma 1, $600\,851\,475\,143 = 71 \times 839 \times 1471 \times 6857$. By Lemma 2, all four factors are prime. By the Fundamental Theorem of Arithmetic, this is the unique prime factorization. The largest factor is $6857$. $\square$
 
-## Algorithm
+## Editorial
 
 We remove prime factors by trial division. Starting with $d = 2$, we divide the current value of $n$ by $d$ as long as $d$ is a factor, then increment $d$ and continue while $d^2 \le n$. When the loop ends, any remaining value greater than 1 is the largest prime factor; otherwise the last divisor used is the answer. This works because every composite factor has a prime divisor at most the square root of the current remainder.
 

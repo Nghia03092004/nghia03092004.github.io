@@ -55,12 +55,17 @@ Actually for $n=4$: elements $\{1,2,3,4\}$, relations $1|2, 1|3, 1|4, 2|4$.
 Antichains: any subset with no divisibility pair. 1 divides everything, so any antichain containing 1 has size 1.
 $\emptyset$: yes. $\{1\}$: yes. $\{2\}$: yes. $\{3\}$: yes. $\{4\}$: yes. $\{2,3\}$: yes. $\{3,4\}$: yes. $\{2,4\}$: NO (2|4). $\{2,3,4\}$: NO. Total: 7.
 
-## Algorithm
+## Editorial
+Count antichains in the divisibility poset on {1, 2, ..., n}. An antichain: no element divides another. Bijection: antichains <-> order ideals (downward-closed sets). We build the comparability graph of the divisibility poset. We then count independent sets in this graph (= antichains in the poset). Finally, iterate over small $n$, use bitmask DP or direct enumeration.
 
-1. Build the comparability graph of the divisibility poset.
-2. Count independent sets in this graph (= antichains in the poset).
-3. For small $n$, use bitmask DP or direct enumeration.
-4. For larger $n$, exploit the product structure over prime factorizations.
+## Pseudocode
+
+```text
+Build the comparability graph of the divisibility poset
+Count independent sets in this graph (= antichains in the poset)
+For small $n$, use bitmask DP or direct enumeration
+For larger $n$, exploit the product structure over prime factorizations
+```
 
 ## Complexity Analysis
 

@@ -52,12 +52,15 @@ For large $N$, the sum (2) can be accelerated using the fact that $\lfloor N/d \
 | 100 | 6087 | 0.6087 | 0.6079 |
 | 1000 | 608383 | 0.6084 | 0.6079 |
 
-## Algorithm
+## Editorial
+Count visible lattice points (a,b) with 1 <= a,b <= N from the origin, where visibility means gcd(a,b) = 1. Find V(10^6) mod 10^9+7. Key formula: V(N) = sum_{d=1}^{N} mu(d) * floor(N/d)^2. We sieve** $\mu(d)$ for $d = 1, \ldots, N$ using a linear sieve in $O(N)$ time. Finally, evaluate** $V(N) = \sum_{d=1}^{N} \mu(d) \lfloor N/d \rfloor^2 \bmod (10^9+7)$.
 
-1. **Sieve** $\mu(d)$ for $d = 1, \ldots, N$ using a linear sieve in $O(N)$ time.
-2. **Evaluate** $V(N) = \sum_{d=1}^{N} \mu(d) \lfloor N/d \rfloor^2 \bmod (10^9+7)$.
+## Pseudocode
 
-The modular reduction requires care: $\lfloor N/d \rfloor^2$ can be computed modulo $p$ directly, and $\mu(d) \in \{-1, 0, 1\}$ requires handling negative contributions.
+```text
+Sieve** $\mu(d)$ for $d = 1, \ldots, N$ using a linear sieve in $O(N)$ time
+Evaluate** $V(N) = \sum_{d=1}^{N} \mu(d) \lfloor N/d \rfloor^2 \bmod (10^9+7)$
+```
 
 ## Proof of Correctness
 

@@ -34,34 +34,22 @@ $$d_n(p^a) = \binom{n + a - 1}{a}.$$
 
 **Proof.** For $k \le \sqrt{m}$, the value $\lfloor m/k \rfloor$ can be any of at most $\sqrt{m}$ values. For $k > \sqrt{m}$, $\lfloor m/k \rfloor < \sqrt{m}$, giving at most $\sqrt{m}$ values. The union has at most $2\sqrt{m}$ elements. $\square$
 
-## Algorithm
+## Editorial
+We initialize bucket arrays. We then precompute C[a] = binomial(n+a-1, a) mod P for a = 0, ..., 29. Finally, process small primes (p <= B).
 
-```
-Algorithm: Compute F(m, n) mod P via multiplicative bucket sieve
+## Pseudocode
 
+```text
 Input: m, n, modulus P
 Output: F(m, n) mod P
-
-1. Let B = floor(sqrt(m)).
-2. Initialize bucket arrays:
-     lo[v] = 1 for v = 1, ..., B       (stores S[v])
-     hi[k] = 1 for k = 1, ..., B       (stores S[floor(m/k)])
-3. Precompute C[a] = binomial(n+a-1, a) mod P for a = 0, ..., 29.
-
-4. Process small primes (p <= B):
-   For each prime p <= B:
-     For each bucket value v in decreasing order:
-       For a = 1, 2, ..., floor(log_p(v)):
-         S[v] += C[a] * S[floor(v / p^a)]   (mod P)
-
-5. Process large primes (p > B) via segmented sieve:
-   Enumerate primes p in (B, m] using a segmented sieve.
-   For each such prime p:
-     For k = 1 to min(B, floor(m/p)):
-       hi[k] += C[1] * lo[floor(floor(m/k) / p)]   (mod P)
-       (Only "hi" buckets are affected since p > B.)
-
-6. Return hi[1]   (which stores S[floor(m/1)] = S[m] = F(m,n))
+Let B = floor(sqrt(m))
+Initialize bucket arrays:
+Precompute C[a] = binomial(n+a-1, a) mod P for a = 0, ..., 29
+Process small primes (p <= B):
+For each bucket value v in decreasing order
+Process large primes (p > B) via segmented sieve:
+For each such prime p
+Return hi[1]   (which stores S[floor(m/1)] = S[m] = F(m,n))
 ```
 
 ## Complexity Analysis

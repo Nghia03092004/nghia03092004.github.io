@@ -23,31 +23,18 @@ $$T(10^{16}) \equiv 45 \cdot (10^{16}) \cdot (10^{16} - 1) \cdot 2^{-1} \cdot 10
 
 **Proof.** Direct substitution of $n = 10^{16}$ into the formula. The modular inverse $2^{-1} \bmod p$ exists since $\gcd(2, p) = 1$, and is computed via Fermat's little theorem as $2^{p-2} \bmod p$. The term $10^{10^{16}-2} \bmod p$ is computed using Fermat's little theorem: since $10^{p-1} \equiv 1 \pmod{p}$, we reduce the exponent $10^{16} - 2$ modulo $p - 1$. $\square$
 
-## Algorithm
+## Editorial
+We compute n mod p, (n-1) mod p. We then since 10^{p-1} ≡ 1 (mod p), reduce exponent mod (p-1). Finally, combine: 45 * n * (n-1) / 2 * 10^{n-2}.
 
-```
-function T_mod(n, p):
-    # p = 10^9 + 7 (prime)
+## Pseudocode
 
-    # Compute n mod p, (n-1) mod p
-    n_mod = n mod p
-    n1_mod = (n - 1) mod p
-
-    # Compute 2^{-1} mod p via Fermat
-    inv2 = pow(2, p - 2, p)
-
-    # Compute 10^{n-2} mod p
-    # Since 10^{p-1} ≡ 1 (mod p), reduce exponent mod (p-1)
-    exp = (n - 2) mod (p - 1)
-    power10 = pow(10, exp, p)
-
-    # Combine: 45 * n * (n-1) / 2 * 10^{n-2}
-    result = 45 * n_mod % p
-    result = result * n1_mod % p
-    result = result * inv2 % p
-    result = result * power10 % p
-
-    return result
+```text
+p = 10^9 + 7 (prime)
+Compute n mod p, (n-1) mod p
+Compute 2^{-1} mod p via Fermat
+Compute 10^{n-2} mod p
+Since 10^{p-1} ≡ 1 (mod p), reduce exponent mod (p-1)
+Combine: 45 * n * (n-1) / 2 * 10^{n-2}
 ```
 
 ## Complexity Analysis

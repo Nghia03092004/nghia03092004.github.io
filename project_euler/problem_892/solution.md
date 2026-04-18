@@ -35,35 +35,15 @@ No other $n$ in the range satisfies $f(n) = n$. $\square$
 
 **Proof.** Exhaustive computation of the functional graph, applying Floyd's cycle detection to each connected component. $\square$
 
-## Algorithm
+## Editorial
+f(n) = sum of d! for each digit d of n. Find factorions (f(n) = n) and cycles. We floyd's cycle detection for each starting point. We then trace orbit until revisiting or reaching visited node. Finally, extract cycle if found.
 
-```
-function find_factorions():
-    precompute fact[0..9]    // d! for digits 0-9
-    factorions = []
-    for n = 1 to 2540160:
-        s = 0
-        temp = n
-        while temp > 0:
-            s += fact[temp mod 10]
-            temp = temp / 10
-        if s == n:
-            factorions.append(n)
-    return factorions
+## Pseudocode
 
-function find_cycles(M):
-    // Floyd's cycle detection for each starting point
-    visited = boolean array of size M+1, initialized to false
-    cycles = []
-    for n = 1 to M:
-        if visited[n]: continue
-        // Trace orbit until revisiting or reaching visited node
-        path = [n]
-        while f(path.last) not in path and not visited[f(path.last)]:
-            path.append(f(path.last))
-        // Extract cycle if found
-        ...
-    return cycles
+```text
+Floyd's cycle detection for each starting point
+Trace orbit until revisiting or reaching visited node
+Extract cycle if found
 ```
 
 ## Complexity Analysis

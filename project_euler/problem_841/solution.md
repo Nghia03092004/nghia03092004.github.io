@@ -31,29 +31,31 @@ $$\sum_{\substack{1 \le k \le n-1 \\ \gcd(k,n)=1}} \sin\!\left(\frac{2\pi k}{n}\
 
 **Proof.** The identity $c_n(1) = \mu(n)$ is classical (see Hardy & Wright, Ch. 16). Since $\mu(n)$ is real, its imaginary part vanishes. The left-hand side is $\operatorname{Im}\!\left(\sum_{\gcd(k,n)=1} e^{2\pi i k/n}\right) = \operatorname{Im}(c_n(1))$. $\square$
 
-## Algorithm
+## Editorial
+*Optimized version** (sieve-based). We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function S(N):
+## Pseudocode
+
+```text
     total = 0.0
-    for n = 5 to N:
-        for k = 2 to floor((n-1)/2):
-            if gcd(n, k) == 1:
+    For n from 5 to N:
+        For k from 2 to floor((n-1)/2):
+            If gcd(n, k) == 1 then
                 total += (n / 2.0) * sin(2 * pi * k / n)
-    return total
+    Return total
 ```
 
 **Optimized version** (sieve-based):
 ```
-function S_fast(N):
+
     total = 0.0
-    # Precompute smallest prime factor via sieve for gcd speedup
+    Precompute smallest prime factor via sieve for gcd speedup
     spf = sieve_smallest_prime_factor(N)
-    for n = 5 to N:
-        for k = 2 to floor((n-1)/2):
-            if gcd(n, k) == 1:   # O(log n) via Euclidean algorithm
+    For n from 5 to N:
+        For k from 2 to floor((n-1)/2):
+            if gcd(n, k) == 1: # O(log n) via Euclidean algorithm
                 total += (n / 2.0) * sin(2 * pi * k / n)
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

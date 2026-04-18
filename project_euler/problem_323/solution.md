@@ -35,14 +35,16 @@ $$E[N] = \sum_{j=1}^{32} (-1)^{j+1}\binom{32}{j}\frac{1}{1 - 2^{-j}}. \quad \squ
 
 **Proof.** For large $k$, $1 - (1 - 2^{-k})^{32} \leq 32 \cdot 2^{-k}$ by Bernoulli's inequality. Since $\sum_{k=0}^{\infty} 2^{-k} = 2$, the series converges by comparison. $\square$
 
-## Algorithm
+## Editorial
+E[N] = sum_{j=1}^{32} (-1)^{j+1} * C(32,j) / (1 - 2^{-j}) where N is the first time all 32 bits are set after OR-ing with random 32-bit integers.
 
-```
-function expected_N():
+## Pseudocode
+
+```text
     s = 0
-    for j = 1 to 32:
+    For j from 1 to 32:
         s += (-1)^(j+1) * C(32, j) / (1 - 2^(-j))
-    return s   // evaluate with sufficient floating-point precision
+    Return s // evaluate with sufficient floating-point precision
 ```
 
 ## Complexity Analysis

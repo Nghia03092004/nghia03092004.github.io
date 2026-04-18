@@ -112,7 +112,7 @@ where $p_m = \lfloor (N-1)/m \rfloor$. Substituting these three identities yield
 
 Therefore $S(1000) = 166833 + 99500 - 33165 = 233168$. $\square$
 
-## Algorithm
+## Editorial
 
 We use the closed-form arithmetic-series formula rather than scanning every integer. The procedure counts how many multiples of 3, 5, and 15 lie below the limit, converts each count into the corresponding sum of multiples, and then applies inclusion-exclusion to subtract the overlap. This is sufficient because every qualifying integer is a multiple of 3 or 5, and the only double-counted terms are multiples of 15.
 

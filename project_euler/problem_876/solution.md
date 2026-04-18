@@ -32,35 +32,35 @@ Given $F(6, 10) = 17$ and $F(36, 100) = 179$, find $\displaystyle\sum_{k=1}^{18}
 
 **Proof.** The necessary divisibility and congruence conditions on $c$ restrict it to a finite set of residue classes within a bounded range determined by $a$ and $b$. (Values of $c$ far exceeding $a$ and $b$ produce triples whose orbits cannot reach zero within any finite number of steps, since the minimum absolute value in the triple grows under the operations.) $\square$
 
-## Algorithm
+## Editorial
+Operations: replace a with 2(b+c)-a, or b with 2(c+a)-b, or c with 2(a+b)-c f(a,b,c) = min steps to make one number zero (0 if impossible) F(a,b) = sum of f(a,b,c) for c=1,2,... Find sum of F(6^k, 10^k) for k=1..18.
 
-```
-function F_VALUE(a, b):
+## Pseudocode
+
+```text
     total = 0
     for c = 1, 2, 3, ...:
-        if c exceeds feasibility bound: break
+        If c exceeds feasibility bound then stop this loop
         steps = BFS_MIN_STEPS(a, b, c)
         total += steps
-    return total
+    Return total
 
-function BFS_MIN_STEPS(a, b, c):
     queue = {(a, b, c)}
     visited = {(a, b, c): 0}
     while queue not empty:
         (x, y, z) = dequeue
         for each operation producing (x', y', z'):
-            if x' == 0 or y' == 0 or z' == 0:
-                return visited[(x, y, z)] + 1
-            if (x', y', z') not in visited:
+            If x' == 0 or y' == 0 or z' == 0 then
+                Return visited[(x, y, z)] + 1
+            If (x', y', z') not in visited then
                 visited[(x', y', z')] = visited[(x, y, z)] + 1
                 enqueue (x', y', z')
-    return 0   // impossible
+    Return 0 // impossible
 
-function SOLVE():
     result = 0
-    for k = 1 to 18:
+    For k from 1 to 18:
         result += F_VALUE(6^k, 10^k)
-    return result
+    Return result
 ```
 
 ## Complexity Analysis

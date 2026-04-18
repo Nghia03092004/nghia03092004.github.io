@@ -34,37 +34,14 @@ $$XYZ = 16k^2(X + Y + Z), \quad Z = \frac{16k^2(X+Y)}{XY - 16k^2}.$$
 
 **Proof.** Direct substitution into $xyz = 4k^2(x+y+z)$ with $x = X/2$, etc. $\quad\square$
 
-## Algorithm
+## Editorial
+For triangle with integer sides a,b,c, let s=(a+b+c)/2, A=sqrt(s(s-a)(s-b)(s-c)). Need A/(2s) = k (positive integer, 1 <= k <= 1000). Substituting x=s-a, y=s-b, z=s-c (with 0<x<=y<=z): xyz = 4k^2(x+y+z), P = 2(x+y+z) Case 1 (even P): x,y,z positive integers. z = 4k^2(x+y) / (xy - 4k^2) Case 2 (odd P): x=X/2, y=Y/2, z=Z/2, X,Y,Z odd positive integers. XYZ = 16k^2(X+Y+Z), Z = 16k^2(X+Y)/(XY-16k^2) Sum all perimeters of valid triangles. We case 1: even perimeter (x, y, z positive integers). Finally, case 2: odd perimeter (X, Y, Z odd positive integers).
 
-```
-function solve(K = 1000):
-    total = 0
-    for k = 1 to K:
-        // Case 1: even perimeter (x, y, z positive integers)
-        for x = 1 to floor(2*k*sqrt(3)):
-            y_min = max(x, floor(4*k^2 / x) + 1)
-            for y = y_min to upper_bound(x, k):
-                denom = x*y - 4*k^2
-                if denom <= 0: continue
-                num = 4*k^2 * (x + y)
-                if num mod denom != 0: continue
-                z = num / denom
-                if z >= y:
-                    total += 2*(x + y + z)
+## Pseudocode
 
-        // Case 2: odd perimeter (X, Y, Z odd positive integers)
-        for X = 1, 3, 5, ... to floor(4*k*sqrt(3)):
-            Y_min = max(X, next_odd_above(16*k^2 / X))
-            for Y = Y_min, Y+2, ... to upper_bound(X, k):
-                denom = X*Y - 16*k^2
-                if denom <= 0: continue
-                num = 16*k^2 * (X + Y)
-                if num mod denom != 0: continue
-                Z = num / denom
-                if Z >= Y and Z is odd:
-                    total += X + Y + Z
-
-    return total
+```text
+Case 1: even perimeter (x, y, z positive integers)
+Case 2: odd perimeter (X, Y, Z odd positive integers)
 ```
 
 ## Complexity Analysis

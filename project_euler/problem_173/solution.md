@@ -28,23 +28,26 @@ $$\mathrm{count}(a) = \left\lfloor \frac{b_{\max} - b_{\min}}{2} \right\rfloor +
 
 **Corollary 1.** *The total number of laminae is $\sum_{a=3}^{\lfloor N/4+1 \rfloor} \mathrm{count}(a)$.*
 
-## Algorithm
+## Editorial
+Count distinct hollow square laminae using at most N = 10^6 tiles. Lamina (a, b): outer side a, inner side b, same parity, tiles = a^2 - b^2. We else.
 
-```
+## Pseudocode
+
+```text
 N = 10^6
 total = 0
 for a = 3, 4, 5, ...:
-    if 4*(a - 1) > N: break
+    If 4*(a - 1) > N then stop this loop
     b_max = a - 2
     lo = a*a - N
-    if lo <= 1:
+    If lo <= 1 then
         b_min = (2 if a is even else 1)
     else:
         b_min = ceil(sqrt(lo))
         if b_min % 2 != a % 2: b_min += 1
-    if b_min <= b_max:
+    If b_min <= b_max then
         total += (b_max - b_min) // 2 + 1
-return total
+Return total
 ```
 
 ## Complexity Analysis

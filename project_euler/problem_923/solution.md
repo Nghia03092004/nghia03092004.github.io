@@ -33,13 +33,15 @@ Now write $n = 4q + r$ with $r \in \{0,1,2,3\}$. By $(*)$, $\bigoplus_{k=1}^{4q-
 
 For $N = 10^6$: $\lfloor(10^6 - 3)/4\rfloor + 1 = \lfloor 999997/4 \rfloor + 1 = 249999 + 1 = 250000$.
 
-## Algorithm
+## Editorial
+Nim heaps 1..n, G(n) = XOR(1..n). Count n <= 10^6 with G(n) = 0. Key ideas:. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function CountSecondPlayerWins(N):
-    if N < 3:
-        return 0
-    return floor((N - 3) / 4) + 1
+## Pseudocode
+
+```text
+    If N < 3 then
+        Return 0
+    Return floor((N - 3) / 4) + 1
 ```
 
 ## Complexity Analysis

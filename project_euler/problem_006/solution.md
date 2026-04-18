@@ -91,7 +91,7 @@ Subtracting $\sum i^2$ from both sides yields $D(n) = 2\sum_{i < j} ij$. $\squar
 
 **Remark.** Theorem 2 makes the non-negativity of $D(n)$ transparent: it is a sum of products of positive integers.
 
-## Algorithm
+## Editorial
 
 The implementation evaluates the closed formula derived above, so no enumeration is needed. Once $n$ is given, it substitutes $n$ into $D(n) = n(n-1)(n+1)(3n+2)/12$ and returns the result. This is sufficient because the algebraic reduction already transformed the original difference of sums into this polynomial expression.
 

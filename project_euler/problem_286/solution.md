@@ -26,30 +26,31 @@ To show uniqueness: for large enough $q$ the distribution becomes sharply concen
 
 **Proof.** Standard bisection halves the interval at each step. $\quad\square$
 
-## Algorithm
+## Editorial
+02, where shot k scores with probability (1 - k/q). We else. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function solve():
+## Pseudocode
+
+```text
     lo = 50.0
     hi = 100.0
-    for iter = 1 to 200:  // ensures > 50 digits of precision
+    for iter = 1 to 200: // ensures > 50 digits of precision
         mid = (lo + hi) / 2
-        if dp_eval(mid) > 0.02:
+        If dp_eval(mid) > 0.02 then
             lo = mid
         else:
             hi = mid
-    return round(lo, 10)
+    Return round(lo, 10)
 
-function dp_eval(q):
     dp = array[0..50] initialized to 0
     dp[0] = 1.0
-    for i = 1 to 50:
+    For i from 1 to 50:
         p_hit = 1 - i/q
         p_miss = i/q
         for j = min(i, 20) downto 1:
             dp[j] = dp[j] * p_miss + dp[j-1] * p_hit
         dp[0] = dp[0] * p_miss
-    return dp[20]
+    Return dp[20]
 ```
 
 ## Complexity Analysis

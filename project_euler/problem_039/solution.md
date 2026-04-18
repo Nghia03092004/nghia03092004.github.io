@@ -70,7 +70,7 @@ The 8 triples with perimeter 840 are:
 
 Exhaustive computation over all even $p \le 1000$ confirms no other perimeter achieves $N(p) \ge 8$. $\blacksquare$
 
-## Algorithm
+## Editorial
 
 We examine only even perimeters, since odd perimeters cannot occur for Pythagorean triples. For each admissible perimeter $p \le P$, we enumerate the smallest side $a$ in its valid range, recover the unique candidate value of $b$ from the derived closed formula, and count the cases in which $b$ is an integer satisfying $b \ge a$. The perimeter with the largest count is retained throughout the scan.
 

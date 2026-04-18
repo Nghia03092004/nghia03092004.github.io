@@ -40,27 +40,15 @@ where $(T^{50})_{ji}$ is the probability that flea $j$ (starting at square $j$) 
 
 **Remark.** To avoid numerical underflow in the product $\prod_j (1 - (T^{50})_{ji})$, one may compute $\sum_j \log(1 - (T^{50})_{ji})$ and exponentiate. The function $\log(1 - x)$ is well-conditioned for small $x$, and the library function `log1p(-x)` provides enhanced precision.
 
-## Algorithm
+## Editorial
+We build transition matrix T. We then compute T^R via matrix exponentiation. Finally, accumulate expected empty squares. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function FleaCircus():
-    N = 900, R = 50
+## Pseudocode
 
-    // Step 1: Build transition matrix T
-    T = N x N matrix, all zeros
-    for each square i with neighbors j1, ..., jd:
-        T[i][jk] = 1/d for k = 1, ..., d
-
-    // Step 2: Compute T^R via matrix exponentiation
-    M = T^R    // N x N matrix; M[j][i] = P(flea j at square i)
-
-    // Step 3: Accumulate expected empty squares
-    answer = 0
-    for i = 1 to N:
-        log_prod = sum over j of log1p(-M[j][i])
-        answer += exp(log_prod)
-
-    return answer rounded to 6 decimal places
+```text
+Build transition matrix T
+Compute T^R via matrix exponentiation
+Accumulate expected empty squares
 ```
 
 ## Complexity Analysis

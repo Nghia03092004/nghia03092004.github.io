@@ -33,12 +33,17 @@ $$f(n) = \sum_{\substack{v \\ m = 15}} \text{dp}[v][m]$$
 
 where the sum is over all automaton nodes $v$ with all four keywords matched.
 
-## Algorithm
+## Editorial
+Project Euler 679: Freefarea Count words of length n over {A, E, F, R} containing each of FREE, FARE, AREA, REEF exactly once. We use a DFA-based DP approach. Track: Since we need exactly one occurrence of each, we track a bitmask of which keywords have appeared, and reject any state where a keyword appears a second time. Keywords: FREE, FARE, AREA, REEF Alphabet: {A, E, F, R} We use Aho-Corasick automaton to track all four patterns simultaneously. We build the Aho-Corasick trie from the four keywords. We then compute failure links and output functions via BFS. Finally, run DP for $n = 30$ steps, transitioning through all 4 characters at each step.
 
-1. Build the Aho-Corasick trie from the four keywords.
-2. Compute failure links and output functions via BFS.
-3. Run DP for $n = 30$ steps, transitioning through all 4 characters at each step.
-4. Sum counts over all states with mask $= 15$.
+## Pseudocode
+
+```text
+Build the Aho-Corasick trie from the four keywords
+Compute failure links and output functions via BFS
+Run DP for $n = 30$ steps, transitioning through all 4 characters at each step
+Sum counts over all states with mask $= 15$
+```
 
 ## Correctness
 

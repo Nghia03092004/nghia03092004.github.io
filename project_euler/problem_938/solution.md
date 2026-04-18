@@ -29,49 +29,21 @@ $$D(N) = \sum_{r=1}^{N} C(r) = \sum_{r=1}^{N} \sum_{n=0}^{r^2} r_2(n) = \sum_{n=
 
 **Proof.** The integer $n$ is counted in $C(r)$ for every $r$ with $r^2 \geq n$, i.e., $r \geq \lceil \sqrt{n} \rceil$. Among $r = 1, \ldots, N$, this gives $\max(N - \lceil \sqrt{n} \rceil + 1, 0)$ terms. $\square$
 
-## Algorithm
+## Editorial
+Optimized approach using $r_2(n)$ sieve:*. We approach 1: Direct computation via quadrant formula (Theorem 3). We then iterate over r from 1 to N. Finally, c(r) = 1 + 4*r + 4 * sum_{x=1}^{r} floor(sqrt(r^2 - x^2)).
 
-```
-function ComputeD(N, MOD):
-    // Approach 1: Direct computation via quadrant formula (Theorem 3)
-    D := 0
-    for r from 1 to N:
-        // C(r) = 1 + 4*r + 4 * sum_{x=1}^{r} floor(sqrt(r^2 - x^2))
-        count := 1 + 4 * r
-        r_sq := r * r
-        for x from 1 to r:
-            y_max := isqrt(r_sq - x * x)
-            count := count + 4 * y_max
-        D := (D + count) % MOD
-    return D
+## Pseudocode
 
-    // Approach 2: Sieve r_2(n) for n up to N^2, then use Lemma 1
-    // (More memory-intensive but potentially faster with prefix sums)
-```
-
-*Optimized approach using $r_2(n)$ sieve:*
-
-```
-function ComputeD_Optimized(N, MOD):
-    // Step 1: Sieve r_2(n) for n = 0, ..., N^2
-    // Using Theorem 2: r_2(n) = 4 * sum_{d|n} chi(d)
-    r2[0..N^2] := 0
-    r2[0] := 1    // (0,0) only
-    for d from 1 to N^2:
-        if d is even: continue
-        c := (-1)^((d-1)/2)    // chi(d)
-        for m = d, 2d, 3d, ..., N^2:
-            r2[m] := r2[m] + 4 * c
-
-    // Step 2: Compute D(N) via Lemma 1
-    D := 0
-    for n from 0 to N^2:
-        r_min := ceil(sqrt(n))    // smallest r with r^2 >= n
-        if r_min > N: continue
-        multiplicity := N - r_min + 1
-        D := (D + r2[n] * multiplicity) % MOD
-
-    return D
+```text
+Approach 1: Direct computation via quadrant formula (Theorem 3)
+for r from 1 to N
+C(r) = 1 + 4*r + 4 * sum_{x=1}^{r} floor(sqrt(r^2 - x^2))
+for x from 1 to r
+Approach 2: Sieve r_2(n) for n up to N^2, then use Lemma 1
+(More memory-intensive but potentially faster with prefix sums)
+Sieve r_2(n) for n = 0, ..., N^2
+Using Theorem 2: r_2(n) = 4 * sum_{d|n} chi(d)
+Compute D(N) via Lemma 1
 ```
 
 ## Complexity Analysis

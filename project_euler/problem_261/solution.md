@@ -47,28 +47,31 @@ $$k = \frac{s p (p + q)}{2}, \qquad n = \frac{g r u - m - 1}{2}$$
 
 **Proof.** The constraint $n \ge k$ combined with the expressions for $k$ and $n$ forces $k \ge 2m(m+1)$. Indeed, the smallest valid $q$ satisfies $q \ge p + 1$, which after substitution yields $k \ge sp^2(p + p + 1)/2 > m$, and the refined inequality $k \ge 2m(m+1)$ follows from the requirement $n \ge k$. Then $2m(m+1) \le 10^{10}$ implies $m^2 < 5 \times 10^9$, so $m \le \lfloor\sqrt{5 \times 10^9}\rfloor = 70710$. $\square$
 
-## Algorithm
+## Editorial
+Reduction: the pivot equation reduces to a generalized Pell equation X^2 - D*Y^2 = g where D = s*g, with m = s*p^2 (s squarefree) and m+1 = g*r^2 (g squarefree). Iterating Pell solutions recovers k values. We loop.
 
-```
+## Pseudocode
+
+```text
 pivots = empty set
-for m = 1 to 70710:
+For m from 1 to 70710:
     compute s, p such that m = s * p^2 (s squarefree)
     compute g, r such that m + 1 = g * r^2 (g squarefree)
     D = s * g
-    if D is a perfect square: skip  // Pell equation X^2 - D*Y^2 = 1 has no solution
-    (x1, y1) = fundamental_pell_solution(D)  // via continued fractions
-    (X, Y) = (g * r, p)                      // base solution from Lemma 1
+    if D is a perfect square: skip // Pell equation X^2 - D*Y^2 = 1 has no solution
+    (x1, y1) = fundamental_pell_solution(D) // via continued fractions
+    (X, Y) = (g * r, p) // base solution from Lemma 1
     loop:
         q = Y
         k = s * p * (p + q) / 2
-        if k > 10^10: break
-        if k is a positive integer and k >= 2 * m * (m + 1):
+        If k > 10^10 then stop this loop
+        If k is a positive integer and k >= 2 * m * (m + 1) then
             u = X / g
             n_val = (g * r * u - m - 1) / 2
-            if n_val >= k:
+            If n_val >= k then
                 pivots.add(k)
-        (X, Y) = (X * x1 + D * Y * y1, X * y1 + Y * x1)  // Lemma 2
-return sum(pivots)
+        (X, Y) = (X * x1 + D * Y * y1, X * y1 + Y * x1) // Lemma 2
+Return sum(pivots)
 ```
 
 ## Complexity Analysis

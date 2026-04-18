@@ -87,39 +87,16 @@ where d_1 >= d_2 >= d_3 >= d_4 >= d_5.
 
 This means the result depends only on (d_1 - d_5) and (d_2 - d_4), reducing the effective dimension significantly.
 
-## Algorithm
+## Editorial
+Define C_b to be the Kaprekar constant in base b for 5 digits. Define sb(i) = 0 if i = C_b or all digits identical, else number of iterations to reach C_b. S(b) = sum of sb(i) for 0 < i < b^5. Given: S(15) = 5274369, S(111) = 400668930299. Find: last 18 digits of sum of S(6k+3) for 2 <= k <= 300. Approach:. We build reverse graph from multiset representation. We then bFS from C_b, accumulate depth * multiplicity. Finally, ... (see implementation).
 
-```
-function kaprekar_step(n, b):
-    digits = base_b_digits(n, b, pad_to=5)
-    desc = sort(digits, descending)
-    asc = sort(digits, ascending)
-    D = digits_to_number(desc, b)
-    A = digits_to_number(asc, b)
-    return D - A
+## Pseudocode
 
-function find_kaprekar_constant(b):
-    n = b + 1  // any non-trivial starting number
-    seen = {}
-    step = 0
-    while n not in seen:
-        seen[n] = step
-        n = kaprekar_step(n, b)
-        step++
-    return n  // the fixed point (if it's a fixed point of itself)
-
-function compute_S(b):
-    C_b = find_kaprekar_constant(b)
-    // Build reverse graph from multiset representation
-    // BFS from C_b, accumulate depth * multiplicity
-    // ... (see implementation)
-
-function solve():
-    total = 0
-    for k = 2 to 300:
-        b = 6*k + 3
-        total += compute_S(b)
-    return total mod 10^18
+```text
+while n not in seen
+Build reverse graph from multiset representation
+BFS from C_b, accumulate depth * multiplicity
+... (see implementation)
 ```
 
 ## Correctness

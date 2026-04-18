@@ -73,46 +73,20 @@ $$A_j = \left\lfloor \frac{N+1}{2^{j+1}} \right\rfloor \cdot 2^j + \max\!\Big(0,
 
 **Proof.** The digit DP is a standard technique for counting integers in $[0,N]$ satisfying a bitwise predicate. For each bit $j$, the suffix XOR parity involves bits at positions $\ge j$, which are determined as we process from MSB down. The tight/free flag doubles the state count, giving $O(B)$ states per bit and $O(B^2)$ total across all $j$. $\square$
 
-## Algorithm
+## Editorial
+f(n, k) = n if k = 0 = f(n XOR k, k >> 1) if k > 0 Key insight: f(n, k) = n XOR g(k) where g(k) = XOR of all right-shifts of k. Bit j of g(k) = XOR of bits j, j+1, j+2, ... of k (suffix XOR parity). We compute S(N) = sum_{k=0}^{N} sum_{n=0}^{N} f(n, k) mod (10^9 + 7) = sum_{k=0}^{N} sum_{n=0}^{N} (n XOR g(k)). We compute A_j: count of n in [0,N] with bit j set. We then compute B_j via digit DP on k in [0,N]. Finally, tracking suffix XOR parity from bit j onward.
 
-```
-function solve(N):
-    B = number of bits in N
-    MOD = 10^9 + 7
-    result = 0
+## Pseudocode
 
-    for j = 0 to B-1:
-        // Compute A_j: count of n in [0,N] with bit j set
-        full_cycles = (N + 1) / 2^(j+1)
-        remainder = (N + 1) mod 2^(j+1)
-        A_j = full_cycles * 2^j + max(0, remainder - 2^j)
-
-        // Compute B_j via digit DP on k in [0,N]
-        // tracking suffix XOR parity from bit j onward
-        B_j = digit_dp_suffix_xor(N, j, B)
-
-        C_j = A_j * (N + 1 - B_j) + (N + 1 - A_j) * B_j
-        result += 2^j * C_j  (mod MOD)
-
-    return result mod MOD
-
-function digit_dp_suffix_xor(N, target_bit, B):
-    // DP over bits B-1 down to 0
-    // State: (tight, suffix_xor_parity)
-    // tight: whether k's prefix matches N's prefix exactly
-    // suffix_xor_parity: running XOR of bits at positions >= target_bit
-    // Returns count of k in [0,N] with suffix_xor_parity = 1 at end
-    dp[tight=1][parity=0] = 1  // start state
-    for bit = B-1 down to 0:
-        new_dp = 0
-        for each state (tight, parity) with dp > 0:
-            max_d = N's bit at position `bit` if tight, else 1
-            for d = 0 to max_d:
-                new_tight = tight AND (d == max_d)
-                new_parity = parity XOR d  if bit >= target_bit  else parity
-                new_dp[new_tight][new_parity] += dp[tight][parity]
-        dp = new_dp
-    return sum of dp[*][1]
+```text
+Compute A_j: count of n in [0,N] with bit j set
+Compute B_j via digit DP on k in [0,N]
+tracking suffix XOR parity from bit j onward
+DP over bits B-1 down to 0
+State: (tight, suffix_xor_parity)
+tight: whether k's prefix matches N's prefix exactly
+suffix_xor_parity: running XOR of bits at positions >= target_bit
+Returns count of k in [0,N] with suffix_xor_parity = 1 at end
 ```
 
 ## Complexity Analysis

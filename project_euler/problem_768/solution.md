@@ -64,15 +64,16 @@ f(n, m) = (1/n) * Sum_{g | n} phi(n/g) * C(g, m / (n/g))
 
 where C(g, m/(n/g)) is the binomial coefficient, and it is nonzero only when (n/g) | m.
 
-## Algorithm
+## Editorial
+f(n, m) = number of ways to place m identical candles in n evenly spaced holders on a circular chandelier so it's balanced. Formula: f(n, m) = (1/n) * Sum_{g | n} phi(n/g) * C(g, m/(n/g)) where the binomial is 0 unless (n/g) divides m. For n=360, m=20. We find all divisors g of n. Finally, iterate over each divisor g of n.
 
-```
-1. Find all divisors g of n
-2. For each divisor g of n:
-   k = n / g
-   If k divides m:
-     contribution = euler_phi(k) * C(g, m/k)
-3. f(n, m) = (1/n) * sum of contributions
+## Pseudocode
+
+```text
+Find all divisors g of n
+For each divisor g of n:
+If k divides m
+f(n, m) = (1/n) * sum of contributions
 ```
 
 ## Correctness

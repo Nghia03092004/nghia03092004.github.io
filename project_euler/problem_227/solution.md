@@ -28,30 +28,17 @@ $$d' = \min\bigl((d - m) \bmod 100,\; 100 - ((d - m) \bmod 100)\bigr).$$
 
 **Proof.** The matrix $I - T$ is non-singular because the Markov chain is absorbing (state 0 is absorbing and is reachable from every transient state). The fundamental matrix $(I - T)^{-1}$ exists and its $(d, d')$ entry gives the expected number of visits to state $d'$ starting from $d$. The expected absorption time is $E(d) = \sum_{d'} (I - T)^{-1}_{d,d'}$, equivalently the solution to $(I - T)\mathbf{E} = \mathbf{1}$. $\square$
 
-## Algorithm
+## Editorial
+Two players on a circular board of 100 spaces start diametrically opposite. Each turn both roll two dice and move toward each other. Find the expected number of turns to meet. The game is modeled as a Markov chain where the state is the distance between the two players (0 to 50). We solve a 50x50 linear system. We compute movement distribution for one player (two dice). We then compute combined movement distribution P(m) = sum P1(k1)*P2(k2) where m=k1+k2. Finally, build 50x50 transition matrix T.
 
-```
-function expected_turns():
-    // Compute movement distribution for one player (two dice)
-    for each die outcome (i, j) with 1 <= i, j <= 6:
-        compute movement k based on game rules
+## Pseudocode
 
-    // Compute combined movement distribution P(m) = sum P1(k1)*P2(k2) where m=k1+k2
-    P_combined = convolution of P1 and P2
-
-    // Build 50x50 transition matrix T
-    for d = 1 to 50:
-        for each possible combined move m:
-            d_raw = (d - m) mod 100
-            d_new = min(d_raw, 100 - d_raw)
-            if d_new > 0:
-                T[d][d_new] += P_combined[m]
-
-    // Solve (I - T) * E = 1
-    A = I - T
-    b = [1, 1, ..., 1]
-    E = gaussian_elimination(A, b)
-    return E[50]
+```text
+Compute movement distribution for one player (two dice)
+Compute combined movement distribution P(m) = sum P1(k1)*P2(k2) where m=k1+k2
+Build 50x50 transition matrix T
+for each possible combined move m
+Solve (I - T) * E = 1
 ```
 
 ## Complexity Analysis

@@ -25,42 +25,17 @@ $$T = \sum_{i=0}^{m-1} |S_i - S_i^*|.$$
 
 **Proof.** For each $n$, the greedy algorithm performs $O(\sqrt{n})$ steps (since $t_k \sim k^2/2$, and at most $O(\sqrt{n})$ triangular numbers fit below $n$). Over all $n \le N$, the total work is $O(N\sqrt{N})$. The prefix sums and their sorted counterparts are updated incrementally. $\square$
 
-## Algorithm
+## Editorial
+The problem involves bowls of beans where beans spill to adjacent bowls. T(n) counts the total individual movements to reach a stable configuration. Key insights:. We precompute triangular numbers. We then iterate over input N, compute greedy triangular representation. Finally, derive initial bowl configuration from representation.
 
-```
-function ComputeT(N):
-    # Step 1: Precompute triangular numbers
-    tri = []
-    k = 1
-    while k*(k+1)/2 <= N:
-        tri.append(k*(k+1)/2)
-        k += 1
+## Pseudocode
 
-    # Step 2: For input N, compute greedy triangular representation
-    function greedy_rep(n):
-        rep = []
-        while n > 0:
-            find largest t_k <= n
-            rep.append(k)
-            n -= t_k
-        return rep
-
-    # Step 3: Derive initial bowl configuration from representation
-    initial_config = derive_bowls(greedy_rep(N))
-
-    # Step 4: Compute sorted (stable) configuration
-    stable_config = sort(initial_config)
-
-    # Step 5: Compute prefix sums and total displacement
-    T = 0
-    S = 0
-    S_star = 0
-    for i in range(len(initial_config)):
-        S += initial_config[i]
-        S_star += stable_config[i]
-        T += abs(S - S_star)
-
-    return T
+```text
+Precompute triangular numbers
+For input N, compute greedy triangular representation
+Derive initial bowl configuration from representation
+Compute sorted (stable) configuration
+Compute prefix sums and total displacement
 ```
 
 ## Complexity Analysis

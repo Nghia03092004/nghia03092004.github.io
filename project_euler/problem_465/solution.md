@@ -30,48 +30,19 @@ For the bad count, the *anchor trick* assigns each bad subset to the ray $r_i$ t
 $$\text{Bad}(\ge 3) = \sum_{i=1}^{|R|} c(r_i) \cdot \bigl[\Pi(i) - 1 - \Sigma(i)\bigr]$$
 where $\Pi(i) = \prod_{r_j \in W(i)} (1 + c(r_j))$ and $\Sigma(i) = \sum_{r_j \in W(i)} c(r_j)$ for the window $W(i)$ of rays in $(\theta_i, \theta_i + \pi]$. A two-pointer sweep computes all windows in $O(|R|)$ time. $\square$
 
-## Algorithm
+## Editorial
+A polar polygon has the origin strictly inside its kernel. Vertices are lattice points with |x|, |y| <= n. P(n) = number of polar polygons. Given: P(1)=131, P(2)=1648531, P(3)=1099461296175, P(343) mod 10^9+7 = 937293740. Find: P(713) mod 10^9+7. KEY INSIGHT: A polygon is star-shaped wrt origin iff all consecutive cross products v_i x v_{i+1} have the same sign. This means vertices are in strict angular order around origin. A polar polygon is determined by choosing a subset of ray directions (>= 3) with one lattice point per ray, such that max angular gap < pi. P(n) = AllWeighted(>=3) - Bad(>=3) AllWeighted(>=3) = prod(1+c(r)) - 1 - S1 - e2 Bad(>=3) uses the anchor trick with two-pointer sweep. We enumerate primitive rays. We then compute All(>=3). Finally, compute Bad(>=3) via anchor trick + two-pointer.
 
-```
-function ComputeP(n, MOD):
-    // Step 1: Enumerate primitive rays
-    R = []
-    for a = -n to n:
-        for b = -n to n:
-            if (a, b) == (0, 0): continue
-            if gcd(|a|, |b|) != 1: continue
-            angle = atan2(b, a)
-            c = floor(n / max(|a|, |b|))
-            R.append((angle, c))
-    sort R by angle
+## Pseudocode
 
-    // Step 2: Compute All(>=3)
-    prod_all = 1
-    S1 = 0, S2 = 0
-    for (theta, c) in R:
-        prod_all = prod_all * (1 + c) mod MOD
-        S1 += c
-        S2 += c * c
-    e2 = (S1^2 - S2) / 2 mod MOD
-    All_ge3 = (prod_all - 1 - S1 - e2) mod MOD
-
-    // Step 3: Compute Bad(>=3) via anchor trick + two-pointer
-    // For each anchor i, find window W(i) = rays in (theta_i, theta_i + pi]
-    Bad = 0
-    j = 0, window_prod = 1, window_sum = 0
-    for i = 0 to |R| - 1:
-        // Advance j to include rays in window
-        while angle[j % |R|] - angle[i] < pi (mod 2pi):
-            window_prod *= (1 + c[j % |R|])
-            window_sum += c[j % |R|]
-            j++
-        // Subtract size-0 and size-1 subsets from window
-        Bad += c[i] * (window_prod - 1 - window_sum) mod MOD
-        // Remove anchor i from window for next iteration
-        window_prod /= (1 + c[i])
-        window_sum -= c[i]
-
-    return (All_ge3 - Bad) mod MOD
+```text
+Enumerate primitive rays
+Compute All(>=3)
+Compute Bad(>=3) via anchor trick + two-pointer
+For each anchor i, find window W(i) = rays in (theta_i, theta_i + pi]
+Advance j to include rays in window
+Subtract size-0 and size-1 subsets from window
+Remove anchor i from window for next iteration
 ```
 
 ## Complexity Analysis

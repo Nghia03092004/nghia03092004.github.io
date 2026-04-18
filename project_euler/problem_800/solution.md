@@ -38,13 +38,18 @@ The number of valid primes $q$ for a given $p$ is $\pi(q_{\max}) - \pi(p)$, wher
 
 When $p = q$, the inequality becomes $2p \ln p \leq 800800 \ln 800800$, giving approximately $p \leq 800800$. So we only need primes up to about 800800.
 
-## Algorithm
+## Editorial
+Count hybrid-integers p^q * q^p <= 800800^800800 where p, q are distinct primes. Using logarithmic transformation: q*ln(p) + p*ln(q) <= 800800*ln(800800). We generate all primes up to a sufficient bound using the Sieve of Eratosthenes. We then iterate over each prime $p$ (in increasing order), use binary search to find the largest prime $q > p$ with $q \ln p + p \ln q \leq L$. Finally, add $\pi(q_{\max}) - \pi(p)$ to the count (number of primes between $p+1$ and $q_{\max}$).
 
-1. Generate all primes up to a sufficient bound using the Sieve of Eratosthenes.
-2. Let $L = 800800 \cdot \ln(800800)$.
-3. For each prime $p$ (in increasing order), use binary search to find the largest prime $q > p$ with $q \ln p + p \ln q \leq L$.
-4. Add $\pi(q_{\max}) - \pi(p)$ to the count (number of primes between $p+1$ and $q_{\max}$).
-5. Stop when even $q = \text{nextprime}(p)$ violates the bound.
+## Pseudocode
+
+```text
+Generate all primes up to a sufficient bound using the Sieve of Eratosthenes
+Let $L = 800800 \cdot \ln(800800)$
+For each prime $p$ (in increasing order), use binary search to find the largest prime $q > p$ with $q \ln p + p \ln q \leq L$
+Add $\pi(q_{\max}) - \pi(p)$ to the count (number of primes between $p+1$ and $q_{\max}$)
+Stop when even $q = \text{nextprime}(p)$ violates the bound
+```
 
 ## Correctness
 

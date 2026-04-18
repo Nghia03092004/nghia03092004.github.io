@@ -37,32 +37,34 @@ $$\sum_{b=0}^{\lfloor\sqrt{N/k}\rfloor} \left(\lfloor\sqrt{N - kb^2}\rfloor + 1\
 
 **Proof.** The sum approximates $\int_0^{\sqrt{N/k}} \sqrt{N - kt^2}\,dt = \frac{\pi N}{4\sqrt{k}}$, giving $\Theta(N/\sqrt{k})$. $\square$
 
-## Algorithm
+## Editorial
+Count n <= 2*10^9 that can simultaneously be written as: n = a^2 + b^2 n = a^2 + 7*c^2 n = a^2 + 11*d^2 n = a^2 + 13*e^2 Approach: segmented sieve with bit arrays. Note: Full computation requires ~250MB RAM and significant time. For demonstration, we show the algorithm and print the known answer. We segmented sieve to manage memory.
 
-```
-function count_four_representations(N):
-    // Segmented sieve to manage memory
-    B = 10^7    // block size
+## Pseudocode
+
+```text
+    Segmented sieve to manage memory
+    B = 10^7 // block size
     count = 0
 
-    for block_start = 0 to N step B:
+    For block_start from 0 to N step B:
         block_end = min(block_start + B - 1, N)
 
-        for k in {1, 7, 11, 13}:
+        For each k in {1, 7, 11, 13}:
             bit_array_k = new bit array of size B, all zeros
-            for b = 0 to floor(sqrt(block_end / k)):
+            For b from 0 to floor(sqrt(block_end / k)):
                 lo = max(0, block_start - k*b^2)
                 a_lo = ceil(sqrt(lo)) if lo > 0 else 0
                 a_hi = floor(sqrt(block_end - k*b^2))
-                for a = a_lo to a_hi:
+                For a from a_lo to a_hi:
                     n = a^2 + k*b^2
-                    if block_start <= n <= block_end:
+                    If block_start <= n <= block_end then
                         bit_array_k[n - block_start] = 1
 
         result = bit_array_1 AND bit_array_7 AND bit_array_11 AND bit_array_13
         count += popcount(result)
 
-    return count
+    Return count
 ```
 
 ## Complexity Analysis

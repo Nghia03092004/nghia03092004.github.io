@@ -23,34 +23,19 @@ Then for $x, y$ both in the domain of $h$, we have $x^y \equiv y^x \pmod{p}$ if 
 
 **Proof.** This follows from the solvability condition for linear congruences: $ay \equiv bx \pmod{p-1}$ has solutions iff $\gcd(y, p-1) \mid bx - ay$, but here $x, y$ are both given. The condition is simply $p - 1 \mid ay - bx$. $\square$
 
-## Algorithm
+## Editorial
+For a prime $p$, let $f(p) = \sum (x+y)$ where the sum is over all pairs $(x,y)$ with $1 \le x < y < p$ such that $x^y \equiv y^x \pmod{p}$. Find $\sum_{p \le 10^6} f(p) \bmod 1\,000\,000\,007$. We iterate over each prime p in primes. We then compute discrete logarithm table via BSGS or direct power. Finally, build hash map: key = h(x), value = list of x.
 
-```
-function SumCongruencePairs(N, MOD):
-    primes = SieveOfEratosthenes(N)
-    result = 0
-    for each prime p in primes:
-        g = FindPrimitiveRoot(p)
-        // Compute discrete logarithm table via BSGS or direct power
-        ind = array of size p
-        val = 1
-        for k = 0 to p-2:
-            ind[val] = k
-            val = val * g mod p
-        // Build hash map: key = h(x), value = list of x
-        buckets = empty hash map
-        for x = 1 to p-1:
-            if gcd(x, p-1) == 1:
-                hx = ind[x] * modular_inverse(x, p-1) mod (p-1)
-                buckets[hx].append(x)
-        // Sum over collision pairs
-        for each bucket B in buckets:
-            S = sum of elements in B
-            |B| = size of B
-            // sum of (x+y) over pairs = (|B|-1)*S
-            result = (result + (|B| - 1) * S) mod MOD
-        // Handle gcd(x, p-1) > 1 cases separately (direct check)
-    return result
+## Pseudocode
+
+```text
+for each prime p in primes
+Compute discrete logarithm table via BSGS or direct power
+Build hash map: key = h(x), value = list of x
+Sum over collision pairs
+for each bucket B in buckets
+sum of (x+y) over pairs = (|B|-1)*S
+Handle gcd(x, p-1) > 1 cases separately (direct check)
 ```
 
 ## Complexity Analysis

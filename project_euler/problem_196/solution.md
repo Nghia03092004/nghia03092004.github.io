@@ -46,43 +46,20 @@ $S(n)$ is the sum of primes in row $n$ that belong to any prime triplet. Given $
 
 **Proof.** A neighbour of a position in row $n$ is in row $n-1$, $n$, or $n+1$. A neighbour of that neighbour can be in rows $n-2$ through $n+2$. $\square$
 
-## Algorithm
+## Editorial
+A prime triplet is three primes where ONE has the other TWO as neighbors. Neighbors of element (n, k) include up to 8 positions: same row: (n, k-1), (n, k+1) row above: (n-1, k-1), (n-1, k), (n-1, k+1) row below: (n+1, k-1), (n+1, k), (n+1, k+1) A prime p is in a triplet iff: (a) p has >= 2 prime neighbors, OR (b) p has a prime neighbor q that has >= 2 prime neighbors S(n) = sum of primes in row n that are in any prime triplet. Find S(5678027) + S(7208785). Note: This Python solution demonstrates the algorithm on small inputs. For the actual large inputs, use the C++ solution (takes ~5 minutes). We determine the range of values in rows n-2 to n+2. We then segmented sieve: find all primes in [lo, hi]. Finally, first sieve small primes up to sqrt(hi).
 
-```
-function S(n):
-    # Determine the range of values in rows n-2 to n+2
-    lo = T(n-2)           # start of row n-2
-    hi = T(n+2) + (n+2)   # end of row n+2
+## Pseudocode
 
-    # Segmented sieve: find all primes in [lo, hi]
-    # First sieve small primes up to sqrt(hi)
-    small_primes = sieve_of_eratosthenes(floor(sqrt(hi)))
-
-    # Segmented sieve for [lo, hi]
-    is_prime = segmented_sieve(lo, hi, small_primes)
-
-    # For each prime p in row n:
-    result = 0
-    for k from 0 to n-1:
-        v = T(n) + k
-        if not is_prime[v - lo]: continue
-
-        # Count prime neighbours of v
-        prime_nbr_count = count_prime_neighbours(n, k, is_prime, lo)
-
-        if prime_nbr_count >= 2:
-            result += v
-            continue
-
-        # Check spoke condition: does any prime neighbour have >= 2 prime neighbours?
-        for each neighbour (n', k') of (n, k):
-            v' = T(n') + k'
-            if not is_prime[v' - lo]: continue
-            if count_prime_neighbours(n', k', is_prime, lo) >= 2:
-                result += v
-                break
-
-    return result
+```text
+Determine the range of values in rows n-2 to n+2
+Segmented sieve: find all primes in [lo, hi]
+First sieve small primes up to sqrt(hi)
+Segmented sieve for [lo, hi]
+For each prime p in row n:
+for k from 0 to n-1
+Count prime neighbours of v
+Check spoke condition: does any prime neighbour have >= 2 prime neighbours?
 ```
 
 ## Complexity Analysis

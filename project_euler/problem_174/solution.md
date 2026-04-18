@@ -20,23 +20,26 @@ which in both cases equals $|\{k : k \mid m,\; k < \sqrt{m}\}|$. $\square$
 
 **Proof.** Each pair $(k, q)$ with $k < q$ and $kq = m$ is visited exactly once. The total number of pairs is $\sum_{k=1}^{\lfloor\sqrt{M}\rfloor} \lfloor M/k - k \rfloor \leq \sum_{k=1}^{\lfloor\sqrt{M}\rfloor} M/k = O(M \log \sqrt{M}) = O(M \log M)$. $\square$
 
-## Algorithm
+## Editorial
+That Can Form One, Two, Three, ... Distinct Arrangements N(t) = number of laminae with exactly t tiles. Count values of t <= 10^6 with 1 <= N(t) <= 10. Key insight: t = 4m, and N(t) = number of divisors k of m with k < sqrt(m).
 
-```
-M = N / 4    # N = 10^6, so M = 250000
+## Pseudocode
+
+```text
+M = N / 4 # N = 10^6, so M = 250000
 count[1..M] = 0
 
-for k = 1 to floor(sqrt(M)):
-    for q = k+1 to M/k:
+For k from 1 to floor(sqrt(M)):
+    For q from k+1 to M/k:
         m = k * q
         count[m] += 1
 
 answer = 0
-for m = 1 to M:
-    if 1 <= count[m] <= 10:
+For m from 1 to M:
+    If 1 <= count[m] <= 10 then
         answer += 1
 
-return answer
+Return answer
 ```
 
 ## Complexity Analysis

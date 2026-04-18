@@ -34,24 +34,15 @@ since $n - r \geq 1$. Therefore only bijections survive, yielding $(-1)^n \cdot 
 
 **Proof.** A perfect matching $M$ in $G$ is a bijection $\sigma$ with $(u_i, v_{\sigma(i)}) \in E$ for all $i$, i.e., $A_{i,\sigma(i)} = 1$ for all $i$. Summing over all such bijections gives $\operatorname{perm}(A)$. $\square$
 
-## Algorithm
+## Editorial
+Compute the permanent of a 0-1 matrix using Ryser's formula: perm(A) = (-1)^n * sum_{S} (-1)^|S| * prod_i (sum_{j in S} A_ij) Method 1: Ryser's formula O(2^n * n) Method 2: Brute force O(n! * n) (verification). We ryser's formula with Gray code enumeration. Finally, else.
 
-```
-function PERMANENT(A, n):
-    // Ryser's formula with Gray code enumeration
-    r[1..n] <- 0          // row sums
-    perm <- 0
-    sign <- (-1)^n
-    for each subset S of [n] in Gray code order:
-        let j0 be the element toggled
-        if j0 was added to S:
-            for i = 1 to n: r[i] <- r[i] + A[i][j0]
-        else:
-            for i = 1 to n: r[i] <- r[i] - A[i][j0]
-        product <- r[1] * r[2] * ... * r[n]
-        perm <- perm + sign * product
-        sign <- -sign
-    return (-1)^n * perm
+## Pseudocode
+
+```text
+Ryser's formula with Gray code enumeration
+if j0 was added to S
+else
 ```
 
 ## Complexity Analysis

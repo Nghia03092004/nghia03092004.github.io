@@ -49,30 +49,33 @@ where $C_k = \frac{1}{k+1}\binom{2k}{k}$.
 
 For $k = 1$: $\frac{1}{2}\binom{2}{1} - C_1 = 1 - 1 = 0$, so no singleton pairs need testing (if $b_1 < c_1$ then trivially $S(B) < S(C)$). Hence the sum starts at $k = 2$. $\square$
 
-## Algorithm
+## Editorial
+|-----|-------------------|-----------------------------|--------|------------|--------------| | 2   | 495               | 3                           | 2      | 1          | 495          | | 3   | 924               | 10                          | 5      | 5          | 4620         | | 4   | 495               | 35                          | 14     | 21         | 10395        | | 5   | 66                | 126                         | 42     | 84         | 5544         | | 6   | 1                 | 462                         | 132    | 330        | 330          |.
 
-```
-function solve(n):
+## Pseudocode
+
+```text
     total = 0
-    for k = 2 to floor(n/2):
+    For k from 2 to floor(n/2):
         choose_2k = binomial(n, 2*k)
         half_middle = binomial(2*k, k) / 2
         catalan_k = binomial(2*k, k) / (k + 1)
         total += choose_2k * (half_middle - catalan_k)
-    return total
+    Return total
 ```
 
 **Computation for $n = 12$:**
 
 | $k$ | $\binom{12}{2k}$ | $\frac{1}{2}\binom{2k}{k}$ | $C_k$ | Difference | Contribution |
 |-----|-------------------|-----------------------------|--------|------------|--------------|
-| 2   | 495               | 3                           | 2      | 1          | 495          |
-| 3   | 924               | 10                          | 5      | 5          | 4620         |
-| 4   | 495               | 35                          | 14     | 21         | 10395        |
-| 5   | 66                | 126                         | 42     | 84         | 5544         |
-| 6   | 1                 | 462                         | 132    | 330        | 330          |
+| 2 | 495 | 3 | 2 | 1 | 495 |
+| 3 | 924 | 10 | 5 | 5 | 4620 |
+| 4 | 495 | 35 | 14 | 21 | 10395 |
+| 5 | 66 | 126 | 42 | 84 | 5544 |
+| 6 | 1 | 462 | 132 | 330 | 330 |
 
 $$T = 495 + 4620 + 10395 + 5544 + 330 = 21384$$
+```
 
 ## Complexity Analysis
 

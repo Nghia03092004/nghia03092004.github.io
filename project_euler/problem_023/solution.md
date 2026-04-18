@@ -38,7 +38,7 @@ Since $n$ is abundant, $\sigma_1(n) > 2n$, so $\sigma_1(kn) \geq k\,\sigma_1(n) 
 
 **Remark.** The largest integer *not* in $\mathcal{A}_2$ is known to be 20161, so 28123 is a conservative but correct upper bound.
 
-## Algorithm
+## Editorial
 
 We first precompute $s(n)$, the sum of proper divisors, for every $n \le N$ with a sieve-like pass over multiples. From that table we collect the abundant numbers, enumerate all sums of two abundant numbers that stay within the limit, mark those sums as representable, and finally add every unmarked integer. This is sufficient because any number that can be written as a sum of two abundant numbers will be marked during the nested scan.
 

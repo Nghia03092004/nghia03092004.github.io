@@ -62,7 +62,7 @@ For each length $m$ (from 2 to 2020), for each special digit $d$ (1 to 9), for e
 
 All computations are done modulo $10^{16}$.
 
-## Algorithm
+## Editorial
 
 Use dynamic programming / polynomial multiplication to compute the coefficients $f(s,k)$ and the weighted sums efficiently. Since $d \le 9$ and we need $f(d, k)$ for $k$ up to 2019, we use the recurrence or closed-form with inclusion-exclusion.
 

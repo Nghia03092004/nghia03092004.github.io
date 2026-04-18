@@ -38,43 +38,19 @@ where $\mathbf{1}_A$ is the indicator vector of accepting states.
 
 **Proof.** Let $\mathbf{v}_1$ be the state distribution after processing the first digit $d \in \{1, \ldots, 9\}$ (excluding 0). Then $T(n) = \mathbf{v}_1^\top M^{n-1} \mathbf{1}_A$, correctly counting $n$-digit numbers without leading zeros. $\square$
 
-## Algorithm
+## Editorial
+Count 10-substring-friendly numbers from 1 to 10^n. Find T(10^18) mod 10^9+7. Approach: Build automaton with states tracking uncovered suffix. Use matrix exponentiation. We enumerate automaton states. We then build transition matrix. Finally, iterate over each state s in states.
 
-```
-function TEN_SUBSTRINGS(N):
-    MOD = 10^9 + 7
+## Pseudocode
 
-    // Step 1: Enumerate automaton states
-    states = enumerate_suffix_compositions(max_sum=9)
-    S = |states|
-    state_index = map from state to index
-
-    // Step 2: Build transition matrix
-    M = S x S zero matrix
-    for each state s in states:
-        for d = 0 to 9:
-            new_suffix = append(s, d)
-            // Check for 10-substring: find longest suffix with sum = 10
-            while suffix_sum(new_suffix) >= 10:
-                remove prefix of new_suffix that forms a 10-substring
-            s_new = compress(new_suffix)
-            M[state_index[s]][state_index[s_new]] += 1
-
-    // Step 3: Compute initial vector (first digit 1-9)
-    v = zero vector of size S
-    for d = 1 to 9:
-        s = state_after_digit(empty_state, d)
-        v[state_index[s]] += 1
-
-    // Step 4: Matrix exponentiation
-    result_vector = v * matrix_power(M, N - 1, MOD)
-
-    // Step 5: Sum over accepting states
-    answer = 0
-    for each accepting state s (empty uncovered suffix):
-        answer = (answer + result_vector[state_index[s]]) mod MOD
-
-    return answer
+```text
+Enumerate automaton states
+Build transition matrix
+for each state s in states
+Check for 10-substring: find longest suffix with sum = 10
+Compute initial vector (first digit 1-9)
+Matrix exponentiation
+Sum over accepting states
 ```
 
 ## Complexity Analysis

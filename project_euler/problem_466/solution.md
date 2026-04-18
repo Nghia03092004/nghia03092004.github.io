@@ -34,30 +34,19 @@ where the exact form depends on the divisor lattice of numbers up to $m$. The ke
 
 **Proof.** Classical result: for $j \le \sqrt{N}$, compute $\lfloor N/j \rfloor$ directly. For $j > \sqrt{N}$, note $\lfloor N/j \rfloor < \sqrt{N}$, so group by the value of $\lfloor N/j \rfloor$. Total: $O(\sqrt{N})$ evaluations. $\square$
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We count multiples of i in [i, i*n] not appearing in earlier rows. We then use Mobius inclusion-exclusion over divisors of numbers up to m. Finally, that share common multiples with row i.
 
-```
-function ComputeP(m, n):
-    total = 0
-    for i = 1 to m:
-        // Count multiples of i in [i, i*n] not appearing in earlier rows
-        // Use Mobius inclusion-exclusion over divisors of numbers up to m
-        // that share common multiples with row i
-        blocking_set = {k < i : gcd(k, i) structure allows shared multiples}
-        new_i = inclusion_exclusion(i, n, blocking_set)
-        // Apply hyperbola method for each floor-division sum
-        total += new_i
-    return total
+## Pseudocode
 
-function inclusion_exclusion(i, n, blocking_set):
-    // For subsets T of blocking rows:
-    // new_i = sum_{T subset blocking_set} (-1)^|T| * floor(n * i / lcm(i, elements of T))
-    // Prune: only consider divisors up to m
-    result = 0
-    for each subset T (via Mobius function on divisor lattice):
-        L = lcm(i, all elements in T)
-        result += mu_coeff(T) * floor(n / (L / i))
-    return result
+```text
+Count multiples of i in [i, i*n] not appearing in earlier rows
+Use Mobius inclusion-exclusion over divisors of numbers up to m
+that share common multiples with row i
+Apply hyperbola method for each floor-division sum
+For subsets T of blocking rows:
+new_i = sum_{T subset blocking_set} (-1)^|T| * floor(n * i / lcm(i, elements of T))
+Prune: only consider divisors up to m
 ```
 
 ## Complexity Analysis

@@ -45,17 +45,16 @@ Using calculus of variations / Lagrange multipliers:
 
 All test cases verified against independent brute-force computation.
 
-## Algorithm
+## Editorial
+Direct enumeration of all valid configurations for small inputs, used to validate Method 1. We begin with the precomputation phase: Build necessary data structures (sieve, DP table, etc.). We then carry out the main computation: Apply calculus of variations / Lagrange multipliers to evaluate the target. Finally, we apply the final reduction: Accumulate and reduce results modulo the given prime.
 
-### Method 1: Optimized Algorithm (Primary)
+## Pseudocode
 
-1. **Precomputation phase:** Build necessary data structures (sieve, DP table, etc.).
-2. **Main computation:** Apply calculus of variations / Lagrange multipliers to evaluate the target.
-3. **Post-processing:** Accumulate and reduce results modulo the given prime.
-
-### Method 2: Brute Force (Verification)
-
-Direct enumeration of all valid configurations for small inputs, used to validate Method 1.
+```text
+Precomputation phase: Build necessary data structures (sieve, DP table, etc.)
+Main computation: Apply calculus of variations / Lagrange multipliers to evaluate the target
+Post-processing: Accumulate and reduce results modulo the given prime
+```
 
 ## Proof of Correctness
 

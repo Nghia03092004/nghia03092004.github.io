@@ -27,41 +27,25 @@ $$\sum_{n=1}^{\infty} \frac{f(n)}{n^s} = \prod_p \sum_{a=0}^{\infty} \frac{2^a}{
 
 **Proof.** $\sum_{a=0}^{\infty} (2/p^s)^a = 1/(1 - 2p^{-s})$ for $\operatorname{Re}(s) > 1$. The identity $\prod_p 1/(1 - 2p^{-s}) = \zeta(s)^2/\zeta(2s)$ follows from $\prod_p (1 - p^{-s})^{-2} = \zeta(s)^2$ and $\prod_p (1 - p^{-s})^{-2} / \prod_p (1 - 2p^{-s})^{-1}$ simplifying via $(1-x)^2/(1-2x) = 1/(1-2x) \cdot (1-x)^2$ and the Euler product for $\zeta(2s)$. $\square$
 
-## Algorithm
+## Editorial
+We lucy DP for prime counting. We then compute pi(v) for all v in {floor(N/k) : k = 1, ..., sqrt(N)}. Finally, initialize: S_table[v] = v - 1 (count of integers 2..v).
 
-```
-function S(N):
-    # Step 1: Lucy DP for prime counting
-    # Compute pi(v) for all v in {floor(N/k) : k = 1, ..., sqrt(N)}
-    sqrt_N = isqrt(N)
-    values = sorted set of {floor(N/k) for k = 1..N} (has O(sqrt(N)) elements)
+## Pseudocode
 
-    # Initialize: S_table[v] = v - 1 (count of integers 2..v)
-    for v in values:
-        S_table[v] = v - 1
-
-    # Sieve
-    for each prime p <= sqrt_N:
-        for v in values where v >= p*p:
-            S_table[v] -= S_table[v/p] - S_table[p-1]
-
-    # Now S_table[v] = pi(v) for all tracked v
-
-    # Step 2: Recursive computation
-    # sum_j(N, j, p_min) = sum over j-almost primes n <= N
-    #                       with smallest prime factor >= p_min of 2^j
-    # S(N) = 1 + sum_{j=1}^{max_j} sum_j(N, j, 2)
-    # Implemented recursively with memoization
-
-    result = 1  # contribution from n = 1
-    for each prime p via sieve:
-        pk = p
-        while pk <= N:
-            # pk = p^a, contributes 2^a * S_recursive(N/pk, primes > p)
-            result += 2 * S_recursive(N / pk, next_prime_after_p)
-            pk *= p
-
-    return result
+```text
+Lucy DP for prime counting
+Compute pi(v) for all v in {floor(N/k) : k = 1, ..., sqrt(N)}
+Initialize: S_table[v] = v - 1 (count of integers 2..v)
+for v in values
+Sieve
+Now S_table[v] = pi(v) for all tracked v
+Recursive computation
+sum_j(N, j, p_min) = sum over j-almost primes n <= N
+with smallest prime factor >= p_min of 2^j
+S(N) = 1 + sum_{j=1}^{max_j} sum_j(N, j, 2)
+Implemented recursively with memoization
+for each prime p via sieve
+pk = p^a, contributes 2^a * S_recursive(N/pk, primes > p)
 ```
 
 ## Complexity Analysis

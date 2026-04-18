@@ -22,37 +22,15 @@ Find the sum of all **distinct** values in $\{\psi(n) : n \text{ admissible}, n 
 
 **Proof.** Suppose $\psi(n) = m$ is composite, say $m = ab$ with $1 < a \leq b$. Then $n + a < n + m$ and we need to check if $n + a$ could be prime. Since $n$ is divisible by all small primes up to $p_k$, and $a < m$, if $a$ is divisible by any prime $\leq p_k$, then $n + a$ is also divisible by that prime (since $p_i \mid n$ and $p_i \mid a$ implies $p_i \mid (n + a)$), so $n + a$ is composite. However, if $a$ has no prime factor $\leq p_k$, this argument fails. Nevertheless, empirically for this problem, all pseudo-Fortunate numbers are indeed prime. This is a conjecture (related to Fortune's conjecture) rather than a proven theorem. $\square$
 
-## Algorithm
+## Editorial
+An admissible number uses consecutive primes starting from 2, each at least once. The pseudo-Fortunate number for n is the smallest m > 1 such that n + m is prime. We recursive generation of admissible numbers. We then compute pseudo-Fortunate numbers. Finally, iterate over n in admissible.
 
-```
-function solve():
-    primes = [2, 3, 5, 7, 11, 13, 17, 19, 23]
-    limit = 10^9
-    admissible = []
+## Pseudocode
 
-    // Recursive generation of admissible numbers
-    function generate(index, current):
-        if current > limit: return
-        if index > 0:
-            admissible.append(current)
-        if index >= len(primes): return
-        p = primes[index]
-        val = current * p
-        while val <= limit:
-            generate(index + 1, val)
-            val *= p
-
-    generate(0, 1)
-
-    // Compute pseudo-Fortunate numbers
-    pf_set = {}
-    for n in admissible:
-        m = 2
-        while not is_prime(n + m):
-            m += 1
-        pf_set.add(m)
-
-    return sum(pf_set)
+```text
+Recursive generation of admissible numbers
+Compute pseudo-Fortunate numbers
+for n in admissible
 ```
 
 ## Complexity Analysis

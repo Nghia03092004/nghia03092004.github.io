@@ -32,38 +32,15 @@ The first sum contributes only when $q$ is itself a prime factor of $n$ (giving 
 
 *Proof.* Since $2^{33} < 10^{10} < 2^{34}$, the total multiplicity is at most 33. The product of the first 10 primes is $2 \cdot 3 \cdot 5 \cdots 29 = 6469693230 < 10^{10}$, while the product of the first 11 primes exceeds $10^{10}$. $\square$
 
-## Algorithm
-
+## Editorial
 The algorithm performs a depth-first search over prime factorizations of $n$, enumerating primes in increasing order and tracking the residue modulo 3 of $v_q(\varphi(n^2))$ for each relevant prime $q$.
 
-```
-function solve(limit = 10^10):
-    primes = sieve(200000)
-    result = 0
+## Pseudocode
 
-    function dfs(pidx, n_val, res3):
-        // res3[q] = v_q(phi(n^2)) mod 3 for accumulated primes
-        if all values in res3 are 0 and n_val > 1:
-            result += n_val
-
-        for i = pidx to len(primes)-1:
-            p = primes[i]
-            if n_val * p >= limit: break
-            pf = factorize(p - 1)
-            saved = copy(res3)
-            // Add (p-1) contribution (once per prime, independent of exponent)
-            for (q, e) in pf:
-                res3[q] = (res3[q] + e) mod 3
-            for a = 1, 2, 3, ...:
-                n_val *= p
-                if n_val >= limit: break
-                // Update self-contribution of p: delta is +1 at a=1, +2 for a>1
-                res3[p] = (res3[p] + (1 if a==1 else 2)) mod 3
-                dfs(i + 1, n_val, res3)
-            res3 = saved    // restore
-
-    dfs(0, 1, {})
-    return result
+```text
+res3[q] = v_q(phi(n^2)) mod 3 for accumulated primes
+Add (p-1) contribution (once per prime, independent of exponent)
+Update self-contribution of p: delta is +1 at a=1, +2 for a>1
 ```
 
 ## Complexity Analysis

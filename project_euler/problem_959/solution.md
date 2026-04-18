@@ -39,11 +39,16 @@ For $s_1 = "314"$ and $s_2 = "271"$:
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Edit distance (Levenshtein) between first 100 digits of pi and e. Wagner-Fischer DP algorithm: d[i][j] = min cost to align s1[:i] with s2[:j] Complexity: O(n*m) time and space, n = m = 100. We extract the first 100 decimal digits of $\pi$ and $e$ (well-known constants). We then build the DP table of size $(101 \times 101)$. Finally, return $d[100][100]$.
 
-1. Extract the first 100 decimal digits of $\pi$ and $e$ (well-known constants).
-2. Build the DP table of size $(101 \times 101)$.
-3. Return $d[100][100]$.
+### Pseudocode
+
+```text
+Extract the first 100 decimal digits of $\pi$ and $e$ (well-known constants)
+Build the DP table of size $(101 \times 101)$
+Return $d[100][100]$
+```
 
 ### The Digit Strings
 

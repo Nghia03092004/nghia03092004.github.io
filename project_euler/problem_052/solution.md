@@ -64,7 +64,7 @@ Each product is a cyclic permutation of 142857, hence $\mathcal{D}(k \cdot 14285
 
 Exhaustive computation over $d = 1, \ldots, 5$ yields no solution. For $d = 6$, the value $x = 142857$ satisfies the property by Corollary 1. No smaller 6-digit value in $[100000, 142856]$ satisfies the condition (verified computationally). $\blacksquare$
 
-## Algorithm
+## Editorial
 
 We search the positive integers in increasing order and compare each candidate with its first five nontrivial multiples. For a given value $x$, we compute its canonical digit signature by sorting its decimal digits, then test whether the same signature appears for $2x,3x,4x,5x,$ and $6x$. The first integer that passes all five comparisons is the smallest solution.
 

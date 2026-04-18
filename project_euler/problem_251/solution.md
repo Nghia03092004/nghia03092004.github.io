@@ -68,35 +68,14 @@ Note that different square-factor decompositions of $8t - 3$ (when it has multip
 
 **Remark.** The constraint $a + b + c \le N$ translates to $3t - 1 + ts + m \le N$, where $N = 110{,}000{,}000$.
 
-## Algorithm
+## Editorial
+A Cardano Triplet (a, b, c) satisfies: cbrt(a + b*sqrt(c)) + cbrt(a - b*sqrt(c)) = 1 This reduces to (a+1)^2 * (8a-1) = 27 * b^2 * c. Setting a = 3m-1 yields m^2 * (8m-3) = b^2 * c. Parametrize: b = e*f, m = e*r with gcd(f,r) = 1 and f^2 | (8m-3). Then c = r^2*(8m-3)/f^2, and a+b+c = (3m-1) + e*f + r^2*(8m-3)/f^2 <= N. For each (r, f) pair, valid e values form an arithmetic progression mod f^2.
 
-```
-function CountCardanoTriplets(N):
-    count = 0
-    for r = 1, 2, 3, ... while r*(r+3) <= N:
-        // f = 1 case: closed-form count
-        coeff = 3*r + 1 + 8*r^3
-        offset = 3*r^2 + 1
-        if coeff <= N + offset:
-            emax = (N + offset) / coeff
-            count += emax
+## Pseudocode
 
-        // f >= 3, odd, gcd(f,r) = 1
-        for f = 3, 5, 7, ... while f^3 <= 8*r*N:
-            if gcd(f, r) != 1: continue
-            f2 = f^2
-            val = (8*r) mod f2
-            if gcd(val, f2) != 1: continue
-            e0 = (3 * modular_inverse(val, f2)) mod f2
-            if e0 == 0: e0 = f2
-            m = r * e0
-            h = 8*m - 3
-            s = (3*m - 1) + e0*f + r^2*(h / f2)
-            if s <= N:
-                delta = f2*(3*r + f) + 8*r^3
-                kmax = (N - s) / delta
-                count += kmax + 1
-    return count
+```text
+f = 1 case: closed-form count
+f >= 3, odd, gcd(f,r) = 1
 ```
 
 ## Complexity Analysis

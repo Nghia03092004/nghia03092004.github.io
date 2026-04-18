@@ -44,7 +44,7 @@ $$\mathcal{T} = \{23,\, 37,\, 53,\, 73,\, 313,\, 317,\, 373,\, 797,\, 3137,\, 37
 
 *Proof.* Right-truncations: $3797 \to 379 \to 37 \to 3$, all prime. Left-truncations: $3797 \to 797 \to 97 \to 7$, all prime. $\blacksquare$
 
-## Algorithm
+## Editorial
 
 We precompute all primes below a search bound with the Sieve of Eratosthenes, then scan the primes from 11 upward. For each prime, we test every right truncation and every left truncation against the sieve table; if both families remain prime, the number is truncatable and contributes to the running sum. The search stops once the known total of eleven truncatable primes has been found.
 

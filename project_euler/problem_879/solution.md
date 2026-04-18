@@ -35,39 +35,20 @@ $$\left(x_1 + \frac{k \cdot (x_2 - x_1)}{g},\; y_1 + \frac{k \cdot (y_2 - y_1)}{
 
 **Proof.** There are $n^2$ choices for the current position and $2^{n^2}$ subsets of visited spots. The pair uniquely determines the set of available moves (and their intermediate spot requirements). $\square$
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We iterate over each starting spot s. We then iterate over each target spot t not in visited. Finally, check: all intermediate spots on segment current->t.
 
-```
-function COUNT_PASSWORDS(n):
-    spots = [(i, j) for i in 0..n-1, j in 0..n-1]
-    Precompute INTERMEDIATES[A][B] for all pairs A, B
+## Pseudocode
 
-    total = 0
-    for each starting spot s:
-        total += DFS(s, visited = {s}, length = 1)
-    return total
-
-function DFS(current, visited, length):
-    count = 0
-    if length >= 2:
-        count = 1    // current partial sequence is a valid password
-
-    for each target spot t not in visited:
-        // Check: all intermediate spots on segment current->t
-        // must be already visited
-        intermediates = INTERMEDIATES[current][t]
-        unvisited_intermediates = [p for p in intermediates if p not in visited]
-
-        if all intermediates are in visited:
-            // Simple move: go directly to t
-            count += DFS(t, visited ∪ {t}, length + 1)
-        else:
-            // Auto-include unvisited intermediates in order
-            new_visited = visited ∪ {t} ∪ set(unvisited_intermediates)
-            new_length = length + len(unvisited_intermediates) + 1
-            count += DFS(t, new_visited, new_length)
-
-    return count
+```text
+for each starting spot s
+for each target spot t not in visited
+Check: all intermediate spots on segment current->t
+must be already visited
+if all intermediates are in visited
+Simple move: go directly to t
+else
+Auto-include unvisited intermediates in order
 ```
 
 ## Complexity Analysis

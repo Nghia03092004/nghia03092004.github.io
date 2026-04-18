@@ -20,32 +20,15 @@ where $c_i$ is the number of points with angle strictly in $(\theta_i, \theta_i 
 
 **Proof.** After sorting angles, we maintain a pointer $j$ for each $i$ marking the farthest point within the semicircle. As $i$ advances, $j$ can only advance (the semicircle window slides). Thus the total pointer movement is $O(N)$. $\square$
 
-## Algorithm
+## Editorial
+Count triangles with integer-coordinate vertices on/inside circle of radius 105 that strictly contain the origin. Method: complementary counting with angular sweep. We collect non-origin lattice points. We then sort by angle. Finally, two-pointer sweep for semicircle counts.
 
-```
-function count_triangles_containing_origin(R):
-    # Step 1: Collect non-origin lattice points
-    points = []
-    for x = -R to R:
-        for y = -R to R:
-            if (x, y) != (0, 0) and x^2 + y^2 <= R^2:
-                points.append((x, y))
-    N = len(points)
+## Pseudocode
 
-    # Step 2: Sort by angle
-    sort points by atan2(y, x)
-
-    # Step 3: Two-pointer sweep for semicircle counts
-    bad = 0
-    j = 0
-    for i = 0 to N - 1:
-        if j == i: j = i + 1
-        while (j - i) < N and angle_diff(points[j % N], points[i]) < pi:
-            j += 1
-        c_i = j - i - 1
-        bad += c_i * (c_i - 1) / 2
-
-    return C(N, 3) - bad
+```text
+Collect non-origin lattice points
+Sort by angle
+Two-pointer sweep for semicircle counts
 ```
 
 ## Complexity Analysis

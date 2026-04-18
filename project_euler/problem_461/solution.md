@@ -32,32 +32,34 @@ Since every candidate quadruple decomposes into two pair-set elements, the minim
 
 *Proof.* Since $\mathcal{P}$ is sorted by $s$-value, the standard binary search locates the index $j$ such that $\mathcal{P}[j-1].s \le \tau < \mathcal{P}[j].s$ (or boundary cases). The closest element is either $\mathcal{P}[j]$ or $\mathcal{P}[j-1]$, since $|s - \tau|$ is minimized at the two elements straddling $\tau$ in the sorted order. $\square$
 
-## Algorithm
+## Editorial
+Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
 
-```
-function SolveAlmostPi(n):
+## Pseudocode
+
+```text
     k_max = floor(n * ln(pi + 1))
-    F[k] = exp(k / n) - 1   for k = 0, ..., k_max
+    F[k] = exp(k / n) - 1 for k = 0, ..., k_max
 
     P = []
-    for a = 0 to k_max:
-        for b = a to k_max:
+    For a from 0 to k_max:
+        For b from a to k_max:
             s = F[a] + F[b]
-            if s > pi: break
+            If s > pi then stop this loop
             P.append((s, a, b))
     sort P by first component
 
     sums = [p.s for p in P]
     best_error = +inf
-    for each (s_ab, a, b) in P:
+    For each each (s_ab, a, b) in P:
         tau = pi - s_ab
         j = bisect_left(sums, tau)
-        for j' in {j-1, j} intersect [0, |P|-1]:
+        For each j' in {j-1, j} intersect [0, |P|-1]:
             err = |s_ab + sums[j'] - pi|
-            if err < best_error:
+            If err < best_error then
                 best_error = err
                 best = (a, b, P[j'].a, P[j'].b)
-    return best[0]^2 + best[1]^2 + best[2]^2 + best[3]^2
+    Return best[0]^2 + best[1]^2 + best[2]^2 + best[3]^2
 ```
 
 ## Complexity Analysis

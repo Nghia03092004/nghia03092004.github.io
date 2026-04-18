@@ -34,32 +34,16 @@ $$\sum_{\substack{i \ge 1 \\ 3^i \le n+9}} B_i(n),$$
 
 **Proof.** Since $A = \sum_{i=1}^{\infty} T_i$ and the digit blocks are isolated (Theorem 1), only finitely many terms $T_i$ contribute nonzero digits at any given position. Specifically, term $T_i$ can only contribute at position $n$ if $3^i \le n + 9$ (otherwise $T_i$'s digits start after position $n+9$). The 10-digit block of $T_i$ at position $n$ is determined by extracting digits $n - 3^i$ through $n - 3^i + 9$ of $1/3^i$ via Lemma 1. Summing these integer blocks and propagating carries yields $A(n)$. $\square$
 
-## Algorithm
+## Editorial
+A = sum_{i=1}^{inf} 1/(3^i * 10^{3^i}) A(n) = 10 digits of A starting at position n. Key: digits at position n come from terms with 3^i <= n+9. For each term, compute digits of 1/3^i at offset n - 3^i using modular exponentiation. We find contributing terms. We then compute 10-digit block for each contributing term. Finally, iterate over i in terms.
 
-```
-function StonehamDigits(n):
-    // Find contributing terms
-    terms = []
-    power = 3
-    i = 1
-    while power <= n + 9:
-        terms.append(i)
-        i += 1
-        power *= 3
+## Pseudocode
 
-    // Compute 10-digit block for each contributing term
-    total = 0
-    for i in terms:
-        offset = n - 3^i
-        block = 0
-        for j in range(10):
-            r = pow(10, offset + j - 1, 3^i)    // modular exponentiation
-            digit = (10 * r) // 3^i
-            block = block * 10 + digit
-        total += block
-
-    // Extract last 10 digits (handle carries)
-    return total mod 10^10
+```text
+Find contributing terms
+Compute 10-digit block for each contributing term
+for i in terms
+Extract last 10 digits (handle carries)
 ```
 
 ## Complexity Analysis

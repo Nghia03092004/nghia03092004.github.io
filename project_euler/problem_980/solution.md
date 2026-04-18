@@ -24,7 +24,7 @@ The multiplicative order of 2 modulo odd $n$ is a fundamental quantity in number
 
 ## Derivation
 
-### Algorithm
+### Editorial
 
 For each odd $n$ from 3 to 10000: compute $2^k \bmod n$ for $k = 1, 2, \ldots$ until $2^k \equiv 1$.
 

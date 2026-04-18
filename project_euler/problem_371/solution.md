@@ -54,16 +54,18 @@ Rearranging: $(1 - \frac{k+1}{1000})\,E(k,1) = 1 + \frac{2(499-k)}{1000}\,E(k+1,
 
 **Proof.** At $k = 499$, all pairs are active. With $s = 1$, win probability is $\frac{500}{1000} = \frac{1}{2}$, and no new pairs exist, so $E(499,1) = \frac{1000}{500} = 2$. With $s = 0$, $E(499, 0) = \frac{1000 + E(499,1)}{500} = \frac{1002}{500}$. $\square$
 
-## Algorithm
+## Editorial
+Expected number of plates to observe before seeing a pair summing to 1000. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function solve():
+## Pseudocode
+
+```text
     E1[499] = 2.0
     E0[499] = 1002.0 / 500.0
     for k = 498 downto 0:
         E1[k] = (1000 + 2*(499 - k)*E1[k+1]) / (999 - k)
         E0[k] = (1000 + E1[k] + 2*(499 - k)*E0[k+1]) / (999 - k)
-    return E0[0]
+    Return E0[0]
 ```
 
 ## Complexity Analysis

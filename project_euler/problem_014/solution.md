@@ -44,7 +44,7 @@ Consequently, $L(n) = 2 + L\!\left(\frac{3n+1}{2}\right)$ for odd $n > 1$.
 
 *Proof.* If $n$ is even, $C(n) = n/2 < n$. If $n$ is odd, $C(n) = 3n+1 > n$, but $C^2(n) = \frac{3n+1}{2}$. While this may exceed $n$, the orbit (under the assumption of termination verified for $n < 2^{68}$) must reach $1 < n$. More precisely, each even step halves the value, while odd steps multiply by at most $\frac{3}{2}$ (after compression). Since $\frac{3}{2} < 2$, a sequence of odd-then-even steps is contractive on average, guaranteeing eventual descent. $\square$
 
-## Algorithm
+## Editorial
 
 We scan every starting value below $N$ while memoizing Collatz chain lengths that have already been resolved. For each `start`, we follow the sequence until we hit a value with known length, count how many new steps were taken, and store the resulting length for the starting value before comparing it with the current best. This is sufficient because every candidate under $N$ is examined and each evaluation eventually terminates at a cached chain tail.
 

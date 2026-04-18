@@ -44,17 +44,17 @@ For practical purposes with pseudo-random points, a sorted strip-based approach 
 
 This sweep-line approach runs in $O(n \log n)$.
 
-## Algorithm
+## Editorial
+We generate all 2,000,000 points using the recurrence. We then sort by x-coordinate. Finally, sweep from left to right, maintaining a set of active points sorted by y.
 
-```
-1. Generate all 2,000,000 points using the recurrence.
-2. Sort by x-coordinate.
-3. Sweep from left to right, maintaining a set of active points sorted by y.
-4. For each point p:
-   a. Remove points from the active set with x-distance > delta.
-   b. Query points in active set with y in [p.y - delta, p.y + delta].
-   c. Update delta if a closer pair is found.
-5. Return delta.
+## Pseudocode
+
+```text
+Generate all 2,000,000 points using the recurrence
+Sort by x-coordinate
+Sweep from left to right, maintaining a set of active points sorted by y
+For each point p:
+Return delta
 ```
 
 ## Correctness

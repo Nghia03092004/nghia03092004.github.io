@@ -24,31 +24,14 @@ since $E(x, x) = 1$ for all $x \geq 1$.
 
 **Proof.** Each pair $(x, y)$ with $\gcd(x,y) = g$ corresponds to a coprime pair $(x/g, y/g)$. The step count depends only on the coprime pair. By summing over all $g$ and all coprime pairs with denominator structure bounded by $N/g$, one obtains a summation formula over Stern-Brocot mediants. $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We direct computation: iterate over all pairs. Finally, optimized: use symmetry and precomputation. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function S(N):
-    // Direct computation: iterate over all pairs
-    total = 0
-    for x = 1 to N:
-        for y = 1 to N:
-            total += euclidean_steps(x, y)
-    return total
+## Pseudocode
 
-function euclidean_steps(x, y):
-    steps = 0
-    while y > 0:
-        x, y = y, x mod y
-        steps += 1
-    return steps
-
-// Optimized: use symmetry and precomputation
-function S_optimized(N):
-    total = N   // diagonal: E(x,x) = 1 for x=1..N
-    for x = 2 to N:
-        for y = 1 to x-1:
-            total += 2 * euclidean_steps(x, y)
-    return total
+```text
+Direct computation: iterate over all pairs
+Optimized: use symmetry and precomputation
 ```
 
 ## Complexity Analysis

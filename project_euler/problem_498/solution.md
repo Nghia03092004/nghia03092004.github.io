@@ -75,11 +75,16 @@ Since $m - d - 1 = 10^{12} - 10^4 - 1 < 10^{12}$, $k$ ranges up to about $10^{12
 
 The alternating sum $\sum_{k=0}^{M} \binom{N}{k}(-1)^k$ where $M = m-d-1$ and $N = n-d$ can be computed by splitting on digits of $k$ in base $p$.
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We compute the alternating sum $\sum_{k=0}^{m-d-1} \binom{n-d}{k}(-1)^k \bmod p$ using digit decomposition with Lucas' theorem. Finally, multiply and take absolute value mod $p$.
 
-1. Compute $\binom{n}{d} \bmod p$ using Lucas' theorem.
-2. Compute the alternating sum $\sum_{k=0}^{m-d-1} \binom{n-d}{k}(-1)^k \bmod p$ using digit decomposition with Lucas' theorem.
-3. Multiply and take absolute value mod $p$.
+## Pseudocode
+
+```text
+Compute $\binom{n}{d} \bmod p$ using Lucas' theorem
+Compute the alternating sum $\sum_{k=0}^{m-d-1} \binom{n-d}{k}(-1)^k \bmod p$ using digit decomposition with Lucas' theorem
+Multiply and take absolute value mod $p$
+```
 
 ## Correctness
 

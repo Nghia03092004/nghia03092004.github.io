@@ -40,17 +40,19 @@ $$E(n) = n \left(H_n - 1\right) + 1$$
 
 **Proof.** The identity element (already sorted) requires 0 steps. For each unsorted permutation, the expected number of steps to sort depends on the number of records (right-to-left minima). By linearity of expectation and the analysis of records in random permutations, where position $k$ is a record with probability $1/k$, the expected number of elements not in the sorted suffix is $n - H_n$, and each requires on average $n/(n - |\text{suffix}|)$ steps to fix. Summing the geometric series over the stages yields $E(n) = n(H_n - 1) + 1$. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function E(n, precision):
-    // Compute H_n = sum_{k=1}^{n} 1/k using high-precision arithmetic
+## Pseudocode
+
+```text
+    Compute H_n = sum_{k=1}^{n} 1/k using high-precision arithmetic
     H = 0
-    for k = 1 to n:
-        H += 1/k    // using arbitrary-precision rationals or mpfr
+    For k from 1 to n:
+        H += 1/k // using arbitrary-precision rationals or mpfr
 
     result = n * (H - 1) + 1
-    return round(result, precision)
+    Return round(result, precision)
 ```
 
 ## Complexity Analysis

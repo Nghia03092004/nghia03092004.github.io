@@ -61,14 +61,16 @@ We enumerate over:
 
 The total count is divided by $|G|$ to get $c(n)$.
 
-## Algorithm
+## Editorial
+a. Compute the number of permutations with each cycle type b. For each valid flip assignment, compute fixed-point count c. Sum contributions using Burnside's lemma. We generate all partitions of $n$. We then iterate over each pair of partitions $(\lambda, \mu)$. Finally, divide by $|G|$ modulo the prime $1\,001\,001\,011$.
 
-1. Generate all partitions of $n$
-2. For each pair of partitions $(\lambda, \mu)$:
-   a. Compute the number of permutations with each cycle type
-   b. For each valid flip assignment, compute fixed-point count
-   c. Sum contributions using Burnside's lemma
-3. Divide by $|G|$ modulo the prime $1\,001\,001\,011$
+## Pseudocode
+
+```text
+Generate all partitions of $n$
+For each pair of partitions $(\lambda, \mu)$:
+Divide by $|G|$ modulo the prime $1\,001\,001\,011$
+```
 
 ## Complexity Analysis
 

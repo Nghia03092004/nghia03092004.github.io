@@ -94,12 +94,17 @@ $$\text{ratio} = \frac{A_{concave}}{1 - \pi/4}$$
 
 We search for the smallest n where ratio < 0.001.
 
-## Algorithm
+## Editorial
+We iterate over each n starting from 1, compute x_0 (intersection point). We then compute the concave triangle area using numerical integration. Finally, compare ratio to 0.001.
 
-1. For each n starting from 1, compute x_0 (intersection point)
-2. Compute the concave triangle area using numerical integration
-3. Compare ratio to 0.001
-4. Return the first n where ratio < 0.001
+## Pseudocode
+
+```text
+For each n starting from 1, compute x_0 (intersection point)
+Compute the concave triangle area using numerical integration
+Compare ratio to 0.001
+Return the first n where ratio < 0.001
+```
 
 ## Correctness
 

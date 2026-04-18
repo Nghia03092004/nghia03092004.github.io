@@ -26,24 +26,15 @@ $$H(n) = 3n(n+1) - 6\sum_{k=1}^{n}\varphi(k).$$
 
 **Proof.** Immediate from $H(n) = T(n) - V(n)$ where $T(n) = 3n(n+1)$. $\square$
 
-## Algorithm
+## Editorial
+H(n) = 3*n*(n+1) - 6 * sum(phi(k) for k in 1..n) We sieve Euler's totient function up to n = 10^8. We compute Euler's totient via linear sieve. We then accumulate prefix sum. Finally, compute hidden count.
 
-```
-function H(n):
-    // Step 1: Compute Euler's totient via linear sieve
-    phi[1..n] initialized to phi[i] = i for all i
-    for p = 2 to n:
-        if phi[p] == p:          // p is prime
-            for m = p, 2p, 3p, ..., n:
-                phi[m] = phi[m] / p * (p - 1)
+## Pseudocode
 
-    // Step 2: Accumulate prefix sum
-    totient_sum = 0
-    for k = 1 to n:
-        totient_sum += phi[k]
-
-    // Step 3: Compute hidden count
-    return 3 * n * (n + 1) - 6 * totient_sum
+```text
+Compute Euler's totient via linear sieve
+Accumulate prefix sum
+Compute hidden count
 ```
 
 ## Complexity Analysis

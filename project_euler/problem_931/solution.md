@@ -31,56 +31,20 @@ $$\sum_{n=1}^{N} R(n) = \sum_{d=1}^{N} \operatorname{rad}(d) \cdot \left\lfloor 
 $$\sum_{n=1}^{N} R(n) = \sum_{n=1}^{N} \sum_{d \mid n} \operatorname{rad}(d) = \sum_{d=1}^{N} \operatorname{rad}(d) \sum_{\substack{n=1 \\ d \mid n}}^{N} 1 = \sum_{d=1}^{N} \operatorname{rad}(d) \cdot \left\lfloor \frac{N}{d} \right\rfloor,$$
 where the second equality follows by swapping the order of summation (each pair $(d, n)$ with $d \mid n$ and $1 \leq n \leq N$ is counted once on each side). $\square$
 
-## Algorithm
+## Editorial
+Alternative (direct product approach using Theorem 2):*. We linear sieve to compute rad(d) for all d <= N. We then iterate over p from 2 to N. Finally, compute the sum via Dirichlet interchange (Theorem 3).
 
-```
-function SumOfR(N, MOD):
-    // Step 1: Linear sieve to compute rad(d) for all d <= N
-    rad[1..N] := 1
-    is_prime[1..N] := true
-    for p from 2 to N:
-        if is_prime[p]:
-            for multiple m = p, 2p, 3p, ..., N:
-                rad[m] := rad[m] * p
-                if m != p:
-                    is_prime[m] := false
+## Pseudocode
 
-    // Step 2: Compute the sum via Dirichlet interchange (Theorem 3)
-    S := 0
-    for d from 1 to N:
-        S := S + rad[d] * floor(N / d)
-        S := S mod MOD
-
-    return S
-```
-
-*Alternative (direct product approach using Theorem 2):*
-
-```
-function SumOfR_Direct(N, MOD):
-    // Step 1: Sieve smallest prime factor spf[n] for n <= N
-    spf[1..N] := 0
-    for p from 2 to N:
-        if spf[p] == 0:
-            for m = p, 2p, ..., N:
-                if spf[m] == 0:
-                    spf[m] := p
-
-    // Step 2: For each n, compute R(n) = prod(1 + a_i * p_i)
-    S := 0
-    for n from 1 to N:
-        R := 1
-        temp := n
-        while temp > 1:
-            p := spf[temp]
-            a := 0
-            while temp mod p == 0:
-                a := a + 1
-                temp := temp / p
-            R := R * (1 + a * p) mod MOD
-        S := S + R
-        S := S mod MOD
-    return S
+```text
+Linear sieve to compute rad(d) for all d <= N
+for p from 2 to N
+Compute the sum via Dirichlet interchange (Theorem 3)
+for d from 1 to N
+Sieve smallest prime factor spf[n] for n <= N
+for p from 2 to N
+For each n, compute R(n) = prod(1 + a_i * p_i)
+for n from 1 to N
 ```
 
 ## Complexity Analysis

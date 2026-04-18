@@ -30,41 +30,17 @@ $$\tan\frac{E}{4} = \sqrt{\tan\frac{s}{2}\,\tan\frac{s-a}{2}\,\tan\frac{s-b}{2}\
 
 **Corollary.** Since $\pi \approx 3.14159$, the valid integer side lengths are $a, b, c \in \{1, 2, 3\}$, as each must be strictly less than $\pi$. The perimeter constraint $\le 100$ is automatically satisfied (maximum perimeter is $9$).
 
-## Algorithm
+## Editorial
+Approach:. We check triangle inequality. We then check perimeter < 2*pi. Finally, compute area via L'Huilier's formula. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function SumSphericalAreas():
-    total = 0.0
-    valid_sides = [1, 2, 3]  # integers in (0, pi)
+## Pseudocode
 
-    for a in valid_sides:
-        for b in valid_sides where b >= a:
-            for c in valid_sides where c >= b:
-                # Check triangle inequality
-                if a + b <= c:
-                    continue
-                # Check perimeter < 2*pi
-                if a + b + c >= 2*pi:
-                    continue
-
-                # Compute area via L'Huilier's formula
-                s = (a + b + c) / 2.0
-                arg = tan(s/2) * tan((s-a)/2) * tan((s-b)/2) * tan((s-c)/2)
-                if arg < 0:
-                    continue
-                E = 4 * atan(sqrt(arg))
-
-                # Count ordered permutations
-                if a == b == c:
-                    multiplicity = 1
-                elif a == b or b == c:
-                    multiplicity = 3
-                else:
-                    multiplicity = 6
-
-                total += multiplicity * E
-
-    return total
+```text
+Check triangle inequality
+Check perimeter < 2*pi
+Compute area via L'Huilier's formula
+Count ordered permutations
+else
 ```
 
 ## Complexity Analysis

@@ -32,27 +32,18 @@ $$F(N) = \sum_{d=1}^{N} \mu(d) \sum_{k=1}^{\lfloor N/d \rfloor} f(dk) \cdot k.$$
 
 The target sum $S(N) = \sum_{n=1}^{N} \lfloor(n+1)/2\rfloor \varphi(n)$ is computed by applying the weighted totient sum framework with $f(n) = \lfloor(n+1)/2\rfloor$, combined with precomputation of $\mu$ and $\varphi$ values up to a threshold $\sim N^{2/3}$, and the Meissel--Mertens-style hyperbola method for the tail.
 
-## Algorithm
+## Editorial
+The problem involves counting pencils of rays formed by light reflections inside a rectangular box. The solution uses number-theoretic summation involving Euler's totient function. We precompute smallest prime factor sieve up to B = N^(2/3). We then direct summation for d <= B. Finally, this can be split into closed-form sums for even/odd d*k.
 
-```
-function solve(N):
-    // Precompute smallest prime factor sieve up to B = N^(2/3)
-    B = ceil(N^(2/3))
-    mu[1..B] = sieve_mobius(B)
+## Pseudocode
 
-    // Direct summation for d <= B
-    result = 0
-    for d = 1 to B:
-        if mu[d] == 0: continue
-        Q = floor(N / d)
-        // Compute inner_sum = sum_{k=1}^{Q} floor((d*k+1)/2) * k
-        // This can be split into closed-form sums for even/odd d*k
-        result += mu[d] * inner_sum(d, Q)
-
-    // Use hyperbola method for the remaining terms
-    // Block-process by distinct values of floor(N/d)
-
-    return result
+```text
+Precompute smallest prime factor sieve up to B = N^(2/3)
+Direct summation for d <= B
+Compute inner_sum = sum_{k=1}^{Q} floor((d*k+1)/2) * k
+This can be split into closed-form sums for even/odd d*k
+Use hyperbola method for the remaining terms
+Block-process by distinct values of floor(N/d)
 ```
 
 ## Complexity Analysis

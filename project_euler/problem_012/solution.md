@@ -41,7 +41,7 @@ We must verify $\gcd(A,B) = 1$ in each case. Consider the case $2 \mid n$. Every
 
 **Remark.** This decomposition is the key algorithmic insight: instead of factoring $T_n$ (which can be as large as $\sim n^2/2$), we factor two numbers of size $\sim n/2$ and $\sim n$ separately, reducing the trial division cost.
 
-## Algorithm
+## Editorial
 
 We test triangle numbers in increasing order and compute their divisor counts from prime factorizations. For each index $n$, we use $T_n = n(n+1)/2$ together with the coprimality of $n$ and $n+1$ to evaluate $\tau(T_n)$ as $\tau(n/2)\tau(n+1)$ or $\tau(n)\tau((n+1)/2)$, where the helper $\tau$ factors its input by trial division. The first triangle number whose divisor count exceeds the target is therefore the desired answer.
 

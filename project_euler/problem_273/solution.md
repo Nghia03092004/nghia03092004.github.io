@@ -30,48 +30,20 @@ $$(a_i, b_i) \otimes (c, d) \;\longmapsto\; (|a_i c - b_i d|,\; a_i d + b_i c) \
 
 **Proof.** This follows from Lemma 1 and the Gaussian integer product: $(a_i + b_i \, i)(c + d\, i)$ and $(a_i + b_i \, i)(c - d\, i)$ yield the two new representations. $\square$
 
-## Algorithm
+## Editorial
+For squarefree N that is a product of primes p = 1 mod 4 with p < 150, let S(N) = sum of all a values where a^2 + b^2 = N, 0 <= a <= b. Find sum of S(N) over all such N. Primes = 1 mod 4 less than 150: 5,13,17,29,37,41,53,61,73,89,97,101,109,113,137,149 (16 primes) Uses Gaussian integers and Brahmagupta-Fibonacci identity. We 16 primes. We then iterate over each prime p, find (c, d) with c^2 + d^2 = p, c ≤ d. Finally, we run a depth-first search over the subsets while maintaining the current list of $(a,b)$ representations.
 
-```
-function solve():
-    primes_1mod4 = [5, 13, 17, 29, 37, 41, 53, 61, 73, 89, 97, 101, 109, 113, 137, 149]
-    # 16 primes
+## Pseudocode
 
-    # For each prime p, find (c, d) with c^2 + d^2 = p, c ≤ d
-    decomp = {}
-    for p in primes_1mod4:
-        for c in range(1, sqrt(p)):
-            d2 = p - c*c
-            if is_perfect_square(d2):
-                decomp[p] = (c, int(sqrt(d2)))
-                break
-
-    # DFS over subsets, maintaining list of (a, b) representations
-    total_sum = 0
-
-    function dfs(index, reps):
-        # reps = list of (a, b) with a ≤ b for current product
-        if reps is not empty:
-            for (a, b) in reps:
-                total_sum += a   # accumulate S(N)
-
-        for i from index to 15:
-            (c, d) = decomp[primes_1mod4[i]]
-            new_reps = []
-            for (a, b) in reps:
-                # Two new representations
-                x1, y1 = abs(a*c - b*d), a*d + b*c
-                x2, y2 = a*c + b*d, abs(a*d - b*c)
-                new_reps.append((min(x1,y1), max(x1,y1)))
-                new_reps.append((min(x2,y2), max(x2,y2)))
-            dfs(i + 1, new_reps)
-
-    # Bootstrap: each single prime p = c^2 + d^2 gives one representation
-    for i in range(16):
-        (c, d) = decomp[primes_1mod4[i]]
-        dfs(i + 1, [(c, d)])
-
-    return total_sum
+```text
+16 primes
+For each prime p, find (c, d) with c^2 + d^2 = p, c ≤ d
+DFS over subsets, maintaining list of (a, b) representations
+reps = list of (a, b) with a ≤ b for current product
+if reps is not empty
+for i from index to 15
+Two new representations
+Bootstrap: each single prime p = c^2 + d^2 gives one representation
 ```
 
 ## Complexity Analysis

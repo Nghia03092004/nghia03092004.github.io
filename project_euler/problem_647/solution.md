@@ -72,7 +72,7 @@ A number is both pentagonal (k(3k-1)/2) and hexagonal (m(2m-1)). Since every hex
 
 The condition reduces to: 24n+1 and 8n+1 are both perfect squares. This system gives sparse solutions.
 
-### Algorithm
+### Editorial
 
 Generate pentagonal numbers up to N. For each, check if it's also hexagonal (i.e., (1+sqrt(1+8n))/4 is a positive integer).
 

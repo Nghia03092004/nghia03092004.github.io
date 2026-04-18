@@ -35,42 +35,20 @@ Each step is $O(\log K)$, so the total over $N - K + 1$ windows is $O(N \log K)$
 
 **Proof.** By definition of the median for a finite set. $\square$
 
-## Algorithm
+## Editorial
+We generate sequence S. We then initialize Fenwick tree over [0, 10006]. Finally, compute median for first window. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function F(N, K):
-    // Step 1: Generate sequence S
-    primes = sieve_first_N_primes(N)
-    S[1..N] where S[n] = (primes[n]^2) mod 10007
+## Pseudocode
 
-    // Step 2: Initialize Fenwick tree over [0, 10006]
-    BIT = FenwickTree(10007)
-    for j = 1 to K:
-        BIT.update(S[j], +1)
-
-    total = 0
-    // Step 3: Compute median for first window
-    if K is odd:
-        med = BIT.kth_order_statistic((K+1)/2)
-    else:
-        lo = BIT.kth_order_statistic(K/2)
-        hi = BIT.kth_order_statistic(K/2 + 1)
-        med = (lo + hi) / 2.0
-    total += med
-
-    // Step 4: Slide window
-    for i = 2 to N - K + 1:
-        BIT.update(S[i-1], -1)       // remove leftmost
-        BIT.update(S[i+K-1], +1)     // add rightmost
-        if K is odd:
-            med = BIT.kth_order_statistic((K+1)/2)
-        else:
-            lo = BIT.kth_order_statistic(K/2)
-            hi = BIT.kth_order_statistic(K/2 + 1)
-            med = (lo + hi) / 2.0
-        total += med
-
-    return total
+```text
+Generate sequence S
+Initialize Fenwick tree over [0, 10006]
+Compute median for first window
+if K is odd
+else
+Slide window
+if K is odd
+else
 ```
 
 ## Complexity Analysis

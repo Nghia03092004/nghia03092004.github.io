@@ -25,20 +25,15 @@ $$\sigma_2^*(n) = \prod_{i=1}^{k} (1 + p_i^{2a_i})$$
 To find the prime factorization of $N! = (10^8)!$, we use Legendre's formula for the exponent of prime $p$ in $N!$:
 $$v_p(N!) = \sum_{i=1}^{\infty} \left\lfloor \frac{N}{p^i} \right\rfloor$$
 
-### Algorithm
+### Editorial
+Key insight: If n = p1^a1 * p2^a2 * ... then sigma*_2(n) = prod(1 + p_i^(2*a_i)) Use Legendre's formula for exponents in factorial, and sieve for primes. We generate all primes up to $N = 10^8$ using a sieve of Eratosthenes. We then iterate over each prime $p$, compute $a_p = v_p(N!)$ using Legendre's formula. Finally, compute the product $\prod_p (1 + p^{2a_p}) \pmod{10^9 + 9}$ using modular exponentiation.
 
-1. Generate all primes up to $N = 10^8$ using a sieve of Eratosthenes.
-2. For each prime $p$, compute $a_p = v_p(N!)$ using Legendre's formula.
-3. Compute the product $\prod_p (1 + p^{2a_p}) \pmod{10^9 + 9}$ using modular exponentiation.
+### Pseudocode
 
-## Algorithm
-
-```
-result = 1
-for each prime p <= N:
-    a = legendre(N, p)     // exponent of p in N!
-    result = result * (1 + pow(p, 2*a, MOD)) % MOD
-return result
+```text
+Generate all primes up to $N = 10^8$ using a sieve of Eratosthenes
+For each prime $p$, compute $a_p = v_p(N!)$ using Legendre's formula
+Compute the product $\prod_p (1 + p^{2a_p}) \pmod{10^9 + 9}$ using modular exponentiation
 ```
 
 ## Correctness

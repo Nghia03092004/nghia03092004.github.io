@@ -27,12 +27,16 @@ We need to partition the digits $\{1, 2, \ldots, 9\}$ into groups, form a number
 
 3. **Primality**: Each number formed from a subset of digits must be prime.
 
-### Algorithm
+### Editorial
+We use backtracking with bitmask. We represent the set of remaining digits as a 9-bit mask. We then at each step, enumerate subsets of the remaining digits, form all permutations of those digits, check if the resulting number is prime, and if so, recurse with the remaining digits. Finally, to ensure we count sets (not ordered tuples), we require that each subsequent number is strictly larger than the previous one.
 
-We use **backtracking with bitmask**:
-- Represent the set of remaining digits as a 9-bit mask.
-- At each step, enumerate subsets of the remaining digits, form all permutations of those digits, check if the resulting number is prime, and if so, recurse with the remaining digits.
-- To ensure we count sets (not ordered tuples), we require that each subsequent number is strictly larger than the previous one.
+### Pseudocode
+
+```text
+Represent the set of remaining digits as a 9-bit mask
+At each step, enumerate subsets of the remaining digits, form all permutations of those digits, check if the resulting number is prime, and if so, recurse with the remaining digits
+To ensure we count sets (not ordered tuples), we require that each subsequent number is strictly larger than the previous one
+```
 
 ### Pruning
 

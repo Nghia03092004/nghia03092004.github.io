@@ -62,23 +62,25 @@ A perimeter $L$ is called **singular** if there is exactly one Pythagorean tripl
 
 **Proof.** By Theorem 3, each Pythagorean triple with perimeter $L$ corresponds to a unique factorization $L = kL_0$ with $L_0$ primitive and $k \geq 1$. Distinct primitive perimeters $L_0$ dividing $L$ give distinct triples. $\square$
 
-## Algorithm
+## Editorial
+Count values of L <= 1,500,000 for which exactly one integer-sided right triangle can be formed with perimeter L. By Theorems 1-3, generate all primitive Pythagorean triple perimeters via Euclid's parametrization L0 = 2m(m+n), then count multiples. A perimeter is "singular" iff it is hit exactly once.
 
-```
-function count_singular_triangles(L_max):
+## Pseudocode
+
+```text
     count[1..L_max] = 0
     m_max = floor(sqrt(L_max / 2))
 
-    for m = 2 to m_max:
-        for n = 1 to m - 1:
-            if (m - n) is even: continue
-            if gcd(m, n) != 1: continue
+    For m from 2 to m_max:
+        For n from 1 to m - 1:
+            If (m - n) is even then continue
+            If gcd(m, n) != 1 then continue
             L0 = 2 * m * (m + n)
-            if L0 > L_max: break
+            If L0 > L_max then stop this loop
             for L = L0, 2*L0, 3*L0, ..., <= L_max:
                 count[L] += 1
 
-    return |{L : count[L] == 1}|
+    Return |{L : count[L] == 1}|
 ```
 
 ## Complexity

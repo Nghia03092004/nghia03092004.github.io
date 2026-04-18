@@ -67,10 +67,12 @@ $$\pi_s = \sum_{d=0}^{2} \pi_{(s,d)}.$$
 
 The three most visited squares are those with the largest values of $\pi_s$.
 
-## Algorithm
+## Editorial
+Using two 4-sided dice, find the six-digit modal string for the three most popular squares in Monopoly via Monte Carlo simulation. We compute stationary distribution pi.
 
-```
-function MonopolyOdds():
+## Pseudocode
+
+```text
     Build 120 x 120 transition matrix P from the rules in Theorem 2
     Compute stationary distribution pi:
         Option A: Solve pi^T P = pi^T as a linear system (eigenvalue problem)

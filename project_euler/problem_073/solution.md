@@ -61,23 +61,25 @@ The Mobius function $\mu(n)$ can be computed for all $n \leq N$ via a sieve anal
 
 This correctly computes $\mu$ because: $\mu(n) = 0$ if $n$ has a squared prime factor; otherwise $\mu(n) = (-1)^k$ where $k$ is the number of distinct prime factors, and each prime negation toggles the sign.
 
-## Algorithm
+## Editorial
+Count reduced fractions n/d strictly between 1/3 and 1/2 with d <= 12000. By Theorem 3 (Mobius Summation), we sieve mu and sum over divisor classes.
 
-```
-function count_fractions_in_range(N):
+## Pseudocode
+
+```text
     mu = sieve_mobius(N)
     count = 0
-    for k = 1 to N:
-        if mu[k] == 0: continue
+    For k from 1 to N:
+        If mu[k] == 0 then continue
         limit = N / k
         c = 0
-        for d = 2 to limit:
-            lo = d / 3 + 1          # smallest n > d/3
-            hi = (d - 1) / 2        # largest n < d/2
-            if hi >= lo:
+        For d from 2 to limit:
+            lo = d / 3 + 1 # smallest n > d/3
+            hi = (d - 1) / 2 # largest n < d/2
+            If hi >= lo then
                 c += hi - lo + 1
         count += mu[k] * c
-    return count
+    Return count
 ```
 
 ## Complexity

@@ -65,11 +65,16 @@ If we only need to collect $m$ out of $n$ coupons, the expected time is:
 
 $$E[T_{n,m}] = n \sum_{k=n-m+1}^{n} \frac{1}{k} = n(H_n - H_{n-m}).$$
 
-## Algorithm
+## Editorial
+Coupon collector / absorbing Markov chain expected value. E[T_n] = n * H_n where H_n = harmonic number. Markov chain: E[T] = (I - Q)^{-1} * 1. We compute $H_n \bmod p$ using modular inverses: $H_n = \sum_{k=1}^{n} k^{-1} \bmod p$. Finally, iterate over the Markov chain version with more complex states, use matrix operations.
 
-1. Compute $H_n \bmod p$ using modular inverses: $H_n = \sum_{k=1}^{n} k^{-1} \bmod p$.
-2. Compute $E[T] = n \cdot H_n \bmod p$.
-3. For the Markov chain version with more complex states, use matrix operations.
+## Pseudocode
+
+```text
+Compute $H_n \bmod p$ using modular inverses: $H_n = \sum_{k=1}^{n} k^{-1} \bmod p$
+Compute $E[T] = n \cdot H_n \bmod p$
+For the Markov chain version with more complex states, use matrix operations
+```
 
 ## Proof of Correctness
 

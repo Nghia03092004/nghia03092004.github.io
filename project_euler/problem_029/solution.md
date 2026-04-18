@@ -47,7 +47,7 @@ $$\sum_{c \text{ primitive}} |E_c|,$$
 
 *Proof.* Computed by summing $|E_c|$ over all primitive bases $c$ with $2 \leq c^1 \leq 100$. For bases with $K_c = 1$, each contributes 99. For the six bases with $K_c \geq 2$, we compute $|E_c|$ by explicit enumeration of the exponent sets. The total is verified by direct computation (e.g., using arbitrary-precision arithmetic to store all $a^b$ in a set). $\square$
 
-## Algorithm
+## Editorial
 
 We keep two equivalent viewpoints. The direct method enumerates every pair $(a, b)$ with $2 \le a, b \le 100$ and inserts $a^b$ into a set, while the canonical method rewrites each base as $a = c^p$ with primitive base $c$ and records the exponent products $pb$ grouped by $c$. This is sufficient because two powers are equal exactly when they share the same canonical base and exponent.
 

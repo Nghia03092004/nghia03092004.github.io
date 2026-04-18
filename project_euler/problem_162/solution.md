@@ -48,12 +48,14 @@ $$T = \sum_{n=1}^{16} N(n).$$
 $$\sum_{n=1}^{16} 15 \cdot 16^{n-1} = 15 \cdot \frac{16^{16} - 1}{16 - 1} = 16^{16} - 1.$$
 *Similarly for the other five terms. All intermediate values fit in 64-bit unsigned integers.*
 
-## Algorithm
+## Editorial
+Count hexadecimal numbers with at most 16 digits containing all of 0, 1, and A at least once. Uses the inclusion-exclusion principle.
 
-```
-function COUNT_HEX_NUMBERS():
+## Pseudocode
+
+```text
     total = 0
-    for n = 1 to 16:
+    For n from 1 to 16:
         N_n = 15 * 16^(n-1)
               - 15^n
               - 2 * 14 * 15^(n-1)
@@ -61,7 +63,7 @@ function COUNT_HEX_NUMBERS():
               + 13 * 14^(n-1)
               - 13^n
         total += N_n
-    return TO_HEX_UPPERCASE(total)
+    Return TO_HEX_UPPERCASE(total)
 ```
 
 ## Complexity Analysis

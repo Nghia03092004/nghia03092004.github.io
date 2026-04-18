@@ -33,21 +33,14 @@ $$\Pr[\gcd(a,b) = 1] = \prod_{p \text{ prime}} \left(1 - \frac{1}{p^2}\right) = 
 
 **Proof.** The non-coprimality graph $\overline{G}_N$ has edges between pairs sharing a common factor. Finding a maximum-weight independent set in $\overline{G}_N$ is equivalent to the weighted pairwise coprime set problem. Since maximum weighted independent set is NP-hard on general graphs, and $\overline{G}_N$ can encode arbitrary graph structure for suitable $N$, the result follows. $\square$
 
-## Algorithm
+## Editorial
+Coprime set optimization. We iterate over unweighted: simply collect 1 and all primes <= N. Finally, iterate over weighted variant: use greedy or DP on prime factor structure.
 
-```
-function MAX_COPRIME_SUBSET(N):
-    // For unweighted: simply collect 1 and all primes <= N
-    S = {1}
-    for p in primes_up_to(N):
-        S = S ∪ {p}
-    return S
+## Pseudocode
 
-function SOLVE(N, weights):
-    // For weighted variant: use greedy or DP on prime factor structure
-    Factorize all elements, build conflict graph on prime factors
-    Apply independent-set heuristic or exact algorithm
-    Return optimal value
+```text
+For unweighted: simply collect 1 and all primes <= N
+For weighted variant: use greedy or DP on prime factor structure
 ```
 
 ## Complexity Analysis

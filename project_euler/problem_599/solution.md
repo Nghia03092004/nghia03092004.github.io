@@ -72,12 +72,17 @@ $$|X/G| = \frac{1}{24}\left(c^{54} + 6c^{14} + 3c^{30} + 8c^{20} + 6c^{27}\right
 For $c = 2$ (two colors):
 $$\frac{1}{24}(2^{54} + 6 \cdot 2^{14} + 3 \cdot 2^{30} + 8 \cdot 2^{20} + 6 \cdot 2^{27})$$
 
-## Algorithm
+## Editorial
+We enumerate all 24 rotations of the cube. We then iterate over each rotation, compute the permutation of the 54 facelets. Finally, find the cycle decomposition and count cycles $k(g)$.
 
-1. Enumerate all 24 rotations of the cube.
-2. For each rotation, compute the permutation of the 54 facelets.
-3. Find the cycle decomposition and count cycles $k(g)$.
-4. Apply Burnside's formula: $\text{answer} = \frac{1}{24} \sum_g c^{k(g)}$.
+## Pseudocode
+
+```text
+Enumerate all 24 rotations of the cube
+For each rotation, compute the permutation of the 54 facelets
+Find the cycle decomposition and count cycles $k(g)$
+Apply Burnside's formula: $\text{answer} = \frac{1}{24} \sum_g c^{k(g)}$
+```
 
 ## Proof of Correctness
 

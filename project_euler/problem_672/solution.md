@@ -18,46 +18,16 @@ Define a self-referential sequence as follows. Starting from a seed value $a_0$,
 
 **Proof.** By definition of eventual periodicity, for $n \ge \rho$: $a_n = a_{\rho + ((n - \rho) \bmod \lambda)}$. This follows directly from $a_{m + \lambda} = a_m$ for all $m \ge \rho$. $\square$
 
-## Algorithm
+## Editorial
+We brent's cycle detection. We then find pre-period rho. Finally, index reduction. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function SolveSequence(a0, target_index):
-    // Phase 1: Brent's cycle detection
-    tortoise = a0
-    hare = f(a0)
-    power = 1
-    lam = 1
-    while tortoise != hare:
-        if power == lam:
-            tortoise = hare
-            power *= 2
-            lam = 0
-        hare = f(hare)
-        lam += 1
+## Pseudocode
 
-    // Phase 2: Find pre-period rho
-    tortoise = a0
-    hare = a0
-    for i = 0 to lam - 1:
-        hare = f(hare)
-    rho = 0
-    while tortoise != hare:
-        tortoise = f(tortoise)
-        hare = f(hare)
-        rho += 1
-
-    // Phase 3: Index reduction
-    if target_index < rho:
-        result = a0
-        for i = 0 to target_index - 1:
-            result = f(result)
-        return result
-    else:
-        reduced = rho + ((target_index - rho) mod lam)
-        result = a0
-        for i = 0 to reduced - 1:
-            result = f(result)
-        return result
+```text
+Brent's cycle detection
+Find pre-period rho
+Index reduction
+else
 ```
 
 ## Complexity Analysis

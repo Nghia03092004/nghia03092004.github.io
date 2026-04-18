@@ -23,35 +23,18 @@ $$g^{(p-1)/q_i} \not\equiv 1 \pmod{p} \quad \text{for all } i = 1, \ldots, s.$$
 
 **Proof.** The GRH bound follows from the work of Shoup (1992). The unconditional bound is due to Vinogradov's character sum estimates. The empirical distribution is verified computationally. $\square$
 
-## Algorithm
+## Editorial
+For each prime p, let g(p) be the smallest primitive root modulo p. Compute S(N) = sum of g(p) for all primes p <= N. We sieve primes and smallest prime factors up to N. We then iterate over each prime p in primes. Finally, factor p - 1 using spf.
 
-```
-function SumSmallestPrimitiveRoots(N):
-    // Step 1: Sieve primes and smallest prime factors up to N
-    spf[2..N] := smallest prime factor sieve (Eratosthenes)
-    primes := list of primes up to N
+## Pseudocode
 
-    S := 0
-    for each prime p in primes:
-        if p == 2:
-            S := S + 1    // g(2) = 1
-            continue
-
-        // Step 2: Factor p - 1 using spf
-        factors := distinct_prime_factors(p - 1, spf)
-
-        // Step 3: Test candidates g = 2, 3, 4, 5, ...
-        for g from 2 to p-1:
-            is_root := true
-            for each q in factors:
-                if pow(g, (p-1)/q, p) == 1:
-                    is_root := false
-                    break
-            if is_root:
-                S := S + g
-                break
-
-    return S
+```text
+Sieve primes and smallest prime factors up to N
+for each prime p in primes
+Factor p - 1 using spf
+Test candidates g = 2, 3, 4, 5, 
+for g from 2 to p-1
+for each q in factors
 ```
 
 ## Complexity Analysis

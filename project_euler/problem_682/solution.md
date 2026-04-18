@@ -40,27 +40,16 @@ $$f(n) = \sum_{k=0}^{\lfloor n/2 \rfloor} [y^n]\, h_k(y)^2.$$
 - $k \ge 3$: $\min s = 6$, so $s(p) + s(q) \ge 12 > 10$. No contribution.
 - Total: $f(10) = 1 + 3 = 4$. $\square$
 
-## Algorithm
+## Editorial
+We build h_k as array of coefficients indexed by s-value. We then compute h^2 via polynomial multiplication (NTT if large). Finally, extract coefficient at y^n.
 
-```
-function f(n, mod):
-    result = 0
-    for k = 0 to n / 2:
-        // Build h_k as array of coefficients indexed by s-value
-        h = array of zeros, length 5k - 2k + 1
-        for each (a, b, c) with a + b + c = k, a, b, c >= 0:
-            s_val = 2*a + 3*b + 5*c
-            h[s_val - 2*k] += 1
-        // Compute h^2 via polynomial multiplication (NTT if large)
-        h_sq = polynomial_multiply(h, h)
-        // Extract coefficient at y^n
-        target = n - 4*k  // offset: h_sq[target] = [y^n] h_k^2
-        if 0 <= target < len(h_sq):
-            result = (result + h_sq[target]) mod mod
-    return result
-```
+## Pseudocode
 
-**Optimized approach:** Combine all $h_k$ into a single polynomial convolution. Define $P(y) = \sum_{k} h_k(y)$ restricted to appropriate pairing. Alternatively, note that the full sum $\sum_k h_k(y)^2$ can be computed by a single convolution of the bivariate generating function.
+```text
+Build h_k as array of coefficients indexed by s-value
+Compute h^2 via polynomial multiplication (NTT if large)
+Extract coefficient at y^n
+```
 
 ## Complexity Analysis
 

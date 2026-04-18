@@ -52,14 +52,17 @@ $$\frac{3}{7} - \frac{a}{b} \geq \frac{2}{7b} \geq \frac{2}{7 \times 10^6} > \fr
 
 (the middle inequality is strict since $2/10^6 > 1/999997$), confirming that $428570/999997$ is the unique left neighbor. $\square$
 
-## Algorithm
+## Editorial
+By Theorem 2, d is the largest integer <= N with d = 5 (mod 7), and n = (3d - 1) / 7.
 
-```
+## Pseudocode
+
+```text
 Closed-form:
     r = N mod 7
-    d = N - ((r - 5) mod 7)       # largest d <= N with d = 5 (mod 7)
+    d = N - ((r - 5) mod 7) # largest d <= N with d = 5 (mod 7)
     n = (3 * d - 1) / 7
-    return n
+    Return n
 ```
 
 ## Complexity

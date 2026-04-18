@@ -30,45 +30,16 @@ A positive integer $n$ is called **123-separable** if its decimal digit string c
 
 Since every possible partition of the digit string into contiguous substrings corresponds to a unique sequence of extend/close decisions, and the tight constraint ensures we count only numbers $\leq N$, the DP is both sound (counts only valid numbers) and complete (misses none). $\square$
 
-## Algorithm
+## Editorial
+Digit DP to count/sum numbers whose digits can be split into groups satisfying divisibility by 1, 2, or 3 in a prescribed pattern. Key: Track (position, group_residue mod 6, target_divisor, tight, started). We else. We then else. Finally, option 1: extend current group.
 
-```
-function COUNT_123_SEPARABLE(N):
-    digits[] = decimal digits of N
-    D = length(digits)
-    memo = empty map
+## Pseudocode
 
-    function DP(pos, residue, target, tight, started):
-        if pos == D:
-            if started and residue mod target == 0:
-                return 1
-            else:
-                return 0
-
-        if (pos, residue, target, tight, started) in memo:
-            return memo[(pos, residue, target, tight, started)]
-
-        limit = digits[pos] if tight else 9
-        count = 0
-
-        for d = 0 to limit:
-            new_tight = tight and (d == limit)
-            if not started and d == 0:
-                count += DP(pos+1, 0, 1, new_tight, false)
-            else:
-                new_r = (10 * residue + d) mod 6
-                # Option 1: extend current group
-                count += DP(pos+1, new_r, target, new_tight, true)
-                # Option 2: close current group (if valid) and start new
-                if started and residue mod target == 0:
-                    next_target = (target mod 3) + 1
-                    fresh_r = d mod 6
-                    count += DP(pos+1, fresh_r, next_target, new_tight, true)
-
-        memo[(pos, residue, target, tight, started)] = count mod (10^9+7)
-        return count mod (10^9+7)
-
-    return DP(0, 0, 1, true, false)
+```text
+else
+else
+Option 1: extend current group
+Option 2: close current group (if valid) and start new
 ```
 
 ## Complexity Analysis

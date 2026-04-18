@@ -55,12 +55,17 @@ $$\frac{B(n)}{B(n-1)} = \frac{n^n}{\prod_{k=1}^{n-1} k} = \frac{n^n}{(n-1)!}$$
 
 This means going from $B(n-1)$ to $B(n)$, we multiply by $n^n / (n-1)!$, so we add $n \cdot v_p(n)$ and subtract $v_p((n-1)!)$ for each prime $p$.
 
-## Algorithm
+## Editorial
+We use a sieve to find smallest prime factor for all numbers up to $n = 20000$. Finally, maintain the prime factorization of $B(k)$ incrementally.
 
-1. Use a sieve to find smallest prime factor for all numbers up to $n = 20000$.
-2. Maintain the prime factorization of $B(k)$ incrementally.
-3. For each $k$, compute $D(k) = \prod_p \frac{p^{e_p+1}-1}{p-1} \pmod{10^9+7}$.
-4. Sum all $D(k)$ to get $S(20000) \pmod{10^9+7}$.
+## Pseudocode
+
+```text
+Use a sieve to find smallest prime factor for all numbers up to $n = 20000$
+Maintain the prime factorization of $B(k)$ incrementally
+For each $k$, compute $D(k) = \prod_p \frac{p^{e_p+1}-1}{p-1} \pmod{10^9+7}$
+Sum all $D(k)$ to get $S(20000) \pmod{10^9+7}$
+```
 
 ## Correctness
 

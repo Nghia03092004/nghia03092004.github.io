@@ -57,11 +57,16 @@ Actually, more precisely:
 
 The modulus after processing all steps is $M = 3^{31}$ divided by powers of 2 and 4, which simplifies to some large integer.
 
-### Algorithm
+### Editorial
+We process the sequence string to build up the affine transformation and modular constraint. We evaluate the closed-form expressions derived above directly from the relevant parameters and return the resulting value.
 
-1. Process the sequence string to build up the affine transformation and modular constraint.
-2. The constraint takes the form $a_1 \equiv r \pmod{M}$.
-3. Find the smallest $a_1 > 10^{15}$ satisfying this congruence.
+### Pseudocode
+
+```text
+Process the sequence string to build up the affine transformation and modular constraint
+The constraint takes the form $a_1 \equiv r \pmod{M}$
+Find the smallest $a_1 > 10^{15}$ satisfying this congruence
+```
 
 ## Correctness
 

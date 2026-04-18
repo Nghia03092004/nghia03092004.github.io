@@ -26,38 +26,30 @@ A coin fountain is an arrangement of coins in rows where the bottom row is a con
 
 **Proof.** The colouring constraints form a planar graph. Processing row-by-row, the constraints on row $i+1$ depend only on the colouring of row $i$ (the Markov property holds since there are no "skip" edges). Thus a DP over row states is exact. $\square$
 
-## Algorithm
+## Editorial
+The precise implementation uses a DP over the number of coins used and current row width, accumulating the colouring contributions multiplicatively as rows are added. We use dynamic programming over fountain shapes and colourings simultaneously. We then state: (coins_used, current_row_width). Finally, iterate over each state, track the number of valid colourings.
 
+## Pseudocode
+
+```text
+DP over fountain shapes and colourings simultaneously
+State: (coins_used, current_row_width)
+For each state, track the number of valid colourings
+dp[w] = total colourings summed over all fountain shapes
+whose top row has width w, using some number of coins
+We build from top to bottom (or equivalently bottom to top)
+Alternative: enumerate partitions (w_1, ..., w_h) with
+w_{i+1} <= w_i - 1 and sum = n, then compute colouring count
+for each shape using the transfer matrix
+Efficient approach: define dp[j] = total T contribution from
+fountains using exactly j coins so far (across all rows processed)
+Process rows bottom-up; at each step add a new bottom row
+[Implementation-specific DP details omitted for brevity]
+The key recurrence is:
+T_shape(w_1, ..., w_h) = product of per-row contributions
+with transfer factors between rows
+Summed over all valid (w_1, ..., w_h) with sum = n
 ```
-function T(n):
-    MOD := 10^9
-
-    // DP over fountain shapes and colourings simultaneously
-    // State: (coins_used, current_row_width)
-    // For each state, track the number of valid colourings
-
-    // dp[w] = total colourings summed over all fountain shapes
-    //         whose top row has width w, using some number of coins
-    // We build from top to bottom (or equivalently bottom to top)
-
-    // Alternative: enumerate partitions (w_1, ..., w_h) with
-    // w_{i+1} <= w_i - 1 and sum = n, then compute colouring count
-    // for each shape using the transfer matrix.
-
-    // Efficient approach: define dp[j] = total T contribution from
-    // fountains using exactly j coins so far (across all rows processed)
-    // Process rows bottom-up; at each step add a new bottom row.
-
-    // [Implementation-specific DP details omitted for brevity]
-    // The key recurrence is:
-    //   T_shape(w_1, ..., w_h) = product of per-row contributions
-    //   with transfer factors between rows
-    // Summed over all valid (w_1, ..., w_h) with sum = n.
-
-    return result mod MOD
-```
-
-The precise implementation uses a DP over the number of coins used and current row width, accumulating the colouring contributions multiplicatively as rows are added.
 
 ## Complexity Analysis
 

@@ -29,7 +29,7 @@ For squarefree $m = p_1 p_2 \cdots p_r$:
 
 The values satisfying $a^{m+4} \equiv a \pmod{m}$ are related to **Knodel numbers** of the form where $\lambda(m) \mid (m+3)$, where $\lambda$ is the Carmichael function.
 
-### Algorithm
+### Editorial
 
 We enumerate squarefree numbers $m$ where for each prime factor $p$ of $m$, $(p-1) \mid (m+3)$. For $m=1$, the condition trivially holds. For prime $m=p$, we need $(p-1) \mid (p+3)$, so $(p-1) \mid 4$, giving $p \in \{2, 3, 5\}$.
 

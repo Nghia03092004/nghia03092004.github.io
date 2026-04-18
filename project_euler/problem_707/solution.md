@@ -34,53 +34,23 @@ $$\operatorname{nullity}(A) = \operatorname{nullity}(P_h),$$
 
 **Proof.** Composition of periodic functions: $h \mapsto \operatorname{nullity}(P_h)$ is periodic in $h$ with period $\pi_w$; the Fibonacci sequence modulo $\pi_w$ is periodic with Pisano period $\pi(\pi_w)$. The composition $k \mapsto \operatorname{nullity}(P_{f_k})$ is periodic with period $\pi(\pi_w)$. $\square$
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We compute B (w x w tridiagonal matrix over F_2). We then find the period pi_w of the sequence P_h mod 2. Finally, iterate over each h in {0, 1, ..., pi_w - 1}, compute nullity(P_h).
 
-```
-function S(w, n, mod):
-    # Step 1: Compute B (w x w tridiagonal matrix over F_2)
-    B = tridiagonal(1, 1, 1) of size w, over F_2
+## Pseudocode
 
-    # Step 2: Find the period pi_w of the sequence P_h mod 2
-    P_prev = I (w x w identity over F_2)
-    P_curr = B
-    history = [(I, B)]
-    for h = 2, 3, ...:
-        P_next = B * P_curr + P_prev  (over F_2)
-        P_prev = P_curr
-        P_curr = P_next
-        if (P_prev, P_curr) == (I, B):
-            pi_w = h - 1
-            break
-        history.append((P_prev, P_curr))
-
-    # Step 3: For each h in {0, 1, ..., pi_w - 1}, compute nullity(P_h)
-    null = array of size pi_w
-    for h = 0 to pi_w - 1:
-        null[h] = nullity(history[h].P_curr)  (over F_2)
-
-    # Step 4: Compute Fibonacci numbers mod pi_w for k = 1..n
-    # Using Pisano period pi(pi_w)
-    pisano = pisano_period(pi_w)
-
-    # Step 5: Build the periodic sequence F(w, f_k) mod mod for one period
-    vals = []
-    for k = 1 to pisano:
-        fk_mod = fibonacci(k) mod pi_w
-        rank_val = w * fk_mod - null[fk_mod]  # but need actual h, not h mod pi_w
-        # Actually: F(w, f_k) = 2^{rank(A)} = 2^{w*f_k - nullity(P_{f_k})}
-        # nullity(P_{f_k}) = null[f_k mod pi_w]
-        # But 2^{w*f_k} mod mod requires f_k, not f_k mod pi_w
-        # Use: 2^{w*f_k} mod mod via Fermat: exponent mod (mod-1)
-        exp = (w * fibonacci(k) - null[fibonacci(k) mod pi_w]) mod (mod - 1)
-        vals.append(pow(2, exp, mod))
-
-    # Step 6: Sum over n terms using periodicity
-    full_periods = n / pisano
-    remainder = n mod pisano
-    period_sum = sum(vals) mod mod
-    partial_sum = sum(vals[0:remainder]) mod mod
-    return (full_periods * period_sum + partial_sum) mod mod
+```text
+Compute B (w x w tridiagonal matrix over F_2)
+Find the period pi_w of the sequence P_h mod 2
+For each h in {0, 1, ..., pi_w - 1}, compute nullity(P_h)
+Compute Fibonacci numbers mod pi_w for k = 1..n
+Using Pisano period pi(pi_w)
+Build the periodic sequence F(w, f_k) mod mod for one period
+Actually: F(w, f_k) = 2^{rank(A)} = 2^{w*f_k - nullity(P_{f_k})}
+nullity(P_{f_k}) = null[f_k mod pi_w]
+But 2^{w*f_k} mod mod requires f_k, not f_k mod pi_w
+Use: 2^{w*f_k} mod mod via Fermat: exponent mod (mod-1)
+Sum over n terms using periodicity
 ```
 
 ## Complexity Analysis

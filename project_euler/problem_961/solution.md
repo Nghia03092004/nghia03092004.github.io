@@ -38,27 +38,28 @@ By the inductive hypothesis $3^{k-1} \mid R_{3^{k-1}}$, and the cofactor is divi
 
 **Proof.** By Theorem 1, $n \mid R_n \iff 10^n \equiv 1 \pmod{9n}$. By definition of multiplicative order, $10^n \equiv 1 \pmod{9n}$ if and only if $d \mid n$. $\square$
 
-## Algorithm
+## Editorial
+R_n = (10^n - 1) / 9 = 111...1 (n ones). Find sum of all n <= 1000 such that n | R_n. Equivalently: 9n | (10^n - 1), i.e., 10^n = 1 (mod 9n). Only possible when gcd(n, 10) = 1 (n odd, not divisible by 5). Complexity: O(N log N) with modular exponentiation.
 
-```
-function SumRepunitDivisible(N):
+## Pseudocode
+
+```text
     total = 0
-    for n = 1 to N:
-        if gcd(n, 10) != 1:
+    For n from 1 to N:
+        If gcd(n, 10) != 1 then
             continue
-        if ModPow(10, n, 9*n) == 1:
+        If ModPow(10, n, 9*n) == 1 then
             total = total + n
-    return total
+    Return total
 
-function ModPow(base, exp, mod):
     result = 1
     base = base mod mod
-    while exp > 0:
+    While exp > 0:
         if exp is odd:
             result = (result * base) mod mod
         exp = exp >> 1
         base = (base * base) mod mod
-    return result
+    Return result
 ```
 
 ## Complexity Analysis

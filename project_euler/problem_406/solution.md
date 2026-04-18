@@ -38,13 +38,16 @@ More precisely, for the generalized cost model with asymmetric penalties, the op
 
 Define G_0 = 1, G_1 = 1, and the recurrence based on the cost ratio. The optimal cost C(n, a, b) can be computed by finding the smallest q such that a generalized Fibonacci number exceeds n, then computing the cost via the accumulated penalties.
 
-## Algorithm
+## Editorial
+The key observation is that for large n, the optimal strategy partitions the search space using ratios determined by a and b. The number of steps q satisfies a generalized Fibonacci-like growth, and the total cost is computed by tracking accumulated penalties at each level. We iterate over each k from 1 to 30, compute a = sqrt(k), b = sqrt(F_k). We then use dynamic programming / generalized Fibonacci approach to compute C(10^12, a, b). Finally, sum all values and round to 8 decimal places.
 
-1. For each k from 1 to 30, compute a = sqrt(k), b = sqrt(F_k).
-2. Use dynamic programming / generalized Fibonacci approach to compute C(10^12, a, b).
-3. Sum all values and round to 8 decimal places.
+## Pseudocode
 
-The key observation is that for large n, the optimal strategy partitions the search space using ratios determined by a and b. The number of steps q satisfies a generalized Fibonacci-like growth, and the total cost is computed by tracking accumulated penalties at each level.
+```text
+For each k from 1 to 30, compute a = sqrt(k), b = sqrt(F_k)
+Use dynamic programming / generalized Fibonacci approach to compute C(10^12, a, b)
+Sum all values and round to 8 decimal places
+```
 
 ## Correctness
 

@@ -51,7 +51,7 @@ Since the exhaustive search over all $\binom{1061}{2}$ pairs within each group i
 
 **Corollary 1.** *The answer (excluding the known triple starting at 1487) is the concatenation $296962999629$.*
 
-## Algorithm
+## Editorial
 
 We generate all four-digit primes and group them by their sorted-digit signatures, so each group contains precisely the prime permutations of one another. Inside each group, we inspect ordered pairs $p_i < p_j$ and compute the only possible third term of an arithmetic progression, namely $p_k = 2p_j - p_i$. A set lookup determines whether this third value is present in the same permutation class, and excluding the known sequence beginning with $1487$ leaves the required triple.
 

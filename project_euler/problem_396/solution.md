@@ -51,14 +51,17 @@ The sequence terminates when the value reaches 0. The number of steps is determi
 
 For single-digit values n < k, the sequence simply decrements: takes exactly n steps from that point.
 
-## Algorithm
+## Editorial
+The challenge is that values can become astronomically large for larger n. We use Python's arbitrary-precision integers for computation. We iterate over each n from 1 to 15.
 
-```
+## Pseudocode
+
+```text
 For each n from 1 to 15:
-    k = 2  (starting base)
+    k = 2 (starting base)
     val = n
     count = 0
-    while val > 0:
+    While val > 0:
         count += 1
         digits = convert val to base k
         val = interpret digits in base (k+1) - 1
@@ -69,6 +72,7 @@ answer = sum(G[n] for n in 1..15) mod 10^9
 ```
 
 The challenge is that values can become astronomically large for larger n. We use Python's arbitrary-precision integers for computation.
+```
 
 ## Correctness
 

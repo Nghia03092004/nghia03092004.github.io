@@ -34,26 +34,15 @@ $$\sigma(p^k) = \frac{p^{k+1} - 1}{p - 1}.$$
 
 **Proof.** $\sigma(n)/n = \sum_{d \mid n} 1/d \leq \sum_{d=1}^{n} 1/d = H_n \leq 1 + \ln n$. Therefore $\sigma(n) \leq n(1 + \ln n) \leq N(1 + \ln N)$. $\square$
 
-## Algorithm
+## Editorial
+sigma(n) = sum of divisors of n. S(N) = sum_{n=1}^{N} sigma(sigma(n)). Method 1: Sieve for sigma, then lookup Method 2: Trial division (verification). We sieve sigma(n) for n = 1..M where M = max possible sigma(n). Finally, else.
 
-```
-function COMPUTE_S(N):
-    // Step 1: Sieve sigma(n) for n = 1..M where M = max possible sigma(n)
-    M <- N * (1 + ceil(ln(N)))
-    sigma[1..M] <- 0
-    for d = 1 to M:
-        for m = d, 2d, ..., M:
-            sigma[m] <- sigma[m] + d
+## Pseudocode
 
-    // Step 2: Compute S(N) = sum of sigma(sigma(n))
-    S <- 0
-    for n = 1 to N:
-        s <- sigma[n]
-        if s <= M:
-            S <- S + sigma[s]
-        else:
-            S <- S + compute_sigma_by_trial_division(s)
-    return S
+```text
+Sieve sigma(n) for n = 1..M where M = max possible sigma(n)
+Compute S(N) = sum of sigma(sigma(n))
+else
 ```
 
 ## Complexity Analysis

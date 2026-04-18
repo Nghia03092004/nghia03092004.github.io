@@ -26,37 +26,15 @@ The total number of additions is $\sum_{d=1}^{N}(\lfloor N/d \rfloor - 1) \le \s
 
 **Proof.** Once a number is marked visited, it is never the starting point of a new exploration and causes any exploration encountering it to terminate immediately. Each number is visited at most once as a "fresh" element during some exploration and at most once as a "termination trigger" for a different exploration. Hence the total number of steps across all explorations is at most $2N$. $\square$
 
-## Algorithm
+## Editorial
+Phase 1: Sieve for sum of proper divisors s(n) in O(N log N). Phase 2: Detect cycles via functional iteration in O(N) total. We detect cycles.
 
-```
-function FIND_LONGEST_AMICABLE_CHAIN(N):
-    // Phase 1: Compute s[n] for n = 1..N via sieve
-    s[1..N] = 0
-    for d = 1 to N:
-        for k = 2d, 3d, ..., N:
-            s[k] += d
+## Pseudocode
 
-    // Phase 2: Detect cycles
-    visited[1..N] = false
-    best_length = 0, best_min = infinity
-
-    for start = 2 to N:
-        if visited[start]: continue
-        path = [], positions = {}
-        n = start
-        while n >= 1 and n <= N and n not in positions and not visited[n]:
-            positions[n] = |path|
-            path.append(n)
-            n = s[n]
-        if n is in positions:
-            cycle_start = positions[n]
-            cycle = path[cycle_start..]
-            if |cycle| > best_length:
-                best_length = |cycle|
-                best_min = min(cycle)
-        mark all elements of path as visited
-
-    return best_min
+```text
+Compute s[n] for n = 1..N via sieve
+Detect cycles
+if n is in positions
 ```
 
 ## Complexity Analysis

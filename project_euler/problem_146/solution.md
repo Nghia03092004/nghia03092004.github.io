@@ -47,34 +47,18 @@ So $n^2 \equiv 2 \pmod{7}$, i.e., $n \equiv 3$ or $4 \pmod{7}$. $\square$
 
 **Proof.** This follows from the result of Jaeschke (1993) and subsequent computational verification: the witnesses $\{2, 3, 5, 7, 11, 13\}$ form a sufficient set for numbers below $3.317 \times 10^{24}$. $\square$
 
-## Algorithm
+## Editorial
+We precompute valid residues mod 210 = lcm(2, 3, 5, 7). We then quick composite checks for must-not-be-prime offsets. Finally, check consecutive: no primes at intermediate offsets.
 
-```
+## Pseudocode
+
+```text
 INPUT: Bound B = 150,000,000
 OUTPUT: Sum of all valid n
-
-// Precompute valid residues mod 210 = lcm(2, 3, 5, 7)
-valid_residues = {r in 0..209 : r%2==0 and r%3!=0 and r%5==0
-                  and r^2 % 7 == 2}
-
-total = 0
-for each r in valid_residues:
-    for n = r, r+210, r+420, ..., while n < B:
-        if n == 0: continue
-        // Quick composite checks for must-not-be-prime offsets
-        ok = true
-        for k in {1, 3, 7, 9, 13, 27}:
-            if not is_prime(n^2 + k):
-                ok = false; break
-        if not ok: continue
-        // Check consecutive: no primes at intermediate offsets
-        for k in {5, 11, 15, 17, 19, 21, 23, 25}:
-            if is_prime(n^2 + k):
-                ok = false; break
-        if ok:
-            total += n
-
-return total
+Precompute valid residues mod 210 = lcm(2, 3, 5, 7)
+Quick composite checks for must-not-be-prime offsets
+Check consecutive: no primes at intermediate offsets
+if ok
 ```
 
 ## Complexity Analysis

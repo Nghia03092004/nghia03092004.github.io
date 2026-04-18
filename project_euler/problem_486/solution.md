@@ -48,34 +48,20 @@ For the $G(k)$ sum: $\sum_{k=5}^n G(k) = \sum_{k=1}^{n-4} \mathbf{1}^T M^k \math
 
 **Proof.** The sequence $2^n \bmod m$ is periodic with period $\operatorname{ord}_m(2)$. The sequence $G(n) \bmod m$ is eventually periodic since it is determined by $M^{n-4} \mathbf{v}_4 \bmod m$, which is periodic with period $T_M$ dividing some function of $m$ and the matrix $M$. Thus $F_5(n) \bmod m$, being a cumulative sum of a periodic sequence, is itself eventually periodic. $\square$
 
-## Algorithm
+## Editorial
+Project Euler 486: Palindrome-containing Strings F5(n) = number of binary strings of length <= n containing a palindromic substring of length >= 5. D(L) = count of n in [5, L] where F5(n) is divisible by 87654321. Find D(10^18). Approach:. We build the 16x16 transfer matrix M. We then find the period T of F_5(n) mod m. Finally, compute F_5(n) mod m for n = 5, 6, 7, ... until the sequence repeats.
 
-```
-function COMPUTE_D(L):
-    m = 87654321
+## Pseudocode
 
-    // Step 1: Build the 16x16 transfer matrix M
-    for each state (a,b,c,d) in {0,1}^4:
-        for e in {0,1}:
-            if NOT (e == a AND d == b):   // not a palindrome
-                M[(b,c,d,e)][(a,b,c,d)] += 1
-
-    // Step 2: Find the period T of F_5(n) mod m
-    // Compute F_5(n) mod m for n = 5, 6, 7, ... until the sequence repeats
-    // Use matrix exponentiation mod m for efficiency
-
-    // The period T = lcm(ord_m(2), T_M)
-    // Factor m = 87654321 and use CRT if needed
-
-    // Step 3: Within one period [n_0, n_0 + T - 1], count zeros of F_5(n) mod m
-    zeros_per_period = count of n in one period where F_5(n) ≡ 0 (mod m)
-
-    // Step 4: Extrapolate to [5, L]
-    full_periods = (L - 5 + 1) / T
-    remainder = (L - 5 + 1) mod T
-    D = full_periods * zeros_per_period + (zeros in first 'remainder' of next period)
-
-    return D
+```text
+Build the 16x16 transfer matrix M
+Find the period T of F_5(n) mod m
+Compute F_5(n) mod m for n = 5, 6, 7, ... until the sequence repeats
+Use matrix exponentiation mod m for efficiency
+The period T = lcm(ord_m(2), T_M)
+Factor m = 87654321 and use CRT if needed
+Within one period [n_0, n_0 + T - 1], count zeros of F_5(n) mod m
+Extrapolate to [5, L]
 ```
 
 ## Complexity Analysis

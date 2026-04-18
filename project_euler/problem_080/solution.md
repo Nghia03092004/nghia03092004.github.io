@@ -41,34 +41,15 @@ Taking the floor: $x_{k+1} \geq s$.
 
 (iv) *Quadratic convergence:* Let $e_k = x_k - s$. Then $e_{k+1} \leq e_k^2/(2x_k)$, which follows from the standard Newton's method analysis. The number of iterations is $O(\log \log N)$. $\square$
 
-## Algorithm
+## Editorial
+For the first 100 natural numbers, find the total of the digital sums of the first 100 decimal digits for all irrational square roots. We compute floor(sqrt(n * 10^198)). Finally, sum first 100 digits.
 
-```
-function isqrt(N):
-    if N == 0: return 0
-    x = N
-    while true:
-        x1 = (x + N // x) // 2
-        if x1 >= x:
-            return x
-        x = x1
+## Pseudocode
 
-function solve():
-    total = 0
-    for n = 1 to 100:
-        s = isqrt(n)
-        if s * s == n: continue          # skip perfect squares
-
-        # Compute floor(sqrt(n * 10^198))
-        N = n * 10^198
-        r = isqrt(N)
-
-        # Sum first 100 digits
-        digits = decimal_string(r)
-        digit_sum = sum of first 100 characters as integers
-        total += digit_sum
-
-    return total
+```text
+while true
+Compute floor(sqrt(n * 10^198))
+Sum first 100 digits
 ```
 
 ## Complexity Analysis

@@ -28,12 +28,14 @@ By induction, for each $d > 1$, the polynomial $\Phi_d(u) = \prod_{\zeta} (u - \
 
 **Proof.** The real solutions to $f_n(x) = x$ correspond bijectively (via $\varphi$) to real solutions of $F_n(u) = u$. By Theorem 2, the only such solution is $u = 1/2$, i.e., $x = 1$, for every $n$. $\square$
 
-## Algorithm
+## Editorial
+Let $f(x) = x^2 - x + 1$. Define $f_1(x)=f(x)$ and $f_{n+1}(x)=f(f_n(x))$. Let $g(n)$ be the number of real solutions to $f_n(x)=x$. Find $\sum_{n=1}^{30} g(n)$. We by Theorem 2, g(n) = 1 for all n >= 1.
 
-```
-function SumPeriodicCounts():
-    // By Theorem 2, g(n) = 1 for all n >= 1
-    return 30
+## Pseudocode
+
+```text
+    By Theorem 2, g(n) = 1 for all n >= 1
+    Return 30
 ```
 
 ## Complexity Analysis

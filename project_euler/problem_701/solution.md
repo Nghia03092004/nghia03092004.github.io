@@ -26,29 +26,18 @@ $$E(n) = \sum_{M=0}^{\infty} P(G_M \text{ is not connected}).$$
 
 **Proof.** Write $E(n) = \frac{n}{2}\ln n + \frac{n}{2}\gamma_n$ where $\gamma_n$ encodes the correction. From the survival function and the Poisson approximation, the integral of the survival tail beyond the threshold contributes a constant (the Euler--Mascheroni-like correction). Therefore $f(n) = 1 + \gamma_n / \ln n$, and since $\gamma_n$ is bounded, $f(n) \to 1$. For $n = 10^4$, numerical evaluation of the survival sum yields $f(10^4) \approx 1.00012$. $\square$
 
-## Algorithm
+## Editorial
+We compute E(n) via numerical summation of survival function. We then p(disconnected) ≈ 1 - exp(-n * (1-p)^(n-1))  (isolated vertex approx). Finally, iterate over large n, use analytic approximation.
 
-```
-function compute_f(n):
-    N = n*(n-1)/2
-    # Compute E(n) via numerical summation of survival function
-    E_n = 0
-    for M = 0, 1, 2, ...:
-        p = 1 - (1 - 1/N)^M           # edge probability
-        # P(disconnected) ≈ 1 - exp(-n * (1-p)^(n-1))  (isolated vertex approx)
-        lambda_M = n * (1 - 2/n)^M     # expected isolated vertices
-        P_disconn = 1 - exp(-lambda_M)  # Poisson approximation
-        E_n += P_disconn
-        if P_disconn < epsilon: break
-    return E_n / (n/2 * ln(n))
+## Pseudocode
 
-# For large n, use analytic approximation:
-function compute_f_analytic(n):
-    # f(n) = 1 + gamma_n / ln(n) where gamma_n → Euler-Mascheroni constant region
-    # Numerical integration of survival function around threshold
-    integral = integrate from c = -inf to +inf of (1 - exp(-exp(-c))) dc
-    # This integral equals the Euler-Mascheroni constant γ ≈ 0.5772
-    return 1 + gamma / ln(n)   # first-order correction
+```text
+Compute E(n) via numerical summation of survival function
+P(disconnected) ≈ 1 - exp(-n * (1-p)^(n-1))  (isolated vertex approx)
+For large n, use analytic approximation:
+f(n) = 1 + gamma_n / ln(n) where gamma_n → Euler-Mascheroni constant region
+Numerical integration of survival function around threshold
+This integral equals the Euler-Mascheroni constant γ ≈ 0.5772
 ```
 
 ## Complexity Analysis

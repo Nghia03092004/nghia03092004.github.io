@@ -92,17 +92,16 @@ $$Q(n) \sim \ln 2 \cdot \sum_{a=3}^{n} a^2 \sim \frac{\ln 2}{3}\,n^3.$$
 
 Therefore $G(n) \sim \frac{n^3}{4} - \frac{\ln 2}{3}\,n^3 = \frac{3 - 4\ln 2}{12}\,n^3$. $\blacksquare$
 
-## Algorithm
+## Editorial
+We exact computation for small $a$**: For $a \leq N_0$ (where $N_0 = O(\sqrt{n})$), compute $S(a)$ directly using precomputed harmonic numbers. We then asymptotic expansion for large $a$**: For $a > N_0$, use the Euler--Maclaurin expansion of $H(n)$. Finally, combination**: Sum the exact and asymptotic contributions.
 
-The computation of $G(10^{11})$ to 10 significant digits uses a hybrid approach:
+## Pseudocode
 
-1. **Exact computation for small $a$**: For $a \leq N_0$ (where $N_0 = O(\sqrt{n})$), compute $S(a)$ directly using precomputed harmonic numbers.
-
-2. **Asymptotic expansion for large $a$**: For $a > N_0$, use the Euler--Maclaurin expansion of $H(n)$:
-   $$H(n) = \ln n + \gamma + \frac{1}{2n} - \sum_{k=1}^{K} \frac{B_{2k}}{2k \cdot n^{2k}}$$
-   to expand $H(2j) - H(j)$ and $H(2j-1) - H(j)$ as power series in $1/j$. Each correction term produces sums of the form $\sum a^{2-k}$, computable in closed form via Faulhaber's formulas.
-
-3. **Combination**: Sum the exact and asymptotic contributions.
+```text
+Exact computation for small $a$**: For $a \leq N_0$ (where $N_0 = O(\sqrt{n})$), compute $S(a)$ directly using precomputed harmonic numbers
+Asymptotic expansion for large $a$**: For $a > N_0$, use the Euler--Maclaurin expansion of $H(n)$:
+Combination**: Sum the exact and asymptotic contributions
+```
 
 ## Complexity Analysis
 

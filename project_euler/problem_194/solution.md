@@ -31,25 +31,17 @@ $$P(G, n) = \frac{n^{\underline{a}} \cdot n^{\underline{b}}}{n^{\underline{2}}} 
 $$P(G, n) = \frac{n^{\underline{a}} \cdot n^{\underline{b}}}{n(n-1)}.$$
 Since $n^{\underline{a}} = n(n-1) \cdot (n-2)^{\underline{a-2}}$, the factor $n(n-1)$ cancels exactly. $\square$
 
-## Algorithm
+## Editorial
+Count proper n-colourings of graph formed by K_a and K_b sharing one edge. (a, b, n) = (25, 75, 1984), mod 10^8. P(G, n) = n^{down a} * n^{down b} / n^{down 2} = (n-2)^{down (a-2)} * n^{down b}. We iterate over i from 0 to a-3. Finally, iterate over i from 0 to b-1.
 
+## Pseudocode
+
+```text
+Compute (n-2)^{underline{a-2}} mod mod
+for i from 0 to a-3
+Multiply by n^{underline{b}} mod mod
+for i from 0 to b-1
 ```
-function coloured_configurations(a, b, n, mod):
-    # Compute (n-2)^{underline{a-2}} mod mod
-    result = 1
-    for i from 0 to a-3:
-        result = (result * (n - 2 - i)) mod mod
-
-    # Multiply by n^{underline{b}} mod mod
-    for i from 0 to b-1:
-        result = (result * (n - i)) mod mod
-
-    return result
-```
-
-For $(a, b, n) = (25, 75, 1984)$, $\text{mod} = 10^8$:
-- Compute $1982^{\underline{23}} \bmod 10^8$: multiply $1982 \times 1981 \times \cdots \times 1960$.
-- Multiply by $1984^{\underline{75}} \bmod 10^8$: multiply $1984 \times 1983 \times \cdots \times 1910$.
 
 ## Complexity Analysis
 

@@ -50,13 +50,18 @@ $$2\ln c = \nu \left(1 - \frac{2}{9\nu} + z_{0.75}\sqrt{\frac{2}{9\nu}}\right)^3
 
 Then $\log_{10} c = \frac{\ln c}{\ln 10}$.
 
-## Algorithm
+## Editorial
+We round to 2 decimal places. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-1. Set $\nu = 2 \times 10^7$
-2. Compute $z_{0.75} = \Phi^{-1}(0.75)$
-3. Apply Wilson-Hilferty: $\chi^2 = \nu(1 - 2/(9\nu) + z_{0.75}\sqrt{2/(9\nu)})^3$
-4. Compute $\log_{10} c = \chi^2 / (2 \ln 10)$
-5. Round to 2 decimal places
+## Pseudocode
+
+```text
+Set $\nu = 2 \times 10^7$
+Compute $z_{0.75} = \Phi^{-1}(0.75)$
+Apply Wilson-Hilferty: $\chi^2 = \nu(1 - 2/(9\nu) + z_{0.75}\sqrt{2/(9\nu)})^3$
+Compute $\log_{10} c = \chi^2 / (2 \ln 10)$
+Round to 2 decimal places
+```
 
 ## Correctness
 

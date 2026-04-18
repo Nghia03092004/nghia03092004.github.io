@@ -19,23 +19,17 @@ Compute $\sum_{n=1}^{N} S_n$ for $N = 10^5$.
    - For each prime $p \le n$, at most one multiple of $p$
    - The elements chosen must be pairwise coprime
 
-### Algorithm
+### Editorial
+The problem reduces to: for each $n$, find a maximum-weight independent set in a conflict graph. This can be solved using the following approach. So. We always include 1. We then iterate over each prime $p \le n$, the "best representative" is $p$ itself (or the largest power of $p$ that is $\le n$), since prime powers are coprime to numbers not divisible by $p$. Finally, more precisely: include each prime $p$ with $n/2 < p \le n$ (these are large primes whose only multiple in range is themselves).
 
-The problem reduces to: for each $n$, find a maximum-weight independent set in a conflict graph. This can be solved using the following approach:
+### Pseudocode
 
-- Always include 1.
-- For each prime $p \le n$, the "best representative" is $p$ itself (or the largest power of $p$ that is $\le n$), since prime powers are coprime to numbers not divisible by $p$.
-- More precisely: include each prime $p$ with $n/2 < p \le n$ (these are large primes whose only multiple in range is themselves).
-- For smaller primes, choose the largest prime power $p^k \le n$.
-
-The optimal pairwise coprime subset of $\{1, \ldots, n\}$ with maximum sum consists of $\{1\}$ together with, for each prime $p \le n$, the largest power $p^{a_p} \le n$ (since distinct prime powers are automatically pairwise coprime).
-
-So:
-$$S_n = 1 + \sum_{p \text{ prime}, p \le n} \max\{p^a : p^a \le n\}$$
-
-Wait -- this overcounts. We need pairwise coprimality. Including $p^a$ and $q^b$ for distinct primes $p, q$ is fine since $\gcd(p^a, q^b) = 1$. So actually:
-
-$$S_n = 1 + \sum_{p \text{ prime}, p \le n} p^{\lfloor \log_p n \rfloor}$$
+```text
+Always include 1
+For each prime $p \le n$, the "best representative" is $p$ itself (or the largest power of $p$ that is $\le n$), since prime powers are coprime to numbers not divisible by $p$
+More precisely: include each prime $p$ with $n/2 < p \le n$ (these are large primes whose only multiple in range is themselves)
+For smaller primes, choose the largest prime power $p^k \le n$
+```
 
 ### Final Computation
 

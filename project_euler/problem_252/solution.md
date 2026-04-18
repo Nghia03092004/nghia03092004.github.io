@@ -44,16 +44,17 @@ $$\mathrm{dp}[k][\ell] = \max_{j: \, (j,k,\ell) \text{ valid}} \bigl(\mathrm{dp}
 
 $$\max_{p_0 \in S} \max_{(k,\ell)} \frac{\mathrm{dp}[k][\ell]}{2}.$$
 
-## Algorithm
+## Editorial
+A convex hole is a convex polygon whose vertices are from the point set and whose interior contains no other points from the set. Algorithm: For each anchor point p0, sort remaining points by polar angle, then DP on (last two vertices) tracking first vertex for closure checks. Empty-triangle tests use precomputed bitsets. We iterate over each anchor p0 in S.
 
-```
-function LargestConvexHole(S):
+## Pseudocode
+
+```text
     n = |S|
     Precompute bitset B[i][j] for each directed edge (i, j):
-        B[i][j] = {p in S : sigma(i, j, p) > 0}  // points strictly left of i->j
+        B[i][j] = {p in S : sigma(i, j, p) > 0} // points strictly left of i->j
 
-    function TriangleEmpty(a, b, c):
-        return B[a][b] AND B[b][c] AND B[c][a] == 0  // bitwise intersection
+        Return B[a][b] AND B[b][c] AND B[c][a] == 0 // bitwise intersection
 
     best = 0
     for each anchor p0 in S:
@@ -62,7 +63,7 @@ function LargestConvexHole(S):
         Extend DP: for each (j, k) with dp[j][k] > 0, try all l > k
             Check left-turn, fan-triangle emptiness, angular span
             Update dp[k][l] and check closure for new maximum
-    return best / 2
+    Return best / 2
 ```
 
 ## Complexity Analysis

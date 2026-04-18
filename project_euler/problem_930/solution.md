@@ -50,27 +50,16 @@ Applying the lemma with $c = 1$ to $(*)$: $R(p) = -1$. $\square$ (Theorem 1)
 
 For $N = 10^5$: $\pi(10^5) = 9592$, so the answer is $-(9592 - 1) = -9591$.
 
-## Algorithm
+## Editorial
+Or equivalently. We count primes up to N. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function ComputeAnswer(N):
-    // Count primes up to N
-    pi_N = count_primes_sieve(N)
-    return -(pi_N - 1)
-```
+## Pseudocode
 
-Or equivalently:
-
-```
-function ComputeAnswerDirect(N):
-    primes = sieve_of_eratosthenes(N)
-    S = 0
-    for p in primes:
-        if p == 2:
-            S += 0
-        else:
-            S += (-1)
-    return S
+```text
+Count primes up to N
+Or equivalently
+for p in primes
+else
 ```
 
 ## Complexity Analysis

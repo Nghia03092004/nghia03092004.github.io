@@ -40,12 +40,17 @@ This means $10^{p-1} - 1 \equiv 56789 \cdot p \pmod{10^5}$.
 
 Since $10^{p-1} \equiv 1 \pmod{p}$ (Fermat), we need $10^{p-1} \equiv 1 + 56789p \pmod{p \cdot 10^5}$.
 
-### Algorithm
+### Editorial
+The cyclic number is C = (10^(p-1) - 1) / p. From the leading digits, p ~ 729927007. The digit sum of a cyclic number with p-1 digits is 9*(p-1)/2. We search primes near $729927007$. We then check the last-5-digits condition modulo $10^5$. Finally, verify the primitive root condition (that the multiplicative order of 10 mod $p$ is $p-1$).
 
-1. Search primes near $729927007$.
-2. Check the last-5-digits condition modulo $10^5$.
-3. Verify the primitive root condition (that the multiplicative order of 10 mod $p$ is $p-1$).
-4. Verify initial digits.
+### Pseudocode
+
+```text
+Search primes near $729927007$
+Check the last-5-digits condition modulo $10^5$
+Verify the primitive root condition (that the multiplicative order of 10 mod $p$ is $p-1$)
+Verify initial digits
+```
 
 ## Correctness
 

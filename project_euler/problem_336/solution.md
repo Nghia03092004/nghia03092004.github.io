@@ -20,7 +20,7 @@ The sorting algorithm works from right to left (placing the largest unplaced car
 
 A step is "non-trivial" (costs moves) if the carriage is not already in its correct position. A maximix arrangement is one where every step in this process is non-trivial, meaning every carriage requires the maximum number of moves to sort.
 
-### Algorithm
+### Editorial
 
 We enumerate permutations of 11 elements and simulate the sorting process. A permutation is a maximix arrangement if at each stage the target carriage is neither already at the front (position 0) nor already at its final sorted position.
 

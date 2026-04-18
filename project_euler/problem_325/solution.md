@@ -41,24 +41,15 @@ $$f_0 = \sum_{x=1}^{A} \lfloor x\alpha \rfloor, \quad f_1 = \sum_{x=1}^{A} x\lfl
 
 **Proof.** The standard floor-sum identity $\sum_{x=0}^{N-1} \lfloor (ax+b)/m \rfloor = NM - 1 + \text{reciprocal sum}$ where $M = \lfloor (a(N-1)+b)/m \rfloor$ reduces $(a, m)$ in the manner of the Euclidean algorithm. Extending this to track the quadratic and cross terms $f_1, f_2$ yields a system of six simultaneous recurrences that undergo the same Euclidean reduction. Since $\alpha \approx F_{79}/F_{80}$ (a ratio of consecutive Fibonacci numbers), the algorithm terminates in at most 80 steps. $\square$
 
-## Algorithm
+## Editorial
+S(N) = sum of (a+b) for all losing positions (a,b) with 0 < a < b <= N. A position (a, a+r) is losing iff r <= floor(a*(sqrt(5)-1)/2). Uses quadratic floor sum algorithm with Fibonacci rational approximation. We find a* = max a such that floor(a * alpha) <= N - a. We then range 1: a = 1..a_star, R(a) = floor(a * alpha). Finally, range 2: a = a_star+1..N-1, R(a) = N - a.
 
-```
-function solve(N, mod):
-    alpha_num = F_79    // Fibonacci approximation
-    alpha_den = F_80
+## Pseudocode
 
-    // Find a* = max a such that floor(a * alpha) <= N - a
-    a_star = binary_search(a -> floor(a * alpha_num / alpha_den) <= N - a)
-
-    // Range 1: a = 1..a_star, R(a) = floor(a * alpha)
-    (f0, f1, f2) = quadratic_floor_sum(a_star, alpha_num, alpha_den)
-    range1 = (2 * f1 + (f2 + f0) / 2) mod mod
-
-    // Range 2: a = a_star+1..N-1, R(a) = N - a
-    range2 = closed_form_polynomial(a_star + 1, N - 1, N) mod mod
-
-    return (range1 + range2) mod mod
+```text
+Find a* = max a such that floor(a * alpha) <= N - a
+Range 1: a = 1..a_star, R(a) = floor(a * alpha)
+Range 2: a = a_star+1..N-1, R(a) = N - a
 ```
 
 ## Complexity Analysis

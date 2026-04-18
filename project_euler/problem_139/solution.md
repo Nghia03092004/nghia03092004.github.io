@@ -26,28 +26,30 @@ The tiling condition becomes $(m^2 + n^2) \bmod |2mn - (m^2 - n^2)| = 0$.
 
 **Proof.** By Theorem 2, every multiple $k(a, b, c)$ also satisfies the tiling condition, and its perimeter is $kp_0$. We need $kp_0 \leq P$, giving $k \leq \lfloor P/p_0 \rfloor$. Every non-primitive Pythagorean triple satisfying the condition is a multiple of some primitive triple satisfying the condition (since the condition is scale-invariant by Theorem 2 and every Pythagorean triple is a multiple of a primitive one). $\square$
 
-## Algorithm
+## Editorial
+Count Pythagorean triples (a, b, c) with perimeter <= 10^8 where c % |b - a| == 0 (the tiling condition). Enumerate primitive triples via (m, n) parameterization and count multiples.
 
-```
-function count_pythagorean_tiles(P):
-    // P = 100000000
+## Pseudocode
+
+```text
+    P = 100000000
     count = 0
-    for m = 2 to floor(sqrt(P/2)):
-        for n = 1 to m-1:
-            if (m - n) % 2 == 0:   // same parity, skip
+    For m from 2 to floor(sqrt(P/2)):
+        For n from 1 to m-1:
+            if (m - n) % 2 == 0: // same parity, skip
                 continue
-            if gcd(m, n) != 1:
+            If gcd(m, n) != 1 then
                 continue
             a = m*m - n*n
             b = 2*m*n
             c = m*m + n*n
-            perimeter = a + b + c   // = 2*m*(m+n)
-            if perimeter > P:
+            perimeter = a + b + c // = 2*m*(m+n)
+            If perimeter > P then
                 break
             diff = abs(b - a)
-            if c % diff == 0:
-                count += P // perimeter   // floor division
-    return count
+            If c % diff == 0 then
+                count += P // perimeter // floor division
+    Return count
 ```
 
 ## Complexity Analysis

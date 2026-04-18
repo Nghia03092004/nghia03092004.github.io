@@ -20,11 +20,16 @@ $\mu(p-1) \in \{-1, 0, 1\}$:
 - $\mu(p-1) = 0$ if $p-1$ has a squared prime factor (e.g., $p = 5$: $p-1 = 4 = 2^2$).
 - $\mu(p-1) = (-1)^k$ if $p-1$ is a product of $k$ distinct primes.
 
-### Algorithm
+### Editorial
+Compute sum of mu(p-1) for primes p up to 10^6, mod 10^9 + 7. For a prime p, the number of primitive roots modulo p is phi(p-1). The Mobius function mu(p-1) indicates the "squarefree structure" of p-1: mu(p-1) = 0 if p-1 has a squared prime factor mu(p-1) = +1 if p-1 has an even number of distinct prime factors mu(p-1) = -1 if p-1 has an odd number of distinct prime factors. We sieve primes up to $N$. We then iterate over each prime $p$, compute $\mu(p-1)$ by factoring $p-1$. Finally, accumulate $\mu(p-1) \bmod (10^9+7)$ (treating $\mu = -1$ as $10^9+6$).
 
-1. Sieve primes up to $N$.
-2. For each prime $p$, compute $\mu(p-1)$ by factoring $p-1$.
-3. Accumulate $\mu(p-1) \bmod (10^9+7)$ (treating $\mu = -1$ as $10^9+6$).
+### Pseudocode
+
+```text
+Sieve primes up to $N$
+For each prime $p$, compute $\mu(p-1)$ by factoring $p-1$
+Accumulate $\mu(p-1) \bmod (10^9+7)$ (treating $\mu = -1$ as $10^9+6$)
+```
 
 ### Factoring $p-1$
 

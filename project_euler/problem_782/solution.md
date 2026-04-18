@@ -30,30 +30,14 @@ $$D(n,m) = \sum_{p=0}^{m} (-1)^{m-p}\, S(m,p)\, (2^p)_n$$
 
 **Proof.** Applying Mobius inversion on the partition lattice of columns, when $p$ groups of columns are forced to be identical, the effective matrix has $p$ distinct column-types. The row-distinctness count is $(2^p)_n$ (choosing $n$ distinct binary vectors of length $p$). The signed sum over partitions yields the Stirling-Mobius formula. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function D(n, m):
-    // Precompute Stirling numbers S(m, p) for p = 0..m
-    // using recurrence S(m,p) = p*S(m-1,p) + S(m-1,p-1)
-    S[0][0] = 1; S[i][0] = 0 for i > 0
-    for i = 1 to m:
-        for p = 1 to i:
-            S[i][p] = p * S[i-1][p] + S[i-1][p-1]
+## Pseudocode
 
-    result = 0
-    for p = 0 to m:
-        ff = falling_factorial(2^p, n) mod MOD
-        sign = (-1)^(m - p)
-        result += sign * S[m][p] * ff
-    result = result mod MOD
-    return result
-
-function solve():
-    total = 0
-    for m = 1 to 20:
-        total += D(20, m)
-    return total mod MOD
+```text
+Precompute Stirling numbers S(m, p) for p = 0..m
+using recurrence S(m,p) = p*S(m-1,p) + S(m-1,p-1)
 ```
 
 ## Complexity Analysis

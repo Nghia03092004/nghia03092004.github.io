@@ -34,25 +34,27 @@ $$R(j) = \sum_{(v,c) \in \text{stack}} v \cdot c.$$
 
 **Proof.** Each of the $N$ insertions pushes exactly one entry. An entry can only be popped once (after which it is gone). Since at most $N$ entries are ever pushed, at most $N$ pops occur. Total operations $\le 2N$. $\square$
 
-## Algorithm
+## Editorial
+S_0 = 290797, S_{n+1} = S_n^2 mod 50515093 A(i,j) = min(S_i, ..., S_j) M(N) = sum of A(i,j) for all 1 <= i <= j <= N N = 2,000,000,000 The pseudo-random sequence has a cycle of length 6,308,948. We use a monotone stack for O(N) computation. Verification: M(10) = 432256955, M(10000) = 3264567774119 Note: Running this in Python for N=2e9 is very slow (~hours). Use the C++ solution for the full computation.
 
-```
-function solve(N):
+## Pseudocode
+
+```text
     S = 290797
-    stack = []           // list of (value, count) pairs
-    R = 0                // current R(j)
-    T = 0                // running total M(N)
-    for j = 1 to N:
+    stack = [] // list of (value, count) pairs
+    R = 0 // current R(j)
+    T = 0 // running total M(N)
+    For j from 1 to N:
         S = S * S mod 50515093
         c = 0
-        while stack is not empty and stack.top().value >= S:
+        While stack is not empty and stack.top().value >= S:
             (v, cnt) = stack.pop()
             R -= v * cnt
             c += cnt
         stack.push((S, c + 1))
         R += S * (c + 1)
         T += R
-    return T
+    Return T
 ```
 
 ## Complexity Analysis

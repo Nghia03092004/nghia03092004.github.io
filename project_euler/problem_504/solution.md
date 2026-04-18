@@ -54,21 +54,18 @@ $$i = A - \frac{b}{2} + 1 = \frac{(a+c)(b+d)}{2} - \frac{\gcd(a,b) + \gcd(b,c) +
 
 We check whether $i$ is a perfect square.
 
-## Algorithm
+## Editorial
+We precompute gcd(x, y) for all 1 <= x, y <= 100. We then precompute perfect squares up to max possible i. Finally, iterate over all (a, b, c, d) with 1 <= a, b, c, d <= 100.
 
+## Pseudocode
+
+```text
+Precompute gcd(x, y) for all 1 <= x, y <= 100
+Precompute perfect squares up to max possible i
+For all (a, b, c, d) with 1 <= a, b, c, d <= 100:
+Return counter
+# Optimization
 ```
-1. Precompute gcd(x, y) for all 1 <= x, y <= 100.
-2. Precompute perfect squares up to max possible i.
-3. For all (a, b, c, d) with 1 <= a, b, c, d <= 100:
-   a. Compute i using the formula above.
-   b. Check if i is a perfect square.
-   c. If yes, increment counter.
-4. Return counter.
-```
-
-### Optimization
-
-Precompute $g(a,b) = \gcd(a,b)$ in a table. The sum $\gcd(a,b) + \gcd(c,d)$ can be precomputed for pairs, reducing the 4-nested loop to two 2-nested loops.
 
 ## Complexity Analysis
 

@@ -23,29 +23,21 @@ $$f(n) = \sum_{\substack{k \ge 1 \\ k^2 \le n}} f(n - k^2), \qquad f(0) = 1.$$
 
 **Proof.** The recurrence $f(n) = \sum_{k=1}^{B} f(n - k^2)$ depends on values at indices $n-1, n-4, n-9, \ldots, n-B^2$. All of these lie within the window $\{f(n-B^2), \ldots, f(n-1)\}$, so a state vector of dimension $B^2$ suffices (here $B$ denotes $\lfloor\sqrt{N}\rfloor$ and the window size is $B^2$). The prefix sum $S(n) = S(n-1) + f(n)$ adds one more component. The transition is linear, yielding the matrix $M$. Repeated squaring computes $M^{N - B^2 + 1}$ in $O(B^6 \log N)$ operations. $\square$
 
-## Algorithm
+## Editorial
+Count ways to traverse distance n using steps of perfect square lengths. We compute f(0), f(1), ..., f(B^2 - 1) via DP. We then build (B^2 + 1) x (B^2 + 1) transition matrix M. Finally, state: (f(n), f(n-1), ..., f(n - B^2 + 1), S(n)).
 
-```
-function solve(N, MOD):
-    B = floor(sqrt(N))
-    // Compute f(0), f(1), ..., f(B^2 - 1) via DP
-    f = array of size B^2, initialized to 0
-    f[0] = 1
-    for i = 1 to B^2 - 1:
-        for k = 1 to B:
-            if k*k <= i:
-                f[i] = (f[i] + f[i - k*k]) mod MOD
+## Pseudocode
 
-    // Build (B^2 + 1) x (B^2 + 1) transition matrix M
-    // State: (f(n), f(n-1), ..., f(n - B^2 + 1), S(n))
-    // Row 0: f(n) = sum of f(n - k^2)  =>  M[0][k^2 - 1] = 1 for k = 1..B
-    // Rows 1..B^2-1: shift  =>  M[i][i-1] = 1
-    // Last row: S(n) = S(n-1) + f(n)  =>  copy row 0 plus M[last][last] = 1
-
-    // Compute M^(N - B^2 + 1) by repeated squaring
-    // Multiply by initial state vector v(B^2 - 1)
-    // Extract S(N) from result
-    return S_N mod MOD
+```text
+Compute f(0), f(1), ..., f(B^2 - 1) via DP
+Build (B^2 + 1) x (B^2 + 1) transition matrix M
+State: (f(n), f(n-1), ..., f(n - B^2 + 1), S(n))
+Row 0: f(n) = sum of f(n - k^2)  =>  M[0][k^2 - 1] = 1 for k = 1..B
+Rows 1..B^2-1: shift  =>  M[i][i-1] = 1
+Last row: S(n) = S(n-1) + f(n)  =>  copy row 0 plus M[last][last] = 1
+Compute M^(N - B^2 + 1) by repeated squaring
+Multiply by initial state vector v(B^2 - 1)
+Extract S(N) from result
 ```
 
 ## Complexity Analysis

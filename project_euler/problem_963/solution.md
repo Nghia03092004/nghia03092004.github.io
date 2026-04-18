@@ -36,13 +36,18 @@ For primes $p < 10^6$, there are $\pi(10^6) = 78498$ primes. A random $k$-digit 
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Count primes < 10^6 that are palindromes in at least 2 bases from {2,...,16}. Algorithm: sieve + base conversion + palindrome check. Complexity: O(N log log N + pi(N) * B * log N). We sieve primes** below $10^6$. We then iterate over each prime $p$, check palindromicity in each base $b \in \{2, 3, \ldots, 16\}$. Finally, convert $p$ to base $b$ digits.
 
-1. **Sieve primes** below $10^6$.
-2. For each prime $p$, check palindromicity in each base $b \in \{2, 3, \ldots, 16\}$:
-   - Convert $p$ to base $b$ digits.
-   - Check if the digit list equals its reverse.
-3. Count primes that are palindromic in $\ge 2$ bases.
+### Pseudocode
+
+```text
+Sieve primes** below $10^6$
+For each prime $p$, check palindromicity in each base $b \in \{2, 3, \ldots, 16\}$:
+Convert $p$ to base $b$ digits
+Check if the digit list equals its reverse
+Count primes that are palindromic in $\ge 2$ bases
+```
 
 ### Palindrome Check
 

@@ -45,23 +45,24 @@ $$A(r,c) = \frac{r^2}{2}\!\left(\frac{\pi}{2} - 2\arcsin\frac{c}{r}\right) - c\s
 
 The probability is $P_k = A(r_2, c) - A(r_1, c)$, and the expected score is $E = \sum_{k=1}^{N} k \cdot P_k$. $\quad\square$
 
-## Algorithm
+## Editorial
+Albert picks a,b uniformly in [0,1]. Computes sqrt((ka+1)^2+(kb+1)^2), rounds to nearest integer. Scores k if result = k, else 0. Find expected total for k=1..100000, to 5 decimals. Winning condition: (k-1/2)^2 <= (ka+1)^2 + (kb+1)^2 < (k+1/2)^2 Substituting x=a+1/k, y=b+1/k: circle centered at origin, x in [1/k, 1+1/k], y same. Inner radius r1 = (k-1/2)/k, outer radius r2 = (k+1/2)/k. Area of {x>=c, y>=c, x^2+y^2 <= r^2} where c=1/k: For r^2 >= 2c^2: integral_c^sqrt(r^2-c^2) (sqrt(r^2-x^2) - c) dx = [x*sqrt(r^2-x^2)/2 + r^2/2 * arcsin(x/r)] from c to sqrt(r^2-c^2) - c*(sqrt(r^2-c^2)-c) Uses mpmath for sufficient precision.
 
-```
-function solve(N = 100000):
+## Pseudocode
+
+```text
     total = 0.0
-    for k = 1 to N:
+    For k from 1 to N:
         c = 1.0 / k
         r1 = (2*k - 1) / (2.0 * k)
         r2 = (2*k + 1) / (2.0 * k)
         P_k = area(r2, c) - area(r1, c)
         total += k * P_k
-    return round(total, 5)
+    Return round(total, 5)
 
-function area(r, c):
-    if r < c * sqrt(2):
-        return 0.0
-    return (r^2 / 2) * (pi/2 - 2*arcsin(c/r)) - c*sqrt(r^2 - c^2) + c^2
+    If r < c * sqrt(2) then
+        Return 0.0
+    Return (r^2 / 2) * (pi/2 - 2*arcsin(c/r)) - c*sqrt(r^2 - c^2) + c^2
 ```
 
 ## Complexity Analysis

@@ -38,45 +38,20 @@ For triangles $ABP$, $CDP$, $BDP$ to be similar, we need specific angle equaliti
 
 **Proof.** This follows from the unique factorization in $\mathbb{Z}[\omega]$, where $\omega = (-1 + \sqrt{-3})/2$. The norm form $N(a + b\omega) = a^2 + ab + b^2$ yields the parametrization. $\square$
 
-## Algorithm
+## Editorial
+Points: A(a,0), B(b,0), C(0,c), D(0,d) with 0<a<b, 0<c<d, a=c. P on line AC (integer coords) such that triangles ABP, CDP, BDP all similar. Find # distinct triplets (a,b,d) with b+d < 10^8. Two cases: CASE 1 (Incenter/Pythagorean): b^2 + d^2 must be a perfect square. Primitive Pythagorean triples (m^2-n^2, 2mn, m^2+n^2) with m>n>0, gcd(m,n)=1, m+n odd. For each primitive triple with legs x, y: sum = x+y. Multiples k from 1 to (L-1)/sum. 2 triplets per k (swap b,d). CASE 2 (Parallel, b=d): q^2 + 2f^2 = c^2. Parameterization: coprime (m,n), n odd. q = |n^2-2m^2|, f = 2mn, c = n^2+2m^2. b_prim = c + f = n^2 + 2mn + 2m^2, d = b = k*b_prim. b+d = 2*k*b_prim < L. Each k gives 1 triplet. We iterate over each multiple k with k*(b0 + d0) < L. We then compute a from incircle condition. Finally, case 2: Eisenstein condition b^2 + bd + d^2 = f^2.
 
-```
-function count_triplets(L):
-    result = set()
+## Pseudocode
 
-    // Case 1: Pythagorean triples b^2 + d^2 = e^2
-    for m = 2 to sqrt(L):
-        for n = 1 to m-1:
-            if gcd(m, n) != 1 or (m + n) % 2 == 0: continue
-            b0 = m^2 - n^2
-            d0 = 2 * m * n
-            // For each multiple k with k*(b0 + d0) < L:
-            for k = 1 to (L - 1) / (b0 + d0):
-                b = k * b0
-                d = k * d0
-                // Compute a from incircle condition
-                e = k * (m^2 + n^2)
-                a = (b * d) / (b + d + e)  // must be positive even integer
-                if 2 * a is a positive integer:
-                    result.add((a, b, d))
-                    result.add((a, d, b))  // (b,d) and (d,b) are distinct
-
-    // Case 2: Eisenstein condition b^2 + bd + d^2 = f^2
-    for m = 2 to sqrt(L):
-        for n = 1 to m-1:
-            if gcd(m, n) != 1: continue
-            b0 = m^2 - n^2
-            d0 = 2*m*n + n^2
-            for k = 1 to (L - 1) / (b0 + d0):
-                b = k * b0
-                d = k * d0
-                // Compute a from similarity condition
-                // ... (specific formula from the geometry)
-                if valid:
-                    result.add((a, b, d))
-
-    // Remove overlaps (triplets counted in both cases)
-    return len(result)
+```text
+Case 1: Pythagorean triples b^2 + d^2 = e^2
+For each multiple k with k*(b0 + d0) < L:
+Compute a from incircle condition
+Case 2: Eisenstein condition b^2 + bd + d^2 = f^2
+Compute a from similarity condition
+... (specific formula from the geometry)
+if valid
+Remove overlaps (triplets counted in both cases)
 ```
 
 ## Complexity Analysis

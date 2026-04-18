@@ -42,13 +42,18 @@ To count ones, twos, and threes:
 
 Since n = 10^12, we compute M^n mod 2^30 using repeated squaring of the 92x92 matrix.
 
-## Algorithm
+## Editorial
+Uses Conway's Cosmological Theorem with the 92-element transition matrix. We define Conway's 92 elements and their decay rules (the transition matrix M). We then parse the initial string (for small n) to get the initial element composition vector v(k). Finally, compute M^(n-k) mod 2^30.
 
-1. Define Conway's 92 elements and their decay rules (the transition matrix M).
-2. Parse the initial string (for small n) to get the initial element composition vector v(k).
-3. Compute M^(n-k) mod 2^30.
-4. Multiply to get v(n) mod 2^30.
-5. Compute A(n), B(n), C(n) by applying the digit-weight vectors.
+## Pseudocode
+
+```text
+Define Conway's 92 elements and their decay rules (the transition matrix M)
+Parse the initial string (for small n) to get the initial element composition vector v(k)
+Compute M^(n-k) mod 2^30
+Multiply to get v(n) mod 2^30
+Compute A(n), B(n), C(n) by applying the digit-weight vectors
+```
 
 ## Complexity Analysis
 

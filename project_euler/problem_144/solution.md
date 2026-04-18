@@ -37,39 +37,18 @@ $\square$
 
 **Proof.** The numerator $2(4x_0 d_x + y_0 d_y) = 2(\mathbf{n} \cdot \mathbf{d})$ vanishes only when $\mathbf{d}$ is tangent to the ellipse at $(x_0, y_0)$. After reflection, $\mathbf{d}'$ has a nonzero normal component (since the incoming ray was not tangent), so the numerator is nonzero. $\square$
 
-## Algorithm
+## Editorial
+Simulate laser reflections inside the ellipse 4x^2 + y^2 = 100. Entry at (0, 10.1), first hit at (1.4, -9.6). Exit when |x| <= 0.01 at the top (y > 0). We repeat. We then reflect. Finally, next intersection.
 
-```
+## Pseudocode
+
+```text
 INPUT: Ellipse 4x^2 + y^2 = 100, entry (0, 10.1), first hit (1.4, -9.6)
 OUTPUT: Number of internal reflections before exit
-
-x, y = 1.4, -9.6
-dx, dy = 1.4 - 0, -9.6 - 10.1    // initial direction
-
-count = 0
-repeat:
-    count += 1
-    n = (4*x, y)                   // normal at hit point
-    dot_dn = dx*n[0] + dy*n[1]
-    norm_n_sq = n[0]^2 + n[1]^2
-
-    // Reflect
-    dx' = dx - 2 * dot_dn / norm_n_sq * n[0]
-    dy' = dy - 2 * dot_dn / norm_n_sq * n[1]
-
-    // Next intersection
-    t = -2 * (4*x*dx' + y*dy') / (4*dx'^2 + dy'^2)
-    x_new = x + t * dx'
-    y_new = y + t * dy'
-
-    x, y = x_new, y_new
-    dx, dy = dx', dy'
-
-    // Check exit
-    if |x| <= 0.01 and y > 0:
-        return count
-
-return count
+repeat
+Reflect
+Next intersection
+Check exit
 ```
 
 ## Complexity Analysis

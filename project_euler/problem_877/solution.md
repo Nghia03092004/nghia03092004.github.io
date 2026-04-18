@@ -36,26 +36,15 @@ Collecting even powers of $x$ (from the $x^4$ terms and cross-products) and odd 
 
 **Proof.** The bit decomposition lemma shows that after fixing the parity bits $(a_0 \bmod 2, a_1 \bmod 2, b_0 \bmod 2, b_1 \bmod 2)$ to satisfy the constant and linear terms of $k(x)$, the remaining higher-order terms satisfy an analogous equation with halved polynomial degrees. The process terminates after $O(\log N)$ levels since the bit-length halves at each step. $\square$
 
-## Algorithm
+## Editorial
+XOR-product (carry-less multiplication) in GF(2) Equation: (a ⊗ a) ⊕ (2 ⊗ a ⊗ b) ⊕ (b ⊗ b) = 5 X(N) = XOR of b values for solutions with 0 <= a <= b <= N Find X(10^18). We k = 5 = 101 in binary, k(x) = x^2 + 1. We then enumerate solutions (a, b) with a <= b <= N. Finally, using digit DP on binary representations.
 
-```
-function SOLVE(N, k):
-    // k = 5 = 101 in binary, k(x) = x^2 + 1
-    // Enumerate solutions (a, b) with a <= b <= N
-    // using digit DP on binary representations
+## Pseudocode
 
-    result_xor = 0
-    DIGIT_DP(bit_position = MSB, a_partial, b_partial,
-             tight_a = true, tight_b = true,
-             a_leq_b = false, remaining_k_bits):
-        if bit_position < 0:
-            result_xor ^= b_partial
-            return
-        for each valid (a_bit, b_bit) satisfying equation constraints:
-            update tight flags and a_leq_b
-            recurse to next bit position
-
-    return result_xor
+```text
+k = 5 = 101 in binary, k(x) = x^2 + 1
+Enumerate solutions (a, b) with a <= b <= N
+using digit DP on binary representations
 ```
 
 ## Complexity Analysis

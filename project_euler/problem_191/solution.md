@@ -51,21 +51,14 @@ Since a prize string has at most one $L$, Cases 1 and 2 are exhaustive and disjo
 
 **Corollary.** For $n = 30$: $g(30) = 53{,}798{,}080$ and $|\mathcal{P}_{30}| = 1{,}918{,}080{,}160$.
 
-## Algorithm
+## Editorial
+Count 30-character strings over {O, A, L} with at most one L and no three consecutive A's. We compute g[0..n] via the recurrence. Finally, accumulate |P_n|.
 
-```
-function COUNT_PRIZE_STRINGS(n):
-    // Phase 1: Compute g[0..n] via the recurrence
-    g[0] <- 1;  g[1] <- 2;  g[2] <- 4
-    for i <- 3 to n:
-        g[i] <- g[i-1] + g[i-2] + g[i-3]
+## Pseudocode
 
-    // Phase 2: Accumulate |P_n|
-    total <- g[n]                          // zero-L strings
-    for k <- 0 to n-1:
-        total <- total + g[k] * g[n-1-k]  // one-L strings
-
-    return total
+```text
+Compute g[0..n] via the recurrence
+Accumulate |P_n|
 ```
 
 ## Complexity Analysis

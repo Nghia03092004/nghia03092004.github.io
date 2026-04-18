@@ -28,31 +28,17 @@ $\square$
 
 **Proof.** Each multiplication by $M$ extends the suffix by one digit. After $\ell - 2$ multiplications, we sum over all terminal states. $\square$
 
-## Algorithm
+## Editorial
+Count 20-digit numbers where no three consecutive digits sum > 9. Dynamic programming with state = (last two digits). We use dynamic programming with a rolling array. We then state: (last_two_digits) = (a, b) with a + b <= 9. Finally, initialize for length 2.
 
-```
-function COUNT_VALID_NUMBERS():
-    # DP with rolling array
-    # State: (last_two_digits) = (a, b) with a + b <= 9
+## Pseudocode
 
-    # Initialize for length 2
-    dp[a][b] = 1  for all valid (a, b) with a + b <= 9
-
-    # Extend from length 2 to length 20
-    for step = 3 to 20:
-        new_dp[b][d] = 0  for all valid (b, d)
-        for each valid (a, b) with a + b <= 9:
-            for d = 0 to 9 - a - b:
-                new_dp[b][d] += dp[a][b]
-        dp = new_dp
-
-    # Sum over starting digits a >= 1
-    answer = 0
-    for a = 1 to 9:
-        for b = 0 to 9 - a:
-            answer += dp[a][b]
-
-    return answer
+```text
+DP with rolling array
+State: (last_two_digits) = (a, b) with a + b <= 9
+Initialize for length 2
+Extend from length 2 to length 20
+Sum over starting digits a >= 1
 ```
 
 ## Complexity Analysis

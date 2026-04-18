@@ -41,34 +41,14 @@ Therefore $\sum_{k \in S \cap M_p} L/k^2 \equiv 0 \pmod{p^{v_p(L)}}$. Since $|M_
 
 Both pruning conditions eliminate only infeasible branches. The base case ($i = m$ or $\sigma = L/2$) is exact. By structural induction on the DFS tree, all valid subsets are found. $\square$
 
-## Algorithm
+## Editorial
+We prime elimination (reduce candidate set). Finally, integer DFS with pruning. We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
 
-```
-function SOLVE():
-    // Phase 1: Prime elimination (reduce candidate set)
-    candidates = {2, 3, ..., 80} \ (eliminated elements)
+## Pseudocode
 
-    // Phase 2: Integer DFS with pruning
-    L = lcm(k^2 for k in candidates)
-    target = L / 2
-    vals[i] = L / candidates[i]^2
-    suffix[i] = sum of vals[i..m]
-
-    count = 0
-    function DFS(index, partial_sum):
-        if partial_sum == target:
-            count += 1; return
-        if index >= m: return
-        need = target - partial_sum
-        if need < 0: return
-        if suffix[index] < need: return
-        for i = index to m-1:
-            if vals[i] > need: continue
-            if suffix[i] < need: return
-            DFS(i + 1, partial_sum + vals[i])
-
-    DFS(0, 0)
-    return count
+```text
+Prime elimination (reduce candidate set)
+Integer DFS with pruning
 ```
 
 ## Complexity Analysis

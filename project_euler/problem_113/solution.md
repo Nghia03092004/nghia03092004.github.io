@@ -45,19 +45,20 @@ $$\frac{\operatorname{NonBouncy}(n)}{10^n - 1} = O\!\left(\frac{n^{10}}{10^n}\ri
 
 *Proof.* The leading term of $\binom{n+10}{10}$ is $n^{10}/10!$, which is polynomial in $n$. Since polynomial growth is dominated by exponential growth, the ratio tends to 0. $\blacksquare$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function NonBouncyBelow(n):
+## Pseudocode
+
+```text
     inc = Binomial(n + 9, 9)
     dec = Binomial(n + 10, 10)
-    return inc + dec - 10 * n - 2
+    Return inc + dec - 10 * n - 2
 
-function Binomial(n, k):
     result = 1
-    for i = 0 to k - 1:
+    For i from 0 to k - 1:
         result = result * (n - i) / (i + 1)
-    return result
+    Return result
 
 answer = NonBouncyBelow(100)
 ```

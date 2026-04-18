@@ -48,16 +48,15 @@ where $T(k) = k(k+1)/2$ is the $k$-th triangular number.
 This simplifies to:
 $$H(n) = 2\sum_{a=1}^{\lfloor n/2 \rfloor} \sum_{b=0}^{n-2a} T(n - 2a - b) - \sum_{a=1}^{\lfloor n/3 \rfloor} T(n - 3a)$$
 
-## Algorithm
+## Editorial
+Alternatively, use the simplified single-sum form derived from the inner sum. We iterate over each $n$ from 3 to 12345, compute $H(n)$ using the double-sum formula. Finally, accumulate the total sum.
 
-1. For each $n$ from 3 to 12345, compute $H(n)$ using the double-sum formula.
-2. Accumulate the total sum.
+## Pseudocode
 
-Alternatively, use the simplified single-sum form derived from the inner sum:
-
-$$\sum_{b=0}^{m} T(b) = \frac{m(m+1)(m+2)}{6}$$
-
-So the inner sum becomes $\frac{(n-2a)(n-2a+1)(n-2a+2)}{6}$ and similarly for the other term.
+```text
+For each $n$ from 3 to 12345, compute $H(n)$ using the double-sum formula
+Accumulate the total sum
+```
 
 ## Correctness
 

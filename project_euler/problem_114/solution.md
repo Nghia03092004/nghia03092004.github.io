@@ -56,22 +56,24 @@ so $f(n) = f(n-1) + P(n-5) + f(n-4) = f(n-1) + [f(n-1) - f(n-2)] + f(n-4)$... Th
 
 At $n = 3$: $f(3) = f(2) + P(-1) = 1 + 1 = 2$. At $n = 7$: $f(7) = f(6) + P(3) = 11 + 6 = 17$. $\blacksquare$
 
-## Algorithm
+## Editorial
+We else. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function CountFillings(n):
+## Pseudocode
+
+```text
     f = map from integers to integers
     f[-1] = 1; f[0] = 1
     P = map from integers to integers
     P[-1] = 1; P[0] = 2
-    for i = 1 to n:
-        if i >= 3:
+    For i from 1 to n:
+        If i >= 3 then
             sum_term = P[i - 4] if i >= 4 else P[-1]
         else:
             sum_term = 0
         f[i] = f[i - 1] + sum_term
         P[i] = P[i - 1] + f[i]
-    return f[n]
+    Return f[n]
 ```
 
 ## Complexity Analysis

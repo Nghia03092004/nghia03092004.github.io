@@ -29,36 +29,16 @@ $$p(n) = \sum_{k=1}^{\infty} (-1)^{k+1}\left(p\!\left(n - \frac{k(3k-1)}{2}\righ
 
 **Proof.** Euler's pentagonal number theorem gives $\prod_{k=1}^{\infty}(1-x^k) = \sum_{k=-\infty}^{\infty}(-1)^k x^{k(3k-1)/2}$. Inverting yields the recurrence for $p(n)$. $\square$
 
-## Algorithm
+## Editorial
+We build partition function table using pentagonal recurrence. Finally, compute t(n) for each n and check divisibility by 10^6. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function find_n():
-    # Build partition function table using pentagonal recurrence
-    max_n = 10^7  # upper bound estimate
-    p = array of size max_n + 1, initialized to 0
-    p[0] = 1
+## Pseudocode
 
-    for n = 1 to max_n:
-        for k = 1, 2, ...:
-            g1 = k * (3*k - 1) / 2
-            g2 = k * (3*k + 1) / 2
-            if g1 > n: break
-            sign = (-1)^{k+1}
-            p[n] += sign * p[n - g1]
-            if g2 <= n:
-                p[n] += sign * p[n - g2]
-
-    # Compute t(n) for each n and check divisibility by 10^6
-    for n = 2, 4, 6, ...:   # t(n) is interesting only for even n with even parts
-        t_n = 0
-        for c = 0, 2, 4, ..., n:
-            m = (n - c) / 2
-            if m is even:
-                t_n += p[m / 2]  # by Lemma 1
-            # else p_e(m) = 0
-        t_n = t_n mod 10^6
-        if t_n == 0:
-            return n
+```text
+Build partition function table using pentagonal recurrence
+Compute t(n) for each n and check divisibility by 10^6
+if m is even
+else p_e(m) = 0
 ```
 
 ## Complexity Analysis

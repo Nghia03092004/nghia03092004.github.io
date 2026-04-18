@@ -18,37 +18,16 @@ The largest divisor of $n$ that does not exceed $\sqrt{n}$ is called the **pseud
 
 **Proof.** Every divisor $d$ of $P$ factors uniquely as $d = d_A \cdot d_B$ where $d_A$ divides $\prod_{p \in A} p$ and $d_B$ divides $\prod_{p \in B} p$. The decomposition is exhaustive: all $2^{42}$ divisors are covered. For a fixed $d_B$, the optimal $d_A$ is the largest one with $\ln d_A \le \frac{1}{2}\ln P - \ln d_B$, found by binary search on the sorted list. Since both lists have size $2^{21}$ and are fully enumerated, the global optimum is found. $\square$
 
-## Algorithm
+## Editorial
+Give the last 16 digits of d. Approach: Meet-in-the-middle on the 42 primes. Split into two halves, enumerate subset products for each, then for each product in the second half, binary search the first half for the largest complementary product that keeps d <= sqrt(P). We enumerate group A. We then iterate over each subset S of A. Finally, iterate over each subset of B, binary search in listA.
 
-```
-P_primes = [2, 3, 5, 7, 11, ..., 181]  // 42 primes
-A = P_primes[:21]
-B = P_primes[21:]
+## Pseudocode
 
-MOD = 10^16
-half_log = 0.5 * sum(ln(p) for p in P_primes)
-
-// Phase 1: enumerate group A
-listA = []
-for each subset S of A:
-    log_val = sum(ln(p) for p in S)
-    mod_val = product(p for p in S) mod MOD
-    listA.append((log_val, mod_val))
-sort listA by log_val
-
-// Phase 2: for each subset of B, binary search in listA
-best_log = -infinity
-best_mod = 0
-for each subset S of B:
-    log_B = sum(ln(p) for p in S)
-    mod_B = product(p for p in S) mod MOD
-    target = half_log - log_B
-    idx = upper_bound(listA, target) - 1  // largest log_A <= target
-    if idx >= 0 and listA[idx].log + log_B > best_log:
-        best_log = listA[idx].log + log_B
-        best_mod = listA[idx].mod * mod_B mod MOD
-
-return best_mod
+```text
+enumerate group A
+for each subset S of A
+for each subset of B, binary search in listA
+for each subset S of B
 ```
 
 ## Complexity Analysis

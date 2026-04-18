@@ -32,18 +32,18 @@ We need the smallest $m$ such that $\nu_p(m!) \geq e$. Since $m$ must be a multi
 
 For a prime $p$, $s(p) = p$. For $s(p^e)$, we search multiples of $p$: $p, 2p, 3p, \ldots$ until the factorial exponent reaches $e$.
 
-## Algorithm
+## Editorial
+For a prime power p^e, s(p^e) is the smallest m such that the exponent of p in m! >= e. By Legendre's formula: v_p(m!) = sum(floor(m/p^k) for k=1,2,...). We use a sieve to find smallest prime factors, then factorize each n. We sieve primes** up to $N = 10^8$ using a modified sieve. We then iterate over each prime $p$**: iterate through powers $p^e \leq N$ and for each, compute $s(p^e)$ by finding the smallest multiple of $p$ whose factorial contains at least $e$ factors of $p$. Finally, sieve approach**: For each $n$, compute $s(n) = \max$ of $s$ values over its prime power factorization. This is done during sieving: for each prime $p$ and each power $p^e$, update all multiples.
 
-1. **Sieve primes** up to $N = 10^8$ using a modified sieve.
-2. **Initialize** an array `s[2..N]` where `s[i] = 0`.
-3. **For each prime $p$**: iterate through powers $p^e \leq N$ and for each, compute $s(p^e)$ by finding the smallest multiple of $p$ whose factorial contains at least $e$ factors of $p$.
-4. **Sieve approach**: For each $n$, compute $s(n) = \max$ of $s$ values over its prime power factorization. This is done during sieving: for each prime $p$ and each power $p^e$, update all multiples.
-5. **Sum** all $s(i)$ for $2 \leq i \leq N$.
+## Pseudocode
 
-### Computing $s(p^e)$ Efficiently
-
-For a prime power $p^e$, we find the smallest $m = kp$ such that:
-$$\nu_p((kp)!) = k + \lfloor k/p \rfloor + \lfloor k/p^2 \rfloor + \cdots \geq e$$
+```text
+Sieve primes** up to $N = 10^8$ using a modified sieve
+Initialize** an array `s[2..N]` where `s[i] = 0`
+For each prime $p$**: iterate through powers $p^e \leq N$ and for each, compute $s(p^e)$ by finding the smallest multiple of $p$ whose factorial contains at least $e$ factors of $p$
+Sieve approach**: For each $n$, compute $s(n) = \max$ of $s$ values over its prime power factorization. This is done during sieving: for each prime $p$ and each power $p^e$, update all multiples
+Sum** all $s(i)$ for $2 \leq i \leq N$
+```
 
 ## Correctness
 

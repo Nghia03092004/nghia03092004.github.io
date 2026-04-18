@@ -35,27 +35,28 @@ For the second equivalence, suppose every $e_i \ge 2$. If $e_i$ is even, write $
 
 **Remark.** To verify condition (3), one must factor each $p_i - 1$ and merge exponents with the contributions $p_i^{e_i - 1}$. For primes $p_i$ appearing in the factorization of $n < 10^{18}$ with $e_i \ge 2$, we have $p_i \le 10^9$, so factoring $p_i - 1$ is efficient.
 
-## Algorithm
+## Editorial
+A Strong Achilles number n satisfies: (1) n is powerful (all prime exponents >= 2), (2) n is not a perfect power (gcd of exponents == 1), (3) phi(n) is also Achilles. Enumerate powerful numbers via DFS over prime factorizations, checking all four conditions at each node.
 
-```
-function count_strong_achilles(N):
-    primes <- sieve of primes up to 10^6
-    count <- 0
+## Pseudocode
 
-    function dfs(idx, product, gcd_exp, phi_factors):
-        if product has >= 2 prime factors and gcd_exp == 1:
-            if phi_factors is powerful and gcd(phi exponents) == 1:
-                count <- count + 1
+```text
+    Set primes <- sieve of primes up to 10^6
+    Set count <- 0
+
+        If product has >= 2 prime factors and gcd_exp == 1 then
+            If phi_factors is powerful and gcd(phi exponents) == 1 then
+                Set count <- count + 1
 
         for each prime p = primes[idx], primes[idx+1], ... :
-            if product * p^2 > N: break
+            If product * p^2 > N then stop this loop
             for e = 2, 3, ... while product * p^e <= N:
-                new_gcd <- gcd(gcd_exp, e)
-                new_phi <- phi_factors merged with factors of p^(e-1)*(p-1)
+                Set new_gcd <- gcd(gcd_exp, e)
+                Set new_phi <- phi_factors merged with factors of p^(e-1)*(p-1)
                 dfs(idx + 1, product * p^e, new_gcd, new_phi)
 
     dfs(0, 1, 0, {})
-    return count
+    Return count
 ```
 
 ## Complexity Analysis

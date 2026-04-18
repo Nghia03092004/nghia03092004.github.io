@@ -51,7 +51,7 @@ The digit set is $\{9,3,2,7,1,8,6,5,4\} = \{1,2,3,4,5,6,7,8,9\}$: pandigital.
 
 To verify maximality, observe that for $x > 9327$ starting with "93": $x \in [9328, 9399]$ can be checked -- each fails pandigitality due to repeated digits. For $x$ starting with "94" through "98": $x \ge 9400$ gives $2x \ge 18800$, and the first two digits "94..." already constrain the remaining digits; exhaustive verification shows no pandigital result exceeds $932718654$. For $x$ starting with "99": $2x$ starts with "198" or "199", repeating 9. $\blacksquare$
 
-## Algorithm
+## Editorial
 
 We enumerate every possible base integer $x$ for which the concatenated product could still fit within nine digits, namely $1 \le x \le 9999$. For each $x$, we append the products $x, 2x, 3x, \ldots$ until the concatenation has at least nine digits, and we keep the value only when the concatenation has exactly nine digits, uses each of the digits 1 through 9 exactly once, and involves at least two factors. The maximum such value is the answer.
 

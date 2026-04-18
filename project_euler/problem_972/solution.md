@@ -42,22 +42,16 @@ The term $s(2^k) = 1$ is added because the row sums cover $[2^j, 2^{j+1}-1]$ and
 
 **Proof.** By induction. Base: $\gcd(s(0), s(1)) = \gcd(0,1) = 1$. If $n = 2m$: $\gcd(s(2m), s(2m+1)) = \gcd(s(m), s(m) + s(m+1)) = \gcd(s(m), s(m+1)) = 1$ by induction. If $n = 2m+1$: $\gcd(s(2m+1), s(2m+2)) = \gcd(s(m)+s(m+1), s(m+1)) = \gcd(s(m), s(m+1)) = 1$ by induction. $\square$
 
-## Algorithm
+## Editorial
+Compute the sum of s(n) for n = 1 to 2^20, where s is the Stern diatomic sequence: s(0) = 0, s(1) = 1 s(2n) = s(n) s(2n+1) = s(n) + s(n+1). We method 1: Closed form from Theorem 2. We then method 2: Direct computation (for verification). Finally, else.
 
-```
-function SternPrefixSum(k):
-    // Method 1: Closed form from Theorem 2
-    return (3^k + 1) / 2
+## Pseudocode
 
-    // Method 2: Direct computation (for verification)
-    s = array of size 2^k + 1
-    s[0] = 0; s[1] = 1
-    for n = 2 to 2^k:
-        if n is even:
-            s[n] = s[n / 2]
-        else:
-            s[n] = s[(n-1)/2] + s[(n-1)/2 + 1]
-    return sum(s[1 .. 2^k])
+```text
+Method 1: Closed form from Theorem 2
+Method 2: Direct computation (for verification)
+if n is even
+else
 ```
 
 ## Complexity Analysis

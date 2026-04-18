@@ -42,49 +42,14 @@ where $V \in \{0, \ldots, 10^B - 1\}$ is the current lowest-block value, $U \geq
 
 **Corollary 1 (Memoizability).** The function $T(V, U)$ depends only on $(V, U)$. With $B = 4$, the domain is $\{0, \ldots, 9999\} \times \{0, \ldots, 9 \cdot 16\}$, giving a table of $10^4 \times 145 \approx 1.45 \times 10^6$ entries that can be lazily computed and cached.
 
-## Algorithm
+## Editorial
+The algorithm maintains $a_n$ as an array of 20 base-10 digits and uses block-based acceleration with memoization. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-The algorithm maintains $a_n$ as an array of 20 base-10 digits and uses block-based acceleration with memoization.
+## Pseudocode
 
-```
-BLOCK_SIZE B = 4
-BLOCK_MOD  = 10^4
-MAX_UPPER  = 9 * 17   (max possible upper digit sum for a 17-digit number)
-
-memo[V][U] = (steps, new_V)    -- lazily filled
-
-function COMPUTE_ENTRY(V, U):
-    v := V;  steps := 0
-    repeat:
-        ds := digit_sum(v) + U
-        nv := v + ds
-        steps := steps + 1
-        if nv >= BLOCK_MOD:
-            return (steps, nv - BLOCK_MOD)
-        v := nv
-
-function SOLVE():
-    digits[0..19] := {1, 0, ..., 0}     -- a_0 = 1
-    steps_done := 0
-    TARGET := 10^15
-
-    while steps_done < TARGET:
-        upper_dsum := sum(digits[B .. 19])
-        bottom_val := digits[0] + 10*digits[1] + 100*digits[2] + 1000*digits[3]
-
-        (jump, new_bottom) := LOOKUP_OR_COMPUTE(bottom_val, upper_dsum)
-
-        if steps_done + jump <= TARGET:
-            steps_done += jump
-            update digits[0..3] from new_bottom
-            propagate carry = 1 into digits[B .. 19]
-        else:
-            -- single step fallback
-            ds := sum(digits[0..19])
-            add ds to the number with carry propagation
-            steps_done += 1
-
-    return digits as number
+```text
+repeat
+else
 ```
 
 ## Complexity Analysis

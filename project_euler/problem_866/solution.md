@@ -43,15 +43,18 @@ We use a dynamic programming approach where we process positions left to right a
 
 Since the answer must be given modulo $987654319$ (which is prime), we work in $\mathbb{F}_{987654319}$ and use modular inverses where needed.
 
-## Algorithm
+## Editorial
+Project Euler 866: Tidying Up B A caterpillar of N=100 pieces is assembled randomly. When a segment of length k is formed, H_k = k*(2k-1) is recorded. We want the expected value of the product of all recorded hexagonal numbers, mod 987654319. Key insight: Consider which piece is placed LAST in each interval [a,b]. If piece at position i is placed last in interval [a,b] of length L=b-a+1, then it contributes H_L to the product. The sub-intervals [a,i-1] and [i+1,b] are filled independently. E(L) = H_L / L * sum_{i=0}^{L-1} E(i) * E(L-1-i) E(0) = 1. We enumerate all permutations (or use DP on segment structures). We then iterate over each permutation, simulate the placement process. Finally, track segment lengths and compute the product of hexagonal numbers.
 
-1. Enumerate all permutations (or use DP on segment structures)
-2. For each permutation, simulate the placement process
-3. Track segment lengths and compute the product of hexagonal numbers
-4. Average over all permutations
-5. Return result modulo $987654319$
+## Pseudocode
 
-For $N = 100$, we need an efficient DP that tracks the multiset of segment lengths as pieces are added.
+```text
+Enumerate all permutations (or use DP on segment structures)
+For each permutation, simulate the placement process
+Track segment lengths and compute the product of hexagonal numbers
+Average over all permutations
+Return result modulo $987654319$
+```
 
 ## Correctness
 

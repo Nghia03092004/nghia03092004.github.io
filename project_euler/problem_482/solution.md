@@ -42,46 +42,17 @@ $$|IA|^2 \cdot |IB|^2 \cdot |IC|^2 = \frac{xyz \cdot (x+y)^2(y+z)^2(x+z)^2}{s^3}
 
 **Proof.** The first claim is immediate from Lemma 1. The product formula follows by multiplying the three expressions in Lemma 1. $\square$
 
-## Algorithm
+## Editorial
+We check |IA|^2 = x*(x+y)*(x+z) / s is a perfect square. We then similarly for |IB|^2 and |IC|^2. Finally, count permutations of (x, y, z).
 
-```
-function COMPUTE_S(P):
-    total = 0
-    max_s = P / 2
+## Pseudocode
 
-    for x = 1 to max_s - 2:
-        for y = x to (max_s - x) / 2:       // y >= x, canonical ordering
-            for z = y to max_s - x - y:
-                s = x + y + z
-                if 2*s > P: break
-
-                // Check |IA|^2 = x*(x+y)*(x+z) / s is a perfect square
-                num_A = x * (x+y) * (x+z)
-                if num_A mod s != 0: continue
-                if not is_perfect_square(num_A / s): continue
-
-                // Similarly for |IB|^2 and |IC|^2
-                num_B = y * (x+z) * (y+z)
-                if num_B mod s != 0: continue
-                if not is_perfect_square(num_B / s): continue
-
-                num_C = z * (x+y) * (y+z)
-                if num_C mod s != 0: continue
-                if not is_perfect_square(num_C / s): continue
-
-                IA = isqrt(num_A / s)
-                IB = isqrt(num_B / s)
-                IC = isqrt(num_C / s)
-
-                // Count permutations of (x, y, z)
-                perms = number_of_distinct_permutations(x, y, z)
-                L = 2*s + IA + IB + IC
-                // Note: different permutations may give different L values
-                // Handle each distinct (a,b,c) triangle separately
-
-                total += perms * L   // simplified; in practice enumerate permutations
-
-    return total
+```text
+Check |IA|^2 = x*(x+y)*(x+z) / s is a perfect square
+Similarly for |IB|^2 and |IC|^2
+Count permutations of (x, y, z)
+Note: different permutations may give different L values
+Handle each distinct (a,b,c) triangle separately
 ```
 
 ## Complexity Analysis

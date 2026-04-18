@@ -37,11 +37,16 @@ The number of Ramsey(3,3)-valid 2-colorings of edges within a clique of size $k$
 
 After careful analysis, the count of beautiful graphs follows a recurrence based on ordered set partitions where each block has its edges 2-colored without monochromatic triangles.
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We compute the number of triangle-free 2-colorings of $K_k$ for each block size $k$. We then use the exponential generating function approach to count ordered partitions. Finally, compute $G(n) \bmod (10^9+7)$ using polynomial/FFT techniques or matrix methods.
 
-1. Compute the number of triangle-free 2-colorings of $K_k$ for each block size $k$.
-2. Use the exponential generating function approach to count ordered partitions.
-3. Compute $G(n) \bmod (10^9+7)$ using polynomial/FFT techniques or matrix methods.
+## Pseudocode
+
+```text
+Compute the number of triangle-free 2-colorings of $K_k$ for each block size $k$
+Use the exponential generating function approach to count ordered partitions
+Compute $G(n) \bmod (10^9+7)$ using polynomial/FFT techniques or matrix methods
+```
 
 ## Correctness
 

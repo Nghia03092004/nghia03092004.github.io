@@ -38,30 +38,15 @@ Since $n \mid (R(j) - R(i))$ and $\gcd(10^i, n) = 1$ (because $\gcd(10, n) = 1$)
 
 **Proof.** Immediate from $A(n) \leq n$. $\square$
 
-## Algorithm
+## Editorial
+We compute A(n). We then check after loop: need to handle k=1 case (r=1 != 0 for n>1). Finally, actually iterate: r starts at 1 (=R(1)), check if 0, then update.
 
-```
-function find_repunit_threshold(limit):
-    for n = limit + 1, limit + 2, ...:
-        if gcd(n, 10) != 1:
-            continue
-        # Compute A(n)
-        r = 1
-        for k = 1, 2, ...:
-            if r == 0:
-                A_n = k
-                break
-            r = (10 * r + 1) mod n
-        # Check after loop: need to handle k=1 case (r=1 != 0 for n>1)
-        # Actually iterate: r starts at 1 (=R(1)), check if 0, then update
-        r = 1 mod n
-        k = 1
-        while r != 0:
-            r = (10 * r + 1) mod n
-            k += 1
-        A_n = k
-        if A_n > limit:
-            return n
+## Pseudocode
+
+```text
+Compute A(n)
+Check after loop: need to handle k=1 case (r=1 != 0 for n>1)
+Actually iterate: r starts at 1 (=R(1)), check if 0, then update
 ```
 
 ## Complexity Analysis

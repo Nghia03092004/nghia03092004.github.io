@@ -32,42 +32,16 @@ for constants $\alpha, \beta$ determined by the blackout rule applied to the qua
 
 **Proof.** When the blackout condition depends only on $d \bmod 4^k$, the number of blackout positions in each quadrant of an order-$n$ curve is determined by the number of blackout positions in an order-$(n-1)$ curve, shifted by a fixed offset modulo $4^k$. Since the four quadrants tile the index space $[0, 4^n)$ into four contiguous blocks of size $4^{n-1}$, each block's count depends on $C_{n-1}$ plus a bounded correction from the offset. The correction is constant in $n$ for $n > k$. $\square$
 
-## Algorithm
+## Editorial
+Grid blackout puzzle on Hilbert curve grids. We base: enumerate all 4^k positions for small k. We then recursive: exploit self-similarity. Finally, determine counts for each quadrant transformation.
 
-```
-function HILBERT_BLACKOUT(n, blackout_rule):
-    // Base: enumerate all 4^k positions for small k
-    if n <= THRESHOLD:
-        count = 0
-        for d = 0 to 4^n - 1:
-            (x, y) = hilbert_d2xy(n, d)
-            if not blackout_rule(d):
-                count += 1
-        return count
+## Pseudocode
 
-    // Recursive: exploit self-similarity
-    // Determine counts for each quadrant transformation
-    c_bl = HILBERT_BLACKOUT(n-1, rotate_cw(blackout_rule))
-    c_tl = HILBERT_BLACKOUT(n-1, blackout_rule)
-    c_tr = HILBERT_BLACKOUT(n-1, blackout_rule)
-    c_br = HILBERT_BLACKOUT(n-1, rotate_ccw(blackout_rule))
-    return c_bl + c_tl + c_tr + c_br
-
-function HILBERT_D2XY(n, d):
-    x = 0; y = 0
-    for s = 1 to 2^(n-1) by powers of 2:
-        rx = 1 AND (d / 2)
-        ry = 1 AND (d XOR rx)
-        // rotate quadrant
-        if ry == 0:
-            if rx == 1:
-                x = s - 1 - x
-                y = s - 1 - y
-            swap(x, y)
-        x += s * rx
-        y += s * ry
-        d = d / 4
-    return (x, y)
+```text
+Base: enumerate all 4^k positions for small k
+Recursive: exploit self-similarity
+Determine counts for each quadrant transformation
+rotate quadrant
 ```
 
 ## Complexity Analysis

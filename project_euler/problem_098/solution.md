@@ -29,10 +29,12 @@ An *anagram pair* consists of two distinct words that are permutations of the sa
 
 **Proposition 1 (Search space bound).** For word length $n$, the number of $n$-digit perfect squares is $\lfloor\sqrt{10^n - 1}\rfloor - \lceil\sqrt{10^{n-1}}\rceil + 1 = \Theta(10^{n/2})$. For the given word list with maximum length $L \le 14$, this is at most $\sim 10^7$ squares per length, and the number of anagram groups and pairs is small, making the algorithm efficient.
 
-## Algorithm
+## Editorial
+Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
 
-```
-function FIND_LARGEST_ANAGRAMIC_SQUARE(words):
+## Pseudocode
+
+```text
     groups = group words by sort(w)
     pairs = [(w1, w2) for each group with |group| >= 2, for each pair in group]
     max_len = max word length among pairs
@@ -43,13 +45,13 @@ function FIND_LARGEST_ANAGRAMIC_SQUARE(words):
 
         for each pair (w1, w2) of length n:
             p = pat(w1)
-            for each square s in sq_by_pattern[p]:
+            For each each square s in sq_by_pattern[p]:
                 phi = mapping from w1's letters to s's digits
                 s' = apply phi to w2
-                if s' has no leading zero and is_perfect_square(s'):
+                If s' has no leading zero and is_perfect_square(s') then
                     update best = max(best, s, s')
 
-    return best
+    Return best
 ```
 
 ## Complexity Analysis

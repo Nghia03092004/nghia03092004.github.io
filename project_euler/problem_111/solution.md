@@ -33,35 +33,36 @@ $$C(n, k, d) = \binom{n}{n - k} \cdot 9^{n - k} - E(n, k, d)$$
 
 *Proof.* By definition, $M(n, d) = \max\{k : \exists \text{ an } n\text{-digit prime with exactly } k \text{ copies of } d\}$. Corollary 1 gives $M(n, d) \leq n - 1$. The algorithm starts at this upper bound and descends. At each level $k$, it performs an exhaustive search over all valid candidates (Theorem 2) and applies a correct primality test (Lemma 1). Hence, the first $k$ yielding at least one prime is the maximum such $k$, which is $M(n, d)$ by definition. $\blacksquare$
 
-## Algorithm
+## Editorial
+We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function ComputeS10():
+## Pseudocode
+
+```text
     total = 0
-    for d = 0 to 9:
+    For d from 0 to 9:
         for k = 9 downto 1:
             primes_found = []
             for each subset P of {0, 1, ..., 9} with |P| = 10 - k:
-                for each assignment of digits from {0,...,9}\{d} to positions in P:
+                For each each assignment of digits from {0,...,9}\{d} to positions in P:
                     construct N with digit d at all positions not in P
-                    if leading_digit(N) != 0 and N >= 10^9 and IsPrime(N):
+                    If leading_digit(N) != 0 and N >= 10^9 and IsPrime(N) then
                         primes_found.append(N)
-            if primes_found is not empty:
+            If primes_found is not empty then
                 total += sum(primes_found)
                 break
-    return total
+    Return total
 
-function IsPrime(n):
-    // Miller-Rabin with witnesses {2, 3, 5, 7, 11, 13}
+    Miller-Rabin with witnesses {2, 3, 5, 7, 11, 13}
     write n - 1 = 2^r * d with d odd
-    for a in {2, 3, 5, 7, 11, 13}:
+    For each a in {2, 3, 5, 7, 11, 13}:
         x = a^d mod n
-        if x == 1 or x == n - 1: continue
-        for i = 1 to r - 1:
+        If x == 1 or x == n - 1 then continue
+        For i from 1 to r - 1:
             x = x^2 mod n
-            if x == n - 1: break
+            If x == n - 1 then stop this loop
         else: return false
-    return true
+    Return true
 ```
 
 ## Complexity Analysis

@@ -151,7 +151,7 @@ Each $E_k$ is verified via the recurrence $E_k = 4E_{k-1} + E_{k-2}$: e.g., $E_{
 
 *Verification via Theorem 4:* $T_{11} = (E_{12} + E_{11} - 2)/4 = (14\,930\,352 + 3\,524\,578 - 2)/4 = 18\,454\,928/4 = 4\,613\,732$. $\checkmark$ $\square$
 
-## Algorithm
+## Editorial
 
 We generate only the even Fibonacci terms, not the entire Fibonacci sequence. Starting from $E_1 = 2$ and $E_2 = 8$, we repeatedly use the recurrence $E_k = 4E_{k-1} + E_{k-2}$, add each term to a running total, and stop once the next even term exceeds the limit. This is sufficient because Theorem 1 shows that every third Fibonacci number is even, and Theorem 2 gives a recurrence that enumerates exactly those terms.
 

@@ -44,43 +44,16 @@ $$C_n = \frac{1}{n+1}\binom{2n}{n} = \frac{(2n)!}{(n+1)!\,n!} \sim \frac{\sqrt{4
 
 **Proof.** By Fermat's little theorem, $a^{p-1} \equiv 1 \pmod{p}$, so $a \cdot a^{p-2} \equiv 1$. $\square$
 
-## Algorithm
+## Editorial
+Alternative (precompute factorials). We method 1: Using ratio recurrence with modular inverses. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function CatalanSum(N, MOD):
-    // Method 1: Using ratio recurrence with modular inverses
-    C = 1         // C_0 = 1
-    S = 1         // running sum
-    for n = 0 to N-1:
-        // C_{n+1} = C_n * 2*(2n+1) * inverse(n+2) mod MOD
-        C = C * (2 * (2*n + 1)) % MOD
-        C = C * mod_inverse(n + 2, MOD) % MOD
-        S = (S + C) % MOD
-    return S
+## Pseudocode
 
-function mod_inverse(a, p):
-    return power_mod(a, p - 2, p)
-```
-
-Alternative (precompute factorials):
-
-```
-function CatalanSumFactorial(N, MOD):
-    // Precompute factorials and inverse factorials mod MOD
-    fact[0..2*N], inv_fact[0..2*N]
-    fact[0] = 1
-    for i = 1 to 2*N:
-        fact[i] = fact[i-1] * i % MOD
-    inv_fact[2*N] = power_mod(fact[2*N], MOD-2, MOD)
-    for i = 2*N-1 downto 0:
-        inv_fact[i] = inv_fact[i+1] * (i+1) % MOD
-
-    S = 0
-    for k = 0 to N:
-        // C_k = fact[2k] * inv_fact[k+1] * inv_fact[k] mod MOD
-        Ck = fact[2*k] * inv_fact[k+1] % MOD * inv_fact[k] % MOD
-        S = (S + Ck) % MOD
-    return S
+```text
+Method 1: Using ratio recurrence with modular inverses
+C_{n+1} = C_n * 2*(2n+1) * inverse(n+2) mod MOD
+Precompute factorials and inverse factorials mod MOD
+C_k = fact[2k] * inv_fact[k+1] * inv_fact[k] mod MOD
 ```
 
 ## Complexity Analysis

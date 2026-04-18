@@ -20,19 +20,17 @@ Each term $\lfloor(m+n)/p^i\rfloor - \lfloor m/p^i\rfloor - \lfloor n/p^i\rfloor
 
 **Proof.** A positive integer is squarefree iff $v_p \leq 1$ for every prime $p$. By the Lemma, $v_p\binom{n}{k} \leq 1$ automatically holds for all primes $p \geq 11$. Thus squarefreeness fails only if $v_p\binom{n}{k} \geq 2$ for some prime $p \in \{2, 3, 5, 7\}$, which is equivalent to $p^2 \mid \binom{n}{k}$ for $p \in \{2, 3, 5, 7\}$. $\square$
 
-## Algorithm
+## Editorial
+By Kummer's theorem, for n <= 50, primes >= 11 can appear at most once in any binomial coefficient. So squarefreeness reduces to checking divisibility by 4, 9, 25, and 49. We return sum(S).
 
-```
+## Pseudocode
+
+```text
 Input: N = 50
 Output: sum of distinct squarefree values in rows 0..N of Pascal's triangle
-
-1. S = empty set
-2. For n = 0 to N:
-     For k = 0 to n:
-       v = C(n, k)
-       If v not divisible by 4, 9, 25, or 49:
-         S.add(v)
-3. Return sum(S)
+S = empty set
+For n = 0 to N:
+Return sum(S)
 ```
 
 ## Complexity Analysis

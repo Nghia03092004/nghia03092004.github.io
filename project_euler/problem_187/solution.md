@@ -23,11 +23,16 @@ $$\pi\left(\left\lfloor\frac{10^8 - 1}{p}\right\rfloor\right) - \pi(p - 1)$$
 
 where $\pi(x)$ is the prime counting function.
 
-### Algorithm
+### Editorial
+Count composite integers n < 10^8 with exactly two prime factors. We use the Sieve of Eratosthenes to find all primes up to $10^8 / 2 = 5 \times 10^7$ (since the smallest prime is 2). We then compute a prefix sum array for the prime counting function. Finally, iterate over each prime $p \le 9999$, add $\pi(\lfloor(10^8 - 1)/p\rfloor) - \pi(p - 1)$ to the answer.
 
-1. Use the Sieve of Eratosthenes to find all primes up to $10^8 / 2 = 5 \times 10^7$ (since the smallest prime is 2).
-2. Compute a prefix sum array for the prime counting function.
-3. For each prime $p \le 9999$, add $\pi(\lfloor(10^8 - 1)/p\rfloor) - \pi(p - 1)$ to the answer.
+### Pseudocode
+
+```text
+Use the Sieve of Eratosthenes to find all primes up to $10^8 / 2 = 5 \times 10^7$ (since the smallest prime is 2)
+Compute a prefix sum array for the prime counting function
+For each prime $p \le 9999$, add $\pi(\lfloor(10^8 - 1)/p\rfloor) - \pi(p - 1)$ to the answer
+```
 
 ### Proof of Correctness
 

@@ -58,7 +58,7 @@ $$n = \lceil 4781.8594\ldots \rceil = 4782.$$
 - $\lfloor 4781 \cdot \log_{10}\varphi - \frac{1}{2}\log_{10}5 \rfloor = \lfloor 998.859\ldots \rfloor = 998 \implies F_{4781}$ has 999 digits.
 - $\lfloor 4782 \cdot \log_{10}\varphi - \frac{1}{2}\log_{10}5 \rfloor = \lfloor 999.068\ldots \rfloor = 999 \implies F_{4782}$ has 1000 digits. $\checkmark$
 
-## Algorithm
+## Editorial
 
 We keep both the analytical and iterative viewpoints. The closed-form method uses the logarithmic inequality derived from Binet's formula to compute the smallest index whose Fibonacci number has $D$ digits, while the iterative method advances the Fibonacci sequence until the digit threshold is reached. This is sufficient because the formula identifies the first valid index directly and the iterative scan provides a straightforward verification.
 

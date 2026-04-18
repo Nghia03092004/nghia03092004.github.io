@@ -33,31 +33,19 @@ Hence $pq - 1 \equiv -(p-1)^2 \pmod{s}$. The condition $s \mid (pq - 1)$ becomes
 
 **Proof.** By inclusion-exclusion, $n - \phi(n) = n - n\prod(1-1/p_i) = \sum_{i} n/p_i - \sum_{i<j} n/(p_i p_j) + \cdots$. The divisibility condition $(n - \phi(n) - 1) \mid (n - 1)$ imposes strong constraints, and the search terminates due to the finite bound. $\square$
 
-## Algorithm
+## Editorial
+Equivalently, C(n) = (n - phi(n) - 1)/(n - 1) is a unit fraction 1/k. Key cases: 1) n = p^2: Always works since C(p^2) = 1/(p+1). 2) n = pq (semiprime): Need (p+q-2) | (p-1)^2. 3) n = p^2*q: Need (p(q+p-1)-1) | (p^2*q - 1). 4) n = pqr: Need (pq+pr+qr-p-q-r) | (pqr-1). 5) Other forms with more prime factors or higher powers. We case 1: n = p^2 for primes p with p^2 <= bound. We then iterate over each divisor d of D. Finally, case 3: n with 3+ distinct prime factors (squarefree or not).
 
-```
-function SolveCoresilience(bound = 10^10):
-    total = 0
+## Pseudocode
 
-    # Case 1: n = p^2 for primes p with p^2 <= bound
-    for each prime p <= sqrt(bound):
-        total += p^2
-
-    # Case 2: n = pq, semiprimes
-    for each prime p <= sqrt(bound):
-        D = (p - 1)^2
-        for each divisor d of D:
-            q = d + 2 - p
-            if q > p and q is prime and p * q <= bound:
-                total += p * q
-
-    # Case 3: n with 3+ distinct prime factors (squarefree or not)
-    # Enumerate by DFS with smallest prime factors
-    # For n = p1^a1 * p2^a2 * ... with a_i >= 1:
-    #   compute n - phi(n) - 1 and check (n - phi(n) - 1) | (n - 1)
-    DFS_enumerate(bound, total)
-
-    return total
+```text
+Case 1: n = p^2 for primes p with p^2 <= bound
+Case 2: n = pq, semiprimes
+for each divisor d of D
+Case 3: n with 3+ distinct prime factors (squarefree or not)
+Enumerate by DFS with smallest prime factors
+For n = p1^a1 * p2^a2 * ... with a_i >= 1:
+compute n - phi(n) - 1 and check (n - phi(n) - 1) | (n - 1)
 ```
 
 ## Complexity Analysis

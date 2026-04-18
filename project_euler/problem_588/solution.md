@@ -46,13 +46,18 @@ Key observations:
 
 We compute $Q(n)$ by expressing $n$ in base 5 and using the multiplicative property that arises from the polynomial structure over GF(2).
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We express $10^k$ in base 5. We then use the fractal/self-similar structure of the polynomial mod 2. Finally, iterate over each base-5 digit $d$, compute the number of nonzero coefficients in $(1+x+x^2+x^3+x^4)^d \bmod 2$.
 
-1. Express $10^k$ in base 5
-2. Use the fractal/self-similar structure of the polynomial mod 2
-3. For each base-5 digit $d$, compute the number of nonzero coefficients in $(1+x+x^2+x^3+x^4)^d \bmod 2$
-4. Multiply these counts together to get $Q(10^k)$
-5. Sum over $k = 1, \ldots, 18$
+## Pseudocode
+
+```text
+Express $10^k$ in base 5
+Use the fractal/self-similar structure of the polynomial mod 2
+For each base-5 digit $d$, compute the number of nonzero coefficients in $(1+x+x^2+x^3+x^4)^d \bmod 2$
+Multiply these counts together to get $Q(10^k)$
+Sum over $k = 1, \ldots, 18$
+```
 
 ## Complexity Analysis
 

@@ -22,19 +22,21 @@ $$i^* = \arg\max_{i \in \{1,\ldots,1000\}} b_i \ln a_i.$$
 
 **Proof.** The values $v_i = b_i \ln a_i$ lie in the range $[0, 10^6 \cdot \ln(10^6)] \approx [0, 1.4 \times 10^7]$. Double-precision relative error is bounded by $\varepsilon_{\text{mach}} = 2^{-52} \approx 2.2 \times 10^{-16}$. The absolute error in each $v_i$ is at most $|v_i| \cdot 3\varepsilon_{\text{mach}} < 10^7 \cdot 10^{-15} = 10^{-8}$ (accounting for errors in $\ln$ and the multiplication). For the comparison $v_i > v_j$ to fail, we would need $|v_i - v_j| < 2 \times 10^{-8}$, which does not occur for the given dataset (the top values are well-separated). $\square$
 
-## Algorithm
+## Editorial
+Given 1000 base/exponent pairs, find which line has the greatest value. By the strict monotonicity of ln, a^b > c^d iff b*ln(a) > d*ln(c).
 
-```
-function FIND_LARGEST_EXPONENTIAL(data):
+## Pseudocode
+
+```text
     best_val = -infinity
     best_line = 0
-    for i = 1 to |data|:
+    For i from 1 to |data|:
         (a, b) = data[i]
         v = b * ln(a)
-        if v > best_val:
+        If v > best_val then
             best_val = v
             best_line = i
-    return best_line
+    Return best_line
 ```
 
 ## Complexity Analysis

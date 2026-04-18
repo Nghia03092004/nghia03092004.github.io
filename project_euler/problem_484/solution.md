@@ -69,35 +69,15 @@ $$\sum_{\substack{n \le N \\ p \mid n}} n \cdot v_p(n) = \sum_{a \ge 1} \sum_{\s
 
 The inner sum $\sum_{\substack{m \le M \\ \gcd(m,p)=1}} m$ can be computed as $\sum_{m=1}^M m - p \sum_{m=1}^{\lfloor M/p \rfloor} m$ using inclusion-exclusion.
 
-## Algorithm
+## Editorial
+The arithmetic derivative n' is defined by: p' = 1 for prime p, (ab)' = a'b + ab' (product rule), 0' = 1' = 0. For n = p1^a1 * ... * pk^ak, n' = n * sum(ai/pi). We method 1: Sieve-based (for moderate N). We then method 2: Prime-sum approach (for large N). Finally, sum of m in [1, M] with gcd(m, p) = 1.
 
-```
-function SUM_ARITHMETIC_DERIVATIVES(N):
-    // Method 1: Sieve-based (for moderate N)
-    spf[1..N] = smallest prime factor sieve
-    total = 0
-    for n = 2 to N:
-        temp = n
-        deriv = 0
-        while temp > 1:
-            p = spf[temp]
-            a = 0
-            while temp mod p == 0:
-                temp = temp / p
-                a += 1
-            deriv += a * (n / p)
-        total += deriv
-    return total
+## Pseudocode
 
-    // Method 2: Prime-sum approach (for large N)
-    total = 0
-    for each prime p <= N:
-        for a = 1 to floor(log_p(N)):
-            M = floor(N / p^a)
-            // sum of m in [1, M] with gcd(m, p) = 1
-            S = M*(M+1)/2 - p * floor(M/p) * (floor(M/p)+1) / 2
-            total += a * p^(a-1) * S
-    return total
+```text
+Method 1: Sieve-based (for moderate N)
+Method 2: Prime-sum approach (for large N)
+sum of m in [1, M] with gcd(m, p) = 1
 ```
 
 ## Complexity Analysis

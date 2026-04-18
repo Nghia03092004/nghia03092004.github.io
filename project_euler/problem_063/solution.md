@@ -48,7 +48,7 @@ $$\sum_{a=1}^{9} N(a) = 1 + 1 + 1 + 2 + 3 + 4 + 6 + 10 + 21 = 49.$$
 
 **Proof.** Sum the column $N(a)$ from Lemma 1. By Theorem 1, this enumeration is exhaustive: no $a \ge 10$ contributes, and for each $a \le 9$, every valid $n$ is counted. $\square$
 
-## Algorithm
+## Editorial
 
 The theorem reduces the search to bases $1$ through $9$, and for each such base the admissible exponents are counted directly by a logarithmic formula. The algorithm therefore does not enumerate powers. Instead, it computes the contribution of each base and adds those contributions together, with the base $1$ handled separately because it contributes exactly one valid exponent.
 

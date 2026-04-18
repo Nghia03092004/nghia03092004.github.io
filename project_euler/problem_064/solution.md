@@ -57,7 +57,7 @@ In particular, $r$ is odd if and only if the equation $x^2 - Ny^2 = -1$ has a so
 
 If $r$ is even, $(-1)^r = 1$, giving a solution to Pell's equation. If $r$ is odd, $(-1)^r = -1$, giving a solution to the negative Pell equation. The converse (that solvability of $x^2 - Ny^2 = -1$ implies odd period) follows because any solution to the negative Pell equation must appear among the convergents, and the sign pattern $(-1)^r$ at period boundaries determines the parity. $\square$
 
-## Algorithm
+## Editorial
 
 We examine each non-square $N \le 10000$ separately. For each such value, we generate the continued fraction of $\sqrt{N}$ by the standard recurrence on the complete quotient parameters $(m,d,a)$ and stop when the term $2a_0$ appears, which marks the end of one full period. If that period length is odd, we increase the count. Perfect squares are skipped immediately because they do not contribute nontrivial periodic expansions.
 

@@ -45,23 +45,25 @@ A point update $A[k] \mathrel{+}= \delta$ changes $P_j$ by $\delta$ for all $j >
 
 **Proof.** The empty subarray has sum 0, so $M_n(i) \geq 0$ always. $\square$
 
-## Algorithm
+## Editorial
+Maintain maximum subarray sum under point updates using a segment tree. S(n, l) = sum of max subarray sums after each of l updates. We suffix-update P[k+1..n] by delta.
 
-```
-function S(n, l):
+## Pseudocode
+
+```text
     A = array of n zeros
     P = prefix sum array of n+1 zeros
     build segment tree T on P[0..n]
     total = 0
-    for i = 1 to l:
+    For i from 1 to l:
         k = t[2i-2] mod n
         delta = 2 * (t[2i-1] mod n) - n + 1
         A[k] += delta
-        // suffix-update P[k+1..n] by delta
+        suffix-update P[k+1..n] by delta
         update T at positions k+1 through n by +delta
         M = T.root.max_sub
         total += max(0, M)
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

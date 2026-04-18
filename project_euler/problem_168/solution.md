@@ -35,47 +35,24 @@ Since each $a_i \in \{0, \ldots, 9\}$ and $c_i \in \{0, \ldots, 8\}$ (because $k
 
 **Proof.** As shown in Lemma 1, $r = 0$ is impossible. For each $(k, r)$, the carry recurrence starting from $c_d = 0$, $a_d = r$ generates digits $a_{d-1}, a_{d-2}, \ldots$ with carries $c_{d-1}, c_{d-2}, \ldots$. A valid $n$ of length $d$ requires returning to carry $c = 0$ with the final digit being $a_d = r$ after $d$ steps. This happens at all multiples of the fundamental cycle length. $\square$
 
-## Algorithm
+## Editorial
+(The actual implementation tracks the carry recurrence carefully and checks the cycle-closing condition at each length.). We compute next digit and carry. We then check cycle closure: need carry = 0 and new_digit produces r. Finally, i.e., k * new_digit + carry_at_this_step should close.
 
+## Pseudocode
+
+```text
+Start: digit = r, carry = 0
+Compute next digit and carry
+Check cycle closure: need carry = 0 and new_digit produces r
+i.e., k * new_digit + carry_at_this_step should close
+Actually: check if carry = 0 and the leading digit gives
+k * a_1 + c_1 = r (the rotation condition)
+Actually: need k*a_1 + c_1 = a_d = r with no further carry
+This means the cycle has closed
+but must verify the leading digit a_1 != 0
+(no leading zeros in n)
+Simpler: just check closing condition properly
 ```
-function SUM_LAST_5_DIGITS():
-    result = 0   # accumulate last 5 digits (mod 10^5)
-
-    for k = 1 to 9:
-        for r = 1 to 9:
-            # Start: digit = r, carry = 0
-            carry = 0
-            digit = r
-            digits_collected = [r]
-
-            for length = 2 to 100:  # d up to 100 digits
-                # Compute next digit and carry
-                val = k * digit + carry
-                new_digit = val mod 10
-                new_carry = val / 10   # integer division
-
-                digit = new_digit
-                carry = new_carry
-                digits_collected.prepend(new_digit)
-
-                # Check cycle closure: need carry = 0 and new_digit produces r
-                # i.e., k * new_digit + carry_at_this_step should close
-                # Actually: check if carry = 0 and the leading digit gives
-                # k * a_1 + c_1 = r (the rotation condition)
-                if carry == 0 and digit == r:
-                    # Actually: need k*a_1 + c_1 = a_d = r with no further carry
-                    # This means the cycle has closed
-                    # but must verify the leading digit a_1 != 0
-                    # (no leading zeros in n)
-                    # Simpler: just check closing condition properly
-
-                    n_last5 = last 5 digits of digits_collected (mod 10^5)
-                    result = (result + n_last5) mod 100000
-
-    return result
-```
-
-(The actual implementation tracks the carry recurrence carefully and checks the cycle-closing condition at each length.)
 
 ## Complexity Analysis
 

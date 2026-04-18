@@ -45,40 +45,15 @@ where $A = \begin{pmatrix} 10 & 1 \\ 1 & 0 \end{pmatrix}$.
 
 **Proof.** $M_1 = A^c$. Inductively, $M_k = M_{k-1}^c = (A^{c^{k-1}})^c = A^{c^k}$. The second row, first column entry of $M_k \cdot \binom{10}{1}$ gives $T(c^k)$. $\square$
 
-## Algorithm
+## Editorial
+T(n) = 10*T(n-1) + T(n-2), T(0)=1, T(1)=10 gcd(T(m), T(n)) = T(gcd(m,n)) S(L) = sum_{c=1}^L sum_{k=1}^L T(c^k) * (2L - 2k + 1) Find S(2000) mod 987898789. We extract T(c^k) from M * v. Finally, update: M = M^c mod p (so M becomes A^{c^{k+1}}).
 
-```
-function S(L, p):
-    A = [[10, 1], [1, 0]]
-    v = [10, 1]
-    answer = 0
+## Pseudocode
 
-    for c = 1 to L:
-        // Compute M_1 = A^c mod p via matrix exponentiation
-        M = matrix_pow(A, c, p)
-
-        for k = 1 to L:
-            // Extract T(c^k) from M * v
-            Tv = matrix_vec_mult(M, v, p)
-            T_ck = Tv[1]    // second component = T(c^k)
-
-            weight = (2*L - 2*k + 1) mod p
-            answer = (answer + weight * T_ck) mod p
-
-            // Update: M = M^c mod p (so M becomes A^{c^{k+1}})
-            M = matrix_pow(M, c, p)
-
-    return answer mod p
-
-function matrix_pow(M, n, p):
-    result = identity_2x2
-    base = M
-    while n > 0:
-        if n mod 2 == 1:
-            result = matrix_mult(result, base, p)
-        base = matrix_mult(base, base, p)
-        n = n / 2
-    return result
+```text
+Compute M_1 = A^c mod p via matrix exponentiation
+Extract T(c^k) from M * v
+Update: M = M^c mod p (so M becomes A^{c^{k+1}})
 ```
 
 ## Complexity Analysis

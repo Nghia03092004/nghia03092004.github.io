@@ -30,40 +30,19 @@ By induction: $\varphi^{(k)}(m) \leq m / 2^k$. When $m / 2^k < 2$, i.e., $k > \l
 
 **Proof.** Verified by standard primality testing (e.g., Miller--Rabin with sufficient witnesses, or the AKS algorithm). $\square$
 
-## Algorithm
+## Editorial
+Compute T(2, 100) mod (10^9 + 7), where T(a, n) = a^a^a^...^a (n copies of a) evaluated right-to-left (power tower / tetration). Key technique: By Euler's theorem, a^x mod m = a^(x mod phi(m)) mod m (when gcd(a,m)=1). We recursively reduce the exponent modulo the iterated totient chain: m -> phi(m) -> phi(phi(m)) -> ... -> 1 The chain from 10^9+7 has finite length, so the tower stabilizes. Results:. We base cases. We then by Lemma 1, we need T(a, n-1) mod phi(m). Finally, handle the case where exponent == 0 but actual value > 0.
 
-```
-function TowerMod(a, n, m):
-    // Base cases
-    if m == 1:
-        return 0
-    if n == 1:
-        return a mod m
+## Pseudocode
 
-    // Recursive case: T(a, n) = a^{T(a, n-1)} mod m
-    // By Lemma 1, we need T(a, n-1) mod phi(m)
-    phi_m := euler_totient(m)
-    exponent := TowerMod(a, n - 1, phi_m)
-
-    // Handle the case where exponent == 0 but actual value > 0
-    // Since a = 2 and n >= 2, T(2, n-1) >= 2, so exponent should
-    // be interpreted correctly
-    return pow(a, exponent, m)
-
-function euler_totient(m):
-    result := m
-    temp := m
-    for p from 2 while p*p <= temp:
-        if temp mod p == 0:
-            while temp mod p == 0:
-                temp := temp / p
-            result := result - result / p
-    if temp > 1:
-        result := result - result / temp
-    return result
-
-// Main call
-answer := TowerMod(2, 100, 10^9 + 7)
+```text
+Base cases
+Recursive case: T(a, n) = a^{T(a, n-1)} mod m
+By Lemma 1, we need T(a, n-1) mod phi(m)
+Handle the case where exponent == 0 but actual value > 0
+Since a = 2 and n >= 2, T(2, n-1) >= 2, so exponent should
+be interpreted correctly
+Main call
 ```
 
 ## Complexity Analysis

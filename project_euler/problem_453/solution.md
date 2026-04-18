@@ -54,21 +54,15 @@ $$\sum_T I(T) = \sum_T A(T) - \frac{1}{2}\sum_T B(T) + T_{\text{count}},$$
 
 **Proof.** Sum Pick's theorem over all non-degenerate triangles. $\square$
 
-## Algorithm
+## Editorial
+We enumerate all primitive directions (a, b) with gcd(a, |b|) = 1, a >= 0. We then iterate over each direction, compute. Finally, combine.
 
-```
-Algorithm: Compute Q(m, n) mod p
+## Pseudocode
 
-1. Enumerate all primitive directions (a, b) with gcd(a, |b|) = 1, a >= 0.
-2. For each direction, compute:
-   a. Line counts k_L for each parallel line through the grid.
-   b. Contributions to D: sum of binom(k_L, 4) + binom(k_L, 3)*(N - k_L).
-   c. Contributions to sum_T B(T) via GCD sums along each line.
-   d. Contributions to sum_T A(T) via signed-distance sums F(c)
-      using prefix sums over the linear form bx - ay.
-3. Combine:
-   Q = binom(N,4) - D + 2 * [sum_T A(T) - (1/2)*sum_T B(T) + T_count]
-   All arithmetic mod p, using Fermat inverse for division (p = 135707531 is prime).
+```text
+Enumerate all primitive directions (a, b) with gcd(a, |b|) = 1, a >= 0
+For each direction, compute:
+Combine:
 ```
 
 ## Complexity Analysis

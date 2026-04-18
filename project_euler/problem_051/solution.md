@@ -56,7 +56,7 @@ Since an 8-prime family requires $\pi(n, M) > 7$, Case 1 is impossible. $\blacks
 
 *Proof.* Among $\delta \in \{0, 1, \ldots, 9\}$, at most 2 values of $\delta$ yield composite family members (since $\pi = 8$ means exactly 2 composites). The smallest prime in the family has the smallest valid $\delta$. If $\delta \geq 3$, then there are at most 7 values of $\delta' \geq \delta$ remaining (namely $\delta, \delta+1, \ldots, 9$), but we also need exactly 8 primes total, requiring 8 values of $\delta$ yielding primes. The smallest such $\delta$ must therefore satisfy $\delta \leq 2$ so that at least 8 candidates ($\delta, \delta+1, \ldots, 9$, minus leading-zero exclusions and composites) are available. $\blacksquare$
 
-## Algorithm
+## Editorial
 
 We sieve the primes below one million and then scan the six-digit primes in increasing order. For each prime, only the repeated digits 0, 1, and 2 are considered, since the smallest member of an eight-prime family must use one of those masked values. Among the positions carrying such a digit, we enumerate masks whose sizes are divisible by 3, replace all masked positions by a common digit from 0 through 9, discard leading-zero cases, and count how many resulting numbers remain prime. The first family of size eight yields the desired smallest member.
 

@@ -46,21 +46,23 @@ Restricting to $d \leq \sqrt{1 + p^2}$ avoids double-counting, since the divisor
 
 **Proof.** The minimum occurs when $d \approx \sqrt{1 + p^2} \approx p$, giving $A \approx p \cdot 2p \cdot 2p = 4p^3$. The maximum occurs at $d = 1$, giving $A = p(1 + p)(1 + p^2 + p)$. Empirically, the 150000th Alexandrian integer is $\approx 1.88 \times 10^{15}$, and $4 \cdot 120000^3 \approx 6.9 \times 10^{15}$ exceeds this bound. $\square$
 
-## Algorithm
+## Editorial
+A = p*q*r and 1/A = 1/p + 1/q + 1/r => pq + pr + qr = 1. Key identity: (q+p)(r+p) = 1 + p^2. For p > 0, set q+p = -d, r+p = -(1+p^2)/d (negative branch). Then q = -d-p, r = -(1+p^2)/d - p, both negative. A = p*q*r = p*(d+p)*((1+p^2)/d + p) > 0. For each p >= 1 and each divisor d of 1+p^2 (d <= sqrt(1+p^2)), compute A = p*(d+p)*((1+p^2)/d + p). Collect all A, sort, find the 150000th.
 
-```
-function alexandrian_integers(target):
+## Pseudocode
+
+```text
     P_MAX = 120000
     results = empty set
 
-    for p = 1 to P_MAX:
+    For p from 1 to P_MAX:
         N = 1 + p * p
         for each divisor d of N with d <= sqrt(N):
             A = p * (d + p) * (N / d + p)
             results.add(A)
 
     sorted_list = sort(results)
-    return sorted_list[target - 1]
+    Return sorted_list[target - 1]
 ```
 
 ## Complexity Analysis

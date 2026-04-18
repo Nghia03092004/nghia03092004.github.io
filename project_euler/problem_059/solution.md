@@ -58,7 +58,7 @@ This holds provided no other plaintext character exceeds the frequency of space 
 
 *Proof.* XOR is componentwise addition in $\mathbb{F}_2^8$. Translation by $k$ is a bijection on $\mathbb{F}_2^8$ that preserves the frequency histogram: if byte $b$ appears $f(b)$ times in the plaintext, then $b \oplus k$ appears $f(b)$ times in the ciphertext. $\square$
 
-## Algorithm
+## Editorial
 
 We exploit the period-3 structure of the repeating XOR key by splitting the ciphertext into three residue classes. In each class, the most common ciphertext byte is interpreted as the encryption of a space character, which directly recovers one key byte by XOR with ASCII 32. Once the three-byte key is known, the entire ciphertext is decrypted in one pass and the plaintext byte values are summed.
 

@@ -37,28 +37,18 @@ The number of distinct profiles is finite (bounded by products of Catalan number
 
 **Proof.** An Eulerian cycle is, by definition, a single closed walk. If the profile DP produced two or more disconnected loops, the result would not be an Eulerian cycle. The connectivity information in the profile (non-crossing partition) ensures that premature closures are either forbidden during intermediate steps or properly accounted for at the final step. $\quad\square$
 
-## Algorithm
+## Editorial
+E(m,n) consists of m*n circles C(x,y) each passing through 4 lattice points. Count non-crossing Eulerian cycles L(6,10) mod 10^10. Approach: Profile DP with connectivity state tracking. We process the grid cell by cell in reading order. The "profile" is the boundary between processed and unprocessed cells. On this boundary, some edges of the Eulerian path cross. We track: 1. Which boundary positions have active strands 2. The non-crossing connectivity of these strands State representation: We encode the connectivity as a sequence of integers where equal values indicate connected strands. This is canonicalized to use the smallest possible labels in first-occurrence order. At each cell, we add 4 arcs and must choose how to route the path through the 4 vertices of the cell. The non-crossing constraint limits the choices at each vertex to Catalan-number many non-crossing matchings. We initialize: empty profile with no strands. We then process row y: incorporate circles C(0,y)..C(m-1,y). Finally, process vertices left to right: (0,y), (1,y), ..., (m,y).
 
-```
-function solve(m = 6, n = 10, mod = 10^10):
-    // Initialize: empty profile with no strands
-    states = {empty_profile: 1}
+## Pseudocode
 
-    for y = 0 to n-1:
-        // Process row y: incorporate circles C(0,y)..C(m-1,y)
-        // Process vertices left to right: (0,y), (1,y), ..., (m,y)
-        // and (0,y+1), (1,y+1), ..., (m,y+1)
-        for x = 0 to m-1:
-            new_states = {}
-            for (profile, count) in states:
-                for each valid non-crossing matching at affected vertices:
-                    new_profile = apply_transition(profile, matching)
-                    if not premature_closure(new_profile) or (y == n-1 and x == m-1):
-                        new_states[new_profile] += count mod mod
-            states = new_states
-
-    // Final: sum counts for the empty profile (single cycle completed)
-    return states[empty_profile] mod mod
+```text
+Initialize: empty profile with no strands
+Process row y: incorporate circles C(0,y)..C(m-1,y)
+Process vertices left to right: (0,y), (1,y), ..., (m,y)
+and (0,y+1), (1,y+1), ..., (m,y+1)
+for each valid non-crossing matching at affected vertices
+Final: sum counts for the empty profile (single cycle completed)
 ```
 
 ## Complexity Analysis

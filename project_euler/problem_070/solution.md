@@ -56,7 +56,7 @@ For $n = p^2$, we have $\varphi(p^2) = p(p-1)$ and $n/\varphi(n) = p/(p-1)$, whi
 
 **Proof.** By definition. $\square$
 
-## Algorithm
+## Editorial
 
 The search is restricted to semiprimes $n = pq$, because the ratio $n/\varphi(n)$ is minimized there among non-prime candidates, especially when $p$ and $q$ are large and close to $\sqrt{10^7}$. We enumerate prime pairs $(p,q)$ with $p \le q$ and $pq < 10^7$, compute $\varphi(pq) = (p-1)(q-1)$, and test whether $\varphi(pq)$ is a digit permutation of $pq$. Among all pairs passing that test, we keep the one with the smallest ratio $n/\varphi(n)$.
 

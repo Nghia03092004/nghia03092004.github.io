@@ -28,36 +28,16 @@ corrected by inclusion-exclusion to avoid double-counting, where $\mathcal{L}_n$
 
 **Proof.** The $(2, 3)$-pebble game maintains 2 pebbles per vertex and processes edges one at a time. An edge $(u, v)$ is independent iff 4 pebbles can be gathered at $\{u, v\}$ via pebble reassignment (a reachability search in the directed pebble graph). This runs in $O(n^2)$ per edge, $O(n^2 \cdot |E|)$ total. The correctness follows from the matroidal structure of the $(2,3)$-sparsity matroid. $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We enumerate all graphs on n labeled vertices. We then iterate over each subset E of edges. Finally, use pebble game to check if G contains a Laman subgraph.
 
-```
-function count_rigid_graphs(n):
-    // Enumerate all graphs on n labeled vertices
-    edges = all possible edges (n choose 2)
-    count = 0
+## Pseudocode
 
-    for each subset E of edges:
-        G = graph with edge set E
-        if is_rigid(G, n):
-            count += 1
-
-    return count
-
-function is_rigid(G, n):
-    if |E(G)| < 2n - 3:
-        return false
-    // Use pebble game to check if G contains a Laman subgraph
-    return pebble_game_2_3(G)
-
-function pebble_game_2_3(G):
-    // Initialize 2 pebbles per vertex
-    pebbles[v] = 2 for all v
-    independent_edges = 0
-    for each edge (u, v) in E(G):
-        if can_gather_4_pebbles(u, v):
-            accept edge, update pebble assignment
-            independent_edges += 1
-    return independent_edges >= 2n - 3
+```text
+Enumerate all graphs on n labeled vertices
+for each subset E of edges
+Use pebble game to check if G contains a Laman subgraph
+Initialize 2 pebbles per vertex
 ```
 
 ## Complexity Analysis

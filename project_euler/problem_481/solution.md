@@ -69,17 +69,19 @@ After the elimination, the game transitions to state $(\mathcal{S} \setminus \{t
 
 The base case $E(\{c\}, \cdot) = 0$ holds because no more dishes are cooked once a single chef remains. $\square$
 
-## Algorithm
+## Editorial
+Chef k has skill S(k) = F_k / F_{n+1} (Fibonacci ratio). Chefs eliminate each other optimally. Compute E(14), the expected number of dishes cooked. Method: bitmask DP over game states (remaining chefs, start index). For each state, compute winning probabilities via Theorem 2 (backward induction on optimal elimination) and expected dishes via Theorem 3 (geometric round structure + recursive decomposition).
 
-```
-function COMPUTE_E(n):
+## Pseudocode
+
+```text
     Compute Fibonacci numbers F[1..n+1]
     S[k] = F[k] / F[n+1] for k = 1..n
 
     States are (bitmask of remaining chefs, start index within the ordered set)
 
-    for each state (mask, start_idx) in order of increasing popcount(mask):
-        if popcount(mask) == 1:
+    For each each state (mask, start_idx) in order of increasing popcount(mask):
+        If popcount(mask) == 1 then
             W[mask][start_idx][lone_chef] = 1.0
             E[mask][start_idx] = 0.0
             continue
@@ -95,7 +97,7 @@ function COMPUTE_E(n):
         Compute W[mask][start_idx][k] for all k via weighted sum
         Compute E[mask][start_idx] via Theorem 3
 
-    return E[full_mask][0]
+    Return E[full_mask][0]
 ```
 
 ## Complexity Analysis

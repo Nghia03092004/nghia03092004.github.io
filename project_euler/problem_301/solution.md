@@ -40,14 +40,16 @@ Hence $a_k = a_{k-1} + a_{k-2}$ for $k \ge 3$. The base cases are $a_1 = 2$ (str
 
 *Proof.* By the Corollary, the qualifying integers in $\{0, 1, \ldots, 2^{30} - 1\}$ number $F_{32}$. Excluding $n = 0$ yields $F_{32} - 1$ qualifying positive integers below $2^{30}$. The integer $n = 2^{30}$ has binary representation $1\underbrace{00\cdots0}_{30}$, which trivially has no two consecutive 1-bits. Including it yields $F_{32} - 1 + 1 = F_{32} = 2178309$. $\square$
 
-## Algorithm
+## Editorial
+The position (n, 2n, 3n) is a P-position iff n XOR 2n XOR 3n = 0, which holds iff n has no two consecutive 1-bits in binary. The count of such n in [1, 2^30] equals the Fibonacci number F(32).
 
-```
-function solve():
-    a <- 1; b <- 1                 // F(1) = F(2) = 1
-    for i = 3 to 32:
-        (a, b) <- (b, a + b)      // advance Fibonacci pair
-    return b                        // F(32)
+## Pseudocode
+
+```text
+    Set a <- 1; b <- 1 // F(1) = F(2) = 1
+    For i from 3 to 32:
+        (a, b) <- (b, a + b) // advance Fibonacci pair
+    Return b // F(32)
 ```
 
 ## Complexity Analysis

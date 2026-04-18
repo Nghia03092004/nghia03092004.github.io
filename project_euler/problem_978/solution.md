@@ -35,31 +35,15 @@ $$|B_n| \sim \frac{2 \cdot n!}{(2\pi)^n}$$
 
 **Proof.** From $B_n = (-1)^{n/2+1} \frac{2 \cdot n!}{(2\pi)^n} \zeta(n)$ and $\zeta(n) \to 1$ as $n \to \infty$. $\square$
 
-## Algorithm
+## Editorial
+Compute sum_{n=0}^{200} (|p_n| + q_n) mod (10^9 + 7), where B_n = p_n / q_n is the n-th Bernoulli number in lowest terms. Bernoulli numbers are defined by the exponential generating function: t / (e^t - 1) = sum B_n * t^n / n! Key properties: denom(B_{2n}) = product of primes p where (p-1) | 2n. We compute B_0, B_1, ..., B_N using exact rational arithmetic. We then reduce B[n] to lowest terms. Finally, sum |p_n| + q_n modulo MOD.
 
-```
-function BernoulliModularSum(N, MOD):
-    // Step 1: Compute B_0, B_1, ..., B_N using exact rational arithmetic
-    B = array of rationals, size N+1
-    B[0] = 1
+## Pseudocode
 
-    for n = 1 to N:
-        if n >= 3 and n is odd:
-            B[n] = 0
-            continue
-        s = 0
-        for k = 0 to n-1:
-            s = s + binomial(n+1, k) * B[k]
-        B[n] = -s / (n+1)
-        // Reduce B[n] to lowest terms
-
-    // Step 2: Sum |p_n| + q_n modulo MOD
-    total = 0
-    for n = 0 to N:
-        (p, q) = B[n] as fraction in lowest terms with q > 0
-        total = (total + (|p| mod MOD) + (q mod MOD)) mod MOD
-
-    return total
+```text
+Compute B_0, B_1, ..., B_N using exact rational arithmetic
+Reduce B[n] to lowest terms
+Sum |p_n| + q_n modulo MOD
 ```
 
 ## Complexity Analysis

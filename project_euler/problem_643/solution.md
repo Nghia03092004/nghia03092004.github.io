@@ -38,30 +38,16 @@ $$T(N) = \frac{6}{\pi^2} N \ln N + C N + O(\sqrt{N} \ln N)$$
 
 **Proof.** From Lemma 1, apply the hyperbola method. The main term comes from $\sum_{d \le N} \mu^2(d)/d \sim (6/\pi^2) \ln N$ combined with partial summation. $\square$
 
-## Algorithm
+## Editorial
+We sieve mu(k) for k <= sqrt(N). Finally, group by q = floor(N/d); there are O(sqrt(N)) distinct values of q.
 
-```
-function compute_T(N):
-    // Step 1: Sieve mu(k) for k <= sqrt(N)
-    sieve Mobius function mu[1..sqrt(N)]
+## Pseudocode
 
-    // Step 2: Precompute Q(M) = sum_{d<=M} mu^2(d) using Theorem 2
-    function Q(M):
-        s = 0
-        for k = 1 to isqrt(M):
-            s += mu[k] * floor(M / k^2)
-        return s
-
-    // Step 3: Hyperbola method on sum_{d=1}^{N} mu^2(d) * floor(N/d)
-    //   Group by q = floor(N/d); there are O(sqrt(N)) distinct values of q.
-    T = 0
-    d = 1
-    while d <= N:
-        q = floor(N / d)
-        d_max = floor(N / q)          // largest d' with floor(N/d') = q
-        T += q * (Q(d_max) - Q(d - 1))
-        d = d_max + 1
-    return T
+```text
+Sieve mu(k) for k <= sqrt(N)
+Precompute Q(M) = sum_{d<=M} mu^2(d) using Theorem 2
+Hyperbola method on sum_{d=1}^{N} mu^2(d) * floor(N/d)
+Group by q = floor(N/d); there are O(sqrt(N)) distinct values of q
 ```
 
 ## Complexity Analysis

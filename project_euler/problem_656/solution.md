@@ -37,12 +37,17 @@ We use the standard algorithm:
 
 We examine the sequence of partial quotients and identify indices $n$ where a palindromic pattern occurs within the continued fraction expansion. The function $H_g$ sums the first $g$ such indices.
 
-## Algorithm
+## Editorial
+We iterate over each non-square $\beta \leq 1000$, compute the continued fraction expansion of $\sqrt{\beta}$. We then generate partial quotients and track palindromic subsequences. Finally, sum the first 100 indices where palindromic patterns occur.
 
-1. For each non-square $\beta \leq 1000$, compute the continued fraction expansion of $\sqrt{\beta}$.
-2. Generate partial quotients and track palindromic subsequences.
-3. Sum the first 100 indices where palindromic patterns occur.
-4. Sum over all $\beta \in T$ and output the last 15 digits.
+## Pseudocode
+
+```text
+For each non-square $\beta \leq 1000$, compute the continued fraction expansion of $\sqrt{\beta}$
+Generate partial quotients and track palindromic subsequences
+Sum the first 100 indices where palindromic patterns occur
+Sum over all $\beta \in T$ and output the last 15 digits
+```
 
 ## Correctness
 

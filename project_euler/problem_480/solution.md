@@ -44,12 +44,17 @@ where n_i is the count of each distinct letter.
 
 For a word of length m, and considering all valid rearrangements of remaining letters, the count involves summing over all lengths from the current position to 15.
 
-## Algorithm
+## Editorial
+We parse the source phrase to get letter frequencies. We then implement P(w): for each position in word w, count words with smaller letters at that position. Finally, compute the target position: P(legionary) + P(calorimeters) - P(annihilate) + P(orchestrated) - P(fluttering).
 
-1. Parse the source phrase to get letter frequencies.
-2. Implement P(w): for each position in word w, count words with smaller letters at that position.
-3. Compute the target position: P(legionary) + P(calorimeters) - P(annihilate) + P(orchestrated) - P(fluttering).
-4. Implement W(p): binary-search-like reconstruction of the word at position p.
+## Pseudocode
+
+```text
+Parse the source phrase to get letter frequencies
+Implement P(w): for each position in word w, count words with smaller letters at that position
+Compute the target position: P(legionary) + P(calorimeters) - P(annihilate) + P(orchestrated) - P(fluttering)
+Implement W(p): binary-search-like reconstruction of the word at position p
+```
 
 ## Correctness
 

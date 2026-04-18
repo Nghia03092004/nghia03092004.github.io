@@ -22,30 +22,15 @@ Given an $N \times N$ grid of integer lattice points $\{0, 1, \ldots, N\}^2$, fi
 
 **Proof.** By Lemma 1, all three vertices of an optimal triangle lie on the boundary. Any interior point can be projected to a boundary point that increases or maintains the perimeter. $\square$
 
-## Algorithm
+## Editorial
+Optimization: fix the longest edge (near diagonal), then for each third vertex, compute the perimeter. Use pruning to skip clearly suboptimal triples. We collect all boundary lattice points of [0,N]^2. Finally, enumerate all triples of boundary points.
 
+## Pseudocode
+
+```text
+Collect all boundary lattice points of [0,N]^2
+Enumerate all triples of boundary points
 ```
-function f(N):
-    # Collect all boundary lattice points of [0,N]^2
-    boundary = []
-    for x in 0..N:
-        boundary.add((x, 0), (x, N))
-    for y in 1..N-1:
-        boundary.add((0, y), (N, y))
-
-    max_perimeter = 0
-    # Enumerate all triples of boundary points
-    for i in 0..len(boundary)-1:
-        for j in i+1..len(boundary)-1:
-            dij = dist(boundary[i], boundary[j])
-            for k in j+1..len(boundary)-1:
-                P = dij + dist(boundary[j], boundary[k]) + dist(boundary[i], boundary[k])
-                max_perimeter = max(max_perimeter, P)
-
-    return round(max_perimeter, 4)
-```
-
-Optimization: fix the longest edge (near diagonal), then for each third vertex, compute the perimeter. Use pruning to skip clearly suboptimal triples.
 
 ## Complexity Analysis
 

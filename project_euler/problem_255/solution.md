@@ -31,43 +31,18 @@ The fixed-point condition $x^* = \lfloor (x^* + \lceil n/x^* \rceil)/2 \rfloor$ 
 
 **Proof.** By definition of ceiling division, $\lceil n/x_k \rceil = q$ iff $(q-1)x_k < n \le qx_k$, i.e., $n \in [(q-1)x_k + 1, qx_k]$. Since $x_{k+1}$ depends on $n$ only through $q$, all $n$ in this interval share the same $x_{k+1}$. $\square$
 
-## Algorithm
+## Editorial
+Average number of iterations of the rounded square root algorithm for n from 10^13 to 10^14 - 1. All numbers have 14 digits (even), so x0 = 7 * 10^6 = 7000000. Iteration: x_{k+1} = floor((x_k + ceil(n/x_k)) / 2) Stop when x_{k+1} == x_k. Interval-based approach: track (x_current, n_lo, n_hi) and split by ceil(n/x) values at each step. We use a map: x_value -> count_of_n_values. We then initially, all n in [N_lo, N_hi] start with x = x0. Finally, converged: these n values took `iteration` iterations.
 
-```
-function AverageIterations():
-    N_lo = 10^13
-    N_hi = 10^14 - 1
-    total_n = N_hi - N_lo + 1
-    x0 = 7000000
+## Pseudocode
 
-    // Use a map: x_value -> count_of_n_values
-    // Initially, all n in [N_lo, N_hi] start with x = x0
-    current_groups = {x0: (N_lo, N_hi)}   // map x -> interval of n values
-    total_iterations = 0
-    iteration = 0
-
-    while current_groups is not empty:
-        iteration += 1
-        next_groups = {}
-        for each (x, intervals) in current_groups:
-            // For each distinct q = ceil(n/x), compute x_next
-            q_lo = ceil(N_lo_of_interval / x)
-            q_hi = ceil(N_hi_of_interval / x)
-            for q = q_lo to q_hi:
-                n_lo_q = max((q-1)*x + 1, interval_lo)
-                n_hi_q = min(q*x, interval_hi)
-                if n_lo_q > n_hi_q: continue
-                count = n_hi_q - n_lo_q + 1
-                x_next = floor((x + q) / 2)
-                if x_next == x:
-                    // Converged: these n values took `iteration` iterations
-                    total_iterations += iteration * count
-                else:
-                    // Continue iterating: group by x_next
-                    Add (x_next, n_lo_q, n_hi_q) to next_groups
-        current_groups = next_groups
-
-    return total_iterations / total_n
+```text
+Use a map: x_value -> count_of_n_values
+Initially, all n in [N_lo, N_hi] start with x = x0
+For each distinct q = ceil(n/x), compute x_next
+Converged: these n values took `iteration` iterations
+else
+Continue iterating: group by x_next
 ```
 
 ## Complexity Analysis

@@ -32,25 +32,26 @@ The error $|\varepsilon_n|$ satisfies $|\varepsilon_n| < |\psi|^n/(\sqrt{5}\ln 1
 
 **Definition.** A positive integer $N$ with exactly 9 digits is *1--9 pandigital* if its decimal representation is a permutation of $\{1, 2, 3, 4, 5, 6, 7, 8, 9\}$.
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function SOLVE():
-    MOD <- 10^9
-    log_phi <- log10((1 + sqrt(5)) / 2)
-    log_s5  <- 0.5 * log10(5)
-    a, b <- 1, 1                          // F_1, F_2 mod MOD
+## Pseudocode
+
+```text
+    Set MOD <- 10^9
+    Set log_phi <- log10((1 + sqrt(5)) / 2)
+    Set log_s5 <- 0.5 * log10(5)
+    Set a, b <- 1, 1 // F_1, F_2 mod MOD
 
     for k = 3, 4, 5, ...:
-        a, b <- b, (a + b) mod MOD
-        if not IS_PANDIGITAL(b): continue  // filter on last 9 digits
-        L <- k * log_phi - log_s5
-        f <- L - floor(L)
-        first9 <- floor(10^(f + 8))
+        Set a, b <- b, (a + b) mod MOD
+        if not IS_PANDIGITAL(b): continue // filter on last 9 digits
+        Set L <- k * log_phi - log_s5
+        Set f <- L - floor(L)
+        Set first9 <- floor(10^(f + 8))
         if IS_PANDIGITAL(first9): return k
 
-function IS_PANDIGITAL(x):
-    return (x has exactly 9 digits) and (digit set = {1,...,9})
+    Return (x has exactly 9 digits) and (digit set = {1,...,9})
 ```
 
 ## Complexity Analysis

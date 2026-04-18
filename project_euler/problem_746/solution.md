@@ -30,31 +30,21 @@ $$M(n) = \sum_{S \subseteq [n]} (-1)^{|S|} N(S)$$
 
 **Proof.** The generating function for $M(n)$ is rational (as $M(n)$ counts configurations of a finite-state system with linearly growing input). The denominator of this rational function has degree $r$, yielding a linear recurrence of order $r$. The Berlekamp-Massey algorithm recovers the minimal polynomial from $2r$ consecutive values. Once the recurrence is known, the $n$-th term modulo $p$ is computable in $O(r \log r \log n)$ time via Kitamasa's method (polynomial modular exponentiation). $\square$
 
-## Algorithm
+## Editorial
+$n$ families of 4 (father, mother, son, daughter) seated at a circular table with $4n$ seats, alternating genders. $M(n)$ counts arrangements where no family sits together consecutively. $S(n) = \sum_. We compute M(k) mod p for k = 2, 3, ..., up to 2*r_max. We then using direct enumeration or the transfer matrix for small k. Finally, find minimal linear recurrence via Berlekamp-Massey.
 
-```
-function S(N, p):
-    // Step 1: Compute M(k) mod p for k = 2, 3, ..., up to 2*r_max
-    // using direct enumeration or the transfer matrix for small k
-    values = []
-    for k = 2 to 2 * r_max:
-        values.append(compute_M(k, p))
+## Pseudocode
 
-    // Step 2: Find minimal linear recurrence via Berlekamp-Massey
-    recurrence = berlekamp_massey(values, p)
-    r = len(recurrence)
-
-    // Step 3: Extend to compute M(k) for k = 2..N using the recurrence
-    // and accumulate S(N) = sum of M(k)
-    // Use Kitamasa's method for each term, or note that the prefix
-    // sum also satisfies a linear recurrence of order r+1
-
-    // The prefix sum S(n) = S(n-1) + M(n) satisfies a recurrence
-    // derived from M's recurrence augmented by one order
-    sum_recurrence = derive_prefix_sum_recurrence(recurrence)
-
-    result = evaluate_recurrence_at(sum_recurrence, N, initial_values, p)
-    return result
+```text
+Compute M(k) mod p for k = 2, 3, ..., up to 2*r_max
+using direct enumeration or the transfer matrix for small k
+Find minimal linear recurrence via Berlekamp-Massey
+Extend to compute M(k) for k = 2..N using the recurrence
+and accumulate S(N) = sum of M(k)
+Use Kitamasa's method for each term, or note that the prefix
+sum also satisfies a linear recurrence of order r+1
+The prefix sum S(n) = S(n-1) + M(n) satisfies a recurrence
+derived from M's recurrence augmented by one order
 ```
 
 ## Complexity Analysis

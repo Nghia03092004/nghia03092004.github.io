@@ -47,35 +47,18 @@ where $C(N, p)$ counts composites $n \in [2, N]$ with $\mathrm{smpf}(n) = p$. Th
 
 *Proof.* Each integer $n \in [2, N]$ is either prime or composite. If $n$ is prime, $\mathrm{smpf}(n) = n$, contributing $n$ to $S(N)$; the sum of all such contributions is $S_1(N)$. If $n$ is composite with $\mathrm{smpf}(n) = p$, then $p^2 \le n \le N$ (since $n$ has at least two prime factors, both $\ge p$), so $p \le \sqrt{N}$. Writing $n = pm$ with $\mathrm{smpf}(m) \ge p$ and $m \ge p$, the contribution is $p$, and summing over all such $n$ gives $p \cdot C(N, p)$. The count $C(N, p)$ is computed from the post-sieve arrays by noting that $m$ ranges over integers in $[p, \lfloor N/p \rfloor]$ with $\mathrm{smpf}(m) \ge p$. This recursive structure terminates because $\lfloor N/p \rfloor < N$, reducing the problem at each level. $\square$
 
-## Algorithm
+## Editorial
+Let smpf(n) = smallest prime factor of n. Compute S(N) = sum_{n=2}^{N} smpf(n) mod 10^9. Uses the Lucy DP (prime-counting sieve) combined with recursive enumeration of composite contributions by smallest prime factor. We collect distinct floor quotients. We then initialise Lucy DP arrays. Finally, iterate over v in V.
 
-```
-function SMPF_SUM(N, MOD):
-    // Step 1: Collect distinct floor quotients
-    V = {floor(N/i) : 1 <= i <= N}, stored sorted
+## Pseudocode
 
-    // Step 2: Initialise Lucy DP arrays
-    for v in V:
-        S0[v] = v - 1
-        S1[v] = v*(v+1)/2 - 1
-
-    // Step 3: Sieve phase
-    for each prime p (ascending) with p*p <= N:
-        pc = S0[p-1]   // = pi(p-1), frozen before this step
-        ps = S1[p-1]
-        for v in V (descending) where v >= p*p:
-            cnt = S0[floor(v/p)] - pc
-            S0[v] -= cnt
-            S1[v] -= p * cnt
-
-    // Step 4: Accumulate smpf sum via recursive enumeration
-    // of composites by their smallest prime factor
-    answer = S1[N]
-    for each prime p with p*p <= N:
-        add composite contributions with smpf = p
-        using the sieved S0, S1 arrays
-
-    return answer mod MOD
+```text
+Collect distinct floor quotients
+Initialise Lucy DP arrays
+for v in V
+Sieve phase
+Accumulate smpf sum via recursive enumeration
+of composites by their smallest prime factor
 ```
 
 ## Complexity Analysis

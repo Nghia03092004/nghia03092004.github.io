@@ -28,22 +28,24 @@ $$\mathrm{dp}'[j + c] \mathrel{+}= \mathrm{dp}[j] \cdot \binom{L-j}{c}, \qquad c
 *Proof.* By induction on the number of digits processed. When digit $i$ is placed in $c$ of the $L - j$ remaining positions, there are $\binom{L-j}{c}$ ways to choose which positions receive digit $i$. The multiplication principle applied across all 10 digits yields $\mathrm{dp}[L] = \sum_{\mathbf{c}} \frac{L!}{\prod c_i!}$ summed over all valid frequency vectors $\mathbf{c}$ with $\sum c_i = L$ and $c_i \leq m_i$. This follows because the telescoping product of binomial coefficients satisfies
 $$\prod_{i=0}^{9} \binom{L - \sum_{j<i} c_j}{c_i} = \frac{L!}{\prod_{i=0}^{9} c_i!}. \quad \square$$
 
-## Algorithm
+## Editorial
+How many 18-digit numbers n (no leading zero) have each digit appearing at most three times? Method: Sequential digit DP using binomial coefficients.
 
-```
-function count_strings(L, max_freq[0..9]):
-    dp[0..L] = 0;  dp[0] = 1
-    for i = 0 to 9:
+## Pseudocode
+
+```text
+    dp[0..L] = 0; dp[0] = 1
+    For i from 0 to 9:
         dp'[0..L] = 0
-        for j = 0 to L:
-            if dp[j] == 0: continue
-            for c = 0 to max_freq[i]:
-                if j + c > L: break
+        For j from 0 to L:
+            If dp[j] == 0 then continue
+            For c from 0 to max_freq[i]:
+                If j + c > L then stop this loop
                 dp'[j + c] += dp[j] * C(L - j, c)
         dp = dp'
-    return dp[L]
+    Return dp[L]
 
-T  = count_strings(18, [3,3,3,3,3,3,3,3,3,3])
+T = count_strings(18, [3,3,3,3,3,3,3,3,3,3])
 T0 = count_strings(17, [2,3,3,3,3,3,3,3,3,3])
 answer = T - T0
 ```

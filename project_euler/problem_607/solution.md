@@ -33,30 +33,15 @@ $$T^* = \min_{y_1, \ldots, y_6} \sum_{i=0}^{6} \frac{\sqrt{(\Delta x_i)^2 + (y_{
 
 **Proof.** The function $f(y_i, y_{i+1}) = \sqrt{c^2 + (y_{i+1} - y_i)^2}/v_i$ is convex in $(y_i, y_{i+1})$ since it is a positive scaling of a Euclidean norm (which is convex). The sum of convex functions is convex. $\square$
 
-## Algorithm
+## Editorial
+Minimize travel time through 7 regions with different speeds. Uses Snell's law analogy and scipy optimization. The marsh runs SW-NE at 45 degrees. We parameterize by the height (y-coordinate) where the path crosses each marsh boundary. We rotated coordinates. We then objective function. Finally, minimize using gradient-based method (e.g., L-BFGS).
 
-```
-function solve():
-    // Rotated coordinates
-    s = 1 / sqrt(2)
-    x = [-50*s, -25*s, -15*s, -5*s, 5*s, 15*s, 25*s, 50*s]
-    v = [10, 9, 8, 7, 6, 5, 10]
-    y_start = -50 * s
-    y_end = 50 * s
+## Pseudocode
 
-    // Objective function
-    function T(y1, ..., y6):
-        y = [y_start, y1, y2, y3, y4, y5, y6, y_end]
-        total = 0
-        for i = 0 to 6:
-            dx = x[i+1] - x[i]
-            dy = y[i+1] - y[i]
-            total += sqrt(dx^2 + dy^2) / v[i]
-        return total
-
-    // Minimize using gradient-based method (e.g., L-BFGS)
-    y_opt = minimize(T, initial_guess = [linear interpolation])
-    return T(y_opt)
+```text
+Rotated coordinates
+Objective function
+Minimize using gradient-based method (e.g., L-BFGS)
 ```
 
 ## Complexity Analysis

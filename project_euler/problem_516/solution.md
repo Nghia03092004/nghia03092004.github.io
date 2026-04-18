@@ -33,44 +33,20 @@ Thus every prime $q > 5$ dividing $n$ appears to the first power and satisfies $
 
 **Proof.** Each Hamming prime $p$ corresponds to a unique Hamming number $p - 1$, so the count is bounded by the number of Hamming numbers. $\square$
 
-## Algorithm
+## Editorial
+We generate all Hamming numbers up to L. We then find Hamming primes. Finally, iterate over h in hamming. We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
 
-```
-function S(L):
-    // Step 1: Generate all Hamming numbers up to L
-    hamming := []
-    for a := 0 while 2^a <= L:
-        for b := 0 while 2^a * 3^b <= L:
-            for c := 0 while 2^a * 3^b * 5^c <= L:
-                hamming.append(2^a * 3^b * 5^c)
-    sort(hamming)
+## Pseudocode
 
-    // Step 2: Find Hamming primes
-    hamming_primes := []
-    for h in hamming:
-        if is_prime(h + 1) and h + 1 > 5:
-            hamming_primes.append(h + 1)
-    sort(hamming_primes)
-
-    // Step 3: Enumerate valid n via DFS over subsets of Hamming primes
-    total := 0
-    mod := 2^32
-
-    function dfs(idx, product):
-        // Multiply product by each Hamming number h with product * h <= L
-        // and add product * h to total
-        for h in hamming:
-            if product * h > L: break
-            total := (total + product * h) mod mod
-
-        // Extend product by including more Hamming primes
-        for i := idx to len(hamming_primes) - 1:
-            p := hamming_primes[i]
-            if product * p > L: break
-            dfs(i + 1, product * p)
-
-    dfs(0, 1)
-    return total
+```text
+Generate all Hamming numbers up to L
+Find Hamming primes
+for h in hamming
+Enumerate valid n via DFS over subsets of Hamming primes
+Multiply product by each Hamming number h with product * h <= L
+and add product * h to total
+for h in hamming
+Extend product by including more Hamming primes
 ```
 
 ## Complexity Analysis

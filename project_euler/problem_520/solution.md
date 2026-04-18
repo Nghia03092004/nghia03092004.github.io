@@ -40,41 +40,23 @@ Each integer $m \in [0, N]$ corresponds to exactly one path through the DP. The 
 
 **Proof.** Since $10^n$ itself is not a simber (digit 1 appears once), $Q(n)$ counts simbers in $[1, 10^n - 1]$, which is the union of simbers with $\ell$ digits for $\ell = 1, \ldots, n$. For a fixed digit length, there is no upper-bound constraint (all $\ell$-digit numbers are $< 10^n$), so the tight constraint is trivially released after the first digit, and we can use the combinatorial formula directly. $\square$
 
-## Algorithm
+## Editorial
+A simber is a number where every digit appears an even number of times. Count simbers up to 10^n using digit DP with parity bitmask. We count simbers in [1, 10^n - 1]. We then count L-digit numbers with all-even digit parities. Finally, such that the parity mask becomes 0.
 
-```
-function Q(n):
-    // Count simbers in [1, 10^n - 1]
-    // For each digit length L = 1, ..., n:
-    //   Count L-digit numbers with all-even digit parities
+## Pseudocode
 
-    // dp[mask] = number of ways to fill remaining positions
-    //            such that the parity mask becomes 0
-    // Process position by position
-
-    total := 0
-    for L := 1 to n:
-        // Count L-digit simbers
-        // Position 0: digit d1 in {1, ..., 9}
-        // Positions 1..L-1: digit in {0, ..., 9}
-
-        // DP over positions, tracking mask
-        prev := array of size 1024, initialized to 0
-        // After choosing d1:
-        for d1 := 1 to 9:
-            prev[1 << d1] += 1
-
-        for pos := 1 to L - 1:
-            curr := array of size 1024, initialized to 0
-            for mask := 0 to 1023:
-                if prev[mask] == 0: continue
-                for d := 0 to 9:
-                    curr[mask XOR (1 << d)] += prev[mask]
-            prev := curr
-
-        total += prev[0]   // mask = 0 means all digits even
-
-    return total
+```text
+Count simbers in [1, 10^n - 1]
+For each digit length L = 1, ..., n:
+Count L-digit numbers with all-even digit parities
+dp[mask] = number of ways to fill remaining positions
+such that the parity mask becomes 0
+Process position by position
+Count L-digit simbers
+Position 0: digit d1 in {1, ..., 9}
+Positions 1..L-1: digit in {0, ..., 9}
+DP over positions, tracking mask
+After choosing d1:
 ```
 
 ## Complexity Analysis

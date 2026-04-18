@@ -48,49 +48,19 @@ $$\Sigma(h, s) = \sum_{d=0}^{9} \bigl[10 \cdot \Sigma(h-1, s-d) + d \cdot C(h-1,
 
 **Proof.** The last digit $d$ of an $h$-digit string contributes $d$ to the digit sum and $d$ to the numeric value. Removing the last digit gives an $(h-1)$-digit string with digit sum $s - d$ and value $v$. The original string has value $10v + d$. Summing: $\Sigma(h, s) = \sum_d \sum_v (10v + d) = \sum_d [10 \cdot \Sigma(h-1, s-d) + d \cdot C(h-1, s-d)]$. The count recurrence is analogous. $\square$
 
-## Algorithm
+## Editorial
+Sum of all balanced numbers below 10^47, mod 3^15 = 14348907. A k-digit number is balanced if the digit sum of the first floor(k/2) digits equals the digit sum of the last floor(k/2) digits. For odd k, the middle digit is ignored. We compute C(h, s) and Sigma(h, s) via DP. We then also compute C(h-1, s) and Sigma(h-1, s). Finally, we build the tables C[0..h][0..max_s] and Sigma[0..h][0..max_s].
 
-```
-function SolveProblem217():
-    MOD = 3^15 = 14348907
-    total = 0
+## Pseudocode
 
-    // 1-digit balanced numbers: 1+2+...+9 = 45
-    total += 45
-
-    for k = 2 to 47:
-        h = floor(k / 2)
-        max_s = 9 * h
-
-        // Compute C(h, s) and Sigma(h, s) via DP
-        // Also compute C(h-1, s) and Sigma(h-1, s)
-
-        // DP: build tables C[0..h][0..max_s], Sigma[0..h][0..max_s]
-        C[0][0] = 1, Sigma[0][0] = 0
-        for i = 1 to h:
-            for s = 0 to 9*i:
-                C[i][s] = sum over d=0..9 of C[i-1][s-d]  (mod MOD)
-                Sigma[i][s] = sum over d=0..9 of (10*Sigma[i-1][s-d] + d*C[i-1][s-d])  (mod MOD)
-
-        // Compute left-half tables (no leading zeros)
-        for s = 0 to max_s:
-            C_L[s] = (C[h][s] - C[h-1][s]) mod MOD
-            Sigma_L[s] = (Sigma[h][s] - Sigma[h-1][s]) mod MOD
-
-        // Accumulate sum for this digit length
-        if k is even:
-            for s = 0 to max_s:
-                total += Sigma_L[s] * pow(10, h, MOD) * C[h][s]
-                total += C_L[s] * Sigma[h][s]
-                total %= MOD
-        else:  // k = 2h+1
-            for s = 0 to max_s:
-                total += 10 * Sigma_L[s] * pow(10, h+1, MOD) * C[h][s]
-                total += 45 * pow(10, h, MOD) * C_L[s] * C[h][s]
-                total += 10 * C_L[s] * Sigma[h][s]
-                total %= MOD
-
-    return total mod MOD
+```text
+1-digit balanced numbers: 1+2+...+9 = 45
+Compute C(h, s) and Sigma(h, s) via DP
+Also compute C(h-1, s) and Sigma(h-1, s)
+DP: build tables C[0..h][0..max_s], Sigma[0..h][0..max_s]
+Compute left-half tables (no leading zeros)
+Accumulate sum for this digit length
+if k is even
 ```
 
 ## Complexity Analysis

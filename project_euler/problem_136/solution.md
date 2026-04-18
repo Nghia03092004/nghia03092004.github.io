@@ -29,26 +29,28 @@ So $n = 4$ has exactly 1 solution.
 
 For $n = 16$: factorizations $(u,v)$ with $v < 3u$ and $u + v \equiv 0 \pmod 4$: checking all divisor pairs yields exactly one valid pair $(4, 4)$. $\square$
 
-## Algorithm
+## Editorial
+n = y*(4d - y) = y*u where u = 4d - y, 0 < u < 3y, (u+y) % 4 == 0.
 
-```
-function count_singleton_differences(N):
-    // N = 50000000
+## Pseudocode
+
+```text
+    N = 50000000
     solutions = array of size N, initialized to 0
 
-    for y = 1 to N-1:
+    For y from 1 to N-1:
         d_min = floor(y / 4) + 1
         d_max = min(y - 1, floor((N - 1 + y^2) / (4 * y)))
-        for d = d_min to d_max:
+        For d from d_min to d_max:
             n = y * (4 * d - y)
-            if 0 < n < N:
+            If 0 < n < N then
                 solutions[n] += 1
 
     count = 0
-    for n = 1 to N-1:
-        if solutions[n] == 1:
+    For n from 1 to N-1:
+        If solutions[n] == 1 then
             count += 1
-    return count
+    Return count
 ```
 
 ## Complexity Analysis

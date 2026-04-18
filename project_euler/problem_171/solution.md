@@ -40,30 +40,33 @@ After processing all $D = 20$ positions, $T[20][j^2]$ accumulates the sum of all
 
 Finally, the string $00\cdots0$ representing $n = 0$ has $f(0) = 0$, which is a perfect square ($0 = 0^2$). However, since $n = 0$ contributes $0$ to the sum, the exclusion $n > 0$ in the problem statement requires no correction. $\square$
 
-## Algorithm
+## Editorial
+Is a Perfect Square Find the last nine digits of the sum of all n, 0 < n < 10^20, such that f(n) = sum of squares of digits of n is a perfect square. Method: Digit DP tracking (count, value_sum) keyed by digit-square-sum.
 
-```
+## Pseudocode
+
+```text
 MOD = 10^9
 S_MAX = 1620
 
-C[0..S_MAX] = 0;  T[0..S_MAX] = 0
+C[0..S_MAX] = 0; T[0..S_MAX] = 0
 C[0] = 1
 
-for k = 1 to 20:
-    C'[0..S_MAX] = 0;  T'[0..S_MAX] = 0
-    for s = 0 to S_MAX:
-        if C[s] == 0: continue
-        for d = 0 to 9:
+For k from 1 to 20:
+    C'[0..S_MAX] = 0; T'[0..S_MAX] = 0
+    For s from 0 to S_MAX:
+        If C[s] == 0 then continue
+        For d from 0 to 9:
             s' = s + d*d
-            if s' > S_MAX: break         // digits are in order, so d^2 increases
+            if s' > S_MAX: break // digits are in order, so d^2 increases
             C'[s'] += C[s]
             T'[s'] = (T'[s'] + 10*T[s] + d*C[s]) mod MOD
-    C = C';  T = T'
+    C = C'; T = T'
 
 answer = 0
-for j = 1 to 40:
+For j from 1 to 40:
     answer = (answer + T[j*j]) mod MOD
-return answer
+Return answer
 ```
 
 ## Complexity Analysis

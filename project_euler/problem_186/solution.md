@@ -32,34 +32,14 @@ How many successful calls are needed so that 99% of the subscribers (including t
 
 **Proof.** By the Erdos-Renyi theory, the critical threshold for the giant component is $M \sim n/2$. Above this threshold, the giant component grows, and the time to absorb all but $\varepsilon n$ vertices scales as $\Theta(n \log(1/\varepsilon))$ (cf. Bollobas, *Random Graphs*, 2001). The answer of 2,325,629 is consistent with $n \log(100) \approx 4.6 \times 10^6$ accounting for constant factors and the specific pseudorandom sequence. $\square$
 
-## Algorithm
+## Editorial
+Using a Lagged Fibonacci Generator for phone calls, find how many successful calls are needed for 99% of subscribers to be connected to subscriber 524287. We initialize DSU with 10^6 elements. Finally, initialize LFG.
 
-```
-function find_calls_for_connectivity():
-    # Initialize DSU with 10^6 elements
-    parent[i] = i for i = 0 to 999999
-    rank[i] = 0 for i = 0 to 999999
-    size[i] = 1 for i = 0 to 999999
+## Pseudocode
 
-    # Initialize LFG
-    S[1..55] computed from initial formula
-    pointer = 56
-
-    calls = 0
-    while size[find(524287)] < 990000:
-        caller = next_S()    # S_{2n-1}
-        called = next_S()    # S_{2n}
-        if caller != called:
-            calls += 1
-            union(caller, called)
-
-    return calls
-
-function next_S():
-    if pointer <= 55:
-        return S[pointer++]
-    S[pointer] = (S[pointer - 24] + S[pointer - 55]) mod 10^6
-    return S[pointer++]
+```text
+Initialize DSU with 10^6 elements
+Initialize LFG
 ```
 
 ## Complexity Analysis

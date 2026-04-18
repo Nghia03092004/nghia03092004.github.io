@@ -41,32 +41,15 @@ $$A(k, n) = \sum_{\substack{m = 0 \\ k - m \text{ even}}}^{k} \binom{k}{m} \bino
 
 **Proof.** Since $10^9 + 7$ is prime and $k = 10^8 < 10^9 + 7$, all binomial coefficients $\binom{k}{m}$ can be computed using precomputed factorials modulo $p$. The powers $2^{mn/k}$ are computed via fast modular exponentiation in $O(\log(mn/k))$ time. $\square$
 
-## Algorithm
+## Editorial
+A $2 \times n$ binary matrix where every $2 \times k$ contiguous window sums to exactly $k$. $A(k, n)$ counts such matrices. Given $A(3,9) = 560$ and $A(4,20) = 1060870$. Find $A(10^8, 10^{16}) \bmod. We precompute factorials mod p up to k. We then binom(k, m) * binom(k-m, half). Finally, 2^(m * ratio).
 
-```
-function A(k, n, p):
-    // Precompute factorials mod p up to k
-    fact = array[0..k]
-    fact[0] = 1
-    for i = 1 to k:
-        fact[i] = fact[i-1] * i mod p
-    inv_fact = array[0..k]
-    inv_fact[k] = mod_pow(fact[k], p-2, p)
-    for i = k-1 downto 0:
-        inv_fact[i] = inv_fact[i+1] * (i+1) mod p
+## Pseudocode
 
-    ratio = n / k   // = 10^8 for our inputs
-    result = 0
-    for m = 0 to k:
-        if (k - m) is odd: continue
-        half = (k - m) / 2
-        // binom(k, m) * binom(k-m, half)
-        coeff = fact[k] * inv_fact[m] * inv_fact[k-m] mod p
-        coeff = coeff * fact[k-m] * inv_fact[half] * inv_fact[half] mod p
-        // 2^(m * ratio)
-        power = mod_pow(2, m * ratio, p)
-        result = (result + coeff * power) mod p
-    return result
+```text
+Precompute factorials mod p up to k
+binom(k, m) * binom(k-m, half)
+2^(m * ratio)
 ```
 
 ## Complexity Analysis

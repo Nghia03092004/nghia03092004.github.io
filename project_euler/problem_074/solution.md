@@ -61,35 +61,16 @@ The 3-cycle: $f(169) = 1 + 720 + 362880 = 363601$; $f(363601) = 720 + 720 + 6 + 
 
 *By the Lemma, once $L(m)$ is known for some $m$, the chain length of any predecessor $n$ (with $f(n) = m$ and $n$ not in a cycle) is immediately determined. This enables dynamic programming over the finite state space $[1, 2{,}540{,}160]$.*
 
-## Algorithm
+## Editorial
+Count starting numbers below 1,000,000 whose digit factorial chain contains exactly 60 non-repeating terms. Uses memoized chain-length computation (Lemma: L(n) = 1 + L(f(n)) when n is not in a cycle). We else. Finally, found a cycle: cur is already in chain.
 
-```
-Precompute fact[0..9] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880}
-Initialize cache: dict
+## Pseudocode
 
-function chain_length(n):
-    if n in cache: return cache[n]
-    chain = [], seen = {}
-    cur = n
-    while cur not in seen and cur not in cache:
-        seen[cur] = len(chain)
-        chain.append(cur)
-        cur = f(cur)
-    if cur in cache:
-        base = cache[cur]
-        for i, val in enumerate(chain):
-            cache[val] = len(chain) - i + base
-    else:
-        # Found a cycle: cur is already in chain
-        cycle_start = seen[cur]
-        cycle_len = len(chain) - cycle_start
-        for i in range(cycle_start, len(chain)):
-            cache[chain[i]] = cycle_len
-        for i in range(cycle_start - 1, -1, -1):
-            cache[chain[i]] = len(chain) - i
-    return cache[n]
-
-count = sum(1 for n in range(1, 10^6) if chain_length(n) == 60)
+```text
+while cur not in seen and cur not in cache
+if cur in cache
+else
+Found a cycle: cur is already in chain
 ```
 
 ## Complexity

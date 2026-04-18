@@ -41,33 +41,35 @@ Part (4): For $M$ to be a positive integer, we need $s \in \mathbb{Z}$ (requirin
 
 **Proof.** Given a factorization with $wxyz = A^2$ and $w+x+y+z$ even, set $s = (w+x+y+z)/2$ and recover $(a,b,c,d) = (s-w, s-x, s-y, s-z)$. By Lemma 1, this gives a valid ordered quadrilateral with $M = A$. The map is invertible. $\square$
 
-## Algorithm
+## Editorial
+*Optimized factorization:** First compute the prime factorization of $A$, then enumerate all ordered 4-fold factorizations of $A^2$ in decreasing order using recursive divisor enumeration.
 
-```
-function SP(n):
+## Pseudocode
+
+```text
     total = 0
-    for A = 1 to n:
+    For A from 1 to n:
         for each factorization A^2 = w * x * y * z with w >= x >= y >= z >= 1:
-            if (w + x + y + z) is even:
-                total += (w + x + y + z)   // since a+b+c+d = w+x+y+z
-    return total
+            If (w + x + y + z) is even then
+                total += (w + x + y + z) // since a+b+c+d = w+x+y+z
+    Return total
 ```
 
 **Optimized factorization:** First compute the prime factorization of $A$, then enumerate all ordered 4-fold factorizations of $A^2$ in decreasing order using recursive divisor enumeration:
 
 ```
-function enumerate_factorizations(A):
+
     factor A^2
-    for z = 1 to A^{2/4}:           // z <= (A^2)^{1/4}
-        if A^2 mod z != 0: continue
+    for z = 1 to A^{2/4}: // z <= (A^2)^{1/4}
+        If A^2 mod z != 0 then continue
         R1 = A^2 / z
-        for y = z to R1^{1/3}:
-            if R1 mod y != 0: continue
+        For y from z to R1^{1/3}:
+            If R1 mod y != 0 then continue
             R2 = R1 / y
-            for x = y to sqrt(R2):
-                if R2 mod x != 0: continue
+            For x from y to sqrt(R2):
+                If R2 mod x != 0 then continue
                 w = R2 / x
-                if (w + x + y + z) mod 2 == 0:
+                If (w + x + y + z) mod 2 == 0 then
                     yield (w, x, y, z)
 ```
 

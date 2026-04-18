@@ -40,18 +40,21 @@ Conversely, that fractional-part condition implies the existence of such an $m$,
 
 **Proof.** By Lemma 1, the interval test is equivalent to the defining property. Therefore the $678910$-th hit in this scan is exactly the desired exponent. $\square$
 
-## Algorithm
+## Editorial
+This is exactly what the existing Python and C++ implementations do. We precompute. We then iterate over $j=1,2,3,\dots$. Finally, stop at the $678910$-th hit.
 
-1. Precompute
-   - $\alpha = \log_{10} 2$,
-   - $L = \log_{10}(1.23)$,
-   - $U = \log_{10}(1.24)$.
-2. For $j=1,2,3,\dots$:
-   - compute $\{j\alpha\}$,
-   - if $L \le \{j\alpha\} < U$, increment the hit counter.
-3. Stop at the $678910$-th hit.
+## Pseudocode
 
-This is exactly what the existing Python and C++ implementations do.
+```text
+Precompute
+$\alpha = \log_{10} 2$,
+$L = \log_{10}(1.23)$,
+$U = \log_{10}(1.24)$
+For $j=1,2,3,\dots$:
+compute $\{j\alpha\}$,
+if $L \le \{j\alpha\} < U$, increment the hit counter
+Stop at the $678910$-th hit
+```
 
 ## Complexity Analysis
 

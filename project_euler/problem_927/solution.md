@@ -44,25 +44,27 @@ $$\Phi(N) = \frac{N(N+1)}{2} - \sum_{m=2}^{N} \Phi\!\left(\left\lfloor\frac{N}{m
 
 **Proof.** Since $\varphi = \mu * \mathrm{id}$ (Mobius inversion of Theorem 2), the Dirichlet series $\sum \varphi(n)/n^s = \zeta(s-1)/\zeta(s)$. By standard Tauberian arguments (or Perron's formula), $\Phi(N) = \frac{N^2}{2\zeta(2)} + O(N \log N) = \frac{3N^2}{\pi^2} + O(N \log N)$, using $\zeta(2) = \pi^2/6$. $\square$
 
-## Algorithm
+## Editorial
+Compute the sum of Euler's totient function phi(k) for k = 1..N, modulo 10^9+7. Uses a sieve-based approach to compute all phi values efficiently. Key ideas:.
 
-```
-function TotientSumSieve(N, MOD):
-    // Sieve phi(n) for n = 1..N, then sum
+## Pseudocode
+
+```text
+    Sieve phi(n) for n = 1..N, then sum
     phi[1..N]
-    for n = 1 to N:
+    For n from 1 to N:
         phi[n] = n
 
-    for p = 2 to N:
-        if phi[p] == p:       // p is prime
-            for m = p to N step p:
+    For p from 2 to N:
+        if phi[p] == p: // p is prime
+            For m from p to N step p:
                 phi[m] = phi[m] / p * (p - 1)
 
     S = 0
-    for n = 1 to N:
+    For n from 1 to N:
         S = (S + phi[n]) mod MOD
 
-    return S
+    Return S
 ```
 
 ## Complexity Analysis

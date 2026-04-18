@@ -42,43 +42,16 @@ $$\text{SumValid}(L) = \sum_{T \subseteq F} (-1)^{|T|} \cdot d_T \cdot \frac{f_T
 
 **Proof.** By the inclusion--exclusion principle applied to the forbidden divisibility conditions. The sum of all multiples of $d$ in $[1, L]$ is $d \cdot f(f+1)/2$ where $f = \lfloor L/d \rfloor$. Alternating signs remove overcounting. $\square$
 
-## Algorithm
+## Editorial
+C(n) = c(n) - 1 where c(n) = 3^k, k = number of "active" prime conditions. Need c(n) = 243 = 3^5. Active conditions: Two cases for k = 5: Case A: exactly 5 primes = 1 mod 3, 9 does not divide n Case B: exactly 4 primes = 1 mod 3, 9 divides n. We enumerate primes p ≡ 1 (mod 3) up to N: call them type-A primes. We then case A: Choose 5 type-A primes, 9 does not divide n. Finally, subtract contribution where 9 | t.
 
-```
-function solve(N = 10^11):
-    # Enumerate primes p ≡ 1 (mod 3) up to N: call them type-A primes
-    type_A = sieve primes p ≤ N with p ≡ 1 (mod 3)  # 7, 13, 19, 31, ...
+## Pseudocode
 
-    total = 0
-
-    # Case A: Choose 5 type-A primes, 9 does not divide n
-    DFS over subsets S of type_A with |S| = 5 and product(S) ≤ N:
-        P = product(S)
-        L = floor(N / P)
-        F = {type-A primes ≤ L not in S}
-        s = inclusion_exclusion_sum(L, F)
-        # Subtract contribution where 9 | t
-        L9 = floor(L / 9)
-        s9 = inclusion_exclusion_sum(L9, F)  # scaled by 9
-        total += P * (s - 9 * s9)
-
-    # Case B: Choose 4 type-A primes, 9 | n (so factor of 9 is mandatory)
-    DFS over subsets S of type_A with |S| = 4 and 9 * product(S) ≤ N:
-        P = 9 * product(S)
-        L = floor(N / P)
-        F = {type-A primes ≤ L not in S}
-        s = inclusion_exclusion_sum(L, F)
-        total += P * s
-
-    return total
-
-function inclusion_exclusion_sum(L, F):
-    result = 0
-    for each subset T ⊆ F with product(T) ≤ L:
-        d = product(T)
-        f = floor(L / d)
-        result += (-1)^|T| * d * f * (f + 1) / 2
-    return result
+```text
+Enumerate primes p ≡ 1 (mod 3) up to N: call them type-A primes
+Case A: Choose 5 type-A primes, 9 does not divide n
+Subtract contribution where 9 | t
+Case B: Choose 4 type-A primes, 9 | n (so factor of 9 is mandatory)
 ```
 
 ## Complexity Analysis

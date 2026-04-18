@@ -57,14 +57,19 @@ For $p = 5$, $f(x) = x^2 + c$:
 
 Total for $p=5$: $\sum_c \rho(c, 5) = 2 + 3 + 3 + 2 + 3 = 13$.
 
-### Algorithm
+### Editorial
+For f(x) = x^2 + c over F_p, count periodic points (nodes on cycles in the functional graph). Sum rho(c, p) over c in F_p, primes p <= N. Key insight: Build functional graph x -> (x^2 + c) mod p, find all cycle nodes. We sieve primes** up to $10^6$ using Sieve of Eratosthenes. We then iterate over each prime $p$**, iterate over $c = 0, 1, \ldots, p-1$. Finally, build the functional graph of $x \mapsto x^2 + c \pmod{p}$.
 
-1. **Sieve primes** up to $10^6$ using Sieve of Eratosthenes.
-2. **For each prime $p$**, iterate over $c = 0, 1, \ldots, p-1$:
-   - Build the functional graph of $x \mapsto x^2 + c \pmod{p}$.
-   - Find all cycle nodes by following chains until a revisited node is found.
-   - Count the periodic points $\rho(c, p)$.
-3. **Accumulate** the sum modulo $10^9 + 7$.
+### Pseudocode
+
+```text
+Sieve primes** up to $10^6$ using Sieve of Eratosthenes
+For each prime $p$**, iterate over $c = 0, 1, \ldots, p-1$:
+Build the functional graph of $x \mapsto x^2 + c \pmod{p}$
+Find all cycle nodes by following chains until a revisited node is found
+Count the periodic points $\rho(c, p)$
+Accumulate** the sum modulo $10^9 + 7$
+```
 
 ### Optimization: Floyd's Cycle Detection
 

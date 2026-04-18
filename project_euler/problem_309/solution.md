@@ -30,12 +30,17 @@ Both (w, p, x) and (w, q, y) must be Pythagorean triples. We generate all primit
 
 **Proof.** We have h = g*alpha*beta/(alpha + beta). Since gcd(alpha, beta) = 1, it follows that gcd(alpha*beta, alpha + beta) = 1 (as any prime dividing alpha + beta and alpha must divide beta, contradicting coprimality). Therefore h is an integer iff (alpha + beta) divides g.
 
-### Algorithm
+### Editorial
+Two ladders of integer lengths x, y lean against opposite walls of an alley of integer width w, crossing at integer height h. x^2 = w^2 + p^2, y^2 = w^2 + q^2, h = pq/(p+q). Count (x, y, h) triplets with 0 < x < y < 1000000. For h to be integer: let g=gcd(p,q), p=g*alpha, q=g*beta, gcd(alpha,beta)=1. Then h = g*alpha*beta/(alpha+beta), integer iff (alpha+beta) | g. We iterate over each hypotenuse value < 1,000,000, generate all Pythagorean triples. We then group triples by their shared leg w. Finally, iterate over each w with at least 2 triples, check all pairs (p1, x1), (p2, x2) with x1 != x2.
 
-1. For each hypotenuse value < 1,000,000, generate all Pythagorean triples.
-2. Group triples by their shared leg w.
-3. For each w with at least 2 triples, check all pairs (p1, x1), (p2, x2) with x1 != x2.
-4. For each pair, test the integer height condition.
+### Pseudocode
+
+```text
+For each hypotenuse value < 1,000,000, generate all Pythagorean triples
+Group triples by their shared leg w
+For each w with at least 2 triples, check all pairs (p1, x1), (p2, x2) with x1 != x2
+For each pair, test the integer height condition
+```
 
 ## Complexity
 

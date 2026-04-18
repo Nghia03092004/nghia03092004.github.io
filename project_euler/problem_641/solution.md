@@ -29,31 +29,14 @@ $$W_N = \left\lfloor \frac{N+1}{L} \right\rfloor w \;+\; w_r, \qquad B_N = (N+1)
 
 **Proof.** By Lemma 1 and Theorem 1, the colour sequence $(\chi_0, \chi_1, \ldots)$ is periodic with period $L$. The $N+1$ positions $\{0, \ldots, N\}$ decompose into $\lfloor (N+1)/L \rfloor$ complete periods, each contributing exactly $w$ white cells, plus a partial period of length $r = (N+1) \bmod L$ contributing $w_r$ white cells. The black count follows from complementarity. $\square$
 
-## Algorithm
+## Editorial
+The colour sequence on the torus Z/(2W) x Z/(2H) is periodic with period L = lcm(2W/gcd(dx,2W), 2H/gcd(dy,2H)). Count white/black cells in one period, then scale to N+1 positions via division with remainder. We enumerate one full period on the torus. Finally, decompose N+1 positions into full periods + remainder.
 
-```
-function count_colours(W, H, dx, dy, N):
-    Lx = 2*W / gcd(dx, 2*W)
-    Ly = 2*H / gcd(dy, 2*H)
-    L  = lcm(Lx, Ly)
+## Pseudocode
 
-    // Enumerate one full period on the torus
-    w = 0
-    x = 0; y = 0
-    prefix_w[0] = 0
-    for k = 0 to L-1:
-        colour = (floor(x / W) + floor(y / H)) mod 2
-        if colour == 0: w += 1
-        prefix_w[k+1] = w
-        x = (x + dx) mod (2*W)
-        y = (y + dy) mod (2*H)
-
-    // Decompose N+1 positions into full periods + remainder
-    full = (N + 1) / L
-    rem  = (N + 1) mod L
-    white_total = full * w + prefix_w[rem]
-    black_total = (N + 1) - white_total
-    return (white_total, black_total)
+```text
+Enumerate one full period on the torus
+Decompose N+1 positions into full periods + remainder
 ```
 
 ## Complexity Analysis

@@ -52,17 +52,18 @@ $$\text{Answer} = 2 + \sum_{\substack{p \text{ prime} \\ 5 \le p < 10^6}} \frac{
 
 *Verification:* For primes $p < 100$, this gives $2 + \sum_{5 \le p < 100} \frac{p^2-1}{12} = 5482$. $\checkmark$
 
-## Algorithm
+## Editorial
+In a sliding puzzle on an m x n grid, a red counter starts at the top-left, and the empty space starts at the bottom-right. S(m,n) is the minimum number of moves to slide the red counter to the bottom-right corner. The problem asks: How many grids (m,n) satisfy S(m,n) = p^2, where p < 10^6 is prime? Key formulas for S(m,n) with m >= n: S(2,2) = 5 S(3,2) = 9 S(3,3) = 13 S(m,2) = 6m - 9 for m > 3 S(m,n) = S(m,2) + 2(n-2) + 2*[m==n] for n >= 2 The number of grids with S(m,n) = p^2 for each prime p: p = 2: 0 grids (no grid has S = 4) p = 3: 2 grids p >= 5: (p^2 - 1) / 12 grids Verification: for primes < 100, total = 5482 (matches problem statement). We sieve all primes p < L using the Sieve of Eratosthenes. We then iterate over each prime p with 5 <= p < L. Finally, return total.
 
-```
+## Pseudocode
+
+```text
 Input: L = 10^6
 Output: number of grids with S(m,n) = p^2 for some prime p < L
-
-1. Sieve all primes p < L using the Sieve of Eratosthenes.
-2. Initialize total = 2  (contribution from p = 3).
-3. For each prime p with 5 <= p < L:
-     total += (p^2 - 1) / 12
-4. Return total.
+Sieve all primes p < L using the Sieve of Eratosthenes
+Initialize total = 2  (contribution from p = 3)
+For each prime p with 5 <= p < L:
+Return total
 ```
 
 ## Complexity Analysis

@@ -28,33 +28,19 @@ $$f(n) \equiv \sum_{i=0}^{d-1} a_i \, f(i) \pmod{p}$$
 
 **Proof.** Standard result; see Massey (1969). $\square$
 
-## Algorithm
+## Editorial
+3x3xn tower with 2x1x1 bricks. Find f(10^10000) mod (10^8 + 7). Uses transfer matrix + Berlekamp-Massey + polynomial exponentiation. We build transfer matrix T (512 x 512). We then compute f(0), ..., f(2*512) by repeated matrix-vector multiplication. Finally, find minimal polynomial via Berlekamp-Massey.
 
-```
-function solve():
-    p = 10^8 + 7
+## Pseudocode
 
-    // Step 1: Build transfer matrix T (512 x 512)
-    T = build_transfer_matrix()
-
-    // Step 2: Compute f(0), ..., f(2*512) by repeated matrix-vector multiplication
-    v = unit_vector(0)   // e_0
-    values = []
-    for i = 0 to 1024:
-        values.append(v[0] mod p)
-        v = T * v mod p
-
-    // Step 3: Find minimal polynomial via Berlekamp-Massey
-    m(x) = berlekamp_massey(values, p)
-    d = deg(m)
-
-    // Step 4: Compute x^(10^10000) mod m(x) in F_p[x]
-    //   Represent n = 10^10000 in binary (~33220 bits)
-    //   Use repeated squaring of polynomials mod m(x)
-    r(x) = poly_power_mod(x, 10^10000, m(x), p)
-
-    // Step 5: Evaluate f(n) = sum of a_i * f(i)
-    return sum(r.coeff(i) * values[i] for i in 0..d-1) mod p
+```text
+Build transfer matrix T (512 x 512)
+Compute f(0), ..., f(2*512) by repeated matrix-vector multiplication
+Find minimal polynomial via Berlekamp-Massey
+Compute x^(10^10000) mod m(x) in F_p[x]
+Represent n = 10^10000 in binary (~33220 bits)
+Use repeated squaring of polynomials mod m(x)
+Evaluate f(n) = sum of a_i * f(i)
 ```
 
 ## Complexity Analysis

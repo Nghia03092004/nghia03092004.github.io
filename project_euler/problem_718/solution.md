@@ -28,30 +28,16 @@ and the number of non-representable integers is $(a-1)(b-1)/2$, with their sum b
 
 **Proof.** By Sylvester's formula, $g(a_1, a_2) = a_1 a_2 - a_1 - a_2 < a_1 a_2$. Since adding more generators can only decrease the Frobenius number (more combinations available), $g(a_1, \ldots, a_k) \leq g(a_1, a_2) < a_1 a_2$. $\square$
 
-## Algorithm
+## Editorial
+We upper bound on Frobenius number. We then dP for reachability. Finally, iterate over each a in generators. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function G(p, mod):
-    generators = compute_generators(p)  // problem-specific
-    // Upper bound on Frobenius number
-    F = generators[0] * generators[1]
+## Pseudocode
 
-    // DP for reachability
-    reach = array of size F+1, all false
-    reach[0] = true
-    for n = 1 to F:
-        for each a in generators:
-            if n >= a and reach[n - a]:
-                reach[n] = true
-                break
-
-    // Sum unreachable values
-    total = 0
-    for n = 1 to F:
-        if not reach[n]:
-            total = (total + n) mod mod
-
-    return total
+```text
+Upper bound on Frobenius number
+DP for reachability
+for each a in generators
+Sum unreachable values
 ```
 
 ## Complexity Analysis

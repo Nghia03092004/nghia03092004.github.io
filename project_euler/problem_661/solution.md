@@ -43,21 +43,23 @@ where $r_+$ is the unique root of $p_B r^2 - r + p_A = 0$ in $(0, 1)$. This foll
 
 **Proof.** Since $\Pr[d_t > 0] \leq 1$ for all $t$, we have $\sum_{t=0}^{\infty} (1-p)^t \Pr[d_t > 0] \leq \sum_{t=0}^{\infty} (1-p)^t = 1/p < \infty$. $\square$
 
-## Algorithm
+## Editorial
+Compute H(n) = sum_{k=3}^{n} E_A(1/sqrt(k+3), 1/sqrt(k+3)+1/k^2, 1/k^3) where E_A is the expected number of times A leads in a match with geometric killing rate p. Key formula: E_A = r_+ * z / ((1 - z) * (1 - r_+ * z)) where z = 1 - p, r_+ = (1 - sqrt(1 - 4*pA*pB)) / (2*pB).
 
-```
-function H(n):
+## Pseudocode
+
+```text
     total = 0
-    for k = 3 to n:
+    For k from 3 to n:
         pA = 1 / sqrt(k + 3)
         pB = pA + 1 / k^2
-        p  = 1 / k^3
+        p = 1 / k^3
         disc = 1 - 4 * pA * pB
         r_plus = (1 - sqrt(disc)) / (2 * pB)
         z = 1 - p
         E_A = (r_plus * z) / ((1 - z) * (1 - r_plus * z))
         total += E_A
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

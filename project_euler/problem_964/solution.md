@@ -55,11 +55,16 @@ The generalized pentagonal numbers grow quadratically: $\omega_k \sim \frac{3k^2
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Sum of all generalized pentagonal numbers omega_k = k(3k-1)/2 for k = 0, +/-1, +/-2, ... that are below 10^7. The generalized pentagonal numbers arise in Euler's pentagonal number theorem for the partition function. The sequence begins: 0, 1, 2, 5, 7, 12, 15, 22, 26, 35, 40, ... We iterate over $k = 1, 2, \ldots$ generate $\omega_k = k(3k-1)/2$ until $\omega_k \ge N$. We then iterate over $m = 1, 2, \ldots$ generate $\omega_{-m} = m(3m+1)/2$ until $\omega_{-m} \ge N$. Finally, sum all values below $N$.
 
-1. For $k = 1, 2, \ldots$ generate $\omega_k = k(3k-1)/2$ until $\omega_k \ge N$.
-2. For $m = 1, 2, \ldots$ generate $\omega_{-m} = m(3m+1)/2$ until $\omega_{-m} \ge N$.
-3. Sum all values below $N$.
+### Pseudocode
+
+```text
+For $k = 1, 2, \ldots$ generate $\omega_k = k(3k-1)/2$ until $\omega_k \ge N$
+For $m = 1, 2, \ldots$ generate $\omega_{-m} = m(3m+1)/2$ until $\omega_{-m} \ge N$
+Sum all values below $N$
+```
 
 ### Partial Sum Formula
 

@@ -37,25 +37,15 @@ $$\sum_{k=3}^{5}(6 - k)\,f_k + \sum_{k=3}^{5}(6-k)\,v_k \geq 12.$$
 **Proof.** From Euler's formula and double counting: $12 = 6V - 6E + 6F = 6V - 3 \cdot 2E + 6F = 6V - 3\sum_k k f_k + 6F = 6V + \sum_k(6 - k) f_k - 6F + 6F$. Wait -- more carefully: $12 = 6(V - E + F) = (6V - 2 \cdot 3E) + (6F - 2 \cdot 3E) + 6E - 6E$. Use $\sum k v_k = 2E$ and $\sum k f_k = 2E$:
 $12 = \sum_k (6 - k)v_k + \sum_k(6-k)f_k$. Since $6 - k \leq 0$ for $k \geq 7$ (and $= 0$ for $k = 6$), the positive contributions come only from $k \leq 5$. $\square$
 
-## Algorithm
+## Editorial
+Euler's formula V-E+F=2 and enumeration of convex polyhedra via 3-connected planar graph counting (Steinitz's theorem). We use plantri algorithm (Brinkmann-McKay). We then enumerates 3-connected planar graphs by canonical construction path. Finally, iterate over target vertex count n.
 
-```
-function COUNT_POLYHEDRA(n):
-    // Use plantri algorithm (Brinkmann-McKay)
-    // Enumerates 3-connected planar graphs by canonical construction path
+## Pseudocode
 
-    Initialize: start from smallest polyhedra (tetrahedron, n=4)
-    For target vertex count n:
-        Generate all 3-connected planar graphs on n vertices
-        using edge-insertion / vertex-splitting operations
-        with canonical form checking to avoid duplicates
-    Return count
-
-function SOLVE(problem_parameters):
-    Apply the specific cyclic polyhedron constraints
-    (all vertices on a sphere imposes additional geometric restrictions
-     beyond combinatorial type)
-    Return result
+```text
+Use plantri algorithm (Brinkmann-McKay)
+Enumerates 3-connected planar graphs by canonical construction path
+For target vertex count n
 ```
 
 ## Complexity Analysis

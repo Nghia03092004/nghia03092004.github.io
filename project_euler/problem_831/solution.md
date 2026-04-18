@@ -33,21 +33,24 @@ $$P(N) = \frac{(2N+1)^3}{\zeta(3)} + O(N^2 \log N)$$
 
 **Proof.** By Mobius inversion, $P(N) = \sum_{d=1}^{2N} \mu(d) \lfloor (2N+1)/d \rfloor^3$. The main term arises from $\sum_{d=1}^{\infty} \mu(d)/d^3 = 1/\zeta(3)$, and standard analytic number theory bounds give the error term $O(N^2 \log N)$. $\square$
 
-## Algorithm
+## Editorial
+Optimization: exploit symmetries (cyclic invariance, sign changes) to reduce enumeration by a constant factor; apply problem-specific filters early. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function TripleProductSum(N):
+## Pseudocode
+
+```text
     total = 0
-    for a in lattice_vectors(N):
-        for b in lattice_vectors(N):
-            for c in lattice_vectors(N):
-                if satisfies_condition(a, b, c):
+    For each a in lattice_vectors(N):
+        For each b in lattice_vectors(N):
+            For each c in lattice_vectors(N):
+                If satisfies_condition(a, b, c) then
                     d = a1*(b2*c3 - b3*c2) - a2*(b1*c3 - b3*c1) + a3*(b1*c2 - b2*c1)
                     total = (total + |d|) mod (10^9 + 7)
-    return total
+    Return total
 ```
 
 Optimization: exploit symmetries (cyclic invariance, sign changes) to reduce enumeration by a constant factor; apply problem-specific filters early.
+```
 
 ## Complexity Analysis
 

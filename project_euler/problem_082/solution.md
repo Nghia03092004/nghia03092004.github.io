@@ -33,22 +33,14 @@ More formally, after the downward pass, $D[i][j]$ equals the minimum cost among 
 
 **Proof.** The problem requires the minimum over all valid paths. Since any valid path ends at some cell in column $n-1$, the global minimum is the minimum over all ending rows. $\square$
 
-## Algorithm
+## Editorial
+We downward pass. Finally, upward pass. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function MinPathSum3Ways(M, n):
-    for i = 0 to n-1:
-        D[i] = M[i][0]
-    for j = 1 to n-1:
-        base[i] = D[i] + M[i][j]  for all i
-        // Downward pass
-        D[0] = base[0]
-        for i = 1 to n-1:
-            D[i] = min(base[i], D[i-1] + M[i][j])
-        // Upward pass
-        for i = n-2 down to 0:
-            D[i] = min(D[i], D[i+1] + M[i][j])
-    return min(D[0], D[1], ..., D[n-1])
+## Pseudocode
+
+```text
+Downward pass
+Upward pass
 ```
 
 ## Complexity Analysis

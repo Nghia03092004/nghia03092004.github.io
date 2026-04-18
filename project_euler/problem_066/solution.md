@@ -67,7 +67,7 @@ The period ends when $a_n = 2a_0$.
 3. If $p_k^2 - D q_k^2 = 1$, then $(p_k + q_k\sqrt{D})(p_k - q_k\sqrt{D}) = 1$.
 4. The theory of continued fractions guarantees that the first such solution occurs at the end of the first period (or second period if the period is odd).
 
-## Algorithm
+## Editorial
 
 We scan all non-square values of $D$ up to $1000$. For each one, we compute the period of the continued fraction of $\sqrt{D}$ and use its parity to determine which convergent yields the fundamental solution of Pell's equation. We then generate convergents up to that index, extract the minimal numerator $x$, and keep the value of $D$ for which this minimal $x$ is largest.
 

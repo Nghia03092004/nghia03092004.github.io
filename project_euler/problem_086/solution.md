@@ -56,18 +56,20 @@ $$\mathrm{Count}(M) = \sum_{c=1}^{M} \sum_{\substack{s=2 \\ s^2 + c^2 = \square}
 
 **Proof.** For each largest dimension $c \in \{1, \ldots, M\}$, the sum $s = a + b$ ranges over $\{2, \ldots, 2c\}$ (since $1 \le a \le b \le c$ implies $2 \le s \le 2c$). We include only those $s$ for which $s^2 + c^2$ is a perfect square (Lemma 1). For each qualifying $(s, c)$, Lemma 2 gives the count of valid $(a, b)$ decompositions. Summing over all $c$ yields the total. $\square$
 
-## Algorithm
+## Editorial
+Shortest path for a <= b <= c: sqrt((a+b)^2 + c^2) Let s = a+b; need s^2 + c^2 = perfect square. Count of valid (a,b) for given (s,c): floor(s/2) - max(1, s-c) + 1.
 
-```
-function CuboidRoute():
+## Pseudocode
+
+```text
     count = 0
     c = 0
-    while count <= 1000000:
+    While count <= 1000000:
         c = c + 1
-        for s = 2 to 2*c:
-            if is_perfect_square(s*s + c*c):
+        For s from 2 to 2*c:
+            If is_perfect_square(s*s + c*c) then
                 count += max(0, floor(s/2) - max(1, s - c) + 1)
-    return c
+    Return c
 ```
 
 ## Complexity Analysis

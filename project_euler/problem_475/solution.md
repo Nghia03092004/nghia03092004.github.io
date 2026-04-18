@@ -33,36 +33,17 @@ where $\mathfrak{S}_n$ is the symmetric group on $\{1, \ldots, n\}$ and the inne
 
 **Proof.** Any valid selection of non-overlapping acts can be uniquely sorted by start time, yielding a permutation of stages. Conversely, for any permutation, the chain condition $b_{\sigma(j)} \leq a_{\sigma(j+1)}$ ensures pairwise non-overlap. Summing over all permutations and valid act choices counts each valid schedule exactly once (since the chronological order of non-overlapping intervals is unique). $\square$
 
-## Algorithm
+## Editorial
+Count valid schedules at a music festival where a festival-goer selects exactly one act per stage with no time overlaps. We collect all acts as (stage, start, end) sorted by end time. We then bitmask DP. Finally, answer: sum of all dp[(1<<n) - 1][*].
 
-```
-function count_schedules(stages, acts_per_stage):
-    n = number of stages
-    m = acts per stage
+## Pseudocode
 
-    # Collect all acts as (stage, start, end) sorted by end time
-    all_acts = []
-    for s = 1 to n:
-        for i = 1 to m:
-            all_acts.append((s, a[s][i], b[s][i]))
-    sort all_acts by end time
-
-    # Bitmask DP
-    # dp[mask] = dictionary mapping end_time -> count
-    dp = array of size 2^n, each entry is a map
-    dp[0][0] = 1
-
-    for mask = 0 to 2^n - 1:
-        for (t, ways) in dp[mask]:
-            for each act (s, start, end) in all_acts:
-                if s not in mask and start >= t:
-                    new_mask = mask | (1 << s)
-                    dp[new_mask][end] += ways
-
-    # Answer: sum of all dp[(1<<n) - 1][*]
-    return sum(dp[(1 << n) - 1].values()) mod MODULUS
-
-# Optimization: compress time values; iterate acts in sorted order
+```text
+Collect all acts as (stage, start, end) sorted by end time
+Bitmask DP
+dp[mask] = dictionary mapping end_time -> count
+Answer: sum of all dp[(1<<n) - 1][*]
+Optimization: compress time values; iterate acts in sorted order
 ```
 
 ## Complexity Analysis

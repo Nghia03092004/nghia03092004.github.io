@@ -32,35 +32,16 @@ $$R(n_1 n_2, k) = R(n_1, k) \cdot R(n_2, k).$$
 
 **Proof.** By CRT, $\mathbb{Z}_{n_1 n_2}^k \cong \mathbb{Z}_{n_1}^k \times \mathbb{Z}_{n_2}^k$, and this decomposition is preserved by endomorphisms. An idempotent endomorphism of the product corresponds to a pair of idempotent endomorphisms on each factor. $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We factor n. We then iterate over each prime power p^a, compute R(p^a, k) mod mod. Finally, compute [k choose j]_q mod mod.
 
-```
-function ComputeR(n, k, mod):
-    // Step 1: Factor n
-    factors = prime_factorization(n)  // list of (p, a)
+## Pseudocode
 
-    // Step 2: For each prime power p^a, compute R(p^a, k) mod mod
-    result = 1
-    for (p, a) in factors:
-        local_R = 0
-        q = pow(p, a, mod)
-        for j = 0 to k:
-            gauss_binom = gaussian_binomial(k, j, q, mod)
-            complement_count = pow(q, j * (k - j), mod)
-            local_R = (local_R + gauss_binom * complement_count) % mod
-        result = (result * local_R) % mod
-
-    return result
-
-function gaussian_binomial(k, j, q, mod):
-    // Compute [k choose j]_q mod mod
-    // [k choose j]_q = prod_{i=0}^{j-1} (q^{k-i} - 1) / (q^{j-i} - 1)
-    num = 1
-    den = 1
-    for i = 0 to j-1:
-        num = num * (pow(q, k - i, mod) - 1) % mod
-        den = den * (pow(q, i + 1, mod) - 1) % mod
-    return num * modular_inverse(den, mod) % mod
+```text
+Factor n
+For each prime power p^a, compute R(p^a, k) mod mod
+Compute [k choose j]_q mod mod
+[k choose j]_q = prod_{i=0}^{j-1} (q^{k-i} - 1) / (q^{j-i} - 1)
 ```
 
 ## Complexity Analysis

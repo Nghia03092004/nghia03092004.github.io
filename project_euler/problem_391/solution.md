@@ -66,30 +66,18 @@ $$F(n) = \bigl|\{m \in \{1, \ldots, n\} \cap S : \mathcal{G}(m) = 0\}\bigr|.$$
 
 **Proof.** From position $c = 0$ (with $s_0 = 0 \in S$), a move of size $m$ is valid if and only if $m \in S$ (since $0 + m = m$ must lie in $S$). This move is winning for the first player if and only if it leaves the opponent in a P-position, i.e., $\mathcal{G}(m) = 0$. $\blacksquare$
 
-## Algorithm
+## Editorial
+Let s_k = sum_{i=0}^{k} popcount(i). The set S = {s_k : k >= 0}. Two players hop a counter along S in increments of at most n. F(n) = number of winning first moves under optimal play. The brute-force solver computes Grundy values over the arena {s_0, ..., s_K} with K = 2^{n+1} - 2 (Theorem 2 in solution.md). Feasible for n <= ~22. The full answer F(10^11) = 61399252167 requires the C++ implementation exploiting gap self-similarity. We compute s_k in O(log^2 k) via memoized recurrence (Theorem 1). We then exploit Lemma 2: gap self-similarity under binary decomposition. Finally, split arena at midpoint index 2^n - 1.
 
-```
-function COMPUTE_S(k):
-    // Compute s_k in O(log^2 k) via memoized recurrence (Theorem 1)
-    if k == 0: return 0
-    if k is odd: m = (k-1)/2; return 2*COMPUTE_S(m) + m + 1
-    if k is even: m = k/2; return COMPUTE_S(m) + COMPUTE_S(m-1) + m
+## Pseudocode
 
-function F(n):
-    K = 2^(n+1) - 2
-    Build arena positions S[0..K]
-    Grundy[S[K]] = 0  // terminal P-position
-    for i = K-1 downto 0:
-        reachable = {Grundy[S[i] + m] : m in {1,...,n}, S[i]+m in S}
-        Grundy[S[i]] = mex(reachable)
-    return |{m in {1,...,n} ∩ S : Grundy[m] == 0}|
-
-function F_EFFICIENT(n):
-    // Exploit Lemma 2: gap self-similarity under binary decomposition
-    // Split arena at midpoint index 2^n - 1
-    // Second-half gaps = first-half gaps + 1 (Lemma 2)
-    // Recursively solve sub-problems on condensed gap representation
-    // Match Grundy boundary conditions across halves
+```text
+Compute s_k in O(log^2 k) via memoized recurrence (Theorem 1)
+Exploit Lemma 2: gap self-similarity under binary decomposition
+Split arena at midpoint index 2^n - 1
+Second-half gaps = first-half gaps + 1 (Lemma 2)
+Recursively solve sub-problems on condensed gap representation
+Match Grundy boundary conditions across halves
 ```
 
 ## Complexity Analysis

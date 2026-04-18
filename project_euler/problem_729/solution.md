@@ -62,24 +62,27 @@ And $\cot(\theta) = 1/\sqrt{2}$ gives $\theta = \arctan(\sqrt{2})$. Not $\pi/3$.
 
 The full analysis requires careful enumeration. The algorithm computes all distinct orbits of the doubling map modulo $2^p - 1$ for each $p \le P$ and sums the cotangent ranges.
 
-## Algorithm
+## Editorial
+Recurrence: a_{n+1} = a_n - 1/a_n Substitution a = cot(theta) linearizes to theta -> 2*theta (mod pi). Period-p orbits correspond to m*pi/(2^p-1) under the doubling map.
 
-```
+## Pseudocode
+
+```text
 S = 0
-for p = 1 to P:
+For p from 1 to P:
     N = 2^p - 1
     visited = set()
-    for m = 1 to N-1:
-        if m in visited: continue
+    For m from 1 to N-1:
+        If m in visited then continue
         orbit = []
         x = m
         while x not in visited:
             visited.add(x)
             orbit.append(cot(x * pi / N))
             x = (2*x) % N
-        if len(orbit) == p:  # exact period p
+        if len(orbit) == p: # exact period p
             S += max(orbit) - min(orbit)
-return S
+Return S
 ```
 
 ## Correctness

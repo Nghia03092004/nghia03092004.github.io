@@ -26,40 +26,23 @@ $$|\mathcal{P}(N)| = \left|\bigcup_{p \text{ prime}} P_p(N)\right| = \sum_{\empt
 
 **Proof.** If $\prod_{p \in S} p = e > 59$, then $N^{1/e} < N^{1/60} = 10^{18/60} = 10^{0.3} \approx 2$, so $\lfloor N^{1/e} \rfloor = 1$. These terms contribute a net correction that must be carefully tracked (adding/subtracting 1). $\square$
 
-## Algorithm
+## Editorial
+Count the number of distinct perfect powers a^b <= 10^18, where a >= 1 and b >= 2. A perfect power is an integer that can be expressed as a^b for integers a >= 1, b >= 2. Numbers like 64 = 2^6 = 4^3 = 8^2 should only be counted once. We relevant prime exponents. We then iterate over all non-empty subsets of primes where product <= log2(N). Finally, use inclusion-exclusion.
 
-```
-function CountPerfectPowers(N):
-    // Relevant prime exponents
-    primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59]
+## Pseudocode
 
-    count = 0
-    // Iterate over all non-empty subsets of primes where product <= log2(N)
-    // Use inclusion-exclusion
-    for each non-empty subset S of primes:
-        e = product of elements in S
-        if e > 59:
-            // floor(N^{1/e}) = 1, handle separately
-            continue accumulation of +/- 1 terms
-        val = floor(N^(1/e))
-        if |S| is odd:
-            count = count + val
-        else:
-            count = count - val
-
-    // Handle the subsets with large products (contribute +/- 1)
-    // by careful enumeration
-
-    return count
-
-// Note: N^{1/e} must be computed with care for large N.
-// Use integer Newton's method: find largest a such that a^e <= N.
-function IntegerRoot(N, e):
-    a = round(N^(1/e))   // floating-point estimate
-    // Adjust: check a^e <= N < (a+1)^e
-    while (a+1)^e <= N: a = a + 1
-    while a^e > N: a = a - 1
-    return a
+```text
+Relevant prime exponents
+Iterate over all non-empty subsets of primes where product <= log2(N)
+Use inclusion-exclusion
+for each non-empty subset S of primes
+floor(N^{1/e}) = 1, handle separately
+else
+Handle the subsets with large products (contribute +/- 1)
+by careful enumeration
+Note: N^{1/e} must be computed with care for large N
+Use integer Newton's method: find largest a such that a^e <= N
+Adjust: check a^e <= N < (a+1)^e
 ```
 
 ## Complexity Analysis

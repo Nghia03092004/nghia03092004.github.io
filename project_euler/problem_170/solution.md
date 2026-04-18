@@ -34,37 +34,18 @@ Find the largest 0 to 9 pandigital 10-digit number that can be formed by concate
 
 **Proof.** The output is a 10-digit pandigital, so the largest possible starts with 9876543... . For a fixed $n$, the largest product is obtained by choosing the largest valid multiplier. By searching $n$ values in an order that prioritizes large leading output digits and pruning branches where the partial result cannot exceed the current best, we guarantee finding the global maximum. $\square$
 
-## Algorithm
+## Editorial
+Products n*c_1 || n*c_2 || ... must be a 10-digit pandigital (0-9). Inputs n || c_1 || c_2 || ... must also be a 10-digit pandigital (0-9). At least 2 multipliers required. We generate all valid (c, p) pairs. We then bitmask DP to find best combination of >= 2 pairs. Finally, iterate over each state in dp with compatible masks.
 
-```
-function FIND_LARGEST_PANDIGITAL():
-    best = 0
+## Pseudocode
 
-    for each candidate n (positive integer with distinct digits):
-        n_mask = digit_mask(n)
-        remaining = {0,...,9} \ digits(n)
-
-        # Generate all valid (c, p) pairs
-        pairs = []
-        for each c formed from digits in 'remaining' (c > 0, distinct digits):
-            p = n * c
-            if digits(p) are all distinct and disjoint from previously used:
-                pairs.append((digit_mask(c), digit_mask(p), p))
-
-        # Bitmask DP to find best combination of >= 2 pairs
-        # whose c-masks partition 'remaining' and p-masks partition {0..9}
-        dp = {} # (in_used, out_used, count) -> best concatenated value
-
-        for each pair (cm, pm, p):
-            for each state in dp with compatible masks:
-                extend state, try both concat orders, update dp
-
-        # Check complete states with count >= 2
-        for valid complete states:
-            if concatenated value > best:
-                best = concatenated value
-
-    return best
+```text
+Generate all valid (c, p) pairs
+Bitmask DP to find best combination of >= 2 pairs
+whose c-masks partition 'remaining' and p-masks partition {0..9}
+for each state in dp with compatible masks
+Check complete states with count >= 2
+for valid complete states
 ```
 
 ## Complexity Analysis

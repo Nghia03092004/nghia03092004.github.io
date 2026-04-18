@@ -22,38 +22,18 @@ Find $E(10^{18})$, the $10^{18}$-th positive eleven-free integer.
 
 **Proof.** $C(N+1) - C(N) \in \{0, 1\}$, so $C$ is non-decreasing. The function $E$ is well-defined since eleven-free integers have positive density (only finitely many forbidden substrings of bounded length). Binary search applies to any non-decreasing function. $\square$
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We generate forbidden patterns. We then build Aho-Corasick automaton from patterns. Finally, digit DP to count eleven-free integers <= N.
 
-```
-function FindE(target):
-    // Step 1: Generate forbidden patterns
-    patterns = []
-    power = 11
-    while number_of_digits(power) <= 19:
-        patterns.append(str(power))
-        power *= 11
+## Pseudocode
 
-    // Step 2: Build Aho-Corasick automaton from patterns
-    automaton = BuildAhoCorasick(patterns)
-
-    // Step 3: Digit DP to count eleven-free integers <= N
-    function Count(N):
-        digits = decimal_digits(N)
-        L = len(digits)
-        // dp[position][automaton_state][tight][started] -> count
-        memo = {}
-        return digitDP(0, root_state, true, false, digits, automaton, memo)
-
-    // Step 4: Binary search
-    lo = target
-    hi = 2 * target  // upper bound (density is close to 1)
-    while lo < hi:
-        mid = (lo + hi) / 2
-        if Count(mid) >= target:
-            hi = mid
-        else:
-            lo = mid + 1
-    return lo
+```text
+Generate forbidden patterns
+Build Aho-Corasick automaton from patterns
+Digit DP to count eleven-free integers <= N
+dp[position][automaton_state][tight][started] -> count
+Binary search
+else
 ```
 
 ## Complexity Analysis

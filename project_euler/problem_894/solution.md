@@ -29,27 +29,16 @@ where the last step applies the hockey stick identity $\sum_{r=0}^{s}\binom{r+m-
 
 For $a_k = k$: $S^{(m)}_n = \sum_{k=1}^{n} k\binom{n-k+m-1}{m-1}$. Using the identity $k\binom{n-k+m-1}{m-1} = n\binom{n-k+m-1}{m-1} - (n-k)\binom{n-k+m-1}{m-1}$ and the absorption identity $(n-k)\binom{n-k+m-1}{m-1} = m\binom{n-k+m-1}{m}$... Alternatively, note that $S^{(1)}_n = n(n+1)/2 = \binom{n+1}{2}$ for $a_k = k$, and applying $L$ repeatedly, $S^{(m)}_n = \binom{n+m}{m+1}$ follows by induction using the hockey stick identity. $\square$
 
-## Algorithm
+## Editorial
+m-fold iterated partial sum: S^(m)_n = sum_k C(n-k+m-1, m-1) * a_k Special case a_k = k: S^(m)_n = C(n+m, m+1). We o(n) computation using Theorem 1. We then compute binomial coefficients incrementally. Finally, update: binom(n-k+m-1, m-1) -> binom(n-(k-1)+m-1, m-1).
 
-```
-function iterated_sum_closed_form(a[1..n], m):
-    // O(n) computation using Theorem 1
-    result = 0
-    // Compute binomial coefficients incrementally
-    binom = 1   // binom(m-1, m-1) = 1 when k = n
-    for k = n downto 1:
-        result += binom * a[k]
-        // Update: binom(n-k+m-1, m-1) -> binom(n-(k-1)+m-1, m-1)
-        binom = binom * (n - k + m) / (n - k + 1)
-    return result
+## Pseudocode
 
-function iterated_sum_prefix(a[1..n], m):
-    // O(mn) computation via m passes of prefix sums
-    S = copy of a
-    for pass = 1 to m:
-        for i = 2 to n:
-            S[i] += S[i-1]
-    return S[n]
+```text
+O(n) computation using Theorem 1
+Compute binomial coefficients incrementally
+Update: binom(n-k+m-1, m-1) -> binom(n-(k-1)+m-1, m-1)
+O(mn) computation via m passes of prefix sums
 ```
 
 ## Complexity Analysis

@@ -29,29 +29,16 @@ The transition matrix $T$ has entry $T_{(s', r'), (s, r)} = \#\{d \in \{0,\ldots
 
 **Proof.** The entries of $T^n$ count paths in the state graph, which are non-negative integers. By properties of modular arithmetic, $(A \cdot B) \bmod m = ((A \bmod m) \cdot (B \bmod m)) \bmod m$, so reducing modulo $10^9$ at each multiplication step yields the correct result modulo $10^9$. $\square$
 
-## Algorithm
+## Editorial
+S(n) = count of positive integers k < 10^n with 23 | k and digit sum d(k) = 23. Find S(11^12) mod 10^9. Approach: Matrix exponentiation on the digit DP transition matrix. State: (digit_sum, value mod 23), dimension 24 * 23 = 552. We build 552 x 552 transition matrix T. We then states indexed as (s, r) -> s * 23 + r. Finally, compute T^n mod MOD via repeated squaring.
 
-```
-function solve():
-    MOD = 10^9
-    n = 11^12   // = 3138428376721
+## Pseudocode
 
-    // Build 552 x 552 transition matrix T
-    // States indexed as (s, r) -> s * 23 + r
-    T = zero_matrix(552, 552)
-    for s = 0 to 23:
-        for r = 0 to 22:
-            for d = 0 to 9:
-                if s + d <= 23:
-                    s' = s + d
-                    r' = (10 * r + d) mod 23
-                    T[s' * 23 + r'][s * 23 + r] += 1
-
-    // Compute T^n mod MOD via repeated squaring
-    result = matrix_power(T, n, MOD)
-
-    // Answer is entry (23*23 + 0, 0*23 + 0) = (529, 0)
-    return result[529][0]
+```text
+Build 552 x 552 transition matrix T
+States indexed as (s, r) -> s * 23 + r
+Compute T^n mod MOD via repeated squaring
+Answer is entry (23*23 + 0, 0*23 + 0) = (529, 0)
 ```
 
 ## Complexity Analysis

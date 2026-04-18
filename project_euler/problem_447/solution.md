@@ -44,31 +44,15 @@ Local factor: $p^e + 1$. By CRT independence, $R(n) = \prod_{p^e \| n}(1 + p^e)$
 
 **Proof.** Multiplicativity of $R$ and the coprimality $\gcd(m, p^e) = 1$ (since $p = \operatorname{spf}(n)$ and $m = n/p^e$ has all prime factors $> p$) give $R(n) = R(p^e) \cdot R(m) = (1 + p^e) \cdot R(m)$. $\square$
 
-## Algorithm
+## Editorial
+The number of retractions R(n) for affine maps f(x) = ax + b mod n equals the number of pairs (a, b) with a^2 ≡ a (mod n) and ab ≡ 0 (mod n). Key result: R(n) = prod_{p^e || n} (1 + p^e), a multiplicative function. We compute sum_{n=2}^{N} R(n) mod (10^9 + 7) using a linear sieve. We linear sieve for smallest prime factor. We then compute R(n) using multiplicative structure. Finally, extract p^e from n.
 
-```
-function ComputeSum(N, mod):
-    // Step 1: Linear sieve for smallest prime factor
-    spf[1..N] = smallest prime factor sieve
+## Pseudocode
 
-    // Step 2: Compute R(n) using multiplicative structure
-    R[1] = 1
-    total = 0
-
-    for n = 2 to N:
-        p = spf[n]
-        // Extract p^e from n
-        e = 0
-        temp = n
-        while temp % p == 0:
-            temp = temp / p
-            e = e + 1
-        m = temp  // n = p^e * m, gcd(m, p) = 1
-
-        R[n] = R[m] * (1 + pow(p, e)) % mod
-        total = (total + R[n]) % mod
-
-    return total
+```text
+Linear sieve for smallest prime factor
+Compute R(n) using multiplicative structure
+Extract p^e from n
 ```
 
 ## Complexity Analysis

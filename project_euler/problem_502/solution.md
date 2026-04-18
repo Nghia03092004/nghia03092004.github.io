@@ -28,24 +28,21 @@ where $\mathbf{s}$ encodes the valid starting profiles and the boundary conditio
 
 **Proof.** The transfer matrix encodes all valid local adjacencies. Raising it to the $(w-1)$-th power and summing over valid initial and terminal states counts exactly the number of valid length-$w$ sequences. The inclusion-exclusion removes profiles that never reach height $h$. $\square$
 
-## Algorithm
+## Editorial
+Count castle-shaped profiles on a grid using profile dynamic programming. A castle profile is a sequence of column heights with battlement constraints. We simple battlement model with max-height constraint. We then simple model. Finally, transfer-matrix model (if needed).
 
-```
-function F(w, h, mod):
-    // Simple battlement model with max-height constraint
-    // If additional structural constraints apply, use transfer-matrix DP
+## Pseudocode
 
-    // Simple model:
-    result = (h * pow(h-1, w-1, mod) - (h-1) * pow(h-2, w-1, mod)) % mod
-
-    // Transfer-matrix model (if needed):
-    // 1. Enumerate valid column profiles (contiguous from bottom)
-    // 2. Build transfer matrix T of valid adjacencies
-    // 3. Compute T^(w-1) via matrix exponentiation mod p
-    // 4. Sum over valid start/end states
-    // 5. Subtract profiles that never reach height h
-
-    return result
+```text
+Simple battlement model with max-height constraint
+If additional structural constraints apply, use transfer-matrix DP
+Simple model:
+Transfer-matrix model (if needed):
+Enumerate valid column profiles (contiguous from bottom)
+Build transfer matrix T of valid adjacencies
+Compute T^(w-1) via matrix exponentiation mod p
+Sum over valid start/end states
+Subtract profiles that never reach height h
 ```
 
 ## Complexity Analysis

@@ -46,11 +46,16 @@ The actual optimal packing requires comparing Malfatti circles with greedy-inscr
 
 The number of valid integer triplets (a, b, c) with 1 <= a <= b <= c < a + b <= n must satisfy the triangle inequality and the ordering constraint.
 
-## Algorithm
+## Editorial
+We enumerate all valid integer triplets (a, b, c) with 1 <= a <= b <= c and a + b > c and c <= n (more precisely a + b <= n from the constraint c < a + b <= n). We then iterate over each triplet, compute R(a, b, c) using both Malfatti and greedy packing. Finally, sum all R values and divide by the count of triplets.
 
-1. Enumerate all valid integer triplets (a, b, c) with 1 <= a <= b <= c and a + b > c and c <= n (more precisely a + b <= n from the constraint c < a + b <= n).
-2. For each triplet, compute R(a, b, c) using both Malfatti and greedy packing.
-3. Sum all R values and divide by the count of triplets.
+## Pseudocode
+
+```text
+Enumerate all valid integer triplets (a, b, c) with 1 <= a <= b <= c and a + b > c and c <= n (more precisely a + b <= n from the constraint c < a + b <= n)
+For each triplet, compute R(a, b, c) using both Malfatti and greedy packing
+Sum all R values and divide by the count of triplets
+```
 
 ## Correctness
 

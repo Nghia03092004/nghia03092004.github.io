@@ -30,43 +30,23 @@ where each $l_{ij}$ is a literal ($x_k$ or $\overline{x_k}$). The **minimal SOP*
 
 **Proof.** Given an instance of set cover $(\mathcal{U}, \mathcal{S})$, construct a Boolean function whose minterms correspond to elements of $\mathcal{U}$ and whose prime implicants correspond to sets in $\mathcal{S}$. A PI covers a minterm iff the corresponding set contains that element. A minimum SOP corresponds to a minimum set cover. Since set cover is NP-hard (Karp, 1972), so is the PI chart covering problem. $\square$
 
-## Algorithm
+## Editorial
+Boolean function minimization via Quine-McCluskey algorithm. We generate all prime implicants. We then build prime implicant chart. Finally, extract essential prime implicants.
 
-```
-function QUINE_MCCLUSKEY(truth_table):
-    # Step 1: Generate all prime implicants
-    minterms = {i : truth_table[i] = 1}
-    groups = group minterms by number of 1-bits
-    primes = {}
-    while groups is not empty:
-        new_groups = empty
-        used = set()
-        for each pair of adjacent groups (g_k, g_{k+1}):
-            for each (a in g_k, b in g_{k+1}):
-                if a and b differ in exactly one bit position j:
-                    merged = a with bit j replaced by '-'
-                    add merged to new_groups
-                    mark a, b as used
-        primes = primes ∪ {terms in groups not marked as used}
-        groups = new_groups
+## Pseudocode
 
-    # Step 2: Build prime implicant chart
-    chart[pi][mt] = 1 if prime implicant pi covers minterm mt
-
-    # Step 3: Extract essential prime implicants
-    essential = {}
-    for each minterm mt:
-        if exactly one PI covers mt:
-            add that PI to essential
-    remove essential PIs and their covered minterms from chart
-
-    # Step 4: Petrick's method for remaining cover
-    # Form product-of-sums: for each uncovered minterm,
-    # OR together the PIs that cover it
-    # Expand to SOP and find minimum-length terms
-    covers = PETRICK_SOLVE(chart)
-
-    return essential ∪ (minimum cover from covers)
+```text
+Generate all prime implicants
+while groups is not empty
+if a and b differ in exactly one bit position j
+Build prime implicant chart
+Extract essential prime implicants
+for each minterm mt
+if exactly one PI covers mt
+Petrick's method for remaining cover
+Form product-of-sums: for each uncovered minterm,
+OR together the PIs that cover it
+Expand to SOP and find minimum-length terms
 ```
 
 ## Complexity Analysis

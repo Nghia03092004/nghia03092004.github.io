@@ -50,16 +50,18 @@ Primes are correctly identified during the sieve: $d$ is prime if and only if $\
 
 By a classical result in analytic number theory, $\sum_{d=1}^{N} \varphi(d) = \frac{3N^2}{\pi^2} + O(N \log N)$. For $N = 10^6$, this gives approximately $3.04 \times 10^{11}$.
 
-## Algorithm
+## Editorial
+Count the number of reduced proper fractions n/d with d <= 1,000,000. By Theorem 3, the answer is sum of phi(d) for d = 2 to 1,000,000. Computed via Euler totient sieve in O(N log log N).
 
-```
-function count_fractions(N):
+## Pseudocode
+
+```text
     phi[1..N] = [1, 2, ..., N]
-    for d = 2 to N:
-        if phi[d] == d:             # d is prime
+    For d from 2 to N:
+        if phi[d] == d: # d is prime
             for m = d, 2d, ..., N:
                 phi[m] = phi[m] / d * (d - 1)
-    return sum(phi[2], phi[3], ..., phi[N])
+    Return sum(phi[2], phi[3], ..., phi[N])
 ```
 
 ## Complexity

@@ -28,19 +28,21 @@ For $p = 3$: we have $3 \mid R(k)$ iff $3 \mid k$, since $R(k) = \frac{10^k - 1}
 
 **Proof.** By definition, $\operatorname{ord}_p(10) \mid 10^9$ iff $10^{10^9} \equiv 1 \pmod{p}$. Binary exponentiation computes $10^{10^9} \bmod p$ using $O(\lfloor \log_2(10^9) \rfloor) \leq 30$ squaring and multiplication steps. $\square$
 
-## Algorithm
+## Editorial
+A prime p (not 2, 3, or 5) divides R(K) iff 10^K = 1 (mod p). We iterate over p in primes.
 
-```
-function sum_first_40_factors_of_R(K):
+## Pseudocode
+
+```text
     K = 10^9
-    primes = sieve_primes(B)          // B ~ 200000 suffices empirically
+    primes = sieve_primes(B) // B ~ 200000 suffices empirically
     factors = []
     for p in primes:
-        if p in {2, 3, 5}: continue
-        if pow(10, K, p) == 1:
+        If p in {2, 3, 5} then continue
+        If pow(10, K, p) == 1 then
             factors.append(p)
-        if len(factors) == 40: break
-    return sum(factors)
+        If len(factors) == 40 then stop this loop
+    Return sum(factors)
 ```
 
 ## Complexity Analysis

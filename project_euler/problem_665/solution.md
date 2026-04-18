@@ -38,12 +38,17 @@ For proportionate moves, since $\lfloor n/k \rfloor$ depends on $n \bmod k$, the
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Sprague-Grundy analysis for Nim variant with proportional moves. From pile n, remove floor(n/k) stones for allowed k values. We detect periodicity in the Grundy sequence to extrapolate. Finally, combine pile values via XOR.
 
-1. Compute Grundy values $\mathcal{G}(0), \mathcal{G}(1), \ldots, \mathcal{G}(N)$ iteratively.
-2. For each $n$, enumerate reachable states and compute $\text{mex}$.
-3. Detect periodicity in the Grundy sequence to extrapolate.
-4. Combine pile values via XOR.
+### Pseudocode
+
+```text
+Compute Grundy values $\mathcal{G}(0), \mathcal{G}(1), \ldots, \mathcal{G}(N)$ iteratively
+For each $n$, enumerate reachable states and compute $\text{mex}$
+Detect periodicity in the Grundy sequence to extrapolate
+Combine pile values via XOR
+```
 
 ### Optimization
 

@@ -44,39 +44,18 @@ $$u_k = u_{T + r} + q \cdot D$$
 
 **Proof.** By periodicity of differences: $u_{T + qP + r} = u_{T+r} + q \cdot \sum_{i=1}^{P} d_{T+i} = u_{T+r} + qD$. $\square$
 
-## Algorithm
+## Editorial
+For U(2, 2n+1) with n=2..10, find the 10^11-th term and sum them. We generate terms using XOR rule until periodicity detected. We then generate using XOR: for odd c, c in U iff exactly one of. Finally, (c-2 in U), (c-e in U) is true.
 
-```
-function SOLVE():
-    total = 0
-    for n = 2 to 10:
-        v = 2*n + 1
-        e = v + 1   # second even member
+## Pseudocode
 
-        # Generate terms using XOR rule until periodicity detected
-        is_ulam = BitArray()
-        terms = [2, v]
-        is_ulam[2] = true; is_ulam[v] = true
-
-        # Generate using XOR: for odd c, c in U iff exactly one of
-        # (c-2 in U), (c-e in U) is true
-        # Also handle even member e
-
-        # Detect period in difference sequence
-        diffs = []
-        for each new term u_k:
-            diffs.append(u_k - u_{k-1})
-            if diffs[T..T+2P] shows two full repetitions:
-                period P confirmed, compute D
-                break
-
-        # Extrapolate to k = 10^11
-        k = 10^11
-        q, r = divmod(k - T, P)
-        result = terms[T + r] + q * D
-        total += result
-
-    return total
+```text
+Generate terms using XOR rule until periodicity detected
+Generate using XOR: for odd c, c in U iff exactly one of
+(c-2 in U), (c-e in U) is true
+Also handle even member e
+Detect period in difference sequence
+Extrapolate to k = 10^11
 ```
 
 ## Complexity Analysis

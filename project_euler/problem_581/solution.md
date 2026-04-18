@@ -38,32 +38,14 @@ There are only finitely many squarefree $\mathcal{P}$-smooth numbers (precisely 
 
 *Proof.* By exhaustive application of Stormer's method -- enumerating all Pell equation fundamental solutions for each of the $2^{15}$ squarefree 47-smooth numbers and tracking which solutions yield consecutive smooth pairs -- one verifies that the largest such pair is $(n, n+1) = (1\,109\,496\,723\,124,\; 1\,109\,496\,723\,125)$, which satisfies $n < 1.2 \times 10^{12}$. $\blacksquare$
 
-## Algorithm
+## Editorial
+T(n) = n(n+1)/2 is 47-smooth iff both n and n+1 are 47-smooth (Theorem 1). By Stormer's theorem, there are finitely many such n, all below 1.2e12. Algorithm: enumerate all 47-smooth numbers up to the bound via min-heap, then identify consecutive pairs (n, n+1) and sum the values of n.
 
-By Theorem 1, we must find all consecutive pairs $(n, n+1)$ with both entries 47-smooth, then sum the values of $n$. By Lemma 1, it suffices to enumerate all 47-smooth numbers up to $L = 1.2 \times 10^{12}$ and identify consecutive pairs.
+## Pseudocode
 
-**Procedure.** Generate all 47-smooth numbers up to $L$ in sorted order using a min-heap. Maintain a running predecessor `prev`. Whenever the extracted value $v$ satisfies $v = \text{prev} + 1$ and $\text{prev} \geq 1$, add `prev` to the accumulator.
-
-```
-function solve():
-    P = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47}
-    L = 1.2 * 10^12
-    heap = min-heap({1}),  visited = {1}
-    prev = -1,  total = 0
-
-    while heap is non-empty:
-        v = extract-min(heap)
-        if v > L: break
-        if v == prev + 1 and prev >= 1:
-            total += prev
-        prev = v
-        for p in P:
-            w = v * p
-            if w <= L and w not in visited:
-                visited.add(w)
-                heap.insert(w)
-
-    return total
+```text
+while heap is non-empty
+for p in P
 ```
 
 ## Complexity Analysis

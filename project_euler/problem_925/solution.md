@@ -56,17 +56,19 @@ enabling $O(\log n)$ computation via repeated squaring.
 
 **Proof.** The characteristic equation of $x_n = 2x_{n-1} + x_{n-2}$ is $\lambda^2 - 2\lambda - 1 = 0$, with roots $\lambda = 1 \pm \sqrt{2}$. Solving with initial conditions $q_0 = 1, q_1 = 2$ gives the closed form. Since $|1 - \sqrt{2}| < 1$, the second term vanishes exponentially. $\square$
 
-## Algorithm
+## Editorial
+Compute p_n and q_n for the continued fraction expansion of sqrt(2), with recurrence p_n = 2*p_{n-1} + p_{n-2}, q_n = 2*q_{n-1} + q_{n-2}, starting from p_0=1, p_1=3, q_0=1, q_1=2. Return (p_n + q_n) mod 10^9+7. Key ideas:. We iterative approach: O(n) time.
 
-```
-function ComputeAnswer(target_n, MOD):
-    // Iterative approach: O(n) time
-    p_prev = 1   // p_0
-    p_curr = 3   // p_1
-    q_prev = 1   // q_0
-    q_curr = 2   // q_1
+## Pseudocode
 
-    for i = 2 to target_n:
+```text
+    Iterative approach: O(n) time
+    p_prev = 1 // p_0
+    p_curr = 3 // p_1
+    q_prev = 1 // q_0
+    q_curr = 2 // q_1
+
+    For i from 2 to target_n:
         p_next = (2 * p_curr + p_prev) mod MOD
         p_prev = p_curr
         p_curr = p_next
@@ -75,7 +77,7 @@ function ComputeAnswer(target_n, MOD):
         q_prev = q_curr
         q_curr = q_next
 
-    return (p_curr + q_curr) mod MOD
+    Return (p_curr + q_curr) mod MOD
 ```
 
 ## Complexity Analysis

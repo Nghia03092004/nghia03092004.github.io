@@ -53,34 +53,14 @@ $$
 $$\prod_{j=0}^{a-1}(2m-i-j-1) = \frac{(2m-i-1)!}{(2m-i-a-1)!} = \frac{(2m-i-1)!}{(m+n-i-1)!}.$$
 The other two regions follow analogously. $\square$
 
-## Algorithm
+## Editorial
+Compute LC(m, n) = number of Standard Young Tableaux of the L-shaped (gnomon) partition lambda = (m^{m-n}, (m-n)^n), modulo a prime p. Uses the hook length formula: f^lambda = N! / prod h(i,j) where hook lengths decompose into three rectangular regions. We precompute factorial and inverse factorial mod p. Finally, compute product of hook lengths.
 
-```
-function LC(m, n, p):
-    a = m - n
-    N = m^2 - n^2
+## Pseudocode
 
-    // Precompute factorial and inverse factorial mod p
-    fact[0] = 1
-    for k = 1 to N:
-        fact[k] = fact[k-1] * k mod p
-    inv_fact[N] = modpow(fact[N], p-2, p)
-    for k = N-1 downto 0:
-        inv_fact[k] = inv_fact[k+1] * (k+1) mod p
-
-    // Compute product of hook lengths
-    D = 1
-    for i = 0 to a-1:  // Region 1
-        D = D * fact[2m-i-1] mod p
-        D = D * inv_fact[m+n-i-1] mod p
-    for i = 0 to a-1:  // Region 2
-        D = D * fact[m-i-1] mod p
-        D = D * inv_fact[a-i-1] mod p
-    for i = a to m-1:  // Region 3
-        D = D * fact[a+m-i-1] mod p
-        D = D * inv_fact[m-i-1] mod p
-
-    return fact[N] * modpow(D, p-2, p) mod p
+```text
+Precompute factorial and inverse factorial mod p
+Compute product of hook lengths
 ```
 
 ## Complexity Analysis

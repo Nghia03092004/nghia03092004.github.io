@@ -46,19 +46,21 @@ The constant $C_1 = \alpha / p'(\alpha)$ where $p'(x) = 4x^3 - 3x^2 - 2x - 1$. $
 - $f(9) = 108 + 56 + 29 + 15 = 208$
 - $f(10) = 208 + 108 + 56 + 29 = 401$ $\square$
 
-## Algorithm
+## Editorial
+Count ways to tile a row of 50 units using grey (1), red (2), green (3), and blue (4) tiles, with colors freely mixed. Recurrence: f(n) = f(n-1) + f(n-2) + f(n-3) + f(n-4) (tetranacci).
 
-```
-function TetranacciTiling(n):
+## Pseudocode
+
+```text
     if n == 0: return 1
     if n == 1: return 1
     if n == 2: return 2
     if n == 3: return 4
-    a, b, c, d = 1, 1, 2, 4    # f(0), f(1), f(2), f(3)
-    for i = 4 to n:
+    a, b, c, d = 1, 1, 2, 4 # f(0), f(1), f(2), f(3)
+    For i from 4 to n:
         e = a + b + c + d
         a, b, c, d = b, c, d, e
-    return d
+    Return d
 ```
 
 ## Complexity Analysis

@@ -28,22 +28,15 @@ in $O(1)$. $\blacksquare$
 
 **Remark.** Since $W + H = 2 \times 10^7 < p = 999\,999\,937$, the condition $n < p$ in Lemma 1 is satisfied, and no factorial vanishes modulo $p$.
 
-## Algorithm
+## Editorial
+Compute f(10^7, 10^7) mod 999999937, where f(W,H) = C(W+H, W)^2 mod p. Method: precompute factorials and inverse factorials mod p, then evaluate the binomial coefficient in O(1). We precompute factorials mod p. We then inverse factorials via Fermat. Finally, binomial coefficient.
 
-```
-function SOLVE(W, H, p):
-    n = W + H
-    // Precompute factorials mod p
-    fact[0] = 1
-    for i = 1 to n:
-        fact[i] = fact[i-1] * i mod p
-    // Inverse factorials via Fermat
-    inv_fact[n] = pow(fact[n], p - 2, p)
-    for i = n-1 down to 0:
-        inv_fact[i] = inv_fact[i+1] * (i+1) mod p
-    // Binomial coefficient
-    C = fact[n] * inv_fact[W] % p * inv_fact[H] % p
-    return C * C % p
+## Pseudocode
+
+```text
+Precompute factorials mod p
+Inverse factorials via Fermat
+Binomial coefficient
 ```
 
 ## Complexity Analysis

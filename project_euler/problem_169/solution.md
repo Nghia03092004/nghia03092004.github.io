@@ -33,20 +33,14 @@ Total: $f(n) = f(n/2) + f(n/2 - 1)$. $\square$
 
 **Proof.** $\log_2(10^{25}) = 25 \log_2 10 \approx 25 \times 3.3219 = 83.05$, so the recursion depth is 84. $\square$
 
-## Algorithm
+## Editorial
+each power used at most twice. Find f(10^25). Recurrence: f(0) = 1 f(n) = f(n//2) if n is odd f(n) = f(n//2) + f(n//2-1) if n is even. We else.
 
-```
-function f(n, memo={}):
-    if n in memo: return memo[n]
-    if n == 0: return 1
-    if n is odd:
-        result = f(n // 2, memo)
-    else:
-        result = f(n // 2, memo) + f(n // 2 - 1, memo)
-    memo[n] = result
-    return result
+## Pseudocode
 
-answer = f(10^25)
+```text
+if n is odd
+else
 ```
 
 ## Complexity Analysis

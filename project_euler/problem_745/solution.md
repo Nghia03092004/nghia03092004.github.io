@@ -42,31 +42,15 @@ The identity $\sum_{a \mid e} a^2 \mu(e/a) = J_2(e)$ is the definition of the Jo
 
 **Proof.** The sieve correctly computes $J_2(e) = e^2 \prod_{p \mid e}(1 - 1/p^2)$ by multiplying in the factor $(1 - 1/p^2) = (p^2-1)/p^2$ for each prime divisor. The time complexity is the same as the Euler sieve. The division by $p^2$ is exact in modular arithmetic since we track the factor $(p^2-1)/p^2$ as a modular inverse multiplication. $\square$
 
-## Algorithm
+## Editorial
+For a positive integer n, g(n) = max perfect square dividing n. S(N) = sum of g(n) for n=1..N. Find S(10^14) mod 10^9+7. Uses Jordan totient function J_2 sieve approach. We sieve: for each prime, multiply in (1 - 1/p^2) factor. Finally, compute S(N) = sum_{e=1}^{L} J2[e] * floor(N / e^2) mod p.
 
-```
-function S(N, p):
-    L = floor(sqrt(N))          // L = 10^7 for N = 10^14
+## Pseudocode
 
-    // Step 1: Sieve J_2(e) mod p for e = 1..L
-    J2 = array[1..L]
-    for e = 1 to L:
-        J2[e] = e^2 mod p
-
-    // Sieve: for each prime, multiply in (1 - 1/p^2) factor
-    is_prime = sieve_of_eratosthenes(L)
-    for each prime q in is_prime:
-        inv_q2 = mod_inverse(q^2, p)
-        factor = (q^2 - 1) * inv_q2 mod p
-        for m = q, 2q, 3q, ..., L:
-            J2[m] = J2[m] * factor mod p
-
-    // Step 2: Compute S(N) = sum_{e=1}^{L} J2[e] * floor(N / e^2) mod p
-    result = 0
-    for e = 1 to L:
-        result = (result + J2[e] * (N / (e * e) mod p)) mod p
-
-    return result
+```text
+Sieve J_2(e) mod p for e = 1..L
+Sieve: for each prime, multiply in (1 - 1/p^2) factor
+Compute S(N) = sum_{e=1}^{L} J2[e] * floor(N / e^2) mod p
 ```
 
 ## Complexity Analysis

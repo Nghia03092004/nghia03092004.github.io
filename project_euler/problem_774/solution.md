@@ -42,53 +42,34 @@ $$M = J - D$$
 
 **Proof.** The subset convolution framework of Bjorklund et al. (2007) allows computing the "OR-convolution restricted to disjoint sets" in $O(2^B \cdot B^2)$ time. The transfer matrix multiplication in the transform domain becomes pointwise polynomial multiplication (polynomials in the rank variable of degree at most $B$). Matrix exponentiation via repeated squaring requires $O(\log n)$ multiplications. $\square$
 
-## Algorithm
+## Editorial
+Sequence of non-negative integers where consecutive terms have nonzero bitwise AND. $c(n,b)$ = count of length-$n$ sequences with terms $\le b$. Find $c(123, 123456789) \bmod 998244353$. We compute alpha(S) for all non-empty S via digit DP. We then alpha(S) = count of x in [0, b] with bits(x) = S. Finally, where w(T) = floor(b / 2^{bits in T positions}) ... (digit DP for upper bound).
 
-```
-function c(n, b, MOD):
-    B = floor(log2(b)) + 1  // number of bits, B = 27 for b = 123456789
+## Pseudocode
 
-    // Step 1: Compute alpha(S) for all non-empty S via digit DP
-    // alpha(S) = count of x in [0, b] with bits(x) = S
-    // Use inclusion-exclusion: alpha(S) = sum_{T supseteq S} (-1)^{|T|-|S|} w(T)
-    // where w(T) = floor(b / 2^{bits in T positions}) ... (digit DP for upper bound)
-
-    // Actually, compute w(T) = |{x <= b : T subseteq bits(x)}| via digit DP
-    // Then Mobius invert: alpha(S) = sum_{T supseteq S} (-1)^{|T\S|} w(T)
-
-    // Step 2: Set up the transfer matrix in subset convolution domain
-    // Transform alpha into the ranked Mobius domain
-    // f_hat[S][rank] = ranked zeta transform of alpha
-
-    // Step 3: Compute the n-th power
-    // In the transform domain, perform pointwise polynomial exponentiation
-    // Each point has a polynomial of degree <= B, raise to power (n-1)
-    // Use matrix exponentiation or polynomial repeated squaring
-
-    // Step 4: Inverse transform to get c(n, b)
-    // Sum over all S of the result vector
-
-    // Detailed subset convolution approach:
-    f = array of size 2^B, indexed by subsets
-    for S in 1..2^B - 1:
-        f[S] = alpha(S)
-
-    // Ranked zeta transform
-    f_ranked[S][r] where r = popcount(S)
-    zeta_transform(f_ranked)  // over each rank
-
-    // In transform domain: g_hat[S] = polynomial, raise to power n-1
-    // Then multiply by f_hat to get the convolution
-
-    // This requires O(2^B * B^2 * log(n)) operations
-
-    result = compute_via_subset_convolution(f_ranked, n, B, MOD)
-    return result
-
-function digit_dp_count_superset(b, T):
-    // Count x in [0, b] such that T is a subset of bits(x)
-    // Standard digit DP on the binary representation of b
-    ...
+```text
+Compute alpha(S) for all non-empty S via digit DP
+alpha(S) = count of x in [0, b] with bits(x) = S
+Use inclusion-exclusion: alpha(S) = sum_{T supseteq S} (-1)^{|T|-|S|} w(T)
+where w(T) = floor(b / 2^{bits in T positions}) ... (digit DP for upper bound)
+Actually, compute w(T) = |{x <= b : T subseteq bits(x)}| via digit DP
+Then Mobius invert: alpha(S) = sum_{T supseteq S} (-1)^{|T\S|} w(T)
+Set up the transfer matrix in subset convolution domain
+Transform alpha into the ranked Mobius domain
+f_hat[S][rank] = ranked zeta transform of alpha
+Compute the n-th power
+In the transform domain, perform pointwise polynomial exponentiation
+Each point has a polynomial of degree <= B, raise to power (n-1)
+Use matrix exponentiation or polynomial repeated squaring
+Inverse transform to get c(n, b)
+Sum over all S of the result vector
+Detailed subset convolution approach:
+Ranked zeta transform
+In transform domain: g_hat[S] = polynomial, raise to power n-1
+Then multiply by f_hat to get the convolution
+This requires O(2^B * B^2 * log(n)) operations
+Count x in [0, b] such that T is a subset of bits(x)
+Standard digit DP on the binary representation of b
 ```
 
 ## Complexity Analysis

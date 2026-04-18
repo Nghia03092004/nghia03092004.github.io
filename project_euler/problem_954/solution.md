@@ -49,11 +49,16 @@ Partial sums: $\sum_{k=1}^{10} \pi(k^2) = 0 + 2 + 4 + 6 + 9 + 8 + 15 + 18 + 21 +
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Compute sum_{k=1}^{10^4} pi(k^2) where pi(x) is the prime counting function. Algorithm: 1. Sieve of Eratosthenes up to (10^4)^2 = 10^8 2. Build prefix sum of prime indicator 3. Sum pi(k^2) for k = 1, ..., 10^4 Complexity: O(M log log M) time, O(M) space, M = 10^8. We sieve of Eratosthenes** up to $M = (10^4)^2 = 10^8$. Finally, build prefix sum** array: $P[n] = P[n-1] + [n \text{ is prime}]$ for $n = 2, \ldots, M$.
 
-1. **Sieve of Eratosthenes** up to $M = (10^4)^2 = 10^8$.
-2. **Build prefix sum** array: $P[n] = P[n-1] + [n \text{ is prime}]$ for $n = 2, \ldots, M$.
-3. **Accumulate** $S = \sum_{k=1}^{10^4} P[k^2]$.
+### Pseudocode
+
+```text
+Sieve of Eratosthenes** up to $M = (10^4)^2 = 10^8$
+Build prefix sum** array: $P[n] = P[n-1] + [n \text{ is prime}]$ for $n = 2, \ldots, M$
+Accumulate** $S = \sum_{k=1}^{10^4} P[k^2]$
+```
 
 ### Memory Optimization
 

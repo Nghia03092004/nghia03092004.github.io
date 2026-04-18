@@ -30,30 +30,21 @@ $$\varepsilon(t; k) = \sqrt{x(t)^2 + y(t)^2} - 1.$$
 $$k^* \approx 0.5522847498.$$
 *The corresponding minimax radial error is $\varepsilon^* \approx 0.0000372091$.* $\square$
 
-## Algorithm
+## Editorial
+Minimize the maximum radial deviation from the unit circle. By symmetry, control points are: P0 = (0,1), P1 = (k,1), P2 = (1,k), P3 = (1,0) We optimize k to minimize max |sqrt(x^2+y^2) - 1| over t in [0,1]. We binary search / Newton iteration on k. We then compute max and min of epsilon(t; k) on [0, 1]. Finally, by finding critical points of epsilon via derivative = 0.
 
-```
-function solve():
-    // Binary search / Newton iteration on k
-    k_lo = 0.55, k_hi = 0.56
-    while k_hi - k_lo > 1e-15:
-        k = (k_lo + k_hi) / 2
-        // Compute max and min of epsilon(t; k) on [0, 1]
-        // by finding critical points of epsilon via derivative = 0
-        e_max = max radial error over [0, 1]
-        e_min = min radial error over [0, 1]
-        if |e_max| > |e_min|:
-            // k is too small or too large; adjust
-            adjust k_lo, k_hi based on sign analysis
-        else:
-            // equioscillation achieved
+## Pseudocode
 
-    // More precisely: use Newton's method
-    // Let g(k) = max_t epsilon(t;k) + min_t epsilon(t;k)
-    // Optimal k satisfies g(k) = 0 (symmetric equioscillation)
-    k = newton_solve(g, initial_guess=0.5522847498)
-    error = max_t |epsilon(t; k)|
-    return round(error, 10)
+```text
+Binary search / Newton iteration on k
+Compute max and min of epsilon(t; k) on [0, 1]
+by finding critical points of epsilon via derivative = 0
+k is too small or too large; adjust
+else
+equioscillation achieved
+More precisely: use Newton's method
+Let g(k) = max_t epsilon(t;k) + min_t epsilon(t;k)
+Optimal k satisfies g(k) = 0 (symmetric equioscillation)
 ```
 
 ## Complexity Analysis

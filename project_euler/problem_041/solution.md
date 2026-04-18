@@ -47,7 +47,7 @@ There are $7! = 5040$ permutations of $\{1,2,3,4,5,6,7\}$. The largest is $76543
 
 Since $7652413$ is the first prime encountered in the descending enumeration of $7$-pandigital numbers, it is the largest $7$-pandigital prime, and hence the largest pandigital prime overall. $\square$
 
-## Algorithm
+## Editorial
 
 By the divisibility argument, only $7$-pandigital and $4$-pandigital numbers need to be considered. We enumerate the corresponding digit permutations in descending lexicographic order, first for $\{1,2,\ldots,7\}$ and then for $\{1,2,3,4\}$, convert each permutation into its integer value, and apply a primality test. Because every $7$-pandigital number exceeds every $4$-pandigital number and the enumeration is descending within each class, the first prime encountered is the largest pandigital prime.
 

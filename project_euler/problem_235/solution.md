@@ -32,26 +32,27 @@ For $r$ slightly above 1, the terms with $k > 300$ (where $900 - 3k < 0$) are am
 
 **Proof.** Bisection halves the interval at each step. Starting with width $0.01$, after $m$ steps the width is $0.01 / 2^m$. For 12-decimal-place accuracy (error $< 5 \times 10^{-13}$), we need $0.01/2^m < 5 \times 10^{-13}$, i.e., $m > \log_2(2 \times 10^{10}) \approx 34.2$. Taking $m = 40$ suffices with margin. $\square$
 
-## Algorithm
+## Editorial
+We else. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function solve():
+## Pseudocode
+
+```text
     n = 5000
     target = -600000000000
 
-    function s(r):
         geo = (r^n - 1) / (r - 1)
         dge = (n * r^(n+1) - (n+1) * r^n + 1) / (r - 1)^2
-        return 900 * geo - 3 * dge
+        Return 900 * geo - 3 * dge
 
     lo = 1.0, hi = 1.01
-    for i = 1 to 50:
+    For i from 1 to 50:
         mid = (lo + hi) / 2
-        if s(mid) > target:
+        If s(mid) > target then
             lo = mid
         else:
             hi = mid
-    return mid   // rounded to 12 decimal places
+    Return mid // rounded to 12 decimal places
 ```
 
 ## Complexity Analysis

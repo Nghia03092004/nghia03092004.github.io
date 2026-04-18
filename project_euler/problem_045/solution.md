@@ -67,7 +67,7 @@ Verifying pentagonality: $n = \frac{1 + \sqrt{1 + 24 \times 1533776805}}{6} = \f
 
 Verifying triangularity: $T_{55385} = \frac{55385 \times 55386}{2} = 1533776805$. $\square$
 
-## Algorithm
+## Editorial
 
 Since every hexagonal number is automatically triangular, it is enough to enumerate hexagonal numbers beyond the known value $H_{143} = 40755$ and test only for pentagonality. Starting from $m = 144$, we compute $H_m = m(2m-1)$ and apply the discriminant criterion for pentagonal numbers. The first hexagonal number that passes this test is therefore the next number that is simultaneously triangular, pentagonal, and hexagonal.
 

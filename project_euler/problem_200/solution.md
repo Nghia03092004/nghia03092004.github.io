@@ -28,42 +28,19 @@ Find the 200th smallest sqube that:
 
 **Proof.** Position 1: $\{1, \ldots, 9\} \setminus \{d_1\}$ gives 8 choices. Positions $2, \ldots, m$: $\{0, \ldots, 9\} \setminus \{d_i\}$ gives 9 choices each. Total: $8 + 9(m-1) = 9m - 1$. $\square$
 
-## Algorithm
+## Editorial
+A sqube is p^2*q^3 or p^3*q^2 for distinct primes p, q. Prime-proof means no single digit change produces a prime. We generate all squbes below B. We then note: p^3 * q^2 is generated as q^2 * p^3 with roles swapped. Finally, filter squbes containing "200".
 
-```
-function solve():
-    B = 10^13  # upper bound on squbes (adjusted if needed)
+## Pseudocode
 
-    # Step 1: Generate all squbes below B
-    squbes = set()
-    for q in primes up to B^(1/3):
-        for p in primes up to sqrt(B / q^3):
-            if p != q:
-                squbes.add(p^2 * q^3)
-    # Note: p^3 * q^2 is generated as q^2 * p^3 with roles swapped
-
-    # Step 2: Filter squbes containing "200"
-    candidates = sorted([s for s in squbes if "200" in str(s)])
-
-    # Step 3: Check prime-proof condition
-    count = 0
-    for s in candidates:
-        if is_prime_proof(s):
-            count += 1
-            if count == 200:
-                return s
-
-function is_prime_proof(n):
-    digits = decimal_digits(n)
-    m = len(digits)
-    for i from 0 to m-1:
-        for d from 0 to 9:
-            if d == digits[i]: continue
-            if i == 0 and d == 0: continue
-            n' = replace_digit(n, i, d)
-            if miller_rabin(n', witnesses=[2,3,5,7,11,13]):
-                return false
-    return true
+```text
+Generate all squbes below B
+Note: p^3 * q^2 is generated as q^2 * p^3 with roles swapped
+Filter squbes containing "200"
+Check prime-proof condition
+for s in candidates
+for i from 0 to m-1
+for d from 0 to 9
 ```
 
 ## Complexity Analysis

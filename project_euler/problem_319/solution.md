@@ -42,21 +42,19 @@ $$M(n) = 1 - \sum_{k=2}^{n} M\!\left(\left\lfloor \frac{n}{k}\right\rfloor\right
 **Verification.** $G(3,10) = 3(3^{10}-1)/2 = 88572$, $G(2,10) = 2(2^{10}-1) = 2046$, $g(10) = 86526$.
 $$t(10) = \sum_{k=1}^{10}\mu(k)\,g(\lfloor 10/k \rfloor) = 86195. \quad \checkmark$$
 
-## Algorithm
+## Editorial
+t(n) = number of sequences (x_1, ..., x_n) where x_i = floor(alpha^i) for some alpha in [2, 3). Formula: t(n) = sum_{k=1}^{n} mu(k) * g(floor(n/k)) where g(m) = G(3,m) - G(2,m), G(v,m) = v * (v^m - 1) / (v - 1) Uses Mobius function prefix sums (Mertens function) and matrix exponentiation. We sieve mu(k) for k <= n^(2/3), compute prefix sums M(k). We then iterate over large arguments, compute M(x) recursively with memoization. Finally, sum all contributions modulo MOD.
 
-```
+## Pseudocode
+
+```text
 Input: n = 10^10, MOD = 10^9
 Output: t(n) mod MOD
-
-1. Sieve mu(k) for k <= n^(2/3), compute prefix sums M(k).
-2. For large arguments, compute M(x) recursively with memoization:
-     M(x) = 1 - sum_{k=2}^{x} M(floor(x/k))
-   (using hyperbolic grouping for O(sqrt(x)) terms).
-3. Enumerate distinct values q = floor(n/k):
-     For each q, compute g(q) mod MOD via 2x2 matrix exponentiation.
-     Multiply by (M(k2) - M(k1-1)) where floor(n/k) = q for k in [k1,k2].
-4. Sum all contributions modulo MOD.
-5. Return result.
+Sieve mu(k) for k <= n^(2/3), compute prefix sums M(k)
+For large arguments, compute M(x) recursively with memoization:
+Enumerate distinct values q = floor(n/k):
+Sum all contributions modulo MOD
+Return result
 ```
 
 ## Complexity Analysis

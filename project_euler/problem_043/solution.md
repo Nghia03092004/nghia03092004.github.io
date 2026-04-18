@@ -69,7 +69,7 @@ $$\sum = 1406357289 + 1430952867 + 1460357289 + 4106357289 + 4130952867 + 416035
 
 The construction is complete in the sense that every digit assignment is tested at each step, and all constraints are verified. No valid pandigital number can be missed. $\square$
 
-## Algorithm
+## Editorial
 
 We construct admissible pandigital numbers from right to left, using the overlap between consecutive three-digit divisibility conditions. The search is seeded with distinct-digit multiples of $17$ for the block $d_8d_9d_{10}$, and each subsequent stage prepends one unused digit that makes the new leading three-digit block divisible by $13,11,7,5,3,$ and $2$, respectively. Once all divisibility constraints have been enforced, the unique remaining digit becomes $d_1$, and the resulting pandigital numbers are summed.
 

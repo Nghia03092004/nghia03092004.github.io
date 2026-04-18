@@ -36,26 +36,14 @@ $$p(n) \sim \frac{1}{4n\sqrt{3}} \exp\!\left(\pi\sqrt{\frac{2n}{3}}\right).$$
 
 **Proof.** This was established by Hardy and Ramanujan (1918) using the circle method applied to the generating function $\sum p(n)x^n = \prod_{k \geq 1}(1-x^k)^{-1}$. Rademacher (1937) refined the method into an exact convergent series. $\square$
 
-## Algorithm
+## Editorial
+Euler pentagonal theorem, partition function recurrence. We compute p(0), p(1), ..., p(n) via pentagonal recurrence. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function partition(n):
-    // Compute p(0), p(1), ..., p(n) via pentagonal recurrence
-    P[0] = 1
-    for i = 1 to n:
-        P[i] = 0
-        k = 1
-        while true:
-            w1 = k*(3*k - 1) / 2       // omega_k
-            w2 = k*(3*k + 1) / 2       // omega_{-k}
-            if w1 > i:
-                break
-            sign = (-1)^(k+1)
-            P[i] += sign * P[i - w1]
-            if w2 <= i:
-                P[i] += sign * P[i - w2]
-            k += 1
-    return P[n]
+## Pseudocode
+
+```text
+Compute p(0), p(1), ..., p(n) via pentagonal recurrence
+while true
 ```
 
 ## Complexity Analysis

@@ -26,36 +26,22 @@ $$\max_{1 \le k \le n} S_k = \max_{1 \le k \le n}(k - 2J_k).$$
 
 **Proof.** The gap profile is a sufficient statistic: the number of empty cells in each gap determines how many cells in each gap can increase, maintain, or decrease the segment count, and the probability of filling any particular empty cell is $1/(n-k)$. The gap profile evolves deterministically given which gap is chosen and which position within the gap. Thus a DP on (gap profile, running max $m$) correctly computes $E[\max_k S_k]$ by summing $m \cdot P(\max = m)$ over terminal states (when $k = n$, necessarily $S_n = 1$, $m = $ recorded max). $\square$
 
-## Algorithm
+## Editorial
+Expected maximum number of segments when randomly filling a caterpillar of length 40. State-based DP: track gap configurations (end gaps + internal gaps) and max segments seen. At each step, a random empty cell is filled, which either:. We state: (gap_profile, max_segments_so_far). We then initial state: one gap of size n, 0 segments, max = 0. Finally, we run a memoized search over the reachable states.
 
+## Pseudocode
+
+```text
+State: (gap_profile, max_segments_so_far)
+gap_profile = sorted tuple of gap sizes (multiset)
+Initial state: one gap of size n, 0 segments, max = 0
+BFS/memoized recursion over states
+Place in interior of gap g: splits into (j-1, g-j) for j=1..g
+If j=1 or j=g (endpoint touching a segment): extends segment
+If 1 < j < g: creates new segment, splitting gap
+Endpoint cases depend on boundary
+Handle boundary gaps (leftmost/rightmost) specially
 ```
-function ExpectedMaxSegments(n):
-    // State: (gap_profile, max_segments_so_far)
-    // gap_profile = sorted tuple of gap sizes (multiset)
-    // Initial state: one gap of size n, 0 segments, max = 0
-    Initialize DP: state = (gaps=(n,), current_seg=0, max_seg=0), probability = 1
-
-    // BFS/memoized recursion over states
-    for each state (gaps, s, m) with probability p:
-        total_empty = sum(gaps)
-        if total_empty == 0:
-            result += m * p
-            continue
-        for each gap g_i of size g > 0 in gaps:
-            // Place in interior of gap g: splits into (j-1, g-j) for j=1..g
-            //   - If j=1 or j=g (endpoint touching a segment): extends segment
-            //   - If 1 < j < g: creates new segment, splitting gap
-            //   - Endpoint cases depend on boundary
-            // Handle boundary gaps (leftmost/rightmost) specially
-            prob_cell = 1 / total_empty
-            for each cell position in gap g_i:
-                Compute new gaps, new s, new m
-                Accumulate into DP table
-
-    return result
-```
-
-In practice, the gap profile is represented as a sorted tuple of gap sizes, with careful handling of the two boundary gaps. The number of distinct gap profiles for $n = 40$ is manageable (partitions of $n - k$ into at most $s + 1$ parts, bounded by $p(40) \approx 37338$), and tracking $m$ up to $\lceil n/2 \rceil = 20$ keeps the state space feasible.
 
 ## Complexity Analysis
 

@@ -31,33 +31,17 @@ On a $50 \times 50$ grid, obstacles are placed at all lattice points $(x, y)$ wh
 
 **Proof.** Every path to $(x,y)$ arrives via its last step, which is either from $(x-1, y)$ or from $(x, y-1)$. These two cases are mutually exclusive and exhaustive. If $(x,y)$ is an obstacle, no valid path ends there, so $\operatorname{dp}[x][y] = 0$. The base case $\operatorname{dp}[0][0] = 1$ counts the empty path. By induction on $x + y$, $\operatorname{dp}[x][y]$ correctly counts all valid paths. $\square$
 
-## Algorithm
+## Editorial
+Count lattice paths from (0,0) to (M,M) on an MxM grid using only right and up steps, avoiding blocked points. A point (x,y) is blocked when x+y is a perfect square AND gcd(x,y) > 1. Answer mod 10^9+7. Key observations: dp[x][y] = 0 for blocked cells. We identify obstacles. We then dP. Finally, iterate over x from 0 to M.
 
-```
-function CountPaths(M, N, MOD):
-    // Step 1: Identify obstacles
-    function is_obstacle(x, y):
-        s := x + y
-        k := isqrt(s)
-        if k * k != s: return false
-        if x == 0 and y == 0: return false    // origin not blocked
-        return gcd(x, y) > 1
+## Pseudocode
 
-    // Step 2: DP
-    dp[0..M][0..N] := 0
-    dp[0][0] := 1
-
-    for x from 0 to M:
-        for y from 0 to N:
-            if x == 0 and y == 0: continue
-            if is_obstacle(x, y):
-                dp[x][y] := 0
-            else:
-                left  := dp[x-1][y] if x > 0 else 0
-                below := dp[x][y-1] if y > 0 else 0
-                dp[x][y] := (left + below) mod MOD
-
-    return dp[M][N]
+```text
+Identify obstacles
+DP
+for x from 0 to M
+for y from 0 to N
+else
 ```
 
 ## Complexity Analysis

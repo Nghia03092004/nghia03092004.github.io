@@ -144,14 +144,17 @@ T(N)=3N^2+\sum_{x=1}^{N}\sum_{y=1}^{N}
 \right].
 \]
 
-## Algorithm
+## Editorial
+Count right triangles with vertices O=(0,0), P, Q on the integer grid [0,N] x [0,N] by counting how many lattice points lie on the line through each possible right-angle vertex and perpendicular to OP. We compute \(g=\gcd(x,y)\). We then let the primitive perpendicular step be \((y/g,-x/g)\). Finally, count how many times this step can be taken in each direction before leaving the square.
 
-For each interior point \(P=(x,y)\):
+## Pseudocode
 
-1. Compute \(g=\gcd(x,y)\).
-2. Let the primitive perpendicular step be \((y/g,-x/g)\).
-3. Count how many times this step can be taken in each direction before leaving the square.
-4. Add those counts to the running total, initialized with \(3N^2\).
+```text
+Compute \(g=\gcd(x,y)\)
+Let the primitive perpendicular step be \((y/g,-x/g)\)
+Count how many times this step can be taken in each direction before leaving the square
+Add those counts to the running total, initialized with \(3N^2\)
+```
 
 ## Correctness
 

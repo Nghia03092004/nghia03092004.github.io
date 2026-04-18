@@ -43,41 +43,16 @@ $$L(n) = \frac{100}{\phi + 1}\bigl(\phi^{n-1} + (-\phi)^{-(n-1)}\bigr) + \frac{1
 
 **Proof.** At each step, $n$ decreases by 1 or 2. Since we start at $n \approx \log_\phi k$ and reach $n \in \{1, 2\}$, the number of steps is $O(\log_\phi k)$. $\square$
 
-## Algorithm
+## Editorial
+F(1) = A (100 digits of pi), F(2) = B (next 100 digits of pi) F(n) = F(n-2) . F(n-1) (concatenation, older part first) Sequence: A, B, AB, BAB, ABBAB, ... Find sum of D((127+19n)*7^n) * 10^n for n = 0 to 17, where D(k) is the k-th digit of the infinite Fibonacci word. We precompute Fibonacci lengths. We then find smallest n with L[n] >= k. Finally, recurse.
 
-```
-function solve():
-    A = "1415926535...0679"   // first 100 digits of pi after decimal
-    B = "8214808651...8196"   // next 100 digits
+## Pseudocode
 
-    // Precompute Fibonacci lengths
-    L[1] = L[2] = 100
-    for i = 3 to 90:
-        L[i] = L[i-1] + L[i-2]
-
-    result = 0
-    for n = 0 to 17:
-        k = (127 + 19*n) * 7^n
-        digit = lookup(k, L)
-        result += 10^n * digit
-
-    return result
-
-function lookup(k, L):
-    // Find smallest n with L[n] >= k
-    n = 1
-    while L[n] < k: n += 1
-
-    // Recurse
-    while n > 2:
-        if k <= L[n-2]:
-            n = n - 2
-        else:
-            k = k - L[n-2]
-            n = n - 1
-
-    if n == 1: return A[k]
-    else: return B[k]
+```text
+Precompute Fibonacci lengths
+Find smallest n with L[n] >= k
+Recurse
+else
 ```
 
 ## Complexity Analysis

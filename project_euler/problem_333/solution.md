@@ -27,38 +27,19 @@ $$\prod_{t \in T \cap [1,N]} (1 + x^t).$$
 
 **Proof.** By definition, $p$ is special if and only if it admits exactly one partition into distinct 3-smooth powers, which is precisely $\mathrm{dp}[p] = 1$. $\square$
 
-## Algorithm
+## Editorial
+Approach: 1. Generate all numbers 2^a * 3^b < 10^6. 2. 0-1 knapsack DP to count representations (capped at 2). 3. Sieve primes, sum those with exactly 1 representation. We generate 3-smooth powers up to N. We then 0-1 knapsack DP (count representations, cap at 2). Finally, iterate over t in T.
 
-```
-function SumSpecialPrimes(N):
-    # Step 1: Generate 3-smooth powers up to N
-    T = []
-    b = 0
-    while 3^b <= N:
-        a = 0
-        while 2^a * 3^b <= N:
-            T.append(2^a * 3^b)
-            a += 1
-        b += 1
+## Pseudocode
 
-    # Step 2: 0-1 knapsack DP (count representations, cap at 2)
-    dp = array of size N, initialized to 0
-    dp[0] = 1
-    for t in T:
-        for s from N-1 down to t:
-            if dp[s - t] > 0 and dp[s] < 2:
-                dp[s] = min(dp[s] + dp[s - t], 2)
-
-    # Step 3: Sieve primes up to N
-    is_prime = sieve_of_eratosthenes(N)
-
-    # Step 4: Sum special primes
-    result = 0
-    for p from 2 to N-1:
-        if is_prime[p] and dp[p] == 1:
-            result += p
-
-    return result
+```text
+Generate 3-smooth powers up to N
+0-1 knapsack DP (count representations, cap at 2)
+for t in T
+for s from N-1 down to t
+Sieve primes up to N
+Sum special primes
+for p from 2 to N-1
 ```
 
 ## Complexity Analysis

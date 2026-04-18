@@ -47,14 +47,17 @@ $$f(n) = \sum_{k=1}^{\lfloor\sqrt{n}\rfloor} \mu_{|\cdot|}(k) \cdot G\!\left(\fr
 
 where the sum is over norms of Gaussian integers weighted by a multiplicative function derived from $\mu_G$.
 
-## Algorithm
+## Editorial
+The computation reduces to evaluating sums involving the ordinary Mobius function applied to norms of Gaussian ideals, combined with efficient circle-counting routines. We use a segmented sieve to compute a Mobius-like function for Gaussian integer norms. We then enumerate Gaussian integers by norm and apply Mobius inversion. Finally, use efficient lattice point counting in quarter-circles.
 
-1. Use a segmented sieve to compute a Mobius-like function for Gaussian integer norms
-2. Enumerate Gaussian integers by norm and apply Mobius inversion
-3. Use efficient lattice point counting in quarter-circles
-4. The asymptotic density of squarefree Gaussian integers is $\prod_\pi (1 - N(\pi)^{-2})$
+## Pseudocode
 
-The computation reduces to evaluating sums involving the ordinary Mobius function applied to norms of Gaussian ideals, combined with efficient circle-counting routines.
+```text
+Use a segmented sieve to compute a Mobius-like function for Gaussian integer norms
+Enumerate Gaussian integers by norm and apply Mobius inversion
+Use efficient lattice point counting in quarter-circles
+The asymptotic density of squarefree Gaussian integers is $\prod_\pi (1 - N(\pi)^{-2})$
+```
 
 ## Correctness
 

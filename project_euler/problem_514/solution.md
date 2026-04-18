@@ -31,32 +31,18 @@ When translations are included, the equivalence group is larger (a semidirect pr
 
 **Proof.** Fixing a canonical position quotients out the translation group. The remaining equivalences are precisely the $D_4$ symmetries, so Burnside's lemma over $D_4$ yields the correct orbit count. $\square$
 
-## Algorithm
+## Editorial
+Count distinct shapes on an n x n geoboard formed by rubber bands, up to translation, rotation, and reflection. We enumerate all simple lattice polygons on n x n grid. We then canonicalize each polygon (translate to canonical position). Finally, iterate over P in polygons.
 
-```
-function CountShapes(n):
-    // Step 1: Enumerate all simple lattice polygons on n x n grid
-    polygons := enumerate_simple_polygons(n)
+## Pseudocode
 
-    // Step 2: Canonicalize each polygon (translate to canonical position)
-    canonical := {}
-    for P in polygons:
-        P_canon := translate_to_canonical(P)
-        canonical.add(P_canon)
-
-    // Step 3: Apply Burnside over D4
-    D4 := [identity, rot90, rot180, rot270, refl_h, refl_v, refl_d, refl_a]
-    total_fixed := 0
-    for g in D4:
-        fixed_count := 0
-        for P in canonical:
-            Q := apply(g, P)
-            Q_canon := translate_to_canonical(Q)
-            if Q_canon == P:
-                fixed_count += 1
-        total_fixed += fixed_count
-
-    return total_fixed / 8
+```text
+Enumerate all simple lattice polygons on n x n grid
+Canonicalize each polygon (translate to canonical position)
+for P in polygons
+Apply Burnside over D4
+for g in D4
+for P in canonical
 ```
 
 ## Complexity Analysis

@@ -47,34 +47,17 @@ $$(a + bi) = i^k \cdot (2 + 3i)^{\pm 1} \cdot (u + vi)^2 \cdot t$$
 
 **Proof.** The reduction in Theorem 2 shows that every solution arises from a coprime pair $(a, b)$ and a scaling factor $d$. Systematically searching over $(a, b, d)$ with the divisibility and bound constraints enumerates all solutions. $\square$
 
-## Algorithm
+## Editorial
+$S(N) = \sum (x+y+z)$ over all such with $1 \le x,y,z \le N$. Given $S(100)=124$, $S(10^3). We iterate over coprime pairs (a, b) with a <= b. We then need s | 13 * d^2, i.e., s/gcd(s,13) | d^2/gcd(d^2, s/gcd(s,13)). Finally, simplification: enumerate valid d.
 
-```
-function S(N):
-    p = 10^9  // for last 9 digits
-    result = 0
+## Pseudocode
 
-    // Iterate over coprime pairs (a, b) with a <= b
-    for a = 1 to sqrt(N):
-        for b = a to sqrt(N):
-            if gcd(a, b) != 1: continue
-            s = a^2 + b^2
-            // Need s | 13 * d^2, i.e., s/gcd(s,13) | d^2/gcd(d^2, s/gcd(s,13))
-            // Simplification: enumerate valid d
-
-            // Case 1: s | 13 (only for small a, b)
-            // Case 2: s | 13 * d^2 for d > 1
-
-            for each valid d (computed from divisibility):
-                x = d * a
-                y = d * b
-                z_sq = 13 * d^2 * a^2 * b^2 / s
-                if z_sq is a perfect square:
-                    z = sqrt(z_sq)
-                    if gcd(x, y, z) == 1 and x <= N and y <= N and z <= N:
-                        result = (result + x + y + z) mod p
-
-    return result
+```text
+Iterate over coprime pairs (a, b) with a <= b
+Need s | 13 * d^2, i.e., s/gcd(s,13) | d^2/gcd(d^2, s/gcd(s,13))
+Simplification: enumerate valid d
+Case 1: s | 13 (only for small a, b)
+Case 2: s | 13 * d^2 for d > 1
 ```
 
 ## Complexity Analysis

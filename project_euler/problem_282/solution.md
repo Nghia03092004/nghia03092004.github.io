@@ -64,30 +64,15 @@ Part (2): The Carmichael chain for $7^8$ is $7^8 \to \lambda(7^8) = 6 \cdot 7^7 
 
 Part (3): Standard CRT reconstruction from the residues modulo $2^8$ and $7^8$. $\qquad \blacksquare$
 
-## Algorithm
+## Editorial
+Closed forms: A(0)=1, A(1)=3, A(2)=7, A(3)=61, A(4)=2^^7 - 3. A(5) and A(6) involve towers that stabilize modulo 14^8. Computation via CRT (mod 2^8 and mod 7^8) with iterated Carmichael lambda. We compute A(4), A(5), A(6) mod M via tower2_mod. We then compute 2^^height mod m via CRT on 2-part and odd-part. Finally, recurse using Carmichael's lambda for the odd part.
 
-```
-function solve(M = 14^8):
-    total = (1 + 3 + 7 + 61) mod M    // A(0) + A(1) + A(2) + A(3)
+## Pseudocode
 
-    // Compute A(4), A(5), A(6) mod M via tower2_mod
-    a4 = (tower2_mod(7, M) - 3) mod M
-    stable = (tower2_mod(200, M) - 3) mod M   // height 200 >> chain length
-    a5 = stable
-    a6 = stable
-
-    return (total + a4 + a5 + a6) mod M
-
-function tower2_mod(height, m):
-    // Compute 2^^height mod m via CRT on 2-part and odd-part
-    // Recurse using Carmichael's lambda for the odd part
-    if m == 1: return 0
-    if height == 0: return 1
-    if height == 1: return 2 mod m
-    Split m = 2^v * m' with m' odd
-    Mod 2^v: 0 if exponent >= v (true for height >= 4 in practice)
-    Mod m': tower2_mod(height - 1, lambda(m')) gives exponent, then pow(2, exp, m')
-    Combine via CRT
+```text
+Compute A(4), A(5), A(6) mod M via tower2_mod
+Compute 2^^height mod m via CRT on 2-part and odd-part
+Recurse using Carmichael's lambda for the odd part
 ```
 
 ## Complexity Analysis

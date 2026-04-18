@@ -32,23 +32,26 @@ $$F(x,y) = \sum_{(dx,dy) \in \mathcal{S}} F(x - dx,\; y - dy)$$
 
 **Proof.** A step $(dx, dy)$ with $dx \leq W$ and $dy \leq H$ requires $F_k = \sqrt{dx^2 + dy^2} \leq \sqrt{W^2 + H^2}$. Since $F_k \sim \varphi^k / \sqrt{5}$, the number of Fibonacci numbers up to $\sqrt{W^2 + H^2}$ is $O(\log_\varphi N)$. Each Fibonacci number contributes $O(1)$ steps on average (the number of representations as a sum of two squares is bounded by the divisor function). $\square$
 
-## Algorithm
+## Editorial
+Count lattice paths from (0,0) to (W,H) where each step has length equal to a Fibonacci number. F(W,H) mod 10^9+7. Steps: all (x,y) with x,y >= 0 and x^2 + y^2 = fib_k^2.
 
-```
-function F(W, H, mod):
-    S = enumerate_valid_steps(W, H)   // all (dx,dy) with Fibonacci norm, dx<=W, dy<=H
+## Pseudocode
+
+```text
+    S = enumerate_valid_steps(W, H) // all (dx,dy) with Fibonacci norm, dx<=W, dy<=H
     dp = 2D array of size (W+1) x (H+1), initialized to 0
     dp[0][0] = 1
-    for x = 0 to W:
-        for y = 0 to H:
-            for (dx, dy) in S:
-                if x - dx >= 0 and y - dy >= 0:
+    For x from 0 to W:
+        For y from 0 to H:
+            For each (dx, dy) in S:
+                If x - dx >= 0 and y - dy >= 0 then
                     dp[x][y] += dp[x - dx][y - dy]
                     dp[x][y] %= mod
-    return dp[W][H]
+    Return dp[W][H]
 ```
 
 **Optimization.** Use a rolling array: since the maximum $dx$ in $\mathcal{S}$ is bounded by some $D$, only the last $D$ rows of the DP table need to be stored.
+```
 
 ## Complexity Analysis
 

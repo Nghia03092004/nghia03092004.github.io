@@ -24,25 +24,26 @@ A positive integer is *increasing* if its digits form a non-decreasing sequence 
 
 *Proof.* By Theorem 2, $B(n)/n$ eventually exceeds any constant less than 1, including $99/100$. At $n = 100$, $B(100) = 0$ (Theorem 1), so $B(100)/100 = 0 < 99/100$. By Lemma 1, the target must be a multiple of 100. As $n$ increases, the non-bouncy count $n - B(n)$ grows subexponentially while $n/100$ grows linearly, so a crossing must occur. A sequential scan checks every integer, maintains an exact count, and cannot miss the first qualifying $n$. $\blacksquare$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function FindBouncyThreshold():
+## Pseudocode
+
+```text
     bouncy_count = 0
     for n = 1, 2, 3, ...:
-        if IsBouncy(n):
+        If IsBouncy(n) then
             bouncy_count += 1
-        if 100 * bouncy_count == 99 * n:
-            return n
+        If 100 * bouncy_count == 99 * n then
+            Return n
 
-function IsBouncy(n):
     digits = decimal_digits(n)
     has_increase = false
     has_decrease = false
-    for i = 1 to len(digits) - 1:
+    For i from 1 to len(digits) - 1:
         if digits[i] > digits[i-1]: has_increase = true
         if digits[i] < digits[i-1]: has_decrease = true
-    return has_increase and has_decrease
+    Return has_increase and has_decrease
 ```
 
 ## Complexity Analysis

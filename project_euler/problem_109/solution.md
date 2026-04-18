@@ -50,44 +50,16 @@ where $\{d_1, d_2\}$ is an unordered multiset (combination with repetition).
 
 **Proof.** By the problem statement, the order of non-final darts does not matter. For example, S1-T2-D3 and T2-S1-D3 are the same checkout. However, S1-D3 (as a 2-dart checkout) is different from S1-T2-D3 (3-dart checkout) even though both end with D3 -- they involve different numbers of darts. $\square$
 
-## Algorithm
+## Editorial
+Count distinct ways to check out (reach exactly 0) with score < 100. Last dart must be a double. Up to 3 darts total. Non-final darts are unordered (combinations, not permutations). We build list of all dart types with scores. We then 1-dart checkouts. Finally, 2-dart checkouts.
 
-```
-function solve():
-    // Build list of all dart types with scores
-    all_darts = []  // (type_id, score) for all 62 darts
-    doubles = []    // (type_id, score) for all 21 doubles
+## Pseudocode
 
-    for i = 1 to 20:
-        all_darts.append(("S" + i, i))
-        all_darts.append(("D" + i, 2*i))
-        all_darts.append(("T" + i, 3*i))
-        doubles.append(("D" + i, 2*i))
-    all_darts.append(("S25", 25))
-    all_darts.append(("D25", 50))
-    doubles.append(("D25", 50))
-
-    count = 0
-
-    // 1-dart checkouts
-    for (_, d) in doubles:
-        if d < 100:
-            count += 1
-
-    // 2-dart checkouts
-    for i = 0 to 61:
-        for (_, d) in doubles:
-            if all_darts[i].score + d < 100:
-                count += 1
-
-    // 3-dart checkouts (unordered pairs of non-final darts)
-    for i = 0 to 61:
-        for j = i to 61:   // j >= i ensures unordered
-            for (_, d) in doubles:
-                if all_darts[i].score + all_darts[j].score + d < 100:
-                    count += 1
-
-    return count
+```text
+Build list of all dart types with scores
+1-dart checkouts
+2-dart checkouts
+3-dart checkouts (unordered pairs of non-final darts)
 ```
 
 ## Complexity Analysis

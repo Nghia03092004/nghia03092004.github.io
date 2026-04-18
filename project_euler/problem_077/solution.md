@@ -43,24 +43,26 @@ After all primes $p \leq N$ are processed, $\mathrm{dp}[n] = q(n)$ for $n \leq N
 
 *Proof.* The function $q(n)$ is monotonically non-decreasing for $n \geq 2$ (since every partition of $n-1$ into primes can be extended by adding $1$ to some part or by inclusion). Direct computation yields $q(71) = 5007 > 5000$, confirming the bound. $\blacksquare$
 
-## Algorithm
+## Editorial
+What is the first value which can be written as the sum of primes in over five thousand different ways?. We iterate over p in primes.
 
-```
-function find_first_prime_partition_exceeding(threshold):
-    N = 100                         # sufficient upper bound
-    primes = sieve_primes(N)        # [2, 3, 5, 7, 11, ...]
+## Pseudocode
+
+```text
+    N = 100 # sufficient upper bound
+    primes = sieve_primes(N) # [2, 3, 5, 7, 11, ...]
     dp = array[0..N] initialized to 0
     dp[0] = 1
 
     for p in primes:
-        for j = p to N:
+        For j from p to N:
             dp[j] += dp[j - p]
 
-    for n = 2 to N:
-        if dp[n] > threshold:
-            return n
+    For n from 2 to N:
+        If dp[n] > threshold then
+            Return n
 
-    return -1                       # unreachable given the bound
+    Return -1 # unreachable given the bound
 ```
 
 ## Complexity Analysis

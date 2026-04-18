@@ -34,17 +34,19 @@ $$L(N) = (2M_0 + 1) + 2\sum_{x=1}^{\lfloor\sqrt{N/3}\rfloor} \left(2\left\lfloor
 
 **Proof.** The $x = 0$ slice contributes $2M_0 + 1$ points. For $x \ne 0$, the slices at $x$ and $-x$ have identical $y$-ranges (since $3x^2 = 3(-x)^2$), so each pair contributes twice the count of a single slice. $\square$
 
-## Algorithm
+## Editorial
+Count integer (x, y) with 3x^2 + 5y^2 <= N, where N = 10^6. The lattice point count for ellipse Ax^2 + By^2 <= N is approximately pi*N/sqrt(AB), with error O(sqrt(N)). We compute exactly by slicing: for each valid x, count y-values satisfying y^2 <= (N - 3x^2) / 5. Complexity: O(sqrt(N)) time, O(1) space.
 
-```
-function CountLatticePoints(N):
+## Pseudocode
+
+```text
     x_max = floor(sqrt(N / 3))
     count = 0
-    for x = -x_max to x_max:
+    For x from -x_max to x_max:
         R = N - 3 * x * x
         y_max = floor(sqrt(R / 5))
         count = count + 2 * y_max + 1
-    return count
+    Return count
 ```
 
 ## Complexity Analysis

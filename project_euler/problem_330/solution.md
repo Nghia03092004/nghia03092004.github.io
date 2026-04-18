@@ -41,28 +41,18 @@ $$a(n) = \sum_{d=1}^{n} \sum_{j=1}^{\lfloor n/d \rfloor} \frac{1}{(dj)!/(j!)} \c
 
 **Proof.** Since $B(n)$ is an integer multiple of the appropriate factorial denominators, the division is exact in $\mathbb{Q}$. The modular computation separates the 2-adic and 5-adic parts, computes each independently, and recombines via CRT. $\square$
 
-## Algorithm
+## Editorial
+Result modulo 10^8. The recurrence: a(0) = 1 a(n) = 1 - sum_{k=1}^{n} a(n-k) / k! for n >= 1 This means if f(x) = sum a(n) x^n / n!, then f(x) * exp(x) relates to a known generating function, and we need f(1) mod 10^8. We use exact rational arithmetic or sufficient modular precision. We then compute B(n) from a(n) and the e-expansion. Finally, b(n) encodes the correction terms.
 
-```
-function solve():
-    M = 10^8
-    N0 = 40   // sufficient cutoff
+## Pseudocode
 
-    // Step 1: Compute a(n) for n = 0..N0
-    for n = 0 to N0:
-        a[n] = sum over k=1..n of floor(n/k) / factorial(k)
-        // Use exact rational arithmetic or sufficient modular precision
-
-    // Step 2: Compute B(n) from a(n) and the e-expansion
-    // B(n) encodes the correction terms
-
-    // Step 3: Sum S = sum_{n=0}^{N0} B(n) / n! mod M
-    // Use CRT: compute mod 2^8 and mod 5^8 separately
-    S_2 = sum_mod(2^8)
-    S_5 = sum_mod(5^8)
-    S = CRT(S_2, S_5, 2^8, 5^8)
-
-    return S mod M
+```text
+Compute a(n) for n = 0..N0
+Use exact rational arithmetic or sufficient modular precision
+Compute B(n) from a(n) and the e-expansion
+B(n) encodes the correction terms
+Sum S = sum_{n=0}^{N0} B(n) / n! mod M
+Use CRT: compute mod 2^8 and mod 5^8 separately
 ```
 
 ## Complexity Analysis

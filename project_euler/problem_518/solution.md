@@ -24,28 +24,14 @@ $$a + 1 = ky^2, \quad b + 1 = kxy, \quad c + 1 = kx^2.$$
 
 **Proof.** From $c = kx^2 - 1 < n$, we get $kx^2 \leq n$. Since $k \geq 1$, $x \leq \sqrt{n}$. For fixed $x$, $k \leq n/x^2$. $\square$
 
-## Algorithm
+## Editorial
+We sieve primes up to n. Finally, enumerate triples. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function S(n):
-    // Step 1: Sieve primes up to n
-    is_prime := sieve_of_eratosthenes(n)
+## Pseudocode
 
-    // Step 2: Enumerate triples
-    total := 0
-    for x := 2 to floor(sqrt(n)):
-        for y := 1 to x - 1:
-            if gcd(x, y) != 1: continue
-            for k := 1 while k * x^2 <= n:
-                a := k * y^2 - 1
-                b := k * x * y - 1
-                c := k * x^2 - 1
-                if a < 2: continue          // a must be prime >= 2
-                if a >= b or b >= c: continue
-                if is_prime[a] and is_prime[b] and is_prime[c]:
-                    total += a + b + c
-
-    return total
+```text
+Sieve primes up to n
+Enumerate triples
 ```
 
 ## Complexity Analysis

@@ -82,13 +82,18 @@ Therefore:
 
 $$C(N) = \sum_{\text{primitive}\;(p_0, q_0, s_0)} \left\lfloor \frac{N}{a_{\min}(p_0, q_0, s_0)} \right\rfloor$$
 
-## Algorithm
+## Editorial
+We enumerate primitive Pythagorean triple generators $(u, v)$ with $u > v > 0$, $\gcd(u,v) = 1$, $u - v$ odd. We then iterate over each, compute $m$, $n$, $k$ and form 4 candidate pairs via Gaussian integer multiplication. Finally, iterate over each candidate, extract $(p_0, q_0)$ coprime with $p_0 < q_0 < 2p_0$ and verify $p_0^2 + q_0^2 = 5s_0^2$.
 
-1. Enumerate primitive Pythagorean triple generators $(u, v)$ with $u > v > 0$, $\gcd(u,v) = 1$, $u - v$ odd.
-2. For each, compute $m$, $n$, $k$ and form 4 candidate pairs via Gaussian integer multiplication.
-3. For each candidate, extract $(p_0, q_0)$ coprime with $p_0 < q_0 < 2p_0$ and verify $p_0^2 + q_0^2 = 5s_0^2$.
-4. Compute $a_{\min}$ and add $\lfloor N / a_{\min} \rfloor$ to the count.
-5. For $N = 10^{17}$, a sub-linear (Dirichlet hyperbola) method is needed since $u$ ranges up to $\sim 3 \times 10^8$.
+## Pseudocode
+
+```text
+Enumerate primitive Pythagorean triple generators $(u, v)$ with $u > v > 0$, $\gcd(u,v) = 1$, $u - v$ odd
+For each, compute $m$, $n$, $k$ and form 4 candidate pairs via Gaussian integer multiplication
+For each candidate, extract $(p_0, q_0)$ coprime with $p_0 < q_0 < 2p_0$ and verify $p_0^2 + q_0^2 = 5s_0^2$
+Compute $a_{\min}$ and add $\lfloor N / a_{\min} \rfloor$ to the count
+For $N = 10^{17}$, a sub-linear (Dirichlet hyperbola) method is needed since $u$ ranges up to $\sim 3 \times 10^8$
+```
 
 ## Verification
 

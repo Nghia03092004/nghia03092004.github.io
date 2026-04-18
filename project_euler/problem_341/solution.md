@@ -47,21 +47,20 @@ where $\phi = \frac{1+\sqrt{5}}{2}$ is the golden ratio. Consequently, $P(v) \si
 
 **Corollary 1 (Sufficient computation range).** To evaluate $G(n)$ for $n$ up to $(10^6)^3 = 10^{18}$, it suffices to compute the Golomb sequence through block index $v_{\max} = O\bigl((10^{18})^{1/\phi}\bigr) \approx O(10^{11.1})$. In practice, building $P(v)$ incrementally until $P(v) \ge 10^{18}$ determines $v_{\max}$.
 
-## Algorithm
+## Editorial
+The Golomb sequence G satisfies: value v appears exactly G(v) times. Recurrence: G(1) = 1, G(n) = 1 + G(n - G(G(n-1))) for n >= 2. Define P(v) = sum_{i=1}^{v} G(i) (last position with value <= v). Then G(n) = v iff P(v-1) < n <= P(v). We build the sequence until P(v) >= (10^6 - 1)^3, then for each d = 1..999999 locate the block containing d^3 via a linear scan. We build blocks.** Compute $G(v)$, $P(v)$, and $S(v)$ for $v = 1, 2, \ldots$ using the recurrence until $P(v) \ge (10^6 - 1)^3$. Finally, answer queries.** For each $d = 1, \ldots, 999999$, set $n = d^3$. Locate the block $v$ such that $P(v-1) < n \le P(v)$ using a linear scan (since queries are in increasing order of $d^3$, the scan pointer only advances). Then $G(n) = v$, and accumulate $v$ into the total.
 
-1. **Build blocks.** Compute $G(v)$, $P(v)$, and $S(v)$ for $v = 1, 2, \ldots$ using the recurrence until $P(v) \ge (10^6 - 1)^3$.
-2. **Answer queries.** For each $d = 1, \ldots, 999999$, set $n = d^3$. Locate the block $v$ such that $P(v-1) < n \le P(v)$ using a linear scan (since queries are in increasing order of $d^3$, the scan pointer only advances). Then $G(n) = v$, and accumulate $v$ into the total.
+## Pseudocode
 
-```
-function solve():
+```text
     Build G, P, S arrays until P[v] >= (10^6 - 1)^3
     index = 1, total = 0
-    for d = 1 to 999999:
+    For d from 1 to 999999:
         n = d^3
-        while P[index] < n:
+        While P[index] < n:
             index += 1
-        total += index    // G(n) = index since P[index-1] < n <= P[index]
-    return total
+        total += index // G(n) = index since P[index-1] < n <= P[index]
+    Return total
 ```
 
 ## Complexity Analysis

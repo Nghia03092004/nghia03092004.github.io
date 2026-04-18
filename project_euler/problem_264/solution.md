@@ -36,39 +36,42 @@ $$D = n\bigl((2a_1 - 10)^2 + 4a_2^2\bigr) - (10a_1 - 25 - n)^2.$$
 
 **Proof.** Substituting the linear constraint into the circle equation $b_1^2 + b_2^2 = n$ and simplifying using standard quadratic-formula techniques. The factor $16a_2^2$ arises from the coefficient of the linear equation in $b_2$. $\square$
 
-## Algorithm
+## Editorial
+Algorithm: For each lattice point A = (a1, a2) with n = a1^2+a2^2, the orthocenter condition gives a LINEAR constraint on B = (b1, b2): (2*a1 - 10)*b1 + 2*a2*b2 = 10*a1 - 25 - n Combined with b1^2 + b2^2 = n (same circle), this is a line-circle intersection with at most 2 solutions. The discriminant simplifies to D = n*(L^2+4*a2^2) - R^2, where L = 2*a1-10 and R = 10*a1-25-n. D must be a non-negative perfect square. Each unordered triangle {A,B,C} is counted 6 times (3! orderings). There are 155 valid triangles. All have circumradius <= 20000.
 
-```
-R_max = 20000  (perimeter <= 100000 implies R <= ~20000)
+## Pseudocode
+
+```text
+R_max = 20000 (perimeter <= 100000 implies R <= ~20000)
 total_perimeter = 0
 
-for a1 = -R_max to R_max:
-    for a2 = 1 to R_max:  (a2 > 0 by convention to avoid double-counting)
+For a1 from -R_max to R_max:
+    for a2 = 1 to R_max: (a2 > 0 by convention to avoid double-counting)
         n = a1^2 + a2^2
-        if n == 0: continue
+        If n == 0 then continue
         L = 2*a1 - 10
         M = 2*a2
         R_val = 10*a1 - 25 - n
         D = n*(L^2 + M^2) - R_val^2
-        if D < 0: continue
+        If D < 0 then continue
         sqrt_D = isqrt(D)
-        if sqrt_D^2 != D: continue
+        If sqrt_D^2 != D then continue
 
-        for sign in {+1, -1}:
+        For each sign in {+1, -1}:
             b2_num = M*R_val + sign * L * sqrt_D
             b2_den = L^2 + M^2
-            if b2_num % b2_den != 0: continue
+            If b2_num % b2_den != 0 then continue
             b2 = b2_num / b2_den
-            b1 = (R_val - M*b2) / L  (if L != 0)
-            if b1^2 + b2^2 != n: continue
+            b1 = (R_val - M*b2) / L (if L != 0)
+            If b1^2 + b2^2 != n then continue
 
             C = (5 - a1 - b1, -a2 - b2)
             if C on circle and triangle non-degenerate:
                 perim = dist(A,B) + dist(B,C) + dist(A,C)
-                if perim <= 100000:
+                If perim <= 100000 then
                     total_perimeter += perim
 
-return total_perimeter / 6  (each unordered triangle counted 6 times)
+Return total_perimeter / 6 (each unordered triangle counted 6 times)
 ```
 
 ## Complexity Analysis

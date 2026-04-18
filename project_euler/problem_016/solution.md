@@ -39,7 +39,7 @@ $$1 \le S(2^n) \le 9 \cdot d(2^n) = 9\bigl(\lfloor n \log_{10} 2 \rfloor + 1\big
 
 **Verification.** The computed answer $S(2^{1000}) = 1366$ satisfies $1366 = 151 \cdot 9 + 7$, hence $S(2^{1000}) \equiv 7 \pmod{9}$, consistent with Proposition 1 and Theorem 2.
 
-## Algorithm
+## Editorial
 
 We compute $b^n$ exactly and then sum its decimal digits. The reference pseudocode uses a digit array in base 10: each multiplication by $b$ propagates carries across the current digits, and the final digit array is summed. This is sufficient because repeated exact multiplication constructs the decimal expansion of $b^n$ without losing information.
 

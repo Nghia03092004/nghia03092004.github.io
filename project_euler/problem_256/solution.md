@@ -27,27 +27,17 @@ $$S = \sum_{\substack{n, m \ge 1 \\ n + m \le 250}} T(n, m).$$
 
 **Proof.** By Theorem 1(3), it suffices to enumerate valid monomer configurations. The constraint that monomers lie on diagonal fault lines means that in each column of width $n$, there are at most $2^n$ potential monomer patterns, and each pattern either propagates consistently to the next column or does not. A transfer-matrix approach over the $m$ columns, with state space $O(2^n)$, yields the count. $\square$
 
-## Algorithm
+## Editorial
+A tatami-free room is one where every tiling by 1x2 dominoes and 1x1 monomers has no point where four tiles meet. T(n,m) = number of tatami-free tilings of an n x m room. We compute sum of T(n,m) for all n+m <= 250. The answer is 85765680. The structural theorem (Ruskey & Woodcock, 2009) states that tatami-free tilings have a rigid diagonal structure determined by monomer positions. We else. We then enumerate valid monomer configurations using transfer matrix. Finally, along the shorter dimension n.
 
-```
-function ComputeSum(N_max):
-    S = 0
-    for n = 1 to N_max - 1:
-        for m = n to N_max - n:   // n + m <= N_max, n <= m (use symmetry)
-            T_nm = CountTatamiFree(n, m)
-            if n == m:
-                S += T_nm
-            else:
-                S += 2 * T_nm     // T(n,m) = T(m,n) by transposition
-    return S
+## Pseudocode
 
-function CountTatamiFree(n, m):
-    // Enumerate valid monomer configurations using transfer matrix
-    // along the shorter dimension n
-    // State: monomer pattern in current diagonal slice (bitmask of size n)
-    // Propagate through m columns, summing valid completions
-    ...
-    return count
+```text
+else
+Enumerate valid monomer configurations using transfer matrix
+along the shorter dimension n
+State: monomer pattern in current diagonal slice (bitmask of size n)
+Propagate through m columns, summing valid completions
 ```
 
 ## Complexity Analysis

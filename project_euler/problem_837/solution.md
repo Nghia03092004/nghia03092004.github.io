@@ -30,29 +30,21 @@ $$L_{\pi, \pi'} = \begin{cases} 1 & \text{if } \pi' = \pi \text{ or } \pi' = (1\
 
 **Proof.** In the trivial representation, $L$ and $R$ each act as multiplication by 2. In the sign representation, $L$ and $R$ each act as multiplication by 0. In the standard representation, $L$ and $R$ have eigenvalue structure determined by the character values $\chi_{\text{std}}(\sigma_1) = 0$ and $\chi_{\text{std}}(\sigma_2) = 0$, giving $L_{\text{std}} = I + \rho(\sigma_1)$ and $R_{\text{std}} = I + \rho(\sigma_2)$ as $2 \times 2$ matrices. The interleaving sum becomes a product of matrix polynomials that can be evaluated using Chebyshev-type identities and fast modular arithmetic. $\square$
 
-## Algorithm
+## Editorial
+The key subroutine `compute_standard_component` uses $2 \times 2$ matrix operations and modular binomial coefficients, computable in $O(\log(m+n))$ time. We decompose into irreducible representations of S_3. We then trivial component: each L,R contributes factor 2. Finally, sum over interleavings: C(m+n, m) * 2^m * 2^n.
 
+## Pseudocode
+
+```text
+Decompose into irreducible representations of S_3
+Trivial component: each L,R contributes factor 2
+Sum over interleavings: C(m+n, m) * 2^m * 2^n
+Sign component: each L,R contributes factor 0
+Standard 2D component: use matrix exponentiation
+Compute the interleaving sum via the representation matrices
+and Chebyshev polynomial evaluation
+Combine using multiplicity formula
 ```
-function Amidakuji(m, n, p):
-    # Decompose into irreducible representations of S_3
-    # Trivial component: each L,R contributes factor 2
-    # Sum over interleavings: C(m+n, m) * 2^m * 2^n
-    triv_contrib = C(m+n, m, p) * pow(2, m+n, p) mod p
-
-    # Sign component: each L,R contributes factor 0
-    sign_contrib = 0
-
-    # Standard 2D component: use matrix exponentiation
-    # Compute the interleaving sum via the representation matrices
-    # and Chebyshev polynomial evaluation
-    std_contrib = compute_standard_component(m, n, p)
-
-    # Combine using multiplicity formula
-    a = (triv_contrib + sign_contrib + 2 * std_contrib) / 6 mod p
-    return a
-```
-
-The key subroutine `compute_standard_component` uses $2 \times 2$ matrix operations and modular binomial coefficients, computable in $O(\log(m+n))$ time.
 
 ## Complexity Analysis
 

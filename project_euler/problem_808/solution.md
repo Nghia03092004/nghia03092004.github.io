@@ -31,18 +31,23 @@ For $p^2$ to have its reversal also be a perfect square:
 
 We need to find enough primes $p$ so that $p^2$ generates at least 50 reversible prime squares. Since primes grow as $p_n \sim n \ln n$, and the density of reversible prime squares decreases as numbers grow, we sieve primes up to $10^8$, yielding squares up to $10^{16}$.
 
-## Algorithm
+## Editorial
+We sieve primes** up to $10^8$ using the Sieve of Eratosthenes. We then iterate over each prime** $p$. Finally, check if $s$ is a palindrome; skip if so.
 
-1. **Sieve primes** up to $10^8$ using the Sieve of Eratosthenes.
-2. **For each prime** $p$:
-   - Compute $s = p^2$.
-   - Check if $s$ is a palindrome; skip if so.
-   - Compute $r = \text{rev}(s)$.
-   - Check if $r$ is a perfect square.
-   - If so, check if $\sqrt{r}$ is prime.
-   - If all conditions hold, add $s$ to the list.
-3. **Sort** the collected reversible prime squares.
-4. **Sum** the first 50.
+## Pseudocode
+
+```text
+Sieve primes** up to $10^8$ using the Sieve of Eratosthenes
+For each prime** $p$:
+Compute $s = p^2$
+Check if $s$ is a palindrome; skip if so
+Compute $r = \text{rev}(s)$
+Check if $r$ is a perfect square
+If so, check if $\sqrt{r}$ is prime
+If all conditions hold, add $s$ to the list
+Sort** the collected reversible prime squares
+Sum** the first 50
+```
 
 ## Correctness
 

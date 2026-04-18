@@ -42,39 +42,14 @@ The recursion terminates at $\mathbf{0}$ since no further batches occur. Since $
 
 **Corollary.** The answer to the problem is $E(1,1,1,1)$.
 
-## Algorithm
+## Editorial
+We single-sheet indicator (exclude terminal state). Finally, recurse over each possible selection. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function SOLVE():
-    memo = {}
+## Pseudocode
 
-    function E(a2, a3, a4, a5):
-        if (a2, a3, a4, a5) == (0, 0, 0, 0):
-            return 0
-        if (a2, a3, a4, a5) in memo:
-            return memo[(a2, a3, a4, a5)]
-
-        T = a2 + a3 + a4 + a5
-        result = 0
-
-        // Single-sheet indicator (exclude terminal state)
-        if T == 1 and (a2, a3, a4, a5) != (0, 0, 0, 1):
-            result = 1
-
-        // Recurse over each possible selection
-        if a2 > 0:
-            result += (a2 / T) * E(a2 - 1, a3 + 1, a4 + 1, a5 + 1)
-        if a3 > 0:
-            result += (a3 / T) * E(a2, a3 - 1, a4 + 1, a5 + 1)
-        if a4 > 0:
-            result += (a4 / T) * E(a2, a3, a4 - 1, a5 + 1)
-        if a5 > 0:
-            result += (a5 / T) * E(a2, a3, a4, a5 - 1)
-
-        memo[(a2, a3, a4, a5)] = result
-        return result
-
-    return E(1, 1, 1, 1)
+```text
+Single-sheet indicator (exclude terminal state)
+Recurse over each possible selection
 ```
 
 ## Complexity Analysis

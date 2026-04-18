@@ -49,17 +49,17 @@ $$\prod_{\substack{k=1 \\ \gcd(k,5)=1}}^{N} k \equiv \left(\prod_{\substack{k=1 
 
 where $M = 10^5$. Then the factors of 5 are handled recursively via $\lfloor N/5 \rfloor$, etc.
 
-### Algorithm
+### Editorial
+So we strip 5s level by level. We compute $v_2 = v_2(N!)$ and $v_5 = v_5(N!)$ using Legendre's formula. We then compute $m \pmod{10^5}$: the product of all integers from 1 to $N$ with factors of 2 and 5 removed. Finally, compute $2^{v_2 - v_5} \pmod{10^5}$ (since $\gcd(2, 5^5) = 1$, use CRT with moduli $2^5$ and $5^5$).
 
-1. Compute $v_2 = v_2(N!)$ and $v_5 = v_5(N!)$ using Legendre's formula.
-2. Compute $m \pmod{10^5}$: the product of all integers from 1 to $N$ with factors of 2 and 5 removed.
-3. Compute $2^{v_2 - v_5} \pmod{10^5}$ (since $\gcd(2, 5^5) = 1$, use CRT with moduli $2^5$ and $5^5$).
-4. The answer is $2^{v_2 - v_5} \cdot m \pmod{10^5}$.
+### Pseudocode
 
-For step 2, we recursively handle:
-$$\prod_{k=1}^{N} k = \left(\prod_{\substack{k=1 \\ 5 \nmid k}}^{N} k\right) \cdot 5^{v_5(N!)} \cdot \prod_{k=1}^{\lfloor N/5 \rfloor} k$$
-
-So we strip 5s level by level.
+```text
+Compute $v_2 = v_2(N!)$ and $v_5 = v_5(N!)$ using Legendre's formula
+Compute $m \pmod{10^5}$: the product of all integers from 1 to $N$ with factors of 2 and 5 removed
+Compute $2^{v_2 - v_5} \pmod{10^5}$ (since $\gcd(2, 5^5) = 1$, use CRT with moduli $2^5$ and $5^5$)
+The answer is $2^{v_2 - v_5} \cdot m \pmod{10^5}$
+```
 
 ## Correctness
 

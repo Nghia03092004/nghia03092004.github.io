@@ -37,11 +37,16 @@ For the first few terms: $s_0 = 290797$, $s_1 = 290797^2 \bmod 50515093 = \ldots
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Generate points via pseudo-random sequence, form segments, count proper crossings using orientation tests. s_0 = 290797, s_{n+1} = s_n^2 mod 50515093. Method 1: Brute force O(n^2) pairwise crossing check Method 2: Sweep line (sketch). We generate** points from the recurrence. We then form** segments by pairing consecutive points. Finally, count crossings** by checking all pairs of segments.
 
-1. **Generate** points from the recurrence.
-2. **Form** segments by pairing consecutive points.
-3. **Count crossings** by checking all pairs of segments.
+### Pseudocode
+
+```text
+Generate** points from the recurrence
+Form** segments by pairing consecutive points
+Count crossings** by checking all pairs of segments
+```
 
 ### Brute Force: $O(n^2)$
 

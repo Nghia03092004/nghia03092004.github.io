@@ -40,24 +40,14 @@ $$\sigma_2(p^a) = \sum_{j=0}^{a} p^{2j} = \frac{p^{2(a+1)} - 1}{p^2 - 1}.$$
 
 **Lemma 2 (Perfect square detection).** *A nonnegative integer $s$ is a perfect square if and only if $\lfloor \sqrt{s} \rfloor^2 = s$. Integer square root can be computed exactly via Newton's method or built-in `isqrt`.*
 
-## Algorithm
+## Editorial
+We compute sigma_2 via divisor sieve. Finally, check perfect squares and accumulate. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function SolveProblem211(N):
-    // Phase 1: Compute sigma_2 via divisor sieve
-    S[1..N-1] = array of 64-bit unsigned integers, initialized to 0
-    for d = 1 to N-1:
-        for k = d, 2d, 3d, ... while k < N:
-            S[k] += d * d
+## Pseudocode
 
-    // Phase 2: Check perfect squares and accumulate
-    total = 0
-    for n = 1 to N-1:
-        r = isqrt(S[n])
-        if r * r == S[n]:
-            total += n
-
-    return total
+```text
+Compute sigma_2 via divisor sieve
+Check perfect squares and accumulate
 ```
 
 ## Complexity Analysis

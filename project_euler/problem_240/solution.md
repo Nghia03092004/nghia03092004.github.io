@@ -31,36 +31,14 @@ with base case $R(0, a, b, 0) = 1$ and $R(0, a, b, s) = 0$ for $s > 0$.
 
 **Proof.** Fix the smallest value in the multiset as $v \in \{a, \ldots, b\}$, subtract it from the sum, and recurse on the remaining $h-1$ values (each $\geq v$). The base case handles the empty multiset. $\square$
 
-## Algorithm
+## Editorial
+How many ways can 20 twelve-sided dice be rolled so that the top 10 sum to 70? Approach: Enumerate sorted dice configurations (frequency vectors). For each face value from 12 down to 1, decide how many dice show that value. The top-10 sum is determined by the sorted order. For a non-increasing sequence d_1 >= d_2 >= ... >= d_20, the top 10 are d_1,...,d_10. Their sum must equal 70. We recurse on face value from 12 down to 1, tracking: At each face value, the count of dice with that value determines how many go to the "top" part (they fill from the top first in descending order). We enumerate frequency vectors for top dice above threshold.
 
-```
-function solve(D, N, H, S):
-    total = 0
-    for t = 1 to D:
-        for j = 1 to H:
-            remaining_sum = S - j * t
-            if remaining_sum < 0: break
-            top_count = H - j  // dice with values in {t+1, ..., D}
+## Pseudocode
 
-            // Enumerate frequency vectors for top dice above threshold
-            for each multiset of top_count values from {t+1,...,D} summing to remaining_sum:
-                freq = frequency vector of this multiset
-                freq[t] += j
-
-                // Enumerate bottom dice: (N-H) dice with values in {1,...,t}
-                for m = 0 to N - H:
-                    bottom_remaining = N - H - m  // dice with values in {1,...,t-1}
-                    freq[t] += m  // temporarily
-
-                    for each multiset of bottom_remaining values from {1,...,t-1}:
-                        combined_freq = freq + bottom_freq
-                        combined_freq[t] += m
-                        multinomial = N! / product(combined_freq[v]! for v=1..D)
-                        total += multinomial
-
-                    freq[t] -= m  // restore
-
-    return total
+```text
+Enumerate frequency vectors for top dice above threshold
+Enumerate bottom dice: (N-H) dice with values in {1,...,t}
 ```
 
 ## Complexity Analysis

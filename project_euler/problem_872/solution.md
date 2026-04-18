@@ -36,25 +36,15 @@ $$L(n,k) = \frac{1}{n}\sum_{d \mid n} \mu(d)\,k^{n/d},$$
 
 **Proof.** By Mobius inversion applied to $n \cdot N(n,k) = \sum_{d \mid n} d \cdot L(d,k) \cdot (n/d)$. The identity $N(n,k) = \sum_{d \mid n} L(d,k)$ follows from the fact that every necklace of length $n$ has a unique primitive period $d \mid n$, and there are $L(d,k)$ aperiodic necklaces of that length. Inverting gives the formula for $L$. $\square$
 
-## Algorithm
+## Editorial
+Necklace counting via burnside/polya. We iterate over each divisor d of n. Finally, else. We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
 
-```
-function NECKLACE_COUNT(n, k):
-    total = 0
-    for each divisor d of n:
-        total += euler_phi(d) * pow(k, n / d)
-    return total / n
+## Pseudocode
 
-function BRACELET_COUNT(n, k):
-    N = NECKLACE_COUNT(n, k)
-    if n is odd:
-        return (N + k^((n+1)/2)) / 2
-    else:
-        return (N + (k+1) * k^(n/2) / 2) / 2
-
-function SOLVE(parameters):
-    Apply the recursive bracelet structure as specified
-    Return the final aggregate (mod M if required)
+```text
+for each divisor d of n
+if n is odd
+else
 ```
 
 ## Complexity Analysis

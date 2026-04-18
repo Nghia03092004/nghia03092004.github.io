@@ -26,14 +26,16 @@ Find $f(20230401, 57)$. Give as your answer the concatenation of the first lette
 
 Concatenation: $a \cdot p \cdot r \cdot i \cdot l \cdot f \cdot o \cdot o \cdot l \cdot s \cdot j \cdot o \cdot k \cdot e = \texttt{aprilfoolsjoke}$. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function Solve():
+## Pseudocode
+
+```text
     bold_words = ["affine", "plane", "radically", "integral", "local",
                   "field", "open", "oriented", "line", "section",
                   "jacobian", "orthogonal", "kernel", "embedding"]
-    return concatenate(w[0] for w in bold_words)
+    Return concatenate(w[0] for w in bold_words)
 ```
 
 ## Complexity Analysis

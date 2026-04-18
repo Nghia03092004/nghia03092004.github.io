@@ -27,41 +27,15 @@ How many crack-free walls of dimensions $32 \times 10$ can be built?
 
 **Proof.** The base case is clear: every single-row tiling is trivially crack-free. For the recurrence, a crack-free wall of height $k$ with top row $r$ is obtained by choosing a crack-free wall of height $k-1$ whose top row $r'$ is compatible with $r$ (i.e., $C(r) \cap C(r') = \emptyset$), and placing $r$ on top. The summation counts all such extensions. $\square$
 
-## Algorithm
+## Editorial
+We enumerate all row tilings of width W. We then build compatibility matrix. Finally, we apply dynamic programming over the compatible rows. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function SolveProblem215(W, H):
-    // Step 1: Enumerate all row tilings of width W
-    R = []
-    function generate(pos, cracks):
-        if pos == W:
-            R.append(cracks)
-            return
-        if pos + 2 <= W:
-            generate(pos + 2, cracks union {pos + 2} if pos + 2 < W else cracks)
-        if pos + 3 <= W:
-            generate(pos + 3, cracks union {pos + 3} if pos + 3 < W else cracks)
-    generate(0, {})
+## Pseudocode
 
-    // Step 2: Build compatibility matrix
-    m = |R|
-    compat[1..m][1..m] = false
-    for i = 1 to m:
-        for j = 1 to m:
-            if R[i].cracks intersect R[j].cracks == empty:
-                compat[i][j] = true
-
-    // Step 3: DP over rows
-    f[1..m] = 1    // base case: height 1
-    for k = 2 to H:
-        f_new[1..m] = 0
-        for i = 1 to m:
-            for j = 1 to m:
-                if compat[i][j]:
-                    f_new[i] += f[j]
-        f = f_new
-
-    return sum(f[1..m])
+```text
+Enumerate all row tilings of width W
+Build compatibility matrix
+DP over rows
 ```
 
 ## Complexity Analysis

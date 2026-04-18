@@ -29,20 +29,14 @@ $$u_n + u_{n+1} = a + b \quad \text{for all large } n.$$
 
 **Proof.** The error after $n$ iterations of $g$ satisfies $|g^n(u_0) - a| \leq |g'(a)|^n \cdot |u_0 - a|$. With $|g'(a)| \approx 0.35$, after 100 iterations the error is bounded by $0.35^{50} \cdot |u_0 - a| < 10^{-22}$, well below double precision. $\square$
 
-## Algorithm
+## Editorial
+f(x) = floor(2^(30.403243784 - x^2)) * 1e-9 u_0 = -1, u_{n+1} = f(u_n) Converges to 2-cycle. Find floor((u_n + u_{n+1}) * 10^9). We iterate over i from 1 to 1000.
 
-```
-function solve():
-    u = -1.0
-    for i from 1 to 1000:
-        u_next = floor(2^(30.403243784 - u*u)) * 1e-9
-        u = u_next
+## Pseudocode
 
-    # Now u_n and u_{n+1} are converged
-    u_n = u
-    u_n1 = floor(2^(30.403243784 - u*u)) * 1e-9
-
-    return floor((u_n + u_n1) * 1e9)
+```text
+for i from 1 to 1000
+Now u_n and u_{n+1} are converged
 ```
 
 ## Complexity Analysis

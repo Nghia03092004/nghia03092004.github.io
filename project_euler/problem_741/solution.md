@@ -46,28 +46,16 @@ $$g(n) = \frac{1}{8} \sum_{\sigma \in D_4} |\mathrm{Fix}(\sigma)|$$
 
 **Proof.** The formula for $f(n)$ involves factorials and powers of $2$, all computable modulo a prime $p$ in $O(n)$ time. Each fixed-point count under the dihedral symmetries reduces to similar permanent-like formulas involving factorials of $n$ and related quantities. Since $p = 10^9 + 7$ is prime, all required modular inverses exist (for values not divisible by $p$). $\square$
 
-## Algorithm
+## Editorial
+n x n grid, 2 blacks per row and column. g(n) = count up to symmetry. Burnside's lemma. We compute |Fix(sigma)| mod p using the permanent-based formula. We then iterate over identity: use the R(n,2) formula with modular factorials. Finally, iterate over other symmetries: use the structured permanent formulas.
 
-```
-function solve():
-    p = 10^9 + 7
-    result = 0
-    for N in [7^7, 8^8]:
-        fix_counts = array of size 8
-        for each sigma in D_4:
-            fix_counts[sigma] = compute_fix(N, sigma, p)
-        g_N = sum(fix_counts) * mod_inverse(8, p) mod p
-        result = (result + g_N) mod p
-    return result
+## Pseudocode
 
-function compute_fix(n, sigma, p):
-    // Compute |Fix(sigma)| mod p using the permanent-based formula
-    // for identity: use the R(n,2) formula with modular factorials
-    // for other symmetries: use the structured permanent formulas
-    // All involve O(n)-time factorial and summation computations
-    precompute fact[0..n], inv_fact[0..n] mod p
-    apply the inclusion-exclusion / permanent formula for the given symmetry
-    return result mod p
+```text
+Compute |Fix(sigma)| mod p using the permanent-based formula
+for identity: use the R(n,2) formula with modular factorials
+for other symmetries: use the structured permanent formulas
+All involve O(n)-time factorial and summation computations
 ```
 
 ## Complexity Analysis

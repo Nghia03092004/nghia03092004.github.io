@@ -34,12 +34,17 @@ It is easier to count subsets whose convex hull does NOT contain (1/3, 1/3, 1/3)
 
 The answer is computed modulo 11^8 = 214358881.
 
-## Algorithm
+## Editorial
+Count subsets of M(n) that can produce ratio (1:1:1). M(n) = { (a:b:c) : 0 <= a,b,c <= n, gcd(a,b,c) = 1 } E(n) mod 11^8. We enumerate all valid mixtures in M(n) with gcd(a,b,c) = 1 and 0 <= a,b,c <= n. We then classify mixtures by their position relative to (1/3, 1/3, 1/3). Finally, use inclusion-exclusion or generating functions to count valid subsets.
 
-1. Enumerate all valid mixtures in M(n) with gcd(a,b,c) = 1 and 0 <= a,b,c <= n.
-2. Classify mixtures by their position relative to (1/3, 1/3, 1/3).
-3. Use inclusion-exclusion or generating functions to count valid subsets.
-4. Compute modulo 11^8.
+## Pseudocode
+
+```text
+Enumerate all valid mixtures in M(n) with gcd(a,b,c) = 1 and 0 <= a,b,c <= n
+Classify mixtures by their position relative to (1/3, 1/3, 1/3)
+Use inclusion-exclusion or generating functions to count valid subsets
+Compute modulo 11^8
+```
 
 ## Correctness
 

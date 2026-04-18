@@ -38,7 +38,7 @@ Setting $r = 0$, $c = 0$ gives the global optimum. $\square$
 
 *Proof.* At each of the $n - 1$ transitions between consecutive rows, there are exactly 2 choices (move to $c$ or $c + 1$). The choices are independent, giving $2^{n-1}$ paths. For $n = 15$, this is $2^{14} = 16384$. $\square$
 
-## Algorithm
+## Editorial
 
 We solve the triangle with bottom-up dynamic programming. Starting from the last row, we traverse upward row by row and replace each entry by its value plus the larger of the two best totals directly beneath it. This is sufficient because any maximal path from a cell must continue through one of those two children, so the updated entry stores the best possible total from that position.
 

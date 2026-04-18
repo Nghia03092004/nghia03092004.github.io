@@ -36,24 +36,17 @@ The factorizations of 105 into factors $\geq 3$ (since each $a_i \geq 1$ forces 
 
 For each pattern, $n$ has the form $n = P \cdot k$ where $P = \prod p_i^{a_i}$ uses primes $\equiv 1 \pmod{4}$ and $k$ has no prime factor $\equiv 1 \pmod{4}$.
 
-## Algorithm
+## Editorial
+r_2(n^2) = 4 * product(2*a_i + 1) for primes p_i ≡ 1 (mod 4) in factorization of n. We need product(2*a_i + 1) = 105 = 3*5*7. n = k * P where P = product of p_i^{a_i} with p_i ≡ 1 mod 4, and k has no prime factor ≡ 1 mod 4. We primes ≡ 1 (mod 4) up to N: 5, 13, 17, 29, 37, 41, . We then iterate over each such P. Finally, count sum of all k <= L with no prime factor ≡ 1 (mod 4).
 
-```
-function solve(N):
-    // N = 10^11
-    // Primes ≡ 1 (mod 4) up to N: 5, 13, 17, 29, 37, 41, ...
-    total = 0
+## Pseudocode
 
-    for each factorization pattern (a_1, a_2, ..., a_m) of 105:
-        enumerate all products P = p_1^a_1 * p_2^a_2 * ... * p_m^a_m
-            with p_1 < p_2 < ... < p_m, each p_i ≡ 1 (mod 4), P <= N
-        for each such P:
-            L = floor(N / P)
-            // Count sum of all k <= L with no prime factor ≡ 1 (mod 4)
-            // Use inclusion-exclusion over primes ≡ 1 (mod 4) up to L
-            total += P * count_and_sum_valid_k(L)
-
-    return total
+```text
+N = 10^11
+Primes ≡ 1 (mod 4) up to N: 5, 13, 17, 29, 37, 41, 
+for each such P
+Count sum of all k <= L with no prime factor ≡ 1 (mod 4)
+Use inclusion-exclusion over primes ≡ 1 (mod 4) up to L
 ```
 
 ## Complexity Analysis

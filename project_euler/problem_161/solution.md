@@ -45,28 +45,14 @@ After processing all $108$ cells, $\mathrm{dp}[0]$ counts the tilings where ever
 
 *Proof.* The upper bound follows from the bitmask width. The reduction occurs because many bitmask patterns (e.g., isolated single empty cells surrounded by filled cells) cannot arise from valid partial placements. $\square$
 
-## Algorithm
+## Editorial
+Count the number of ways to tile a 9x12 grid with triominoes (both L-shaped and I-shaped) using broken-profile dynamic programming. We else. Finally, and the corresponding bits in mask are 0.
 
-```
-function COUNT_TILINGS(ROWS=9, COLS=12):
-    dp = HashMap: bitmask -> count
-    dp[0] = 1
+## Pseudocode
 
-    for r = 0 to ROWS-1:
-        for c = 0 to COLS-1:
-            ndp = HashMap()
-            for (mask, ways) in dp:
-                if mask & 1:
-                    ndp[mask >> 1] += ways          // cell filled; skip
-                else:
-                    for each placement P in {L-A, L-B, L-C, L-D, I-H, I-V}:
-                        if all cells of P at anchor (r,c) are in-bounds
-                           and the corresponding bits in mask are 0:
-                            nmask = mask with those bits set
-                            ndp[nmask >> 1] += ways
-            dp = ndp
-
-    return dp[0]
+```text
+else
+and the corresponding bits in mask are 0
 ```
 
 ## Complexity Analysis

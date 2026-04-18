@@ -41,41 +41,18 @@ After processing all 18 digits of $n$, the remaining carry $c$ forms additional 
 
 The difference bound: each position changes $d$ by $y - v$ where $|y - v| \le 9$. Over 18 positions, $|d| \le 162$. $\quad\square$
 
-## Algorithm
+## Editorial
+Count integers 0 <= n < 10^18 where S(n) = S(137*n). Approach: Digit DP processing digits from least to most significant. State: (carry, diff) where carry is from the 137*n multiplication and diff = S(n) - S(137n) accumulated so far. We base case: after processing 18 digits. We then process positions 17 down to 0. Finally, this state will be reached from some (c_in, d_in) via digit y.
 
-```
-function solve():
-    // dp[carry][diff_offset] where diff_offset = diff + 162
-    dp = 2D array [0..136][0..324], initialized to 0
+## Pseudocode
 
-    // Base case: after processing 18 digits
-    for c = 0 to 136:
-        dp[c][162 + digit_sum(c)] = 1  // f(18, c, S(c)) = 1 means d = S(c) matches
-
-    // Process positions 17 down to 0
-    for pos = 17 downto 0:
-        new_dp = 2D array [0..136][0..324], initialized to 0
-        for c = 0 to 136:
-            for d_off = 0 to 324:
-                if dp[c][d_off] == 0: continue
-                // This state will be reached from some (c_in, d_in) via digit y
-                // Actually, iterate forward:
-        // Forward formulation:
-        new_dp = 2D array [0..136][0..324], initialized to 0
-        for c_in = 0 to 136:
-            for y = 0 to 9:
-                val = 137 * y + c_in
-                c_out = val / 10
-                v = val mod 10
-                delta = y - v
-                for d_off = 0 to 324:
-                    if dp[c_out][d_off] > 0:
-                        new_d = d_off - delta  // reverse the delta
-                        if 0 <= new_d <= 324:
-                            new_dp[c_in][new_d] += dp[c_out][d_off]
-        dp = new_dp
-
-    return dp[0][162]  // f(0, 0, 0): carry=0, diff=0
+```text
+dp[carry][diff_offset] where diff_offset = diff + 162
+Base case: after processing 18 digits
+Process positions 17 down to 0
+This state will be reached from some (c_in, d_in) via digit y
+Actually, iterate forward:
+Forward formulation:
 ```
 
 ## Complexity Analysis

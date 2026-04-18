@@ -22,49 +22,14 @@ When Kruskal's adds edge $e = (u, v)$, the vertices $u$ and $v$ are in different
 
 **Proof.** A tree is a connected acyclic graph. By induction on $n$: a tree with 1 vertex has 0 edges. For $n \geq 2$, every tree has a leaf $v$ (a vertex of degree 1) -- this follows because $\sum \deg(v) = 2|E| = 2(n-1)$ and if all vertices had degree $\geq 2$ then $\sum \deg \geq 2n > 2(n-1)$ for $n \geq 2$. Removing $v$ and its incident edge yields a tree on $n-1$ vertices with $n-2$ edges (by induction). Adding the edge back gives $n-1$ edges. $\square$
 
-## Algorithm
+## Editorial
+Saving = Total edge weight - MST weight. Uses Kruskal's algorithm with Union-Find. The network data is a 40x40 symmetric adjacency matrix from Project Euler. The data file (p107_network.txt) should be placed in the same directory, or the solution will attempt to download it. We extract edges from upper triangle of adjacency matrix. Finally, kruskal's algorithm.
 
-```
-function solve(adj_matrix):
-    n = 40
-    edges = []
+## Pseudocode
 
-    // Extract edges from upper triangle of adjacency matrix
-    total_weight = 0
-    for i = 0 to n-1:
-        for j = i+1 to n-1:
-            if adj_matrix[i][j] != "-":
-                w = adj_matrix[i][j]
-                edges.append((w, i, j))
-                total_weight += w
-
-    // Kruskal's algorithm
-    sort edges by weight ascending
-    parent = [0, 1, 2, ..., n-1]  // Union-Find
-    rank = [0, 0, ..., 0]
-    mst_weight = 0
-    edges_added = 0
-
-    for (w, u, v) in sorted edges:
-        if find(u) != find(v):
-            union(u, v)
-            mst_weight += w
-            edges_added += 1
-            if edges_added == n - 1:
-                break
-
-    return total_weight - mst_weight
-
-function find(x):  // with path compression
-    if parent[x] != x:
-        parent[x] = find(parent[x])
-    return parent[x]
-
-function union(x, y):  // with rank
-    rx, ry = find(x), find(y)
-    if rank[rx] < rank[ry]: swap(rx, ry)
-    parent[ry] = rx
-    if rank[rx] == rank[ry]: rank[rx] += 1
+```text
+Extract edges from upper triangle of adjacency matrix
+Kruskal's algorithm
 ```
 
 ## Complexity Analysis

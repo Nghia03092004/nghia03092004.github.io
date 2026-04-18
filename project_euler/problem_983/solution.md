@@ -18,12 +18,17 @@ Among $\pi(10^6) = 78498$ primes, 6-digit primes (the majority) have roughly $6!
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Count the number of "digit permutation groups" of size >= 4 among primes below 10^6. A digit permutation group is a set of primes that are anagrams of each other (i.e., they share the same multiset of digits). We count how many such groups contain at least 4 primes. Key observations:. We sieve primes below $10^6$. We then iterate over each prime, compute sorted digit tuple as key. Finally, group by key using a hash map.
 
-1. Sieve primes below $10^6$.
-2. For each prime, compute sorted digit tuple as key.
-3. Group by key using a hash map.
-4. Count groups with $\ge 4$ members.
+### Pseudocode
+
+```text
+Sieve primes below $10^6$
+For each prime, compute sorted digit tuple as key
+Group by key using a hash map
+Count groups with $\ge 4$ members
+```
 
 ## Complexity Analysis
 

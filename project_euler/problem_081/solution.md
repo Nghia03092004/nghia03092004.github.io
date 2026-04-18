@@ -31,19 +31,21 @@ $$D[i][j] = M[i][j] + \min(D[i-1][j],\; D[i][j-1]) \quad \text{for } i,j \geq 1$
 
 *Inductive step:* Assume $D[i'][j']$ equals the true minimum cost for all $(i',j')$ with $i'+j' < k$. Consider a cell $(i,j)$ with $i+j = k$. Any valid path from $(0,0)$ to $(i,j)$ must arrive via the penultimate cell, which is either $(i-1,j)$ (if $i \geq 1$) or $(i,j-1)$ (if $j \geq 1$). If $i = 0$, the path can only come from $(0,j-1)$, so $D[0][j] = D[0][j-1] + M[0][j]$. Similarly for $j = 0$. In the general case ($i,j \geq 1$), the optimal path to $(i,j)$ costs $M[i][j]$ plus the minimum of the optimal costs to reach $(i-1,j)$ and $(i,j-1)$, both of which are correctly computed by the inductive hypothesis. Thus $D[i][j] = M[i][j] + \min(D[i-1][j], D[i][j-1])$ is correct. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function MinPathSum(M, n):
+## Pseudocode
+
+```text
     D[0][0] = M[0][0]
-    for j = 1 to n-1:
+    For j from 1 to n-1:
         D[0][j] = D[0][j-1] + M[0][j]
-    for i = 1 to n-1:
+    For i from 1 to n-1:
         D[i][0] = D[i-1][0] + M[i][0]
-    for i = 1 to n-1:
-        for j = 1 to n-1:
+    For i from 1 to n-1:
+        For j from 1 to n-1:
             D[i][j] = M[i][j] + min(D[i-1][j], D[i][j-1])
-    return D[n-1][n-1]
+    Return D[n-1][n-1]
 ```
 
 ## Complexity Analysis

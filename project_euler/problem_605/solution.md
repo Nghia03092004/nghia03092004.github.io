@@ -34,16 +34,19 @@ $$P(n) = \frac{n! \cdot t(n)}{2^{\binom{n}{2}}}$$
 
 **Corollary.** $P(n) = \dfrac{n!}{2^{\binom{n}{2}}}$.
 
-## Algorithm
+## Editorial
+Round-robin tournament with coin tosses. Probability analysis. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function P(n):
+## Pseudocode
+
+```text
     numerator = factorial(n)
     denominator = 2^(n*(n-1)/2)
-    return numerator / denominator
+    Return numerator / denominator
 ```
 
 For large $n$, compute modularly or as an exact fraction.
+```
 
 ## Complexity Analysis
 

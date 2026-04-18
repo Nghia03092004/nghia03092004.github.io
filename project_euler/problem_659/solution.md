@@ -50,13 +50,18 @@ Note that $4k^2 + 1 \equiv 1 \pmod{4}$, so all prime factors are $\equiv 1 \pmod
 
 For practical purposes, we sieve primes up to some bound and handle the remaining large prime factors.
 
-## Algorithm
+## Editorial
+P(k) = largest prime factor of 4k^2 + 1. Find last 18 digits of sum of P(k) for k = 1 to 10^7. We use a segmented sieve to find primes $p \equiv 1 \pmod{4}$. We then iterate over each such prime, compute roots of $x^2 \equiv -1 \pmod{p}$ using Cipolla's algorithm or Tonelli-Shanks. Finally, mark all $k$ values in range where $p \mid (4k^2 + 1)$.
 
-1. Use a segmented sieve to find primes $p \equiv 1 \pmod{4}$.
-2. For each such prime, compute roots of $x^2 \equiv -1 \pmod{p}$ using Cipolla's algorithm or Tonelli-Shanks.
-3. Mark all $k$ values in range where $p \mid (4k^2 + 1)$.
-4. Track the largest prime factor for each $k$.
-5. For $k$ where $4k^2 + 1$ has an unaccounted factor, do a primality test.
+## Pseudocode
+
+```text
+Use a segmented sieve to find primes $p \equiv 1 \pmod{4}$
+For each such prime, compute roots of $x^2 \equiv -1 \pmod{p}$ using Cipolla's algorithm or Tonelli-Shanks
+Mark all $k$ values in range where $p \mid (4k^2 + 1)$
+Track the largest prime factor for each $k$
+For $k$ where $4k^2 + 1$ has an unaccounted factor, do a primality test
+```
 
 ## Correctness
 

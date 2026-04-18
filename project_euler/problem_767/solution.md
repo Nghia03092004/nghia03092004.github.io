@@ -38,13 +38,16 @@ The constraint that every 2 x k window sums to k severely limits valid transitio
 
 For two adjacent rows, the constraint means that in any k consecutive columns, exactly k of the 2k bits are 1. This is equivalent to requiring that the XOR pattern of adjacent rows follows a specific periodic structure.
 
-## Algorithm
+## Editorial
+B(k,n) counts 16xn binary matrices where every 2xk window sums to k. Find B(10^5, 10^16) mod 10^9+7. Approach: specific periodic patterns in the column values. We enumerate valid column transitions under the window constraint. We then build transition matrix T (mod 10^9+7). Finally, compute T^(n-k+1) using fast matrix exponentiation.
 
-```
-1. Enumerate valid column transitions under the window constraint
-2. Build transition matrix T (mod 10^9+7)
-3. Compute T^(n-k+1) using fast matrix exponentiation
-4. Extract answer from resulting matrix
+## Pseudocode
+
+```text
+Enumerate valid column transitions under the window constraint
+Build transition matrix T (mod 10^9+7)
+Compute T^(n-k+1) using fast matrix exponentiation
+Extract answer from resulting matrix
 ```
 
 ## Correctness

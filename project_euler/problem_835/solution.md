@@ -35,27 +35,30 @@ Dividing by 16 and taking the square root yields Heron's formula. $\square$
 
 **Proof.** In a primitive Pythagorean triple $(m^2 - n^2, 2mn, m^2+n^2)$ with $m > n$, $\gcd(m,n)=1$, $m \not\equiv n \pmod{2}$, the leg $2mn$ is always even. Hence $A = (m^2-n^2)(2mn)/2 = mn(m^2-n^2) \in \mathbb{Z}$. $\square$
 
-## Algorithm
+## Editorial
+Heronian triangle enumeration. Heron formula and parametrization. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function CountSupernaturalTriangles(N):
+## Pseudocode
+
+```text
     count = 0
-    for a = 1 to N/3:            # a <= b <= c, so a <= perimeter/3
-        for b = a to (N - a)/2:
+    for a = 1 to N/3: # a <= b <= c, so a <= perimeter/3
+        For b from a to (N - a)/2:
             c_min = b
             c_max = min(a + b - 1, N - a - b)
-            for c = c_min to c_max:
+            For c from c_min to c_max:
                 s = (a + b + c) / 2
-                if (a + b + c) is odd: continue
+                If (a + b + c) is odd then continue
                 product = s * (s-a) * (s-b) * (s-c)
-                if is_perfect_square(product):
+                If is_perfect_square(product) then
                     A = isqrt(product)
-                    if supernatural_condition(a, b, c, A):
+                    If supernatural_condition(a, b, c, A) then
                         count += 1
-    return count
+    Return count
 ```
 
 Optimization: use the Brahmagupta parametrization to generate Heronian triangles directly from $(m, n, k)$ parameters, reducing enumeration from $O(N^3)$ to $O(N^{3/2})$.
+```
 
 ## Complexity Analysis
 

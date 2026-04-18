@@ -36,30 +36,19 @@ With base cases $f(1) = 1$, $f(2) = 2$, $f(3) = 3$, $f(4) = 4$.
 
 **Proof.** For the group $n \equiv 0 \pmod{3}$: the terms are $f(3) = 3, f(6) = 9, f(9) = 27, \ldots$, i.e., $3^1, 3^2, 3^3, \ldots, 3^{\lfloor N/3 \rfloor}$. This is $\sum_{k=1}^{\lfloor N/3 \rfloor} 3^k = 3 \cdot \frac{3^{\lfloor N/3 \rfloor} - 1}{2}$. The other groups are analogous with prefactors 4 and 2 respectively. $\square$
 
-## Algorithm
+## Editorial
+f(n) = maximum product obtainable from an integer partition of n. S(N) = sum of f(n) for n = 1 to N, computed modulo M. Optimal partition strategy: Each residue class sums to a geometric series. We group n ≡ 0 (mod 3): terms 3, 6, 9, ..., contributing 3^1, 3^2, ..., 3^(N/3). We then adjust for base cases if needed (f(1)=1, f(2)=2, f(3)=3, f(4)=4). Finally, group n ≡ 2 (mod 3): n = 2, 5, 8, ..., contributing 2, 2*3, 2*3^2, .
 
-```
-function solve(N, M):
-    // M = 982451653
-    inv2 = modular_inverse(2, M)
+## Pseudocode
 
-    // Group n ≡ 0 (mod 3): terms 3, 6, 9, ..., contributing 3^1, 3^2, ..., 3^(N/3)
-    K0 = floor(N / 3)
-    sum0 = 3 * (pow(3, K0, M) - 1) % M * inv2 % M
-    // Adjust for base cases if needed (f(1)=1, f(2)=2, f(3)=3, f(4)=4)
-
-    // Group n ≡ 2 (mod 3): n = 2, 5, 8, ..., contributing 2, 2*3, 2*3^2, ...
-    K2 = floor((N - 2) / 3) + 1 if N >= 2 else 0
-    sum2 = 2 * (pow(3, K2, M) - 1) % M * inv2 % M
-
-    // Group n ≡ 1 (mod 3): n = 4, 7, 10, ..., contributing 4, 4*3, 4*3^2, ...
-    K1 = floor((N - 4) / 3) + 1 if N >= 4 else 0
-    sum1 = 4 * (pow(3, K1, M) - 1) % M * inv2 % M
-
-    // Add base cases f(1)=1 if N>=1, f(2)=2 if N>=2 (already in sum2?), f(3)=3, f(4)=4
-    // Careful bookkeeping needed for small n
-    total = (sum0 + sum1 + sum2 + base_adjustments) % M
-    return total
+```text
+M = 982451653
+Group n ≡ 0 (mod 3): terms 3, 6, 9, ..., contributing 3^1, 3^2, ..., 3^(N/3)
+Adjust for base cases if needed (f(1)=1, f(2)=2, f(3)=3, f(4)=4)
+Group n ≡ 2 (mod 3): n = 2, 5, 8, ..., contributing 2, 2*3, 2*3^2, 
+Group n ≡ 1 (mod 3): n = 4, 7, 10, ..., contributing 4, 4*3, 4*3^2, 
+Add base cases f(1)=1 if N>=1, f(2)=2 if N>=2 (already in sum2?), f(3)=3, f(4)=4
+Careful bookkeeping needed for small n
 ```
 
 ## Complexity Analysis

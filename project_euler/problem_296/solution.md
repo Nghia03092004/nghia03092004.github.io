@@ -45,25 +45,14 @@ $$BE = \frac{ca}{a + b}. \quad \square$$
 - $a + b > c \iff g(a'+b') > k(a'+b') \iff g > k$.
 - Perimeter $= ga' + gb' + k(a'+b') = (g+k)(a'+b') \leq 100{,}000$. $\square$
 
-## Algorithm
+## Editorial
+Triangle ABC with integer sides a=BC <= b=AC <= c=AB, perimeter <= 100000. BE = c*a / (a+b) must be a positive integer. With g = gcd(a,b), a = g*a', b = g*b', gcd(a',b')=1: BE = c*a'/(a'+b'), so (a'+b') | c, i.e., c = k*(a'+b'). Constraints: a' <= b' (from a <= b) k >= ceil(g*b'/(a'+b')) (from b <= c) k < g (from triangle inequality a+b > c) (g+k)*(a'+b') <= P (perimeter). We enumerate coprime pairs (a', b') with 1 <= a' <= b'. Finally, iterate over each g: k ranges from ceil(g*b'/s) to min(g-1, floor(P/s) - g).
 
-```
-function count_triangles(P):
-    count = 0
-    // Enumerate coprime pairs (a', b') with 1 <= a' <= b'
-    for a' = 1 to P/2:
-        for b' = a' to P - a':
-            if gcd(a', b') != 1: continue
-            s = a' + b'
-            if s > P: break
-            // For each g: k ranges from ceil(g*b'/s) to min(g-1, floor(P/s) - g)
-            max_g = floor(P / s) - 1   // need g + k >= g + 1, so g + 1 <= P/s
-            for g = 1 to max_g:
-                k_min = ceil(g * b' / s)
-                k_max = min(g - 1, floor(P / s) - g)
-                if k_min <= k_max:
-                    count += k_max - k_min + 1
-    return count
+## Pseudocode
+
+```text
+Enumerate coprime pairs (a', b') with 1 <= a' <= b'
+For each g: k ranges from ceil(g*b'/s) to min(g-1, floor(P/s) - g)
 ```
 
 ## Complexity Analysis

@@ -37,40 +37,16 @@ $$\sum_{k=1}^{N} \bigl[d_{k-1}^{(s)} \neq 0\bigr] \cdot D_s(k) + \bigl[d_{k-1}^{
 
 **Proof.** The truncation of $s$ to $k$ digits gives a number with exactly $k$ digits if and only if the $(k-1)$-th digit (most significant) is nonzero. The value 1 is a 1-digit steady square that is neither $s_k$ nor $e_k$ for $k = 1$, so it contributes digit sum 1 at $k = 1$. $\quad\square$
 
-## Algorithm
+## Editorial
+A steady square in base 14 is a number n whose square ends with the same digits as n (i.e., n^2 ≡ n mod 14^k where k = number of digits of n in base 14). Find the sum of the digits of all n-digit steady squares in base 14 for 1 <= n <= 10000, and give the answer in base 14. Approach: where s_k extends from 7 and e_k extends from 8. We compute s via fast doubling (Hensel lifting). We then extract base-14 digits of s and e. Finally, accumulate digit sums.
 
-```
-function solve(N = 10000):
-    // Compute s via fast doubling (Hensel lifting)
-    s = 7  // s_1 in base 14
-    precision = 1
-    while precision < N:
-        new_prec = min(2 * precision, N)
-        s = (3 * s^2 - 2 * s^3) mod 14^new_prec
-        precision = new_prec
+## Pseudocode
 
-    // Compute e = 14^N + 1 - s
-    e = 14^N + 1 - s
-
-    // Extract base-14 digits of s and e
-    digits_s = base14_digits(s, N)
-    digits_e = base14_digits(e, N)
-
-    // Accumulate digit sums
-    total = 0
-    sum_s = 0
-    sum_e = 0
-    for k = 1 to N:
-        sum_s += digits_s[k-1]
-        sum_e += digits_e[k-1]
-        if digits_s[k-1] != 0:
-            total += sum_s
-        if digits_e[k-1] != 0:
-            total += sum_e
-        if k == 1:
-            total += 1  // for steady square n = 1
-
-    return to_base14(total)
+```text
+Compute s via fast doubling (Hensel lifting)
+Compute e = 14^N + 1 - s
+Extract base-14 digits of s and e
+Accumulate digit sums
 ```
 
 ## Complexity Analysis

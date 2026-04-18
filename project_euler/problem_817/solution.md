@@ -50,16 +50,19 @@ $$Q(10^k) = Q(2^k) \cdot Q(5^k)$$
 
 For $k=1$: The possible last digits of a perfect square are $\{0, 1, 4, 5, 6, 9\}$. Thus 6 out of 10 digits can appear.
 
-### Algorithm
+### Editorial
+Study digit patterns in perfect squares via quadratic residues mod 10^k. Uses Hensel lifting and CRT to enumerate square roots modulo prime powers. Key: 10^k = 2^k * 5^k, use CRT to combine square roots mod 2^k and mod 5^k. We iterate over each $k$**, enumerate quadratic residues mod $10^k$ using Hensel lifting. We then find QR mod $2^k$ by lifting from mod 2. Finally, find QR mod $5^k$ by lifting from mod 5.
 
-1. **For each $k$**, enumerate quadratic residues mod $10^k$ using Hensel lifting:
-   - Find QR mod $2^k$ by lifting from mod 2.
-   - Find QR mod $5^k$ by lifting from mod 5.
-   - Combine via CRT.
+### Pseudocode
 
-2. **Count** or **sum** over the residues satisfying the digit pattern condition.
-
-3. For large $k$, use the recursive structure: each QR mod $10^{k+1}$ is obtained by lifting a QR mod $10^k$.
+```text
+For each $k$**, enumerate quadratic residues mod $10^k$ using Hensel lifting:
+Find QR mod $2^k$ by lifting from mod 2
+Find QR mod $5^k$ by lifting from mod 5
+Combine via CRT
+Count or sum** over the residues satisfying the digit pattern condition
+For large $k$, use the recursive structure: each QR mod $10^{k+1}$ is obtained by lifting a QR mod $10^k$
+```
 
 ## Derivation
 

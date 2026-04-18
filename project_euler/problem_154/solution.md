@@ -33,39 +33,18 @@ $$v_p\!\left(\binom{n}{i,j,k}\right) = v_p(n!) - v_p(i!) - v_p(j!) - v_p(k!)$$
 
 **Proof.** The trinomial coefficient is symmetric in $(i,j,k)$. The multinomial coefficient for the number of distinct permutations of $(i,j,k)$ gives the multiplier. $\square$
 
-## Algorithm
+## Editorial
+the trinomial coefficient IS divisible by 10^12. v_p(C(n; i,j,k)) = v_p(n!) - v_p(i!) - v_p(j!) - v_p(k!) We need v_2 >= 12 AND v_5 >= 12. Note: This Python solution is slow for N=200000 (O(N^2) iterations). For the actual answer, use the C++ version. This serves as a reference. We precompute p-adic valuations of factorials. We then precompute target valuations. Finally, check v_2 condition.
 
-```
-function SOLVE(n = 200000):
-    // Precompute p-adic valuations of factorials
-    f2[0] = 0; f5[0] = 0
-    for m = 1 to n:
-        f2[m] = f2[m-1] + v2(m)   // v2(m) = number of times 2 divides m
-        f5[m] = f5[m-1] + v5(m)
+## Pseudocode
 
-    // Precompute target valuations
-    V2 = f2[n]    // v_2(n!)
-    V5 = f5[n]    // v_5(n!)
-
-    count = 0
-    for i = 0 to n/3:
-        for j = i to (n - i) / 2:
-            k = n - i - j
-            // Check v_2 condition
-            val2 = V2 - f2[i] - f2[j] - f2[k]
-            if val2 < 12: continue
-            // Check v_5 condition
-            val5 = V5 - f5[i] - f5[j] - f5[k]
-            if val5 < 12: continue
-            // Count with symmetry
-            if i == j == k:
-                count += 1
-            elif i == j or j == k:
-                count += 3
-            else:
-                count += 6
-
-    return count
+```text
+Precompute p-adic valuations of factorials
+Precompute target valuations
+Check v_2 condition
+Check v_5 condition
+Count with symmetry
+else
 ```
 
 ## Complexity Analysis

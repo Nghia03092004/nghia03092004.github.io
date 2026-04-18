@@ -52,33 +52,15 @@ We prove the output $v_{\sigma(1)}, \ldots, v_{\sigma(|V|)}$ is a valid topologi
 
 At each step, exactly one vertex has in-degree $0$, confirming uniqueness by Theorem 3. $\blacksquare$
 
-## Algorithm
+## Editorial
+Given 50 successful login attempts (3-digit subsequences), determine the shortest possible secret passcode via topological sort of the precedence DAG. We iterate over each attempt d1 d2 d3 in attempts. Finally, kahn's algorithm.
 
-```
-function derive_passcode(attempts):
-    V = set of all digits in attempts
-    E = empty set of directed edges
-    in_degree = {v: 0 for v in V}
+## Pseudocode
 
-    for each attempt d1 d2 d3 in attempts:
-        for each ordered pair (di, dj) with i < j:
-            if (di, dj) not in E:
-                E.add((di, dj))
-                in_degree[dj] += 1
-
-    # Kahn's algorithm
-    queue = [v for v in V if in_degree[v] == 0]
-    result = []
-    while queue is not empty:
-        assert len(queue) == 1      # verify uniqueness
-        v = queue.pop()
-        result.append(v)
-        for each (v, w) in E:
-            in_degree[w] -= 1
-            if in_degree[w] == 0:
-                queue.append(w)
-
-    return concatenate(result)
+```text
+for each attempt d1 d2 d3 in attempts
+Kahn's algorithm
+while queue is not empty
 ```
 
 ## Complexity Analysis

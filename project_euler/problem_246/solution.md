@@ -32,34 +32,19 @@ $$f(X, Y) = (X^2 + Y^2 - a^2 - b^2)^2 - 4(a^2 Y^2 + b^2 X^2 - a^2 b^2) = 0.$$
 
 **Proof.** The angle subtended by the tangent lines decreases as $P$ moves farther from the ellipse. At the isoptic $f = 0$, the angle equals $45°$. Inside the isoptic (but outside the ellipse), the angle exceeds $45°$. $\square$
 
-## Algorithm
+## Editorial
+We determine Y range from isoptic extent. We then the isoptic is bounded; find max |Y| by solving f(0, Y) = 0. Finally, solve f(X, Y) = 0 as quadratic in u = X^2.
 
-```
-function CountLatticePoints(a, b, center):
-    (cx, cy) = center   # (3000, 1500)
-    count = 0
+## Pseudocode
 
-    # Determine Y range from isoptic extent
-    # The isoptic is bounded; find max |Y| by solving f(0, Y) = 0
-    Y_max = ceil(sqrt(a^2 + b^2 + 2*a*b))  # outer extent
-
-    for y = cy - Y_max to cy + Y_max:
-        Y = y - cy
-
-        # Solve f(X, Y) = 0 as quadratic in u = X^2
-        # f = (u + Y^2 - a^2 - b^2)^2 - 4(a^2*Y^2 + b^2*u - a^2*b^2) = 0
-        # Expand and solve for u
-
-        Compute X_iso = outer isoptic boundary (largest |X| with f <= 0)
-        Compute X_ell = ellipse boundary (smallest |X| with point outside)
-
-        # Count integers X in [-X_iso, X_iso] that are outside ellipse
-        # i.e., |X| > X_ell or X_ell doesn't exist (Y too large for ellipse)
-
-        for x_range satisfying both conditions:
-            count += number of integer x values
-
-    return count
+```text
+Determine Y range from isoptic extent
+The isoptic is bounded; find max |Y| by solving f(0, Y) = 0
+Solve f(X, Y) = 0 as quadratic in u = X^2
+f = (u + Y^2 - a^2 - b^2)^2 - 4(a^2*Y^2 + b^2*u - a^2*b^2) = 0
+Expand and solve for u
+Count integers X in [-X_iso, X_iso] that are outside ellipse
+i.e., |X| > X_ell or X_ell doesn't exist (Y too large for ellipse)
 ```
 
 ## Complexity Analysis

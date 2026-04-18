@@ -70,12 +70,17 @@ Note: $m = 15 = 3 \cdot 5$, $\text{ord}_{15}(2) = \text{lcm}(\text{ord}_3(2), \t
 
 ## Derivation
 
-### Algorithm
+### Editorial
+A perfect (out-)riffle shuffle on 2n cards has order ord_{2n+1}(2). Find sum of deck sizes 2n where the shuffle order is exactly 60. Key identity: ord_m(2) = 60 iff m | 2^60 - 1 and 2^{60/p} != 1 mod m for each prime p | 60 (i.e., p in {2, 3, 5}). 2^60 - 1 = 3^2 * 5^2 * 7 * 11 * 13 * 31 * 41 * 61 * 151 * 331 * 1321 Method 1: Enumerate all divisors, check order (primary) Method 2: Compute ord_m(2) directly for small m (verification). We factorize** $2^{60} - 1$ into prime powers: $3^2 \cdot 5^2 \cdot 7 \cdot 11 \cdot 13 \cdot 31 \cdot 41 \cdot 61 \cdot 151 \cdot 331 \cdot 1321$. We then enumerate** all 2304 divisors $m > 1$ using Cartesian product of exponent ranges. Finally, filter**: for each $m$, verify $2^{30} \not\equiv 1$, $2^{20} \not\equiv 1$, $2^{12} \not\equiv 1 \pmod{m}$.
 
-1. **Factorize** $2^{60} - 1$ into prime powers: $3^2 \cdot 5^2 \cdot 7 \cdot 11 \cdot 13 \cdot 31 \cdot 41 \cdot 61 \cdot 151 \cdot 331 \cdot 1321$.
-2. **Enumerate** all 2304 divisors $m > 1$ using Cartesian product of exponent ranges.
-3. **Filter**: for each $m$, verify $2^{30} \not\equiv 1$, $2^{20} \not\equiv 1$, $2^{12} \not\equiv 1 \pmod{m}$.
-4. **Sum** $m - 1$ for each valid $m$.
+### Pseudocode
+
+```text
+Factorize** $2^{60} - 1$ into prime powers: $3^2 \cdot 5^2 \cdot 7 \cdot 11 \cdot 13 \cdot 31 \cdot 41 \cdot 61 \cdot 151 \cdot 331 \cdot 1321$
+Enumerate** all 2304 divisors $m > 1$ using Cartesian product of exponent ranges
+Filter**: for each $m$, verify $2^{30} \not\equiv 1$, $2^{20} \not\equiv 1$, $2^{12} \not\equiv 1 \pmod{m}$
+Sum** $m - 1$ for each valid $m$
+```
 
 ### Verification
 

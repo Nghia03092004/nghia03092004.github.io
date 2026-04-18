@@ -44,7 +44,7 @@ Therefore, all digits must be odd and not 0 or 5, leaving $\{1, 3, 7, 9\}$. $\sq
 
 **Proof.** If $p$ is circular, then all rotations are prime and (since $p < N$ and all rotations of a $k$-digit number are also $k$-digit numbers with the same digit set) all rotations are $< N$. Conversely, if some rotation $r$ is composite or $r \ge N$, then $p$ is not circular. The sieve provides exact primality answers for all integers in $[0, N)$, so the procedure is correct. $\square$
 
-## Algorithm
+## Editorial
 
 We first sieve all primes below the bound so that primality tests for rotations are constant-time lookups. Then we scan the primes in increasing order, form every cyclic rotation of the decimal expansion of each prime, and declare the prime circular only if every rotation also lies below the bound and remains prime. The final count is the number of primes that satisfy this rotation test.
 

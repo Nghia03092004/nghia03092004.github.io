@@ -45,47 +45,20 @@ At each bit position $i$, we enumerate the four patterns in $\mathcal{V}$. For p
 
 **Remark.** The total state space has $|\{0,1\}| \times |\{0,1\}| \times |\{=,<\}| \times |\{=,<\}| = 16$ states per bit position. With $L + 1 \approx 40$ bit positions and 4 patterns per state, the DP evaluates at most $16 \times 4 \times 40 = 2560$ transitions.
 
-## Algorithm
+## Editorial
+Count triplets (a,b,c) with 0 < a <= b <= c, a+b+c <= N, a XOR b XOR c = 0. N = 10^12, answer mod 10^9. Digit DP on the binary representation of N. XOR-zero constraint: at each bit, (a_i, b_i, c_i) in {(0,0,0),(0,1,1),(1,0,1),(1,1,0)}. State: (bit position, carry, tight, ordering of a<=b and b<=c). We enforce a <= b. We then enforce b <= c. Finally, update ordering.
 
-```
-function f(N):
-    bits[0..L] = binary representation of N (bits[0] = LSB)
-    L = bit_length(N) - 1
+## Pseudocode
 
-    dp = {(carry=0, tight=1, ord_ab=EQUAL, ord_bc=EQUAL): 1}
-
-    for pos = L downto 0:
-        new_dp = {}
-        for (carry, tight, ord_ab, ord_bc), count in dp:
-            for (ai, bi, ci) in {(0,0,0),(0,1,1),(1,0,1),(1,1,0)}:
-                # Enforce a <= b
-                if ord_ab == EQUAL and ai > bi: continue
-                # Enforce b <= c
-                if ord_bc == EQUAL and bi > ci: continue
-
-                # Update ordering
-                new_ord_ab = LESS if (ord_ab == LESS or ai < bi) else EQUAL
-                new_ord_bc = LESS if (ord_bc == LESS or bi < ci) else EQUAL
-
-                # Compute sum digit and carry
-                s = ai + bi + ci + carry
-                digit = s % 2
-                new_carry = s // 2
-
-                # Update tightness
-                if tight:
-                    if digit > bits[pos]: continue
-                    new_tight = 1 if digit == bits[pos] else 0
-                else:
-                    new_tight = 0
-
-                state = (new_carry, new_tight, new_ord_ab, new_ord_bc)
-                new_dp[state] = (new_dp.get(state, 0) + count) % 10^9
-        dp = new_dp
-
-    # Accept states with carry = 0
-    result = sum(count for (carry, _, _, _), count in dp if carry == 0)
-    return (result - 1) % 10^9    # subtract trivial (0,0,0)
+```text
+Enforce a <= b
+Enforce b <= c
+Update ordering
+Compute sum digit and carry
+Update tightness
+if tight
+else
+Accept states with carry = 0
 ```
 
 ## Complexity Analysis

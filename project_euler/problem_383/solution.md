@@ -32,30 +32,17 @@ A carry occurs at position $j$ if and only if the base-5 digit $d_j$ of $i$ sati
 
 **Proof.** Standard base-$p$ addition mechanics. Since $d_j \in \{0,1,2,3,4\}$ and $c_j \in \{0,1\}$, we have $2d_j + c_j \in \{0, 1, \ldots, 9\}$, so the carry-out is at most 1. $\square$
 
-## Algorithm
+## Editorial
+Uses Legendre's formula and block decomposition for efficient summation of factorial divisibility properties. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-The sum $D(N) = \sum_{i=2}^{N} v_5\binom{2i}{i}$ counts the total number of carries when doubling each $i$ in base 5. This can be computed via a digit DP that processes base-5 digits of $N$ from most significant to least significant.
+## Pseudocode
 
-```
-function D(N):
-    digits = base5_digits(N)  // most significant first
-    // DP state: (position, carry_in, tight)
-    //   tight = whether we are still bounded by the prefix of N
-    // DP value: (count_of_numbers, total_carries)
-
-    dp[0][(carry=0, tight=true)] = (1, 0)
-
-    for each digit position j from MSB to LSB:
-        for each state (carry_in, tight) in dp[j]:
-            max_digit = digits[j] if tight else 4
-            for d = 0 to max_digit:
-                carry_out = floor((2*d + carry_in) / 5)
-                has_carry = 1 if (2*d + carry_in >= 5) else 0
-                new_tight = tight and (d == max_digit)
-                // Accumulate: new_carries = old_carries + has_carry * count
-                update dp[j+1][(carry_out, new_tight)]
-
-    return sum of total_carries over all final states, minus v5(C(2,1)) and v5(C(0,0))
+```text
+DP state: (position, carry_in, tight)
+tight = whether we are still bounded by the prefix of N
+DP value: (count_of_numbers, total_carries)
+for each digit position j from MSB to LSB
+Accumulate: new_carries = old_carries + has_carry * count
 ```
 
 ## Complexity Analysis

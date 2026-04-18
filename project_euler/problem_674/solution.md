@@ -56,11 +56,16 @@ $g(n)$ for small $n$ is verified by exhaustive enumeration of all valid interval
 
 ## Derivation
 
-### Algorithm
+### Editorial
+We compute atomic configuration counts $h(k)$ for $k = 1, \ldots, K$ using the specific problem rules. Finally, use the linear recurrence $g(n) = \sum_k h(k) g(n-k)$ to compute $g(n)$ for the target $n$.
 
-1. Compute atomic configuration counts $h(k)$ for $k = 1, \ldots, K$ using the specific problem rules.
-2. Use the linear recurrence $g(n) = \sum_k h(k) g(n-k)$ to compute $g(n)$ for the target $n$.
-3. If $n$ is large, use matrix exponentiation on the companion matrix of the recurrence.
+### Pseudocode
+
+```text
+Compute atomic configuration counts $h(k)$ for $k = 1, \ldots, K$ using the specific problem rules
+Use the linear recurrence $g(n) = \sum_k h(k) g(n-k)$ to compute $g(n)$ for the target $n$
+If $n$ is large, use matrix exponentiation on the companion matrix of the recurrence
+```
 
 ### Matrix Exponentiation
 

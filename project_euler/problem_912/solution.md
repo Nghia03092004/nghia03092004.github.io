@@ -80,7 +80,7 @@ The root(s) are found computationally. For $p = 997$, direct evaluation is fast.
 | 100 | $(10^6 + 201) \bmod 997$ |
 | 996 | $(-1)^3 + 2(-1) + 1 = -2 \equiv 995$ |
 
-## Algorithm
+## Editorial
 
 Evaluate $f(x) \bmod p$ for all $x = 0, 1, \ldots, p-1$ using Horner's method: $f(x) = ((x) \cdot x + 0) \cdot x + 2x + 1 = x(x^2 + 2) + 1$.
 

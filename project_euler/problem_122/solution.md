@@ -30,34 +30,35 @@ The most efficient way to compute $x^n$ uses the minimum number of multiplicatio
 
 *Proof.* Each of the remaining $r - d$ steps can at most double the current maximum. After $r - d$ doublings the maximum attainable value is $a_d \cdot 2^{r-d}$. If this is strictly less than $n$, the target is unreachable from this state. $\square$
 
-## Algorithm
+## Editorial
+Uses iterative deepening DFS with doubling-based pruning. We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
 
-```
-function shortest_addition_chains(N):
+## Pseudocode
+
+```text
     m[1] = 0
-    for n = 2 to N:
-        for r = ceil(log2(n)) to infinity:
-            if IDDFS(chain=[1], target=n, depth_limit=r):
+    For n from 2 to N:
+        For r from ceil(log2(n)) to infinity:
+            If IDDFS(chain=[1], target=n, depth_limit=r) then
                 m[n] = r
                 break
-    return sum(m[1..N])
+    Return sum(m[1..N])
 
-function IDDFS(chain, target, depth_limit):
     d = len(chain) - 1
     a_d = chain[d]
-    if d == depth_limit:
-        return (a_d == target)
-    if a_d << (depth_limit - d) < target:
-        return false                    // pruning
-    for i = d down to 0:
+    If d == depth_limit then
+        Return (a_d == target)
+    If a_d << (depth_limit - d) < target then
+        Return false // pruning
+    For i from d down to 0:
         next_val = a_d + chain[i]
-        if next_val <= a_d or next_val > target:
+        If next_val <= a_d or next_val > target then
             continue
         chain.append(next_val)
-        if IDDFS(chain, target, depth_limit):
-            return true
+        If IDDFS(chain, target, depth_limit) then
+            Return true
         chain.pop()
-    return false
+    Return false
 ```
 
 ## Complexity Analysis

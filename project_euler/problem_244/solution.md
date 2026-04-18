@@ -29,28 +29,29 @@ $$C_{s'} = (C_s \cdot 243 + d) \bmod 100000007.$$
 
 **Proof.** By the problem statement, each reachable configuration contributes exactly one checksum corresponding to its shortest path. BFS guarantees the first discovery is via a shortest path. $\square$
 
-## Algorithm
+## Editorial
+A 3x3 sliding puzzle with 4 Red tiles, 4 Blue tiles, and 1 White (blank) space. Starting configuration: R R R R B B B B W Actually on a 3x3 grid: R R R R B B B B W ... the exact start is from the PE problem page. Start state: "RRRRBBBBW" (4R, 4B, blank at position 8) Checksum computation: For a move sequence with directions d_1, d_2, ..., d_k: checksum = (...((d_1 * 243 + d_2) * 243 + d_3) * 243 + ...) mod 100000007 where d_i is the ASCII code: L=76, R=82, U=85, D=68 For states reachable by multiple shortest paths, we sum all their checksums. Final answer = sum of checksum sums over all reachable states.
 
-```
-function SolveSliders(initial_state):
-    queue = deque([(initial_state, 0)])  # (state, checksum)
-    visited = {initial_state: 0}         # state -> checksum
+## Pseudocode
+
+```text
+    queue = deque([(initial_state, 0)]) # (state, checksum)
+    visited = {initial_state: 0} # state -> checksum
     total = 0
 
     while queue is not empty:
         state, checksum = queue.popleft()
         total = (total + checksum) % 100000007
 
-        for each valid move direction d in {L, R, U, D}:
+        For each each valid move direction d in {L, R, U, D}:
             new_state = apply_move(state, d)
-            if new_state not in visited:
+            If new_state not in visited then
                 new_checksum = (checksum * 243 + ascii(d)) % 100000007
                 visited[new_state] = new_checksum
                 queue.append((new_state, new_checksum))
 
-    return total
+    Return total
 
-function apply_move(state, direction):
     Find position of empty tile
     Compute neighbour position in given direction
     If valid, swap empty tile with neighbour

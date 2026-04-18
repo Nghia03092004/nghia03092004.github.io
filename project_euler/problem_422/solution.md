@@ -33,33 +33,22 @@ Computing $M^{n-2}$ for $n = 11^{14}$ requires $O(\log n)$ matrix multiplication
 
 **Proof.** This follows from the associativity of matrix multiplication and the standard binary exponentiation algorithm. Each multiplication of $2 \times 2$ matrices costs $O(1)$ field operations, and $\log_2(11^{14}) = 14\log_2 11 \approx 48.4$, so roughly 49 squarings suffice. $\square$
 
-## Algorithm
+## Editorial
+H: 12x^2 + 7xy - 12y^2 = 625, X = (7,1) P_1 = (13, 61/4), P_2 = (-43/6, -4) For i > 2, P_i is the second intersection of a line through P_{i-1} parallel to P_{i-2}X with H. Find (a+b+c+d) mod 10^9+7 where P_n = (a/b, c/d), n = 11^14. Approach: Rational parameterization + matrix exponentiation. We line y = 1 + t(x - 7) intersected with 12x^2 + 7xy - 12y^2 = 625. We then yields x as a rational function of t. Derive explicit formulas. Finally, compute t_1, t_2 from P_1, P_2.
 
-```
-function Solve():
-    p = 10^9 + 7
+## Pseudocode
 
-    // Step 1: Parameterize H by slopes from X = (7,1)
-    // Line y = 1 + t(x - 7) intersected with 12x^2 + 7xy - 12y^2 = 625
-    // yields x as a rational function of t. Derive explicit formulas.
-
-    // Step 2: Compute t_1, t_2 from P_1, P_2
-    t1 = slope(X, P1)  // or inverse parameterization
-    t2 = slope(X, P2)
-
-    // Step 3: Derive the 2x2 matrix M encoding the Mobius recurrence
-    // t_{i} = (alpha * t_{i-1} + beta) / (gamma * t_{i-1} + delta)
-    M = [[alpha, beta], [gamma, delta]]  (mod p)
-
-    // Step 4: Matrix exponentiation
-    R = MatrixPow(M, n - 2, p)   // n = 11^14
-
-    // Step 5: Recover t_n from R * [t_2, 1]^T
-    t_n = (R[0][0] * t2 + R[0][1]) * ModInverse(R[1][0] * t2 + R[1][1], p)
-
-    // Step 6: Recover (x_n, y_n) from t_n, compute a/b + c/d form
-    // Use rational reconstruction or direct modular computation
-    return (a + b + c + d) mod p
+```text
+Parameterize H by slopes from X = (7,1)
+Line y = 1 + t(x - 7) intersected with 12x^2 + 7xy - 12y^2 = 625
+yields x as a rational function of t. Derive explicit formulas
+Compute t_1, t_2 from P_1, P_2
+Derive the 2x2 matrix M encoding the Mobius recurrence
+t_{i} = (alpha * t_{i-1} + beta) / (gamma * t_{i-1} + delta)
+Matrix exponentiation
+Recover t_n from R * [t_2, 1]^T
+Recover (x_n, y_n) from t_n, compute a/b + c/d form
+Use rational reconstruction or direct modular computation
 ```
 
 ## Complexity Analysis

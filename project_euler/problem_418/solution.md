@@ -48,20 +48,17 @@ Among all valid triples with a*b*c = n and a <= b <= c:
 - Minimize c/a = n/(a^2 * b)  [since c = n/(ab)]
 - This is equivalent to maximizing a^2 * b subject to a <= b <= c.
 
-## Algorithm
+## Editorial
+43! = 2^39 * 3^19 * 5^9 * 7^6 * 11^3 * 13^3 * 17^2 * 19^2 * 23 * 29 * 31 * 37 * 41 * 43 Strategy: Search divisors near cbrt(43!). We compute prime factorization of 43!. We then generate all divisors of 43! in the range [R * 0.9998, R * 1.0002]. Finally, iterate over each candidate value a (divisors <= R).
 
-```
-1. Compute prime factorization of 43!.
-2. Compute approximate cube root R = 43!^(1/3).
-3. Generate all divisors of 43! in the range [R * 0.9998, R * 1.0002].
-4. For each candidate value a (divisors <= R):
-   a. Compute n/a.
-   b. Find divisors of n/a near sqrt(n/a).
-   c. For each candidate b (with a <= b):
-      - Compute c = n/(a*b).
-      - Check b <= c.
-      - Track the triple minimizing c/a.
-5. Return a + b + c for the optimal triple.
+## Pseudocode
+
+```text
+Compute prime factorization of 43!
+Compute approximate cube root R = 43!^(1/3)
+Generate all divisors of 43! in the range [R * 0.9998, R * 1.0002]
+For each candidate value a (divisors <= R):
+Return a + b + c for the optimal triple
 ```
 
 ## Correctness

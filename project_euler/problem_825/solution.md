@@ -63,11 +63,16 @@ One family: $n(n^2+3) = (n+1)((n+1)^2+3)$... No, this doesn't hold. The correct 
 
 $a^3 + b^3 = (a+b)(a^2-ab+b^2)$. Setting $s = a+b, p = ab$: $a^3+b^3 = s(s^2-3p)$. So we need $s_1(s_1^2 - 3p_1) = s_2(s_2^2 - 3p_2)$ with $s_i^2 \ge 4p_i$.
 
-## Algorithm
+## Editorial
+n = a^3 + b^3 = c^3 + d^3 (Ramanujan/Hardy taxicab numbers) Algorithm: enumerate all pairs (a,b) with a^3+b^3 <= N, group by sum. We enumerate all pairs $(a, b)$ with $1 \le b \le a$ and $a^3 + b^3 \le N$. We then use a hash map to group by sum. Finally, iterate over each sum with $\ge 2$ representations, add to the result.
 
-1. Enumerate all pairs $(a, b)$ with $1 \le b \le a$ and $a^3 + b^3 \le N$.
-2. Use a hash map to group by sum.
-3. For each sum with $\ge 2$ representations, add to the result.
+## Pseudocode
+
+```text
+Enumerate all pairs $(a, b)$ with $1 \le b \le a$ and $a^3 + b^3 \le N$
+Use a hash map to group by sum
+For each sum with $\ge 2$ representations, add to the result
+```
 
 ## Complexity Analysis
 

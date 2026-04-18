@@ -53,7 +53,7 @@ Applying Theorem 2 with $k = 999{,}999$ and $n = 10$:
 | 8 | 1 | 1 | 1 | 0 | {0,6} | **6** |
 | 9 | 0 | 1 | 0 | 0 | {0} | **0** |
 
-## Algorithm
+## Editorial
 
 We construct the required permutation directly from the factoradic representation of $k-1$. At each position we compute the relevant factorial block size, choose the corresponding index among the remaining digits, append that digit to the answer, and remove it from the available set. This is sufficient because lexicographic permutations are partitioned into equal factorial-sized blocks at each step.
 

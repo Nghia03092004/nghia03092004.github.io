@@ -34,11 +34,16 @@ For a dodecagon of side $n$, the state space grows, but the transfer matrix appr
 
 The tiling count $T(n)$ satisfies a linear recurrence that can be derived from the transfer matrix eigenvalues. Once the recurrence is found from small cases, $T(n)$ can be computed for large $n$ efficiently.
 
-## Algorithm
+## Editorial
+We compute $T(n)$ for small values using direct enumeration or transfer matrix. We then find the linear recurrence satisfied by the sequence. Finally, use matrix exponentiation to compute $T(10)$ modulo $10^9 + 7$.
 
-1. Compute $T(n)$ for small values using direct enumeration or transfer matrix
-2. Find the linear recurrence satisfied by the sequence
-3. Use matrix exponentiation to compute $T(10)$ modulo $10^9 + 7$
+## Pseudocode
+
+```text
+Compute $T(n)$ for small values using direct enumeration or transfer matrix
+Find the linear recurrence satisfied by the sequence
+Use matrix exponentiation to compute $T(10)$ modulo $10^9 + 7$
+```
 
 ## Correctness
 

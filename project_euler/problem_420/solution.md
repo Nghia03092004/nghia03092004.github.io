@@ -53,18 +53,20 @@ tr(M) = t^2 - 2ps + 2qr = p^2 + s^2 + 2qr < N
 
 So p^2 + s^2 + 2qr < N, with p, s, q, r >= 1.
 
-## Algorithm
+## Editorial
+F(N) = count of 2x2 positive integer matrices with trace < N that can be expressed as A^2 in at least two different ways. F(50) = 7, F(1000) = 1019, Find F(10^7). Approach: For A = [[p,q],[r,s]], A^2 = [[p^2+qr, q(p+s)], [r(p+s), s^2+qr]]. Enumerate all valid A, compute A^2, count matrices with multiple roots. For verification, we compute F(50) and F(1000). We enumerate all valid (p, s, q, r) with p^2 + s^2 + 2qr < N and p, s, q, r >= 1. We then iterate over each tuple, compute M = (p^2+qr, q(p+s), r(p+s), s^2+qr). Finally, use a hash map to count how many distinct square roots each M has.
 
-1. Enumerate all valid (p, s, q, r) with p^2 + s^2 + 2qr < N and p, s, q, r >= 1.
-2. For each tuple, compute M = (p^2+qr, q(p+s), r(p+s), s^2+qr).
-3. Use a hash map to count how many distinct square roots each M has.
-4. Count M's with >= 2 square roots.
+## Pseudocode
 
-### Optimization
-
-- Fix t = p + s, enumerate p from 1 to t-1, s = t - p.
-- For each (p, s), enumerate q, r with 2qr < N - p^2 - s^2.
-- Use the trace and off-diagonal products to identify duplicates efficiently.
+```text
+Enumerate all valid (p, s, q, r) with p^2 + s^2 + 2qr < N and p, s, q, r >= 1
+For each tuple, compute M = (p^2+qr, q(p+s), r(p+s), s^2+qr)
+Use a hash map to count how many distinct square roots each M has
+Count M's with >= 2 square roots
+Fix t = p + s, enumerate p from 1 to t-1, s = t - p
+For each (p, s), enumerate q, r with 2qr < N - p^2 - s^2
+Use the trace and off-diagonal products to identify duplicates efficiently
+```
 
 ## Correctness
 

@@ -47,14 +47,18 @@ Small cases for $F(10^3) = 7$: enumerate all $(a,b,c,e,f)$ with $c^f \le 1000$.
 
 ## Derivation
 
-### Algorithm
+### Editorial
+We iterate over each $f = 3, 4, \ldots, 59$ (since $2^{59} < 10^{18} < 2^{60}$). We then iterate over each $e = 2, 3, \ldots$ (until $2^e > M$). Finally, count pairs $(a, b)$ with $a^e + b^e = M$, $0 < a < b$.
 
-1. For each $f = 3, 4, \ldots, 59$ (since $2^{59} < 10^{18} < 2^{60}$):
-   a. For each $c = 2, 3, \ldots, \lfloor N^{1/f} \rfloor$:
-      - Compute $M = c^f$.
-      - For each $e = 2, 3, \ldots$ (until $2^e > M$):
-        - Count pairs $(a, b)$ with $a^e + b^e = M$, $0 < a < b$.
-2. Sum all valid tuples.
+### Pseudocode
+
+```text
+For each $f = 3, 4, \ldots, 59$ (since $2^{59} < 10^{18} < 2^{60}$):
+Compute $M = c^f$
+For each $e = 2, 3, \ldots$ (until $2^e > M$):
+Count pairs $(a, b)$ with $a^e + b^e = M$, $0 < a < b$
+Sum all valid tuples
+```
 
 ### Counting Sum-of-Powers Representations
 

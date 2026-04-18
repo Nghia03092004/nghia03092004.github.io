@@ -50,41 +50,16 @@ $$\sum_{i=0}^{15} \mathbf{1}[x_i = g_i] = c.$$
 
 **Proof.** This is a standard result in CSP theory. A variable with $d$ candidates creates $d$ branches. Choosing the variable with smallest $d$ minimizes the width of the search tree at the current level, leading to earlier discovery of dead ends and more aggressive pruning. $\square$
 
-## Algorithm
+## Editorial
+Uses backtracking with constraint propagation. We initialize domains. We then apply zero-clue elimination. Finally, backtracking search. We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
 
-```
-function solve_number_mind(clues):
-    # Step 1: Initialize domains
-    for i = 0 to 15:
-        D[i] = {0, 1, ..., 9}
+## Pseudocode
 
-    # Step 2: Apply zero-clue elimination
-    for (g, c) in clues:
-        if c == 0:
-            for i = 0 to 15:
-                D[i].remove(g[i])
-
-    # Step 3: Backtracking search
-    function backtrack(pos, assignment, match_counts):
-        if pos == 16:
-            return assignment if all match_counts equal required counts
-            else return FAIL
-
-        # MRV: pick position with fewest candidates
-        i = argmin |D[j]| for unassigned j
-
-        for digit in D[i]:
-            assignment[i] = digit
-            update match_counts for all clues
-            if feasibility_check(clues, match_counts, assignment):
-                result = backtrack(pos + 1, assignment, match_counts)
-                if result != FAIL:
-                    return result
-            undo match_counts
-
-        return FAIL
-
-    return backtrack(0, {}, {})
+```text
+Initialize domains
+Apply zero-clue elimination
+Backtracking search
+MRV: pick position with fewest candidates
 ```
 
 ## Complexity Analysis

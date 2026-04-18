@@ -46,7 +46,7 @@ The 134 non-trailing-zero digits have an average value near $4.5$, giving a heur
 
 *Proof.* Lower bound: at least one digit is nonzero. Upper bound: each digit $\le 9$. $\square$
 
-## Algorithm
+## Editorial
 
 We form $n!$ by multiplying the integers from 2 through $n$, then extract its decimal digits and add them. The second phase repeatedly takes the last digit with a modulo-10 operation and removes it with integer division until no digits remain. This is sufficient because every digit of $n!$ is processed exactly once.
 

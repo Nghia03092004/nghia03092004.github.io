@@ -20,23 +20,15 @@ Oscar and Eric play a game on a blackboard. They take turns writing binary digit
 
 **Proof.** At each bit position $i$, the DP state consists of: (1) whether we are still "tight" (i.e., equal to the prefix of $2^N$), and (2) the current game-theoretic evaluation for Oscar/Eric. Since (1) is a Boolean and (2) has a bounded number of outcomes, the state space per bit is $O(1)$. Over $N$ bits, the total is $O(N)$. $\square$
 
-## Algorithm
+## Editorial
+We digit DP over bits of 2^N. We then state: (bit_position, tight, game_state). Finally, game_state encodes parity game evaluation. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function S(N, mod):
-    // Digit DP over bits of 2^N
-    // State: (bit_position, tight, game_state)
-    // game_state encodes parity game evaluation
-    Initialize dp[tight][game_state] for bit 0
-    for i = 1 to N:
-        for each state (tight, gs):
-            for bit b in {0, 1}:
-                if tight and b > bit_i(2^N): skip
-                new_tight = tight and (b == bit_i(2^N))
-                new_gs = transition(gs, b)
-                dp_new[new_tight][new_gs] += dp[tight][gs]
-                sum_new[new_tight][new_gs] += sum[tight][gs] + b * 2^(N-i) * count[tight][gs]
-    return sum over all states where Eric wins, mod p
+## Pseudocode
+
+```text
+Digit DP over bits of 2^N
+State: (bit_position, tight, game_state)
+game_state encodes parity game evaluation
 ```
 
 ## Complexity Analysis

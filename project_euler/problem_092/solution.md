@@ -64,11 +64,16 @@ and
 \]
 Hence each starting value below \(10^7\) ends at either \(1\) or \(89\).
 
-## Algorithm
+## Editorial
+Count starting numbers below 10,000,000 that arrive at 89 by grouping numbers according to their first square-digit-sum. We iterate over every \(s\in\{1,\dots,567\}\), compute whether its chain ends at \(89\). We then run the DP recurrence for \(k=0,1,\dots,7\) to obtain the counts \(C_7(s)\). Finally, sum \(C_7(s)\) over all \(s\) whose chain ends at \(89\).
 
-1. For every \(s\in\{1,\dots,567\}\), compute whether its chain ends at \(89\).
-2. Run the DP recurrence for \(k=0,1,\dots,7\) to obtain the counts \(C_7(s)\).
-3. Sum \(C_7(s)\) over all \(s\) whose chain ends at \(89\).
+## Pseudocode
+
+```text
+For every \(s\in\{1,\dots,567\}\), compute whether its chain ends at \(89\)
+Run the DP recurrence for \(k=0,1,\dots,7\) to obtain the counts \(C_7(s)\)
+Sum \(C_7(s)\) over all \(s\) whose chain ends at \(89\)
+```
 
 ## Correctness
 

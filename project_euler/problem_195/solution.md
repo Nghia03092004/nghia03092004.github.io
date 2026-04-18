@@ -35,45 +35,16 @@ $$a = \frac{2mn + n^2}{3}, \quad b = \frac{m^2 - n^2}{3}, \quad c = \frac{m^2 - 
 
 **Proof.** The 60-degree angle is uniquely determined by the law of cosines given $c^2 = a^2 - ab + b^2$. The triangle is unchanged by swapping $a$ and $b$. $\square$
 
-## Algorithm
+## Editorial
+The upper bound on $m$ is determined by the constraint that the smallest primitive triple for given $m$ must have $r_0 \leq R$. We iterate over n from 1 to m-1. We then family 1: m not congruent to n mod 3. Finally, family 2: m congruent to n mod 3.
 
+## Pseudocode
+
+```text
+for n from 1 to m-1
+Family 1: m not congruent to n mod 3
+Family 2: m congruent to n mod 3
 ```
-function count_triangles(R):
-    count = 0
-    for m from 2 to upper_bound:
-        for n from 1 to m-1:
-            if gcd(m, n) != 1: continue
-
-            a1 = 2*m*n + n*n
-            b1 = m*m - n*n
-            c1 = m*m - m*n + n*n
-
-            # Family 1: m not congruent to n mod 3
-            if (m - n) % 3 != 0:
-                g = gcd(a1, b1)
-                a, b, c = a1/g, b1/g, c1/g
-                r0 = sqrt(3) * a * b / (2 * (a + b + c))
-                if r0 <= R:
-                    count += floor(R / r0)
-                    if a != b:  # also count (b, a)
-                        count += floor(R / r0)  # same r0 by symmetry
-
-            # Family 2: m congruent to n mod 3
-            if (m - n) % 3 == 0:
-                a2, b2, c2 = a1/3, b1/3, c1/3
-                if a2 > 0 and b2 > 0:
-                    g = gcd(a2, b2)
-                    a, b, c = a2/g, b2/g, c2/g
-                    r0 = sqrt(3) * a * b / (2 * (a + b + c))
-                    if r0 <= R:
-                        count += floor(R / r0)
-                        if a != b:
-                            count += floor(R / r0)
-
-    return count
-```
-
-The upper bound on $m$ is determined by the constraint that the smallest primitive triple for given $m$ must have $r_0 \leq R$.
 
 ## Complexity Analysis
 

@@ -34,11 +34,16 @@ For fixed $(s, t)$, the valid $(b, e)$ pairs satisfy $b + e \ge 2(s+t) - n$ and 
 
 For $n = 6$: only $a = b = c = d = e = f = 1$, giving exactly 1 hexagon.
 
-## Algorithm
+## Editorial
+We enumerate $(s, t)$ with $2(s+t) \le n + 2$. We then iterate over each, count valid $(b, e)$ pairs in $O(1)$. Finally, sum all counts.
 
-1. Enumerate $(s, t)$ with $2(s+t) \le n + 2$.
-2. For each, count valid $(b, e)$ pairs in $O(1)$.
-3. Sum all counts.
+## Pseudocode
+
+```text
+Enumerate $(s, t)$ with $2(s+t) \le n + 2$
+For each, count valid $(b, e)$ pairs in $O(1)$
+Sum all counts
+```
 
 ## Proof of Correctness
 

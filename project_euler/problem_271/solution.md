@@ -26,34 +26,17 @@ Let $N = 2 \times 3 \times 5 \times 7 \times 11 \times 13 \times 17 \times 19 \t
 
 **Proof.** By Theorem 1 and Lemma 1, the solution set is a direct product $\prod_{i=1}^{14} R_i$ where $|R_i| = \gcd(3, p_i - 1)$. The total count is $\prod |R_i| = 3^6 \cdot 1^8 = 729$. Uniqueness of the CRT reconstruction is standard. $\square$
 
-## Algorithm
+## Editorial
+We iterate over each prime, find all cube roots of unity. We then iterate over p in primes. Finally, find sqrt(-3) mod p by brute force or Tonelli-Shanks.
 
-```
-function solve():
-    N = product of primes {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43}
-    primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]
+## Pseudocode
 
-    # Step 1: For each prime, find all cube roots of unity
-    roots = []
-    for p in primes:
-        if (p - 1) % 3 == 0:
-            # Find sqrt(-3) mod p by brute force or Tonelli-Shanks
-            s = sqrt_mod(-3, p)
-            r1 = 1
-            r2 = ((-1 + s) * mod_inverse(2, p)) % p
-            r3 = ((-1 - s) * mod_inverse(2, p)) % p
-            roots[p] = [r1, r2, r3]
-        else:
-            roots[p] = [1]
-
-    # Step 2: Enumerate all 3^6 combinations via CRT
-    total_sum = 0
-    for each combination (c_1, ..., c_14) in product of roots:
-        n = CRT(c_1 mod p_1, c_2 mod p_2, ..., c_14 mod p_14)
-        if 0 < n < N:
-            total_sum += n
-
-    return total_sum
+```text
+For each prime, find all cube roots of unity
+for p in primes
+Find sqrt(-3) mod p by brute force or Tonelli-Shanks
+else
+Enumerate all 3^6 combinations via CRT
 ```
 
 ## Complexity Analysis

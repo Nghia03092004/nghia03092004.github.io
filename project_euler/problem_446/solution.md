@@ -52,31 +52,16 @@ $$n^4 + 4 = (n^2 - 2n + 2)(n^2 + 2n + 2).$$
 
 **Proof.** $q - p = 4n$, so $\gcd(p, q) \mid 4n$. $\square$
 
-## Algorithm
+## Editorial
+Project Euler 446: Retractions B R(n) is multiplicative with R(p^k) = p^(k-1)*(p+1) F(N) = sum of R(n^4+4) for n=1..N n^4 + 4 = (n^2-2n+2)(n^2+2n+2) by Sophie Germain identity. We sieve primes up to sqrt(N^2 + 2N + 2) ~ N + 1. We then factorize m = p * q, using trial division with precomputed primes. Finally, merge prime factorizations of p and q.
 
-```
-function ComputeF(N, mod):
-    // Step 1: Sieve primes up to sqrt(N^2 + 2N + 2) ~ N + 1
-    primes = sieve_primes(N + 2)
+## Pseudocode
 
-    total = 0
-    for n = 1 to N:
-        m = n^4 + 4
-        p = n^2 - 2n + 2  // = (n-1)^2 + 1
-        q = n^2 + 2n + 2  // = (n+1)^2 + 1
-
-        // Factorize m = p * q, using trial division with precomputed primes
-        // Merge prime factorizations of p and q
-        factors = factorize(p, primes) merged with factorize(q, primes)
-
-        // Compute R(m) = prod_{p^e || m} (1 + p^e) mod mod
-        R_m = 1
-        for (prime, exp) in factors:
-            R_m = R_m * (1 + pow(prime, exp, mod)) % mod
-
-        total = (total + R_m) % mod
-
-    return total
+```text
+Sieve primes up to sqrt(N^2 + 2N + 2) ~ N + 1
+Factorize m = p * q, using trial division with precomputed primes
+Merge prime factorizations of p and q
+Compute R(m) = prod_{p^e || m} (1 + p^e) mod mod
 ```
 
 ## Complexity Analysis

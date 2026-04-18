@@ -35,7 +35,7 @@ Considering quadratics of the form $n^2 + an + b$ where $|a| < 1000$ and $|b| \l
 
 For each admissible $(a, b)$, we evaluate $f_{a,b}(n)$ for $n = 0, 1, 2, \ldots$ until a composite or negative value is reached. Primality is checked via a precomputed sieve. The maximum chain length found is $71$, achieved uniquely at $(a, b) = (-61, 971)$. The discriminant of $n^2 - 61n + 971$ is $61^2 - 4 \cdot 971 = 3721 - 3884 = -163$, confirming the connection to the Heegner number $-163$. $\square$
 
-## Algorithm
+## Editorial
 
 We search over the admissible coefficient pairs using number-theoretic pruning. Because $f(0) = b$ must be prime, we only enumerate prime values of $b$, precompute a prime sieve large enough for all tested values, and then scan the allowed range of $a$ while skipping parity patterns that cannot produce long prime runs. For each pair $(a, b)$ we count consecutive values of $n$ starting from 0 until $n^2 + an + b$ stops being prime, and we keep the product $ab$ for the longest run. This is sufficient because every candidate pair in the search region is either tested or eliminated by a necessary condition.
 

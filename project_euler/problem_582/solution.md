@@ -35,26 +35,16 @@ This follows from composing the Pell map twice: $(2+\sqrt{3})^2 = 7 + 4\sqrt{3}$
 
 **Proof.** The Pell equation $X^2 - 3Y^2 = 1$ has infinitely many solutions with $Y_k \to \infty$, so there are infinitely many valid triangles. The sum is taken over those within the problem's constraints. $\square$
 
-## Algorithm
+## Editorial
+We generate Pell solutions (X, Y) for X^2 - 3Y^2 = 1. Finally, next Pell solution. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function solve_582(LIMIT):
-    // Generate Pell solutions (X, Y) for X^2 - 3Y^2 = 1
-    X, Y = 2, 1   // fundamental solution
-    total = 0
+## Pseudocode
 
-    while True:
-        if Y is odd and X is even:
-            a = (Y - 1) / 2
-            c = X / 2
-            if a > LIMIT: break
-            b = a + 1
-            perimeter = a + b + c
-            total += perimeter
-        // Next Pell solution
-        X, Y = 2*X + 3*Y, X + 2*Y
-
-    return total
+```text
+Generate Pell solutions (X, Y) for X^2 - 3Y^2 = 1
+while True
+if Y is odd and X is even
+Next Pell solution
 ```
 
 ## Complexity Analysis

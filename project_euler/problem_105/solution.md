@@ -35,35 +35,14 @@ If $B = \emptyset$, then $C' = D \cup C$ and $B' = D$, so $S(D \cup C) = S(D)$, 
 
 **Proof.** There are $2^n - 1$ non-empty subsets. We compute each subset sum incrementally (e.g., using Gray code enumeration, changing one element at a time, giving $O(1)$ per subset sum update). Inserting into and querying a hash set takes $O(1)$ expected time per operation. Total: $O(2^n)$. $\square$
 
-## Algorithm
+## Editorial
+From a file of 100 sets, find those that are special sum sets and compute the sum of their S(A) values. A special sum set satisfies: 1. All subset sums are distinct. 2. Larger subsets have larger sums (size-ordering property). Approach: For each set, check Condition 2 in O(n), then Condition 1 in O(2^n). We iterate over each set A in sets.
 
-```
-function solve(sets):
-    total = 0
-    for each set A in sets:
-        sort A in ascending order
-        if check_property2(A) and check_property1(A):
-            total += sum(A)
-    return total
+## Pseudocode
 
-function check_property2(A):
-    n = |A|
-    for k = 1 to floor(n/2):
-        prefix_sum = A[1] + A[2] + ... + A[k+1]
-        suffix_sum = A[n-k+1] + ... + A[n]
-        if prefix_sum <= suffix_sum:
-            return false
-    return true
-
-function check_property1(A):
-    n = |A|
-    seen = empty hash set
-    for mask = 1 to 2^n - 1:
-        s = sum of A[i] for each bit i set in mask
-        if s in seen:
-            return false
-        seen.add(s)
-    return true
+```text
+for each set A in sets
+if s in seen
 ```
 
 ## Complexity Analysis

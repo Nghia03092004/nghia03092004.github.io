@@ -38,23 +38,18 @@ More precisely, for the partition of $N$ with all parts $\le k$, the number of p
 
 **Proof.** This is a classical result. The proof uses the Chevalley--Warning theorem or the Davenport constant. Consider the integers modulo $n$. By the pigeonhole principle on prefix sums, either some prefix sum is $0 \pmod{n}$ (and we take the first $n$ or fewer elements), or two prefix sums are congruent, giving a contiguous subsequence summing to $0 \pmod{n}$. The full proof for arbitrary subsequences (not necessarily contiguous) requires the Davenport constant argument. $\square$
 
-## Algorithm
+## Editorial
+A $k$-bounded partition uses parts $\le k$. It's balanceable if splittable into two equal-sum halves. $f(k)$ = smallest $N$ where ALL $k$-bounded partitions of $N$ are balanceable. $f(3)=12$. Find $f(. We direct formula computation. We then else. Finally, f(10^8) = 10^8 * (10^8 + 2) = 10^16 + 2 * 10^8.
 
-```
-function f(k, MOD):
-    // Direct formula computation
-    if k is even:
-        result = k * (k + 2)
-    else:
-        if k % 4 == 1:
-            result = k * (k + 2) - 1
-        else:  // k % 4 == 3
-            result = k * (k + 2) + 1
-    return result % MOD
+## Pseudocode
 
-// For k = 10^8 (even):
-// f(10^8) = 10^8 * (10^8 + 2) = 10^16 + 2 * 10^8
-// Compute modulo 10^9 + 7 using modular arithmetic
+```text
+Direct formula computation
+if k is even
+else
+For k = 10^8 (even):
+f(10^8) = 10^8 * (10^8 + 2) = 10^16 + 2 * 10^8
+Compute modulo 10^9 + 7 using modular arithmetic
 ```
 
 ## Complexity Analysis

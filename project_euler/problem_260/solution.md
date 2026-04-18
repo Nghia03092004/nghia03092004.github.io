@@ -38,58 +38,17 @@ Find $\displaystyle\sum_{\substack{(a,b,c) \in \mathcal{P} \\ 0 \le a \le b \le 
 
 **Proof.** The number of single-pile moves is $(a - 0) + (b - 0) + (c - 0) = a + b + c$. The number of two-pile moves is $a + a + b = 2a + b$. Total moves: $O(a + b + c) = O(c)$ since $c \ge b \ge a$. Each successor lookup in the precomputed boolean array is $O(1)$. $\square$
 
-## Algorithm
+## Editorial
+Three piles of stones. On each turn, remove k >= 1 from one pile, or k >= 1 from two piles. Last stone wins. Find sum of a+b+c for all P-positions (losing for mover) with 0 <= a <= b <= c <= 1000. Method: DP - process positions by increasing a+b+c. A position is P iff no move leads to a P-position. We is_P[a][b][c] = true if (a,b,c) is a P-position (a <= b <= c). We then check single-pile removals. Finally, check two-pile removals.
 
-```
-function SumPPositions(N):
-    // N = 1000
-    // is_P[a][b][c] = true if (a,b,c) is a P-position (a <= b <= c)
-    Initialize is_P[0..N][0..N][0..N] = false
+## Pseudocode
 
-    total = 0
-
-    for a = 0 to N:
-        for b = a to N:
-            for c = b to N:
-                is_p = true
-
-                // Check single-pile removals
-                for a' = 0 to a-1:  // reduce pile a
-                    (x,y,z) = sort(a', b, c)
-                    if is_P[x][y][z]: is_p = false; break
-                if not is_p: mark N-position; continue
-
-                for b' = 0 to b-1:  // reduce pile b
-                    (x,y,z) = sort(a, b', c)
-                    if is_P[x][y][z]: is_p = false; break
-                if not is_p: mark N-position; continue
-
-                for c' = 0 to c-1:  // reduce pile c
-                    (x,y,z) = sort(a, b, c')
-                    if is_P[x][y][z]: is_p = false; break
-                if not is_p: mark N-position; continue
-
-                // Check two-pile removals
-                for k = 1 to a:
-                    (x,y,z) = sort(a-k, b-k, c)
-                    if is_P[x][y][z]: is_p = false; break
-                if not is_p: mark N-position; continue
-
-                for k = 1 to a:
-                    (x,y,z) = sort(a-k, b, c-k)
-                    if is_P[x][y][z]: is_p = false; break
-                if not is_p: mark N-position; continue
-
-                for k = 1 to b:
-                    (x,y,z) = sort(a, b-k, c-k)
-                    if is_P[x][y][z]: is_p = false; break
-                if not is_p: mark N-position; continue
-
-                // All moves lead to N-positions => P-position
-                is_P[a][b][c] = true
-                total += a + b + c
-
-    return total
+```text
+N = 1000
+is_P[a][b][c] = true if (a,b,c) is a P-position (a <= b <= c)
+Check single-pile removals
+Check two-pile removals
+All moves lead to N-positions => P-position
 ```
 
 ## Complexity Analysis

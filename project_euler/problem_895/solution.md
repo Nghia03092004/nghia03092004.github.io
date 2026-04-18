@@ -41,38 +41,20 @@ If $k \geq 2$, then all $p_i \geq 2$, so $\sum a_i/p_i \leq \sum a_i/2$. For thi
 
 **Proof.** Any derivation on $\mathbb{Z}$ satisfying the Leibniz rule is determined by its values on primes (since every positive integer factors uniquely into primes). The Leibniz rule and $p' = 1$ for all $p$ uniquely determine $n'$ for all $n$. $\square$
 
-## Algorithm
+## Editorial
+n' defined by: p'=1 for primes, (ab)' = a'b + ab' (Leibniz rule). Closed form: n' = n * sum(a_i / p_i) where n = prod(p_i^a_i). We sieve to compute n' for all n in [1, N]. We then uses smallest prime factor sieve. Finally, else.
 
-```
-function arithmetic_derivative_sieve(N):
-    // Sieve to compute n' for all n in [1, N]
-    // Uses smallest prime factor sieve
-    spf[1..N] = 0               // smallest prime factor
-    for p = 2 to N:
-        if spf[p] == 0:         // p is prime
-            for m = p to N step p:
-                if spf[m] == 0:
-                    spf[m] = p
+## Pseudocode
 
-    deriv[1] = 0
-    total = 0
-    for n = 2 to N:
-        if spf[n] == n:         // n is prime
-            deriv[n] = 1
-        else:
-            p = spf[n]
-            // Factor out p^a from n
-            m = n; a = 0
-            while m mod p == 0:
-                m = m / p
-                a += 1
-            // n = p^a * m, gcd(p, m) = 1
-            // n' = (p^a)' * m + p^a * m'
-            //     = a * p^(a-1) * m + p^a * m'
-            deriv[n] = a * (n / p) + (n / m) * deriv[m]  // if m == 1, deriv[1] = 0
-            // Alternatively: deriv[n] = n * (a/p + deriv[m]/m) when m > 1
-        total += deriv[n]
-    return total
+```text
+Sieve to compute n' for all n in [1, N]
+Uses smallest prime factor sieve
+else
+Factor out p^a from n
+n = p^a * m, gcd(p, m) = 1
+n' = (p^a)' * m + p^a * m'
+= a * p^(a-1) * m + p^a * m'
+Alternatively: deriv[n] = n * (a/p + deriv[m]/m) when m > 1
 ```
 
 ## Complexity Analysis

@@ -40,14 +40,19 @@ The solution produces values matching all given test cases, providing strong evi
 
 ## Derivation
 
-### Algorithm
+### Editorial
+We input Processing:** Parse the target value $N$ and modulus $p$. We then core Computation:** Apply the mathematical framework to compute the answer. Finally, iterate over sieve-based problems: sieve up to the appropriate bound.
 
-1. **Input Processing:** Parse the target value $N$ and modulus $p$.
-2. **Core Computation:** Apply the mathematical framework to compute the answer.
-   - For sieve-based problems: sieve up to the appropriate bound.
-   - For DP problems: fill the DP table in topological order.
-   - For matrix problems: build and exponentiate the transfer matrix.
-3. **Output:** Return the result modulo $p$.
+### Pseudocode
+
+```text
+Input Processing:** Parse the target value $N$ and modulus $p$
+Core Computation:** Apply the mathematical framework to compute the answer
+For sieve-based problems: sieve up to the appropriate bound
+For DP problems: fill the DP table in topological order
+For matrix problems: build and exponentiate the transfer matrix
+Output:** Return the result modulo $p$
+```
 
 ### Implementation Notes
 

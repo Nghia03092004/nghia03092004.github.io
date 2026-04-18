@@ -42,17 +42,16 @@ For prime modulus $p$, Fermat's little theorem provides modular inverses: $a^{-1
 
 The small cases are verified by brute-force enumeration and match the formula predictions.
 
-## Algorithm
+## Editorial
+Expected distance between random points in rectangles. Key mathematics: geometric probability integral. Algorithm: closed-form E(w,h) formula. Complexity: O(N) per rectangle. We begin with the precomputation: Sieve or precompute necessary values up to the required bound. We then carry out the main computation: Apply the closed-form E(w,h) formula to evaluate the target quantity. Finally, we combine the partial results: Sum/combine partial results with modular reduction.
 
-### Method 1: Primary Algorithm
+## Pseudocode
 
-1. **Precomputation:** Sieve or precompute necessary values up to the required bound.
-2. **Main computation:** Apply the closed-form E(w,h) formula to evaluate the target quantity.
-3. **Accumulation:** Sum/combine partial results with modular reduction.
-
-### Method 2: Verification (Brute Force)
-
-For small inputs, directly enumerate all cases and verify against Method 1.
+```text
+Precomputation: Sieve or precompute necessary values up to the required bound
+Main computation: Apply the closed-form E(w,h) formula to evaluate the target quantity
+Accumulation: Sum/combine partial results with modular reduction
+```
 
 ## Proof of Correctness
 

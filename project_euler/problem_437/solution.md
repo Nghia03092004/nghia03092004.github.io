@@ -24,45 +24,18 @@ The quadratic residues modulo 5 are $1^2 \equiv 1$ and $2^2 \equiv 4$, so $\left
 
 **Proof.** Direct computation. $\square$
 
-## Algorithm
+## Editorial
+A Fibonacci primitive root g of prime p satisfies g^2 - g - 1 = 0 (mod p) and g is a primitive root of p. This requires p ≡ ±1 (mod 5) for sqrt(5) to exist mod p. We sieve primes and smallest prime factors up to N. We then iterate over p in primes. Finally, compute sqrt(5) mod p.
 
-```
-function sum_fibonacci_primitive_root_primes(N):
-    // Step 1: Sieve primes and smallest prime factors up to N
-    primes = sieve_of_eratosthenes(N)
-    spf = smallest_prime_factor_sieve(N)
+## Pseudocode
 
-    total = 0
-    for p in primes:
-        if p == 2: continue
-        if p == 5:
-            total += 5
-            continue
-        if p mod 5 != 1 and p mod 5 != 4:
-            continue
-
-        // Step 2: Compute sqrt(5) mod p
-        s5 = tonelli_shanks(5, p)
-        inv2 = (p + 1) / 2    // since p is odd
-
-        // Step 3: Compute two candidates
-        g1 = (1 + s5) * inv2 mod p
-        g2 = (1 - s5 + p) * inv2 mod p
-
-        // Step 4: Factor p - 1 using SPF sieve
-        factors = prime_factors(p - 1, spf)
-
-        // Step 5: Test if g1 or g2 is a primitive root
-        if is_primitive_root(g1, p, factors) or is_primitive_root(g2, p, factors):
-            total += p
-
-    return total
-
-function is_primitive_root(g, p, prime_factors_of_pm1):
-    for q in prime_factors_of_pm1:
-        if pow(g, (p-1)/q, p) == 1:
-            return false
-    return true
+```text
+Sieve primes and smallest prime factors up to N
+for p in primes
+Compute sqrt(5) mod p
+Compute two candidates
+Factor p - 1 using SPF sieve
+Test if g1 or g2 is a primitive root
 ```
 
 ## Complexity Analysis

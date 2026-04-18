@@ -28,20 +28,22 @@ $$R(b,k) = \sum_{i=0}^{k-1} b^i = \frac{b^k - 1}{b-1}.$$
 
 **Proof.** $R(b,k) \ge b^{k-1}$, so $b \le L^{1/(k-1)}$. For $k = 3$, $b \le L^{1/2} = 10^6$. For $k = 40$, $b \le L^{1/39} < 3$. Summing gives a geometric-like series dominated by the $k=3$ term. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function solve(L = 10^12):
+## Pseudocode
+
+```text
     repunits = empty set
 
-    for k = 3 to 40:
-        for b = 2 to ...:
+    For k from 3 to 40:
+        For b from 2 to ...:
             r = (b^k - 1) / (b - 1)
-            if r >= L: break
+            If r >= L then stop this loop
             repunits.add(r)
 
-    repunits.add(1)     // 1 is a strong repunit
-    return sum(repunits)
+    repunits.add(1) // 1 is a strong repunit
+    Return sum(repunits)
 ```
 
 ## Complexity Analysis

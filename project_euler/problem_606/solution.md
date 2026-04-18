@@ -42,31 +42,19 @@ $$\sum_{n \in \mathcal{N}(\alpha, N)} n = \frac{r!}{\prod_j m_j!} \sum_{\substac
 
 **Proof.** Each $n$ with signature $\alpha$ is of the form $\prod_{i=1}^r p_i^{\beta_i}$ where $(\beta_1, \ldots, \beta_r)$ is a permutation of $(\alpha_1, \ldots, \alpha_r)$ and $p_1 < p_2 < \cdots < p_r$ are distinct primes. The ordered tuple $(p_1, \ldots, p_r)$ determines the primes; the assignment of exponents to primes gives different integers. We divide by $\prod m_j!$ to avoid overcounting when some $\alpha_i$ are equal (since swapping primes with equal exponents gives the same integer). $\square$
 
-## Algorithm
+## Editorial
+A gozinta chain for n is a sequence {1, a, b, ..., n} where each element properly divides the next. g(n) = number of gozinta chains for n. For n = p1^a1 * p2^a2 * ... * pk^ak: g(n) = (a1 + a2 + ... + ak)! / (a1! * a2! * ... * ak!) We need S(10^36) mod 10^9 where S(N) = sum of k <= N with g(k) = 252. We iterate over each partition alpha of m. We then iterate over each signature, enumerate valid prime tuples. Finally, iterate over alpha in signatures.
 
+## Pseudocode
+
+```text
+Find all signatures with multinomial = 252
+for each partition alpha of m
+For each signature, enumerate valid prime tuples
+for alpha in signatures
+Use recursive enumeration over primes p1 < p2 < ... < pr
+with constraint: product p_i^{alpha_sigma(i)} <= N_bound
 ```
-function solve(N_bound, mod):
-    // Step 1: Find all signatures with multinomial = 252
-    signatures = []
-    for m = 1 to 9:
-        for each partition alpha of m:
-            if multinomial(m, alpha) == 252:
-                signatures.append(alpha)
-
-    // Step 2: For each signature, enumerate valid prime tuples
-    total = 0
-    for alpha in signatures:
-        r = len(alpha)
-        perms = distinct_permutations(alpha)
-        prime_count_factor = len(perms) / factorial(r) * ...
-        // Use recursive enumeration over primes p1 < p2 < ... < pr
-        // with constraint: product p_i^{alpha_sigma(i)} <= N_bound
-        total = (total + sum_over_primes(alpha, N_bound, mod)) mod mod
-
-    return total
-```
-
-The inner prime enumeration uses the fact that $10^{36}$ allows very large prime tuples, but the smallest prime must satisfy $p_1^{\max(\alpha)} \leq N$, bounding the search.
 
 ## Complexity Analysis
 

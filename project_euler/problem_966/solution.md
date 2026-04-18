@@ -33,13 +33,18 @@ For our problem, we only need to track 5 steps and check abundance at each.
 
 ## Derivation
 
-### Algorithm
+### Editorial
+s(n) = sigma(n) - n (sum of proper divisors). A number n is abundant if s(n) > n. An "abundant chain" of length L starting at n means: n, s(n), s(s(n)), ..., each strictly increasing for L steps. Count n <= 10^5 that start an abundant chain of length >= 5. We sieve** $s(n) = \sigma(n) - n$ for all $n$ up to $M$ (large enough to cover chain elements; $M \approx 10^7$ suffices). We then iterate over each $n \le 10^5$. Finally, check $s(a_i) > a_i$ (abundance) for $i = 0, 1, 2, 3, 4$.
 
-1. **Sieve** $s(n) = \sigma(n) - n$ for all $n$ up to $M$ (large enough to cover chain elements; $M \approx 10^7$ suffices).
-2. For each $n \le 10^5$:
-   - Follow chain: $a_0 = n, a_{i+1} = s(a_i)$.
-   - Check $s(a_i) > a_i$ (abundance) for $i = 0, 1, 2, 3, 4$.
-   - If all 5 checks pass, count $n$.
+### Pseudocode
+
+```text
+Sieve** $s(n) = \sigma(n) - n$ for all $n$ up to $M$ (large enough to cover chain elements; $M \approx 10^7$ suffices)
+For each $n \le 10^5$:
+Follow chain: $a_0 = n, a_{i+1} = s(a_i)$
+Check $s(a_i) > a_i$ (abundance) for $i = 0, 1, 2, 3, 4$
+If all 5 checks pass, count $n$
+```
 
 ## Proof of Correctness
 

@@ -73,28 +73,14 @@ where $\hat{g}_j$ is the modular analogue of $g_j$, computed using $\hat{\omega}
 
 *Proof.* Since $g$ has order $p - 1$ in $\mathbb{F}_p^*$, the element $\hat{\omega} = g^{(p-1)/k}$ has order exactly $k$, hence is a primitive $k$-th root of unity in $\mathbb{F}_p$. The algebraic identities in Theorems 1, 2, and Lemma 1 hold over any field containing such a root, in particular over $\mathbb{F}_p$. Division by $k$ is well-defined since $p \nmid k$ (as $k \mid (p-1)$ and $p$ is prime). $\square$
 
-## Algorithm
+## Editorial
+Count n-tuples (a_1,...,a_n) with 1 <= a_i <= m and sum divisible by k. Uses the roots-of-unity filter (discrete Fourier transform technique). We precondition: p prime, k | (p - 1). Finally, else.
 
-```
-function S(n, k, m, p):
-    // Precondition: p prime, k | (p - 1)
-    g := primitive_root(p)
-    omega := pow(g, (p - 1) / k, p)
-    inv_k := pow(k, p - 2, p)          // Fermat inverse
+## Pseudocode
 
-    result := 0
-    omega_j := 1                        // omega^j, updated iteratively
-    for j := 0 to k - 1:
-        if j == 0:
-            gj := m mod p
-        else:
-            num := omega_j * (1 - pow(omega_j, m, p)) mod p
-            den := (1 - omega_j) mod p
-            gj := num * pow(den, p - 2, p) mod p
-        result := (result + pow(gj, n, p)) mod p
-        omega_j := omega_j * omega mod p
-
-    return result * inv_k mod p
+```text
+Precondition: p prime, k | (p - 1)
+else
 ```
 
 ## Complexity Analysis

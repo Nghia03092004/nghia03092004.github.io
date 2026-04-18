@@ -53,13 +53,18 @@ Sort inadmissible points by (x+y, x). For each point p_i = (x_i, y_i):
 
 Then P(n) = C(2n, n) - sum over all i of f(i) * C(2n - x_i - y_i, n - x_i).
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We generate all Pythagorean triples (a, b, c) with a^2, b^2 <= n = 10^7. We then collect inadmissible points (a^2, b^2) and (b^2, a^2). Finally, sort points by (x+y, x).
 
-1. Generate all Pythagorean triples (a, b, c) with a^2, b^2 <= n = 10^7.
-2. Collect inadmissible points (a^2, b^2) and (b^2, a^2).
-3. Sort points by (x+y, x).
-4. DP with inclusion-exclusion to compute P(n) mod 10^9+7.
-5. Precompute factorials and inverse factorials for binomial coefficients.
+## Pseudocode
+
+```text
+Generate all Pythagorean triples (a, b, c) with a^2, b^2 <= n = 10^7
+Collect inadmissible points (a^2, b^2) and (b^2, a^2)
+Sort points by (x+y, x)
+DP with inclusion-exclusion to compute P(n) mod 10^9+7
+Precompute factorials and inverse factorials for binomial coefficients
+```
 
 ## Correctness
 

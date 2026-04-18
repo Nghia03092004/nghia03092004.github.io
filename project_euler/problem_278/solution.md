@@ -38,13 +38,18 @@ Then for fixed $p, q$:
 
 Each $(p, q)$ pair contributes in $O(1)$.
 
-## Algorithm
+## Editorial
+We sieve primes up to 5000. We then build prefix sums and counts. Finally, double loop over prime pairs $p < q$.
 
-1. Sieve primes up to 5000.
-2. Build prefix sums and counts.
-3. Double loop over prime pairs $p < q$.
-4. For each pair, compute the contribution of all valid $r$ in $O(1)$.
-5. Accumulate using 128-bit integers.
+## Pseudocode
+
+```text
+Sieve primes up to 5000
+Build prefix sums and counts
+Double loop over prime pairs $p < q$
+For each pair, compute the contribution of all valid $r$ in $O(1)$
+Accumulate using 128-bit integers
+```
 
 ## Correctness
 

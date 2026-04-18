@@ -36,47 +36,23 @@ $$G(N) = \sum_{\substack{p/q \in \mathbb{Q} \cap (1, \infty) \\ \gcd(p,q)=1}} \s
 
 **Proof.** This follows by partitioning pseudo geometric sequences by their effective ratio $p/q$ (the ratio of consecutive terms in the closest geometric approximation) and their starting value $a_0$. The inner function $h$ is computed via the continuant recurrence. The sum over $a_0$ telescopes into an arithmetic expression for each $p/q$, and the sum over ratios is finite for fixed $N$ since $p/q > 1$ and terms must not exceed $N$. $\square$
 
-## Algorithm
+## Editorial
+Strictly increasing positive integers $a_0<\cdots<a_n$ with $|a_i^2-a_{{i-1}}a_{{i+1}}|\le 2$ for interior terms, $n\ge 4$. $G(N)$ = count with all terms $\le N$. Find $G(10^{{18}}) \bmod 10^9+7$. We enumerate Stern-Brocot tree pairs (p, q) with gcd(p,q) = 1, p > q >= 1. We then use BFS/DFS on the Stern-Brocot tree. Finally, compute max a_0 such that a_0 * (p/q)^4 <= N.
 
-```
-function G(N, MOD):
-    result = 0
-    // Enumerate Stern-Brocot tree pairs (p, q) with gcd(p,q) = 1, p > q >= 1
-    // Use BFS/DFS on the Stern-Brocot tree
-    queue = [(1, 1, 0, 1, 1, 0)]  // mediant tree traversal
+## Pseudocode
 
-    for each (p, q) from Stern-Brocot enumeration with p > q:
-        if q * N^(1/4) < p:  // pruning: need at least 5 terms
-            continue
-
-        // Compute max a_0 such that a_0 * (p/q)^4 <= N
-        max_a0 = floor(N * q^4 / p^4)
-        if max_a0 < 1:
-            continue
-
-        // For each a_0, compute max length and count valid sequences
-        // Use continued fraction of p/q to compute h(p, q, L)
-        cf = continued_fraction(p, q)
-
-        // Aggregate over a_0 using the structure of floor(log(N/a_0)/log(p/q))
-        // Group a_0 values by the resulting max sequence length
-        for L = 4, 5, 6, ...:
-            // Range of a_0 giving max length exactly L
-            lo = floor(N * q^(L+1) / p^(L+1)) + 1
-            hi = floor(N * q^L / p^L)
-            if lo > hi or hi < 1:
-                break
-            lo = max(lo, 1)
-            count_a0 = hi - lo + 1
-            result = (result + count_a0 * h(cf, L)) % MOD
-
-    return result
-
-function h(cf, L):
-    // Count valid deviation sequences of length L-1
-    // Using continuant/matrix method on partial quotients
-    // Returns count modulo MOD
-    ...
+```text
+Enumerate Stern-Brocot tree pairs (p, q) with gcd(p,q) = 1, p > q >= 1
+Use BFS/DFS on the Stern-Brocot tree
+Compute max a_0 such that a_0 * (p/q)^4 <= N
+For each a_0, compute max length and count valid sequences
+Use continued fraction of p/q to compute h(p, q, L)
+Aggregate over a_0 using the structure of floor(log(N/a_0)/log(p/q))
+Group a_0 values by the resulting max sequence length
+Range of a_0 giving max length exactly L
+Count valid deviation sequences of length L-1
+Using continuant/matrix method on partial quotients
+Returns count modulo MOD
 ```
 
 ## Complexity Analysis

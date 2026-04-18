@@ -32,52 +32,22 @@ Find $F(10^{12}) \bmod 10^8$.
 
 **Proof.** Within each block $[2^{k-1}+1, 2^k]$, the pattern of $f(N)$ is determined by the recursive gap-filling at depth $k$. Since the binary subdivision at depth $k$ reduces to depth $k-1$ sub-problems, the block sum $B(k)$ can be expressed as a linear combination of previous block sums $B(k-1), B(k-2), \ldots$, plus correction terms for boundary effects. The number of distinct boundary configurations is bounded, so the recurrence has bounded order. $\square$
 
-## Algorithm
+## Editorial
+We direct computation for small N. We then identify block structure. Finally, compute block sums B(k) = sum f(N) for N in [2^(k-1)+1, 2^k].
 
-```
-function F(N):
-    # Phase 1: Direct computation for small N
-    for N_small = 1 to THRESHOLD:
-        simulate all starting positions for N_small seats
-        record f(N_small) = count of positions achieving maximum occupancy
+## Pseudocode
 
-    # Phase 2: Identify block structure
-    # Compute block sums B(k) = sum f(N) for N in [2^(k-1)+1, 2^k]
-    # Identify the recurrence relating B(k) to previous blocks
-
-    # Phase 3: Sum over blocks
-    # Decompose [1, N] into O(log N) dyadic blocks
-    # For each complete block, use the recurrence to compute B(k)
-    # For the partial final block, compute directly or via sub-block decomposition
-
-    total = 0
-    for each dyadic block in decomposition of [1, N]:
-        total += block_sum(block) mod 10^8
-
-    return total mod 10^8
-
-function simulate(N):
-    max_occ = 0
-    count = 0
-    for p = 1 to N:
-        occ = 1 + fill(p-2, W, O) + fill(N-p-1, O, W)
-        if occ > max_occ:
-            max_occ = occ
-            count = 1
-        elif occ == max_occ:
-            count += 1
-    return count
-
-function fill(g, left_type, right_type):
-    if g <= 0: return 0
-    # Determine effective boundaries
-    left_offset = (1 if left_type == O else 0)
-    right_offset = (1 if right_type == O else 0)
-    effective = g - left_offset - right_offset
-    if effective <= 0: return 0
-    # Greedy seat at midpoint of effective range
-    seat = left_offset + (effective - 1) / 2  # integer division, leftmost
-    return 1 + fill(seat - 1, left_type, O) + fill(g - seat - 2, O, right_type)
+```text
+Direct computation for small N
+Identify block structure
+Compute block sums B(k) = sum f(N) for N in [2^(k-1)+1, 2^k]
+Identify the recurrence relating B(k) to previous blocks
+Sum over blocks
+Decompose [1, N] into O(log N) dyadic blocks
+For each complete block, use the recurrence to compute B(k)
+For the partial final block, compute directly or via sub-block decomposition
+Determine effective boundaries
+Greedy seat at midpoint of effective range
 ```
 
 ## Complexity Analysis

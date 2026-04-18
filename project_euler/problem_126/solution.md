@@ -44,20 +44,22 @@ $$f = 2(ab+bc+ac) + 4(a+b+c)(k-1) + 4(k-1)(k-2).$$
 
 **Proof.** For $k = 1$ with $a = b = c$: $f = 6a^2$, so $6a^2 \leq N$ gives $a \leq \sqrt{N/6}$, which is weaker than $2a^2 \leq N$ (obtained from $f \geq 2(a^2 + a \cdot b + ...) \geq 2a^2$ with $b = c = a$). The other bounds follow from $f \geq 2(ab + bc + ac)$ (the $k=1$ minimum). $\square$
 
-## Algorithm
+## Editorial
+Layer formula: f(a,b,c,k) = 2(ab+bc+ac) + 4(a+b+c)(k-1) + 4(k-1)(k-2). We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function cuboid_layers(target):
-    N = 20000                           # upper bound (found experimentally)
+## Pseudocode
+
+```text
+    N = 20000 # upper bound (found experimentally)
     C[1..N] = 0
     for a = 1 while 2*a*a <= N:
         for b = a while 2*(a*b + b*b) <= N:
             for c = b while 2*(a*b + b*c + a*c) <= N:
                 for k = 1, 2, ...:
                     val = 2*(a*b + b*c + a*c) + 4*(a+b+c)*(k-1) + 4*(k-1)*(k-2)
-                    if val > N: break
+                    If val > N then stop this loop
                     C[val] += 1
-    return min(n for n in 1..N if C[n] == target)
+    Return min(n for n in 1..N if C[n] == target)
 ```
 
 ## Complexity Analysis

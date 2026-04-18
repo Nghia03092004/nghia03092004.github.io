@@ -51,12 +51,17 @@ To convert an integer to minimal Roman numeral form, greedily subtract the large
 | IV             | 4     |
 | I              | 1     |
 
-### Algorithm
+### Editorial
+We parse each Roman numeral string to get its integer value. We then convert the integer back to minimal Roman numeral form. Finally, the savings for each numeral = (length of original) - (length of minimal).
 
-1. Parse each Roman numeral string to get its integer value.
-2. Convert the integer back to minimal Roman numeral form.
-3. The savings for each numeral = (length of original) - (length of minimal).
-4. Sum all savings.
+### Pseudocode
+
+```text
+Parse each Roman numeral string to get its integer value
+Convert the integer back to minimal Roman numeral form
+The savings for each numeral = (length of original) - (length of minimal)
+Sum all savings
+```
 
 ### Examples of Savings
 

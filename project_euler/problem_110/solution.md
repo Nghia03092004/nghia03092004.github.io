@@ -46,28 +46,29 @@ and $f(n) = \lceil 8{,}037{,}225/2 \rceil = 4{,}018{,}613 > 4{,}000{,}000$.
 
 To verify minimality: any alternative exponent sequence with $\prod(2a_i+1) \geq 8{,}000{,}001$ yields $n \geq 9{,}350{,}130{,}049{,}860{,}600$. This is confirmed by exhaustive search over all feasible non-increasing exponent sequences (bounded by $k \leq 15$ primes and $a_1 \leq 14$), computing $n$ for each and retaining the minimum. $\square$
 
-## Algorithm
+## Editorial
+Same approach as Problem 108 but with threshold 8,000,001 for d(n^2). Uses log-space comparison to handle large n values. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function solve():
-    target = 8000001  // need d(n^2) >= 8000001
+## Pseudocode
+
+```text
+    target = 8000001 // need d(n^2) >= 8000001
     primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
     best_n = infinity
 
     search(product=1, n=1, prime_idx=0, max_exp=15)
-    return best_n
+    Return best_n
 
-function search(product, n, prime_idx, max_exp):
-    if product >= target:
+    If product >= target then
         best_n = min(best_n, n)
         return
-    if prime_idx >= len(primes):
+    If prime_idx >= len(primes) then
         return
     p = primes[prime_idx]
-    for a = min(max_exp, ...) down to 1:
+    For a from min(max_exp, ...) down to 1:
         new_n = n * p^a
-        if new_n >= best_n:
-            continue  // prune
+        If new_n >= best_n then
+            continue // prune
         new_product = product * (2*a + 1)
         search(new_product, new_n, prime_idx + 1, a)
 ```

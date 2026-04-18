@@ -70,7 +70,7 @@ $$\sum_{n=1}^{1000} \ell(n) = \Sigma_{1\text{--}99} + \sum_{h=1}^{9} (100 \cdot 
 
 Total: $854 + 20259 + 11 = 21124$. $\square$
 
-## Algorithm
+## Editorial
 
 We precompute the letter counts for the atomic words `one` through `nineteen` and the tens words `twenty` through `ninety`. A helper `letterCount(n)` decomposes each number according to British usage rules for hundreds and the word `and`, and the main loop sums that value for $n = 1$ to $N$. This is sufficient because every number in the range falls into one of the cases covered by the lookup-based decomposition.
 

@@ -35,13 +35,15 @@ After all $k+1$ iterations, $r \equiv b^{\sum_{i=0}^{k} e_i 2^i} = b^e \pmod{m}$
 $$N \bmod 10^{10} = (28433 \cdot (2^{7830457} \bmod 10^{10}) + 1) \bmod 10^{10}.$$
 The exponent $e = 7830457$ has $\lfloor \log_2 7830457 \rfloor + 1 = 23$ bits, so the computation requires 23 squarings and at most 23 multiplications modulo $10^{10}$. Since $10^{10} < 2^{34}$, all intermediate products fit in 64-bit arithmetic (using 128-bit intermediate results for the multiplication step).
 
-## Algorithm
+## Editorial
+Uses Python's built-in three-argument pow(base, exp, mod) which implements binary exponentiation (repeated squaring) in O(log exp) modular multiplications. We evaluate the closed-form expressions derived above directly from the relevant parameters and return the resulting value.
 
-```
-function LAST_TEN_DIGITS():
+## Pseudocode
+
+```text
     m = 10^10
     power = modular_exponentiation(2, 7830457, m)
-    return (28433 * power + 1) mod m
+    Return (28433 * power + 1) mod m
 ```
 
 ## Complexity Analysis

@@ -51,7 +51,7 @@ The computation yields $S_{1000} \bmod 10^{10} = 9110846700$.
 
 **Verification.** For $N = 10$: $S_{10} = 10{,}405{,}071{,}317$, whose last 10 digits are $0405071317$. Our modular computation agrees: $\sum_{k=1}^{10} (k^k \bmod 10^{10}) \bmod 10^{10} = 0405071317$. $\square$
 
-## Algorithm
+## Editorial
 
 We carry out the entire computation modulo $10^{10}$, since only the last ten digits are required. For each $k$ from $1$ to $1000$, the term $k^k \bmod 10^{10}$ is computed by modular exponentiation and added to an accumulator that is itself reduced modulo $10^{10}$ after every step. The final residue is exactly the desired suffix of the full sum.
 

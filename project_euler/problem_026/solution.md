@@ -39,7 +39,7 @@ Find the value of $d < 1000$ for which $1/d$ contains the longest recurring cycl
 
 Since $982 > p - 1$ for every prime $p < 983$, no smaller $d$ can produce a longer cycle. $\square$
 
-## Algorithm
+## Editorial
 
 We test each denominator $d < N$ separately. After removing all factors of 2 and 5, terminating decimals are skipped; otherwise we simulate long division by repeatedly updating the remainder $r \mapsto 10r \bmod d'$ and recording the first step at which each remainder appears. The cycle length is the distance between repeated remainders, and the denominator with the largest such length is returned. This is sufficient because the repeating part of $1/d$ is completely determined by this remainder sequence.
 

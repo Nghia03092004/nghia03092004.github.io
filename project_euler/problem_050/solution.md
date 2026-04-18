@@ -45,7 +45,7 @@ $$997651 = \sum_{k=4}^{546} p_k = 7 + 11 + 13 + \cdots + 3931.$$
 
 **Optimality.** No chain of length $544, 545,$ or $546$ yields a prime below $10^6$, and $543$ is the first length for which a prime is found. $\square$
 
-## Algorithm
+## Editorial
 
 We sieve all primes below the limit and build prefix sums of the prime sequence, which makes every consecutive prime sum a constant-time difference of two prefixes. Candidate chain lengths are then examined in decreasing order; for each length, the starting index is advanced until the corresponding sum reaches the limit, and primality is checked by table lookup. Because the search proceeds from longer chains to shorter ones, the first prime found is the optimal answer.
 

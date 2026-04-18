@@ -25,35 +25,17 @@ $$\text{answer} = \sum_{\substack{2 \le s \le \sigma \\ s \text{ prime}}} dp[s] 
 
 **Proof.** Each subset with prime sum contributes exactly 1 to $dp[s]$ for exactly one prime $s$. Summing $dp[s]$ over prime $s$ counts each qualifying subset once. $\square$
 
-## Algorithm
+## Editorial
+We collect primes below 5000. We then 0/1 Knapsack DP. Finally, sum over prime target sums. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function Solve():
-    M = 10^16
+## Pseudocode
 
-    # Step 1: Sieve primes up to sigma = 1,548,136
-    is_prime = SieveOfEratosthenes(1548136)
-
-    # Step 2: Collect primes below 5000
-    primes_5000 = [p for p in range(2, 5000) if is_prime[p]]
-    # |primes_5000| = 669
-    sigma = sum(primes_5000)   # = 1,548,136
-
-    # Step 3: 0/1 Knapsack DP
-    dp = array of size sigma + 1, initialized to 0
-    dp[0] = 1
-
-    for p in primes_5000:
-        for s = sigma downto p:
-            dp[s] = (dp[s] + dp[s - p]) % M
-
-    # Step 4: Sum over prime target sums
-    answer = 0
-    for s = 2 to sigma:
-        if is_prime[s]:
-            answer = (answer + dp[s]) % M
-
-    return answer
+```text
+Sieve primes up to sigma = 1,548,136
+Collect primes below 5000
+|primes_5000| = 669
+0/1 Knapsack DP
+Sum over prime target sums
 ```
 
 ## Complexity Analysis

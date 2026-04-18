@@ -53,20 +53,18 @@ For $N = 25$: $m$ ranges from 2 to 5.
 
 Total: 4 primitive triples with $c \le 25$.
 
-## Algorithm
+## Editorial
+c. Apply the parity correction to get Count($m$). We precompute** the Mobius function $\mu(d)$ for $d \le \sqrt{N}$ via sieve. We then sum** all counts. Finally, factoring each $m$ takes $O(\omega(m))$ amortized.
 
-1. **Precompute** the Mobius function $\mu(d)$ for $d \le \sqrt{N}$ via sieve.
-2. **For each** $m$ from 2 to $\lfloor\sqrt{N}\rfloor$:
-   a. Compute $n_{\max} = \min(m - 1, \lfloor\sqrt{N - m^2}\rfloor)$.
-   b. Compute $\Phi(m, n_{\max})$ via Mobius inversion over divisors of $m$.
-   c. Apply the parity correction to get Count($m$).
-3. **Sum** all counts.
+## Pseudocode
 
-### Optimization
-
-For large $\sqrt{N} \approx 5.6 \times 10^7$, the sieve and per-$m$ computation are feasible:
-- Factoring each $m$ takes $O(\omega(m))$ amortized.
-- Total: $O(\sqrt{N} \cdot \sigma_0(\text{avg}))$ where $\sigma_0$ is the average number of divisors.
+```text
+Precompute** the Mobius function $\mu(d)$ for $d \le \sqrt{N}$ via sieve
+For each** $m$ from 2 to $\lfloor\sqrt{N}\rfloor$:
+Sum** all counts
+Factoring each $m$ takes $O(\omega(m))$ amortized
+Total: $O(\sqrt{N} \cdot \sigma_0(\text{avg}))$ where $\sigma_0$ is the average number of divisors
+```
 
 ## Proof of Correctness
 

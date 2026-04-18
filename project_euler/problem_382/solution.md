@@ -25,27 +25,22 @@ $$A = I + \frac{B}{2} - 1.$$
 
 **Proof.** The closure condition $\sum \mathbf{v}_i = \mathbf{0}$ follows because the polygon is closed. Convexity requires that consecutive edge vectors turn consistently (all cross products of successive edges have the same sign). $\square$
 
-## Algorithm
+## Editorial
+The algorithm enumerates convex lattice polygons by. The detailed implementation uses a DP over angular sectors of primitive vectors, tracking partial perimeter and the winding contribution to area via the shoelace formula.
 
-The algorithm enumerates convex lattice polygons by:
+## Pseudocode
 
+```text
+Enumerate primitive vectors (dx, dy) with gcd(dx, dy) = 1
+and length sqrt(dx^2 + dy^2) <= n
+sorted by angle
+Use dynamic programming on sequences of edge vectors:
+State: (current direction range, perimeter used, area accumulated)
+Transition: append next primitive vector in angular order
+Constraint: total perimeter <= n, polygon closes, I = 1
+Count valid polygons modulo 10^9 + 7
+Account for translation equivalence (fix one vertex at origin)
 ```
-function T(n):
-    // Enumerate primitive vectors (dx, dy) with gcd(dx, dy) = 1
-    // and length sqrt(dx^2 + dy^2) <= n
-    // sorted by angle
-
-    // Use dynamic programming on sequences of edge vectors:
-    //   State: (current direction range, perimeter used, area accumulated)
-    //   Transition: append next primitive vector in angular order
-    //   Constraint: total perimeter <= n, polygon closes, I = 1
-
-    // Count valid polygons modulo 10^9 + 7
-    // Account for translation equivalence (fix one vertex at origin)
-    return count mod (10^9 + 7)
-```
-
-The detailed implementation uses a DP over angular sectors of primitive vectors, tracking partial perimeter and the winding contribution to area via the shoelace formula.
 
 ## Complexity Analysis
 

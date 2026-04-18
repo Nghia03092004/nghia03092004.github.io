@@ -33,25 +33,26 @@ A Sudoku puzzle requires filling a $9 \times 9$ grid so that each row, each colu
 
 **Proof.** At a branch point where the selected variable has $b$ remaining values, the search explores at most $b$ subtrees. Choosing the variable with the smallest $b$ yields the smallest immediate branching factor. While globally optimal variable ordering is NP-hard to determine, the MRV (or "fail-first") heuristic is provably optimal for a single decision under the assumption of uniform subtree sizes, and performs near-optimally in practice on Sudoku. $\square$
 
-## Algorithm
+## Editorial
+Solve all 50 Sudoku puzzles and find the sum of the 3-digit numbers from the top-left corner of each solution. Algorithm: Constraint propagation (naked singles + hidden singles) with backtracking search using the MRV heuristic.
 
-```
-function SOLVE_SUDOKU(grid):
+## Pseudocode
+
+```text
     Initialize D[r][c] for all cells from givens
     Propagate constraints (naked singles + hidden singles)
-    return BACKTRACK(D)
+    Return BACKTRACK(D)
 
-function BACKTRACK(D):
     if all cells assigned: return solution
     if any D[r][c] is empty: return FAILURE
-    (r*, c*) = argmin |D[r][c]| among unassigned cells  // MRV
-    for each d in D[r*][c*]:
+    (r*, c*) = argmin |D[r][c]| among unassigned cells // MRV
+    For each each d in D[r*][c*]:
         save state
         assign d to (r*, c*); propagate
         result = BACKTRACK(D)
         if result != FAILURE: return result
         restore state
-    return FAILURE
+    Return FAILURE
 ```
 
 ## Complexity Analysis

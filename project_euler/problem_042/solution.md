@@ -36,7 +36,7 @@ Since $v \geq 1$, we have $n \geq 1$, confirming $v$ is triangular. $\square$
 
 **Remark.** For the Project Euler word list, the maximum word length is $14$ (e.g., "SIMULTANEOUSLY"), giving $V(w) \leq 26 \cdot 14 = 364$. The largest triangle number not exceeding $364$ is $T_{26} = 351$, so we need only consider triangle numbers $T_1, T_2, \ldots, T_{26}$.
 
-## Algorithm
+## Editorial
 
 We read the word list, compute the value of each word by summing the alphabetical positions of its letters, and test the resulting integer with the triangular-number criterion from Theorem 1. Every word whose value satisfies that criterion contributes one to the running count, and the final count is the number of triangle words in the file.
 

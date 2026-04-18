@@ -22,17 +22,19 @@ Find the unique $\theta$ with $a_1 = 2$ and $\tau(\theta) = \theta$, rounded to 
 
 **Proof.** This follows directly from the contraction property established in Theorem 1. The convergence rate is superlinear because each iteration at least doubles the number of correct decimal digits (the concatenation preserves all digits that were already correct and extends them). $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function FIND_FIXED_POINT(digits_needed):
+## Pseudocode
+
+```text
     set decimal precision to digits_needed + 10
     theta = 2.0
-    for iteration = 1 to 5:
+    For iteration from 1 to 5:
         b = theta
         sequence = []
         total_digits = 0
-        while total_digits < digits_needed + 10:
+        While total_digits < digits_needed + 10:
             a = floor(b)
             sequence.append(a)
             total_digits += number_of_digits(a)
@@ -40,7 +42,7 @@ function FIND_FIXED_POINT(digits_needed):
             b = a * (fractional + 1)
         tau = concatenate(sequence[0], ".", sequence[1], sequence[2], ...)
         theta = tau
-    return round(theta, digits_needed)
+    Return round(theta, digits_needed)
 ```
 
 ## Complexity Analysis

@@ -61,7 +61,7 @@ $$\text{best} = 906{,}609 = 913 \times 993.$$
 
 We verify that $906{,}609$ is a palindrome and that $913 = 11 \times 83$, so the candidate indeed lies in the restricted search space. Since the search is exhaustive over all relevant pairs, no larger palindromic product exists. $\square$
 
-## Algorithm
+## Editorial
 
 We search the factor pairs in descending order while exploiting the divisibility-by-11 constraint for six-digit palindromes. The outer loop enumerates 3-digit multiples of 11 from largest to smallest, the inner loop scans the matching partner in descending order, and each product is tested by reversing its decimal digits. Two early exits avoid useless work: once a product is no larger than the current best, later partners for the same outer factor cannot improve it, and once a palindrome is found for a fixed outer factor, smaller partners only decrease the product.
 

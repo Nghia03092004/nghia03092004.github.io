@@ -34,30 +34,14 @@ which is identity (4). $\square$
 
 **Proof.** $x > y \iff b^2 = x - y > 0 \iff b > 0$. $y > z \iff f^2 = y - z > 0 \iff f > 0$. $x > z \iff d^2 > 0 \iff d > 0$. The ordering among $a, c, e$ follows from $a^2 = c^2 + f^2 > c^2$ and $c^2 = b^2 + e^2 > e^2$. $\square$
 
-## Algorithm
+## Editorial
+Let a^2=x+y, b^2=x-y, c^2=x+z, d^2=x-z, e^2=y+z, f^2=y-z. Key relations: a^2 - f^2 = c^2 => a^2 = c^2 + f^2 c^2 - b^2 = e^2 => c^2 = b^2 + e^2 (and then d^2 = a^2 - e^2, verify b^2 + f^2 = d^2) Strategy: for each a, find all ways to write a^2 = c^2 + f^2. For each such (c, f), check if c^2 - b^2 = e^2 for some b, e with a^2 - e^2 = d^2 (perfect square) and b^2 + f^2 = d^2. Simpler: for each a, find all (c, f) with a^2 = c^2 + f^2. Then for each (c, f), iterate over e < c, check if c^2 - e^2 = b^2 (perfect square), and then check if a^2 - e^2 = d^2 (perfect square).
 
-```
+## Pseudocode
+
+```text
 INPUT: Find minimum x + y + z
 OUTPUT: Smallest valid x + y + z
-
-best = infinity
-for a = 3, 4, 5, ...:
-    if 3*a^2/2 >= best: break   // x+y+z = (3a^2 - b^2 + c^2 - d^2)/2, lower bound
-    decomps = all_pairs (p, q) with p > q > 0 and p^2 + q^2 = a^2
-    for each pair (d, e) from decomps:          // identity (2)
-        for each pair (c, f) from decomps:      // identity (1)
-            if c <= e: continue
-            b_sq = c^2 - e^2                    // identity (3)
-            b = isqrt(b_sq)
-            if b*b != b_sq: continue
-            if a and b have different parity: continue
-            x = (a^2 + b^2) / 2
-            y = (a^2 - b^2) / 2
-            z = (c^2 - d^2) / 2   // or (e^2 - f^2) / 2
-            if z <= 0: continue
-            if x > y > z > 0:
-                best = min(best, x + y + z)
-return best
 ```
 
 ## Complexity Analysis

@@ -42,15 +42,18 @@ For each $k$ from $1$ to $N = 10^7$:
 2. Compute the digit as $\lfloor 10r/k \rfloor$.
 3. Sum all digits.
 
-## Algorithm
+## Editorial
+We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
+## Pseudocode
+
+```text
 total = 0
-for k = 2 to N:
+For k from 2 to N:
     r = modpow(10, N-1, k)
     digit = (10 * r) / k
     total += digit
-return total
+Return total
 ```
 
 ## Correctness

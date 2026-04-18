@@ -30,24 +30,19 @@ For each squarefree divisor $d$ of $n$ with $\gcd(d, 3) = 1$, substituting $b = 
 
 **Proof.** Verified by trial division. Since $5^2 \mid n$, the Mobius function $\mu(d) = 0$ for any $d$ divisible by $5^2$, but we enumerate over squarefree divisors constructed from $\{5, 11, 17, 23, 29, 41, 47\}$. $\square$
 
-## Algorithm
+## Editorial
+A laser beam enters vertex C of an equilateral triangle with mirrored sides, reflects exactly 12017639147 times off the internal surfaces, and exits through vertex C. Count the number of distinct beam paths. Approach: n = 6008819575 = 5^2 * 11 * 17 * 23 * 29 * 41 * 47. We factor n: primes = [5, 11, 17, 23, 29, 41, 47]. We then iterate over each subset T of primes. Finally, return count.
 
-```
+## Pseudocode
+
+```text
 Input: R = 12017639147
 Output: number of valid laser paths
-
-1. n = (R + 3) / 2 = 6008819575
-2. Factor n: primes = [5, 11, 17, 23, 29, 41, 47]
-3. count = 0
-4. For each subset T of primes:
-     d = product of primes in T
-     mu_d = (-1)^|T|
-     If 3 divides d: skip  (but 3 is not a factor, so never skipped)
-     m = n / d
-     r = (2 * modular_inverse(d, 3)) mod 3
-     C_d = floor((m - 1 - r) / 3) + 1  if r <= m - 1 else 0
-     count += mu_d * C_d
-5. Return count
+n = (R + 3) / 2 = 6008819575
+Factor n: primes = [5, 11, 17, 23, 29, 41, 47]
+count = 0
+For each subset T of primes:
+Return count
 ```
 
 ## Complexity Analysis

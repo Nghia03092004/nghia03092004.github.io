@@ -22,25 +22,14 @@ Define the iterated Euler totient function by $\varphi^{(0)}(n) = n$ and $\varph
 
 **Proof.** By the Euler product formula, $\varphi(n) = n \prod_{p \mid n}(1 - 1/p)$. The sieve processes each prime $p$ exactly once and multiplies $\varphi[n]$ by $(1 - 1/p)$ for every $n$ divisible by $p$. After all primes $p \leq N$ have been processed, $\varphi[n] = n \prod_{p \mid n}(1 - 1/p)$, which is the correct value. $\square$
 
-## Algorithm
+## Editorial
+Iterated Euler totient: phi^(k)(n) until reaching 1. L(n) = chain length (steps to reach 1). Compute sum of L(n) for n = 2..N. We euler product sieve for phi. Finally, compute chain lengths bottom-up.
 
-```
-function computeTotientChainSum(N):
-    // Step 1: Euler product sieve for phi
-    phi[1..N] initialized to phi[i] = i
-    for p = 2 to N:
-        if phi[p] == p:          // p is prime
-            for k = p to N step p:
-                phi[k] = phi[k] / p * (p - 1)
+## Pseudocode
 
-    // Step 2: Compute chain lengths bottom-up
-    L[1] = 0
-    total = 0
-    for n = 2 to N:
-        L[n] = 1 + L[phi[n]]    // phi[n] < n, so L[phi[n]] is known
-        total += L[n]
-
-    return total
+```text
+Euler product sieve for phi
+Compute chain lengths bottom-up
 ```
 
 ## Complexity Analysis

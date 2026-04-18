@@ -22,16 +22,18 @@ $$|Z(n)| = \prod_{k=1}^{n} \frac{|\sin(\pi(n+k)/(2n^2))|}{|\sin(\pi k/(2n^2))|}.
 
 **Proof.** Using $|1 - e^{i\theta}| = 2|\sin(\theta/2)|$, we get $|1 - \omega^m| = 2|\sin(m\pi/(2n^2))|$. Substituting into the product formula from Theorem 1 yields the result. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function compute_Z_magnitude(n):
+## Pseudocode
+
+```text
     log_mag = 0
-    for k = 1 to n:
+    For k from 1 to n:
         num_angle = pi * (n + k) / (2 * n * n)
         den_angle = pi * k / (2 * n * n)
         log_mag += log(|sin(num_angle)|) - log(|sin(den_angle)|)
-    return floor(exp(log_mag))
+    Return floor(exp(log_mag))
 ```
 
 ## Complexity Analysis

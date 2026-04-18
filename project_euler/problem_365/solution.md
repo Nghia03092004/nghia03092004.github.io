@@ -26,29 +26,15 @@ $$x = \sum_{i=1}^{r} a_i \cdot M_i \cdot (M_i^{-1} \bmod m_i) \bmod M$$
 
 **Lemma 2 (Base-$p$ Digits of $10^{18}$ and $10^9$).** *For a prime $p$ in $(1000, 5000)$, the number of base-$p$ digits of $10^{18}$ is $\lfloor \log_p(10^{18}) \rfloor + 1 \le \lfloor 18 \log_{1009}(10) \rfloor + 1 \le 7$. Computing the base-$p$ representation and evaluating the product in Lucas' theorem takes $O(\log_p N)$ multiplications modulo $p$, hence $O(1)$ per prime.* $\square$
 
-## Algorithm
+## Editorial
+Compute C(10^18, 10^9) mod p for primes p in (1000, 5000) using Lucas' theorem. Then sum C(10^18, 10^9) mod (p1*p2*p3) over all triples using CRT. We compute r[p] = C(n, k) mod p for each prime p. We then iterate over p in primes. Finally, iterate over each triple, apply CRT and accumulate.
 
-```
-function solve():
-    primes = sieve_primes(1000, 5000)   // 574 primes
-    // Step 1: Compute r[p] = C(n, k) mod p for each prime p
-    n = 10^18, k = 10^9
-    r = {}
-    for p in primes:
-        digits_n = base_p_digits(n, p)
-        digits_k = base_p_digits(k, p)
-        r[p] = product of C(digits_n[i], digits_k[i]) mod p
+## Pseudocode
 
-    // Step 2: For each triple, apply CRT and accumulate
-    S = 0
-    for i = 0 to len(primes)-3:
-        for j = i+1 to len(primes)-2:
-            for l = j+1 to len(primes)-1:
-                p1, p2, p3 = primes[i], primes[j], primes[l]
-                M = p1 * p2 * p3
-                x = CRT(r[p1], r[p2], r[p3], p1, p2, p3)
-                S += x
-    return S
+```text
+Compute r[p] = C(n, k) mod p for each prime p
+for p in primes
+For each triple, apply CRT and accumulate
 ```
 
 ## Complexity Analysis

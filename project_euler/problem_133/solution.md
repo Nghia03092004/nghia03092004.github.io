@@ -30,21 +30,23 @@ Conversely, if $10^{10^{20}} \equiv 1 \pmod{p}$, then $\operatorname{ord}_p(10) 
 
 **Remark.** An equivalent approach computes $\operatorname{ord}_p(10)$ explicitly by factoring $p - 1$ and refining, then checks 5-smoothness by dividing out all factors of 2 and 5.
 
-## Algorithm
+## Editorial
+A prime p (not 2, 3, 5) can divide some R(10^n) iff ord_p(10) is 5-smooth. We iterate over p in primes.
 
-```
-function sum_repunit_nonfactors(N):
+## Pseudocode
+
+```text
     N = 100000
     primes = sieve_primes(N)
     total = 0
     for p in primes:
-        if p in {2, 3, 5}:
-            total += p              // permanent nonfactors
+        If p in {2, 3, 5} then
+            total += p // permanent nonfactors
             continue
         d = multiplicative_order(10, p)
-        if not is_5_smooth(d):
-            total += p              // nonfactor
-    return total
+        If not is_5_smooth(d) then
+            total += p // nonfactor
+    Return total
 ```
 
 ## Complexity Analysis

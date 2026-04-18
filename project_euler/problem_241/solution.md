@@ -35,40 +35,18 @@ $$\frac{\sigma(n)}{n} = \prod_{i=1}^{k} \frac{\sigma(p_i^{e_i})}{p_i^{e_i}} = \p
 
 **Corollary 1 (Pruning criterion).** During a depth-first search that constructs $n$ by choosing odd prime factors in increasing order, if the product $\prod_{p \mid m,\, p \ge p_0} p/(p-1)$ (taken over all primes $\ge p_0$ dividing $m$ and all larger potential primes) is insufficient to bring $2\sigma(n)/n$ to any odd integer $\ge 3$, the branch can be pruned.
 
-## Algorithm
+## Editorial
+The search also tries "denominator-targeted" primes: for each divisor $d$ of the current denominator, the values $d \pm 1$ and $2d \pm 1$ are tested for primality, since such primes are likely to cancel denominator factors. We build n by multiplying by prime powers p^e in increasing order of p. We then update fraction: new_num/new_den = (num * sig_pe) / (den * pe). Finally, reduce by gcd.
 
+## Pseudocode
+
+```text
+Begin search: n = 1, ratio 2*sigma(1)/1 = 2/1
+Build n by multiplying by prime powers p^e in increasing order of p
+num/den = 2*sigma(n)/n in lowest terms
+Update fraction: new_num/new_den = (num * sig_pe) / (den * pe)
+Reduce by gcd
 ```
-function FindHalfIntegerPerfect(bound):
-    results = []
-    # Begin search: n = 1, ratio 2*sigma(1)/1 = 2/1
-    # Build n by multiplying by prime powers p^e in increasing order of p
-    DFS(n=1, num=2, den=1, min_prime=2, bound, results)
-    return sum(results)
-
-function DFS(n, num, den, min_prime, bound, results):
-    # num/den = 2*sigma(n)/n in lowest terms
-    if den == 1 and num is odd and num >= 3 and n > 1:
-        results.append(n)
-
-    if num > 200 * den:    # ratio too large, prune
-        return
-
-    max_p = bound / n
-    if max_p < min_prime:
-        return
-
-    for each prime p >= min_prime with p <= max_p:
-        for e = 1, 2, ...:
-            pe = p^e
-            if n * pe > bound: break
-            sig_pe = sigma(p^e) = (p^{e+1} - 1) / (p - 1)
-            # Update fraction: new_num/new_den = (num * sig_pe) / (den * pe)
-            # Reduce by gcd
-            new_num, new_den = reduce(num * sig_pe, den * pe)
-            DFS(n * pe, new_num, new_den, next_prime(p), bound, results)
-```
-
-The search also tries "denominator-targeted" primes: for each divisor $d$ of the current denominator, the values $d \pm 1$ and $2d \pm 1$ are tested for primality, since such primes are likely to cancel denominator factors.
 
 ## Complexity Analysis
 

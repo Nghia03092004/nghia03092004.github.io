@@ -97,31 +97,17 @@ The time complexity is dominated by Stage 2. The sieve visits $\sum_p N/p + N/p^
 
 3. **Modular arithmetic.** All multiplications in Stage 2 are performed modulo $10^9+7$. Since $10^9+7$ is prime, modular inverses exist when needed.
 
-## Algorithm
+## Editorial
+Digit extraction from n!. Stirling approximation and Legendre formula. We stage 1: Precompute d(p^a) for prime powers p^a <= N. We then iterate over each prime p in primes. Finally, stage 2: Multiplicative sieve.
 
-```
-function Solve(N, MOD):
-    // Stage 1: Precompute d(p^a) for prime powers p^a <= N
-    primes <- SieveOfEratosthenes(N)
-    log_factorial[0] <- 0
-    for k = 1 to N:
-        log_factorial[k] <- log_factorial[k-1] + log10(k)
-    digit_count <- empty map
-    for each prime p in primes:
-        pa <- p
-        while pa <= N:
-            digit_count[pa] <- floor(log_factorial[pa]) + 1
-            pa <- pa * p
+## Pseudocode
 
-    // Stage 2: Multiplicative sieve
-    F[1..N] <- all ones
-    for each prime p in primes:
-        for each multiple m of p, m <= N:
-            a <- v_p(m)   // p-adic valuation
-            F[m] <- F[m] * digit_count[p^a] mod MOD
-
-    // Stage 3: Sum
-    return sum(F[1..N]) mod MOD
+```text
+Stage 1: Precompute d(p^a) for prime powers p^a <= N
+for each prime p in primes
+Stage 2: Multiplicative sieve
+for each prime p in primes
+Stage 3: Sum
 ```
 
 ## Complexity Analysis

@@ -30,34 +30,15 @@ How many ordered triples $(a, b, c)$ with $a \leq b \leq c$ satisfy $a^2 + b^2 =
 
 **Proof.** $r^2 = g^{(p-1)/2} \equiv -1 \pmod{p}$ by Euler's criterion, since $g$ is a primitive root. $\square$
 
-## Algorithm
+## Editorial
+Count ordered triples (a, b, c) with a <= b <= c, a^2 + b^2 = c^2 - 1, and a + b + c <= 75,000,000. Only even a have solutions (proved: a odd => a^2+1 = 2 mod 4, no same-parity factorization). For a = 2m: n = a^2+1 = 4m^2+1 (odd). (c-b)(c+b) = n. d*e = n, both odd, d <= e. b = (e-d)/2 >= a = 2m, perimeter = a + e <= L. This solution uses a block sieve to factor 4m^2+1 for all m. Note: This Python version is significantly slower than the C++ version. For a fast result, use the C++ solution. We sieve: for each m in [1, M], compute divisors of 4m^2 + 1. We then m satisfies 4m^2 + 1 = 0 mod p iff 2m = +/- r mod p. Finally, remaining n_values[m] > 1 is a large prime.
 
-```
-function count_triples(L):
-    M = L / 6
-    count = 0
+## Pseudocode
 
-    // Sieve: for each m in [1, M], compute divisors of 4m^2 + 1
-    n_values[m] = 4*m*m + 1   for m = 1..M
-    divisor_lists[m] = {1}     for m = 1..M
-
-    for each prime p <= sqrt(4*M^2 + 1) with p = 1 mod 4:
-        r = sqrt(-1) mod p     // using primitive root
-        // m satisfies 4m^2 + 1 = 0 mod p iff 2m = +/- r mod p
-        find m_0, m_1 such that p | (4m^2 + 1)
-        for m in {m_0, m_1} + k*p, k = 0, 1, ...:
-            while p | n_values[m]:
-                n_values[m] /= p
-                extend divisor_lists[m] with factor p
-
-    // Remaining n_values[m] > 1 is a large prime
-    for m = 1 to M:
-        for each divisor d of (4m^2 + 1) with d <= sqrt(4m^2+1):
-            e = (4m^2 + 1) / d
-            if e - d >= 4*m and 2*m + e <= L:
-                count += 1
-
-    return count
+```text
+Sieve: for each m in [1, M], compute divisors of 4m^2 + 1
+m satisfies 4m^2 + 1 = 0 mod p iff 2m = +/- r mod p
+Remaining n_values[m] > 1 is a large prime
 ```
 
 ## Complexity Analysis

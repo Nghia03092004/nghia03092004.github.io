@@ -53,12 +53,17 @@ With 2 rows and overhang up to 2 columns, the raw state count is $(5)^4 = 625$. 
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Tile a 2xn strip with 1x1, 1x2, 1x3 tiles in 4 colours. Adjacent tiles must differ. No 4 tiles at a point. Compute F(n) mod p via transfer matrix + matrix exponentiation. We enumerate states:** Generate all valid profiles encoding overhang and colours. We then build transfer matrix:** For each pair of states, count valid tile placements. Finally, matrix power:** Compute $T^{n-1} \bmod p$ via repeated squaring ($\sim 53$ squarings for $n = 10^{16}$).
 
-1. **Enumerate states:** Generate all valid profiles encoding overhang and colours.
-2. **Build transfer matrix:** For each pair of states, count valid tile placements.
-3. **Matrix power:** Compute $T^{n-1} \bmod p$ via repeated squaring ($\sim 53$ squarings for $n = 10^{16}$).
-4. **Extract answer:** Multiply by initial/terminal vectors.
+### Pseudocode
+
+```text
+Enumerate states:** Generate all valid profiles encoding overhang and colours
+Build transfer matrix:** For each pair of states, count valid tile placements
+Matrix power:** Compute $T^{n-1} \bmod p$ via repeated squaring ($\sim 53$ squarings for $n = 10^{16}$)
+Extract answer:** Multiply by initial/terminal vectors
+```
 
 ### Colour Adjacency
 

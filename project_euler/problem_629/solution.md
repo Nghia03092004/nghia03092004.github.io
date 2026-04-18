@@ -47,10 +47,15 @@ If redistribution keeps piles non-negative and the total strictly decreases:
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Sprague-Grundy analysis of Nim variants where removed stones may be redistributed to other piles (total must strictly decrease). For the total-decreasing variant, G(n1,...,nk) = n1 XOR n2 XOR ... XOR nk. Method 1: XOR formula (standard Nim) Method 2: Full Grundy computation via mex (verification). We iterate over standard Nim: compute XOR of all pile sizes. Finally, iterate over general Scatterstone: compute Grundy values via BFS/DFS on the game graph with memoization.
 
-1. For standard Nim: compute XOR of all pile sizes.
-2. For general Scatterstone: compute Grundy values via BFS/DFS on the game graph with memoization.
+### Pseudocode
+
+```text
+For standard Nim: compute XOR of all pile sizes
+For general Scatterstone: compute Grundy values via BFS/DFS on the game graph with memoization
+```
 
 ### Verification
 

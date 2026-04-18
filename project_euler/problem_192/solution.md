@@ -39,53 +39,18 @@ $$(k_s^2 d - h_s^2)^2 \cdot k_{n-1}^2 < (k_{n-1}^2 d - h_{n-1}^2)^2 \cdot k_s^2.
 
 **Proof.** Both $|k_s \alpha - h_s|$ and $|k_{n-1} \alpha - h_{n-1}|$ are positive (since $\alpha$ is irrational). Squaring preserves the inequality. Substituting $\alpha^2 = d$ converts the comparison to integer arithmetic. The signs of $k_i \alpha - h_i$ alternate with the parity of the convergent index, but this does not affect the absolute value comparison. $\square$
 
-## Algorithm
+## Editorial
+For each non-square d <= 100000, find best rational approximation p/q to sqrt(d) with q <= 10^12. Sum all q. We generate continued fraction and convergents. We then actually use standard initialization. Finally, loop.
 
-```
-function best_denominator(d, Q):
-    a0 = floor(sqrt(d))
-    if a0 * a0 == d: return SKIP  # perfect square
+## Pseudocode
 
-    # Generate continued fraction and convergents
-    m, dn, a = 0, 1, a0
-    h_prev, h_curr = 0, a0    # h_{-2}, h_{-1} then h_{k-1}, h_k
-    k_prev, k_curr = 1, 1     # adjusted for k_{-1}=0 start
-
-    # Actually use standard initialization:
-    h2, h1 = 1, a0
-    k2, k1 = 0, 1
-
-    loop:
-        m = a * dn - m
-        dn = (d - m*m) / dn
-        a = floor((a0 + m) / dn)
-
-        h_next = a * h1 + h2
-        k_next = a * k1 + k2
-
-        if k_next > Q:
-            # Check semiconvergent
-            m_sc = floor((Q - k2) / k1)
-            if m_sc >= 1 and m_sc < a:
-                hs = m_sc * h1 + h2
-                ks = m_sc * k1 + k2
-                # Compare |ks*sqrt(d) - hs| vs |k1*sqrt(d) - h1|
-                lhs = (ks*ks*d - hs*hs)^2 * k1*k1
-                rhs = (k1*k1*d - h1*h1)^2 * ks*ks
-                if lhs < rhs:
-                    return ks
-            return k1
-
-        h2, h1 = h1, h_next
-        k2, k1 = k1, k_next
-
-function solve():
-    Q = 10^12
-    total = 0
-    for d from 2 to 100000:
-        if is_perfect_square(d): continue
-        total += best_denominator(d, Q)
-    return total
+```text
+Generate continued fraction and convergents
+Actually use standard initialization:
+loop
+Check semiconvergent
+Compare |ks*sqrt(d) - hs| vs |k1*sqrt(d) - h1|
+for d from 2 to 100000
 ```
 
 ## Complexity Analysis

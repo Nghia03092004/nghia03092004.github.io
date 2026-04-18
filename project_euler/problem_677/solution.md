@@ -50,14 +50,17 @@ The yellow no-adjacency constraint means yellow nodes form an **independent set*
 
 ## Derivation
 
-### Algorithm
+### Editorial
+The EGF approach typically yields a system of functional equations solvable by Newton iteration on formal power series. We enumerate partitions $(n_r, n_b, n_y)$ with $n_r + n_b + n_y = n$. We then iterate over each partition, count valid connected graphs using EGF methods. Finally, sum contributions with multinomial coefficients.
 
-1. Enumerate partitions $(n_r, n_b, n_y)$ with $n_r + n_b + n_y = n$.
-2. For each partition, count valid connected graphs using EGF methods.
-3. Sum contributions with multinomial coefficients.
-4. Use polynomial arithmetic modulo $p$.
+### Pseudocode
 
-The EGF approach typically yields a system of functional equations solvable by Newton iteration on formal power series.
+```text
+Enumerate partitions $(n_r, n_b, n_y)$ with $n_r + n_b + n_y = n$
+For each partition, count valid connected graphs using EGF methods
+Sum contributions with multinomial coefficients
+Use polynomial arithmetic modulo $p$
+```
 
 ## Proof of Correctness
 

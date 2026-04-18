@@ -36,49 +36,20 @@ for each digit $d_k$ of the SCS.
 
 **Proof.** The backtracking produces the lexicographically smallest SCS (by choosing $A$'s character first when tied). The modular arithmetic preserves the polynomial identity $\text{val} = \sum_k d_k \cdot 10^{L-1-k} \bmod M$ via Horner's method. $\square$
 
-## Algorithm
+## Editorial
+The key algorithm: lexicographically smallest SCS via forward construction using suffix LCS tables. We generate sequences. We then lCS DP table (O(n^2)). Finally, else.
 
-```
-function ComputeF(n, MOD):
-    // Step 1: Generate sequences
-    primes = first n primes via sieve
-    composites = first n composites
-    P = [digital_root(p) for p in primes]
-    C = [digital_root(c) for c in composites]
+## Pseudocode
 
-    // Step 2: LCS DP table (O(n^2))
-    L = array[0..n][0..n], initialized to 0
-    for i = 1 to n:
-        for j = 1 to n:
-            if P[i] == C[j]:
-                L[i][j] = L[i-1][j-1] + 1
-            else:
-                L[i][j] = max(L[i-1][j], L[i][j-1])
-
-    // Step 3: Backtrack to construct SCS, compute value mod MOD
-    i = n, j = n, val = 0
-    // Build SCS in reverse, then reverse at end
-    scs_reversed = []
-    while i > 0 and j > 0:
-        if P[i] == C[j]:
-            scs_reversed.append(P[i])
-            i -= 1; j -= 1
-        elif L[i-1][j] >= L[i][j-1]:
-            scs_reversed.append(P[i])
-            i -= 1
-        else:
-            scs_reversed.append(C[j])
-            j -= 1
-    while i > 0: scs_reversed.append(P[i]); i -= 1
-    while j > 0: scs_reversed.append(C[j]); j -= 1
-
-    scs = reverse(scs_reversed)
-
-    // Step 4: Compute numeric value mod MOD
-    val = 0
-    for d in scs:
-        val = (10 * val + d) mod MOD
-    return val
+```text
+Generate sequences
+LCS DP table (O(n^2))
+else
+Backtrack to construct SCS, compute value mod MOD
+Build SCS in reverse, then reverse at end
+else
+Compute numeric value mod MOD
+for d in scs
 ```
 
 ## Complexity Analysis

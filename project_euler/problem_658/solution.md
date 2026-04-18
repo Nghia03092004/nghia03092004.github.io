@@ -46,12 +46,17 @@ $$S(k, n) = \sum_{i=0}^{k-1} (-1)^{k-i+1} \binom{k}{i+1} G(i, n)$$
 Setting $m = i + 1$:
 $$S(k, n) = \sum_{m=1}^{k} (-1)^{k-m+2} \binom{k}{m} G(m-1, n)$$
 
-## Algorithm
+## Editorial
+Using the derived formula: S(k,n) = sum_{m=1}^{k} (-1)^{k-m+2} * C(k,m) * G(m-1, n). We compute binomial coefficients iteratively. We then compute $G(m-1, n)$ using modular exponentiation. Finally, accumulate with alternating signs.
 
-1. Iterate $m$ from 1 to $k = 10^7$.
-2. Compute binomial coefficients iteratively.
-3. Compute $G(m-1, n)$ using modular exponentiation.
-4. Accumulate with alternating signs.
+## Pseudocode
+
+```text
+Iterate $m$ from 1 to $k = 10^7$
+Compute binomial coefficients iteratively
+Compute $G(m-1, n)$ using modular exponentiation
+Accumulate with alternating signs
+```
 
 ## Correctness
 

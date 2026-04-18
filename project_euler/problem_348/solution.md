@@ -22,27 +22,29 @@ We seek palindromic $n$ with $r(n) = 4$.
 
 **Proof.** $b^3 < n < 10^9$ implies $b < 10^3$. Computing $\lfloor \sqrt{n - b^3} \rfloor$ and verifying its square equals $n - b^3$ is $O(1)$ arithmetic. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function solve(target_count = 4, num_needed = 5):
+## Pseudocode
+
+```text
     results = []
 
-    for d = 1, 2, 3, ...:          // number of digits
+    for d = 1, 2, 3, ...: // number of digits
         for each d-digit palindrome n (in increasing order):
             count = 0
-            for b = 1 to floor(n^(1/3)):
+            For b from 1 to floor(n^(1/3)):
                 remainder = n - b^3
-                if remainder <= 0: break
+                If remainder <= 0 then stop this loop
                 a = isqrt(remainder)
-                if a * a == remainder and a >= 1:
+                If a * a == remainder and a >= 1 then
                     count += 1
-                if count > target_count: break
+                If count > target_count then stop this loop
 
-            if count == target_count:
+            If count == target_count then
                 results.append(n)
-                if len(results) == num_needed:
-                    return sum(results)
+                If len(results) == num_needed then
+                    Return sum(results)
 ```
 
 ## Complexity Analysis

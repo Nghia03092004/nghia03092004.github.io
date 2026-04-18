@@ -22,37 +22,22 @@ $$\mathbf{x}_m = \frac{1}{2^m}\mathbf{x}_0 + \sum_{j=1}^{m} \frac{1}{2^{m-j+1}} 
 
 **Proof.** By the fractal addressing, the number of triangles at distance (jump count) exactly $k$ from the center grows as $O(N)$ for each level. Summing $k$ times the count over all levels and using the geometric structure of the hexagonal grid yields the total. The six-fold symmetry reduces computation by a factor of 6. $\square$
 
-## Algorithm
+## Editorial
+We use hexagonal coordinate system (a, b) for upward triangles. We then j(T) for triangle at position (a, b) is determined by. Finally, the ternary/base-2 expansion in hexagonal coordinates.
 
-```
-function S(N):
-    # Use hexagonal coordinate system (a, b) for upward triangles
-    # J(T) for triangle at position (a, b) is determined by
-    # the ternary/base-2 expansion in hexagonal coordinates
+## Pseudocode
 
-    total = 0
-    # Exploit 6-fold symmetry: compute for one sextant, multiply by 6
-    for each upward triangle T in fundamental sextant:
-        (a, b) = coordinates(T)
-        # Compute minimum jumps via base-2 representation
-        # of hexagonal address
-        j = min_jumps(a, b, N)
-        total += j
-    total *= 6  # by symmetry
-    # Add contribution from triangles on symmetry axes
-    total += axis_correction(N)
-    return total
-
-function min_jumps(a, b, N):
-    # Convert (a,b) to sequence of corner choices
-    # The minimum length sequence encodes position in base-2 hexagonal
-    level = 0
-    (x, y) = (a, b)  # relative to center
-    while (x, y) is not at center at current resolution:
-        determine which sextant (x, y) falls in → corner choice
-        apply inverse contraction
-        level += 1
-    return level
+```text
+Use hexagonal coordinate system (a, b) for upward triangles
+J(T) for triangle at position (a, b) is determined by
+the ternary/base-2 expansion in hexagonal coordinates
+Exploit 6-fold symmetry: compute for one sextant, multiply by 6
+for each upward triangle T in fundamental sextant
+Compute minimum jumps via base-2 representation
+of hexagonal address
+Add contribution from triangles on symmetry axes
+Convert (a,b) to sequence of corner choices
+The minimum length sequence encodes position in base-2 hexagonal
 ```
 
 ## Complexity Analysis

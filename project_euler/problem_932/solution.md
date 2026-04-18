@@ -24,41 +24,15 @@ $\square$
 
 **Proof.** The substitution is direct from Theorem 2. The equation $X^2 + Y^2 - Z^2 = 1$ defines a quadric surface over $\mathbb{Z}$, and its integer points can be enumerated via descent or parametric families derived from the group structure of the associated orthogonal group. $\square$
 
-## Algorithm
+## Editorial
+Count pairs (a, b) with 1 <= a < b <= limit where T_a + T_b is itself a triangular number, i.e. T_a + T_b = T_c for some c >= 1. Key identity: T_a + T_b = a(a+1)/2 + b(b+1)/2 = (a^2 + b^2 + a + b) / 2. This equals T_c = c(c+1)/2 iff a^2 + b^2 + a + b = c(c+1), i.e. 4(a^2 + b^2 + a + b) + 1 = (2c+1)^2, so we need 2(2a+1)^2 + 2(2b+1)^2 - 1 to be a perfect square (of the form (2c+1)^2). We iterate over a from 1 to N-1.
 
-```
-function CountTriangularPairs(N):
-    count := 0
-    for a from 1 to N-1:
-        X := 2*a + 1
-        for b from a+1 to N:
-            Y := 2*b + 1
-            S := X*X + Y*Y - 1
-            s := isqrt(S)
-            if s*s == S:
-                count := count + 1
-    return count
-```
+## Pseudocode
 
-*Optimized approach:* For fixed $a$, we need $S = (2a+1)^2 + (2b+1)^2 - 1 = z^2$. Rearranging: $(2b+1)^2 = z^2 - (2a+1)^2 + 1$, i.e., $(z - 2b - 1)(z + 2b + 1) = (2a+1)^2 - 1 = 4a(a+1)$. Factor $4a(a+1)$ and enumerate divisor pairs to find valid $b$.
-
-```
-function CountTriangularPairs_Optimized(N):
-    count := 0
-    for a from 1 to N-1:
-        K := 4 * a * (a + 1)
-        // For each factorization K = d * e with d < e, d ≡ e (mod 2):
-        for each divisor d of K with d*d < K:
-            e := K / d
-            if (d + e) mod 2 != 0: continue    // need z, b integer
-            z := (d + e) / 2
-            val := (e - d) / 2    // = 2b + 1
-            if val < 3: continue
-            if val mod 2 == 0: continue         // need odd
-            b := (val - 1) / 2
-            if b > a and b <= N:
-                count := count + 1
-    return count
+```text
+for a from 1 to N-1
+for a from 1 to N-1
+For each factorization K = d * e with d < e, d ≡ e (mod 2):
 ```
 
 ## Complexity Analysis

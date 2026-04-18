@@ -40,30 +40,31 @@ Since $k! \neq 0$, it suffices to show $Q_k(k+1) \neq 0$. The polynomial $Q_k$ h
 $$P_k(x_0) = \sum_{i=1}^{k} y_i \prod_{\substack{j=1 \\ j \neq i}}^{k} \frac{x_0 - x_j}{x_i - x_j}$$
 involves $k$ terms, each requiring $k - 1$ multiplications and $k - 1$ divisions. The total count is $k(2k - 2) = \Theta(k^2)$ arithmetic operations. $\blacksquare$
 
-## Algorithm
+## Editorial
+Given u(n) = sum_{j=0}^{10} (-1)^j n^j, find the sum of all FITs for the BOPs using the first k = 1, ..., 10 terms.
 
-```
-function SOLVE():
+## Pseudocode
+
+```text
     define u(n) = sum_{j=0}^{10} (-n)^j
 
-    S <- 0
-    for k = 1 to 10:
-        points <- [(i, u(i)) for i = 1, ..., k]
-        FIT_k <- LAGRANGE_EVAL(points, k + 1)
-        S <- S + FIT_k
-    return S
+    Set S <- 0
+    For k from 1 to 10:
+        Set points <- [(i, u(i)) for i = 1, ..., k]
+        Set FIT_k <- LAGRANGE_EVAL(points, k + 1)
+        Set S <- S + FIT_k
+    Return S
 
-function LAGRANGE_EVAL(points, x0):
-    k <- |points|
-    result <- 0
-    for i = 1 to k:
+    Set k <- |points|
+    Set result <- 0
+    For i from 1 to k:
         (x_i, y_i) <- points[i]
-        basis <- y_i
-        for j = 1 to k, j != i:
+        Set basis <- y_i
+        For j from 1 to k, j != i:
             (x_j, _) <- points[j]
-            basis <- basis * (x0 - x_j) / (x_i - x_j)
-        result <- result + basis
-    return result
+            Set basis <- basis * (x0 - x_j) / (x_i - x_j)
+        Set result <- result + basis
+    Return result
 ```
 
 ## Complexity Analysis

@@ -34,31 +34,32 @@ with $v_{i \ldots j}$ denoting the numerical value of digits $d_i d_{i+1} \cdots
 
 **Proof.** (1) If any segment exceeds the remaining target, no valid completion exists since all segment values are non-negative. (2) The modular filter is proven in Lemma 1. (3) Non-negativity of digit values ensures the target can only decrease. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function T(N):
+## Pseudocode
+
+```text
     limit = floor(sqrt(N))
     total = 0
-    for k = 4 to limit:
-        if k mod 9 != 0 and k mod 9 != 1:
+    For k from 4 to limit:
+        If k mod 9 != 0 and k mod 9 != 1 then
             continue
         n = k * k
         digits = decimal_digits(n)
-        if can_split(digits, 0, k, 0):
+        If can_split(digits, 0, k, 0) then
             total += n
-    return total
+    Return total
 
-function can_split(digits, pos, remaining, num_parts):
-    if pos == len(digits):
-        return remaining == 0 and num_parts >= 2
-    for end = pos + 1 to len(digits):
+    If pos == len(digits) then
+        Return remaining == 0 and num_parts >= 2
+    For end from pos + 1 to len(digits):
         segment_value = to_integer(digits[pos..end])
-        if segment_value > remaining:
+        If segment_value > remaining then
             break
-        if can_split(digits, end, remaining - segment_value, num_parts + 1):
-            return true
-    return false
+        If can_split(digits, end, remaining - segment_value, num_parts + 1) then
+            Return true
+    Return false
 ```
 
 ## Complexity Analysis

@@ -36,20 +36,22 @@ This matches the problem statement. $\square$
 
 **Proof.** The recurrence $f_2(n) = f_2(n-1) + f_2(n-2)$ with $f_2(0) = 1$ and $f_2(1) = 1$ is exactly the Fibonacci recurrence shifted by one index. $\square$
 
-## Algorithm
+## Editorial
+Count ways to tile a row of 50 black squares using tiles of a single color (red=2, green=3, blue=4) without mixing colors, with at least one colored tile. We compute f_L(n).
 
-```
-function SolveProblem116(n):
+## Pseudocode
+
+```text
     total = 0
-    for L in {2, 3, 4}:
-        # Compute f_L(n)
+    For each L in {2, 3, 4}:
+        Compute f_L(n)
         f = array of size n+1
-        for k = 0 to L-1:
+        For k from 0 to L-1:
             f[k] = 1
-        for k = L to n:
+        For k from L to n:
             f[k] = f[k-1] + f[k-L]
         total += f[n] - 1
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

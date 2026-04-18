@@ -32,34 +32,15 @@ Find $\sum c$ for all abc-hits with $c < 120000$.
 
 **Proof.** If $\text{rad}(a) \geq c / \text{rad}(c)$, then $\text{rad}(a) \cdot \text{rad}(b) \geq \text{rad}(a) \geq c / \text{rad}(c)$ for all $b$. Thus the condition $\text{rad}(a) \cdot \text{rad}(b) < c / \text{rad}(c)$ fails, and all subsequent $a$ (with equal or larger radical) also fail. $\square$
 
-## Algorithm
+## Editorial
+An abc-hit: gcd(a,b)=1, a<b, a+b=c, rad(abc) < c. We sieve for radicals. We then sort indices by radical. Finally, find abc-hits.
 
-```
-function abc_hits(N):
-    # Step 1: Sieve for radicals
-    rad[1..N-1] = 1
-    for p = 2 to N-1:
-        if rad[p] == 1:           # p is prime
-            for m = p, 2p, ... < N:
-                rad[m] *= p
+## Pseudocode
 
-    # Step 2: Sort indices by radical
-    sorted_by_rad = sort(1..N-1, key=rad)
-
-    # Step 3: Find abc-hits
-    total = 0
-    for c = 3 to N-1:
-        threshold = c / rad[c]
-        if threshold <= 1: continue     # rad(c) >= c means no abc-hit
-        for a in sorted_by_rad:
-            if rad[a] >= threshold: break
-            if a >= c: break
-            b = c - a
-            if b <= a: continue         # need a < b
-            if rad[a] * rad[b] >= threshold: continue
-            if gcd(rad[a], rad[b]) != 1: continue
-            total += c
-    return total
+```text
+Sieve for radicals
+Sort indices by radical
+Find abc-hits
 ```
 
 ## Complexity Analysis

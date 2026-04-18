@@ -36,45 +36,16 @@ $$\sum_{n=1}^{N} \Omega(n) = \sum_{p \leq N} \frac{N}{p} + O\!\left(\sum_{p} \su
 
 By Mertens' second theorem, $\sum_{p \leq N} \frac{1}{p} = \ln\ln N + M + O(1/\ln N)$ where $M$ is the Meissel--Mertens constant. The result follows. $\square$
 
-## Algorithm
+## Editorial
+Alternative direct formula (no sieve needed). We sieve approach: compute Omega(n) for all n <= N. We then p is prime; mark composites. Finally, iterate over each prime power p^k, add 1 to all multiples.
 
-```
-function ComputeAnswer(N):
-    // Sieve approach: compute Omega(n) for all n <= N
-    Omega[1..N] = {0, 0, ..., 0}
-    is_composite[1..N] = {false, ..., false}
+## Pseudocode
 
-    for p = 2 to N:
-        if not is_composite[p]:
-            // p is prime; mark composites
-            for m = 2*p to N step p:
-                is_composite[m] = true
-            // For each prime power p^k, add 1 to all multiples
-            pk = p
-            while pk <= N:
-                for m = pk to N step pk:
-                    Omega[m] += 1
-                pk *= p
-
-    S = 0
-    for n = 1 to N:
-        S = (S + Omega[n]) mod (10^9 + 7)
-    return S
-```
-
-Alternative direct formula (no sieve needed):
-
-```
-function ComputeAnswerDirect(N):
-    // Use Theorem 2 directly
-    Sieve primes up to N
-    S = 0
-    for each prime p <= N:
-        pk = p
-        while pk <= N:
-            S = (S + floor(N / pk)) mod (10^9 + 7)
-            pk *= p
-    return S
+```text
+Sieve approach: compute Omega(n) for all n <= N
+p is prime; mark composites
+For each prime power p^k, add 1 to all multiples
+Use Theorem 2 directly
 ```
 
 ## Complexity Analysis

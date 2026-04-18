@@ -13,25 +13,19 @@ Each valid configuration is a permutation $\sigma$ on the $n^2$ cells where:
 
 Such a permutation decomposes into directed cycles of length $\geq 3$, each using only grid-adjacent edges. Since every cycle has even length on a bipartite graph (the grid is bipartite under checkerboard coloring), the total number of cells $n^2$ must be even. Therefore $f(n) = 0$ for all odd $n$.
 
-## Algorithm
+## Editorial
+We use profile dynamic programming, processing the grid row by row. *State representation.** The boundary between consecutive rows is encoded as a vector of length $n$. At each column $j$, the vertical flow takes one of three values. We $(0, 0)$: no vertical movement at column $j$. We then $(1, 0)$: an ant moves downward across this boundary. Finally, $(0, 1)$: an ant moves upward across this boundary.
 
-We use **profile dynamic programming**, processing the grid row by row.
+## Pseudocode
 
-**State representation.** The boundary between consecutive rows is encoded as a vector of length $n$. At each column $j$, the vertical flow takes one of three values:
-- $(0, 0)$: no vertical movement at column $j$
-- $(1, 0)$: an ant moves downward across this boundary
-- $(0, 1)$: an ant moves upward across this boundary
-
-The state $(1, 1)$ — simultaneous up and down at the same column — is forbidden by the no-crossing constraint (it would be a vertical swap).
-
-This gives $3^n$ possible boundary states. For $n = 10$, that is $3^{10} = 59049$ states.
-
-**Row processing.** For a given top-boundary state, we process columns left to right within the row. At each cell, exactly one ant arrives (incoming) and one departs (outgoing). The directions available are: up, down, left, right. We track horizontal flow between adjacent columns and enforce:
-- Each cell has exactly 1 incoming and 1 outgoing direction.
-- No horizontal swap: if an ant moves right from column $j$ to $j+1$, the ant at column $j+1$ cannot simultaneously move left to column $j$.
-- Boundary conditions: no leftward/rightward movement off the grid edges.
-
-**Transfer.** Starting with the zero state (no vertical flow above the first row), we process each row to compute the distribution over bottom-boundary states. After all $n$ rows, we read off the count at the zero state (no vertical flow below the last row).
+```text
+$(0, 0)$: no vertical movement at column $j$
+$(1, 0)$: an ant moves downward across this boundary
+$(0, 1)$: an ant moves upward across this boundary
+Each cell has exactly 1 incoming and 1 outgoing direction
+No horizontal swap: if an ant moves right from column $j$ to $j+1$, the ant at column $j+1$ cannot simultaneously move left to column $j$
+Boundary conditions: no leftward/rightward movement off the grid edges
+```
 
 ## Proof of Correctness
 

@@ -60,15 +60,18 @@ There are
 \]
 digit sets, so the total search is tiny.
 
-## Algorithm
+## Editorial
+..,9}) for which the longest consecutive run of positive integers 1..n can be obtained using +,-,*,/ and parentheses, with each digit used exactly once. We start from the four digits viewed as exact rational numbers. We then recursively choose two current values, combine them in every legal way, and continue until one value remains. Finally, record all positive integers obtained exactly.
 
-For each 4-element subset of \(\{1,\dots,9\}\):
+## Pseudocode
 
-1. Start from the four digits viewed as exact rational numbers.
-2. Recursively choose two current values, combine them in every legal way, and continue until one value remains.
-3. Record all positive integers obtained exactly.
-4. Compute the longest consecutive prefix \(1,2,\dots,n\).
-5. Keep the best digit set.
+```text
+Start from the four digits viewed as exact rational numbers
+Recursively choose two current values, combine them in every legal way, and continue until one value remains
+Record all positive integers obtained exactly
+Compute the longest consecutive prefix \(1,2,\dots,n\)
+Keep the best digit set
+```
 
 ## Answer
 

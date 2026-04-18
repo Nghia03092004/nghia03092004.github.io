@@ -50,26 +50,14 @@ This integral does not admit a closed-form expression in terms of standard funct
 
 **Proof.** The arc length formula for a parametric curve $\bigl(X_c(\theta), Y_c(\theta)\bigr)$ is standard. The integrand involves compositions of trigonometric functions and square roots of rational expressions in $\sin\theta, \cos\theta$ with parameters $a, b$, which cannot be reduced to elementary functions or standard elliptic integrals. $\square$
 
-## Algorithm
+## Editorial
+An ellipse rolls along the x-axis. Track the center's path (elliptic trochoid). We compute dX_c/dtheta and dY_c/dtheta by differentiation. Finally, adaptive Gauss-Kronrod quadrature.
 
-```
-function CENTER_ARC_LENGTH(a, b, num_points):
-    e_sq = 1 - b^2 / a^2
+## Pseudocode
 
-    function speed(theta):
-        s2 = sin(theta)^2
-        c2 = cos(theta)^2
-        denom = a^2 * s2 + b^2 * c2
-
-        // Compute dX_c/dtheta and dY_c/dtheta by differentiation
-        dXc = d/dtheta [s(theta) - (a^2-b^2)*sin(theta)*cos(theta)/sqrt(denom)]
-        dYc = d/dtheta [a*b / sqrt(denom)]
-
-        return sqrt(dXc^2 + dYc^2)
-
-    // Adaptive Gauss-Kronrod quadrature
-    L = integrate(speed, 0, 2*pi, tolerance=1e-15)
-    return L
+```text
+Compute dX_c/dtheta and dY_c/dtheta by differentiation
+Adaptive Gauss-Kronrod quadrature
 ```
 
 ## Complexity Analysis

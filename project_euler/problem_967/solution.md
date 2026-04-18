@@ -33,12 +33,16 @@ The Pisano period $\pi(m)$ is the period of the Fibonacci sequence modulo $m$. F
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Sum of pi(m) for m = 2..1000, where pi(m) is the Pisano period — the period of Fibonacci numbers modulo m. The Pisano period pi(m) is the smallest positive integer k such that F(k) = 0 (mod m) and F(k+1) = 1 (mod m). Known properties:. We iterate until returning to $(0, 1)$. Finally, the number of steps is $\pi(m)$.
 
-For each $m$ from 2 to 1000:
-1. Compute $(F_k, F_{k+1}) \bmod m$ starting from $(0, 1)$.
-2. Iterate until returning to $(0, 1)$.
-3. The number of steps is $\pi(m)$.
+### Pseudocode
+
+```text
+Compute $(F_k, F_{k+1}) \bmod m$ starting from $(0, 1)$
+Iterate until returning to $(0, 1)$
+The number of steps is $\pi(m)$
+```
 
 ## Proof of Correctness
 

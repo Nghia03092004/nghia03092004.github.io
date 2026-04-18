@@ -29,17 +29,19 @@ $$N(n,k) = \frac{1}{n}\sum_{d=0}^{n-1} k^{\gcd(d,n)}.$$
 Group the terms by $e = \gcd(d,n)$. For each divisor $e \mid n$, the number of integers $d \in \{0, 1, \ldots, n-1\}$ with $\gcd(d,n) = e$ equals $\varphi(n/e)$. Substituting:
 $$N(n,k) = \frac{1}{n}\sum_{e \mid n} \varphi(n/e) \, k^e. \quad \square$$
 
-## Algorithm
+## Editorial
+We iterate over each d in divisors. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function NecklaceCount(n, k, mod):
-    divisors <- FindDivisors(n)          // O(sqrt(n))
-    result <- 0
+## Pseudocode
+
+```text
+    Set divisors <- FindDivisors(n) // O(sqrt(n))
+    Set result <- 0
     for each d in divisors:
-        phi_val <- EulerTotient(n / d)   // O(sqrt(n/d))
-        result <- result + phi_val * ModPow(k, d, mod)
-    result <- result * ModInverse(n, mod) mod mod
-    return result
+        Set phi_val <- EulerTotient(n / d) // O(sqrt(n/d))
+        Set result <- result + phi_val * ModPow(k, d, mod)
+    Set result <- result * ModInverse(n, mod) mod mod
+    Return result
 ```
 
 ## Complexity Analysis

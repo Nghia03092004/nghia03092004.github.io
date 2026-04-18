@@ -58,19 +58,21 @@ $$C(m) = \frac{-1}{(m-1)^2}\sum_{k=1}^{m-1}\frac{1+\lambda_k}{(1-\lambda_k)^2}.$
 
 $$E[\text{Pot}] = \sum_{m=2}^{n} C(m).$$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function expected_pot(n):
+## Pseudocode
+
+```text
     total = 0
-    for m = 2 to n:
+    For m from 2 to n:
         cost = 0
-        for k = 1 to m - 1:
+        For k from 1 to m - 1:
             lam = (3 + 4*cos(2*pi*k/m) + 2*cos(4*pi*k/m)) / 9
             cost += (1 + lam) / (1 - lam)^2
         cost = -cost / (m - 1)^2
         total += cost
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

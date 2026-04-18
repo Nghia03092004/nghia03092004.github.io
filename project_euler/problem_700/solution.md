@@ -44,15 +44,16 @@ An elegant recursive approach views the modular arithmetic as points on a circle
 - After completing a full cycle, the residual shift is $M \bmod N$.
 - This is analogous to the Euclidean algorithm, reducing the problem recursively.
 
-## Algorithm
+## Editorial
+We brute force for n = 1, 2, ... until eulercoin < threshold. We then iterate over v from (last_eulercoin - 1) down to 0. Finally, return total sum.
 
-```
-1. Compute N_inv = modular_inverse(N, M) using extended GCD
-2. Phase 1: Brute force for n = 1, 2, ... until eulercoin < threshold
-3. Phase 2: For v from (last_eulercoin - 1) down to 0:
-   - Compute n = v * N_inv mod M
-   - If this n would produce v as a new record minimum, add v to sum
-4. Return total sum
+## Pseudocode
+
+```text
+Compute N_inv = modular_inverse(N, M) using extended GCD
+Brute force for n = 1, 2, ... until eulercoin < threshold
+For v from (last_eulercoin - 1) down to 0:
+Return total sum
 ```
 
 ## Correctness

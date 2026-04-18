@@ -31,24 +31,14 @@ $$P(N) = \sum_{\substack{b = 1 \\ b \text{ squarefree}}}^{\lfloor N^{1/3} \rfloo
 
 **Proof.** From the counting formula, $P(N) = \sum_{b \text{ sqfree}} \sqrt{N/b^3} + O(N^{1/3})$. The sum $\sum_{b \text{ sqfree}} b^{-3/2} = \prod_p (1 + p^{-3/2}) = \frac{\zeta(3/2)}{\zeta(3)}$, since $\zeta(3/2) = \prod_p (1 - p^{-3/2})^{-1}$ and $\zeta(3) = \prod_p(1 - p^{-3})^{-1}$, so $\frac{\zeta(3/2)}{\zeta(3)} = \prod_p \frac{1 - p^{-3}}{1 - p^{-3/2}} = \prod_p (1 + p^{-3/2})$. $\square$
 
-## Algorithm
+## Editorial
+We sieve squarefree numbers up to B. Finally, count powerful numbers. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function COUNT_POWERFUL(N):
-    B <- floor(N^(1/3))
+## Pseudocode
 
-    // Sieve squarefree numbers up to B
-    is_sqfree[1..B] <- true
-    for p = 2 to sqrt(B):
-        for m = p^2, 2*p^2, ..., B:
-            is_sqfree[m] <- false
-
-    // Count powerful numbers
-    count <- 0
-    for b = 1 to B:
-        if is_sqfree[b]:
-            count <- count + floor(sqrt(N / b^3))
-    return count
+```text
+Sieve squarefree numbers up to B
+Count powerful numbers
 ```
 
 ## Complexity Analysis

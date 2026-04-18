@@ -30,39 +30,21 @@ Find $g(10^{15})$.
 
 **Proof.** When $\gcd(n, g(n-1)) = 1$ for consecutive values of $n$, we have $g(n) = g(n-1) + 1$, so $g$ increases linearly. The key insight is that the next nontrivial GCD occurs when $n$ shares a factor with $g(n-1) = n + \delta(n-1)$, equivalently when $n$ shares a factor with $\delta(n-1)$, since $\gcd(n, n + \delta) = \gcd(n, \delta)$. One can detect the next such $n$ by examining the prime factors of $\delta$ and finding the smallest multiple exceeding the current position. $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We g increments by 1 each step; skip ahead. We then g(n-1) = current g, deficit delta = g - (n-1). Finally, next interesting n: smallest n' > n where gcd(n', g + (n'-n)) > 1.
 
-```
-function ComputeG(N):
-    g = 1
-    n = 2
-    while n <= N:
-        d = gcd(n, g)
-        if d == 1:
-            // g increments by 1 each step; skip ahead
-            // g(n-1) = current g, deficit delta = g - (n-1)
-            // Next interesting n: smallest n' > n where gcd(n', g + (n'-n)) > 1
-            // Equivalently, gcd(n', delta) > 1 where delta = g - n + 1
-            delta = g - n + 1
-            if delta <= 1:
-                g = g + 1
-                n = n + 1
-                continue
-            // Find smallest prime factor p of delta
-            // Next interesting n' is the smallest multiple of p that is >= n
-            // and for which gcd(n', n'-1+delta) > 1
-            // Quick skip: advance to next multiple of smallest prime of delta
-            p = smallest_prime_factor(delta)
-            next_n = n + (p - n % p) % p
-            if next_n > N:
-                g = g + (N - n + 1)  // just linear increments to end
-                return g
-            g = g + (next_n - n)
-            n = next_n
-        else:
-            g = g + d
-            n = n + 1
-    return g
+## Pseudocode
+
+```text
+g increments by 1 each step; skip ahead
+g(n-1) = current g, deficit delta = g - (n-1)
+Next interesting n: smallest n' > n where gcd(n', g + (n'-n)) > 1
+Equivalently, gcd(n', delta) > 1 where delta = g - n + 1
+Find smallest prime factor p of delta
+Next interesting n' is the smallest multiple of p that is >= n
+and for which gcd(n', n'-1+delta) > 1
+Quick skip: advance to next multiple of smallest prime of delta
+else
 ```
 
 ## Complexity Analysis

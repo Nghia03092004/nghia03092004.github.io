@@ -42,14 +42,19 @@ For rational angles (360/a), the cake returns to its original state after a pred
 
 The simulation tracks which arcs of the circle have been flipped an odd number of times. We simulate the cutting/flipping/rotation process step by step until the initial state is restored. The state can be tracked using a sorted set of breakpoints on the circle, with each interval between breakpoints having a uniform icing state.
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We represent the circle as [0, 360) with breakpoints tracking flipped/unflipped regions. We then iterate over each triple (a,b,c) with 9 <= a < b < c <= n. Finally, simulate the process with angles 360/a, 360/b, 360/sqrt(c).
 
-1. Represent the circle as [0, 360) with breakpoints tracking flipped/unflipped regions
-2. For each triple (a,b,c) with 9 <= a < b < c <= n:
-   - Simulate the process with angles 360/a, 360/b, 360/sqrt(c)
-   - Track the icing state using interval arithmetic
-   - Count flips until all icing is restored
-3. Sum all F(a,b,c) values
+## Pseudocode
+
+```text
+Represent the circle as [0, 360) with breakpoints tracking flipped/unflipped regions
+For each triple (a,b,c) with 9 <= a < b < c <= n:
+Simulate the process with angles 360/a, 360/b, 360/sqrt(c)
+Track the icing state using interval arithmetic
+Count flips until all icing is restored
+Sum all F(a,b,c) values
+```
 
 ## Correctness
 

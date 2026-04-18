@@ -36,11 +36,14 @@ $$\frac{60 \cdot 59 \cdots 41}{70 \cdot 69 \cdots 51} = \frac{\prod_{j=41}^{60} 
 
 The numerator has factors $41, 42, \ldots, 50, 51, \ldots, 60$ and the denominator has $51, 52, \ldots, 70$. The common factors $51, \ldots, 60$ cancel, leaving $\prod_{k=0}^{9}(50 - k)/\prod_{k=0}^{9}(70 - k)$. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
+## Pseudocode
+
+```text
 ratio = 1
-for k = 0 to 9:
+For k from 0 to 9:
     ratio *= (50 - k) / (70 - k)
 answer = 7 * (1 - ratio)
 output answer rounded to 9 decimal places

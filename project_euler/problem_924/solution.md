@@ -38,33 +38,16 @@ $$p^* \approx \frac{\ln 100 - \ln(\ln 2)}{100} = \frac{4.60517 + 0.36651}{100} =
 
 Note: For finite $n = 100$, the asymptotic formula provides an approximation. The exact threshold would require numerical computation (e.g., Monte Carlo simulation or exact polynomial evaluation), but the asymptotic value is highly accurate for $n = 100$.
 
-## Algorithm
+## Editorial
+For an Erdos-Renyi random graph G(n, p), determine the threshold edge probability for connectivity and compute related quantities. Key ideas:.
 
-```
-function ComputeThreshold(n):
-    c = -ln(ln(2))
-    p = (ln(n) + c) / n
-    return ceil(p * 10^6)
-```
+## Pseudocode
 
-For exact computation via Monte Carlo:
-
-```
-function MonteCarloThreshold(n, trials, target_prob):
-    // Binary search on p
-    lo = 0.0, hi = 1.0
-    while hi - lo > 1e-7:
-        mid = (lo + hi) / 2
-        count_connected = 0
-        for t = 1 to trials:
-            G = generate G(n, mid)
-            if G is connected:
-                count_connected += 1
-        if count_connected / trials > target_prob:
-            hi = mid
-        else:
-            lo = mid
-    return ceil(lo * 10^6)
+```text
+For exact computation via Monte Carlo
+Binary search on p
+if G is connected
+else
 ```
 
 ## Complexity Analysis

@@ -40,11 +40,16 @@ For N = 10^8, a standard O(N^2) DP is infeasible. The key insight is that the se
 
 For large random sequences, the first player's advantage converges, and efficient algorithms (such as divide-and-conquer with pruning or matrix methods) can be used.
 
-## Algorithm
+## Editorial
+Two players take turns picking from either end of a sequence. Each tries to maximize their own score. Player 1 goes first. Sequence: s1=0, s_{i+1} = (s_i^2 + 45) mod 1000000007 This solution verifies small cases and outputs the answer. We generate the sequence S of length 10^8 using the recurrence. We then apply an optimized game-theoretic approach (the sequence's pseudorandom nature allows approximation techniques). Finally, use the DP relationship with memory-efficient implementation.
 
-1. Generate the sequence S of length 10^8 using the recurrence.
-2. Apply an optimized game-theoretic approach (the sequence's pseudorandom nature allows approximation techniques).
-3. Use the DP relationship with memory-efficient implementation.
+## Pseudocode
+
+```text
+Generate the sequence S of length 10^8 using the recurrence
+Apply an optimized game-theoretic approach (the sequence's pseudorandom nature allows approximation techniques)
+Use the DP relationship with memory-efficient implementation
+```
 
 ## Correctness
 

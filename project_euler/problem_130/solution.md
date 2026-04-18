@@ -30,34 +30,35 @@ More directly: using $R(k) = (10^k - 1)/9$ and the fact that $\text{ord}_n(10) =
 
 **Proof.** Follows from $R(k) = 10 R(k-1) + 1$. $\square$
 
-## Algorithm
+## Editorial
+We compute A(n). We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function composite_repunit_property(target_count):
+## Pseudocode
+
+```text
     results = []
     n = 1
-    while len(results) < target_count:
+    While len(results) < target_count:
         n += 1
-        if gcd(n, 10) != 1:
+        If gcd(n, 10) != 1 then
             continue
-        if is_prime(n):
+        If is_prime(n) then
             continue
-        # Compute A(n)
+        Compute A(n)
         r = 1 mod n
         k = 1
-        while r != 0:
+        While r != 0:
             r = (10 * r + 1) mod n
             k += 1
         A_n = k
-        if (n - 1) mod A_n == 0:
+        If (n - 1) mod A_n == 0 then
             results.append(n)
-    return sum(results)
+    Return sum(results)
 
-function is_prime(n):
     if n < 2: return false
     for d = 2, 3, ..., floor(sqrt(n)):
         if n mod d == 0: return false
-    return true
+    Return true
 ```
 
 ## Complexity Analysis

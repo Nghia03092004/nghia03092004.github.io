@@ -30,30 +30,15 @@ $$\frac{1}{F_m - 1}\sum_{n=1}^{F_m - 1} z(n) \to \frac{1}{\phi + 2} \cdot \log_\
 
 **Proof.** (Sketch.) The Zeckendorf representation induces a bijection between $\{1, \ldots, F_m - 1\}$ and binary strings of length $m - 1$ with no consecutive 1s (the "Fibonacci numeral system"). The number of 1-bits in a random such string has mean $\sim m/(\phi+2)$ by transfer matrix eigenvalue analysis. Since $F_m \approx \phi^m/\sqrt{5}$, we get $m \approx \log_\phi(F_m\sqrt{5})$, giving the stated asymptotic. $\square$
 
-## Algorithm
+## Editorial
+Compute the sum of z(n) for n = 1 to 10^6, where z(n) is the number of terms in the Zeckendorf (greedy Fibonacci) representation of n. Every positive integer has a unique representation as a sum of non-consecutive Fibonacci numbers (Zeckendorf's theorem). z(n) counts how many Fibonacci numbers are used. We precompute Fibonacci numbers up to N. We then fib = [1, 2, 3, 5, 8, 13, ...] with fib[last] >= N. Finally, find largest fib[k] <= remainder.
 
-```
-function SumZeckendorfLengths(N):
-    // Precompute Fibonacci numbers up to N
-    fib = [1, 2]
-    while fib[last] < N:
-        fib.append(fib[last] + fib[last-1])
-    // fib = [1, 2, 3, 5, 8, 13, ...] with fib[last] >= N
-    m = length(fib) - 1   // index of largest fib <= N
+## Pseudocode
 
-    total = 0
-    for n = 1 to N:
-        remainder = n
-        j = m
-        while remainder > 0:
-            // Find largest fib[k] <= remainder
-            while fib[j] > remainder:
-                j = j - 1
-            remainder = remainder - fib[j]
-            total = total + 1
-            j = j - 2   // skip to maintain non-consecutivity
-
-    return total
+```text
+Precompute Fibonacci numbers up to N
+fib = [1, 2, 3, 5, 8, 13, ...] with fib[last] >= N
+Find largest fib[k] <= remainder
 ```
 
 ## Complexity Analysis

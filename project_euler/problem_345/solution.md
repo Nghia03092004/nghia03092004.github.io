@@ -42,22 +42,14 @@ $$\text{dp}[S] = \max_{j \in S} \left( \text{dp}[S \setminus \{j\}] + M_{|S|, j}
 
 **Proof.** By induction on $|S|$. The recurrence considers all possible column assignments $j$ for row $|S|$, taking the best over all choices. The base case $\text{dp}[\emptyset] = 0$ is trivial. Correctness follows from the principle of optimality (Bellman). $\square$
 
-## Algorithm
+## Editorial
+Approach: Bitmask DP over columns. dp[mask] = maximum sum using first popcount(mask) rows, with columns in mask used. Time: O(n * 2^n) = O(15 * 32768) ~ 500K operations. We bitmask DP approach (feasible for n=15).
 
-```
-function solve(M, n=15):
-    // Bitmask DP approach (feasible for n=15)
-    dp = array of size 2^n, initialized to -infinity
-    dp[0] = 0
+## Pseudocode
 
-    for mask = 1 to 2^n - 1:
-        row = popcount(mask)   // number of bits set = current row
-        for j = 0 to n-1:
-            if mask has bit j set:
-                prev = mask with bit j cleared
-                dp[mask] = max(dp[mask], dp[prev] + M[row-1][j])
-
-    return dp[2^n - 1]
+```text
+Bitmask DP approach (feasible for n=15)
+if mask has bit j set
 ```
 
 ## Complexity Analysis

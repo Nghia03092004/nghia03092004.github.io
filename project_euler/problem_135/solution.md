@@ -27,32 +27,16 @@ $\square$
 
 **Proof.** Follows directly from Theorem 2: there is a bijection between valid $(y, d)$ pairs and valid $(u, v)$ factorizations via $u = y$, $v = 4d - y$. $\square$
 
-## Algorithm
+## Editorial
+In practice, the inner loop is bounded by $\min(y - 1, (N/y + y)/4)$, so the total work is $O(N \log N)$. We also n = y(4d - y) < N => d < (N/y + y) / 4. Finally, more precisely: 4d - y < N/y => d < (N/y + y)/4.
 
+## Pseudocode
+
+```text
+N = 1000000
+Also n = y(4d - y) < N => d < (N/y + y) / 4
+more precisely: 4d - y < N/y => d < (N/y + y)/4
 ```
-function count_n_with_exactly_10_solutions(N):
-    // N = 1000000
-    solutions = array of size N, initialized to 0
-
-    for y = 1 to N-1:
-        d_min = floor(y / 4) + 1
-        d_max_constraint = y - 1
-        // Also n = y(4d - y) < N => d < (N/y + y) / 4
-        d_max = min(d_max_constraint, floor((N - 1) / y + y) / 4)
-        // more precisely: 4d - y < N/y => d < (N/y + y)/4
-        for d = d_min to d_max:
-            n = y * (4 * d - y)
-            if n > 0 and n < N:
-                solutions[n] += 1
-
-    count = 0
-    for n = 1 to N-1:
-        if solutions[n] == 10:
-            count += 1
-    return count
-```
-
-In practice, the inner loop is bounded by $\min(y - 1, (N/y + y)/4)$, so the total work is $O(N \log N)$.
 
 ## Complexity Analysis
 

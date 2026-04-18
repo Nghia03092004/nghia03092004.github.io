@@ -33,22 +33,17 @@ $$N(p,q) = \left\lceil \frac{2011}{-\log_{10}\beta} \right\rceil = \left\lceil \
 
 **Proof.** $C(p,q,n) \ge 2011$ iff $-n\log_{10}\beta \ge 2011$ iff $n \ge 2011/(-\log_{10}\beta)$. The smallest such integer $n$ is the ceiling. $\square$
 
-## Algorithm
+## Editorial
+For 1 <= p < q with p+q <= 2011, where pq is not a perfect square and |sqrt(q) - sqrt(p)| < 1: beta = (sqrt(p) - sqrt(q))^2 = p + q - 2*sqrt(pq) N(p,q) = ceil(-2011 / log10(beta)) Find the sum of N(p,q) over all valid pairs. We return total.
 
-```
+## Pseudocode
+
+```text
 Input: bound = 2011, target = 2011
 Output: sum of N(p,q) over valid pairs
-
-1. total = 0
-2. For p = 1 to 1005:
-     q_max = min(bound - p, floor((sqrt(p) + 1)^2))
-     For q = p + 1 to q_max:
-       If isqrt(p*q)^2 != p*q:          // pq not a perfect square
-         beta = p + q - 2*sqrt(p*q)
-         If 0 < beta < 1:
-           N = ceil(-target / log10(beta))
-           total += N
-3. Return total
+total = 0
+For p = 1 to 1005:
+Return total
 ```
 
 ## Complexity Analysis

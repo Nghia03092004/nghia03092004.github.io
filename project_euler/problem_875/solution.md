@@ -44,13 +44,14 @@ $$\tau(\chi) = \sum_{a=1}^{q} \chi(a)\, e^{2\pi i a/q}.$$
 
 **Proof.** Compute $|\tau(\chi)|^2 = \sum_{a,b} \chi(a)\overline{\chi(b)}\, e^{2\pi i(a-b)/q} = \sum_{a,b} \chi(ab^{-1})\, e^{2\pi i(a-b)/q}$. Substituting $c = ab^{-1}$: $\sum_{c} \chi(c) \sum_{b} e^{2\pi i b(c-1)/q}$. The inner sum is $q$ when $c = 1$ and $0$ otherwise (orthogonality of additive characters). Hence $|\tau(\chi)|^2 = q \cdot \chi(1) = q$. $\square$
 
-## Algorithm
+## Editorial
+Legendre symbol patterns and character sums. We iterate over each prime p in the relevant range. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function LEGENDRE(n, p):
-    return pow(n, (p - 1) / 2, p)   // 1 or p-1 (representing -1)
+## Pseudocode
 
-function SOLVE(parameters):
+```text
+    Return pow(n, (p - 1) / 2, p) // 1 or p-1 (representing -1)
+
     For each prime p in the relevant range:
         Compute the Legendre symbol sequence or partial character sums
         Aggregate according to problem specification

@@ -30,30 +30,17 @@ The exchange of summation is justified since $d^2 \mid n$ and $n \leq N$ imply $
 
 **Proof.** Initialize $\mu(k) = 1$ for all $k$. For each prime $p \leq M$: multiply $\mu(k)$ by $-1$ for all multiples $k$ of $p$; set $\mu(k) = 0$ for all multiples $k$ of $p^2$. Since each composite is processed once per prime factor, the total work is $\sum_{p \leq M} M/p = O(M \log \log M)$ by Mertens' theorem. $\square$
 
-## Algorithm
+## Editorial
+Count squarefree numbers below 2^50. Uses: Q(N) = sum_{k=1}^{sqrt(N)} mu(k) * floor(N/k^2). We sieve Mobius function. We then iterate over p from 2 to M. Finally, iterate over k from p to M step p.
 
-```
-function count_squarefree(N):
-    M = floor(sqrt(N))   # M = 2^25 = 33554432 for N = 2^50
+## Pseudocode
 
-    # Sieve Mobius function
-    mu = array of size M+1, initialized to 1
-    is_prime = array of booleans, size M+1, initialized to true
-    for p from 2 to M:
-        if is_prime[p]:
-            for k from p to M step p:
-                is_prime[k] = (k == p)
-                mu[k] *= -1
-            for k from p*p to M step p*p:
-                mu[k] = 0
-
-    # Compute Q(N)
-    result = 0
-    for k from 1 to M:
-        if mu[k] != 0:
-            result += mu[k] * floor(N / (k*k))
-
-    return result
+```text
+Sieve Mobius function
+for p from 2 to M
+for k from p to M step p
+Compute Q(N)
+for k from 1 to M
 ```
 
 ## Complexity Analysis

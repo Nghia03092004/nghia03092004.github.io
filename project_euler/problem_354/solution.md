@@ -44,32 +44,23 @@ Multiplying over all prime-power factors gives the result. $\square$
 
 **Proof.** Exhaustive enumeration of ordered factorizations of 75 into parts $\ge 2$, then reducing to unordered (multiset) factorizations. $\square$
 
-## Algorithm
+## Editorial
+C(n) = 6 * (d1(n) - d2(n)) where d1, d2 count divisors == 1, 2 mod 3. Need d1(n) - d2(n) = 75 with all primes == 2 mod 3 at even exponents. Product of (a_i + 1) for primes == 1 mod 3 must equal 75. Exponent patterns: (74), (24,2), (14,4), (4,4,2). We generate primes up to limit^(1/2) via sieve. We then classify primes as type-1 (≡1 mod 3) or type-2 (≡2 mod 3). Finally, iterate over each exponent tuple from Lemma 2.
 
+## Pseudocode
+
+```text
+Generate primes up to limit^(1/2) via sieve
+Classify primes as type-1 (≡1 mod 3) or type-2 (≡2 mod 3)
+For each exponent tuple from Lemma 2
+Backtracking enumeration
+Assign primes ≡1 (mod 3) to the exponent slots (decreasing order)
+For each assignment, compute base = product of p_i^{a_i}
+Remaining budget = limit / base
+Multiply by 3^a for any a >= 0 with 3^a <= remaining
+Multiply by q_j^{2*c_j} for primes q_j ≡2 (mod 3) with q_j^2 <= remaining
+Count all valid combinations via DFS
 ```
-function CountN(limit):
-    // Step 1: Generate primes up to limit^(1/2) via sieve
-    // Classify primes as type-1 (≡1 mod 3) or type-2 (≡2 mod 3)
-
-    // Step 2: For each exponent tuple from Lemma 2
-    exponent_tuples = [(74,), (24, 2), (14, 4), (4, 4, 2)]
-
-    count = 0
-    for tuple in exponent_tuples:
-        // Step 3: Backtracking enumeration
-        // Assign primes ≡1 (mod 3) to the exponent slots (decreasing order)
-        // For each assignment, compute base = product of p_i^{a_i}
-        // Remaining budget = limit / base
-        // Multiply by 3^a for any a >= 0 with 3^a <= remaining
-        // Multiply by q_j^{2*c_j} for primes q_j ≡2 (mod 3) with q_j^2 <= remaining
-        // Count all valid combinations via DFS
-
-        count += backtrack_enumerate(tuple, limit)
-
-    return count
-```
-
-The backtracking DFS explores primes $\equiv 1 \pmod{3}$ in increasing order for the exponent slots, then appends arbitrary even powers of primes $\equiv 2 \pmod{3}$ and arbitrary powers of 3.
 
 ## Complexity Analysis
 

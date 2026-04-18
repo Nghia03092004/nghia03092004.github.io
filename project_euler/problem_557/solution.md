@@ -43,12 +43,17 @@ $$a \cdot d = b \cdot c$$
 
 This is the fundamental constraint from the cross-ratio of cevians.
 
-## Algorithm
+## Editorial
+Constraint: ad = bc, b <= c, all positive integers. Parameterization: Let g = gcd(a,b), a = g*a', b = g*b', gcd(a',b')=1. Then c = a'*t, d = b'*t for integer t >= 1. Total area T = (a'+b')*(g+t). We iterate over all total areas $T = a + b + c + d \leq 10000$. We then iterate over each $T$, find all valid quadruples $(a, b, c, d)$ with $a + b + c + d = T$, $b \leq c$, and $a \cdot d = b \cdot c$. Finally, the constraint $ad = bc$ means $(a, b, c, d)$ forms a valid cutting if and only if $ad = bc$ and $a + b + c + d = T$.
 
-1. Iterate over all total areas $T = a + b + c + d \leq 10000$
-2. For each $T$, find all valid quadruples $(a, b, c, d)$ with $a + b + c + d = T$, $b \leq c$, and $a \cdot d = b \cdot c$
-3. The constraint $ad = bc$ means $(a, b, c, d)$ forms a valid cutting if and only if $ad = bc$ and $a + b + c + d = T$
-4. Sum the total areas for all valid quadruples
+## Pseudocode
+
+```text
+Iterate over all total areas $T = a + b + c + d \leq 10000$
+For each $T$, find all valid quadruples $(a, b, c, d)$ with $a + b + c + d = T$, $b \leq c$, and $a \cdot d = b \cdot c$
+The constraint $ad = bc$ means $(a, b, c, d)$ forms a valid cutting if and only if $ad = bc$ and $a + b + c + d = T$
+Sum the total areas for all valid quadruples
+```
 
 ## Correctness
 

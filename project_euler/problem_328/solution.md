@@ -30,27 +30,17 @@ $$n_0 = 1, \qquad n_k = n_{k-1} + n_{k-1} + 1 \text{ (approximately, with cost-d
 
 **Proof.** At the optimal guess $g$, the left subproblem has range $g - 1$ and the right subproblem has range $n - g$. The breakpoints where the optimal depth changes form a recursive structure. By exploiting the monotonicity from Lemma 1 and memoizing the breakpoints, the full computation reduces to $O(\log^2 n)$ operations. $\square$
 
-## Algorithm
+## Editorial
+.n where guessing g costs g. Extended to a specific large target. We use monotonicity: binary search for optimal g. We then iterate over the full problem: use breakpoint-based recursion. Finally, compute f(1, n) for required n values.
 
-```
-function f(lo, hi, memo):
-    if lo >= hi: return 0
-    if (lo, hi) in memo: return memo[(lo, hi)]
+## Pseudocode
 
-    // Use monotonicity: binary search for optimal g
-    best = infinity
-    for g = lo to hi:
-        cost = g + max(f(lo, g-1, memo), f(g+1, hi, memo))
-        best = min(best, cost)
-    memo[(lo, hi)] = best
-    return best
-
-// For the full problem: use breakpoint-based recursion
-function solve():
-    // Compute f(1, n) for required n values
-    // Sum over specified range
-    // Use memoization + monotonicity optimization
-    return result
+```text
+Use monotonicity: binary search for optimal g
+For the full problem: use breakpoint-based recursion
+Compute f(1, n) for required n values
+Sum over specified range
+Use memoization + monotonicity optimization
 ```
 
 ## Complexity Analysis

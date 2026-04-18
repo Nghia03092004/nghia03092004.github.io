@@ -28,37 +28,17 @@ $$R(i,j) = \left\{\overline{d_i \cdots d_j}\right\} \cup \bigcup_{k=i}^{j-1} \le
 
 **Proof.** All inputs are integers, and closure of $\mathbb{Q}$ under $\{+,-,\times,\div\}$ (excluding division by zero) ensures all intermediate and final values are rational. $\square$
 
-## Algorithm
+## Editorial
+From the string "123456789", insert +, -, *, / between groups of consecutive digits (with arbitrary parenthesization) to produce values. Find the sum of all positive integers reachable. Method: Interval DP with exact rational arithmetic (fractions). R(i,j) = set of all rationals from digits i..j. We digits: d[1]=1, d[2]=2, ..., d[9]=9. We then compute R(i,j) for all 1 <= i <= j <= 9 using interval DP. Finally, base case.
 
-```
-function SumReachableIntegers():
-    // Digits: d[1]=1, d[2]=2, ..., d[9]=9
-    // Compute R(i,j) for all 1 <= i <= j <= 9 using interval DP
+## Pseudocode
 
-    // Base case
-    for i = 1 to 9:
-        R[i][i] = {Fraction(i, 1)}
-
-    // Fill DP table by increasing interval length
-    for length = 2 to 9:
-        for i = 1 to 9 - length + 1:
-            j = i + length - 1
-            R[i][j] = {concatenated_number(i, j)}
-            for k = i to j-1:
-                for each a in R[i][k]:
-                    for each b in R[k+1][j]:
-                        R[i][j].add(a + b)
-                        R[i][j].add(a - b)
-                        R[i][j].add(a * b)
-                        if b != 0:
-                            R[i][j].add(a / b)
-
-    // Extract positive integers from R[1][9]
-    answer = 0
-    for each r in R[1][9]:
-        if r > 0 and r is an integer:
-            answer += r
-    return answer
+```text
+Digits: d[1]=1, d[2]=2, ..., d[9]=9
+Compute R(i,j) for all 1 <= i <= j <= 9 using interval DP
+Base case
+Fill DP table by increasing interval length
+Extract positive integers from R[1][9]
 ```
 
 ## Complexity Analysis

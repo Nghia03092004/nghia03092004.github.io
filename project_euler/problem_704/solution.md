@@ -41,21 +41,14 @@ $$B(N) = \sum_{k=1}^{L} \left\lfloor \frac{N}{2^k} \right\rfloor.$$
 
 **Proof.** Each integer $n$ contributes $\nu_2(n)$ to $B(N)$. The value $\nu_2(n) \ge k$ iff $2^k \mid n$, so $B(N) = \sum_{k=1}^{\infty} \lfloor N/2^k \rfloor$, which terminates at $k = L$. $\square$
 
-## Algorithm
+## Editorial
+We compute A(N). Finally, compute B(N). We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function S(N):
-    L = floor(log2(N))
+## Pseudocode
 
-    # Compute A(N)
-    A = (L - 2) * 2^L + 2 + L * (N - 2^L + 1)
-
-    # Compute B(N)
-    B = 0
-    for k = 1 to L:
-        B += floor(N / 2^k)
-
-    return A - B
+```text
+Compute A(N)
+Compute B(N)
 ```
 
 ## Complexity Analysis

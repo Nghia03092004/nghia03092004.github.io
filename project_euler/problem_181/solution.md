@@ -29,21 +29,23 @@ with $b$ ranging from $\delta_b$ to $B$ and $w$ from $\delta_w$ to $W$ in increa
 
 *Proof.* This is the standard unbounded knapsack transformation. Iterating in increasing order permits each part type to be used with unlimited multiplicity. The in-place update telescopes the summation in Theorem 2, since after processing part $p_j$, the entry $\mathrm{dp}[b][w]$ equals $f_j(b, w)$. The proof proceeds by induction on $j$: the base case $j = 0$ holds by initialization; for the inductive step, the forward-sweep update accumulates exactly the sum $\sum_{t \geq 0} f_{j-1}(b - t\delta_b, w - t\delta_w)$. $\square$
 
-## Algorithm
+## Editorial
+Different Colours Can Be Grouped Count the number of bicolour partitions of (60, 40), i.e., the number of unordered groupings of 60 black and 40 white objects into non-empty groups. Uses two-dimensional unbounded knapsack DP.
 
-```
-function CountBicolourPartitions(B, W):
-    dp[0..B][0..W] := 0
-    dp[0][0] := 1
+## Pseudocode
 
-    for db := 0 to B:
-        for dw := 0 to W:
-            if db = 0 and dw = 0: continue
-            for b := db to B:
-                for w := dw to W:
+```text
+    Set dp[0..B][0..W] <- 0
+    Set dp[0][0] <- 1
+
+    For db from 0 to B:
+        For dw from 0 to W:
+            If db = 0 and dw = 0 then continue
+            For b from db to B:
+                For w from dw to W:
                     dp[b][w] += dp[b - db][w - dw]
 
-    return dp[B][W]
+    Return dp[B][W]
 ```
 
 ## Complexity Analysis

@@ -48,30 +48,16 @@ For $r \geq 2$, $12r - 7 \geq 17 > 1$, so all three candidates are valid. $\squa
 
 **Proof.** Direct computation. $\square$
 
-## Algorithm
+## Editorial
+Key insight: Only the first and last tile of each ring can have PD=3. We check S(r). We then check E(r) for r >= 2. Finally, unreachable.
 
-```
-function hexagonal_pd(target):
-    count = 1                  # tile 1 has PD = 3
-    if target == 1: return 1
-    r = 1
-    while count < target:
-        # Check S(r)
-        if is_prime(6*r - 1) and is_prime(6*r + 1) and is_prime(12*r + 5):
-            count += 1
-            if count == target:
-                return 3*r*(r-1) + 2
-        # Check E(r) for r >= 2
-        if r >= 2:
-            if is_prime(6*r - 1) and is_prime(6*r + 5) and is_prime(12*r - 7):
-                count += 1
-                if count == target:
-                    return 3*r*(r+1) + 1
-        r += 1
-    # unreachable
-```
+## Pseudocode
 
-For primality testing of values up to $\sim 10^{10}$, use deterministic Miller-Rabin with bases $\{2, 3, 5, 7, 11, 13, 17, 19, 23\}$, which is provably correct for $n < 3.3 \times 10^{24}$.
+```text
+Check S(r)
+Check E(r) for r >= 2
+unreachable
+```
 
 ## Complexity Analysis
 

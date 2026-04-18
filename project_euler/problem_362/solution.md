@@ -49,33 +49,18 @@ $$S(N) = \sum_{n=1}^{N} f(n) = \sum_{k=1}^{\lfloor\sqrt{N}\rfloor} \mu(k)^2 \cdo
 
 In practice, the computation uses a segmented sieve of $f(n)$ up to a threshold, combined with analytic number theory estimates for the tail.
 
-## Algorithm
+## Editorial
+f(n) = largest squarefree divisor of n. Compute sum of f(n) for n = 1 to 10^14. Approach:. We sieve smallest prime factors up to sqrt(N). We then iterate over p in primes up to limit. Finally, direct summation for small n.
 
-```
-function solve(N):
-    // Sieve smallest prime factors up to sqrt(N)
-    limit = isqrt(N)
-    spf = sieve_smallest_prime_factor(limit)
+## Pseudocode
 
-    // Compute f(n) for n = 1..limit via sieve
-    f = array of size limit+1, initialized to 1
-    for p in primes up to limit:
-        for multiple m = p, 2p, ..., limit:
-            if p divides m and p does not divide f[m]:
-                f[m] *= p
-
-    // Direct summation for small n
-    S = sum(f[1..limit])
-
-    // Hyperbola contribution for large n
-    for d = 1 to limit:
-        if mu(d) != 0:  // d is squarefree
-            M = floor(N / (d * d))
-            if M > limit:
-                // Use analytic formula for sum of f(k) for k in (limit, M]
-                S += mu(d) * d * analytic_sum(limit, M)
-
-    return S
+```text
+Sieve smallest prime factors up to sqrt(N)
+Compute f(n) for n = 1..limit via sieve
+for p in primes up to limit
+Direct summation for small n
+Hyperbola contribution for large n
+Use analytic formula for sum of f(k) for k in (limit, M]
 ```
 
 ## Complexity Analysis

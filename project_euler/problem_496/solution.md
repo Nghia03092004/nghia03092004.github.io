@@ -50,11 +50,16 @@ Let $x = s - a$, $y = s - b$, $z = s - c$. Then $a = y+z$, $b = x+z$, $c = x+y$,
 
 $$OI^2 = \frac{(y+z)(x+z)(x+y)\bigl[(y+z)(x+z)(x+y) - 8xyz\bigr]}{16(x+y+z)xyz}$$
 
-## Algorithm
+## Editorial
+For triangles with integer sides, study when OI^2 is a perfect square. OI^2 = R(R - 2r) where R = circumradius, r = inradius. We enumerate all valid triangles with $1 \le a \le b \le c \le n$ and $a + b > c$. We then compute $OI^2$ using rational arithmetic. Finally, check if $OI^2$ is a perfect square (as a rational number, check if both numerator and denominator are perfect squares after reduction).
 
-1. Enumerate all valid triangles with $1 \le a \le b \le c \le n$ and $a + b > c$.
-2. Compute $OI^2$ using rational arithmetic.
-3. Check if $OI^2$ is a perfect square (as a rational number, check if both numerator and denominator are perfect squares after reduction).
+## Pseudocode
+
+```text
+Enumerate all valid triangles with $1 \le a \le b \le c \le n$ and $a + b > c$
+Compute $OI^2$ using rational arithmetic
+Check if $OI^2$ is a perfect square (as a rational number, check if both numerator and denominator are perfect squares after reduction)
+```
 
 ## Correctness
 

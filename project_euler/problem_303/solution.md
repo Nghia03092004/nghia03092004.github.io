@@ -25,36 +25,15 @@ the algorithm is correct and terminates after visiting at most $n$ residues. $\s
 
 **Proof.** The number 9999 = $3^2 \times 11 \times 101$ requires a multiple using only digits $\{0,1,2\}$. The smallest such multiple is $f(9999) = 1111111111111111111111111112$ (24 ones followed by 1112), which has 28 digits. The BFS explores up to 9999 residue classes, each with 3 transitions, staying well within computational limits. $\square$
 
-## Algorithm
+## Editorial
+For each n from 1 to 10000, find f(n) = smallest positive multiple of n using only digits {0, 1, 2}. Compute sum of f(n)/n. BFS on remainders mod n. We returns f(n) / n. Finally, start with digits 1 and 2 as leading digit.
 
-```
-function solve():
-    total = 0
-    for n = 1 to 10000:
-        total += bfs_find_quotient(n)
-    return total
+## Pseudocode
 
-function bfs_find_quotient(n):
-    // Returns f(n) / n
-    visited = array of size n, initialized to false
-    queue = empty
-    // Start with digits 1 and 2 as leading digit
-    for d in {1, 2}:
-        r = d mod n
-        if r == 0: return d  // f(n) = d, quotient = d/n... but d<3 so reconstruct
-        if not visited[r]:
-            visited[r] = true
-            enqueue (r, big_integer(d))
-    while queue not empty:
-        (r, value) = dequeue
-        for d in {0, 1, 2}:
-            new_r = (10 * r + d) mod n
-            new_value = 10 * value + d
-            if new_r == 0:
-                return new_value / n  // exact integer division
-            if not visited[new_r]:
-                visited[new_r] = true
-                enqueue (new_r, new_value)
+```text
+Returns f(n) / n
+Start with digits 1 and 2 as leading digit
+while queue not empty
 ```
 
 ## Complexity Analysis

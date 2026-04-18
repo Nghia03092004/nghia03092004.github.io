@@ -61,13 +61,18 @@ sum_{p=1}^{n} (1-k^2)^p = (1-k^2) * ((1-k^2)^n - 1) / ((1-k^2) - 1)
 
 All computations are done modulo 10^9 + 7. We need modular inverse of k^2.
 
-## Algorithm
+## Editorial
+S(n) = sum_{k=1}^{n} sum_{p=1}^{n} (1-k^2)^p mod 10^9+7 Key insight: (a_k+b_k)(b_k+c_k)(c_k+a_k) = 1 - k^2 from Vieta's formulas. For each k >= 2, the inner sum is a geometric series. For k = 1, 1-k^2 = 0 so contribution is 0. We iterate over each k from 1 to n. We then compute q = (1 - k^2) mod p where p = 10^9+7. Finally, compute geometric sum: q*(q^n - 1)/(q - 1) = (q^{n+1} - q)/(q - 1).
 
-1. For each k from 1 to n:
-   - Compute q = (1 - k^2) mod p where p = 10^9+7
-   - Compute geometric sum: q*(q^n - 1)/(q - 1) = (q^{n+1} - q)/(q - 1)
-   - Use modular inverse for division
-2. Sum all contributions.
+## Pseudocode
+
+```text
+For each k from 1 to n:
+Compute q = (1 - k^2) mod p where p = 10^9+7
+Compute geometric sum: q*(q^n - 1)/(q - 1) = (q^{n+1} - q)/(q - 1)
+Use modular inverse for division
+Sum all contributions
+```
 
 ## Correctness
 

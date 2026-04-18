@@ -22,29 +22,16 @@ For the inductive step, assume the number of valid sequences of length $n$ endin
 
 **Proof.** The state is determined entirely by the last die face shown (values $1$ through $6$), since the consecutive pattern constraint depends only on adjacent pairs. Hence $k = 6$. $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We build the 6x6 transfer matrix M. We then m[i][j] = 1 if transition from face i to face j is valid. Finally, compute M^(n-1) mod p using binary exponentiation.
 
-```
-function Solve():
-    p = 10^9 + 7
-    k = 6
-    n = 10^14
+## Pseudocode
 
-    // Step 1: Build the 6x6 transfer matrix M
-    // M[i][j] = 1 if transition from face i to face j is valid
-    M = BuildTransferMatrix()
-
-    // Step 2: Compute M^(n-1) mod p using binary exponentiation
-    R = MatrixPow(M, n - 1, p)
-
-    // Step 3: Compute e^T * R * e
-    e = [1, 1, 1, 1, 1, 1]
-    result = 0
-    for i in 0..5:
-        for j in 0..5:
-            result = (result + R[i][j]) mod p
-
-    return result
+```text
+Build the 6x6 transfer matrix M
+M[i][j] = 1 if transition from face i to face j is valid
+Compute M^(n-1) mod p using binary exponentiation
+Compute e^T * R * e
 ```
 
 ## Complexity Analysis

@@ -39,59 +39,19 @@ and can be computed in $O(n^{2/3})$ time with $O(n^{2/3})$ space using sieving f
 
 **Proof.** From the identity $\sum_{d=1}^n \mu(d) \lfloor n/d \rfloor = 1$ (a consequence of $\sum_{d \mid k} \mu(d) = [k = 1]$), we get $\sum_{k=1}^n M(\lfloor n/k \rfloor) = 1$, yielding the recursion. The number of distinct values of $\lfloor n/k \rfloor$ is $O(\sqrt{n})$. Sieving $\mu$ up to $n^{2/3}$ and recursively computing $M$ for the $O(n^{1/3})$ large arguments gives $O(n^{2/3})$ total time. $\square$
 
-## Algorithm
+## Editorial
+S(N) = sum_{i=1}^N sum_{j=1}^N d(i*j) Using the identity sigma(mn) = sum_{d|gcd(m,n)} mu(d) * sigma(m/d) * sigma(n/d): S(N) = sum_{d=1}^N mu(d) * T(N/d)^2 where T(n) = sum_{k=1}^n sigma(k) = sum_{d=1}^n d * floor(n/d) Find S(10^11) mod 10^9. We memoize Mertens function for large arguments. We then compute T(n) mod p in O(sqrt(n)). Finally, sum of d from d to d_max = d_max*(d_max+1)/2 - (d-1)*d/2.
 
-```
-function S(N, mod):
-    // Step 1: Sieve mu(d) for d <= N^{2/3}
-    limit = N^{2/3}
-    mu = mobius_sieve(limit)
-    prefix_mu = prefix_sums(mu)
+## Pseudocode
 
-    // Step 2: Memoize Mertens function for large arguments
-    memo_M = {}
-
-    function M(n):
-        if n <= limit: return prefix_mu[n]
-        if n in memo_M: return memo_M[n]
-        result = 1
-        k = 2
-        while k <= n:
-            q = floor(n / k)
-            k_max = floor(n / q)
-            result -= (k_max - k + 1) * M(q)
-            k = k_max + 1
-        memo_M[n] = result
-        return result
-
-    // Step 3: Compute T(n) mod p in O(sqrt(n))
-    function T(n):
-        result = 0
-        d = 1
-        while d <= n:
-            q = floor(n / d)
-            d_max = floor(n / q)
-            // sum of d from d to d_max = d_max*(d_max+1)/2 - (d-1)*d/2
-            result += q * (d_max*(d_max+1)/2 - (d-1)*d/2)
-            result %= mod
-            d = d_max + 1
-        return result % mod
-
-    // Step 4: Evaluate S(N) = sum_{d=1}^{N} mu(d) * T(N/d)^2
-    // Group by values of floor(N/d)
-    answer = 0
-    d = 1
-    while d <= N:
-        q = floor(N / d)
-        d_max = floor(N / q)
-        t_val = T(q)
-        // sum of mu(d) for d in [d, d_max] = M(d_max) - M(d-1)
-        mu_sum = M(d_max) - M(d - 1)
-        answer += mu_sum * t_val^2
-        answer %= mod
-        d = d_max + 1
-
-    return answer % mod
+```text
+Sieve mu(d) for d <= N^{2/3}
+Memoize Mertens function for large arguments
+Compute T(n) mod p in O(sqrt(n))
+sum of d from d to d_max = d_max*(d_max+1)/2 - (d-1)*d/2
+Evaluate S(N) = sum_{d=1}^{N} mu(d) * T(N/d)^2
+Group by values of floor(N/d)
+sum of mu(d) for d in [d, d_max] = M(d_max) - M(d-1)
 ```
 
 ## Complexity Analysis

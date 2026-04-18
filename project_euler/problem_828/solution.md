@@ -44,23 +44,18 @@ Optimal: size 4, subset $\{2, 3, 4, 5\}$, sum $= 14$.
 3. **Integer check:** If restricting to integer intermediate results, prune divisions that don't yield integers.
 4. **Bound check:** If all remaining numbers are $\le M$, the maximum achievable value with $k$ numbers is bounded.
 
-## Algorithm
+## Editorial
+b. Among all valid subsets of minimum size, pick the one with smallest sum. We iterate over each target $T$:**. We then iterate over each subset, enumerate all expression trees and operations. Finally, iterate over efficiency:** Use dynamic programming on subsets, building achievable values bottom-up by combining pairs of disjoint sub-subsets.
 
-1. **For each target $T$:**
-   a. For $k = 1, 2, \ldots, 6$ (or whatever the max subset size is):
-      - Enumerate all $\binom{n}{k}$ subsets of size $k$.
-      - For each subset, enumerate all expression trees and operations.
-      - If any expression evaluates to $T$, record the subset.
-   b. Among all valid subsets of minimum size, pick the one with smallest sum.
+## Pseudocode
 
-2. **For efficiency:** Use dynamic programming on subsets, building achievable values bottom-up by combining pairs of disjoint sub-subsets.
-
-### DP on Subsets
-
-For each subset $S \subseteq \{1, \ldots, n\}$ (represented as a bitmask), maintain the set of values achievable using the numbers in $S$.
-
-Transition: for each partition $S = A \cup B$ with $A \cap B = \emptyset$, $A, B \ne \emptyset$:
-$$\text{vals}(S) = \bigcup_{A \cup B = S} \{a \circ b : a \in \text{vals}(A), b \in \text{vals}(B), \circ \in \{+,-,\times,\div\}\}$$
+```text
+For each target $T$:**
+Enumerate all $\binom{n}{k}$ subsets of size $k$
+For each subset, enumerate all expression trees and operations
+If any expression evaluates to $T$, record the subset
+For efficiency:** Use dynamic programming on subsets, building achievable values bottom-up by combining pairs of disjoint sub-subsets
+```
 
 ## Complexity Analysis
 

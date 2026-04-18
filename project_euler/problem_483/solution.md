@@ -51,39 +51,24 @@ $$\sum_{n \ge 0} \left(\sum_{\lambda \vdash n} \frac{1}{\prod c_i^{m_i} m_i!}\ri
 
 **Proof.** This is the exponential formula for the symmetric group cycle index. The product $\prod_{c \ge 1} \exp(x^c/c) = \exp\!\bigl(\sum_{c \ge 1} x^c/c\bigr) = \exp(-\ln(1-x)) = 1/(1-x)$. The coefficient of $x^n$ is 1, consistent with $\sum_\lambda 1/\prod c_i^{m_i} m_i! = 1$ (normalization). $\square$
 
-## Algorithm
+## Editorial
+g(n) = average of f(P)^2 over all permutations of {1,...,n} where f(P) = order of permutation = lcm of cycle lengths. g(n) = sum over partitions of n: lcm(lambda)^2 / prod(c^m * m!). We use a dynamic-programming approach that processes the cycle lengths from 1 to n. We then state: (remaining elements, current lcm^2 contribution). Finally, since tracking full lcm is expensive, decompose by primes.
 
+## Pseudocode
+
+```text
+DP approach processing cycle lengths 1 to n
+State: (remaining elements, current lcm^2 contribution)
+Since tracking full lcm is expensive, decompose by primes
+For each prime p, track the maximum power of p appearing in any cycle length
+Build list of valid cycle lengths: 1 to n
+Group cycle lengths by their prime factorizations
+DP over cycle lengths c = 1, 2, ..., n:
+dp[r] = sum of lcm(lambda)^2 / prod(c_i^{m_i} * m_i!)
+over all partial partitions using lengths <= c summing to r
+For each multiplicity m = 1, 2, ..., floor(n/c):
+In practice, use prime-by-prime decomposition for tractability
 ```
-function COMPUTE_G(n):
-    // DP approach processing cycle lengths 1 to n
-    // State: (remaining elements, current lcm^2 contribution)
-    // Since tracking full lcm is expensive, decompose by primes
-
-    primes = list of primes up to n
-    // For each prime p, track the maximum power of p appearing in any cycle length
-
-    // Build list of valid cycle lengths: 1 to n
-    // Group cycle lengths by their prime factorizations
-
-    // DP over cycle lengths c = 1, 2, ..., n:
-    //   dp[r] = sum of lcm(lambda)^2 / prod(c_i^{m_i} * m_i!)
-    //           over all partial partitions using lengths <= c summing to r
-
-    dp[0] = 1.0   // empty partition
-    for c = 1 to n:
-        // For each multiplicity m = 1, 2, ..., floor(n/c):
-        for r = n down to c:
-            for m = 1 to floor(r / c):
-                contribution = 1 / (c^m * m!)
-                lcm_factor = compute_lcm_squared_multiplier(c, existing_partition)
-                dp[r] += dp[r - m*c] * contribution * lcm_factor
-
-    return dp[n]
-
-    // In practice, use prime-by-prime decomposition for tractability
-```
-
-The actual implementation uses a more sophisticated approach: for each prime $p \le n$, separately handle the contribution of $p$-powers to the LCM via a nested DP. Since $\operatorname{lcm}^2$ factors as $\prod_p p^{2e_p}$, the contributions of different primes are independent after appropriate factoring.
 
 ## Complexity Analysis
 

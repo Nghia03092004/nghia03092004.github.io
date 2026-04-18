@@ -68,10 +68,15 @@ The Hardy-Littlewood prediction improves with $N$ but overestimates the converge
 
 The **prime gap** $g_n = p_{n+1} - p_n$ equals 2 exactly for twin primes (plus $(2,3)$ where $g=1$). The average gap near $N$ is $\ln N$. Twin primes represent the minimum possible gap for $p > 3$.
 
-## Algorithm
+## Editorial
+Count twin prime pairs (p, p+2) with p < 10^7. We sieve of Eratosthenes up to $N + 2$ (to check $p + 2$ for the largest $p$).
 
-1. Sieve of Eratosthenes up to $N + 2$ (to check $p + 2$ for the largest $p$).
-2. Count pairs where both $\text{sieve}[p]$ and $\text{sieve}[p+2]$ are true.
+## Pseudocode
+
+```text
+Sieve of Eratosthenes up to $N + 2$ (to check $p + 2$ for the largest $p$)
+Count pairs where both $\text{sieve}[p]$ and $\text{sieve}[p+2]$ are true
+```
 
 ## Proof of Correctness
 

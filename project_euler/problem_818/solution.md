@@ -55,13 +55,16 @@ For $S = \{0, 0, 0, 1, 1, 2\}$ (multiset): SETs include $(0, 0, 0)$, $(0, 1, 2)$
 
 **Definition.** A **cap set** in $\mathbb{F}_3^d$ is a subset with no SET. The **cap set problem** asks for the maximum size of a cap set. Ellenberg and Gijswijt (2016) proved the upper bound $|S| \le O(2.756^d)$.
 
-## Algorithm
+## Editorial
+Time: $O(n^2)$ with $O(n)$ hash lookups. Space: $O(n)$. We hash set:** Store all cards in a hash set. We then enumerate pairs:** For each ordered pair $(\mathbf{a}, \mathbf{b})$ with $\mathbf{a} < \mathbf{b}$, check if $\mathbf{c} = -\mathbf{a}-\mathbf{b} \pmod{3}$ is in $S$ and $\mathbf{c} > \mathbf{b}$. Finally, count:** Each SET is counted once.
 
-1. **Hash set:** Store all cards in a hash set.
-2. **Enumerate pairs:** For each ordered pair $(\mathbf{a}, \mathbf{b})$ with $\mathbf{a} < \mathbf{b}$, check if $\mathbf{c} = -\mathbf{a}-\mathbf{b} \pmod{3}$ is in $S$ and $\mathbf{c} > \mathbf{b}$.
-3. **Count:** Each SET is counted once.
+## Pseudocode
 
-Time: $O(n^2)$ with $O(n)$ hash lookups. Space: $O(n)$.
+```text
+Hash set:** Store all cards in a hash set
+Enumerate pairs:** For each ordered pair $(\mathbf{a}, \mathbf{b})$ with $\mathbf{a} < \mathbf{b}$, check if $\mathbf{c} = -\mathbf{a}-\mathbf{b} \pmod{3}$ is in $S$ and $\mathbf{c} > \mathbf{b}$
+Count:** Each SET is counted once
+```
 
 ## Complexity Analysis
 

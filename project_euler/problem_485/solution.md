@@ -36,37 +36,17 @@ For each new index $i$:
 
 **Proof.** By the theory of highly composite numbers (Ramanujan, 1915), the divisor function grows sub-polynomially. For $n \le 10^8$, an exhaustive sieve confirms $d(n) \le 768$. $\square$
 
-## Algorithm
+## Editorial
+d(i) = number of divisors of i. M(n,k) = max(d(n), d(n+1), ..., d(n+k-1)). Given: sum M(n,10) for n=1..100 = 432. Find: sum M(n, 10^4) for n=1..10^8. We divisor count sieve. We then sliding window maximum via monotone deque. Finally, maintain decreasing invariant.
 
-```
-function SOLVE(N, k):
-    L = N + k - 1
+## Pseudocode
 
-    // Step 1: Divisor count sieve
-    d[1..L] = array of zeros
-    for j = 1 to L:
-        for multiple = j, 2j, 3j, ..., up to L:
-            d[multiple] += 1
-
-    // Step 2: Sliding window maximum via monotone deque
-    deque = empty double-ended queue of indices
-    total = 0
-
-    for i = 1 to L:
-        // Maintain decreasing invariant
-        while deque is not empty and d[deque.back] <= d[i]:
-            deque.pop_back()
-        deque.push_back(i)
-
-        // Remove out-of-window front
-        while deque.front < i - k + 1:
-            deque.pop_front()
-
-        // Once window is full (i >= k), record the maximum
-        if i >= k:
-            total += d[deque.front]
-
-    return total
+```text
+Divisor count sieve
+Sliding window maximum via monotone deque
+Maintain decreasing invariant
+Remove out-of-window front
+Once window is full (i >= k), record the maximum
 ```
 
 ## Complexity Analysis

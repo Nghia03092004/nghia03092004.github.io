@@ -37,22 +37,15 @@ Verification:
 
 The pattern holds and can be proved by induction using the Fibonacci identity $F_{2(k+1)} F_{2(k+1)+1} = F_{2k+2} F_{2k+3}$ and the Pell solution recurrence. $\square$
 
-## Algorithm
+## Editorial
+The k-th golden nugget is F(2k) * F(2k+1), where F is the Fibonacci sequence. Find the 15th golden nugget. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function fibonacci_golden_nugget(k):
-    // Compute F_{2k} * F_{2k+1}
-    F_prev = 1    // F_1
-    F_curr = 1    // F_2
-    for i = 3 to 2*k + 1:
-        F_next = F_prev + F_curr
-        F_prev = F_curr
-        F_curr = F_next
-    // Now F_prev = F_{2k}, F_curr = F_{2k+1}
-    return F_prev * F_curr
-```
+## Pseudocode
 
-For $k = 15$: compute $F_{30} \cdot F_{31}$.
+```text
+Compute F_{2k} * F_{2k+1}
+Now F_prev = F_{2k}, F_curr = F_{2k+1}
+```
 
 ## Complexity Analysis
 

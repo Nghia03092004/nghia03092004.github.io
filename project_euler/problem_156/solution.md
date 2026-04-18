@@ -41,47 +41,15 @@ Summing gives $c_i(n, d)$. $\square$
 
 **Proof.** The pruning conditions are conservative: they only eliminate intervals provably containing no zeros of $g$. The recursion terminates when $lo = hi$, at which point $g(lo) = 0$ is checked directly. Since every fixed point lies in $[0, 10^{11}]$ (Theorem 2), completeness follows. $\square$
 
-## Algorithm
+## Editorial
+We else. We then pruning: both negative. Finally, pruning: both positive and no crossing possible. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function SOLVE():
-    total = 0
-    for d = 1 to 9:
-        total += FIND_FIXED_POINTS(d, 0, 10^11)
-    return total
+## Pseudocode
 
-function f(n, d):
-    count = 0
-    power = 1
-    while power <= n:
-        high = n / (power * 10)
-        cur = (n / power) % 10
-        low = n % power
-        if cur < d:
-            count += high * power
-        elif cur == d:
-            count += high * power + low + 1
-        else:
-            count += (high + 1) * power
-        power *= 10
-    return count
-
-function FIND_FIXED_POINTS(d, lo, hi):
-    if lo > hi: return 0
-    g_lo = f(lo, d) - lo
-    g_hi = f(hi, d) - hi
-
-    // Pruning: both negative
-    if g_lo < 0 and g_hi < 0: return 0
-    // Pruning: both positive and no crossing possible
-    if g_lo > 0 and g_hi > 0 and (no crossing detected): return 0
-
-    if lo == hi:
-        return lo if g_lo == 0 else 0
-
-    mid = (lo + hi) / 2
-    return FIND_FIXED_POINTS(d, lo, mid) +
-           FIND_FIXED_POINTS(d, mid + 1, hi)
+```text
+else
+Pruning: both negative
+Pruning: both positive and no crossing possible
 ```
 
 ## Complexity Analysis

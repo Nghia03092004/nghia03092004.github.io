@@ -33,54 +33,18 @@ $$\frac{1}{|G|}\sum_{g \in G} |\operatorname{Fix}(g)| = \frac{|\operatorname{Fix
 
 **Proof.** Each remaining cell contributes at most $x_{\max}$ to the absolute change in $x_{\text{sum}}$. If the current imbalance exceeds the maximum possible correction, no completion can achieve $x_{\text{sum}} = 0$. $\square$
 
-## Algorithm
+## Editorial
+Order n = n blocks + 1 plinth = n+1 tiles. Plinth at (0,0). Blocks at y >= 1. Connected polyomino. x_sum of blocks = 0. Reflections about y-axis identified. Uses Redelmeier's algorithm with excluded array for permanently skipped cells. Note: This Python version is significantly slower than the C++ version. For ORDER=18, use the C++ solution. We count fixed balanced sculptures (T). We then count symmetric balanced sculptures (S). Finally, branch 1: Add c.
 
-```
-function solve(n = 18):
-    # Count fixed balanced sculptures (T)
-    T = redelmeier_count(n, symmetric=false)
+## Pseudocode
 
-    # Count symmetric balanced sculptures (S)
-    S = redelmeier_count(n, symmetric=true)
-
-    return (T + S) / 2
-
-function redelmeier_count(n, symmetric):
-    place plinth at (0, 0)
-    place (0, 1) as first block  # forced by Lemma 1
-    initialize U = neighbours of (0,1) at y ≥ 1, excluding (0,0)
-    E = empty set
-    x_sum = 0, blocks_placed = 1
-
-    return dfs(U, E, x_sum, blocks_placed, n, symmetric)
-
-function dfs(U, E, x_sum, placed, n, symmetric):
-    if placed == n:
-        if x_sum == 0:
-            if symmetric: check all (x,y) in P have (-x,y) in P
-            return 1 (or 0 if symmetric check fails)
-        return 0
-
-    if U is empty: return 0
-    if |x_sum| > (n - placed) * x_max: return 0  # pruning
-
-    c = smallest cell in U
-    count = 0
-
-    # Branch 1: Add c
-    remove c from U
-    add c to P
-    new_neighbours = {adj of c at y≥1, not in P, not in U, not in E}
-    add new_neighbours to U
-    count += dfs(U, E, x_sum + c.x, placed + 1, n, symmetric)
-    # undo: remove c from P, restore U
-
-    # Branch 2: Skip c permanently
-    remove c from U, add c to E
-    count += dfs(U, E, x_sum, placed, n, symmetric)
-    # undo: remove c from E, restore c to U
-
-    return count
+```text
+Count fixed balanced sculptures (T)
+Count symmetric balanced sculptures (S)
+Branch 1: Add c
+undo: remove c from P, restore U
+Branch 2: Skip c permanently
+undo: remove c from E, restore c to U
 ```
 
 ## Complexity Analysis

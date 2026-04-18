@@ -40,26 +40,28 @@ Now $d \mid (a - b)$ by hypothesis, so $(a - b)/d \in \mathbb{Z}$, and thus $m \
 $$\varphi(k) = k \prod_{p \mid k}\!\left(1 - \frac{1}{p}\right),$$
 each factor $(1 - 1/p)$ is applied exactly once for each prime $p \mid k$, so the final value of $\varphi[k]$ equals $\varphi(k)$. The total number of updates is $\sum_{p \le N} \lfloor N/p \rfloor = O(N \log \log N)$ by Mertens' theorem. $\blacksquare$
 
-## Algorithm
+## Editorial
+Compute S = sum of g(phi(n), n, phi(m), m) over 1000000 <= n < m <= 1005000, where g(a,n,b,m) is the smallest non-negative solution to the system x = a (mod n), x = b (mod m), or 0 if none exists. Method: Extended CRT via Bezout's identity; totient sieve for phi values.
 
-```
-function SOLVE():
+## Pseudocode
+
+```text
     N_MAX = 1005000
     phi = TOTIENT_SIEVE(N_MAX)
 
     S = 0
-    for n = 1000000 to 1005000:
-        for m = n+1 to 1005000:
+    For n from 1000000 to 1005000:
+        For m from n+1 to 1005000:
             a = phi[n], b = phi[m]
             d = gcd(n, m)
-            if (a - b) mod d != 0:
+            If (a - b) mod d != 0 then
                 continue
             (g, u, v) = EXTENDED_GCD(n, m)
             L = n / d * m
             x = (a + n * ((b - a) / d) * u) mod L
             if x < 0: x += L
             S += x
-    return S
+    Return S
 ```
 
 ## Complexity Analysis

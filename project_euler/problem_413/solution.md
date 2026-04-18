@@ -45,40 +45,17 @@ A number is one-child iff $Z = 1$ at position $d$. States with $Z \ge 2$ are pru
 
 **Proof.** By CRT, $V(i,j) \equiv 0 \pmod{d}$ iff $V(i,j) \equiv 0 \pmod{2^a}$, $V(i,j) \equiv 0 \pmod{5^b}$, and $V(i,j) \equiv 0 \pmod{m}$ simultaneously. Since $10^a \equiv 0 \pmod{2^a}$, the value $V(i,j) \bmod 2^a$ depends only on the last $\min(a, j-i+1)$ digits. Similarly for $5^b$. The $m$-component follows from Lemma~1 since $\gcd(10,m) = 1$. $\square$
 
-## Algorithm
+## Editorial
+A d-digit positive number is a "one-child number" if exactly one of its substrings is divisible by d. F(N) = count of one-child numbers less than N. Given: F(10)=9, F(10^3)=389, F(10^7)=277674. Find: F(10^19). Approach: Digit DP for each digit length d from 1 to 19. For each d, count d-digit numbers where exactly one substring is divisible by d. Key insight for gcd(d, 10) = 1: Define R(j) = (number formed by first j digits) * 10^(d-j) mod d. Then substring(i+1..j) is divisible by d iff R(j) == R(i) mod d. So we need exactly one pair (i,j) with 0<=i<j<=d where R(i)==R(j). This means among R(0), R(1), ..., R(d) (d+1 values mod d), exactly one residue appears exactly twice, rest appear at most once. For d with gcd(d,10) > 1, we handle separately using decomposition. We use dynamic programming over the digit positions. We then state: (histogram_mod_d, zero_hit_count). Finally, transform histogram: h'[(r*10 + digit) mod d] += h[r].
 
-```
-function F(N):
-    total = 0
-    for d = 1 to 19:
-        total += count_one_child(d)
-    return total
+## Pseudocode
 
-function count_one_child(d):
-    if d == 1:
-        return 9
-
-    // DP over digit positions
-    // State: (histogram_mod_d, zero_hit_count)
-    dp = {(empty_histogram, 0): 1}
-
-    for pos = 1 to d:
-        new_dp = {}
-        for (hist, Z), count in dp:
-            if Z >= 2: continue  // prune
-            lo = (pos == 1) ? 1 : 0
-            for digit = lo to 9:
-                // Transform histogram: h'[(r*10 + digit) mod d] += h[r]
-                hist' = transform(hist, digit, d)
-                // Add new length-1 suffix: hist'[digit mod d] += 1
-                hist'[digit mod d] += 1
-                // Count new zero-hits
-                new_Z = Z + hist'[0]  // zeros from this step
-                if new_Z >= 2: continue  // prune
-                new_dp[(hist', new_Z)] += count
-        dp = new_dp
-
-    return sum of dp[(hist, 1)] over all hist
+```text
+DP over digit positions
+State: (histogram_mod_d, zero_hit_count)
+Transform histogram: h'[(r*10 + digit) mod d] += h[r]
+Add new length-1 suffix: hist'[digit mod d] += 1
+Count new zero-hits
 ```
 
 ## Complexity Analysis

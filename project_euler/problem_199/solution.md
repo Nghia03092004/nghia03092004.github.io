@@ -41,31 +41,15 @@ $$R = 1 + \frac{2}{\sqrt{3}} = 1 + \frac{2\sqrt{3}}{3}.$$
 
 **Proof.** The new circle is tangent to all three bounding circles. It divides the original curvilinear triangle into three smaller curvilinear triangles, each bounded by two of the original circles and the new circle. $\square$
 
-## Algorithm
+## Editorial
+Three unit circles inside an outer circle, iteratively packed for 10 iterations. Find fraction of outer circle area not covered. We initial gaps: 3 outer + 1 inner. We then initial covered area: 3 unit circles. Finally, iterate over iter from 1 to iterations.
 
-```
-function iterative_circle_packing(iterations):
-    R = 1 + 2/sqrt(3)
-    k0 = -1/R
+## Pseudocode
 
-    # Initial gaps: 3 outer + 1 inner
-    gaps = [(k0, 1, 1)] * 3 + [(1, 1, 1)]
-
-    # Initial covered area: 3 unit circles
-    total_circle_area = 3 * pi * 1^2
-
-    for iter from 1 to iterations:
-        new_gaps = []
-        for (a, b, c) in gaps:
-            k_new = a + b + c + 2*sqrt(a*b + b*c + c*a)
-            total_circle_area += pi / k_new^2
-            new_gaps.append((a, b, k_new))
-            new_gaps.append((a, c, k_new))
-            new_gaps.append((b, c, k_new))
-        gaps = new_gaps
-
-    fraction_uncovered = 1 - total_circle_area / (pi * R^2)
-    return round(fraction_uncovered, 8)
+```text
+Initial gaps: 3 outer + 1 inner
+Initial covered area: 3 unit circles
+for iter from 1 to iterations
 ```
 
 ## Complexity Analysis

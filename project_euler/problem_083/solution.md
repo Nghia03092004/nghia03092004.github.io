@@ -23,23 +23,25 @@ Suppose for contradiction that $v$ is the first vertex extracted with $\mathrm{d
 
 **Corollary 1.** *Since all matrix entries are positive integers, $w(e) > 0$ for all edges, so Dijkstra's algorithm correctly solves the grid shortest-path problem.*
 
-## Algorithm
+## Editorial
+Uses Dijkstra's algorithm. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function MinPathSum4Ways(M, n):
+## Pseudocode
+
+```text
     dist[i][j] = infinity for all (i,j)
     dist[0][0] = M[0][0]
     PQ = min-priority queue containing (M[0][0], 0, 0)
     while PQ is not empty:
         (d, i, j) = PQ.extract_min()
-        if d > dist[i][j]: continue  // stale entry
+        if d > dist[i][j]: continue // stale entry
         if (i,j) == (n-1, n-1): return d
         for each neighbor (i', j') of (i, j):
             new_dist = d + M[i'][j']
-            if new_dist < dist[i'][j']:
+            If new_dist < dist[i'][j'] then
                 dist[i'][j'] = new_dist
                 PQ.insert(new_dist, i', j')
-    return dist[n-1][n-1]
+    Return dist[n-1][n-1]
 ```
 
 ## Complexity Analysis

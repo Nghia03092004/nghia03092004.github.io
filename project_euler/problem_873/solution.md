@@ -32,15 +32,16 @@ $$\operatorname{ex}(n, H) = \left(1 - \frac{1}{\chi(H)-1}\right)\frac{n^2}{2} + 
 
 **Proof.** The lower bound comes from $T(n, \chi(H)-1)$, which is $H$-free since it has chromatic number $\chi(H)-1 < \chi(H)$. The upper bound is the deep content of the theorem, proved by Erdos and Stone (1946) using the regularity method. $\square$
 
-## Algorithm
+## Editorial
+Turan-type extremal graph theory. We evaluate the closed-form expressions derived above directly from the relevant parameters and return the resulting value.
 
-```
-function TURAN_EDGES(n, r):
-    q = n / r          // integer division
+## Pseudocode
+
+```text
+    q = n / r // integer division
     s = n mod r
-    return (r - 1) * n * n - s * (r - s)) / (2 * r)
+    Return (r - 1) * n * n - s * (r - s)) / (2 * r)
 
-function SOLVE(parameters):
     Apply Turan-type reasoning or direct computation
     depending on the specific forbidden subgraph variant
     Return result

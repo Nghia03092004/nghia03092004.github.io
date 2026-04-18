@@ -37,7 +37,7 @@ $$\{(220, 284),\; (1184, 1210),\; (2620, 2924),\; (5020, 5564),\; (6232, 6368)\}
 
 **Proof.** For each integer $n$ with $2 \leq n < 10{,}000$, compute $m = s(n)$. If $m \neq n$, $m > 0$, and $s(m) = n$, record the pair $\{\min(n,m), \max(n,m)\}$. This exhaustive, finite enumeration produces exactly the five pairs listed. (The computation is deterministic and terminates in at most $10{,}000$ evaluations of $s$.) $\square$
 
-## Algorithm
+## Editorial
 
 We enumerate every integer $n < N$ and test the amicable condition directly. The helper $s(n)$ computes the sum of proper divisors by scanning divisor pairs up to $\sqrt{n}$, then the main loop sets $m = s(n)$ and checks whether $m \ne n$ and $s(m) = n$; if so, $n$ is added to the total. This is sufficient because the definition of an amicable number is exactly the symmetric condition being tested.
 

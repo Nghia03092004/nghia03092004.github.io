@@ -25,52 +25,22 @@ Constraint propagation iteratively reduces these domains: when a cell is assigne
 
 **Proof.** At each branching point, we select a cell with $|\mathrm{dom}(c)| \ge 2$ and try each value. Each guess strictly reduces the search space (either by fixing a cell or by causing a domain wipeout that triggers backtracking). Since the domain is finite and each branch reduces it, the search tree is finite. $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We parse grid into cells and runs. We then initialize domains. Finally, iterate over each cell c. We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
 
-```
-function SolveKakuro(grid):
-    // Step 1: Parse grid into cells and runs
-    runs = IdentifyRuns(grid)   // each run: list of cells, target sum
+## Pseudocode
 
-    // Step 2: Initialize domains
-    for each cell c:
-        dom[c] = {1, ..., 9}
-    for each run (cells, s, l):
-        valid_subsets = {D ⊆ {1..9} : |D| = l, sum(D) = s}
-        for each cell c in run:
-            dom[c] = dom[c] ∩ (union of D for D in valid_subsets)
-
-    // Step 3: Constraint propagation + backtracking
-    function Propagate():
-        changed = true
-        while changed:
-            changed = false
-            for each run (cells, s, l):
-                // Remove subsets incompatible with current domains
-                // If a cell has |dom| = 1, remove that digit from peers
-                // Update domains; set changed = true if any domain shrinks
-
-    function Search():
-        Propagate()
-        if any cell has empty domain: return false
-        if all cells assigned: return true
-        c = cell with smallest |dom[c]| > 1
-        for d in dom[c]:
-            save state
-            dom[c] = {d}
-            if Search(): return true
-            restore state
-        return false
-
-    Search()
-    return grid solution
-
-function Solve():
-    total = 0
-    for each puzzle:
-        solution = SolveKakuro(puzzle)
-        total += Extract3DigitNumber(solution)
-    return total
+```text
+Parse grid into cells and runs
+Initialize domains
+for each cell c
+for each cell c in run
+Constraint propagation + backtracking
+while changed
+Remove subsets incompatible with current domains
+If a cell has |dom| = 1, remove that digit from peers
+Update domains; set changed = true if any domain shrinks
+for each puzzle
 ```
 
 ## Complexity Analysis

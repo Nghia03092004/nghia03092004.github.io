@@ -22,12 +22,17 @@ For $N = 10^6$: average digit sum $\approx 27$, and primes up to 54 include 2, 3
 
 ## Derivation
 
-### Algorithm
+### Editorial
+These are called "additive primes.". We sieve primes below $10^6$. We then precompute the set of primes up to 54. Finally, iterate over each prime $p$, compute digit sum and check if it is prime.
 
-1. Sieve primes below $10^6$.
-2. Precompute the set of primes up to 54.
-3. For each prime $p$, compute digit sum and check if it is prime.
-4. Count matches.
+### Pseudocode
+
+```text
+Sieve primes below $10^6$
+Precompute the set of primes up to 54
+For each prime $p$, compute digit sum and check if it is prime
+Count matches
+```
 
 ## Proof of Correctness
 

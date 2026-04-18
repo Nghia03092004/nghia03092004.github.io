@@ -34,28 +34,16 @@ $$\binom{k-i}{t-i} \;\Big|\; \binom{v-i}{t-i}.$$
 
 **Proof.** For each row, verify $b = \binom{v}{t}/\binom{k}{t}$ and $r = \binom{v-1}{t-1}/\binom{k-1}{t-1}$ yield the stated integers. Existence is established by explicit construction (e.g., the Fano plane from the projective plane of order 2; the Witt designs from the Mathieu groups $M_{12}$ and $M_{24}$). $\square$
 
-## Algorithm
+## Editorial
+S(t,k,v): every t-subset in exactly one k-block. We verify divisibility conditions for S(t, k, v). We then check every t-subset appears in exactly one block. Finally, iterate over each block B in blocks.
 
-```
-function check_necessary_conditions(t, k, v):
-    // Verify divisibility conditions for S(t, k, v)
-    for i = 0 to t:
-        numerator = binomial(v - i, t - i)
-        denominator = binomial(k - i, t - i)
-        if numerator mod denominator != 0:
-            return false
-    return true
+## Pseudocode
 
-function verify_steiner_system(blocks, t, k, v):
-    // Check every t-subset appears in exactly one block
-    for each t-subset T of {1, ..., v}:
-        count = 0
-        for each block B in blocks:
-            if T is a subset of B:
-                count += 1
-        if count != 1:
-            return false
-    return true
+```text
+Verify divisibility conditions for S(t, k, v)
+Check every t-subset appears in exactly one block
+for each block B in blocks
+if T is a subset of B
 ```
 
 ## Complexity Analysis

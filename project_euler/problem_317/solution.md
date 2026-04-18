@@ -40,15 +40,17 @@ $$V = \frac{\pi \times 400 \times (120.387359\ldots)^2}{9.81} = 1856532.8455\ldo
 
 **Proof.** Direct substitution of $h_0 = 100$, $v_0 = 20$, $g = 9.81$ into Theorem 2. $\square$
 
-## Algorithm
+## Editorial
+A firecracker at height h0 = 100m ejects fragments at v0 = 20 m/s in all directions. Find the volume of the reachable region (no air resistance, g = 9.81 m/s^2). The envelope of all parabolic trajectories forms a paraboloid of revolution: z_max(r) = Z - g*r^2 / (2*v0^2) where Z = h0 + v0^2 / (2*g) is the maximum height. Volume = pi * v0^2 * Z^2 / g. We return round(V, 4).
 
-```
+## Pseudocode
+
+```text
 Input: h0 = 100, v0 = 20, g = 9.81
 Output: volume V to 4 decimal places
-
-1. Z = h0 + v0^2 / (2 * g)
-2. V = pi * v0^2 * Z^2 / g
-3. Return round(V, 4)
+Z = h0 + v0^2 / (2 * g)
+V = pi * v0^2 * Z^2 / g
+Return round(V, 4)
 ```
 
 ## Complexity Analysis

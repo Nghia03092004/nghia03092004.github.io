@@ -51,16 +51,17 @@ For $\sqrt{N} < p \le N/2$: $\min(p-1, N/p) = \lfloor N/p \rfloor$, contributing
 
 $$f(N) = 1 + N - \pi(N) - \sum_{\substack{p \le \sqrt{N}}} (p - 2) - \sum_{\substack{\sqrt{N} < p \le N/2}} (\lfloor N/p \rfloor - 1)$$
 
-## Algorithm
+## Editorial
+A positive integer n is square root smooth if all prime factors < sqrt(n). Count such n <= N = 10^10 (including 1). n is NOT square root smooth iff it has a prime factor p >= sqrt(n). We count the complement. For each n > 1, let p = P+(n) be largest prime factor. n is not smooth iff p^2 >= n. Write n = p * m where m = n/p. Then m < p (from p^2 >= n = pm => p > m, actually p >= m, and if p = m then n = p^2, P+(n) = p = sqrt(n), not strictly less). Case A: m = 1, i.e., n = p is prime. Count = pi(N). Case B: m >= 2, m < p, all prime factors of m < p (auto since m < p). For each prime p: m from 2 to min(p-1, N//p). Number of valid m = min(p-1, N//p) - 1. Answer = 1 + N - pi(N) - sum over primes p of (min(p-1, N//p) - 1) where the sum is over primes 2 <= p <= N//2. But wait: for p = 2, min(p-1, N//p) - 1 = min(1, 5*10^9) - 1 = 0. That's correct since m must be >= 2 and < 2, impossible. For p = 3: min(2, N//3) - 1 = 1. So m = 2, n = 6. Check: P+(6) = 3 >= sqrt(6) ~ 2.45. Yes. Let me verify with N = 100, answer should be 100 - (100 - 29) = 29. We use a prime sieve up to $\sqrt{N} = 10^5$ to get small primes. We then iterate over primes $\sqrt{N} < p \le N/2$, we need to compute $\sum (\lfloor N/p \rfloor - 1)$. Group by values of $\lfloor N/p \rfloor$ and use the Lucy_Hedgehog method (or segmented sieve) for prime counting. Finally, use the Meissel-Lehmer method to compute $\pi(N)$ and related prime counting sums.
 
-1. Use a prime sieve up to $\sqrt{N} = 10^5$ to get small primes.
-2. For primes $p \le \sqrt{N}$, sum $(p - 2)$.
-3. For primes $\sqrt{N} < p \le N/2$, we need to compute $\sum (\lfloor N/p \rfloor - 1)$. Group by values of $\lfloor N/p \rfloor$ and use the Lucy_Hedgehog method (or segmented sieve) for prime counting.
-4. Use the Meissel-Lehmer method to compute $\pi(N)$ and related prime counting sums.
+## Pseudocode
 
-### Practical Implementation
-
-We use a segmented sieve approach with the Lucy_Hedgehog trick for computing $\pi(x)$ and $\sum_{p \le x} p$ efficiently.
+```text
+Use a prime sieve up to $\sqrt{N} = 10^5$ to get small primes
+For primes $p \le \sqrt{N}$, sum $(p - 2)$
+For primes $\sqrt{N} < p \le N/2$, we need to compute $\sum (\lfloor N/p \rfloor - 1)$. Group by values of $\lfloor N/p \rfloor$ and use the Lucy_Hedgehog method (or segmented sieve) for prime counting
+Use the Meissel-Lehmer method to compute $\pi(N)$ and related prime counting sums
+```
 
 ## Correctness
 

@@ -62,16 +62,14 @@ For $N = 100$, find all primes that are sums of consecutive primes:
 
 **Observation.** The prime 41 is the sum of the first 6 primes. The prime 953 is the sum of 21 consecutive primes starting from 7. For $N = 10^6$, there exist prime sums with lengths > 500.
 
-### Algorithm
+### Editorial
+Primes as sums of consecutive primes. Key formula: p = p_a + p_{a+1} + \cdots + p_b Method: prefix sums + sieve. We iterate over each length L from longest possible down to 1. Finally, iterate over each starting index a.
 
-```
-sieve primes p_1, p_2, ..., p_k up to N
-compute prefix sums S[i] = p_1 + ... + p_i
-for each length L from longest possible down to 1:
-    for each starting index a:
-        sum = S[a+L] - S[a]
-        if sum > N: break
-        if sum is prime: record (sum, a, L)
+### Pseudocode
+
+```text
+for each length L from longest possible down to 1
+for each starting index a
 ```
 
 ### Concrete Values

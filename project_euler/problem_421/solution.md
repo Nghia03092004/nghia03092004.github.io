@@ -40,41 +40,18 @@ This linear congruence in $k$ has $\gcd(15, p-1)$ solutions modulo $p-1$ (when s
 
 **Proof.** Writing $n = g^k$, we have $n^{15} = g^{15k}$ and $-1 = g^{(p-1)/2}$. Hence $n^{15} \equiv -1$ iff $15k \equiv (p-1)/2 \pmod{p-1}$. By the theory of linear congruences, this has $\gcd(15, p-1)$ solutions modulo $p-1$ when $\gcd(15, p-1) \mid (p-1)/2$. $\square$
 
-## Algorithm
+## Editorial
+Approach: For each prime p <= 10^8, count how many n in [1, 10^11] have p | n^15 + 1, then multiply by p and sum. n^15 ≡ -1 (mod p) is solved using primitive roots and group theory. We iterate over each prime p in primes. We then find primitive root g of p. Finally, solve 15k ≡ (p-1)/2 (mod p-1).
 
-```
-function Solve():
-    N = 10^11, M = 10^8
-    primes = SieveOfEratosthenes(M)
-    total = 0
+## Pseudocode
 
-    for each prime p in primes:
-        d30 = gcd(30, p - 1)
-        d15 = gcd(15, p - 1)
-        c = d30 - d15
-        if c == 0:
-            continue
-
-        // Find primitive root g of p
-        g = FindPrimitiveRoot(p)
-
-        // Solve 15k ≡ (p-1)/2 (mod p-1)
-        // Get all c(p) solutions k_0, k_0 + (p-1)/d15, ...
-        half = (p - 1) / 2
-        k0 = SolveLinearCongruence(15, half, p - 1)
-        step = (p - 1) / d15
-
-        // Compute residues R = {g^k mod p : k is a solution}
-        R = sorted list of g^k mod p for each solution k
-
-        // Count f(p)
-        q = N / p       // integer division
-        rem = N mod p
-        count = q * c + BinarySearchCount(R, rem)
-
-        total += p * count
-
-    return total
+```text
+for each prime p in primes
+Find primitive root g of p
+Solve 15k ≡ (p-1)/2 (mod p-1)
+Get all c(p) solutions k_0, k_0 + (p-1)/d15, 
+Compute residues R = {g^k mod p : k is a solution}
+Count f(p)
 ```
 
 ## Complexity Analysis

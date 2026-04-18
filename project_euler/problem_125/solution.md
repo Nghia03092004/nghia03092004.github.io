@@ -28,26 +28,27 @@ $$S(a,k) = \sum_{i=1}^{a+k-1} i^2 - \sum_{i=1}^{a-1} i^2 = \frac{(a+k-1)(a+k)(2a
 
 *Proof.* For example, $S(1, 7) = 1 + 4 + 9 + 16 + 25 + 36 + 49 = 140$ and no other pair produces 140, but in general collisions exist among larger sums. The existence of collisions is verified computationally. $\square$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function palindromic_sums(L):
+## Pseudocode
+
+```text
     results = empty set
     for a = 1, 2, 3, ...:
-        if a^2 + (a+1)^2 >= L:
+        If a^2 + (a+1)^2 >= L then
             break
         S = a^2
         for b = a+1, a+2, ...:
             S += b^2
-            if S >= L:
+            If S >= L then
                 break
-            if is_palindrome(S):
+            If is_palindrome(S) then
                 results.add(S)
-    return sum(results)
+    Return sum(results)
 
-function is_palindrome(n):
     s = decimal_string(n)
-    return s == reverse(s)
+    Return s == reverse(s)
 ```
 
 ## Complexity Analysis

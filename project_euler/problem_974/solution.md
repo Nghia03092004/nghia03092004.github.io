@@ -28,29 +28,14 @@ Setting $d = e\ell$, the inner sum becomes $\sum_{\ell \mid (n/e)} \mu(n/(e\ell)
 
 **Proof.** Initialize $\mu(1) = 1$. For each prime $p$ found by the sieve, for each multiple $m = p, 2p, 3p, \ldots$: if $p^2 \mid m$, set $\mu(m) = 0$; otherwise, multiply $\mu(m)$ by $-1$. This correctly computes $\mu$ since $\mu$ is multiplicative and $\mu(p^a) = -1$ if $a = 1$, $0$ if $a \ge 2$. The sieve visits each multiple of each prime, totaling $O(\sum_{p \le N} N/p) = O(N \log\log N)$. $\square$
 
-## Algorithm
+## Editorial
+Compute the sum of |M(n)| for n = 1 to 10^5, where M(n) = sum_{k=1}^{n} mu(k) is the Mertens function. We compute mu via sieve. Finally, compute prefix sums and accumulate |M(n)|.
 
-```
-function SumAbsMertens(N):
-    // Step 1: Compute mu via sieve
-    mu = array[1..N], initialized to 1
-    is_composite = array[1..N], initialized to false
-    for p = 2 to N:
-        if not is_composite[p]:
-            for m = p to N step p:
-                if m != p: is_composite[m] = true
-                mu[m] = mu[m] * (-1)
-            for m = p*p to N step p*p:
-                mu[m] = 0
+## Pseudocode
 
-    // Step 2: Compute prefix sums and accumulate |M(n)|
-    M = 0
-    total = 0
-    for n = 1 to N:
-        M = M + mu[n]
-        total = total + |M|
-
-    return total
+```text
+Compute mu via sieve
+Compute prefix sums and accumulate |M(n)|
 ```
 
 ## Complexity Analysis

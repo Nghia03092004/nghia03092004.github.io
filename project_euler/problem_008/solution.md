@@ -70,7 +70,7 @@ $$\begin{aligned}
 
 Hence the maximal product is $23{,}514{,}624{,}000$. $\square$
 
-## Algorithm
+## Editorial
 
 We enumerate every block of $k$ consecutive digits in the 1000-digit string. For each starting position we multiply the $k$ digits in that window and compare the product against the current maximum. This exhaustive scan is sufficient because every admissible length-$k$ substring appears exactly once as some window.
 

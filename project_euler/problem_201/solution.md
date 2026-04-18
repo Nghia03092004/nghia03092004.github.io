@@ -37,23 +37,19 @@ $$\hat{c}_i(j, s) = \min\bigl(\hat{c}_{i-1}(j, s) + \hat{c}_{i-1}(j-1, s - a_i),
 
 **Corollary.** *The set $U = \{v : \hat{c}_n(50, v) = 1\}$ is precisely the set of sums achieved by exactly one 50-element subset.*
 
-## Algorithm
+## Editorial
+*Remark.** The reverse iteration over $j$ and $s$ in step 3 ensures that each element $a_i$ is used at most once per subset (the standard 0/1 knapsack trick). We return sum of all s in [S_min, S_max] with dp[k][s] == 1.
 
-```
+## Pseudocode
+
+```text
 Input: S = [1, 4, 9, ..., 10000], n = 100, k = 50
 Output: sum of all v with exactly one k-element subset of S summing to v
-
-1. Compute S_max = 295425
-2. Initialize dp[0..k][0..S_max] = 0; set dp[0][0] = 1
-3. For i = 1 to n:
-     a_i = i^2
-     For j = min(i, k) down to 1:
-       For s = S_max down to a_i:
-         dp[j][s] = min(dp[j][s] + dp[j-1][s - a_i], 2)
-4. Return sum of all s in [S_min, S_max] with dp[k][s] == 1
+Compute S_max = 295425
+Initialize dp[0..k][0..S_max] = 0; set dp[0][0] = 1
+For i = 1 to n:
+Return sum of all s in [S_min, S_max] with dp[k][s] == 1
 ```
-
-**Remark.** The reverse iteration over $j$ and $s$ in step 3 ensures that each element $a_i$ is used at most once per subset (the standard 0/1 knapsack trick).
 
 ## Complexity Analysis
 

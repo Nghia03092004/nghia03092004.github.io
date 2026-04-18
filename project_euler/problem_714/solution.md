@@ -24,48 +24,17 @@ Given $D(110) = 11\,047$ and $D(150) = 53\,312$, find $D(50\,000)$ expressed in 
 
 **Proof.** Each BFS level adds at most 2 new residues per existing residue. Since there are $n$ residues total and BFS never revisits a residue, it terminates within $n$ levels. $\square$
 
-## Algorithm
+## Editorial
+We also check repdigits (single digit type). Finally, start with leading digits (nonzero). We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function d(n):
-    best = infinity
-    for each digit pair (a, b) with a < b, a in 0..9, b in 0..9:
-        // Also handle single-digit (a = b)
-        result = bfs_duodigit(n, a, b)
-        best = min(best, result)
-    // Also check repdigits (single digit type)
-    for a = 1 to 9:
-        result = bfs_duodigit(n, a, a)
-        best = min(best, result)
-    return best
+## Pseudocode
 
-function bfs_duodigit(n, a, b):
-    // BFS: state = remainder mod n
-    // Start with leading digits (nonzero)
-    queue = empty
-    visited = array of size n, all false
-    for digit d in {a, b} where d > 0:
-        r = d mod n
-        if r == 0: return d
-        if not visited[r]:
-            visited[r] = true
-            queue.push((r, d))   // (remainder, value)
-    while queue not empty:
-        (r, val) = queue.pop_front()
-        for digit d in {a, b}:
-            new_val = val * 10 + d
-            new_r = (r * 10 + d) mod n
-            if new_r == 0: return new_val
-            if not visited[new_r]:
-                visited[new_r] = true
-                queue.push((new_r, new_val))
-    return infinity
-
-function D(k):
-    total = 0
-    for n = 1 to k:
-        total += d(n)
-    return total
+```text
+Also handle single-digit (a = b)
+Also check repdigits (single digit type)
+BFS: state = remainder mod n
+Start with leading digits (nonzero)
+while queue not empty
 ```
 
 ## Complexity Analysis

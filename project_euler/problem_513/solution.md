@@ -34,26 +34,29 @@ Any two representations of $n = a^2 + d^2 = s^2 + t^2$ arise from different fact
 
 **Proof.** Direct substitution: $a + b > c \Leftrightarrow a > c - b = t$. Also $a \leq b = (s-t)/2$ and $c = (s+t)/2 \leq N$. $\square$
 
-## Algorithm
+## Editorial
+*Optimized approach:** For each $a$, iterate over valid $m_a$ values and derive $(b, c)$ from the two-square decomposition, or iterate over $(b, c)$ with $b \leq c \leq N$ and check the perfect-square condition on $2b^2 + 2c^2 - a^2$ for $a$ in the valid range. We triangle inequality: a + b > c.
 
-```
-function T(N):
-    count := 0
-    for b := 1 to N:
-        for c := b to N:
-            val := 2 * b^2 + 2 * c^2
-            for a := 1 to b:
-                r := val - a^2
-                if r > 0 and r mod 4 == 0:
-                    m := isqrt(r)
-                    if m * m == r:
-                        // triangle inequality: a + b > c
-                        if a + b > c:
+## Pseudocode
+
+```text
+    Set count <- 0
+    For b from 1 to N:
+        For c from b to N:
+            Set val <- 2 * b^2 + 2 * c^2
+            For a from 1 to b:
+                Set r <- val - a^2
+                If r > 0 and r mod 4 == 0 then
+                    Set m <- isqrt(r)
+                    If m * m == r then
+                        triangle inequality: a + b > c
+                        If a + b > c then
                             count += 1
-    return count
+    Return count
 ```
 
 **Optimized approach:** For each $a$, iterate over valid $m_a$ values and derive $(b, c)$ from the two-square decomposition, or iterate over $(b, c)$ with $b \leq c \leq N$ and check the perfect-square condition on $2b^2 + 2c^2 - a^2$ for $a$ in the valid range.
+```
 
 ## Complexity Analysis
 

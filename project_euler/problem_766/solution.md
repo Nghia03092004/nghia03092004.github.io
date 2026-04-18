@@ -28,19 +28,17 @@ The state space is explored using BFS from the initial configuration:
 
 The puzzle grid is typically small enough that the BFS terminates in reasonable time. The key insight is that identical-shaped pieces of different colors create distinct states, expanding the state space compared to if they were interchangeable.
 
-## Algorithm
+## Editorial
+A sliding block puzzle where pieces are confined to a grid and can be slid in unit steps in 4 cardinal directions. We need to find the number of reachable configurations from the initial state. The puzzle involves L-shaped pieces of different colors (red and green), which are treated as distinct. Approach: BFS over the state space of piece configurations. We encode initial configuration as state. We then initialize queue with initial state, visited set. Finally, return |visited set|.
 
-```
-1. Encode initial configuration as state
-2. Initialize queue with initial state, visited set
-3. While queue is not empty:
-   a. Dequeue current state
-   b. For each piece in current state:
-      For each direction (up, down, left, right):
-        Generate new state by sliding piece
-        If valid and not visited:
-          Add to visited set and enqueue
-4. Return |visited set|
+## Pseudocode
+
+```text
+Encode initial configuration as state
+Initialize queue with initial state, visited set
+While queue is not empty:
+If valid and not visited
+Return |visited set|
 ```
 
 ## Correctness

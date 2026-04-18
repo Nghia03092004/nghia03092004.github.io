@@ -41,50 +41,27 @@ $$\sum_{c=0}^{e} \chi(p^c) = \begin{cases} \dfrac{\chi(p)^{e+1} - 1}{\chi(p) - 1
 
 **Proof.** When $v_2(n!) \geq d$, we have $n! \equiv 0 \pmod{2^d}$, so any divisor $k$ with $v_2(k) \geq d$ automatically satisfies $k \equiv 0 \equiv n! \pmod{2^d}$. When $v_2(n!) < d$, the constraint $k \equiv n! \pmod{2^d}$ forces $v_2(k) = v_2(n!)$ and constrains the odd part of $k$ modulo $2^{d - v_2(n!)}$. The analysis for the prime 5 is analogous. $\square$
 
-## Algorithm
+## Editorial
+For n! find divisors whose last d digits match those of n!. Compute S(N, d) = sum over n=1..N of f(n,d), result mod 2^32. We sieve primes up to N. We then precompute Dirichlet characters mod 10^d. Finally, using CRT: characters mod 2^d and mod 5^d.
 
-```
-function S(N, d):
-    MOD = 2^32
-    p_mod = 10^d  # = 10^9
+## Pseudocode
 
-    # Step 1: Sieve primes up to N
-    primes = sieve(N)
-
-    # Step 2: Precompute Dirichlet characters mod 10^d
-    # Using CRT: characters mod 2^d and mod 5^d
-    phi_mod = euler_phi(p_mod)  # phi(10^9) = 4 * 5^8 * 2^8
-    characters = enumerate_characters(p_mod)
-
-    # Step 3: For each n from 1 to N
-    total = 0
-    # Maintain running exponents v_p(n!) for each prime p
-    exponents = {}  # incremental update: when going from (n-1)! to n!,
-                     # add v_p(n) for each prime p | n
-
-    for n = 1 to N:
-        # Update exponents: factorize n, add to running totals
-        update_exponents(n, exponents)
-
-        a = exponents[2]
-        b = exponents[5]
-
-        # Compute target residue r = n! / (2^a * 5^b) mod 10^d
-        # (maintained incrementally)
-
-        # Evaluate character sum formula
-        count = character_sum(exponents, r, a, b, d, characters)
-        total = (total + count) % MOD
-
-    return total
-
-function character_sum(exponents, r, a, b, d, characters):
-    # For each character chi mod 10^d:
-    #   Compute product over primes p != 2,5 of geometric_sum(chi(p), v_p)
-    #   Weight by chi_bar(r)
-    # Average over phi(10^d)
-    # Combine with 2-adic and 5-adic constraints
-    ...
+```text
+Sieve primes up to N
+Precompute Dirichlet characters mod 10^d
+Using CRT: characters mod 2^d and mod 5^d
+For each n from 1 to N
+Maintain running exponents v_p(n!) for each prime p
+add v_p(n) for each prime p | n
+Update exponents: factorize n, add to running totals
+Compute target residue r = n! / (2^a * 5^b) mod 10^d
+(maintained incrementally)
+Evaluate character sum formula
+For each character chi mod 10^d:
+Compute product over primes p != 2,5 of geometric_sum(chi(p), v_p)
+Weight by chi_bar(r)
+Average over phi(10^d)
+Combine with 2-adic and 5-adic constraints
 ```
 
 ## Complexity Analysis

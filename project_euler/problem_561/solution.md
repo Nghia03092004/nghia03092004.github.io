@@ -63,20 +63,22 @@ It remains to bound the number of distinct quotients. If $d \le \sqrt{N}$, then 
 
 **Corollary.** Combining Lemma 1, Theorem 2, and Theorem 3, $S(N)$ is computable in $O(\sqrt{N})$ time and $O(1)$ space.
 
-## Algorithm
+## Editorial
+Compute S(N) = sum_{n=1}^{N} Pairs(n), where Pairs(n) = ceil(tau(n)/2). By Lemma 1: S(N) = (sum_tau + floor(sqrt(N))) / 2. By the Dirichlet hyperbola method: sum_tau = 2 * T - M^2, where T = sum_{d=1}^{M} floor(N/d) and M = floor(sqrt(N)). T is evaluated in O(sqrt(N)) via block decomposition of floor(N/d).
 
-```
-function S(N):
+## Pseudocode
+
+```text
     M = floor(sqrt(N))
     T = 0
     d = 1
-    while d <= M:
+    While d <= M:
         q = floor(N / d)
         d_max = min(floor(N / q), M)
         T += q * (d_max - d + 1)
         d = d_max + 1
     sum_tau = 2 * T - M * M
-    return (sum_tau + M) / 2
+    Return (sum_tau + M) / 2
 ```
 
 ## Complexity Analysis

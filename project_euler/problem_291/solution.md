@@ -24,32 +24,33 @@ The correct reduction proceeds differently. We use the identity $4(n^2 + n + 1) 
 
 **Proof.** This follows from the result of Sorenson and Webster (2016), who verified computationally that no composite below $3.317 \times 10^{24}$ is a strong pseudoprime to all twelve bases simultaneously. $\square$
 
-## Algorithm
+## Editorial
+We iterate over each a in bases. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function count_panaitopol_primes(limit):
+## Pseudocode
+
+```text
     count = 0
     n = 1
-    while n^2 + n + 1 < limit:
+    While n^2 + n + 1 < limit:
         p = n^2 + n + 1
-        if deterministic_miller_rabin(p, bases=[2,3,5,7,11,13,17,19,23,29,31,37]):
+        If deterministic_miller_rabin(p, bases=[2,3,5,7,11,13,17,19,23,29,31,37]) then
             count += 1
         n += 1
-    return count
+    Return count
 
-function deterministic_miller_rabin(n, bases):
     write n - 1 = 2^s * d with d odd
     for each a in bases:
         x = pow(a, d, n)
-        if x == 1 or x == n - 1:
+        If x == 1 or x == n - 1 then
             continue to next base
-        for r = 1 to s - 1:
+        For r from 1 to s - 1:
             x = x^2 mod n
-            if x == n - 1:
+            If x == n - 1 then
                 break
-        if x != n - 1:
-            return false   // composite
-    return true   // prime
+        If x != n - 1 then
+            Return false // composite
+    Return true // prime
 ```
 
 ## Complexity Analysis

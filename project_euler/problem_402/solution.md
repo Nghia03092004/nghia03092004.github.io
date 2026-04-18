@@ -60,37 +60,21 @@ $$\mathbf{x} = (u^3, u^2v, uv^2, v^3, u^2, uv, v^2, u, v, 1, \Sigma u^3, \Sigma 
 
 where $u = F_{24i+r}$, $v = F_{24i+r+1}$. The transition $(u,v) \to (F_{23}u + F_{24}v,\; F_{24}u + F_{25}v)$ is linear, and all monomials up to degree 3 in $(u,v)$ transform linearly. The accumulators track running sums. This yields a $14 \times 14$ transition matrix $T$, and $T^{N}$ is computed via repeated squaring in $O(14^3 \log N)$ operations. $\square$
 
-## Algorithm
+## Editorial
+The polynomial n^4 + 4n^3 + 2n^2 + 5n is a multiple of 6 for every integer n. Define M(a,b,c) as the maximum m such that n^4 + an^3 + bn^2 + cn is a multiple of m for all integers n. So M(4,2,5) = 6. Define S(N) = sum of M(a,b,c) for 0 < a,b,c <= N. Given: S(10) = 1972, S(10000) = 2024258331114. With Fibonacci F_0=0, F_1=1, F_k = F_{k-1}+F_{k-2}: Find last 9 digits of sum_{k=2}^{1234567890123} S(F_k). We precompute the 24 cubic polynomials (A_s, B_s, C_s, D_s). We then by fitting S(N) at 4 sample points per residue class s mod 24. Finally, iterate over each residue class r = 0..23 of k mod 24.
 
-```
-function solve(K, MOD):
-    // Step 1: Precompute the 24 cubic polynomials (A_s, B_s, C_s, D_s)
-    //         by fitting S(N) at 4 sample points per residue class s mod 24.
-    polynomials = fit_piecewise_cubics()
+## Pseudocode
 
-    // Step 2: For each residue class r = 0..23 of k mod 24:
-    total = 0
-    MODEXT = 288 * MOD    // extended modulus to handle division by 288
-    for r = 0 to 23:
-        // Determine which polynomial to use: s = F_r mod 24 (Pisano period)
-        s = fibonacci(r) mod 24
-
-        // Build 14x14 transition matrix T for subsequence F_{24i+r}
-        T = build_transition_matrix(F_23, F_24, F_25)
-
-        // Determine number of terms in subsequence with index k in [2, K], k ≡ r (mod 24)
-        n_terms = count_terms(r, K)
-
-        // Matrix exponentiation: T^{n_terms - 1} applied to initial state
-        state = initial_state(r)
-        state = matrix_power(T, n_terms - 1, MODEXT) * state
-
-        // Extract accumulated sums: Σu^3, Σu^2, Σu, Σ1
-        contrib = A_s * state[Σu³] + B_s * state[Σu²] + C_s * state[Σu] + D_s * state[Σ1]
-        total = (total + contrib) mod MODEXT
-
-    // Step 3: Divide by 288 and reduce modulo MOD
-    return (total / 288) mod MOD
+```text
+Precompute the 24 cubic polynomials (A_s, B_s, C_s, D_s)
+by fitting S(N) at 4 sample points per residue class s mod 24
+For each residue class r = 0..23 of k mod 24:
+Determine which polynomial to use: s = F_r mod 24 (Pisano period)
+Build 14x14 transition matrix T for subsequence F_{24i+r}
+Determine number of terms in subsequence with index k in [2, K], k ≡ r (mod 24)
+Matrix exponentiation: T^{n_terms - 1} applied to initial state
+Extract accumulated sums: Σu^3, Σu^2, Σu, Σ1
+Divide by 288 and reduce modulo MOD
 ```
 
 ## Complexity Analysis

@@ -35,39 +35,18 @@ Each term is computed via modular exponentiation and modular inverse in $O(\log 
 
 **Proof.** Direct substitution of Lemma 1 into the sum. All divisions are modular inverses, valid since $\varphi n \not\equiv 1$ and $\psi n \not\equiv 1 \pmod{p}$ for all but $O(1)$ values of $n$ (which are handled separately). $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We compute sqrt(5) mod p via Tonelli-Shanks. We then compute phi and psi mod p. Finally, compute P_k(n) mod p using closed form.
 
-```
-function solve(k, N, p):
-    // Step 1: Compute sqrt(5) mod p via Tonelli-Shanks
-    s5 = tonelli_shanks(5, p)
-    inv_s5 = mod_inverse(s5, p)
-    inv2 = mod_inverse(2, p)
+## Pseudocode
 
-    // Step 2: Compute phi and psi mod p
-    phi = (1 + s5) * inv2 % p
-    psi = (1 - s5 + p) * inv2 % p
-
-    // Step 3: Sum over n = 1 to N
-    total = 0
-    for n = 1 to N:
-        // Compute P_k(n) mod p using closed form
-        vn = phi * n % p
-        wn = psi * n % p
-
-        if vn == 1:
-            term1 = (k + 1) % p
-        else:
-            term1 = (pow(vn, k+1, p) - 1) * mod_inverse(vn - 1, p) % p
-
-        if wn == 1:
-            term2 = (k + 1) % p
-        else:
-            term2 = (pow(wn, k+1, p) - 1) * mod_inverse(wn - 1, p) % p
-
-        total = (total + (term1 - term2) * inv_s5) % p
-
-    return total % p
+```text
+Compute sqrt(5) mod p via Tonelli-Shanks
+Compute phi and psi mod p
+Sum over n = 1 to N
+Compute P_k(n) mod p using closed form
+else
+else
 ```
 
 ## Complexity Analysis

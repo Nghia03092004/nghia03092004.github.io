@@ -34,12 +34,14 @@ $$E = \sum_{k=1}^{52} k \cdot P(\text{stop at card } k)$$
 
 where $P(\text{stop at card } k)$ is the probability that the first consecutive pair occurs exactly at position $k$ (or $k=52$ if no pair is found).
 
-## Algorithm
+## Editorial
+We use dynamic programming over the distribution of remaining cards by rank. The state is. At each step, we either match (stop) or draw a card of a different rank, updating the distribution. We $(n_1, n_2, n_3, n_4, c)$: where $n_i$ = number of ranks with exactly $i$ cards remaining, and $c$ = cards remaining of the last-drawn rank.
 
-We use dynamic programming over the distribution of remaining cards by rank. The state is:
-- $(n_1, n_2, n_3, n_4, c)$: where $n_i$ = number of ranks with exactly $i$ cards remaining, and $c$ = cards remaining of the last-drawn rank.
+## Pseudocode
 
-At each step, we either match (stop) or draw a card of a different rank, updating the distribution.
+```text
+$(n_1, n_2, n_3, n_4, c)$: where $n_i$ = number of ranks with exactly $i$ cards remaining, and $c$ = cards remaining of the last-drawn rank
+```
 
 ## Correctness
 

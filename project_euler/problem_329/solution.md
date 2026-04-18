@@ -34,29 +34,16 @@ The forward recursion computes this sum efficiently by marginalizing over interm
 
 **Proof.** The initial distribution contributes a factor of $1/500$. Each transition multiplies by $1/2$ (or 1 at boundaries). Each emission multiplies by $1/3$ or $2/3$. Over 15 emissions and 14 transitions, the denominator is bounded by $500 \cdot 2^{14} \cdot 3^{15}$. Since all operations are additions and multiplications of rationals, the result is rational and the denominator divides the stated bound. $\square$
 
-## Algorithm
+## Editorial
+A frog on squares 1..500 croaks P on primes (2/3), N on non-primes (2/3). Find P(sequence PPPPNNPPPNPPNPN) as a reduced fraction. We forward pass. We then iterate over each neighbor i of j. Finally, sum over final states.
 
-```
-function solve():
-    sequence = "PPPPNNPPPNPPNPN"
-    primes = sieve_of_eratosthenes(500)
+## Pseudocode
 
-    // Initialize alpha[0][i] = (1/500) * e(i, sequence[0])
-    for i = 1 to 500:
-        alpha[i] = Fraction(1, 500) * emission(i, sequence[0], primes)
-
-    // Forward pass
-    for t = 1 to 14:
-        new_alpha = array of Fraction(0) for i = 1..500
-        for j = 1 to 500:
-            s = 0
-            for each neighbor i of j:
-                s += P(i, j) * alpha[i]
-            new_alpha[j] = emission(j, sequence[t], primes) * s
-        alpha = new_alpha
-
-    // Sum over final states
-    return sum(alpha[i] for i = 1 to 500)  // reduce fraction
+```text
+Initialize alpha[0][i] = (1/500) * e(i, sequence[0])
+Forward pass
+for each neighbor i of j
+Sum over final states
 ```
 
 ## Complexity Analysis

@@ -49,7 +49,7 @@ Then for every integer $i \in [2, N]$, $A[i] = \mathrm{true}$ if and only if $i$
 
 **Corollary 1.** Running the Sieve of Eratosthenes up to $N = 115000$ and extracting the $n$-th entry equal to true (counting from $i = 2$) yields $p_n$ for any $n$ with $p_n \le N$. By Proposition 1, this includes $n = 10001$.
 
-## Algorithm
+## Editorial
 
 The algorithm first chooses a proven upper bound that is guaranteed to contain the $n$-th prime. It then runs the Sieve of Eratosthenes on $[2, N]$, marks every composite starting from $p^2$, and performs a final increasing scan through the sieve until the $n$-th marked prime is reached. This is sufficient because the bound contains $p_n$ and the sieve leaves exactly the primes unmarked.
 

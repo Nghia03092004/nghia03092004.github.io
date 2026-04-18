@@ -46,23 +46,14 @@ Moreover, the residues alternate: $X_k \bmod 3 \in \{2, 1, 2, 1, \ldots\}$ for $
 
 For the alternation, we proceed by induction. Base: $X_1 = 2 \equiv 2 \pmod{3}$. Inductive step: $X_{k+1} = 2X_k + 3Y_k \equiv 2X_k \pmod{3}$. Since $2 \cdot 2 \equiv 1$ and $2 \cdot 1 \equiv 2 \pmod{3}$, the residues alternate. $\square$
 
-## Algorithm
+## Editorial
+Both cases reduce to the Pell equation X^2 - 3Y^2 = 1 with fundamental solution (2,1) and recurrence X' = 2X + 3Y, Y' = X + 2Y. We else.
 
-```
-function SUM_ALMOST_EQUILATERAL_PERIMETERS(L):
-    total = 0
-    X, Y = 2, 1
-    while true:
-        if X mod 3 == 1:
-            a = (2*X + 1) / 3
-            perim = 3*a + 1
-        else:
-            a = (2*X - 1) / 3
-            perim = 3*a - 1
-        if perim > L: break
-        if a >= 2: total += perim
-        X, Y = 2*X + 3*Y, X + 2*Y
-    return total
+## Pseudocode
+
+```text
+while true
+else
 ```
 
 ## Complexity Analysis

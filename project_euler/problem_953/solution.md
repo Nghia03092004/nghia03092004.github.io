@@ -18,24 +18,27 @@ A sorting network on $n$ wires consists of comparators $(i,j)$ that swap wires $
 
 **Proof.** Among all $2^{16} = 65536$ binary inputs, consider those with exactly $k$ ones for each $k = 0, 1, \ldots, 16$. Any correct sorting network maps each such input to the unique sorted binary vector with $k$ ones. The balanced sorted state has exactly $8$ ones, so only the $\binom{16}{8} = 12870$ inputs with exactly $8$ ones can ever reach this state. Moreover, every such input must reach this state at least once: namely at the final output, since the network correctly sorts all binary inputs (by the 0-1 principle). Therefore the count is exactly $\binom{16}{8}$. $\square$
 
-## Algorithm
+## Editorial
+Count binary inputs with balanced intermediate states in a 16-wire sorting network. Specifically, for an odd-even merge sort network on 16 wires, count how many of the C(16,8) balanced (8-zero, 8-one) inputs reach the sorted target state [0]*8 + [1]*8 at some point during or after the network application.
 
-```
-function CountBalancedInputs(network, n):
-    target = (0,0,...,0,1,1,...,1)  // 8 zeros then 8 ones
+## Pseudocode
+
+```text
+    target = (0,0,...,0,1,1,...,1) // 8 zeros then 8 ones
     count = 0
-    for each binary input b in {0,1}^n:
+    For each each binary input b in {0,1}^n:
         state = b
-        for each comparator (i,j) in network:
-            if state[i] > state[j]:
+        For each each comparator (i,j) in network:
+            If state[i] > state[j] then
                 swap(state[i], state[j])
-            if state == target:
+            If state == target then
                 count = count + 1
                 break
-    return count
+    Return count
 ```
 
 Alternatively, by Theorem 2, the answer is simply $\binom{16}{8}$.
+```
 
 ## Complexity Analysis
 

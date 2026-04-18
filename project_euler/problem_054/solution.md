@@ -67,7 +67,7 @@ In each case, the lexicographic ordering of $\kappa$ faithfully implements the p
 
 *Proof.* By standard poker rules, $A$-$2$-$3$-$4$-$5$ is the lowest straight (high card 5). Without this correction, the ace (value 14) would make this straight rank above $2$-$3$-$4$-$5$-$6$ (high card 6), contradicting the rules. $\blacksquare$
 
-## Algorithm
+## Editorial
 
 We read the file line by line, split each record into the two five-card hands, and evaluate both hands into comparison keys. Each key consists of the hand category together with the category-specific tiebreak values derived from frequencies, straights, and flushes, including the ace-low straight correction. Player 1 wins precisely when the lexicographic key of the first hand exceeds that of the second, so the final answer is the total number of such lines.
 

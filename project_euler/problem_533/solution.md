@@ -30,34 +30,35 @@ The last claim follows because $-1$ has order $2$ and $5$ has order $2^{k-2}$ mo
 
 **Proof.** The sieve stores $\operatorname{spf}(n)$ for each $n \le N$ in $O(N)$ time (linear sieve). To factor $n$, repeatedly extract $p = \operatorname{spf}(n)$ and divide $n$ by $p$ until $n = 1$. Each step reduces $n$ by at least one prime factor, giving $O(\omega(n))$ steps. $\square$
 
-## Algorithm
+## Editorial
+Count n <= N where lambda(n) = lambda(n+1). lambda(n) = lcm of lambda(p^k) over prime powers p^k || n, where: lambda(2) = 1, lambda(4) = 2, lambda(2^k) = 2^{k-2} for k >= 3 lambda(p^k) = p^{k-1}(p-1) for odd prime p Algorithm: SPF sieve + per-element lambda computation.
 
-```
-function SOLVE(N):
-    spf[1..N+1] = linear_sieve(N + 1)    // smallest prime factor
+## Pseudocode
 
-    function LAMBDA(n):
+```text
+    spf[1..N+1] = linear_sieve(N + 1) // smallest prime factor
+
         result = 1
-        while n > 1:
+        While n > 1:
             p = spf[n]
             pk = 1
-            while n mod p == 0:
+            While n mod p == 0:
                 n = n / p
                 pk = pk * p
-            local = pk / p * (p - 1)      // phi(p^k)
-            if p == 2 and pk >= 8:
-                local = local / 2          // lambda(2^k) = 2^{k-2}
+            local = pk / p * (p - 1) // phi(p^k)
+            If p == 2 and pk >= 8 then
+                local = local / 2 // lambda(2^k) = 2^{k-2}
             result = lcm(result, local)
-        return result
+        Return result
 
     count = 0
     prev = LAMBDA(1)
-    for n = 1 to N:
+    For n from 1 to N:
         curr = LAMBDA(n + 1)
-        if prev == curr:
+        If prev == curr then
             count += 1
         prev = curr
-    return count
+    Return count
 ```
 
 ## Complexity Analysis

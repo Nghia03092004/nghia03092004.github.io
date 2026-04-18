@@ -52,11 +52,16 @@ More simply: iterate over all pairs $i \le j$ from the 210 possible cubes.
 
 Total pairs to check: $\binom{210}{2} + 210 = \frac{210 \times 211}{2} = 22155$.
 
-### Algorithm
+### Editorial
+We iterate over each pair of cubes (including same-cube pairs), check if all 9 squares can be displayed. Finally, count valid pairs.
 
-1. Generate all $\binom{10}{6} = 210$ possible cubes.
-2. For each pair of cubes (including same-cube pairs), check if all 9 squares can be displayed.
-3. Count valid pairs.
+### Pseudocode
+
+```text
+Generate all $\binom{10}{6} = 210$ possible cubes
+For each pair of cubes (including same-cube pairs), check if all 9 squares can be displayed
+Count valid pairs
+```
 
 ## Correctness
 

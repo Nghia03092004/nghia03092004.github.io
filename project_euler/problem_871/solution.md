@@ -24,23 +24,24 @@ $$s_i \equiv a_i + a_{d-1-i} + c_i \pmod{10},$$
 
 **Proof.** Each application of $T$ at most doubles the value (since $\operatorname{rev}(n) < 10^d \leq 10 \cdot n$), so $T(n) \leq 2 \cdot 10^d$. Hence the digit count increases by at most 1 per step. $\square$
 
-## Algorithm
+## Editorial
+Reverse-and-add operation $n + \text{rev}(n)$. We iterate over each starting value n derived from problem parameters. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function REVERSE_AND_ADD(n, max_steps):
-    for step = 1 to max_steps:
+## Pseudocode
+
+```text
+    For step from 1 to max_steps:
         r = reverse_digits(n)
         n = n + r
-        if is_palindrome(n):
-            return (n, step)
-    return FAILURE
+        If is_palindrome(n) then
+            Return (n, step)
+    Return FAILURE
 
-function SOLVE(params):
     Initialize accumulator = 0
     for each starting value n derived from problem parameters:
         (result, steps) = REVERSE_AND_ADD(n, MAX_ITER)
         Update accumulator based on result/steps
-    return accumulator
+    Return accumulator
 ```
 
 ## Complexity Analysis

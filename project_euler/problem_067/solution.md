@@ -53,7 +53,7 @@ is the optimal path sum from $(i, j)$. $\square$
 
 We can modify the triangle array in place, working from the bottom row upward, so that $T[i][j]$ is replaced by $M[i][j]$. This requires no extra space.
 
-## Algorithm
+## Editorial
 
 We solve the triangle by bottom-up dynamic programming. Starting from the second-last row, each entry is replaced by its own value plus the larger of the two entries directly below it. After this sweep reaches the top row, the single remaining top entry equals the maximum path sum from top to bottom.
 

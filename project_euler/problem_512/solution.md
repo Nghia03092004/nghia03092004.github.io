@@ -56,34 +56,36 @@ Isolating the $d=1$ term: $\Phi(N) = \frac{N(N+1)}{2} - \sum_{d=2}^{N}\Phi\!\lef
 
 **Proof.** The number of distinct values of $\lfloor N/d \rfloor$ for $1 \leq d \leq N$ is at most $2\lfloor\sqrt{N}\rfloor$. Pre-sieving $\varphi(n)$ for $n \leq N^{2/3}$ costs $O(N^{2/3} \log\log N)$ time and provides all $\Phi(m)$ for $m \leq N^{2/3}$ by prefix summation. The remaining $O(N^{1/3})$ recursive calls each require $O(\sqrt{m})$ work to group the sum by distinct values of $\lfloor m/d \rfloor$, giving total work $O(N^{2/3})$. $\square$
 
-## Algorithm
+## Editorial
+Compute sum of phi(n^k) for n = 1..N, using phi(n^k) = n^(k-1) * phi(n). Efficient totient sieve and sublinear summation. We pre-sieve phase.
 
-```
-function TotientSum(N):
-    // Pre-sieve phase
-    B := floor(N^(2/3))
-    phi[1..B] := Euler_sieve(B)        // O(B log log B)
-    Phi_small[i] := prefix_sum(phi, i)  // for i = 1..B
+## Pseudocode
 
-    memo := empty hash map
+```text
+    Pre-sieve phase
+    Set B <- floor(N^(2/3))
+    Set phi[1..B] <- Euler_sieve(B) // O(B log log B)
+    Set Phi_small[i] <- prefix_sum(phi, i) // for i = 1..B
 
-    function Phi(m):
+    Set memo <- empty hash map
+
         if m <= B: return Phi_small[m]
         if m in memo: return memo[m]
-        result := m * (m + 1) / 2
-        d := 2
-        while d <= m:
-            q := floor(m / d)
-            d_max := floor(m / q)
+        Set result <- m * (m + 1) / 2
+        Set d <- 2
+        While d <= m:
+            Set q <- floor(m / d)
+            Set d_max <- floor(m / q)
             result -= (d_max - d + 1) * Phi(q)
-            d := d_max + 1
-        memo[m] := result
-        return result
+            Set d <- d_max + 1
+        Set memo[m] <- result
+        Return result
 
-    return Phi(N)
+    Return Phi(N)
 ```
 
 For the general $k$ case, compute $\sum_{n=1}^{N} n^{k-1}\varphi(n)$ using a sieve of $\varphi$ and direct summation.
+```
 
 ## Complexity Analysis
 

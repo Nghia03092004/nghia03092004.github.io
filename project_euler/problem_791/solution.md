@@ -34,30 +34,33 @@ So $\sum u_i^2 = m$, with the constraint $\sum u_i = 0$, and each $u_i$ is a hal
 
 **Proof.** Let $\sigma = c + d = 2m - a - b$ and $\pi = c^2 + d^2 = m(m+1) - a^2 - b^2$. Then $cd = (\sigma^2 - \pi)/2$. For $c, d$ to be real and integral, we need the discriminant $\Delta = \sigma^2 - 2(\sigma^2 - \pi) = 2\pi - \sigma^2$ to be a perfect square. Then $c = (\sigma - \sqrt{\Delta})/2$, $d = (\sigma + \sqrt{\Delta})/2$. We verify $b \le c \le d \le n$. $\square$
 
-## Algorithm
+## Editorial
+$S(n) = \sum(a+b+c+d)$ over all qualifying quadruples. Given $S(5)=48$,. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function S(n, MOD):
+## Pseudocode
+
+```text
     total = 0
-    for m = 2 to 2n:                          // s = 2m, s ranges 4..4n
+    for m = 2 to 2n: // s = 2m, s ranges 4..4n
         target_q = m * (m + 1)
-        for a = 1 to min(m/2, n):             // a <= s/4 = m/2
-            for b = a to (2m - 2a) / 3:       // b <= c <= d, so b <= (2m - a - b)/2
+        for a = 1 to min(m/2, n): // a <= s/4 = m/2
+            for b = a to (2m - 2a) / 3: // b <= c <= d, so b <= (2m - a - b)/2
                 sigma = 2*m - a - b
                 pi = target_q - a*a - b*b
                 disc = 2*pi - sigma*sigma
-                if disc < 0: continue
+                If disc < 0 then continue
                 sqrt_disc = isqrt(disc)
-                if sqrt_disc * sqrt_disc != disc: continue
-                if (sigma - sqrt_disc) % 2 != 0: continue
+                If sqrt_disc * sqrt_disc != disc then continue
+                If (sigma - sqrt_disc) % 2 != 0 then continue
                 c = (sigma - sqrt_disc) / 2
                 d = (sigma + sqrt_disc) / 2
-                if c < b or d > n: continue
-                total = (total + 2*m) % MOD    // contribution is s = 2m
-    return total
+                If c < b or d > n then continue
+                total = (total + 2*m) % MOD // contribution is s = 2m
+    Return total
 ```
 
 For $n = 10^8$, a direct triple loop is too slow. The efficient approach uses the lattice-point characterization: for each $m$, count representations of $m$ as a sum of 4 squares subject to the linear and ordering constraints, exploiting the factorization of the representation number $r_4(m)$ and M\"obius-type sums to handle the ordering and range constraints. This reduces computation to $O(n \log n)$ via a sieve over $m$.
+```
 
 ## Complexity Analysis
 

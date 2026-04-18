@@ -45,36 +45,20 @@ The proportion of squarefree Fibonacci numbers is:
 
 This product converges to approximately 0.7647, which is higher than the density of squarefree integers (6/pi^2 ~ 0.6079).
 
-## Algorithm
+## Editorial
+The largest prime we need to consider: if p * alpha(p) <= N, we need to include p. Since alpha(p) >= 1, we need primes up to N. But alpha(p) grows, so in practice we only need primes up to about sqrt(N) or a bit more (since alpha(p) >= p-1 for some primes, p * alpha(p) grows fast). Actually alpha(p) can be as small as (p-1)/2 for some primes, so we need primes up to roughly sqrt(2*N). Once we find the index k of the 10^8-th squarefree Fibonacci number. We generate primes up to a bound B using a sieve of Eratosthenes. We then iterate over each prime p, compute alpha(p) by finding the Fibonacci sequence mod p until hitting 0. Finally, in a boolean sieve array, mark all multiples of q(p) as "non-squarefree".
 
-### Step 1: Sieve Non-Squarefree Indices
+## Pseudocode
 
-We need to find which Fibonacci indices n yield non-squarefree F(n). For each prime p, the "bad" period is q(p) = p * alpha(p). Any index divisible by q(p) gives a non-squarefree F(n).
-
-1. Generate primes up to a bound B using a sieve of Eratosthenes.
-2. For each prime p, compute alpha(p) by finding the Fibonacci sequence mod p until hitting 0.
-3. Compute q(p) = p * alpha(p).
-4. In a boolean sieve array, mark all multiples of q(p) as "non-squarefree".
-
-### Step 2: Determine Sieve Bound
-
-Since ~76.47% of Fibonacci numbers are squarefree, to find the 10^8-th squarefree one we need roughly N = 10^8 / 0.7647 ~ 1.308 * 10^8 indices. We sieve up to about N = 1.32 * 10^8 to be safe.
-
-The largest prime we need to consider: if p * alpha(p) <= N, we need to include p. Since alpha(p) >= 1, we need primes up to N. But alpha(p) grows, so in practice we only need primes up to about sqrt(N) or a bit more (since alpha(p) >= p-1 for some primes, p * alpha(p) grows fast). Actually alpha(p) can be as small as (p-1)/2 for some primes, so we need primes up to roughly sqrt(2*N).
-
-### Step 3: Compute the Answer
-
-Once we find the index k of the 10^8-th squarefree Fibonacci number:
-- Compute F(k) mod 10^16 using matrix exponentiation or the doubling method
-- Compute log10(F(k)) = k * log10(phi) - 0.5 * log10(5) for large k (Binet's formula approximation)
-- Format the output
-
-### Doubling Formulas for Fibonacci mod m
-
-    F(2n) = F(n) * (2*F(n+1) - F(n))
-    F(2n+1) = F(n)^2 + F(n+1)^2
-
-These allow computing F(k) mod 10^16 in O(log k) time.
+```text
+Generate primes up to a bound B using a sieve of Eratosthenes
+For each prime p, compute alpha(p) by finding the Fibonacci sequence mod p until hitting 0
+Compute q(p) = p * alpha(p)
+In a boolean sieve array, mark all multiples of q(p) as "non-squarefree"
+Compute F(k) mod 10^16 using matrix exponentiation or the doubling method
+Compute log10(F(k)) = k * log10(phi) - 0.5 * log10(5) for large k (Binet's formula approximation)
+Format the output
+```
 
 ## Correctness
 

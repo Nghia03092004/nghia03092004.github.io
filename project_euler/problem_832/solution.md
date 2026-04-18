@@ -34,26 +34,16 @@ The XOR rule follows from the isomorphism between any game position with Grundy 
 
 **Proof.** The Grundy value $G(n)$ depends only on the values $G(n - m_1), \ldots, G(n - m_k)$ (where defined). Since each $G(j) \in \{0, \ldots, k\}$ by Lemma 1 applied inductively, the state vector $(G(n - m_1), \ldots, G(n - m_k))$ takes values in a finite set of size at most $(k+1)^k$. By the pigeonhole principle, the state vector must eventually repeat, and once it repeats, the entire subsequent sequence is periodic. $\square$
 
-## Algorithm
+## Editorial
+Sprague-Grundy mex computation. Iterative Grundy value computation. We detect period P in G[]. Finally, compute sum using periodicity. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function MexSequenceSum(N, M):
-    # M = set of allowed moves
-    G = array of size N+1
-    G[0] = 0
-    for n = 1 to N:
-        reachable = {G[n - m] : m in M, n - m >= 0}
-        g = 0
-        while g in reachable:
-            g = g + 1
-        G[n] = g
-    # Detect period P in G[]
-    P = detect_period(G)
-    # Compute sum using periodicity
-    full_cycles = N / P
-    remainder = N mod P
-    cycle_sum = sum(G[0..P-1])
-    return (full_cycles * cycle_sum + sum(G[0..remainder-1])) mod (10^9 + 7)
+## Pseudocode
+
+```text
+M = set of allowed moves
+while g in reachable
+Detect period P in G[]
+Compute sum using periodicity
 ```
 
 ## Complexity Analysis

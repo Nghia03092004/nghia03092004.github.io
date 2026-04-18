@@ -52,61 +52,31 @@ $$F(k) \equiv \frac{10 \cdot Q_k \cdot \phi(Q_k)}{2} + 7 \cdot \phi(Q_k) - 10 \c
 
 **Proof.** Direct substitution from Theorem 1. The key subtlety is computing $c = 7 \cdot 10^{-1} \bmod Q_k$ modulo $10^9 + 7$. By CRT, $10^{-1} \bmod Q_k$ can be computed prime-by-prime: $10^{-1} \bmod p_i$ for each prime, then CRT reconstruction. However, since $Q_k$ is astronomically large, we instead compute $c \bmod (10^9+7)$ directly using the CRT representation and modular arithmetic. $\square$
 
-## Algorithm
+## Editorial
+$S_k = \{2, 5\} \cup \{\text{first } k \text{ primes ending in 7}\}$. A $k$-Ruff number is not divisible by any element of $S_k$. $N_k = \prod_{s \in S_k} s$. $F(k)$ = sum of all $k$-Ruff numbers less. We generate the first k primes ending in digit 7. We then primes_7 = [7, 17, 37, 47, 67, 97, 107, ..., p_k]. Finally, compute Q_k mod MOD, phi(Q_k) mod MOD.
 
-```
-function F(k, MOD):
-    // Generate the first k primes ending in digit 7
-    primes_7 = sieve_primes_ending_in_7(k)
-    // primes_7 = [7, 17, 37, 47, 67, 97, 107, ..., p_k]
+## Pseudocode
 
-    // Compute Q_k mod MOD, phi(Q_k) mod MOD
-    Q_mod = 1
-    phi_mod = 1
-    for p in primes_7:
-        Q_mod = (Q_mod * p) % MOD
-        phi_mod = (phi_mod * (p - 1)) % MOD
-
-    // Compute c = 7 * 10^{-1} mod Q_k, reduced mod MOD
-    // Use CRT: for each p_i, compute 7 * 10^{-1} mod p_i
-    // Then reconstruct using CRT, but since Q_k is huge,
-    // compute the CRT combination modulo MOD
-
-    // Actually: compute sum directly using Mobius on Q_k
-    // F(k) = sum_{d | Q_k} mu(d) * S(d)
-    // where S(d) = sum of m < 10*Q_k, m = 7 mod 10, d | m
-    // Since Q_k has k prime factors, this is 2^k terms -- too many for k=97
-
-    // Instead use the multiplicative structure:
-    // F(k) = phi(Q_k) * [5 * Q_k + 7 - 10 * c] mod MOD
-    // where c needs careful CRT computation mod MOD
-
-    // Compute 10^{-1} mod p_i for each prime p_i
-    // CRT reconstruction of (10^{-1} mod Q_k) reduced mod MOD:
-    // Use the formula: x = sum_i (a_i * M_i * (M_i^{-1} mod p_i)) where M_i = Q_k / p_i
-    // Reduce everything mod MOD
-
-    inv10_crt_mod = 0
-    for i in range(k):
-        p = primes_7[i]
-        a_i = mod_inverse(10, p)  // 10^{-1} mod p_i
-        M_i_mod = Q_mod * mod_inverse(p, MOD) % MOD  // (Q_k / p_i) mod MOD
-        M_i_inv_mod_p = mod_inverse(M_i_mod % p, p)  // approximate -- need actual M_i mod p_i
-        // ... careful CRT mod MOD computation
-
-    c_mod = (7 * inv10_crt_mod) % MOD
-
-    result = phi_mod * (5 * Q_mod + 7 - 10 * c_mod) % MOD
-    return (result % MOD + MOD) % MOD
-
-function sieve_primes_ending_in_7(k):
-    primes = []
-    candidate = 7
-    while len(primes) < k:
-        if is_prime(candidate) and candidate % 10 == 7:
-            primes.append(candidate)
-        candidate += 10
-    return primes
+```text
+Generate the first k primes ending in digit 7
+primes_7 = [7, 17, 37, 47, 67, 97, 107, ..., p_k]
+Compute Q_k mod MOD, phi(Q_k) mod MOD
+Compute c = 7 * 10^{-1} mod Q_k, reduced mod MOD
+Use CRT: for each p_i, compute 7 * 10^{-1} mod p_i
+Then reconstruct using CRT, but since Q_k is huge,
+compute the CRT combination modulo MOD
+Actually: compute sum directly using Mobius on Q_k
+F(k) = sum_{d | Q_k} mu(d) * S(d)
+where S(d) = sum of m < 10*Q_k, m = 7 mod 10, d | m
+Since Q_k has k prime factors, this is 2^k terms -- too many for k=97
+Instead use the multiplicative structure:
+F(k) = phi(Q_k) * [5 * Q_k + 7 - 10 * c] mod MOD
+where c needs careful CRT computation mod MOD
+Compute 10^{-1} mod p_i for each prime p_i
+CRT reconstruction of (10^{-1} mod Q_k) reduced mod MOD:
+Use the formula: x = sum_i (a_i * M_i * (M_i^{-1} mod p_i)) where M_i = Q_k / p_i
+Reduce everything mod MOD
+... careful CRT mod MOD computation
 ```
 
 ## Complexity Analysis

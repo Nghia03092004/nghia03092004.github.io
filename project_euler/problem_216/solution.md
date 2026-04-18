@@ -30,42 +30,19 @@ This equals $1$ if and only if $p \equiv \pm 1 \pmod{8}$. $\square$
 
 **Proof.** The sieve removes all prime factors $\leq \sqrt{2N^2}$ from $T[n]$. If $t(n)$ is composite, it has a prime factor $\leq \sqrt{t(n)} \leq \sqrt{2N^2}$, which the sieve removes, leaving $T[n] < t(n)$. If $t(n)$ is prime, no factor is found, so $T[n] = t(n) > 1$. The remaining case $T[n] = 1$ means $t(n)$ was fully factored by small primes, hence composite. $\square$
 
-## Algorithm
+## Editorial
+Count how many t(n) = 2n^2 - 1 are prime for 2 <= n <= 50,000,000. Approach: Sieve - for each prime p (where 2 is a QR mod p), find roots of 2x^2 = 1 (mod p) and mark those n-values as having composite t(n). We initialize t(n) values. We then sieve primes up to sqrt(2*N^2) using standard sieve. Finally, iterate over each prime p in primes.
 
-```
-function SolveProblem216(N):
-    // Initialize t(n) values
-    T[2..N] where T[n] = 2*n*n - 1
+## Pseudocode
 
-    // Sieve primes up to sqrt(2*N^2) using standard sieve
-    primes = SieveOfEratosthenes(floor(sqrt(2*N*N)))
-
-    count = 0
-    for each prime p in primes:
-        if p mod 8 != 1 and p mod 8 != 7:
-            continue
-
-        // Find r such that 2*r^2 ≡ 1 (mod p)
-        a = modular_inverse(2, p)
-        r = TonelliShanks(a, p)      // r^2 ≡ a (mod p)
-
-        // Sieve with root r
-        for n = r, r+p, r+2p, ... <= N (starting from max(r, 2)):
-            while T[n] mod p == 0:
-                T[n] /= p
-
-        // Sieve with root p - r
-        r2 = p - r
-        for n = r2, r2+p, r2+2p, ... <= N (starting from max(r2, 2)):
-            while T[n] mod p == 0:
-                T[n] /= p
-
-    // Count primes
-    for n = 2 to N:
-        if T[n] > 1:
-            count += 1
-
-    return count
+```text
+Initialize t(n) values
+Sieve primes up to sqrt(2*N^2) using standard sieve
+for each prime p in primes
+Find r such that 2*r^2 ≡ 1 (mod p)
+Sieve with root r
+Sieve with root p - r
+Count primes
 ```
 
 ## Complexity Analysis

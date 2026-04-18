@@ -75,17 +75,16 @@ $$
 D(N) = 9 \sum_{n=1}^{N} \sum_{k=\lfloor n/2 \rfloor + 1}^{n} \binom{n}{k} 9^{n-k}.
 $$
 
-## Algorithm
+## Editorial
+$$. $$. We precompute factorials and inverse factorials modulo $10^9+7$ up to $N=2022$. We then precompute powers of $9$. Finally, iterate over each length $n=1,\dots,2022$, evaluate.
 
-1. Precompute factorials and inverse factorials modulo $10^9+7$ up to $N=2022$.
-2. Precompute powers of $9$.
-3. For each length $n=1,\dots,2022$, evaluate
+## Pseudocode
 
-$$
-T(n) = \sum_{k=\lfloor n/2 \rfloor + 1}^{n} \binom{n}{k} 9^{n-k},
-$$
-
-then add $9T(n)$ to the total.
+```text
+Precompute factorials and inverse factorials modulo $10^9+7$ up to $N=2022$
+Precompute powers of $9$
+For each length $n=1,\dots,2022$, evaluate
+```
 
 ## Complexity Analysis
 

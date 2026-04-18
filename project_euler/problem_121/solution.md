@@ -42,20 +42,22 @@ Since each subset $T$ of $\{1, \ldots, n\}$ with $|T| = j$ contributes $\prod_{k
 
 *Proof.* The banker charges $1 per game. For a prize of $M$ dollars, the expected payout is $M \cdot P(\text{win}) = MN/(n+1)!$. Non-negative expected profit requires $MN/(n+1)! \le 1$, hence $M \le (n+1)!/N$. The maximum integer prize is therefore $\lfloor (n+1)!/N \rfloor$. $\square$
 
-## Algorithm
+## Editorial
+At turn k, P(blue) = 1/(k+1), P(red) = k/(k+1). Player wins with >= 8 blue out of 15 turns. Prize = floor((n+1)! / N) where N sums elementary symmetric polynomials.
 
-```
-function disc_game_prize(n):
+## Pseudocode
+
+```text
     dp[0..floor(n/2)] initialized to 0
     dp[0] = 1
 
-    for i = 1 to n:
-        for j = min(i, floor(n/2)) down to 1:
+    For i from 1 to n:
+        For j from min(i, floor(n/2)) down to 1:
             dp[j] = dp[j] + i * dp[j-1]
 
     N = sum(dp[0..floor(n/2)])
     D = (n+1)!
-    return floor(D / N)
+    Return floor(D / N)
 ```
 
 ## Complexity Analysis

@@ -38,16 +38,18 @@ $$E(N) \equiv (N - 1)(N + 4) \cdot 12^{-1} \pmod{p}.$$
 
 Computing: $2544 \times 83333334 = 212\,000\,017\,296$. Dividing by $p$: $212\,000\,017\,296 = 211 \times 1\,000\,000\,007 + r$, where $211 \times 1\,000\,000\,007 = 211\,000\,001\,477$, so $r = 212\,000\,017\,296 - 211\,000\,001\,477 = 1\,000\,015\,819$.
 
-## Algorithm
+## Editorial
+E(n) = (n-1)(n+4)/12, the expected number of insertion steps to sort a random permutation using the "first sort" algorithm. Compute E(10^18) mod (10^9 + 7).
 
-```
-function FIRST_SORT_II():
+## Pseudocode
+
+```text
     MOD = 10^9 + 7
     n = 10^18
-    a = (n - 1) mod MOD          // = 48
-    b = (n + 4) mod MOD          // = 53
-    inv12 = power(12, MOD - 2, MOD)  // = 83333334
-    return (a * b mod MOD) * inv12 mod MOD
+    a = (n - 1) mod MOD // = 48
+    b = (n + 4) mod MOD // = 53
+    inv12 = power(12, MOD - 2, MOD) // = 83333334
+    Return (a * b mod MOD) * inv12 mod MOD
 ```
 
 ## Complexity Analysis

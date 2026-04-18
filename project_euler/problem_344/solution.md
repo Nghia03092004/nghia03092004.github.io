@@ -24,35 +24,20 @@ The number of such positions is counted by enumerating all valid coin placements
 
 **Proof.** By the Sprague--Grundy theorem, a position is a P-position iff its Grundy value is 0, which is the XOR of the individual heap values. The counting follows from standard combinatorial arguments on Nim positions with bounded heap sizes. $\square$
 
-## Algorithm
+## Editorial
+The actual implementation uses more sophisticated techniques (generating functions, meet-in-the-middle, or direct formula) depending on the specific parameters. We decompose into Nim heaps via coin pairing. We then method: DP over gaps with XOR constraint. Finally, state: (number_of_pairs_placed, current_xor_value).
 
+## Pseudocode
+
+```text
+Decompose into Nim heaps via coin pairing
+Count configurations where XOR of gaps = 0
+Method: DP over gaps with XOR constraint
+State: (number_of_pairs_placed, current_xor_value)
+dp[xor_val] = number of ways to assign k gap sizes
+summing to <= max_gap with given XOR
+Account for placement constraints and sum constraint
 ```
-function count_P_positions(strip_length, num_coins):
-    // Decompose into Nim heaps via coin pairing
-    // Count configurations where XOR of gaps = 0
-
-    // Method: DP over gaps with XOR constraint
-    // State: (number_of_pairs_placed, current_xor_value)
-    k = num_coins / 2
-    max_gap = strip_length - num_coins
-
-    // dp[xor_val] = number of ways to assign k gap sizes
-    //               summing to <= max_gap with given XOR
-    dp = array of size [2^bits] initialized to 0
-    dp[0] = 1
-
-    for pair = 1 to k:
-        new_dp = array of zeros
-        for xor_val in all:
-            for gap = 0 to max_gap:
-                new_dp[xor_val XOR gap] += dp[xor_val]
-        dp = new_dp
-
-    // Account for placement constraints and sum constraint
-    return dp[0]  // XOR = 0 positions
-```
-
-The actual implementation uses more sophisticated techniques (generating functions, meet-in-the-middle, or direct formula) depending on the specific parameters.
 
 ## Complexity Analysis
 

@@ -53,7 +53,7 @@ The exponents $a_i$ do not appear in this expression, so the ratio depends only 
 
 Since $510510 \le 1{,}000{,}000 < 9{,}699{,}690$, the answer is $n^* = 2 \times 3 \times 5 \times 7 \times 11 \times 13 \times 17 = 510510$.
 
-## Algorithm
+## Editorial
 
 The maximizing value is the largest primorial not exceeding the bound. We therefore multiply consecutive primes in increasing order, beginning with $2$, and stop as soon as the next prime would push the product past $1{,}000{,}000$. The product accumulated just before that overshoot is the desired value of $n$.
 

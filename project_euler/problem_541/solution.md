@@ -40,43 +40,22 @@ Then $f(N) = \sum_{p \le N} C(p, N)$, where the sum runs over primes. The functi
 
 **Proof.** This follows directly from the definition of $f(N)$ by partitioning integers $k \le N$ according to their largest prime factor. $\square$
 
-## Algorithm
+## Editorial
+Count n <= N where numerator of H(n) divisible by largest prime factor of n. Key mathematics: Wolstenholme theorem. Algorithm: harmonic numbers mod primes. Complexity: O(N log N). We sieve primes up to N. We then compute smallest prime factor array. Finally, iterate over p in primes.
 
+## Pseudocode
+
+```text
+Sieve primes up to N
+Compute smallest prime factor array
+for p in primes
+Compute largest prime factor array
+For each n, compute H_n mod P(n) using incremental update
+Maintain H_n mod p for relevant primes using modular arithmetic
+For each prime p, track the running sum of 1/k mod p
+Update H_n mod p incrementally
+Check if numerator of H_n is divisible by p
 ```
-function f(N):
-    // Sieve primes up to N
-    primes = sieve_of_eratosthenes(N)
-
-    // Compute smallest prime factor array
-    spf = array[1..N], initialized to 0
-    for p in primes:
-        for k = p to N step p:
-            if spf[k] == 0:
-                spf[k] = p
-
-    // Compute largest prime factor array
-    lpf = array[1..N], initialized to 0
-    for n = 2 to N:
-        lpf[n] = max(lpf[n / spf[n]], spf[n])  // via factorization
-
-    // For each n, compute H_n mod P(n) using incremental update
-    count = 0
-    // Maintain H_n mod p for relevant primes using modular arithmetic
-    // For each prime p, track the running sum of 1/k mod p
-    harmonic_mod = hash_map<prime -> residue>
-
-    for n = 1 to N:
-        p = lpf[n]
-        if p >= 2:
-            // Update H_n mod p incrementally
-            // Check if numerator of H_n is divisible by p
-            if harmonic_numerator_divisible(n, p):
-                count += 1
-
-    return count
-```
-
-The inner function `harmonic_numerator_divisible(n, p)` computes $H_n \pmod{p}$ using the incremental relation $H_n = H_{n-1} + 1/n$ and modular inverses via Fermat's little theorem: $n^{-1} \equiv n^{p-2} \pmod{p}$.
 
 ## Complexity Analysis
 

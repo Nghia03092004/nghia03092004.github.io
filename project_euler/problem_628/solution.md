@@ -185,24 +185,15 @@ $$
 f(3) = 2, \qquad f(5) = 70.
 $$
 
-## Algorithm
+## Editorial
+Compute the left factorial modulo. $$. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-Compute the left factorial modulo
-
-$$
-M = 1008691207
-$$
-
-by iteratively maintaining `i! mod M`, then apply
-
-$$
-f(n) \equiv (n-3)L_n + 2 \pmod M.
-$$
+## Pseudocode
 
 ```text
 fact = 1
-left_factorial = 1          // 0!
-for i = 1 to n-1:
+left_factorial = 1 // 0!
+For i from 1 to n-1:
     fact = fact * i mod M
     left_factorial = (left_factorial + fact) mod M
 

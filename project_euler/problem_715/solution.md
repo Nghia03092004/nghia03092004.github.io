@@ -30,24 +30,14 @@ To compute the partial sum $G(n)$, we use a multiplicative function sieve: compu
 
 **Proof.** Since $10^9 + 7$ is prime and $\gcd(k, 10^9+7) = 1$ for all $k \leq 10^5$, the modular inverse exists by Fermat's little theorem: $k^{-1} \equiv k^{10^9+5} \pmod{10^9+7}$. $\square$
 
-## Algorithm
+## Editorial
+We sieve smallest prime factor. Finally, iterate over each k, compute f(k), k^2, phi(k) via factorization. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function G(n, mod):
-    // Step 1: Sieve smallest prime factor
-    spf = smallest_prime_factor_sieve(n)
+## Pseudocode
 
-    // Step 2: For each k, compute f(k), k^2, phi(k) via factorization
-    result = 0
-    for k = 1 to n:
-        fk = compute_f(k, spf)        // multiplicative f via prime factorization
-        k2 = (k * k) mod mod
-        phik = euler_totient(k, spf)
-        denom = (k2 * phik) mod mod
-        inv_denom = pow(denom, mod - 2, mod)
-        result = (result + fk * inv_denom) mod mod
-
-    return result
+```text
+Sieve smallest prime factor
+For each k, compute f(k), k^2, phi(k) via factorization
 ```
 
 ## Complexity Analysis

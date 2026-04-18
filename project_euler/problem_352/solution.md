@@ -28,31 +28,16 @@ The expected cost per individual at the top level is $1/g$ (for the pool test) p
 
 **Proof.** By numerical dynamic programming over the recurrence in Theorem 1, evaluating all feasible group-size sequences with continuous relaxation and verifying with integer group sizes, the minimum is achieved at a hierarchical depth of approximately 3 levels. The numerical result, verified to 9 decimal places, is $23.386029052$. $\square$
 
-## Algorithm
+## Editorial
+Optimal hierarchical pooling strategy for blood testing. N sheep, each independently with probability p of disease. We minimize the expected number of total tests using multi-level pooling. In the Dorfman scheme with group size g: Expected tests per individual = 1/g + 1 - (1-p)^g For hierarchical pooling with multiple levels, we optimize recursively. The problem uses a specific probability model and asks for the minimum expected number of tests with optimal pooling strategy. We dynamic programming over group sizes. We then c[g] = minimum expected tests per individual for group size g. Finally, also try continuous relaxation for the top-level group size.
 
+## Pseudocode
+
+```text
+Dynamic programming over group sizes
+C[g] = minimum expected tests per individual for group size g
+Also try continuous relaxation for the top-level group size
 ```
-function MinExpectedTests(N, p):
-    // Dynamic programming over group sizes
-    // C[g] = minimum expected tests per individual for group size g
-    C[1] = 1
-
-    for g = 2 to N:
-        C[g] = 1    // worst case: test everyone individually
-        for each divisor s of g with 1 < s <= g:
-            cost = 1/g + (1 - (1-p)^s) * C[s]
-            C[g] = min(C[g], cost)
-
-    // Also try continuous relaxation for the top-level group size
-    best = infinity
-    for g = 2 to N:
-        cost_per_person = C[g]
-        if cost_per_person < best:
-            best = cost_per_person
-
-    return best * N
-```
-
-In practice, because $N = 10\,000$ is large, the optimization is done over a restricted set of hierarchical group-size sequences $(g_1, g_2, \ldots, g_k)$ with $g_1 = N$ and $g_k = 1$, evaluating the expected cost for each.
 
 ## Complexity Analysis
 

@@ -31,45 +31,24 @@ $$\binom{c}{2} \bmod 3 = \begin{cases} 0 & \text{if } c \equiv 0 \pmod{3}, \\ 0 
 
 **Proof.** The matrix power $M^{d-1}$ propagates the state distribution through $d - 1$ digit appends (after the first digit). The accepting condition is evaluated on the final state using Lemma 2. $\square$
 
-## Algorithm
+## Editorial
+For a positive integer n, f(n) = number of non-empty substrings divisible by 3. n is 3-like if f(n) is divisible by 3. F(d) = count of d-digit 3-like numbers. Find F(10^5) mod 1_000_000_007. We state: (c0 mod 3, c1 mod 3, c2 mod 3) — 27 states. We then initial: S_0 = 0, so c0 = 1, c1 = 0, c2 = 0. Finally, build 27x27 transition matrix M for one digit (digits 0-9).
 
-```
-function F(d, mod):
-    # State: (c0 mod 3, c1 mod 3, c2 mod 3) — 27 states
-    # Initial: S_0 = 0, so c0 = 1, c1 = 0, c2 = 0
-    #          prefix_sum = 0
+## Pseudocode
 
-    # Build 27x27 transition matrix M for one digit (digits 0-9)
-    # Digit residues: {0,3,6,9}→0, {1,4,7}→1, {2,5,8}→2
-    # Counts: (4, 3, 3)
-
-    for each state (a, b, c) with current prefix_sum s:
-        for each digit residue r in {0, 1, 2} with multiplicity w_r:
-            new_s = (s + r) mod 3
-            # Increment c_{new_s} mod 3
-            new_state = update (a,b,c) by incrementing component new_s
-            M[new_state][old_state] += w_r
-
-    # Handle first digit: only digits 1-9 (residues: 3 each)
-    # Initialize state after first digit + S_0
-    v = zero vector of size 27
-    for digit d1 = 1 to 9:
-        r = d1 mod 3
-        # After S_0=0: c0=1. First digit sets S_1 = r, so c_r += 1
-        initial_state = (c0, c1, c2) with c_0=1, c_r incremented by 1
-        v[initial_state] += 1
-
-    # Apply M^{d-1} to v
-    v = matrix_power(M, d - 1) * v
-
-    # Sum accepting states
-    result = 0
-    for each state (a, b, c):
-        inv_count = [0 if x in {0,1} else 1 for x in (a,b,c)]
-        if sum(inv_count) mod 3 == 0:
-            result = (result + v[(a,b,c)]) mod mod
-
-    return result
+```text
+State: (c0 mod 3, c1 mod 3, c2 mod 3) — 27 states
+Initial: S_0 = 0, so c0 = 1, c1 = 0, c2 = 0
+prefix_sum = 0
+Build 27x27 transition matrix M for one digit (digits 0-9)
+Digit residues: {0,3,6,9}→0, {1,4,7}→1, {2,5,8}→2
+Counts: (4, 3, 3)
+Increment c_{new_s} mod 3
+Handle first digit: only digits 1-9 (residues: 3 each)
+Initialize state after first digit + S_0
+After S_0=0: c0=1. First digit sets S_1 = r, so c_r += 1
+Apply M^{d-1} to v
+Sum accepting states
 ```
 
 ## Complexity Analysis

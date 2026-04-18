@@ -41,13 +41,16 @@ where $m = p_1^{a_1} \cdots p_k^{a_k}$.
 | 12  | 24       | $\text{lcm}(\pi(4), \pi(3)) = \text{lcm}(6, 8) = 24$ |
 | 100 | 300      | |
 
-### Algorithm
+### Editorial
+Compute sum of Pisano periods pi(m) for m = 2..N. pi(m) = period of Fibonacci mod m. We factorize $m$ into prime powers. We then iterate over each prime power $p^a$: compute $\pi(p)$ by direct simulation, then $\pi(p^a) = p^{a-1}\pi(p)$. Finally, combine via LCM.
 
-1. Factorize $m$ into prime powers.
-2. For each prime power $p^a$: compute $\pi(p)$ by direct simulation, then $\pi(p^a) = p^{a-1}\pi(p)$.
-3. Combine via LCM.
+### Pseudocode
 
-Computing $\pi(p)$: iterate $F_n \bmod p$ until $(F_n, F_{n+1}) = (0, 1)$ again. This takes $O(\pi(p))$ steps, and $\pi(p) \le 6p$.
+```text
+Factorize $m$ into prime powers
+For each prime power $p^a$: compute $\pi(p)$ by direct simulation, then $\pi(p^a) = p^{a-1}\pi(p)$
+Combine via LCM
+```
 
 ### Bound on Pisano Period
 

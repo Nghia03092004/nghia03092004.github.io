@@ -57,11 +57,16 @@ This is implemented as a sieve: initialize $f[n] = t(n)$, then for each $n$ from
 
 $$P(N) = \sum_{n=3}^{N} \text{prim}(n)$$
 
-## Algorithm
+## Editorial
+We compute $t(s)$ for all $s$ from 3 to $N$ using the linear recurrence: $O(N)$. We then apply the Mobius sieve: $O(N \log N)$ (harmonic series). Finally, sum the primitive counts: $O(N)$.
 
-1. Compute $t(s)$ for all $s$ from 3 to $N$ using the linear recurrence: $O(N)$.
-2. Apply the Mobius sieve: $O(N \log N)$ (harmonic series).
-3. Sum the primitive counts: $O(N)$.
+## Pseudocode
+
+```text
+Compute $t(s)$ for all $s$ from 3 to $N$ using the linear recurrence: $O(N)$
+Apply the Mobius sieve: $O(N \log N)$ (harmonic series)
+Sum the primitive counts: $O(N)$
+```
 
 ## Correctness
 

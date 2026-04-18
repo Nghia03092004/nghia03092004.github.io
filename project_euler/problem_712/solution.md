@@ -40,17 +40,19 @@ where $\pi(N)$ is the prime-counting function.
 
 **Proof.** Direct substitution of $D(p,p) = p - 1$ and linearity of summation. $\square$
 
-## Algorithm
+## Editorial
+We sieve primes up to N. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function solve(N, mod):
-    // Sieve primes up to N
+## Pseudocode
+
+```text
+    Sieve primes up to N
     is_prime = sieve_of_eratosthenes(N)
     result = 0
-    for p = 2 to N:
-        if is_prime[p]:
+    For p from 2 to N:
+        If is_prime[p] then
             result = (result + p - 1) mod mod
-    return result
+    Return result
 ```
 
 ## Complexity Analysis

@@ -32,15 +32,17 @@ $$(p-1)^n + (p+1)^n \equiv (-1 + np) + (1 + np) = 2np \pmod{p^2}. \quad \square$
 
 *Proof.* For even $n$, $r_n = 2$ by Theorem 1. For odd $n$ with $2n < p_n$, $r_n = 2np_n$. Since both $n$ and $p_n$ are increasing functions of $n$, the product $2np_n$ is strictly increasing. We therefore perform a linear search over odd $n$. $\square$
 
-## Algorithm
+## Editorial
+For odd n, remainder = 2*n*p_n. For even n, remainder = 2. Search for smallest odd n with 2*n*p_n > 10^10.
 
-```
-function find_n(limit):
+## Pseudocode
+
+```text
     primes = sieve_primes(300000)
     for n = 1, 3, 5, 7, ...:
-        p = primes[n-1]              // n-th prime (1-indexed)
-        if 2 * n * p > limit:
-            return n
+        p = primes[n-1] // n-th prime (1-indexed)
+        If 2 * n * p > limit then
+            Return n
 ```
 
 ## Complexity Analysis

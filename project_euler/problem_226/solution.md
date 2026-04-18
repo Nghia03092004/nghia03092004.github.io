@@ -44,30 +44,14 @@ $$A = \int_{x_1}^{x_2}\bigl[\operatorname{blanc}(x) - y_{\text{low}}(x)\bigr]\,d
 
 **Proof.** At $x = 1/2$: $\operatorname{blanc}(1/2) = 1/2$ and $(1/2 - 1/4)^2 + (1/2 - 1/2)^2 = 1/16$, confirming the point lies on $C$. The left intersection $x_1$ is the unique root of $(x - 1/4)^2 + (\operatorname{blanc}(x) - 1/2)^2 = 1/16$ on $(0, 1/2)$ (verified numerically). Between $x_1$ and $x_2$, the Blancmange curve lies above $y_{\text{low}}(x)$ and below $y_{\text{up}}(x)$, so the area between the curve and the lower arc gives the enclosed region. $\square$
 
-## Algorithm
+## Editorial
+We find x1 by Brent's method on f(x) = (x-1/4)^2 + (blanc(x)-1/2)^2 - 1/16. Finally, simpson's rule with M subdivisions.
 
-```
-function compute_area():
-    N = 60                  // series truncation (error < 2^{-60})
+## Pseudocode
 
-    function blanc(x):
-        sum = 0
-        for n = 0 to N-1:
-            sum += s(2^n * x) / 2^n
-        return sum
-
-    function y_low(x):
-        return 0.5 - sqrt(1/16 - (x - 0.25)^2)
-
-    // Find x1 by Brent's method on f(x) = (x-1/4)^2 + (blanc(x)-1/2)^2 - 1/16
-    x1 = brent_root(f, 0.01, 0.49)
-    x2 = 0.5
-
-    // Simpson's rule with M subdivisions
-    M = 2000000
-    h = (x2 - x1) / M
-    A = simpson_integrate(blanc(x) - y_low(x), x1, x2, M)
-    return round(A, 8)
+```text
+Find x1 by Brent's method on f(x) = (x-1/4)^2 + (blanc(x)-1/2)^2 - 1/16
+Simpson's rule with M subdivisions
 ```
 
 ## Complexity Analysis

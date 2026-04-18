@@ -30,27 +30,14 @@ The recurrence is invertible: $T_{n-1} = T_{n+2} - T_{n+1} - T_n$. Therefore we 
 
 **Proof.** By Theorem 2, the sequence is purely periodic starting from $(1,1,1)$. If $(1,1,1)$ recurs, one full period has been traversed. If $0$ was not encountered, it never will be. $\square$
 
-## Algorithm
+## Editorial
+T(1) = T(2) = T(3) = 1, T(n) = T(n-1) + T(n-2) + T(n-3). For each odd m, compute T(n) mod m. If 0 never appears in the cycle, then m is a non-divisor. We loop.
 
-```
-function find_124th_nondivisor():
-    count = 0
-    m = 1
-    while true:
-        if not divides_tribonacci(m):
-            count += 1
-            if count == 124:
-                return m
-        m += 2    // next odd number
+## Pseudocode
 
-function divides_tribonacci(m):
-    a, b, c = 1, 1, 1
-    loop:
-        a, b, c = b, c, (a + b + c) mod m
-        if a == 0:
-            return true
-        if (a, b, c) == (1, 1, 1):
-            return false
+```text
+while true
+loop
 ```
 
 ## Complexity Analysis

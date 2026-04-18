@@ -28,12 +28,17 @@ Memoizing $t(n)$ for $n \le N$ avoids recomputation. Values $t(C(n))$ may involv
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Compute the sum of total stopping times t(n) for n = 1 to 10^6. t(n) is the number of steps in the Collatz sequence until reaching 1. We allocate array $t[1..N]$. We then iterate over $n = 2, \ldots, N$: compute $t[n]$ by following the chain, using cached values when available. Finally, sum all $t[n]$.
 
-1. Allocate array $t[1..N]$.
-2. Set $t[1] = 0$.
-3. For $n = 2, \ldots, N$: compute $t[n]$ by following the chain, using cached values when available.
-4. Sum all $t[n]$.
+### Pseudocode
+
+```text
+Allocate array $t[1..N]$
+Set $t[1] = 0$
+For $n = 2, \ldots, N$: compute $t[n]$ by following the chain, using cached values when available
+Sum all $t[n]$
+```
 
 ## Proof of Correctness
 

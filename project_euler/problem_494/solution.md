@@ -29,48 +29,16 @@ This is computed by iterating over all $n \in [1, N]$, recording parity patterns
 
 **Proof.** By definition, each family corresponds to a distinct realized parity pattern. Two starting values are in the same family if and only if they share the same parity pattern for $k$ steps. Thus $F(k)$ equals the number of distinct realized patterns. $\square$
 
-## Algorithm
+## Editorial
+*Optimized:** Compute all $K$ patterns for each $n$ in a single pass. We else. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function countFamilies(N, K):
-    sum = 0
-    for k = 1 to K:
-        patterns = empty set
-        for n = 1 to N:
-            p = computeParityPattern(n, k)
-            patterns.insert(p)
-        F_k = |patterns|
-        sum += F_k
-    return sum
+## Pseudocode
 
-function computeParityPattern(n, k):
-    pattern = empty bitmask
-    val = n
-    for i = 0 to k-1:
-        pattern[i] = val mod 2
-        if val is even:
-            val = val / 2
-        else:
-            val = 3 * val + 1
-    return pattern
-```
-
-**Optimized:** Compute all $K$ patterns for each $n$ in a single pass.
-
-```
-function countFamiliesOptimized(N, K):
-    patternSets[1..K] = array of empty sets
-    for n = 1 to N:
-        val = n
-        mask = 0
-        for k = 0 to K-1:
-            mask = mask | ((val mod 2) << k)
-            patternSets[k+1].insert(mask)
-            if val is even:
-                val = val / 2
-            else:
-                val = 3 * val + 1
-    return sum(|patternSets[k]| for k = 1 to K)
+```text
+if val is even
+else
+if val is even
+else
 ```
 
 ## Complexity Analysis

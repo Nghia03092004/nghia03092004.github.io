@@ -45,7 +45,7 @@ For $j < c_i$, no update occurs, so $\mathrm{dp}[j] = f(i-1, j) = f(i, j)$ (agai
 
 After all $k$ iterations, $\mathrm{dp}[n] = f(k, n) = p(n; S)$. The outer loop runs $k$ times, the inner loop at most $n$ times each, giving $O(kn)$ time. The array has $n + 1$ entries, giving $O(n)$ space. $\square$
 
-## Algorithm
+## Editorial
 
 We use one-dimensional dynamic programming over the available coin denominations. The array `dp[t]` stores the number of ways to form the total $t$, and we process the coin values in increasing order so that each unordered combination is counted exactly once rather than once per permutation. For each coin, we traverse all reachable totals from that coin value up to the target and add the number of ways obtained by appending the current coin.
 

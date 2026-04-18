@@ -36,15 +36,17 @@ $$\mathbb{Z}[x_1, \ldots, x_n]^{S_n} = \mathbb{Z}[e_1, \ldots, e_n].$$
 
 **Proof.** We proceed by induction on the degree of a symmetric polynomial $f$. Order monomials lexicographically. The leading monomial of $f$ has the form $x_1^{\lambda_1} x_2^{\lambda_2} \cdots x_n^{\lambda_n}$ with $\lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_n$ (by symmetry, the leading term must correspond to a partition). The monomial $e_1^{a_1} \cdots e_n^{a_n}$ with $a_j = \lambda_j - \lambda_{j+1}$ (setting $\lambda_{n+1} = 0$) has the same leading term as $f$. Subtracting reduces the degree, and the induction proceeds. Freeness follows because the leading terms of distinct products $e_1^{a_1}\cdots e_n^{a_n}$ are distinct. $\square$
 
-## Algorithm
+## Editorial
+Compute sum of all elementary symmetric polynomials e_1 + e_2 + ... + e_n. Key insight: sum = prod(1 + x_i) - 1. We using Theorem 1: sum of all e_k = product(1 + x_i) - 1.
 
-```
-function SumOfProducts(x[], n, p):
-    # Using Theorem 1: sum of all e_k = product(1 + x_i) - 1
+## Pseudocode
+
+```text
+    Using Theorem 1: sum of all e_k = product(1 + x_i) - 1
     result = 1
-    for i = 1 to n:
+    For i from 1 to n:
         result = result * (1 + x[i]) mod p
-    return (result - 1) mod p
+    Return (result - 1) mod p
 ```
 
 ## Complexity Analysis

@@ -47,20 +47,23 @@ $$24 \cdot S(p) \equiv 24(-1) + 24(1) + 24 \cdot (-\operatorname{inv}(2)) + 24 \
 $$= -24 + 24 - 12 + 4 - 1 = -9 \pmod{p}.$$
 Hence $S(p) \equiv -9 \cdot \operatorname{inv}(24) = -9 \cdot \operatorname{inv}(24) \equiv -3 \cdot \operatorname{inv}(8) \pmod{p}$, since $9/24 = 3/8$. $\square$
 
-## Algorithm
+## Editorial
+For prime p, S(p) = sum of (p-k)! mod p for k=1..5. Using Wilson's theorem to derive closed forms, then sieve primes.
 
-```
-function solve():
+## Pseudocode
+
+```text
     primes = sieve_of_eratosthenes(10^8)
     total = 0
-    for p in primes where p >= 5:
+    For each p in primes where p >= 5:
         inv8 = power_mod(8, p - 2, p)
         sp = (p - 3 * inv8 % p) % p
         total += sp
-    return total
+    Return total
 ```
 
 **Optimization:** Instead of computing $8^{p-2} \bmod p$ via fast exponentiation for each prime, note that $8^{-1} \equiv (p+1)/8 \pmod{p}$ when $8 \mid (p+1)$, or use the extended Euclidean algorithm in $O(\log p)$ per prime. Alternatively, since $8 = 2^3$, compute $\operatorname{inv}(2) = (p+1)/2$ and cube it.
+```
 
 ## Complexity Analysis
 

@@ -34,26 +34,17 @@ $$f_{\min} = \inf_{\gamma \in \Gamma(A,B)} \max_{(x,y) \in \gamma} h(x,y),$$
 $$A \to P \xrightarrow{\text{arc}} \text{pinch} \xrightarrow{\text{arc}} Q \to B.$$
 $\square$
 
-## Algorithm
+## Editorial
+h(x,y) = (5000 - 0.005*(x^2+y^2+x*y) + 12.5*(x+y)) A mosquito flies from A(200,200) to B(1400,1400) within 0<=x,y<=1600. It ascends to elevation f, flies horizontally at f, then descends. Find f_min (minimum elevation allowing such trip), then the shortest horizontal path at f_min, rounded to 3 decimal places. Solution approach: 1. f_min = minimax elevation = 10396.462193 (peak on y=0 boundary at x=895.483). 2. The barrier {h > f_min} is an annular (ring-shaped) region. It has a "pinch point" at (895.483, 0) where the barrier width is zero. By symmetry h(x,y)=h(y,x), another pinch exists at (0, 895.483). 3. The shortest path from A to B goes: A -> PA -> arc(PA, pinch) -> arc(pinch, Q) -> Q -> B where PA is tangent from A to the outer contour (left branch), and Q is tangent from B to the outer contour (right branch). The arc goes through the pinch point at (895.483, 0). 4. PA = (624.650, 48.254), Q = (1536.043, 873.038). 5. Path = 450.948 + 276.452 + 1259.565 + 544.239 = 2531.205. We numerically maximize h(x, 0) over x in [800, 1000] via bounded optimization. We then find tangent point P on outer-left contour branch. Finally, find tangent point Q on outer-right contour branch.
 
-```
-1. Numerically maximize h(x, 0) over x in [800, 1000] via bounded optimization.
-   Set f_min = h(x*, 0) and pinch = (x*, 0).
+## Pseudocode
 
-2. Find tangent point P on outer-left contour branch:
-   For each y, find x_L(y) = leftmost solution of h(x, y) = f_min.
-   Solve: grad(h) at (x_L, y) is perpendicular to ((x_L, y) - A).
-   Use bisection on the tangency residual.
-
-3. Find tangent point Q on outer-right contour branch:
-   For each y, find x_R(y) = rightmost solution of h(x, y) = f_min.
-   Solve: grad(h) at (x_R, y) is perpendicular to ((x_R, y) - B).
-
-4. Compute total path length:
-   L = dist(A, P) + arc_length(P -> pinch) + arc_length(pinch -> Q) + dist(Q, B)
-   Arc lengths computed by numerical contour tracing with gradient projection.
-
-5. Round to 3 decimal places.
+```text
+Numerically maximize h(x, 0) over x in [800, 1000] via bounded optimization
+Find tangent point P on outer-left contour branch:
+Find tangent point Q on outer-right contour branch:
+Compute total path length:
+Round to 3 decimal places
 ```
 
 ## Complexity Analysis

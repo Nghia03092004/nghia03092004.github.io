@@ -128,14 +128,19 @@ $$
 
 by Fermat's little theorem. Hence the only remaining work is to compute \(2^q \bmod (P-1)\) and \(2^{q+1} \bmod (P-1)\) by fast exponentiation.
 
-## Algorithm
+## Editorial
+We initialize a min-heap with the logarithmic weights \(\log 2,\log 3,\dots,\log 10000\). We then simulate the greedy process until the critical condition \(a_1^2 \ge a_K\) is met, tracking the number \(T\) of transient steps. Finally, sort the current values \(b_1,\dots,b_K\).
 
-1. Initialize a min-heap with the logarithmic weights \(\log 2,\log 3,\dots,\log 10000\).
-2. Simulate the greedy process until the critical condition \(a_1^2 \ge a_K\) is met, tracking the number \(T\) of transient steps.
-3. Sort the current values \(b_1,\dots,b_K\).
-4. Decompose the remaining number of steps as \(qK+r\).
-5. Use Theorem 2 to determine the final exponent of each value.
-6. Evaluate the final sum modulo \(1234567891\) using Fermat reduction of the exponents.
+## Pseudocode
+
+```text
+Initialize a min-heap with the logarithmic weights \(\log 2,\log 3,\dots,\log 10000\)
+Simulate the greedy process until the critical condition \(a_1^2 \ge a_K\) is met, tracking the number \(T\) of transient steps
+Sort the current values \(b_1,\dots,b_K\)
+Decompose the remaining number of steps as \(qK+r\)
+Use Theorem 2 to determine the final exponent of each value
+Evaluate the final sum modulo \(1234567891\) using Fermat reduction of the exponents
+```
 
 ## Correctness
 

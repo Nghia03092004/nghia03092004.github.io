@@ -53,15 +53,16 @@ The state is $(position, \text{diff}, \text{tight})$ where diff is the current d
 
 We need both the count and the sum of numbers satisfying the condition.
 
-## Algorithm
+## Editorial
+c. Maintain DP states tracking the difference in digit sums and tight constraint. d. At the end, sum all numbers $i$ where the difference is zero. We iterate over each pair $(k, l)$ with $3 \le k \le 6$ and $1 \le l \le k-2$. We then sum all $M$ values. Finally, report the last 16 digits.
 
-1. For each pair $(k, l)$ with $3 \le k \le 6$ and $1 \le l \le k-2$:
-   a. Convert $N = 10^{16}$ to binary.
-   b. Process bits from MSB to LSB in groups of $\text{lcm}(k, l)$ bits.
-   c. Maintain DP states tracking the difference in digit sums and tight constraint.
-   d. At the end, sum all numbers $i$ where the difference is zero.
-2. Sum all $M$ values.
-3. Report the last 16 digits.
+## Pseudocode
+
+```text
+For each pair $(k, l)$ with $3 \le k \le 6$ and $1 \le l \le k-2$:
+Sum all $M$ values
+Report the last 16 digits
+```
 
 ## Correctness
 

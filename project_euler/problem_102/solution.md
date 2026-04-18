@@ -34,20 +34,22 @@ which is the $z$-component of $\vec{OA} \times \vec{OB}$. $\blacksquare$
 
 *Proof.* Immediate from Theorem 1 and Lemma 1, noting that multiplication by 2 preserves sign. $\blacksquare$
 
-## Algorithm
+## Editorial
+Count how many of 1000 triangles contain the origin (0,0). Uses the cross-product sign test. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function SOLVE(triangles):
-    count <- 0
-    for each (A, B, C) in triangles:
-        d1 <- A.x * B.y - B.x * A.y
-        d2 <- B.x * C.y - C.x * B.y
-        d3 <- C.x * A.y - A.x * C.y
-        has_neg <- (d1 < 0) or (d2 < 0) or (d3 < 0)
-        has_pos <- (d1 > 0) or (d2 > 0) or (d3 > 0)
-        if not (has_neg and has_pos):
-            count <- count + 1
-    return count
+## Pseudocode
+
+```text
+    Set count <- 0
+    For each each (A, B, C) in triangles:
+        Set d1 <- A.x * B.y - B.x * A.y
+        Set d2 <- B.x * C.y - C.x * B.y
+        Set d3 <- C.x * A.y - A.x * C.y
+        Set has_neg <- (d1 < 0) or (d2 < 0) or (d3 < 0)
+        Set has_pos <- (d1 > 0) or (d2 > 0) or (d3 > 0)
+        If not (has_neg and has_pos) then
+            Set count <- count + 1
+    Return count
 ```
 
 ## Complexity Analysis

@@ -37,37 +37,16 @@ $\square$
 
 **Proof.** Each matrix multiplication involves a constant number (4 multiplications, 2 additions) of modular arithmetic operations. Repeated squaring performs $O(\log n)$ matrix multiplications. $\square$
 
-## Algorithm
+## Editorial
+Compute S(N) = sum_{k=1}^{N} k * F_k mod (10^9 + 7), where N = 10^12. Key identity: sum_{k=1}^{N} k * F_k = N * F_{N+2} - F_{N+3} + 2 This follows from the telescoping identity k*F_k = (k+1)*F_{k+1} - k*F_k - F_{k+1} + F_k combined with the Fibonacci recurrence. Results:.
 
-```
-function WeightedFibSum(n, MOD):
-    // Compute F_{n+1} and F_{n+2} via matrix exponentiation
-    function mat_mul(A, B, mod):
-        return 2x2 matrix product with entries reduced mod `mod`
+## Pseudocode
 
-    function mat_pow(M, exp, mod):
-        result := identity matrix
-        base := M
-        while exp > 0:
-            if exp is odd:
-                result := mat_mul(result, base, mod)
-            base := mat_mul(base, base, mod)
-            exp := exp >> 1
-        return result
-
-    Q := [[1, 1], [1, 0]]
-    // Q^(n+1) gives F_{n+2} in position [0][1]
-    R := mat_pow(Q, n + 1, MOD)
-    F_n2 := R[0][1]    // F_{n+2}
-
-    R2 := mat_pow(Q, n, MOD)
-    F_n1 := R2[0][1]   // F_{n+1}
-
-    // Apply Theorem 2: (n-1)*F_{n+2} - F_{n+1} + 2
-    answer := ((n - 1) % MOD * F_n2 % MOD - F_n1 + 2) % MOD
-    answer := (answer + MOD) % MOD    // ensure non-negative
-
-    return answer
+```text
+Compute F_{n+1} and F_{n+2} via matrix exponentiation
+if exp is odd
+Q^(n+1) gives F_{n+2} in position [0][1]
+Apply Theorem 2: (n-1)*F_{n+2} - F_{n+1} + 2
 ```
 
 ## Complexity Analysis

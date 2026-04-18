@@ -31,33 +31,18 @@ This is exactly the stated recurrence. $\square$
 
 **Proof.** Represent the shift operator as multiplication by $x$ in the quotient ring $(\mathbb{Z}/p\mathbb{Z})[x] / (\chi_T(x))$. Computing $x^n \bmod \chi_T(x)$ by repeated squaring requires $O(\log n)$ polynomial multiplications, each costing $O(s^2)$ (or $O(s \log s)$ with FFT). Reading off $a_n$ from the resulting polynomial and the initial values is $O(s)$. $\square$
 
-## Algorithm
+## Editorial
+We build transfer matrix. We then compute characteristic polynomial mod p. Finally, kitamasa's method — compute x^n mod chi(x) in F_p[x].
 
-```
-function ComputeF(k, n, p):
-    // Step 1: Build transfer matrix
-    S = enumerate all valid 2-cell column states with k colours
-    s = |S|
-    T = s x s zero matrix
-    for each pair (i, j) in S x S:
-        if columns i and j are compatible:
-            T[i][j] = 1
+## Pseudocode
 
-    // Step 2: Compute characteristic polynomial mod p
-    chi = characteristic_polynomial(T) mod p   // degree s
-
-    // Step 3: Compute initial values a_0, ..., a_{s-1}
-    M = identity matrix (s x s) mod p
-    for t = 0 to s-1:
-        a[t] = trace(M) mod p
-        M = M * T mod p
-
-    // Step 4: Kitamasa's method — compute x^n mod chi(x) in F_p[x]
-    poly = polynomial_power_mod(x, n, chi, p)
-
-    // Step 5: Combine
-    result = sum over j: poly.coeff[j] * a[j] mod p
-    return result
+```text
+Build transfer matrix
+if columns i and j are compatible
+Compute characteristic polynomial mod p
+Compute initial values a_0, ..., a_{s-1}
+Kitamasa's method — compute x^n mod chi(x) in F_p[x]
+Combine
 ```
 
 ## Complexity Analysis

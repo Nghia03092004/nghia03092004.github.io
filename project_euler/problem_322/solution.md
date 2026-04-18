@@ -47,14 +47,16 @@ $$c_2' = \lfloor(c_2 + d \cdot 5^k)/2\rfloor, \qquad c_5' = \lfloor(c_5 + d \cdo
 
 **Proof.** Since $10^k = 2^k \cdot 5^k$, each base-10 digit $d$ at position $k$ contributes $d \cdot 5^k$ to the base-2 representation (after factoring out powers of 2) and $d \cdot 2^k$ to the base-5 representation (after factoring out powers of 5). The carry variables $c_2$ and $c_5$ track the values $\lfloor (\text{partial sum}) / 2^{k}\rfloor$ and $\lfloor (\text{partial sum}) / 5^{k}\rfloor$ needed to reconstruct higher-order digits. Since $5^k$ is always odd, $(c_2 + d) \bmod 2$ gives the correct base-2 digit at position $k$. The domination constraint from Corollary 1 is enforced digit by digit. $\square$
 
-## Algorithm
+## Editorial
+T(m, n) = #{i in [n, m) : 10 | C(i, n)}. By inclusion-exclusion on primes 2 and 5: T = (m - n) - f_2 - f_5 + f_10 where f_p counts i with p not dividing C(i,n) (digit-wise domination in base p). f_10 uses a joint base-10 digit DP tracking carry states for base-2 and base-5.
 
-```
-function compute_T(m, n):
+## Pseudocode
+
+```text
     f2 = digit_dp_single_prime(m, n, 2)
     f5 = digit_dp_single_prime(m, n, 5)
     f10 = joint_digit_dp_base10(K = log10(m), n)
-    return (m - n) - f2 - f5 + f10
+    Return (m - n) - f2 - f5 + f10
 ```
 
 ## Complexity

@@ -50,23 +50,24 @@ $$f(m,n) = \frac{1}{mn} \sum_{t \mid n} \phi\!\left(\frac{n}{t}\right) \cdot \fr
 
 **Proof.** We have $f(m,1) = \frac{1}{m}\phi(1)\frac{m!}{(1!)^m} = (m-1)!$. Since $18! = 6402373705728000 > 10^{15}$, we need $m \le 18$. For fixed $m$, $f(m,n)$ is increasing in $n$ (the dominant term $(mn)!/(n!)^m$ grows super-exponentially), so once $f(m,n) > 10^{15}$ for some $n$, all larger $n$ also exceed the bound. Numerical evaluation confirms $n \le 29$ suffices. $\qquad \blacksquare$
 
-## Algorithm
+## Editorial
+Burnside's lemma applied to necklaces of m*n beads with m colors, each appearing n times, under the cyclic group C_{m*n}: f(m,n) = (1/(m*n)) * sum_{t | n} phi(n/t) * (m*t)! / (t!)^m Sum all f(m,n) <= 10^15 for m >= 2, n >= 1. We iterate over each divisor t of n.
 
-```
-function solve():
+## Pseudocode
+
+```text
     total = 0
     for m = 2, 3, ..., 18:
         for n = 1, 2, ..., 29:
             val = f(m, n)
-            if val <= 10^15:
+            If val <= 10^15 then
                 total += val
-    return total
+    Return total
 
-function f(m, n):
     result = 0
     for each divisor t of n:
         result += euler_phi(n / t) * (m*t)! / (t!)^m
-    return result / (m * n)
+    Return result / (m * n)
 ```
 
 ## Complexity Analysis

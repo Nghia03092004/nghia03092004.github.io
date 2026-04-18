@@ -55,16 +55,19 @@ with distinct primes $p_1 < \cdots < p_r$.
 
 **Proof.** By Lemma 2 every cube-full number corresponds to a unique strictly increasing list of primes and a unique exponent attached to each prime. The recursion chooses the next prime only from larger primes, so the same set of prime factors cannot be generated in two different orders. Hence each cube-full number appears exactly once. $\square$
 
-## Algorithm
+## Editorial
+This is exactly the method used by the existing Python and C++ implementations. We recursively enumerate cube-full numbers. We then iterate over the next prime $p$, try $p^3, p^4, p^5, \dots$ as long as the product stays $\le N$,. Finally, recurse only on larger primes.
 
-1. Sieve all primes up to $N^{1/3} = 10^6$.
-2. Recursively enumerate cube-full numbers:
-   - start with `cur = 1`,
-   - for the next prime $p$, try $p^3, p^4, p^5, \dots$ as long as the product stays $\le N$,
-   - recurse only on larger primes.
-3. For each generated cube-full number $c$, add $\lfloor N/c \rfloor$.
+## Pseudocode
 
-This is exactly the method used by the existing Python and C++ implementations.
+```text
+Sieve all primes up to $N^{1/3} = 10^6$
+Recursively enumerate cube-full numbers:
+start with `cur = 1`,
+for the next prime $p$, try $p^3, p^4, p^5, \dots$ as long as the product stays $\le N$,
+recurse only on larger primes
+For each generated cube-full number $c$, add $\lfloor N/c \rfloor$
+```
 
 ## Complexity Analysis
 

@@ -38,14 +38,16 @@ For efficiency, we use a sieve approach:
 - For each n, factorize using the SPF sieve.
 - Enumerate all 2^k CRT solutions and find the maximum.
 
-## Algorithm
+## Editorial
+a. Factorize n using SPF. b. Enumerate 2^k idempotents via CRT. We build a smallest-prime-factor sieve up to 10^7. We then iterate over each n from 1 to 10^7. Finally, sum all M(n).
 
-1. Build a smallest-prime-factor sieve up to 10^7.
-2. For each n from 1 to 10^7:
-   a. Factorize n using SPF.
-   b. Enumerate 2^k idempotents via CRT.
-   c. M(n) = max of these values (excluding n itself).
-3. Sum all M(n).
+## Pseudocode
+
+```text
+Build a smallest-prime-factor sieve up to 10^7
+For each n from 1 to 10^7:
+Sum all M(n)
+```
 
 ## Complexity Analysis
 

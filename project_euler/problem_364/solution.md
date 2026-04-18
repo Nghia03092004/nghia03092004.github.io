@@ -23,27 +23,14 @@ $$C(L) = \binom{L-1}{m-1} \cdot C(m-1) \cdot C(L-m)$$
 
 **Lemma 2 (First Person Placement).** *The first person sits at seat 1 (or seat $n$). This creates a single gap of size $n - 1$. Therefore $f(n) = C(n - 1)$.* $\square$
 
-## Algorithm
+## Editorial
+Count seating arrangements under the "comfortable distance" rule where each person sits as far as possible from occupied seats. Approach:. We precompute factorials and inverse factorials mod M. Finally, recursive computation with memoization.
 
-```
-function solve(n):
-    // Precompute factorials and inverse factorials mod M
-    M = 10^8
-    precompute fact[0..n], inv_fact[0..n] mod M
+## Pseudocode
 
-    // Recursive computation with memoization
-    memo = {}
-    function C(L):
-        if L <= 1: return 1
-        if L in memo: return memo[L]
-        m = ceil(L / 2)
-        a = m - 1
-        b = L - m
-        result = binom(L - 1, a) * C(a) % M * C(b) % M
-        memo[L] = result
-        return result
-
-    return C(n - 1)
+```text
+Precompute factorials and inverse factorials mod M
+Recursive computation with memoization
 ```
 
 ## Complexity Analysis

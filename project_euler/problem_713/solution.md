@@ -32,33 +32,18 @@ $$T(N, m) = N - m + 1 + \left\lfloor \frac{N - 1}{m - 1} \right\rfloor.$$
 
 **Proof.** After identifying one working fuse (costing $N - m + 1$ trials in the worst case), the second fuse search among $N - 1$ remaining fuses with $m - 1$ working costs $\lfloor(N-1)/(m-1)\rfloor$ additional trials using an optimal group-testing strategy. The total follows by addition. $\square$
 
-## Algorithm
+## Editorial
+We cost of finding first working fuse: N - m + 1. We then cost of finding second: ceil((N-1 - (m-1) + 1) / 1) = N - m + 1. Finally, optimal combined strategy.
 
-```
-function L(N):
-    total = 0
-    for m = 2 to N:
-        // Cost of finding first working fuse: N - m + 1
-        // Cost of finding second: ceil((N-1 - (m-1) + 1) / 1) = N - m + 1
-        // Optimal combined strategy:
-        T_val = compute_T(N, m)  // via closed-form or DP
-        total += T_val
-    return total
-```
+## Pseudocode
 
-For large $N$, the sum $L(N) = \sum_{m=2}^{N} T(N, m)$ is computed by grouping terms with the same value of $N - m$ and using harmonic-number identities to evaluate the sum in $O(N)$ or $O(\sqrt{N})$ time.
-
-```
-function L_fast(N):
-    total = 0
-    for m = 2 to N:
-        first_cost = N - m + 1
-        second_cost = floor((N - 1) / (m - 1))
-        total += first_cost + second_cost
-    // Simplify: sum_{m=2}^{N} (N - m + 1) = sum_{k=1}^{N-1} k = N(N-1)/2
-    // sum_{m=2}^{N} floor((N-1)/(m-1)) = sum_{d=1}^{N-1} floor((N-1)/d)
-    // The latter is a divisor-sum computable in O(sqrt(N))
-    return N*(N-1)/2 + sum_{d=1}^{N-1} floor((N-1)/d)
+```text
+Cost of finding first working fuse: N - m + 1
+Cost of finding second: ceil((N-1 - (m-1) + 1) / 1) = N - m + 1
+Optimal combined strategy:
+Simplify: sum_{m=2}^{N} (N - m + 1) = sum_{k=1}^{N-1} k = N(N-1)/2
+sum_{m=2}^{N} floor((N-1)/(m-1)) = sum_{d=1}^{N-1} floor((N-1)/d)
+The latter is a divisor-sum computable in O(sqrt(N))
 ```
 
 ## Complexity Analysis

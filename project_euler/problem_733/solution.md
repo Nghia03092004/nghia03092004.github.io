@@ -27,15 +27,20 @@ $$c_k(j) = \sum_{\substack{i < j \\ a_i < a_j}} c_{k-1}(i), \quad s_k(j) = \sum_
 
 These prefix sums over $a_i < a_j$ can be computed efficiently using a **Fenwick tree** (BIT) indexed by the value $a_i$ (after coordinate compression).
 
-### Algorithm
+### Editorial
+Sum of all elements in all ascending subsequences of length 4. Uses Fenwick trees for efficient prefix sum queries. We coordinate-compress the values to $[1, n]$. We then maintain 4 Fenwick trees for $c_1, c_2, c_3, c_4$ (counts) and 4 for $s_1, s_2, s_3, s_4$ (sums). Finally, process elements left to right. For each $a_j$.
 
-1. Generate all $a_i$ for $i = 1, \ldots, n$.
-2. Coordinate-compress the values to $[1, n]$.
-3. Maintain 4 Fenwick trees for $c_1, c_2, c_3, c_4$ (counts) and 4 for $s_1, s_2, s_3, s_4$ (sums).
-4. Process elements left to right. For each $a_j$:
-   - Query prefix sum of $c_{k-1}$ and $s_{k-1}$ for values $< a_j$.
-   - Update $c_k$ and $s_k$ at position $a_j$.
-5. Final answer: $S = \sum_j s_4(j)$.
+### Pseudocode
+
+```text
+Generate all $a_i$ for $i = 1, \ldots, n$
+Coordinate-compress the values to $[1, n]$
+Maintain 4 Fenwick trees for $c_1, c_2, c_3, c_4$ (counts) and 4 for $s_1, s_2, s_3, s_4$ (sums)
+Process elements left to right. For each $a_j$:
+Query prefix sum of $c_{k-1}$ and $s_{k-1}$ for values $< a_j$
+Update $c_k$ and $s_k$ at position $a_j$
+Final answer: $S = \sum_j s_4(j)$
+```
 
 ## Verification
 

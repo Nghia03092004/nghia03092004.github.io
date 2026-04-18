@@ -34,31 +34,17 @@ using the Fibonacci recurrence $F(k+1) = F(k) + F(k-1)$. $\square$
 
 **Proof.** By the prime number theorem, $p_n \sim n \ln n$. The Meissel--Lehmer algorithm computes $\pi(x)$ in $O(x^{2/3}/\ln x)$ time, enabling binary search for the exact starting point. A segmented sieve of length $L$ then enumerates consecutive primes in $O(L + \sqrt{x})$ time. $\square$
 
-## Algorithm
+## Editorial
+.100000, where p_k is the k-th prime and F(n) is the n-th Fibonacci number. Strategy: 1. Use sympy for prime counting and generation near 10^14-th prime. 2. Use matrix exponentiation for Fibonacci mod m. 3. Incremental computation via gap-based matrix multiplication. We use Meissel-Lehmer to compute pi(x_start) and adjust. We then extract the 100000 primes starting from the correct offset. Finally, compute F(p_1) mod m via matrix exponentiation.
 
-```
-function solve():
-    m = 1234567891011
-    M = [[1, 1], [1, 0]]
+## Pseudocode
 
-    // Step 1: Locate primes p_{10^14+1} through p_{10^14+100000}
-    x_start = approximate_nth_prime(10^14)
-    // Use Meissel-Lehmer to compute pi(x_start) and adjust
-    primes[] = segmented_sieve(x_start, x_start + buffer)
-    // Extract the 100000 primes starting from the correct offset
-
-    // Step 2: Compute F(p_1) mod m via matrix exponentiation
-    A = matrix_pow(M, primes[0], m)   // O(log p_1) multiplications
-    result = A[0][1]                    // F(primes[0]) mod m
-
-    // Step 3: Incremental computation for subsequent primes
-    for i = 1 to 99999:
-        gap = primes[i] - primes[i-1]
-        G = matrix_pow(M, gap, m)       // O(log gap) multiplications
-        A = A * G mod m
-        result = (result + A[0][1]) mod m
-
-    return result
+```text
+Locate primes p_{10^14+1} through p_{10^14+100000}
+Use Meissel-Lehmer to compute pi(x_start) and adjust
+Extract the 100000 primes starting from the correct offset
+Compute F(p_1) mod m via matrix exponentiation
+Incremental computation for subsequent primes
 ```
 
 ## Complexity Analysis

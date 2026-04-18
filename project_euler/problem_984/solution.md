@@ -24,7 +24,7 @@ For $n = 1000$: $B_{1000}$ has approximately 2000 digits.
 
 ## Derivation
 
-### Algorithm
+### Editorial
 
 Use the Bell triangle with two-row rolling array, reducing modulo $10^9 + 7$ at each step.
 

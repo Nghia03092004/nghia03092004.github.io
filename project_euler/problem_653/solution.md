@@ -22,36 +22,14 @@ From the first equation, $u_1 - v_1 = v_2 - u_2$. From the second, $u_1^2 - v_1^
 $$\#\{(i,j) : 1 \le i < j \le n,\; v_i > v_j\},$$
 which is the inversion count of the sequence $(v_1, \ldots, v_n)$. $\square$
 
-## Algorithm
+## Editorial
+We sort by position, extract velocity sequence. Finally, else. Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
 
-```
-function CountCollisions(positions, velocities):
-    // Sort by position, extract velocity sequence
-    pairs <- zip(positions, velocities)
-    sort pairs by position
-    v <- [velocity for (pos, velocity) in pairs]
-    return MergeSortCount(v)
+## Pseudocode
 
-function MergeSortCount(arr):
-    if len(arr) <= 1:
-        return (arr, 0)
-    mid <- len(arr) / 2
-    (left, inv_left)   <- MergeSortCount(arr[0..mid])
-    (right, inv_right) <- MergeSortCount(arr[mid..end])
-    (merged, inv_split) <- MergeCount(left, right)
-    return (merged, inv_left + inv_right + inv_split)
-
-function MergeCount(left, right):
-    inversions <- 0
-    i <- 0; j <- 0; result <- []
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            result.append(left[i]); i <- i + 1
-        else:
-            inversions <- inversions + (len(left) - i)
-            result.append(right[j]); j <- j + 1
-    result.extend(left[i..]); result.extend(right[j..])
-    return (result, inversions)
+```text
+Sort by position, extract velocity sequence
+else
 ```
 
 ## Complexity Analysis

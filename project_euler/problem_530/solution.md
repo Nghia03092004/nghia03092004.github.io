@@ -66,46 +66,16 @@ $$F(k) = \sum_{g=1}^{\lfloor\sqrt{k}\rfloor} g \sum_{\substack{e \ge 1 \\ g^2 e^
 
 **Proof.** Substitute $M = \lfloor k/g^2 \rfloor$ into the Mobius inversion lemma, then sum over $g$. $\square$
 
-## Algorithm
+## Editorial
+f(n) = sum_{d|n} gcd(d, n/d) F(k) = sum_{n=1}^{k} f(n) Find F(10^15). F(k) = sum_{g=1}^{sqrt(k)} g * sum_{e: mu(e)!=0} mu(e) * D(k/(g^2*e^2)) where D(x) = Dirichlet divisor sum. We sieve Mobius function up to sqrt(k). We then compute F(k). Finally, hyperbola method for D(x).
 
-```
-function GCD_DIVISOR_SUM(k):
-    // Step 1: Sieve Mobius function up to sqrt(k)
-    limit = floor(sqrt(k))
-    mu = mobius_sieve(limit)
+## Pseudocode
 
-    // Step 2: Compute F(k)
-    F = 0
-    for g = 1 to limit:
-        if g * g > k: break
-        M = floor(k / (g * g))
-        for e = 1 to floor(sqrt(M)):
-            if mu[e] == 0: continue
-            if e * e > M: break
-            x = floor(M / (e * e))
-            // Hyperbola method for D(x)
-            s = floor(sqrt(x))
-            D_x = 0
-            for j = 1 to s:
-                D_x += floor(x / j)
-            D_x = 2 * D_x - s * s
-
-            F += g * mu[e] * D_x
-
-    return F
-
-function MOBIUS_SIEVE(limit):
-    // Standard sieve computing mu(n) for n = 1..limit
-    mu = array of size limit+1, initialized to 1
-    is_prime = array of size limit+1, initialized to true
-    for p = 2 to limit:
-        if is_prime[p]:
-            for m = p to limit step p:
-                if m != p: is_prime[m] = false
-                mu[m] *= -1
-            for m = p*p to limit step p*p:
-                mu[m] = 0
-    return mu
+```text
+Sieve Mobius function up to sqrt(k)
+Compute F(k)
+Hyperbola method for D(x)
+Standard sieve computing mu(n) for n = 1..limit
 ```
 
 ## Complexity Analysis

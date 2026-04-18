@@ -38,27 +38,15 @@ Since $\ln(1 + \varepsilon) \sim \varepsilon$ for small $\varepsilon$, we obtain
 
 **Proof.** By Theorem 2, the relative error is $\approx 3/(2 \cdot 10^{12} \cdot 6\ln 10) \approx 1.1 \times 10^{-14}$. Working in log-space (accumulating $L = \sum_{p \le N} -\ln(1-p^{-3})$), each term has relative error $\varepsilon_{\mathrm{mach}} \approx 2^{-53}$. Over $\pi(10^6) = 78498$ terms, the accumulated error in $L$ is at most $78498 \cdot 2^{-53} \approx 8.7 \times 10^{-12}$, which propagates to an absolute error of $\sim 10^{-11}$ in $E$. This is well within the tolerance for the 15th decimal digit. $\square$
 
-## Algorithm
+## Editorial
+Compute floor(E(3, 10^6) * 10^15) where E(3, N) = prod_{p <= N} (1 - p^{-3})^{-1}. The Euler product for zeta(s) converges to Apery's constant zeta(3) = 1.2020569... We accumulate the product in log-space for numerical stability: L = sum_{p <= N} -ln(1 - p^{-3}) E = exp(L) Key identity: zeta(s) = prod_p (1 - p^{-s})^{-1} (Re(s) > 1) Error bound: zeta(3) - E(3,N) ~ 4*zeta(3) / (N^2 * ln(N)). We sieve of Eratosthenes. We then log-space accumulation. Finally, recover product and extract answer.
 
-```
-function EulerProduct(N):
-    // Step 1: Sieve of Eratosthenes
-    is_prime[0..N] = all true
-    is_prime[0] = is_prime[1] = false
-    for i = 2 to floor(sqrt(N)):
-        if is_prime[i]:
-            for j = i*i to N step i:
-                is_prime[j] = false
+## Pseudocode
 
-    // Step 2: Log-space accumulation
-    L = 0.0
-    for p = 2 to N:
-        if is_prime[p]:
-            L = L - log(1 - p^(-3))
-
-    // Step 3: Recover product and extract answer
-    E = exp(L)
-    return floor(E * 10^15)
+```text
+Sieve of Eratosthenes
+Log-space accumulation
+Recover product and extract answer
 ```
 
 ## Complexity Analysis

@@ -28,26 +28,14 @@ $$F(N) = \sum_{\lambda \vdash N} p(\lambda)$$
 
 **Proof.** Each convex path corresponds to a pair of compositions of $N$ (for horizontal and vertical runs) satisfying the slope monotonicity condition. By grouping these according to their sorted forms, each valid pair corresponds to a partition structure. The count follows by enumeration. $\square$
 
-## Algorithm
+## Editorial
+Count convex lattice paths in a grid. We dynamic programming over run-length decompositions. Finally, state: (remaining_horizontal, remaining_vertical, last_slope). We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function F(N):
-    // Dynamic programming over run-length decompositions
-    // State: (remaining_horizontal, remaining_vertical, last_slope)
-    dp = memoization table
-    return count_convex_paths(N, N, infinity, dp)
+## Pseudocode
 
-function count_convex_paths(h, v, max_slope, dp):
-    if h == 0 and v == 0: return 1
-    if (h, v, max_slope) in dp: return dp[(h, v, max_slope)]
-    result = 0
-    for r = 1 to h:
-        for u = 1 to v:
-            slope = u / r
-            if slope <= max_slope:
-                result += count_convex_paths(h - r, v - u, slope, dp)
-    dp[(h, v, max_slope)] = result
-    return result
+```text
+Dynamic programming over run-length decompositions
+State: (remaining_horizontal, remaining_vertical, last_slope)
 ```
 
 ## Complexity Analysis

@@ -26,39 +26,18 @@ Stations at identical coordinates are identified. An **uphill path** from $(0,0)
 
 **Proof.** Maintain an array $\mathrm{tails}[]$ where $\mathrm{tails}[j]$ is the smallest possible last element of a non-decreasing subsequence of length $j+1$ found so far. For each new element $v$, use binary search to find the first position $p$ where $\mathrm{tails}[p] > v$ (i.e., $\operatorname{upper\_bound}$). If $p$ is past the end, append $v$; otherwise set $\mathrm{tails}[p] = v$. The invariant that $\mathrm{tails}[]$ is non-decreasing is maintained at each step, and each operation costs $O(\log M)$ via binary search. The final length of $\mathrm{tails}[]$ equals the LNDS length. The correctness follows from the standard patience sorting theory (see Aldous and Diaconis, 1999). $\square$
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We generate stations. We then sort lexicographically by (x, y). Finally, extract y-values.
 
-```
-function S(n):
-    // Step 1: Generate stations
-    stations = empty set
-    x = 1, y = 1
-    for i = 0 to 2n:
-        stations.add((x mod n, y mod n))
-        x = (x * 2) mod n
-        y = (y * 3) mod n
+## Pseudocode
 
-    // Step 2: Sort lexicographically by (x, y)
-    sorted_stations = sort(stations) by (x ascending, y ascending)
-
-    // Step 3: Extract y-values
-    Y = [s.y for s in sorted_stations]
-
-    // Step 4: Compute LNDS via patience sorting
-    tails = []
-    for v in Y:
-        p = upper_bound(tails, v)
-        if p == len(tails):
-            tails.append(v)
-        else:
-            tails[p] = v
-    return len(tails)
-
-function solve():
-    total = 0
-    for k = 1 to 30:
-        total += S(k^5)
-    return total
+```text
+Generate stations
+Sort lexicographically by (x, y)
+Extract y-values
+Compute LNDS via patience sorting
+for v in Y
+else
 ```
 
 ## Complexity Analysis

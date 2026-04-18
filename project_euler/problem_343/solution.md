@@ -26,26 +26,14 @@ Compute $\sum f(p)$ for all primes $5 \le p < 10^6$.
 
 **Proof.** Each step reduces the numerator by at least a constant fraction (analogous to the quotient in Euclidean division), so the number of iterations is $O(\log p)$. $\square$
 
-## Algorithm
+## Editorial
+For primes 5 <= p < 10^6, compute f(p^2) and sum them. The problem defines a process on an integer n: For n = p^2 (p prime):. We advance: compute (x+1)/y reduced, then extract next step. Finally, equivalent to modified Euclidean step.
 
-```
-function f(k):
-    x = 1, y = k
-    while x != 0:
-        // Advance: compute (x+1)/y reduced, then extract next step
-        // Equivalent to modified Euclidean step
-        q = y / (x + 1)          // integer division
-        r = y mod (x + 1)
-        if r == 0:
-            return x + 1         // y is divisible by x+1
-        x, y = r, x + 1         // continue with reduced fraction
+## Pseudocode
 
-function solve():
-    primes = sieve_primes(10^6)
-    total = 0
-    for p in primes where p >= 5:
-        total += f(p)
-    return total
+```text
+Advance: compute (x+1)/y reduced, then extract next step
+Equivalent to modified Euclidean step
 ```
 
 ## Complexity Analysis

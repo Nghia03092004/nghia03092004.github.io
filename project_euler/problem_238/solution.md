@@ -34,34 +34,20 @@ The value $p(k) = z$ iff $k \in A(z)$ and $k \notin A(z')$ for all $z' < z$.
 
 **Corollary (Periodic Extension).** Since $A(z)$ for $z$ in the $t$-th period is a shift of the corresponding position in the first period by $t \cdot \Delta$, we can process period by period, accumulating contributions from each period's starting positions.
 
-## Algorithm
+## Editorial
+BBS generator: s_0 = 14025256, s_{n+1} = s_n^2 mod 20300713 Concatenate to form w = "14025256741014958..." p(k) = earliest starting position z such that some substring starting at z has digit sum = k. If none exists, p(k) = 0. Find sum of p(k) for 0 < k <= 2*10^15. Key insight: p(k) = min_reach[k mod S] where min_reach[c] = min z such that (c + C[z-1]) mod S is in V. Process z in order; |U| drains quickly (geometric decay ~21% per step). Verification: sum p(k) for k=1..1000 = 4742. We generate one full period of BBS, compute digit string. We then compute cumulative sums for one period. Finally, iterate over each starting position z in [1, L], determine.
 
-```
-function solve(K):
-    // K = 2 * 10^15
-    // Step 1: Generate one full period of BBS, compute digit string
-    M = 20300713
-    s = 14025256
-    digits = []
-    for i = 0 to lambda - 1:
-        append digits of s to digits[]
-        s = s^2 mod M
+## Pseudocode
 
-    L = len(digits)
-    Delta = sum(digits)
-
-    // Step 2: Compute cumulative sums for one period
-    C[0] = 0
-    for i = 1 to L:
-        C[i] = C[i-1] + digits[i]
-
-    // Step 3: For each starting position z in [1, L], determine
-    //   which k values get p(k) = z (not achievable from earlier positions)
-    // Step 4: Use periodicity to extend across multiple periods
-    //   Positions in period t cover digit sums shifted by t * Delta
-    // Step 5: Sum p(k) for k = 1 to K
-
-    return total_sum
+```text
+K = 2 * 10^15
+Generate one full period of BBS, compute digit string
+Compute cumulative sums for one period
+For each starting position z in [1, L], determine
+which k values get p(k) = z (not achievable from earlier positions)
+Use periodicity to extend across multiple periods
+Positions in period t cover digit sums shifted by t * Delta
+Sum p(k) for k = 1 to K
 ```
 
 ## Complexity Analysis

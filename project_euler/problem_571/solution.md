@@ -30,43 +30,14 @@ For example, $978$ is the smallest 5-super-pandigital number. The number $109326
 
 *Proof.* A base-12 number with 12 digits has approximately $\lceil 12 \log 12 / \log 11 \rceil = 13$ digits in base 11. Pandigitality in base 11 requires all 11 symbols among these $\sim 13$ digits, and the fraction of such arrangements is small. More precisely, by inclusion-exclusion on missing symbols, the probability of pandigitality in base 11 is $\sum_{k=0}^{11} (-1)^k \binom{11}{k} (1 - k/11)^{13}$, which evaluates to roughly $0.0014$. $\square$
 
-## Algorithm
+## Editorial
+We iterate over each permutation P of remaining. Finally, iterate over b from 11 down to 2. Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
 
-```
-function FIND_SUPER_PANDIGITAL(target_base=12, count=10):
-    pow12[i] := 12^i for i = 0, ..., 11
-    results := empty list
+## Pseudocode
 
-    for first_digit in {1, 2, ..., 11}:
-        remaining := {0, 1, ..., 11} \ {first_digit}
-        for each permutation P of remaining:
-            N := first_digit * pow12[11] + sum(P[i] * pow12[10-i] for i=0..10)
-
-            is_valid := true
-            for b from 11 down to 2:
-                if not IS_PANDIGITAL(N, b):
-                    is_valid := false
-                    break
-
-            if is_valid:
-                append N to results
-
-        if first_digit == 1 and |results| >= count:
-            break
-
-    sort(results)
-    return sum(results[0 .. count-1])
-
-function IS_PANDIGITAL(N, b):
-    mask := 0
-    target := (1 << b) - 1
-    temp := N
-    while temp > 0:
-        mask := mask | (1 << (temp mod b))
-        temp := floor(temp / b)
-        if mask == target:
-            return true
-    return (mask == target)
+```text
+for each permutation P of remaining
+for b from 11 down to 2
 ```
 
 ## Complexity Analysis

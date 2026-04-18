@@ -37,12 +37,17 @@ Many triangles have repeated side lengths or can be permuted. We impose $a \le b
 
 ## Derivation
 
-### Algorithm
+### Editorial
+We iterate over each permutation, try all ways to split into 3 numbers. We then check triangle inequality and ordering. Finally, use symmetry to reduce work.
 
-1. Generate all permutations of 0--9 (10! = 3628800).
-2. For each permutation, try all ways to split into 3 numbers.
-3. Check triangle inequality and ordering.
-4. Use symmetry to reduce work.
+### Pseudocode
+
+```text
+Generate all permutations of 0--9 (10! = 3628800)
+For each permutation, try all ways to split into 3 numbers
+Check triangle inequality and ordering
+Use symmetry to reduce work
+```
 
 ### Optimization
 

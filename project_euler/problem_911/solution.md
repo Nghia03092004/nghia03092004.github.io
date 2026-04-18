@@ -33,27 +33,28 @@ which gives $a^{p-1} \cdot (p-1)! \equiv (p-1)! \pmod{p}$. Since $\gcd((p-1)!, p
 $$S(r, r) \bmod p \equiv (r^{r+1} - 1) \cdot (r-1)^{p-2} \pmod{p}.$$
 Summing over $r = 2, \ldots, 100$ and reducing modulo $p$ gives the result. $\square$
 
-## Algorithm
+## Editorial
+S(r, n) = sum_{k=0}^{n} r^k = (r^{n+1} - 1) / (r - 1). Find sum_{r=2}^{100} S(r, r) mod 10^9+7. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function solve():
+## Pseudocode
+
+```text
     p = 10^9 + 7
     total = 0
-    for r = 2 to 100:
+    For r from 2 to 100:
         numerator = (pow_mod(r, r+1, p) - 1 + p) mod p
         denominator_inv = pow_mod(r - 1, p - 2, p)
         total = (total + numerator * denominator_inv) mod p
-    return total
+    Return total
 
-function pow_mod(base, exp, mod):
     result = 1
     base = base mod mod
-    while exp > 0:
+    While exp > 0:
         if exp is odd:
             result = (result * base) mod mod
         exp = exp >> 1
         base = (base * base) mod mod
-    return result
+    Return result
 ```
 
 ## Complexity Analysis

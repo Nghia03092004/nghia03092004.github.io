@@ -29,44 +29,18 @@ where $\mathcal{A}$ is the set of admissible residue tuples, $x_{\mathbf{r}}$ is
 
 **Proof.** By CRT, each admissible residue tuple $\mathbf{r}$ corresponds to a unique residue class modulo $P$. The integers in $\{1, \ldots, n\}$ in that class number $\lfloor (n - x_{\mathbf{r}}) / P \rfloor + 1$ if $x_{\mathbf{r}} \leq n$ (and 0 otherwise). Summing over all admissible tuples yields the result. $\square$
 
-## Algorithm
+## Editorial
+We build admissible residues for each prime. We then iterative CRT combination. Finally, start with all admissible residues mod primes[1].
 
-```
-function SOLVE(n, k, thresholds[]):
-    primes = first k primes
-    // Build admissible residues for each prime
-    for i = 1 to k:
-        admissible[i] = {r : 0 <= r < primes[i], r >= thresholds[i]}
+## Pseudocode
 
-    // Iterative CRT combination
-    // Start with all admissible residues mod primes[1]
-    current_solutions = admissible[1]
-    current_mod = primes[1]
-
-    for i = 2 to k:
-        new_solutions = []
-        for each x in current_solutions:
-            for each r in admissible[i]:
-                // Combine x (mod current_mod) with r (mod primes[i])
-                combined = CRT_COMBINE(x, current_mod, r, primes[i])
-                new_solutions.append(combined)
-        current_solutions = new_solutions
-        current_mod = current_mod * primes[i]
-
-    // Count: for each solution x, count multiples in [1, n]
-    answer = 0
-    P = current_mod
-    for each x in current_solutions:
-        if x == 0: x = P
-        if x <= n:
-            answer += floor((n - x) / P) + 1
-
-    return answer mod PRIME
-
-function CRT_COMBINE(a, m, b, n):
-    // gcd(m, n) = 1
-    t = (b - a) * modular_inverse(m, n) mod n
-    return a + m * t
+```text
+Build admissible residues for each prime
+Iterative CRT combination
+Start with all admissible residues mod primes[1]
+Combine x (mod current_mod) with r (mod primes[i])
+Count: for each solution x, count multiples in [1, n]
+gcd(m, n) = 1
 ```
 
 ## Complexity Analysis

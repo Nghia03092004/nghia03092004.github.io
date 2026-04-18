@@ -18,14 +18,19 @@ Given $n < 50{,}000{,}000$:
 - $q^3 < 50{,}000{,}000 \Rightarrow q < 369$, so we need primes up to 368.
 - $r^4 < 50{,}000{,}000 \Rightarrow r < 85$, so we need primes up to 84.
 
-### Algorithm
+### Editorial
+We generate all primes up to 7071 using the Sieve of Eratosthenes. We then compute all fourth powers $r^4$ for primes $r \le 84$. Finally, compute all cubes $q^3$ for primes $q \le 368$.
 
-1. Generate all primes up to 7071 using the Sieve of Eratosthenes.
-2. Compute all fourth powers $r^4$ for primes $r \le 84$.
-3. Compute all cubes $q^3$ for primes $q \le 368$.
-4. Compute all squares $p^2$ for primes $p \le 7071$.
-5. For each combination $(r^4, q^3, p^2)$, if $r^4 + q^3 + p^2 < 50{,}000{,}000$, mark the sum.
-6. Count distinct marked values.
+### Pseudocode
+
+```text
+Generate all primes up to 7071 using the Sieve of Eratosthenes
+Compute all fourth powers $r^4$ for primes $r \le 84$
+Compute all cubes $q^3$ for primes $q \le 368$
+Compute all squares $p^2$ for primes $p \le 7071$
+For each combination $(r^4, q^3, p^2)$, if $r^4 + q^3 + p^2 < 50{,}000{,}000$, mark the sum
+Count distinct marked values
+```
 
 ### Correctness
 

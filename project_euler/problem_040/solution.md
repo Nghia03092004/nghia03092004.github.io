@@ -59,7 +59,7 @@ $$d_1 \times d_{10} \times d_{100} \times d_{1000} \times d_{10000} \times d_{10
 
 **Proof.** Each computation follows directly from Theorem 2 with the values from Lemma 1. $\square$
 
-## Algorithm
+## Editorial
 
 We use the block decomposition of Champernowne's constant by digit length. For any requested position $n$, the procedure first determines which block of $k$-digit integers contains that position by removing the contributions of all shorter blocks. The remaining offset identifies the exact integer in the $k$-digit block and the exact digit inside that integer. Repeating this extraction for the seven positions $10^0,10^1,\ldots,10^6$ and multiplying the resulting digits yields the required product.
 

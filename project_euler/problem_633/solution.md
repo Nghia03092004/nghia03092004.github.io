@@ -34,39 +34,18 @@ $$r_2(n) = 4 \sum_{d \mid n} \chi_{-4}(d),$$
 
 **Proof.** The two-square density is a classical result of Landau and Ramanujan. The three-square density follows from $\sum_{a=0}^{\infty} \lfloor (N/4^a - 7)/8 \rfloor \sim N/6$. $\square$
 
-## Algorithm
+## Editorial
+We sieve smallest prime factor. We then classify each n. Finally, check sum-of-2-squares: all p = 3 mod 4 appear to even power.
 
-```
-function COUNT_BOTH(N):
-    // Step 1: Sieve smallest prime factor
-    spf[2..N] <- sieve of smallest prime factors
+## Pseudocode
 
-    // Step 2: Classify each n
-    count_2 <- 0; count_3 <- 0; count_both <- 0
-    for n = 1 to N:
-        // Check sum-of-2-squares: all p = 3 mod 4 appear to even power
-        is_sum2 <- true
-        temp <- n
-        while temp > 1:
-            p <- spf[temp]
-            e <- 0
-            while p divides temp:
-                temp <- temp / p
-                e <- e + 1
-            if p mod 4 == 3 and e mod 2 == 1:
-                is_sum2 <- false; break
-
-        // Check sum-of-3-squares: n != 4^a(8b+7)
-        m <- n
-        while m mod 4 == 0: m <- m / 4
-        is_sum3 <- (m mod 8 != 7)
-
-        // Accumulate counts
-        if is_sum2: count_2 <- count_2 + 1
-        if is_sum3: count_3 <- count_3 + 1
-        if is_sum2 and is_sum3: count_both <- count_both + 1
-
-    return (count_2, count_3, count_both)
+```text
+Sieve smallest prime factor
+Classify each n
+Check sum-of-2-squares: all p = 3 mod 4 appear to even power
+while p divides temp
+Check sum-of-3-squares: n != 4^a(8b+7)
+Accumulate counts
 ```
 
 ## Complexity Analysis

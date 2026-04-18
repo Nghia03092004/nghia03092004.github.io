@@ -28,37 +28,17 @@ $$C(R, n) = R \cdot \left\lceil \frac{C(R, n-1) + 2}{R} \right\rceil$$
 
 **Proof.** Adding one more room requires at least one additional card (for the new door), so $C(R, N+1) > C(R, N)$. Increasing capacity allows more cards per trip, reducing the number of trips and hence the total cost. $\square$
 
-## Algorithm
+## Editorial
+More precisely, the iterative computation is. We number of trips needed: ceil((cards + 1) / (R - 2)). We then but the last trip is one-way, so. Finally, else.
 
-```
-function C(R, N):
-    if N <= R - 1:
-        return N
-    cards = R - 1   // C(R, R-1)
-    for n = R to N:
-        // Number of trips needed: ceil((cards + 1) / (R - 2))
-        // But the last trip is one-way, so:
-        trips = ceil((cards + 1 - (R - 1)) / (R - 2)) + 1
-        // If cards + 1 <= R - 1, only 1 trip needed
-        if cards + 1 <= R:
-            cards = cards + 1  // just one more door
-        else:
-            trips = ceil((cards + 2) / R)
-            cards = trips * R
-    return cards
-```
+## Pseudocode
 
-More precisely, the iterative computation is:
-
-```
-function C(R, N):
-    c = 0
-    for n = 1 to N:
-        c = c + 1          // one card for door n
-        if c > R:
-            // Need extra trips; compute minimum cards from room 0
-            c = R * ceil(c / R)
-    return c
+```text
+Number of trips needed: ceil((cards + 1) / (R - 2))
+But the last trip is one-way, so:
+If cards + 1 <= R - 1, only 1 trip needed
+else
+Need extra trips; compute minimum cards from room 0
 ```
 
 ## Complexity Analysis

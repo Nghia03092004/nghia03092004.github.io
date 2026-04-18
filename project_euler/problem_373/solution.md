@@ -39,30 +39,15 @@ $$T(N) = \sum_{\substack{n=1 \\ r_2(n) \ge 3}}^{N} \binom{r_2(n)}{3}.$$
 
 **Proof.** By the non-degeneracy lemma, every 3-element subset of the $L(n)$ lattice points on the circle is a valid triangle. No further degenerate cases need exclusion. $\square$
 
-## Algorithm
+## Editorial
+Count lattice triangles whose circumscribed circle satisfies given conditions. Uses the sum-of-two-squares function r_2(n) to count lattice points on circles. We use smallest prime factor sieve, then compute r2 multiplicatively. Finally, sum binomial coefficients.
 
-```
-function solve(N):
-    // Sieve to compute r2[n] for n = 1..N
-    // Use smallest prime factor sieve, then compute r2 multiplicatively
-    spf[1..N] = smallest_prime_factor_sieve(N)
-    r2[1..N] = array of zeros
-    r2[1] = 4  // (0,1), (0,-1), (1,0), (-1,0)... actually r2(1)=4
+## Pseudocode
 
-    for n = 1 to N:
-        Compute r2[n] from prime factorization using spf[]
-        r2[n] = 4 * product over prime powers p^a || n of:
-            if p == 2:       1
-            if p ≡ 1 (mod 4): a + 1
-            if p ≡ 3 (mod 4): 1 if a even, 0 if a odd
-
-    // Sum binomial coefficients
-    total = 0
-    for n = 1 to N:
-        m = r2[n]
-        if m >= 3:
-            total += m * (m-1) * (m-2) / 6
-    return total
+```text
+Sieve to compute r2[n] for n = 1..N
+Use smallest prime factor sieve, then compute r2 multiplicatively
+Sum binomial coefficients
 ```
 
 ## Complexity Analysis

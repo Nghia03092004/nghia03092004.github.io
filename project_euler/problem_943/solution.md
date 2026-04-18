@@ -22,11 +22,16 @@ $D(2) = \sum_{n=1}^{N} \frac{\mu(n)}{n^2} \approx \frac{6}{\pi^2} - \sum_{n>N} \
 
 The tail is $O(1/N)$, so for $N = 10^7$, $D(2) \approx 6/\pi^2$ to about 7 decimal places.
 
-### Algorithm
+### Editorial
+Compute D(s) = sum_{n=1}^{N} mu(n) / n^s for s = 2, which converges to 6/pi^2 (the reciprocal of the Riemann zeta function at s=2). The Mobius function mu(n) is: mu(1) = 1 mu(n) = (-1)^k if n is a product of k distinct primes mu(n) = 0 if n has a squared prime factor The target is floor(D(2) * 10^12) for large N. Results:. We sieve $\mu(n)$ for $n \leq N$ using a linear sieve. Finally, compute $\sum \mu(n)/n^2$ using floating-point or exact rational arithmetic.
 
-1. Sieve $\mu(n)$ for $n \leq N$ using a linear sieve.
-2. Compute $\sum \mu(n)/n^2$ using floating-point or exact rational arithmetic.
-3. Floor the result times $10^{12}$.
+### Pseudocode
+
+```text
+Sieve $\mu(n)$ for $n \leq N$ using a linear sieve
+Compute $\sum \mu(n)/n^2$ using floating-point or exact rational arithmetic
+Floor the result times $10^{12}$
+```
 
 ### The Mobius Sieve
 

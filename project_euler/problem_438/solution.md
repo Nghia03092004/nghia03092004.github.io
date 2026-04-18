@@ -36,37 +36,19 @@ Thus all $e_k \in \mathbb{Z}$ if and only if all $p_k \in \mathbb{Z}$ (by induct
 
 **Proof.** Each integrality condition $e_k \in \mathbb{Z}$ constrains $\sum f_i, \sum f_i f_j$, etc. to discrete values. The number of solutions of a system of $n$ polynomial equations in $[0, 1)^n$ with integer constraints is finite by the discreteness of $\mathbb{Z}$ and the bounded domain. $\square$
 
-## Algorithm
+## Editorial
+For n=7, find sum of S(t) = sum|a_i| over all valid n-tuples t=(a1,...,a7) where the polynomial x^7 + a1*x^6 + ... + a7 = 0 has all real roots x_i with floor(x_i) = i when sorted. Approach:. We enumerate valid fractional part tuples. We then recursive search over f_1, ..., f_n in [0, 1). Finally, verify all e_k are integers.
 
-```
-function solve(n):
-    // Enumerate valid fractional part tuples
-    total_S = 0
+## Pseudocode
 
-    for k = 0 to n-1:   // sum of f_i = k
-        // Recursive search over f_1, ..., f_n in [0, 1)
-        // with constraint sum(f_i) = k and all e_j integer
-
-        search(1, [], k, n, total_S)
-
-    return total_S
-
-function search(idx, partial_f, remaining_sum, n, total_S):
-    if idx > n:
-        if remaining_sum != 0: return
-        // Verify all e_k are integers
-        roots = [i + f_i for i, f_i in enumerate(partial_f, 1)]
-        coeffs = vieta_coefficients(roots)
-        if all(is_integer(c) for c in coeffs):
-            total_S += sum(|c| for c in coeffs)
-        return
-
-    // Determine valid f_idx values from integrality of partial e_k
-    // Use Newton's identities for pruning:
-    //   p_j(partial) must have fractional part consistent with integer e_j
-
-    for f_idx in candidate_values(idx, partial_f, remaining_sum, n):
-        search(idx+1, partial_f + [f_idx], remaining_sum - f_idx, n, total_S)
+```text
+Enumerate valid fractional part tuples
+Recursive search over f_1, ..., f_n in [0, 1)
+with constraint sum(f_i) = k and all e_j integer
+Verify all e_k are integers
+Determine valid f_idx values from integrality of partial e_k
+Use Newton's identities for pruning:
+p_j(partial) must have fractional part consistent with integer e_j
 ```
 
 ## Complexity Analysis

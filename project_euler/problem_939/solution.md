@@ -28,51 +28,19 @@ $$G(n) \sim \frac{2 C_2 \, n}{(\ln n)^2} \prod_{\substack{p \mid n \\ p > 2}} \f
 
 **Proof.** This is a heuristic conjecture based on the Hardy--Littlewood circle method. A rigorous proof remains open. The formula gives excellent empirical agreement for large $n$. $\square$
 
-## Algorithm
+## Editorial
+Optimized approach:*. We sieve of Eratosthenes up to N. We then iterate over each even n, count G(n) and accumulate. Finally, iterate over n from 4 to N step 2.
 
-```
-function TotalGoldbachPartitions(N):
-    // Step 1: Sieve of Eratosthenes up to N
-    is_prime[0..N] := true
-    is_prime[0] := false
-    is_prime[1] := false
-    for p from 2 to isqrt(N):
-        if is_prime[p]:
-            for m from p*p to N step p:
-                is_prime[m] := false
+## Pseudocode
 
-    // Step 2: For each even n, count G(n) and accumulate
-    total := 0
-    for n from 4 to N step 2:
-        count := 0
-        for p from 2 to n/2:
-            if is_prime[p] and is_prime[n - p]:
-                count := count + 1
-        total := total + count
-
-    return total
-```
-
-*Optimized approach:*
-
-```
-function TotalGoldbachPartitions_Optimized(N):
-    // Sieve primes
-    is_prime := sieve_of_eratosthenes(N)
-    primes := list of primes up to N/2
-
-    // For each prime p, count even n in [2p, N] such that n - p is prime
-    // Equivalently: for each pair (p, q) with p <= q, p + q <= N, p + q even
-    total := 0
-    for i from 0 to len(primes)-1:
-        p := primes[i]
-        for j from i to len(primes)-1:
-            q := primes[j]
-            if p + q > N: break
-            if (p + q) is even:
-                total := total + 1
-
-    return total
+```text
+Sieve of Eratosthenes up to N
+For each even n, count G(n) and accumulate
+for n from 4 to N step 2
+for p from 2 to n/2
+Sieve primes
+For each prime p, count even n in [2p, N] such that n - p is prime
+Equivalently: for each pair (p, q) with p <= q, p + q <= N, p + q even
 ```
 
 ## Complexity Analysis

@@ -30,30 +30,16 @@ Applying the path-recovery algorithm to $a/b = 13717421/109739369$:
 
 Reversed path (root-to-leaf): R(13717420), L(1), L(7). Merging the two consecutive L-runs: R(13717420), L(8). The shorthand is $1, 13717420, 8$ (where by convention the first entry represents the direction from the leaf, giving the reversed reading).
 
-## Algorithm
+## Editorial
+a Number Can Be Expressed as a Sum of Powers of 2 Find the shorthand notation for f(123456789/987654321). The shorthand for fraction p/q (with p < q, both reduced) is: 1. Compute the continued fraction of q/p. 2. Ensure the last partial quotient is 1 (split if needed: [..., n] -> [..., n-1, 1]). 3. Reverse the sequence. This gives the Calkin-Wilf tree path encoding. We else. We then merge last two entries if they represent same direction. Finally, (they alternate, so merge means add to previous).
 
-```
-function calkin_wilf_path(p, q):
-    g = gcd(p, q)
-    a = p / g;  b = q / g
-    runs = []
+## Pseudocode
 
-    while a != b:
-        if a > b:
-            k = (a - 1) // b
-            runs.append(k)
-            a = a - k * b
-        else:
-            k = (b - 1) // a
-            runs.append(k)
-            b = b - k * a
-    runs.append(1)   # final step to reach 1/1
-
-    # Merge last two entries if they represent same direction
-    # (they alternate, so merge means add to previous)
-    # Reverse to get root-to-leaf order
-    runs.reverse()
-    return runs
+```text
+else
+Merge last two entries if they represent same direction
+(they alternate, so merge means add to previous)
+Reverse to get root-to-leaf order
 ```
 
 ## Complexity Analysis

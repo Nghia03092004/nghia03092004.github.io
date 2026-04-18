@@ -33,33 +33,17 @@ where $dp[0]$ counts all subsets (including empty) with sum $\equiv 0$.
 
 **Proof.** $dp[0]$ includes the empty subset, which has sum 0. Subtracting 1 excludes it. $\square$
 
-## Algorithm
+## Editorial
+.., 250250^250250} with sum divisible by 250. DP on residue classes mod 250. Answer mod 10^16. Key: Only need i^i mod 250 for each element. DP array of size 250. We use fast modular exponentiation. We then dP on residue classes. Finally, subtract empty subset.
 
+## Pseudocode
+
+```text
+Compute residues r_i = i^i mod 250
+Use fast modular exponentiation
+DP on residue classes
+Subtract empty subset
 ```
-function Solve():
-    M = 10^16
-    N = 250250
-    MOD = 250
-
-    # Step 1: Compute residues r_i = i^i mod 250
-    # Use fast modular exponentiation
-
-    # Step 2: DP on residue classes
-    dp = array of size 250, initialized to 0
-    dp[0] = 1    # empty subset
-
-    for i = 1 to N:
-        r = pow(i, i, 250)    # i^i mod 250
-        new_dp = copy(dp)
-        for j = 0 to 249:
-            new_dp[(j + r) % 250] = (new_dp[(j + r) % 250] + dp[j]) % M
-        dp = new_dp
-
-    # Step 3: Subtract empty subset
-    return (dp[0] - 1) % M
-```
-
-**Optimisation note:** Instead of copying the array, we can iterate $j$ in any order since we read from `dp` and write to `new_dp`. Alternatively, since multiple elements may share the same residue, we can group elements by residue and use repeated squaring on the polynomial $(1 + x^r)^{count_r}$ in $\mathbb{Z}[x]/(x^{250} - 1)$.
 
 ## Complexity Analysis
 

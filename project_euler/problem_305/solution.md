@@ -42,42 +42,17 @@ $$C(p, s) = C_{\text{internal}}(p, s) + C_{\text{boundary}}(p, s)$$
 
 **Proof.** $C(p, s)$ increases by 1 each time a new occurrence of $s$ starts at or before position $p$. The smallest $p$ with $C(p, s) = n$ is the starting position of the $n$-th occurrence. $\square$
 
-## Algorithm
+## Editorial
+S = "123456789101112131415..." (Champernowne string) f(n) = starting position of the n-th occurrence of str(n) in S. Find sum of f(3^k) for k = 1..13. Strategy: (a) Digit DP for internal occurrences within single numbers. (b) Arithmetic counting for boundary occurrences spanning consecutive numbers. We binary search for position p such that count(p, s) = n. We then else. Finally, determine which number m is at position p.
 
-```
-function solve():
-    total = 0
-    for k = 1 to 13:
-        n = 3^k
-        total += find_nth_occurrence(n, str(n))
-    return total
+## Pseudocode
 
-function find_nth_occurrence(n, s):
-    // Binary search for position p such that count(p, s) = n
-    lo = 1, hi = upper_bound  // hi ~ 10^15 suffices
-    while lo < hi:
-        mid = (lo + hi) / 2
-        if count_occurrences(mid, s) >= n:
-            hi = mid
-        else:
-            lo = mid + 1
-    return lo
-
-function count_occurrences(p, s):
-    L = len(s)
-    // Determine which number m is at position p
-    m = number_at_position(p)
-    count = 0
-    // Count internal occurrences in all numbers up to m
-    for each digit-length d >= L:
-        for offset j = 0 to d - L:
-            count += combinatorial_count(d, j, s, up to m)
-    // Count boundary occurrences between consecutive numbers up to m
-    for each boundary (m', m'+1) where m' < m:
-        for i = 1 to L - 1:
-            if suffix(m', i) + prefix(m'+1, L-i) == s:
-                count += 1
-    return count
+```text
+Binary search for position p such that count(p, s) = n
+else
+Determine which number m is at position p
+Count internal occurrences in all numbers up to m
+Count boundary occurrences between consecutive numbers up to m
 ```
 
 ## Complexity Analysis

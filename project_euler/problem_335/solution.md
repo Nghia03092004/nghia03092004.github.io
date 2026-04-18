@@ -31,27 +31,20 @@ This can be verified by splitting the sum into $k < t^*$ and $k > t^*$ and using
 
 **Proof.** Since $7 \nmid 12$, we have $\gcd(12, 7^9) = 1$. By Euler's theorem, $12^{\varphi(7^9) - 1} \equiv 12^{-1} \pmod{7^9}$, where $\varphi(7^9) = 7^8(7-1) = 6 \cdot 7^8$. Alternatively, use the extended Euclidean algorithm. $\square$
 
-## Algorithm
+## Editorial
+Bowl k initially has k beans (k = 0, 1, ..., n-1). M(n) = min over target t of sum_{k} k * d(k, t), where d(k, t) is the shortest circular distance. Approach:. We n = 10^14 is even, so M(n) = n^3 / 12. We then compute n mod (12 * mod) to handle the division. Finally, since gcd(12, mod) = 1, compute n^3 * 12^{-1} mod mod.
 
-```
-function GatheringBeans(n, mod):
-    # mod = 7^9 = 40353607
-    # n = 10^14 is even, so M(n) = n^3 / 12
+## Pseudocode
 
-    # Step 1: Compute n mod (12 * mod) to handle the division
-    # Since gcd(12, mod) = 1, compute n^3 * 12^{-1} mod mod
-
-    # Step 2: Compute n mod mod
-    n_mod = pow(10, 14, mod)  # 10^14 mod 7^9
-
-    # Step 3: Compute n^3 mod mod
-    n_cubed = pow(n_mod, 3, mod)
-
-    # Step 4: Compute 12^{-1} mod mod via extended Euclidean
-    inv12 = modular_inverse(12, mod)
-
-    # Step 5: Result
-    return (n_cubed * inv12) % mod
+```text
+mod = 7^9 = 40353607
+n = 10^14 is even, so M(n) = n^3 / 12
+Compute n mod (12 * mod) to handle the division
+Since gcd(12, mod) = 1, compute n^3 * 12^{-1} mod mod
+Compute n mod mod
+Compute n^3 mod mod
+Compute 12^{-1} mod mod via extended Euclidean
+Result
 ```
 
 ## Complexity Analysis

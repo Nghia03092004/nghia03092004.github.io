@@ -55,30 +55,16 @@ All solution chains are generated from fundamental solutions $(a_0, b_0)$ and th
 
 **Proof.** Direct from Theorem 2. $\square$
 
-## Algorithm
+## Editorial
+G(x) = x(1+3x)/(1-x-x^2). Find sum of first 30 golden nuggets. Reduces to generalized Pell equation a^2 - 5*b^2 = 44 where a = 5n + 7. We fundamental solutions and their negatives. We then generate solutions along this chain. Finally, advance: (a, b) -> (9a + 20b, 4a + 9b).
 
-```
-function sum_golden_nuggets(count):
-    // count = 30
-    // Fundamental solutions and their negatives
-    seeds = [(7,1), (8,2), (13,5), (17,7),
-             (-7,-1), (-8,-2), (-13,-5), (-17,-7)]
+## Pseudocode
 
-    nuggets = set()
-
-    for (a0, b0) in seeds:
-        a, b = a0, b0
-        // Generate solutions along this chain
-        for _ in range(50):   // enough iterations
-            if a > 7 and a % 5 == 2:
-                n = (a - 7) / 5
-                if n > 0:
-                    nuggets.add(n)
-            // Advance: (a, b) -> (9a + 20b, 4a + 9b)
-            a, b = 9*a + 20*b, 4*a + 9*b
-
-    sorted_nuggets = sorted(nuggets)
-    return sum(sorted_nuggets[:count])
+```text
+count = 30
+Fundamental solutions and their negatives
+Generate solutions along this chain
+Advance: (a, b) -> (9a + 20b, 4a + 9b)
 ```
 
 ## Complexity Analysis

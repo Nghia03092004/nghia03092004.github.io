@@ -30,29 +30,15 @@ $$\sum_{\substack{p \leq N \\ p \text{ prime}}} g(p)^2 \sim 2N \ln N \quad \text
 
 **Proof.** By the Baker--Harman--Pintz theorem (2001), the gap $g(p) = O(p^{0.525})$ for all primes $p$. Hence for $p \leq N$, the next prime $p' \leq p + O(p^{0.525}) \leq N + O(N^{0.525})$. In practice, gaps are much smaller (the maximal gap below $10^7$ is $154$), so sieving to $N + 1000$ is more than sufficient. $\square$
 
-## Algorithm
+## Editorial
+Compute the sum of squared prime gaps: S(N) = sum_{p <= N, p prime} (p' - p)^2, where p' is the next prime after p, for N = 10^7. We sieve primes up to N + buffer. We then collect primes up to N, plus the next prime after N. Finally, accumulate sum of squared gaps.
 
-```
-function SumOfSquaredGaps(N):
-    // Sieve primes up to N + buffer
-    BUFFER = 1000
-    is_prime = sieve_of_eratosthenes(N + BUFFER)
+## Pseudocode
 
-    // Collect primes up to N, plus the next prime after N
-    primes = []
-    for n = 2 to N + BUFFER:
-        if is_prime[n]:
-            primes.append(n)
-
-    // Accumulate sum of squared gaps
-    S = 0
-    for i = 0 to len(primes) - 2:
-        if primes[i] > N:
-            break
-        gap = primes[i+1] - primes[i]
-        S += gap * gap
-
-    return S
+```text
+Sieve primes up to N + buffer
+Collect primes up to N, plus the next prime after N
+Accumulate sum of squared gaps
 ```
 
 ## Complexity Analysis

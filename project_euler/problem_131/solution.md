@@ -38,17 +38,19 @@ which is a perfect cube with $k = s^2(s+1)$. $\square$
 
 **Proof.** The quadratic $3s^2 + 3s + 1 < 10^6$ gives $s < \frac{-3 + \sqrt{9 + 12(10^6 - 1)}}{6} \approx 577.35$. Since $s$ must be a positive integer, $s \leq 577$. Verification: $3(577)^2 + 3(577) + 1 = 998{,}788 < 10^6$ and $3(578)^2 + 3(578) + 1 = 1{,}002{,}469 > 10^6$. $\square$
 
-## Algorithm
+## Editorial
+A prime p satisfies n^3 + n^2*p = k^3 for some positive integer n if and only if p = (s+1)^3 - s^3 = 3s^2 + 3s + 1 for some positive integer s. Count such primes below 10^6.
 
-```
-function count_prime_cube_partners(N):
+## Pseudocode
+
+```text
     sieve primes up to N
     count = 0
     for s = 1, 2, ...:
         p = 3*s^2 + 3*s + 1
-        if p >= N: break
+        If p >= N then stop this loop
         if is_prime(p): count += 1
-    return count
+    Return count
 ```
 
 ## Complexity Analysis

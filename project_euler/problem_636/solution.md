@@ -53,12 +53,17 @@ But we also need distinct bases across all primes, which significantly complicat
 
 For N!, the prime factorisation has specific structure. The problem reduces to distributing prime exponents independently across the base slots, then applying the distinctness constraint via generating functions and combinatorial identities.
 
-## Algorithm
+## Editorial
+Project Euler 636: Restricted Factorisations F(n) = number of ways to write n as product of: 1 natural number, 2 squares, 3 cubes, 4 fourth powers with all 10 base numbers distinct. Find F(1000000!) mod 10^9+7. Mathematical approach: The generating function for exponent distribution (without distinctness) is: G(x) = 1/(1-x) * 1/(1-x^2)^2 * 1/(1-x^3)^3 * 1/(1-x^4)^4 The full solution requires sophisticated handling of the distinctness constraint across all bases, which involves analyzing the multinomial structure. We compute the prime factorisation of (10^6)! using Legendre's formula. We then iterate over each prime, compute the number of ways to partition its exponent. Finally, combine results using multiplicative structure modulo 10^9+7.
 
-1. Compute the prime factorisation of (10^6)! using Legendre's formula
-2. For each prime, compute the number of ways to partition its exponent
-3. Combine results using multiplicative structure modulo 10^9+7
-4. Apply distinctness corrections
+## Pseudocode
+
+```text
+Compute the prime factorisation of (10^6)! using Legendre's formula
+For each prime, compute the number of ways to partition its exponent
+Combine results using multiplicative structure modulo 10^9+7
+Apply distinctness corrections
+```
 
 ## Correctness
 

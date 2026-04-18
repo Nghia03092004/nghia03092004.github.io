@@ -53,17 +53,19 @@ Applying the recurrence $n_{i+2} = 6n_{i+1} - n_i + 4$:
 
 Discarding $n = 0$ from Family A and merging both families in sorted order, the first 40 positive values are collected and summed.
 
-## Algorithm
+## Editorial
+We seek positive integers n such that M(n) = n(n+2) is a triangular number. The substitution x = 2k+1, y = n+1 transforms n(n+2) = k(k+1)/2 into the generalised Pell equation x^2 - 8y^2 = -7, whose solutions fall into two families, each satisfying n_{i+2} = 6 n_{i+1} - n_i + 4.
 
-```
-function solve():
+## Pseudocode
+
+```text
     A = [0, 3]
     B = [1, 10]
-    for i = 2 to 24:
+    For i from 2 to 24:
         A.append(6 * A[i-1] - A[i-2] + 4)
         B.append(6 * B[i-1] - B[i-2] + 4)
     values = sorted(A[1:] + B)
-    return sum(values[:40])
+    Return sum(values[:40])
 ```
 
 ## Complexity

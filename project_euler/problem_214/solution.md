@@ -38,29 +38,15 @@ This follows from the Mobius inversion formula: $\phi(n) = \sum_{d \mid n} \mu(d
 
 **Proof.** If $n$ is prime, $\phi(n) = n - 1$. Conversely, if $n$ is composite with smallest prime factor $p \leq \sqrt{n}$, then $\phi(n) \leq n(1 - 1/p) \leq n(1 - 1/\sqrt{n}) < n - 1$ for $n \geq 4$. For $n = 1$, $\phi(1) = 1 \neq 0$. $\square$
 
-## Algorithm
+## Editorial
+We totient sieve. We then chain length computation. Finally, sum primes with chain length 25. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function SolveProblem214(N):
-    // Step 1: Totient sieve
-    phi[1..N-1] initialized as phi[n] = n
-    for n = 2 to N-1:
-        if phi[n] == n:       // n is prime
-            for m = n, 2n, 3n, ... < N:
-                phi[m] = phi[m] / n * (n - 1)
+## Pseudocode
 
-    // Step 2: Chain length computation
-    chain[1] = 1
-    for n = 2 to N-1:
-        chain[n] = 1 + chain[phi[n]]
-
-    // Step 3: Sum primes with chain length 25
-    total = 0
-    for n = 2 to N-1:
-        if phi[n] == n - 1 and chain[n] == 25:
-            total += n
-
-    return total
+```text
+Totient sieve
+Chain length computation
+Sum primes with chain length 25
 ```
 
 ## Complexity Analysis

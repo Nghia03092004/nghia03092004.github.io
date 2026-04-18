@@ -42,35 +42,22 @@ $$\sum_{j=1}^{4} \operatorname{Re}(z_{j+1}\overline{z_j}) = 0.$$
 
 **Proof.** For primes $p \equiv 1\pmod{4}$, $p$ splits in $\mathbb{Z}[i]$ as $p = \pi\bar{\pi}$. The lattice points on $x^2+y^2 = p^e$ are determined by the factorizations $p^e = \pi^a \bar{\pi}^b \cdot u$ with $a+b=e$ and $u$ a unit. The number of such points is $r_2(p^e) = 4(e+1)$. Since $n$ has only primes $\equiv 1\pmod 4$, the divisor structure and lattice point counts factor over the prime powers. $\square$
 
-## Algorithm
+## Editorial
+Count pythagorean lattice grid quadrilaterals inscribed in circles. S(n) = sum_{d|n} f(sqrt(d)) where f(r) counts distinct pythagorean lattice quadrilaterals with circumradius r. We n is given in factored form. We then iterate over each divisor d of n. Finally, enumerate all ordered 4-tuples of distinct points on the circle.
 
-```
-function S(n):
-    // n is given in factored form
-    divisors = enumerate_all_divisors(n)   // 2688 divisors
-    total = 0
-    for each divisor d of n:
-        total += f_sqrt(d)
-    return total
+## Pseudocode
 
-function f_sqrt(d):
-    // Compute f(sqrt(d)) = number of pythagorean lattice quadrilaterals
-    // on circle x^2 + y^2 = d
-    points = all_lattice_points_on_circle(d)  // r_2(d) points
-    count = 0
-    // Enumerate all ordered 4-tuples of distinct points on the circle
-    // satisfying the pythagorean condition, then quotient by symmetries
-    for each ordered 4-tuple (P1, P2, P3, P4) from points:
-        if sum of Re(z_{j+1} * conj(z_j)) == 0:
-            count += 1
-    // Account for rotational (order 4) and reflective (order 2) symmetry
-    // of the quadrilateral; subtract degenerate cases
-    return count / 8   // after proper symmetry accounting
-
-function all_lattice_points_on_circle(d):
-    // Factor d and enumerate representations x^2 + y^2 = d
-    // using Gaussian integer factorization
-    ...
+```text
+n is given in factored form
+for each divisor d of n
+Compute f(sqrt(d)) = number of pythagorean lattice quadrilaterals
+on circle x^2 + y^2 = d
+Enumerate all ordered 4-tuples of distinct points on the circle
+satisfying the pythagorean condition, then quotient by symmetries
+Account for rotational (order 4) and reflective (order 2) symmetry
+of the quadrilateral; subtract degenerate cases
+Factor d and enumerate representations x^2 + y^2 = d
+using Gaussian integer factorization
 ```
 
 ## Complexity Analysis

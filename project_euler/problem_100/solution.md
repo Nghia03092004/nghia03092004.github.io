@@ -62,18 +62,20 @@ The same derivation applies to $n_k$. Initial values: $(x_0, y_0) = (1, 1)$ give
 | 2   | 15     | 21     | $420 = 420$               |
 | 3   | 85     | 120    | $14280 = 14280$           |
 
-## Algorithm
+## Editorial
+The condition 2b(b-1) = n(n-1) reduces to the negative Pell equation 2x^2 - y^2 = 1 via x = 2b-1, y = 2n-1. The second-order recurrence b_{k+1} = 6*b_k - b_{k-1} - 2 (and same for n) generates all solutions.
 
-```
-function ARRANGED_PROBABILITY(T):
+## Pseudocode
+
+```text
     b_prev, n_prev = 1, 1
     b_curr, n_curr = 3, 4
-    while n_curr <= T:
+    While n_curr <= T:
         b_next = 6 * b_curr - b_prev - 2
         n_next = 6 * n_curr - n_prev - 2
         b_prev, n_prev = b_curr, n_curr
         b_curr, n_curr = b_next, n_next
-    return b_curr
+    Return b_curr
 ```
 
 ## Complexity Analysis

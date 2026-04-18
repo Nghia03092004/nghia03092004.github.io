@@ -28,29 +28,15 @@ since the largest term is $m \cdot p^{k-1}$ (when $r > 1$, the last term is larg
 
 **Proof.** Follows from Theorem 1, Lemma 1, and Theorem 2 by exhaustive optimization over the parameter space. $\square$
 
-## Algorithm
+## Editorial
+Key mathematics: rational common ratio enumeration. Algorithm: optimization over Stern-Brocot tree. Complexity: O(n log n). We enumerate k (number of terms), p, q. Finally, also consider ratio < 1 (decreasing GP), handled by swapping p, q roles.
 
-```
-function solve(N):
-    result = 0
-    for n = 4 to N:
-        best = 0
-        // Enumerate k (number of terms), p, q
-        for k = 2 to floor(log2(n)) + 1:
-            for p = 2 to floor(n^(1/(k-1))):
-                for q = 1 to p-1:
-                    if gcd(p, q) != 1: continue
-                    m = floor(n / p^(k-1))
-                    if m == 0: continue
-                    S = m * q^(k-1) * (p^k - q^k) / (p - q)
-                    best = max(best, S)
-        // Also consider ratio < 1 (decreasing GP), handled by swapping p, q roles
-        G[n] = best
-        result += best
-    return result
-```
+## Pseudocode
 
-For large $N$, optimize by precomputing contributions and noting that $G(n)$ changes only at specific breakpoints.
+```text
+Enumerate k (number of terms), p, q
+Also consider ratio < 1 (decreasing GP), handled by swapping p, q roles
+```
 
 ## Complexity Analysis
 

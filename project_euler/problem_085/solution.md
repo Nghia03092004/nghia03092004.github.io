@@ -34,23 +34,25 @@ $$n^* = \frac{-1 + \sqrt{1 + 8T/[m(m+1)]}}{2}.$$
 
 **Proof.** Setting $R(m, n) = T$ yields $\frac{m(m+1)}{2} \cdot \frac{n(n+1)}{2} = T$, i.e., $n^2 + n - \frac{4T}{m(m+1)} = 0$. By the quadratic formula, the positive root is as stated. Since $R(m, n)$ is strictly increasing in $n$ (for $n \ge 1$), the function crosses the target $T$ between $\lfloor n^* \rfloor$ and $\lceil n^* \rceil$, so one of these two integers minimizes $|R(m, n) - T|$. $\square$
 
-## Algorithm
+## Editorial
+R(m, n) = C(m+1,2) * C(n+1,2) = m(m+1)/2 * n(n+1)/2. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function CountingRectangles(T = 2000000):
+## Pseudocode
+
+```text
     best_diff = infinity
     best_area = 0
     for m = 1, 2, 3, ...:
         T_m = m * (m + 1) / 2
-        if T_m > T: break
+        If T_m > T then stop this loop
         n_star = (-1 + sqrt(1 + 8*T / (m*(m+1)))) / 2
-        for n in {floor(n_star), ceil(n_star)}:
-            if n < 1: continue
+        For each n in {floor(n_star), ceil(n_star)}:
+            If n < 1 then continue
             R = T_m * n * (n + 1) / 2
-            if |R - T| < best_diff:
+            If |R - T| < best_diff then
                 best_diff = |R - T|
                 best_area = m * n
-    return best_area
+    Return best_area
 ```
 
 ## Complexity Analysis

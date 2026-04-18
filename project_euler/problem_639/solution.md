@@ -69,12 +69,17 @@ S_k(n) = sum_{i=1}^{n} f_k(i) = sum_{d=1}^{n} g_k(d) * floor(n/d)
 
 This can be computed using the hyperbola method and sieving techniques.
 
-## Algorithm
+## Editorial
+Project Euler 639: Summing a Multiplicative Function f_k(n) = rad(n)^k where rad(n) = product of distinct prime factors. S_k(n) = sum_{i=1}^{n} f_k(i) Find sum_{k=1}^{50} S_k(10^12) mod 10^9+7. Method: min-25 sieve / Lucy DP for sub-linear computation. We use a sub-linear algorithm to compute S_k(n) for each k from 1 to 50. We then the key is computing sums of the form sum_{d squarefree, d<=x} g_k(d) efficiently. Finally, apply Lucy DP or min-25 sieve approach.
 
-1. Use a sub-linear algorithm to compute S_k(n) for each k from 1 to 50
-2. The key is computing sums of the form sum_{d squarefree, d<=x} g_k(d) efficiently
-3. Apply Lucy DP or min-25 sieve approach
-4. Sum results for k = 1 to 50 modulo 10^9+7
+## Pseudocode
+
+```text
+Use a sub-linear algorithm to compute S_k(n) for each k from 1 to 50
+The key is computing sums of the form sum_{d squarefree, d<=x} g_k(d) efficiently
+Apply Lucy DP or min-25 sieve approach
+Sum results for k = 1 to 50 modulo 10^9+7
+```
 
 ## Correctness
 

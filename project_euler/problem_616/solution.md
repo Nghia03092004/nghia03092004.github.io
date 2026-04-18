@@ -51,11 +51,16 @@ Wait -- let's reconsider. The answer is 108424772.
 
 The creative numbers are perfect powers a^b with a,b > 1 where the exponent b has a factor >= 3, i.e., b is not a power of 2. Plus numbers where a itself is a perfect power allowing further decomposition.
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We enumerate all perfect powers up to 10^12. We then iterate over each, determine if it's creative by checking the decomposition tree. Finally, sum all creative numbers.
 
-1. Enumerate all perfect powers up to 10^12
-2. For each, determine if it's creative by checking the decomposition tree
-3. Sum all creative numbers
+## Pseudocode
+
+```text
+Enumerate all perfect powers up to 10^12
+For each, determine if it's creative by checking the decomposition tree
+Sum all creative numbers
+```
 
 ## Correctness
 

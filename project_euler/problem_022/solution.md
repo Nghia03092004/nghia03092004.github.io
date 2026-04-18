@@ -32,7 +32,7 @@ $$k \leq \alpha(w) \leq 26k.$$
 
 **Proof.** The ASCII codes of $\texttt{A}, \texttt{B}, \ldots, \texttt{Z}$ are $65, 66, \ldots, 90$, which is a strictly increasing sequence. Lexicographic order is defined by the order on individual characters, so ASCII byte comparison produces the same total order as alphabetical comparison. $\square$
 
-## Algorithm
+## Editorial
 
 We read the quoted names, sort them lexicographically, and then evaluate each name score in sorted order. For position $j$, we compute the alphabetical value of the name by summing its letter values and multiply by $j$ before adding to the running total. This is sufficient because the problem definition depends only on the sorted order and those per-name letter sums.
 

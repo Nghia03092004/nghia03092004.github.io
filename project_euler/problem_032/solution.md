@@ -34,7 +34,7 @@ Subject to $1 \le \alpha \le \beta$ and $\alpha + \beta = 5$, the admissible pai
 
 **Proof.** Enumerate all pairs $(a, b)$ in the two cases of Theorem 1. For each pair, compute $p = ab$ and test whether $d(p) = 4$ and the concatenation of digits of $a$, $b$, $p$ is a permutation of $\{1, \ldots, 9\}$. The test is a constant-time operation (sort 9 characters and compare). The search examines at most $9 \times 8643 + 87 \times 865 < 1.6 \times 10^5$ pairs, each verified or rejected in $O(1)$, yielding exactly the seven products listed. $\square$
 
-## Algorithm
+## Editorial
 
 We enumerate only the feasible factor-length patterns identified in the mathematical development: a 1-digit multiplicand times a 4-digit multiplier, or a 2-digit multiplicand times a 3-digit multiplier. For each candidate pair $(a,b)$, we compute the product $p$, test whether the concatenation of the decimal representations of $a$, $b$, and $p$ uses each digit from 1 to 9 exactly once, and insert valid products into a set so that duplicates are counted only once in the final sum.
 

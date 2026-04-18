@@ -32,34 +32,15 @@ $\square$
 
 Each integer $n \leq N$ corresponds to exactly one path through the DP, so the count is exact. $\square$
 
-## Algorithm
+## Editorial
+Count integers with specific digit-sum properties across bases. D(b, s, N) = count of 1 <= n <= N with digit_sum_base_b(n) = s. We memo[pos][rem][tight] -> count. Finally, count integers in [0, N] with digit sum s, then subtract.
 
-```
-function D(b, s, N):
-    digits := base_b_representation(N)
-    L := len(digits)
-    // memo[pos][rem][tight] -> count
-    memo := new HashMap
+## Pseudocode
 
-    function dp(pos, rem, tight):
-        if rem < 0: return 0
-        if pos == L:
-            return 1 if rem == 0 else 0
-        if (pos, rem, tight) in memo:
-            return memo[(pos, rem, tight)]
-
-        limit := digits[pos] if tight else b - 1
-        result := 0
-        for d := 0 to limit:
-            new_tight := tight AND (d == digits[pos])
-            result += dp(pos + 1, rem - d, new_tight)
-
-        memo[(pos, rem, tight)] := result
-        return result
-
-    // Count integers in [0, N] with digit sum s, then subtract
-    // the case n = 0 if s == 0
-    return dp(0, s, true) - (1 if s == 0 else 0)
+```text
+memo[pos][rem][tight] -> count
+Count integers in [0, N] with digit sum s, then subtract
+the case n = 0 if s == 0
 ```
 
 ## Complexity Analysis

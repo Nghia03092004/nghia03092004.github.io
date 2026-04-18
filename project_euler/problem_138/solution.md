@@ -42,35 +42,19 @@ $\square$
 
 **Proof.** Since $X = 5m \pm 2$, we need $m = (X \mp 2)/5 \in \mathbb{Z}_{>0}$. Checking: $X_1 = 2 \equiv 2 \pmod{5}$. By the recurrence, $X_{n+1} = 9X_n + 20L_n \equiv 4X_n \pmod{5}$. Starting from $X_1 \equiv 2$: $X_2 \equiv 3$, $X_3 \equiv 2$, $X_4 \equiv 3$, ... So $X_n \equiv 2$ or $3 \pmod{5}$, i.e., $X_n \equiv \pm 2 \pmod{5}$ always. Every Pell solution yields a valid triangle. $\square$
 
-## Algorithm
+## Editorial
+The L values satisfy the recurrence L_{n+1} = 18*L_n - L_{n-1} with L_1 = 17, L_2 = 305. Sum the first 12 values. We advance to next solution. We then check m = (X - 2)/5 or (X + 2)/5 is positive integer. Finally, by Lemma 2, one always works.
 
-```
-function sum_special_isosceles(count):
-    // count = 12
-    // Fundamental solution of X^2 - 5L^2 = -1
-    X = 2
-    L = 1
-    total = 0
-    found = 0
-    while found < count:
-        // Advance to next solution
-        X_new = 9 * X + 20 * L
-        L_new = 4 * X + 9 * L
-        X = X_new
-        L = L_new
-        // Check m = (X - 2)/5 or (X + 2)/5 is positive integer
-        // By Lemma 2, one always works
-        if (X - 2) % 5 == 0:
-            m = (X - 2) / 5
-        else:
-            m = (X + 2) / 5
-        if m > 0:
-            total += L
-            found += 1
-    return total
-```
+## Pseudocode
 
-Starting values and first few $L$: $L = 17, 305, 5473, 98209, 1762289, \ldots$ (recurrence $L_{n+1} = 18L_n - L_{n-1}$, with $L_0 = 1, L_1 = 17$).
+```text
+count = 12
+Fundamental solution of X^2 - 5L^2 = -1
+Advance to next solution
+Check m = (X - 2)/5 or (X + 2)/5 is positive integer
+By Lemma 2, one always works
+else
+```
 
 ## Complexity Analysis
 

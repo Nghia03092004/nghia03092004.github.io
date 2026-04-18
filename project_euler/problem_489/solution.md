@@ -48,28 +48,15 @@ by the property $\gcd(ab, c) = \gcd(b, c)$ when $\gcd(a, c) = 1$. $\square$
 
 **Proof.** Counterexample: $G(2) = 1$, $G(3) = 2$, $G(6) = \gcd(\varphi(6), \sigma(6)) = \gcd(2, 12) = 2$, but $G(2)G(3) = 1 \cdot 2 = 2 = G(6)$. This happens to agree. A better counterexample: $G(2) = 1$, $G(5) = 2$, $G(10) = \gcd(\varphi(10), \sigma(10)) = \gcd(4, 18) = 2$, but $G(2)G(5) = 2$. Still agrees. The non-multiplicativity is more subtle and arises because $\gcd(\varphi(m)\varphi(n), \sigma(m)\sigma(n)) \ne \gcd(\varphi(m), \sigma(m)) \cdot \gcd(\varphi(n), \sigma(n))$ in general (the GCD of products does not factor as a product of GCDs). Consider $G(4) = \gcd(2, 7) = 1$, $G(9) = \gcd(6, 13) = 1$, $G(36) = \gcd(12, 91) = 1$ vs $G(4)G(9) = 1$. Finding an explicit failure requires searching, but the theoretical non-multiplicativity is established by the fact that no general identity $\gcd(ab, cd) = \gcd(a,c)\gcd(b,d)$ holds. $\square$
 
-## Algorithm
+## Editorial
+Compute gcd(phi(n), sigma(n)) for positive integers n and analyze the results. phi(n) = Euler's totient function, sigma(n) = sum of divisors. We totient sieve. We then sum-of-divisors sieve. Finally, compute GCDs and accumulate.
 
-```
-function COMPUTE_SUM_G(N):
-    // Step 1: Totient sieve
-    phi[1..N] initialized to phi[i] = i
-    for each prime p (found via sieve of Eratosthenes):
-        for multiple = p, 2p, 3p, ..., up to N:
-            phi[multiple] = phi[multiple] / p * (p - 1)
+## Pseudocode
 
-    // Step 2: Sum-of-divisors sieve
-    sigma[1..N] initialized to 0
-    for j = 1 to N:
-        for multiple = j, 2j, 3j, ..., up to N:
-            sigma[multiple] += j
-
-    // Step 3: Compute GCDs and accumulate
-    total = 0
-    for n = 1 to N:
-        total += gcd(phi[n], sigma[n])
-
-    return total
+```text
+Totient sieve
+Sum-of-divisors sieve
+Compute GCDs and accumulate
 ```
 
 ## Complexity Analysis

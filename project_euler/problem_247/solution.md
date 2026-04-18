@@ -37,41 +37,17 @@ The index of the right gap increments $a$ (one more square to the left), and the
 
 **Proof.** By definition, $S_n$ is the largest square fitting in any remaining gap after $S_1, \ldots, S_{n-1}$ are placed. A max-priority-queue keyed by $s$ extracts this maximum at each step. After extraction, the two child gaps are inserted with their respective $s$-values. Since child gaps always yield strictly smaller squares (the domain shrinks), no future gap can produce a square larger than one already extracted. $\square$
 
-## Algorithm
+## Editorial
+We max-heap keyed by square side length. We then initial gap: corner (1, 0), index (0, 0). Finally, generate right child: (x0+s, y0) with index (a+1, b).
 
-```
-function Solve():
-    # Max-heap keyed by square side length
-    heap = MaxHeap()
+## Pseudocode
 
-    # Initial gap: corner (1, 0), index (0, 0)
-    s0 = (sqrt(1 + 4) - 1) / 2 = (sqrt(5) - 1) / 2
-    heap.insert((s0, 1.0, 0.0, 0, 0))  # (side, x0, y0, a, b)
-
-    n = 0
-    last_33 = -1
-
-    while heap is not empty:
-        (s, x0, y0, a, b) = heap.extract_max()
-        n += 1
-
-        if (a, b) == (3, 3):
-            last_33 = n
-
-        # Generate right child: (x0+s, y0) with index (a+1, b)
-        if a + 1 <= 3:
-            s_right = compute_side(x0 + s, y0)
-            heap.insert((s_right, x0 + s, y0, a + 1, b))
-
-        # Generate top child: (x0, y0+s) with index (a, b+1)
-        if b + 1 <= 3:
-            s_top = compute_side(x0, y0 + s)
-            heap.insert((s_top, x0, y0 + s, a, b + 1))
-
-    return last_33
-
-function compute_side(x0, y0):
-    return (sqrt((x0 - y0)^2 + 4) - (x0 + y0)) / 2
+```text
+Max-heap keyed by square side length
+Initial gap: corner (1, 0), index (0, 0)
+while heap is not empty
+Generate right child: (x0+s, y0) with index (a+1, b)
+Generate top child: (x0, y0+s) with index (a, b+1)
 ```
 
 ## Complexity Analysis

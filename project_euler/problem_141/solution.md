@@ -46,25 +46,26 @@ $$n = qd + r = a^2 c \cdot abc + b^2 c = a^3 bc^2 + b^2 c = bc(a^3 c + b).$$
 
 **Remark.** Different $(a,b,c)$ triples may produce the same value of $n$ (though different $(q,d,r)$ triples). Hence we collect progressive numbers in a set to avoid double-counting before checking for perfect squares.
 
-## Algorithm
+## Editorial
+n is progressive if n = q*d + r where q, d, r form a geometric sequence with q > d > r >= 0. Parametrization: n = a^3*b*c^2 + b^2*c with gcd(a,b)=1, a>b>=1, c>=1. We enumerate the admissible parameter triples, test each generated value for being a square, and sum the distinct progressive squares that satisfy the bound.
 
-```
-ALGORITHM: ProgressiveSquares
+## Pseudocode
+
+```text
 INPUT:  N = 10^12
 OUTPUT: Sum of all progressive perfect squares below N
-
-1. S <- empty set
-2. FOR a = 2, 3, ..., floor(N^{1/3}):
-3.     FOR b = 1, 2, ..., a - 1:
-4.         IF gcd(a, b) != 1 THEN CONTINUE
-5.         A <- a^3 * b
-6.         IF A >= N THEN BREAK
-7.         FOR c = 1, 2, ...:
-8.             n <- A * c^2 + b^2 * c
-9.             IF n >= N THEN BREAK
-10.            s <- floor(sqrt(n))
-11.            IF s^2 = n THEN S <- S union {n}
-12. RETURN sum of all elements in S
+S <- empty set
+FOR a = 2, 3, ..., floor(N^{1/3}):
+FOR b = 1, 2, ..., a - 1:
+IF gcd(a, b) != 1 THEN CONTINUE
+A <- a^3 * b
+IF A >= N THEN BREAK
+FOR c = 1, 2, ...:
+n <- A * c^2 + b^2 * c
+IF n >= N THEN BREAK
+s <- floor(sqrt(n))
+IF s^2 = n THEN S <- S union {n}
+RETURN sum of all elements in S
 ```
 
 ## Complexity Analysis

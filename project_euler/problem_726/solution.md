@@ -39,12 +39,17 @@ For efficient computation modulo 1,000,000,033 (which is prime), we use:
 - Matrix exponentiation or polynomial methods for the recurrence
 - Modular arithmetic throughout
 
-## Algorithm
+## Editorial
+f(n) = number of distinct ways to remove all bottles from n-layer triangular stack S(n) = sum f(k) for k=1..n Find S(10^4) mod 1,000,000,033. We model the triangular grid and cascade rules. We then use dynamic programming / transfer matrix methods. Finally, compute f(k) mod p for k = 1 to 10^4.
 
-1. Model the triangular grid and cascade rules
-2. Use dynamic programming / transfer matrix methods
-3. Compute f(k) mod p for k = 1 to 10^4
-4. Sum to get S(10^4) mod p
+## Pseudocode
+
+```text
+Model the triangular grid and cascade rules
+Use dynamic programming / transfer matrix methods
+Compute f(k) mod p for k = 1 to 10^4
+Sum to get S(10^4) mod p
+```
 
 ## Correctness
 

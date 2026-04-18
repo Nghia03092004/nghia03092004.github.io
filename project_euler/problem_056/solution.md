@@ -46,7 +46,7 @@ $$S(a^b) \leq 9 \cdot D(a,b) \leq 9(\lfloor 99 \log_{10} 99 \rfloor + 1) = 9 \ti
 
 *Proof.* By Lemma 2, restricting to $a \geq 2$ excludes only the trivially small $S(1^b) = 1$. The pair count is bounded, and each evaluation involves a big integer of at most 198 digits. $\square$
 
-## Algorithm
+## Editorial
 
 We exhaustively examine all pairs $(a,b)$ with $2 \leq a < 100$ and $1 \leq b < 100$. For each fixed base $a$, the powers are built incrementally by repeated multiplication so that $a^b$ is obtained from $a^{b-1}$ without recomputing from scratch, and the decimal digit sum of each power is evaluated. The maximum digit sum observed over the whole search is the answer.
 

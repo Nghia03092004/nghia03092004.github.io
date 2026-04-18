@@ -37,24 +37,17 @@ $$g(n) = W(s) - d + 1$$
 
 $W = 1010$, so $g(535) = 1010 - 3 + 1 = 1008$. $\checkmark$
 
-## Algorithm
+## Editorial
+g(n) for integer n with decimal string s of length d: g(n) = W(s) - d + 1 where W(s) = sum of 10^k for each k in 1..d where the length-k prefix of s equals the length-k suffix of s (Conway Leading Number). Compute: sum of g(floor(10^16 / n)) for n = 2 to 999999. We return total.
 
-```
+## Pseudocode
+
+```text
 Input: N_max = 999999, T = 10^16
 Output: sum of g(floor(T/n)) for n = 2 to N_max
-
-1. total = 0
-2. For n = 2 to N_max:
-     a. Compute m = floor(T / n).
-     b. Convert m to its decimal string s of length d.
-     c. Compute W(s):
-        W = 0
-        For k = 1 to d:
-          If s[0..k-1] == s[d-k..d-1]:   // prefix_k = suffix_k
-            W += 10^k
-     d. g_m = W - d + 1
-     e. total += g_m
-3. Return total.
+total = 0
+For n = 2 to N_max:
+Return total
 ```
 
 ## Complexity Analysis

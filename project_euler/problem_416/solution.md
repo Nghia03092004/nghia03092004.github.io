@@ -39,12 +39,17 @@ Since n = 10^12, we need matrix exponentiation to compute T^(n-1) efficiently in
 
 For m = 10 round trips (20 legs), the state space tracks which of the at-most-one gap position has been "covered" across legs.
 
-## Algorithm
+## Editorial
+F(m,n) = number of ways a frog can make m round trips on an n-square row (jumps of 1,2,3) such that at most one square remains unvisited. Find last 9 digits of F(10, 10^12). Approach: Transfer matrix method with matrix exponentiation mod 10^9. We enumerate all valid jump sequences for a single leg that cover segments of the row. We then build the transfer matrix that tracks coverage states. Finally, use matrix exponentiation modulo 10^9 to compute T^(n-1).
 
-1. Enumerate all valid jump sequences for a single leg that cover segments of the row.
-2. Build the transfer matrix that tracks coverage states.
-3. Use matrix exponentiation modulo 10^9 to compute T^(n-1).
-4. Extract the answer from the resulting matrix.
+## Pseudocode
+
+```text
+Enumerate all valid jump sequences for a single leg that cover segments of the row
+Build the transfer matrix that tracks coverage states
+Use matrix exponentiation modulo 10^9 to compute T^(n-1)
+Extract the answer from the resulting matrix
+```
 
 ## Correctness
 

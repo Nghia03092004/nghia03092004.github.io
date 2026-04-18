@@ -56,7 +56,7 @@ Thus no new solutions arise from patterns P2--P4. $\square$
 $$\frac{16}{64} \times \frac{19}{95} \times \frac{26}{65} \times \frac{49}{98} = \frac{1}{4} \times \frac{1}{5} \times \frac{2}{5} \times \frac{1}{2} = \frac{1 \cdot 1 \cdot 2 \cdot 1}{4 \cdot 5 \cdot 5 \cdot 2} = \frac{2}{200} = \frac{1}{100}.$$
 Since $\gcd(1, 100) = 1$, the fraction is already in lowest terms. The denominator is $100$. $\square$
 
-## Algorithm
+## Editorial
 
 We use the algebraic relation derived for non-trivial digit cancellation to avoid checking all two-digit fractions directly. The search runs over the nonzero digits $a$ and $b$, computes the candidate cancelled denominator digit $e$ from the divisibility condition, and retains only those cases that produce a proper fraction. The valid fractions are then multiplied together in cancelled form, and the denominator of the reduced product is returned.
 

@@ -53,11 +53,13 @@ $\square$
 
 All values match. $\square$
 
-## Algorithm
+## Editorial
+Expected number of moves in a specific insertion-sort variant. E(n) = (n-1)(n+4)/12. Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
 
-```
-function EXPECTED_MOVES(n):
-    return (n - 1) * (n + 4) / 12
+## Pseudocode
+
+```text
+    Return (n - 1) * (n + 4) / 12
 ```
 
 ## Complexity Analysis

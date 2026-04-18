@@ -62,30 +62,19 @@ For $k = 2$: We need $d_1 + d_2$ to have all odd digits in the sum. The sum has 
 
 The remaining counts ($k = 3, 4, 6, 7, 8$) are established by analogous case analysis of the carry chains, verified computationally. $\square$
 
-## Algorithm
+## Editorial
+n is reversible if n + reverse(n) consists entirely of odd digits. No leading zeros allowed (so n cannot end in 0). Analytic approach by digit length, using carry-chain DP. For k-digit number n with digits d_1 d_2 ... d_k: n + reverse(n) is computed digit by digit (from right): Position i: d_{k+1-i} + d_i + carry_{i-1} The pair (d_j, d_{k+1-j}) appears at position j and position k+1-j. We use a two-ended DP: process pairs from outside in, tracking carry at the left end and carry at the right end. We enumerate carry patterns for k/2 (or (k-1)/2 + middle) pairs. We then iterate over each valid carry pattern, multiply independent pair counts. Finally, (See Theorem 3 for results).
 
-```
+## Pseudocode
+
+```text
 INPUT: N = 10^9
 OUTPUT: Count of reversible numbers below N
-
-total = 0
-for k = 1 to 9:
-    count_k = 0
-    // Enumerate carry patterns for k/2 (or (k-1)/2 + middle) pairs
-    // For each valid carry pattern, multiply independent pair counts
-    // (See Theorem 3 for results)
-    total += count_k
-
-return total
-
-// Alternative: brute force for verification
-total = 0
-for n = 1 to N-1:
-    if n % 10 == 0: continue
-    s = n + reverse(n)
-    if all digits of s are odd:
-        total += 1
-return total
+Enumerate carry patterns for k/2 (or (k-1)/2 + middle) pairs
+For each valid carry pattern, multiply independent pair counts
+(See Theorem 3 for results)
+Alternative: brute force for verification
+if all digits of s are odd
 ```
 
 ## Complexity Analysis

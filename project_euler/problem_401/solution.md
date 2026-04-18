@@ -41,40 +41,16 @@ The constraint $\ell_q \ge s+1$ prevents double-counting with Part 1. $\square$
 
 **Proof.** Among $m$ and $m+1$, one is even, so $2 \mid m(m+1)$. For divisibility by $3$: if $m \equiv 0 \pmod{3}$, then $3 \mid m$; if $m \equiv 1$, then $2m+1 \equiv 0 \pmod{3}$; if $m \equiv 2$, then $m+1 \equiv 0 \pmod{3}$. Thus $6 \mid m(m+1)(2m+1)$ for all non-negative integers $m$. Exact integer division by $6$ can be performed before modular reduction, using 128-bit intermediates to avoid overflow. $\square$
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We part 1: small divisors. We then part 2: small quotients (large divisors). Finally, compute m(m+1)(2m+1)/6 mod M using exact division.
 
-```
-function SIGMA2_mod(n, M):
-    s = isqrt(n)
-    result = 0
+## Pseudocode
 
-    // Part 1: small divisors
-    for d = 1 to s:
-        result = (result + (d * d mod M) * (floor(n / d) mod M)) mod M
-
-    // Part 2: small quotients (large divisors)
-    for q = 1 to s:
-        hi = floor(n / q)
-        lo = floor(n / (q + 1)) + 1
-        if lo <= s:
-            lo = s + 1        // avoid double-counting with Part 1
-        if lo > hi:
-            continue
-        contrib = q * (P_mod(hi, M) - P_mod(lo - 1, M) + M) mod M
-        result = (result + contrib) mod M
-
-    return result mod M
-
-function P_mod(m, M):
-    // Compute m(m+1)(2m+1)/6 mod M using exact division
-    a, b, c = m, m + 1, 2 * m + 1
-    // Divide one factor by 2 and one by 3 (exact integer division)
-    if a mod 2 == 0: a = a / 2
-    else: b = b / 2
-    if a mod 3 == 0: a = a / 3
-    elif b mod 3 == 0: b = b / 3
-    else: c = c / 3
-    return (a mod M) * (b mod M) % M * (c mod M) % M
+```text
+Part 1: small divisors
+Part 2: small quotients (large divisors)
+Compute m(m+1)(2m+1)/6 mod M using exact division
+Divide one factor by 2 and one by 3 (exact integer division)
 ```
 
 ## Complexity Analysis

@@ -46,13 +46,15 @@ For each number i from 1 to 10^7:
 For base 10, most numbers up to 10^7 have f = 1 or 2 (since digit sum of 9999999 = 63, then 9, so f = 2).
 For base 3, numbers up to 10^7 can have f up to about 3 or 4.
 
-## Algorithm
+## Editorial
+a. Compute f(i, 10) by iterating digit sums in base 10 b. Compute f(i, 3) by iterating digit sums in base 3 c. If equal, add i to result. We iterate over each i from 1 to 10^7. Finally, return result.
 
-1. For each i from 1 to 10^7:
-   a. Compute f(i, 10) by iterating digit sums in base 10
-   b. Compute f(i, 3) by iterating digit sums in base 3
-   c. If equal, add i to result
-2. Return result
+## Pseudocode
+
+```text
+For each i from 1 to 10^7:
+Return result
+```
 
 ## Correctness
 

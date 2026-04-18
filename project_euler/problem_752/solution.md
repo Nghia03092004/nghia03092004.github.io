@@ -32,43 +32,22 @@ In all cases, $g(p) \mid p^2 - 1$.
 
 **Proof.** The lcm formula follows from the Chinese Remainder Theorem: $M^n \equiv I \pmod{x}$ iff $M^n \equiv I \pmod{p_i^{k_i}}$ for all $i$. The prime power lifting is standard (analogous to the Pisano period for Fibonacci numbers). $\square$
 
-## Algorithm
+## Editorial
+$(1+\sqrt{7})^n = \alpha(n)+\beta(n)\sqrt{7}$. $g(x)$ = smallest $n>0$ with $\alpha(n)\equiv 1, \beta(n)\equiv 0 \pmod x$. $G(N)=\sum_{{x=2}}^N g(x)$. Given $G(10^2)=28891, G(10^3)=13131583$. Find $G(. We compute g(p) for each prime p <= N. We then iterate over each prime p in primes. Finally, else.
 
-```
-function COMPUTE_G(N):
-    primes = sieve_primes(N)
-    g_values = array of size N+1, initialized to 0
+## Pseudocode
 
-    // Step 1: Compute g(p) for each prime p <= N
-    for each prime p in primes:
-        if legendre(7, p) == 1:
-            bound = p - 1
-        else:
-            bound = p + 1
-        // Find order of M mod p by testing divisors of bound
-        divisors = sorted_divisors(bound)
-        for d in divisors:
-            if matrix_power(M, d, p) == I:
-                g[p] = d
-                break
-
-    // Step 2: Compute g(p^k) for prime powers p^k <= N
-    for each prime p:
-        pk = p
-        while pk * p <= N:
-            pk *= p
-            // Lift: typically g(p^k) = p * g(p^{k-1}), verify by checking
-            g[pk] = compute_prime_power_order(M, pk, g[p])
-
-    // Step 3: Compute g(x) for composite x via lcm
-    // Use a sieve-like approach: for each x, factorize and take lcm
-    total = 0
-    for x = 2 to N:
-        if g[x] not yet computed:
-            g[x] = lcm of g[p^k] over prime power factors of x
-        total += g[x]
-
-    return total
+```text
+Compute g(p) for each prime p <= N
+for each prime p in primes
+else
+Find order of M mod p by testing divisors of bound
+for d in divisors
+Compute g(p^k) for prime powers p^k <= N
+for each prime p
+Lift: typically g(p^k) = p * g(p^{k-1}), verify by checking
+Compute g(x) for composite x via lcm
+Use a sieve-like approach: for each x, factorize and take lcm
 ```
 
 ## Complexity Analysis

@@ -61,7 +61,7 @@ It remains to verify that a valid assignment exists for this partition and that 
 
 **Proof.** Immediate from the line equation $o_k + i_k + i_{(k \bmod 5)+1} = 14$. The outer values must be distinct elements of $\{6,7,8,9,10\}$ since each number is used exactly once. $\square$
 
-## Algorithm
+## Editorial
 
 The analysis reduces the search to inner nodes $\{1,2,3,4,5\}$ and outer nodes $\{6,7,8,9,10\}$ with common line sum $14$. We therefore enumerate the cyclic order of the inner nodes, derive the outer nodes from the line-sum constraint, and discard any arrangement whose derived outer values are not exactly $\{6,7,8,9,10\}$. Every valid ring is normalized by starting at the smallest outer node, then read clockwise to form its 16-digit string; the largest such string is retained.
 

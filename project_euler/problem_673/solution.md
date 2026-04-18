@@ -28,31 +28,18 @@ $$\operatorname{perm}(A) = \prod_{j=1}^{m} \operatorname{perm}(A_j).$$
 
 **Proof.** Each bed-pair $(i_1, i_2)$ must map to some desk-pair. The pair can map in two orientations (either $\sigma(i_1) = j_1, \sigma(i_2) = j_2$ or the reverse), so $B_{ij} = 2$ if compatible and $0$ otherwise. The total count is $\operatorname{perm}(B)$ when expanded, since each matching of bed-pairs to desk-pairs contributes independently. $\square$
 
-## Algorithm
+## Editorial
+We build compatibility matrix. We then iterate over each student i. Finally, iterate over each desk j. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function CountValidReassignments(n, bed_rooms, desk_rooms):
-    // Step 1: Build compatibility matrix
-    A = n x n zero matrix
-    for each student i:
-        for each desk j:
-            if assigning student i to desk j is compatible
-               with all room constraints:
-                A[i][j] = 1
+## Pseudocode
 
-    // Step 2: Identify block structure
-    blocks = connected_components(A)
-
-    // Step 3: Compute permanent of each block via Ryser's formula
-    result = 1
-    for each block B_k of size n_k:
-        perm_k = 0
-        for each subset S of columns of B_k (Gray code order):
-            row_sums_product = product over rows i of (sum of B_k[i][j] for j in S)
-            perm_k += (-1)^(n_k + |S|) * row_sums_product
-        result *= perm_k
-
-    return result
+```text
+Build compatibility matrix
+for each student i
+for each desk j
+with all room constraints
+Identify block structure
+Compute permanent of each block via Ryser's formula
 ```
 
 ## Complexity Analysis

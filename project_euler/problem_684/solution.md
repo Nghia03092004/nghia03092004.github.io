@@ -59,11 +59,16 @@ Simplifying:
 $$S(k) = 6 \cdot 10^Q - 6 - 9Q + 10^Q \cdot \frac{(R+1)(R+2)}{2} - 10^Q - R$$
 $$= 10^Q \left(5 + \frac{(R+1)(R+2)}{2}\right) - 9Q - R - 6$$
 
-## Algorithm
+## Editorial
+We iterate over each Fibonacci number, compute $S(f_i)$ using the closed-form formula with modular exponentiation. Finally, sum all results modulo $10^9 + 7$.
 
-1. Precompute Fibonacci numbers $f_2, f_3, \ldots, f_{90}$.
-2. For each Fibonacci number, compute $S(f_i)$ using the closed-form formula with modular exponentiation.
-3. Sum all results modulo $10^9 + 7$.
+## Pseudocode
+
+```text
+Precompute Fibonacci numbers $f_2, f_3, \ldots, f_{90}$
+For each Fibonacci number, compute $S(f_i)$ using the closed-form formula with modular exponentiation
+Sum all results modulo $10^9 + 7$
+```
 
 ## Correctness
 

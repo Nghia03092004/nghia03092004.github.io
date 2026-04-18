@@ -28,16 +28,18 @@ The remainder block contributes $\sum_{j=1}^{r}(9q+j) \cdot j$. Summing gives th
 **Corollary.** For $N = 10^6$: $q = 111111$, $r = 1$, and the remainder contributes $(9 \cdot 111111 + 1) \cdot 1 = 1000000$. Hence
 $$S(10^6) = 405 \cdot \frac{111111 \cdot 111110}{2} + 285 \cdot 111111 + 1000000 = 2499999166667.$$
 
-## Algorithm
+## Editorial
+Let d(n) denote the digital root of n (the single digit obtained by repeatedly summing the digits of n). Define S(N) = sum_{k=1}^{N} k * d(k). Find S(10^6) mod 10^9 + 7.
 
-```
-function DigitalRootSum(N):
-    q = N / 9          // integer division
+## Pseudocode
+
+```text
+    q = N / 9 // integer division
     r = N mod 9
     total = 405 * q * (q - 1) / 2 + 285 * q
-    for j = 1 to r:
+    For j from 1 to r:
         total += (9 * q + j) * j
-    return total mod (10^9 + 7)
+    Return total mod (10^9 + 7)
 ```
 
 ## Complexity Analysis

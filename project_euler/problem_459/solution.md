@@ -52,14 +52,17 @@ board is the XOR of the Grundy values of all individual cell games.
    P-position. We count all valid rectangles whose flip changes the total
    Grundy XOR from nonzero to zero.
 
-### Algorithm
+### Editorial
+value 0. We compute 1D Grundy sequences for the "square" and "triangular" move sets. We then compute the column Grundy XOR profile and row Grundy XOR profile. Finally, iterate over each valid rectangle move, check if it converts the position to Grundy.
 
-1. Compute 1D Grundy sequences for the "square" and "triangular" move sets
-   up to N = 10^6.
-2. Compute the column Grundy XOR profile and row Grundy XOR profile.
-3. For each valid rectangle move, check if it converts the position to Grundy
-   value 0.
-4. Count all such winning moves.
+### Pseudocode
+
+```text
+Compute 1D Grundy sequences for the "square" and "triangular" move sets
+Compute the column Grundy XOR profile and row Grundy XOR profile
+For each valid rectangle move, check if it converts the position to Grundy
+Count all such winning moves
+```
 
 ### Complexity
 

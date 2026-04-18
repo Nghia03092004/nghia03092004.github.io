@@ -48,12 +48,17 @@ Verification: $\sum_{n=2}^{10} \text{sort}(n) = 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 
 
 Actually: $\text{sort}(4) = 4$, $\text{sort}(6) = 6$, $\text{sort}(8) = 8$, $\text{sort}(9) = 9$, $\text{sort}(10) = 10$. All primes map to themselves. So $\sum_{n=2}^{10} = 2+3+4+5+6+7+8+9+10 = 54$.
 
-### Algorithm
+### Editorial
+sort(n) = product of p_i^{e_sigma(i)} where exponents are sorted non-increasingly and assigned to primes in increasing order. Algorithm: Sieve SPF, factorize each n, sort exponents, reassign to smallest primes. We sieve** the smallest prime factor (SPF) for all $n \le N$. Finally, iterate over each $n$**, extract the prime factorization, sort exponents non-increasingly, assign to primes $2, 3, 5, \ldots$ in order.
 
-1. **Sieve** the smallest prime factor (SPF) for all $n \le N$.
-2. **For each $n$**, extract the prime factorization, sort exponents non-increasingly, assign to primes $2, 3, 5, \ldots$ in order.
-3. **Compute** $\text{sort}(n) = \prod p_i^{e_i}$ modulo $10^9+7$.
-4. **Sum** all $\text{sort}(n)$.
+### Pseudocode
+
+```text
+Sieve** the smallest prime factor (SPF) for all $n \le N$
+For each $n$**, extract the prime factorization, sort exponents non-increasingly, assign to primes $2, 3, 5, \ldots$ in order
+Compute** $\text{sort}(n) = \prod p_i^{e_i}$ modulo $10^9+7$
+Sum** all $\text{sort}(n)$
+```
 
 ## Complexity Analysis
 

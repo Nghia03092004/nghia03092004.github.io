@@ -51,11 +51,16 @@ Since each recurrence halves the argument, with memoization the total number of 
 | 10 | 3 | 23 |
 | 20 | 3 | 83 |
 
-## Algorithm
+## Editorial
+Kimberling's fractal sequence: self-generating sequence where removing first occurrences reproduces the original. Compute S(10^15) mod (10^9 + 7) where S(n) = sum of first n terms. Approach: recursive computation via self-similar structure with memoization. O(log^2 n) sub-problems. We implement the recurrence for $S(n)$ with memoization. We then all arithmetic mod $10^9 + 7$. Finally, the recursion depth is $O(\log n)$ with $O(\log^2 n)$ total sub-problems.
 
-1. Implement the recurrence for $S(n)$ with memoization.
-2. All arithmetic mod $10^9 + 7$.
-3. The recursion depth is $O(\log n)$ with $O(\log^2 n)$ total sub-problems.
+## Pseudocode
+
+```text
+Implement the recurrence for $S(n)$ with memoization
+All arithmetic mod $10^9 + 7$
+The recursion depth is $O(\log n)$ with $O(\log^2 n)$ total sub-problems
+```
 
 ## Proof of Correctness
 

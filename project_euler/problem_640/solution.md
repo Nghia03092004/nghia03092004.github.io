@@ -53,12 +53,17 @@ The system E(S) = 1 + (1/36) sum_{x,y} min_c E(S ^ (1<<(c-1))) creates a system 
 
 We solve by value iteration: repeatedly update E(S) until convergence.
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We initialize E(0) = 0, E(S) = some large value for S != 0. We then iterate: for each state S, compute new E(S) using the Bellman equation. Finally, repeat until convergence (changes < epsilon).
 
-1. Initialize E(0) = 0, E(S) = some large value for S != 0
-2. Iterate: for each state S, compute new E(S) using the Bellman equation
-3. Repeat until convergence (changes < epsilon)
-4. Output E(2^12 - 1) = E(4095) (initial state: all face up)
+## Pseudocode
+
+```text
+Initialize E(0) = 0, E(S) = some large value for S != 0
+Iterate: for each state S, compute new E(S) using the Bellman equation
+Repeat until convergence (changes < epsilon)
+Output E(2^12 - 1) = E(4095) (initial state: all face up)
+```
 
 ## Correctness
 

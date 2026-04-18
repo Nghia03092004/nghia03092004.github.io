@@ -38,28 +38,14 @@ $$v_p(N!) = \sum_{k=1}^{q} \sum_{j=k}^{q} T_j p^{j-k} = \sum_{j=1}^{q} T_j \sum_
 
 For the modular reduction: $G(j) = 1 + p + \cdots + p^{j-1}$. When $j \ge e$, the terms $p^e, p^{e+1}, \ldots$ vanish modulo $p^e$, so $G(j) \equiv G(e) \pmod{p^e}$. Thus $T_j \cdot G(j) \equiv T_j \cdot G(\min(j,e)) \pmod{p^e}$. $\quad\square$
 
-## Algorithm
+## Editorial
+Key insight: Since T_n are the base-p digits of N(p,q), Legendre's formula gives: v_p(N!) = sum_{j=1}^{q} T_j * (1 + p + ... + p^{j-1}) Mod p^e, the geometric sum caps at e terms. We precompute G(1), G(2), ..., G(e). Finally, generate T_n and accumulate.
 
-```
-function solve(p = 61, q = 10^7, e = 10):
-    mod = p^e
-    // Precompute G(1), G(2), ..., G(e)
-    G = array[1..e]
-    G[1] = 1
-    for i = 2 to e:
-        G[i] = (G[i-1] * p + 1) mod mod
+## Pseudocode
 
-    // Generate T_n and accumulate
-    S = 290797
-    result = 0
-    for n = 0 to q:
-        T = S mod p
-        if n >= 1:
-            k = min(n, e)
-            result = (result + T * G[k]) mod mod
-        S = (S * S) mod 50515093
-
-    return result
+```text
+Precompute G(1), G(2), ..., G(e)
+Generate T_n and accumulate
 ```
 
 ## Complexity Analysis

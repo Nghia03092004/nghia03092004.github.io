@@ -69,18 +69,20 @@ since the forward iteration (increasing $j$) allows the value $\mathrm{dp}[j - k
 
 **Remark.** The problem asks for partitions into at least two parts, which excludes the trivial partition $n = n$. The answer is therefore $p(100) - 1$.
 
-## Algorithm
+## Editorial
+How many different ways can 100 be written as a sum of at least two positive integers?. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function partition_count(n):
+## Pseudocode
+
+```text
     dp = array[0..n] initialized to 0
     dp[0] = 1
 
-    for k = 1 to n:
-        for j = k to n:
+    For k from 1 to n:
+        For j from k to n:
             dp[j] += dp[j - k]
 
-    return dp[n] - 1    # subtract 1 for the trivial partition n = n
+    Return dp[n] - 1 # subtract 1 for the trivial partition n = n
 ```
 
 ## Complexity Analysis

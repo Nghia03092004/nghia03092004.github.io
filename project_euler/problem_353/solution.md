@@ -26,49 +26,17 @@ In particular, the minimum-risk path may use fewer hops than the minimum-arc-len
 
 **Proof.** For each value of $c$ with $-r \le c \le r$, we enumerate all pairs $(a,b)$ with $a^2 + b^2 = r^2 - c^2$, which is a sum-of-two-squares problem solvable in $O(r)$ time per value of $c$. Total: $O(r^2)$. $\square$
 
-## Algorithm
+## Editorial
+For each prime r <= 14, find lattice points on sphere of radius r, then use Dijkstra to find the minimum-risk path from north pole to south pole. Risk of a segment with arc angle theta = (theta/2)^2. Total answer is the sum over all primes r <= 14. We iterate over r in primes. We then enumerate lattice points on sphere of radius r. Finally, build complete graph with risk weights.
 
-```
-function MinRiskSum():
-    primes = [2, 3, 5, 7, 11, 13]
-    total_risk = 0
+## Pseudocode
 
-    for r in primes:
-        // Step 1: Enumerate lattice points on sphere of radius r
-        points = []
-        for a = -r to r:
-            for b = -r to r:
-                c_sq = r*r - a*a - b*b
-                if c_sq >= 0 and is_perfect_square(c_sq):
-                    c = sqrt(c_sq)
-                    points.add((a, b, c))
-                    if c != 0:
-                        points.add((a, b, -c))
-
-        // Step 2: Build complete graph with risk weights
-        north = index of (0, 0, r)
-        south = index of (0, 0, -r)
-        n = |points|
-        dist[0..n-1] = infinity
-        dist[north] = 0
-
-        // Step 3: Dijkstra's algorithm
-        priority_queue Q
-        Q.insert(north, 0)
-        while Q is not empty:
-            u = Q.extract_min()
-            for each v != u:
-                dot = points[u] . points[v]
-                cos_theta = dot / (r * r)
-                theta = arccos(clamp(cos_theta, -1, 1))
-                w = (theta / 2)^2
-                if dist[u] + w < dist[v]:
-                    dist[v] = dist[u] + w
-                    Q.decrease_key(v, dist[v])
-
-        total_risk += dist[south]
-
-    return total_risk
+```text
+for r in primes
+Enumerate lattice points on sphere of radius r
+Build complete graph with risk weights
+Dijkstra's algorithm
+while Q is not empty
 ```
 
 ## Complexity Analysis

@@ -43,12 +43,17 @@ And: C(n) = C(n, 3) - sum_i C(f(i), 2)
 
 where we use a two-pointer / sliding window on the sorted angles.
 
-## Algorithm
+## Editorial
+We generate all points (x_i, y_i) for i = 1 to n. We then compute angles and sort. Finally, use two-pointer technique to count f(i) for each point.
 
-1. Generate all points (x_i, y_i) for i = 1 to n.
-2. Compute angles and sort.
-3. Use two-pointer technique to count f(i) for each point.
-4. Compute total = C(n,3) - sum of C(f(i), 2).
+## Pseudocode
+
+```text
+Generate all points (x_i, y_i) for i = 1 to n
+Compute angles and sort
+Use two-pointer technique to count f(i) for each point
+Compute total = C(n,3) - sum of C(f(i), 2)
+```
 
 ## Correctness
 

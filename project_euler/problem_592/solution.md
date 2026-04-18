@@ -38,38 +38,18 @@ where $n_i$ are the base-$p$ digits of $n$. This product is computed modulo $p$ 
 
 **Proof.** Immediate from Theorem 3 and the definition of $g(p,n)$ as the last non-zero base-$p$ digit of $n!$, which equals $\frac{n!}{p^{\nu_p(n!)}} \bmod p$. $\square$
 
-## Algorithm
+## Editorial
+We iterate over p in primes. We then precompute factorial table mod p. Finally, compute nu_p(n!) and base-p digits simultaneously.
 
+## Pseudocode
+
+```text
+for p in primes
+Precompute factorial table mod p
+Compute nu_p(n!) and base-p digits simultaneously
+g(p, n) = (-1)^e * prod mod p
+else
 ```
-function S(N):
-    primes = sieve_primes(N)
-    total = 0
-    for p in primes:
-        // Precompute factorial table mod p
-        fact_mod_p[0] = 1
-        for j = 1 to p-1:
-            fact_mod_p[j] = (fact_mod_p[j-1] * j) % p
-
-        for n = 1 to N:
-            // Compute nu_p(n!) and base-p digits simultaneously
-            e = 0
-            prod = 1
-            temp = n
-            while temp > 0:
-                digit = temp % p
-                prod = (prod * fact_mod_p[digit]) % p
-                temp = temp / p  // integer division
-                e += temp
-            // g(p, n) = (-1)^e * prod mod p
-            if e % 2 == 1:
-                g = (p - prod) % p
-            else:
-                g = prod % p
-            total += g
-    return total
-```
-
-**Optimization:** For large primes $p > N$, $\nu_p(n!) = 0$ for all $n \leq N$, and $g(p,n) = n! \bmod p$, which can be computed incrementally.
 
 ## Complexity Analysis
 

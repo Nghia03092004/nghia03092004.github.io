@@ -30,20 +30,19 @@ This runs in $O(2^n \cdot n)$ time and $O(n)$ space, which is feasible for $n=34
 
 We compute everything modulo $m = 83\,456\,729$. Note that Ryser's formula involves $(-1)^{|S|}$ terms, so we handle signs carefully in modular arithmetic.
 
-## Algorithm
+## Editorial
+Instead of recomputing row sums from scratch for each subset, use Gray code ordering. When transitioning from one subset to the next, exactly one column $j$ is added or removed. This reduces the work per subset from $O(n^2)$ to $O(n)$. We build the coprimality matrix: $A_{ij} = [\gcd(i,j) = 1]$ for $1 \le i,j \le 34$. We then precompute row sums for each subset $S$ using Gray code enumeration (adding/removing one column at a time). Finally, apply Ryser's formula with Gray code to iterate over all $2^{34}$ subsets efficiently.
 
-1. Build the coprimality matrix: $A_{ij} = [\gcd(i,j) = 1]$ for $1 \le i,j \le 34$.
-2. Precompute row sums for each subset $S$ using Gray code enumeration (adding/removing one column at a time).
-3. Apply Ryser's formula with Gray code to iterate over all $2^{34}$ subsets efficiently.
-4. All arithmetic modulo $83\,456\,729$.
+## Pseudocode
 
-### Gray Code Optimization
-
-Instead of recomputing row sums from scratch for each subset, use Gray code ordering. When transitioning from one subset to the next, exactly one column $j$ is added or removed:
-- If added: for each row $i$, add $A_{ij}$ to the row sum.
-- If removed: for each row $i$, subtract $A_{ij}$ from the row sum.
-
-This reduces the work per subset from $O(n^2)$ to $O(n)$.
+```text
+Build the coprimality matrix: $A_{ij} = [\gcd(i,j) = 1]$ for $1 \le i,j \le 34$
+Precompute row sums for each subset $S$ using Gray code enumeration (adding/removing one column at a time)
+Apply Ryser's formula with Gray code to iterate over all $2^{34}$ subsets efficiently
+All arithmetic modulo $83\,456\,729$
+If added: for each row $i$, add $A_{ij}$ to the row sum
+If removed: for each row $i$, subtract $A_{ij}$ from the row sum
+```
 
 ## Correctness
 

@@ -42,33 +42,17 @@ where the result is interpreted in $\{-1, 0, 1\}$ by mapping $p - 1 \mapsto -1$.
 
 **Proof.** Since $\mathbb{F}_p^*$ is cyclic of order $p - 1$, write $a = g^k$ for a generator $g$. Then $a^{(p-1)/2} = g^{k(p-1)/2} = (\pm 1)$ depending on the parity of $k$. This is $+1$ exactly when $k$ is even, i.e., when $a$ is a quadratic residue. $\square$
 
-## Algorithm
+## Editorial
+Count points on E: y^2 = x^3 + x + 1 over F_p, p = 1009. Key ideas:. We verify non-singularity. We then else. Finally, euler's criterion.
 
-```
-function CountPoints(a, b, p):
-    // Verify non-singularity
-    assert (4*a^3 + 27*b^2) mod p != 0
+## Pseudocode
 
-    S = 0
-    for x = 0 to p-1:
-        f = (x^3 + a*x + b) mod p
-        if f == 0:
-            legendre = 0
-        else:
-            // Euler's criterion
-            e = power_mod(f, (p-1)/2, p)
-            if e == 1:
-                legendre = 1
-            else:
-                legendre = -1
-        S += legendre
-
-    count = 1 + p + S
-
-    // Hasse bound verification
-    assert abs(p + 1 - count) <= 2 * floor(sqrt(p)) + 1
-
-    return count
+```text
+Verify non-singularity
+else
+Euler's criterion
+else
+Hasse bound verification
 ```
 
 ## Complexity Analysis

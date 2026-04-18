@@ -60,7 +60,7 @@ Then a valid solution to the problem corresponds to a directed 6-cycle $v_1 \to 
 
 **Proof.** By exhaustive depth-first search over $G$ with backtracking, starting from every possible initial edge and exploring all label-valid extensions, exactly one equivalence class of 6-cycles (under cyclic rotation) is found. The completeness of depth-first search with backtracking guarantees that no valid cycle is missed. $\square$
 
-## Algorithm
+## Editorial
 
 We first enumerate all 4-digit polygonal numbers of types $3$ through $8$ and keep only those whose last two digits form a valid two-digit suffix. Each remaining number is then treated as a labeled link from its first two digits to its last two digits. Starting from every possible value, we perform a depth-first backtracking search that extends the chain only through matching suffix-prefix links and polygonal types that have not yet been used. A candidate is accepted only when it contains six values, uses all six types exactly once, and closes back to its starting prefix.
 

@@ -78,11 +78,16 @@ where m(d) is the smallest positive integer such that d | 2*m(d)^2.
 
 This sum can be computed in O(N^{2/3}) time using the hyperbola method.
 
-## Algorithm
+## Editorial
+f(n) = number of divisors of 2n^2 that are <= n F(N) = sum of f(n) for n = 1 to N Find F(10^12). We compute m(d) for each d using multiplicative properties. We then use the hyperbola method to evaluate the sum in O(N^{2/3}) time. Finally, iterate over the actual implementation, we use a sieve-based approach for moderate N.
 
-1. Compute m(d) for each d using multiplicative properties
-2. Use the hyperbola method to evaluate the sum in O(N^{2/3}) time
-3. For the actual implementation, we use a sieve-based approach for moderate N
+## Pseudocode
+
+```text
+Compute m(d) for each d using multiplicative properties
+Use the hyperbola method to evaluate the sum in O(N^{2/3}) time
+For the actual implementation, we use a sieve-based approach for moderate N
+```
 
 ## Correctness
 

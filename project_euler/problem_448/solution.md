@@ -50,53 +50,18 @@ Swapping the order of summation: $\sum_{n=1}^{N} \sum_{d \mid n} h(d) = \sum_{d=
 
 **Proof.** $\gcd(d-j, d) = \gcd(j, d) = 1$. For $j = d/2$ to be coprime to $d$, we need $\gcd(d/2, d) = d/2 = 1$, so $d = 2$. When $d = 2$, the only coprime residue is $j = 1 = d - 1$, confirming the pairing is trivial (a single element). For $d \geq 3$, all pairs are distinct. $\square$
 
-## Algorithm
+## Editorial
+*Alternative (Hyperbola Method):**. We sieve Euler's totient function. We then compute h(d) = d * phi(d) mod mod for all d. Finally, compute S(N).
 
-```
-function ComputeS(N, mod):
-    // Step 1: Sieve Euler's totient function
-    phi[1..N] = totient sieve (initialize phi[i] = i, then for each prime p,
-                                for multiples m of p: phi[m] = phi[m] * (p-1) / p)
+## Pseudocode
 
-    // Step 2: Compute h(d) = d * phi(d) mod mod for all d
-    // Step 3: Divisor-sum convolution: g(n) = sum_{d | n} h(d)
-    g[1..N] = 0
-    for d = 1 to N:
-        h_d = (d % mod) * (phi[d] % mod) % mod
-        for multiple = d, 2d, 3d, ..., N:
-            g[multiple] = (g[multiple] + h_d) % mod
-
-    // Step 4: Compute S(N)
-    inv2 = modular_inverse(2, mod)
-    total = 0
-    for n = 1 to N:
-        f_n = (1 + g[n]) % mod * inv2 % mod
-        total = (total + f_n) % mod
-
-    return total
-```
-
-**Alternative (Hyperbola Method):**
-
-```
-function ComputeS_fast(N, mod):
-    // Use S(N) = (N + sum_{d=1}^{N} h(d) * floor(N/d)) / 2
-    // Group by distinct values of floor(N/d): O(sqrt(N)) groups
-
-    Sieve phi[1..N]
-    Compute prefix sums H[k] = sum_{d=1}^{k} h(d) mod mod
-
-    inv2 = modular_inverse(2, mod)
-    total = N % mod
-    d = 1
-    while d <= N:
-        q = floor(N / d)
-        d_max = floor(N / q)  // largest d' with floor(N/d') = q
-        block_sum = (H[d_max] - H[d-1]) % mod
-        total = (total + q * block_sum) % mod
-        d = d_max + 1
-
-    return total * inv2 % mod
+```text
+Sieve Euler's totient function
+Compute h(d) = d * phi(d) mod mod for all d
+Divisor-sum convolution: g(n) = sum_{d | n} h(d)
+Compute S(N)
+Use S(N) = (N + sum_{d=1}^{N} h(d) * floor(N/d)) / 2
+Group by distinct values of floor(N/d): O(sqrt(N)) groups
 ```
 
 ## Complexity Analysis

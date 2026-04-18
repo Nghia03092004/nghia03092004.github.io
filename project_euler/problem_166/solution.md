@@ -31,36 +31,17 @@ $$m = S - a - e - i, \quad n = S - b - f - j, \quad o = S - c - g - k, \quad p =
 
 **Proof.** These are the only constraints not yet enforced by the row-sum and column-sum conditions. $\square$
 
-## Algorithm
+## Editorial
+Optimization: precompute tuples per sum $S$. Use early termination: after fixing rows 1 and 2, check partial diagonal feasibility before enumerating row 3. Split enumeration with meet-in-the-middle on top-two vs. bottom-two rows. We generate all 4-tuples of digits summing to S. We then determine Row 4. Finally, check digits in range.
 
+## Pseudocode
+
+```text
+Generate all 4-tuples of digits summing to S
+Determine Row 4
+Check digits in range
+Check diagonals
 ```
-function COUNT_SEMI_MAGIC_SQUARES():
-    total = 0
-    for S = 0 to 36:
-        # Generate all 4-tuples of digits summing to S
-        tuples_S = [(a, b, c, d) : a,b,c,d in 0..9, a+b+c+d = S]
-
-        for (a, b, c, d) in tuples_S:         # Row 1
-            for (e, f, g, h) in tuples_S:     # Row 2
-                for (i, j, k, l) in tuples_S: # Row 3
-                    # Determine Row 4
-                    m = S - a - e - i
-                    n = S - b - f - j
-                    o = S - c - g - k
-                    p = S - d - h - l
-
-                    # Check digits in range
-                    if any of {m, n, o, p} not in [0, 9]: continue
-
-                    # Check diagonals
-                    if a + f + k + p != S: continue
-                    if d + g + j + m != S: continue
-
-                    total += 1
-    return total
-```
-
-Optimization: precompute tuples per sum $S$. Use early termination: after fixing rows 1 and 2, check partial diagonal feasibility before enumerating row 3. Split enumeration with meet-in-the-middle on top-two vs. bottom-two rows.
 
 ## Complexity Analysis
 

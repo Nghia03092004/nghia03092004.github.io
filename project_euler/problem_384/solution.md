@@ -39,27 +39,21 @@ where $T(n)$ is a related sum that also satisfies a binary recurrence.
 
 **Proof.** Split $S(2n) = \sum_{k=1}^{2n} s(k) = \sum_{j=0}^{n-1} s(2j+1) + \sum_{j=1}^{n} s(2j)$. Apply the partial sum recurrences to express each in terms of $s(j)$ and $u(j)$. $\square$
 
-## Algorithm
+## Editorial
+The key insight is that the recurrence system has dimension $O(1)$ per doubling step, so the entire computation takes $O(\log N)$ steps with $O(1)$ arithmetic per step (though the integers grow, so actual cost depends on arithmetic model). We use the coupled recurrence system for (s, u, r) to compute. We then s(N) via binary splitting / divide-and-conquer. Finally, iterate over each bit of N from MSB to LSB, use the doubling formulas.
 
+## Pseudocode
+
+```text
+Use the coupled recurrence system for (s, u, r) to compute
+S(N) via binary splitting / divide-and-conquer
+Base: S(1) = s(1) = 1
+For each bit of N from MSB to LSB, use the doubling formulas:
+S(2n) = 2*S(n) + cross_term(n)
+S(2n+1) = S(2n) + s(2n+1)
+The cross terms involve sums of u(k) which are tracked
+alongside S via coupled recurrences
 ```
-function solve():
-    // Use the coupled recurrence system for (s, u, r) to compute
-    // S(N) via binary splitting / divide-and-conquer
-
-    // Base: S(1) = s(1) = 1
-    // For each bit of N from MSB to LSB, use the doubling formulas:
-    //   S(2n) = 2*S(n) + cross_term(n)
-    //   S(2n+1) = S(2n) + s(2n+1)
-
-    // The cross terms involve sums of u(k) which are tracked
-    // alongside S via coupled recurrences.
-
-    N1 = 2^37
-    N2 = 2^37 - 1
-    return S(N1) + S(N2)
-```
-
-The key insight is that the recurrence system has dimension $O(1)$ per doubling step, so the entire computation takes $O(\log N)$ steps with $O(1)$ arithmetic per step (though the integers grow, so actual cost depends on arithmetic model).
 
 ## Complexity Analysis
 

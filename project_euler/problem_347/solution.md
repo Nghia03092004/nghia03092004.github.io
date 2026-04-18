@@ -24,36 +24,15 @@ Find $\sum M(p, q, 10^7)$ over all pairs of primes $p < q$ with $p \cdot q \le 1
 
 **Proof.** For each prime $p$, the number of primes $q \in (p, N/p]$ is $O(N/(p \log N))$ by the prime number theorem. Summing over primes $p \le \sqrt{N}$ gives $O(N/\log^2 N)$. $\square$
 
-## Algorithm
+## Editorial
+We but p * next_prime > N means no valid q. Finally, find max p^a * q^b <= N with a >= 1, b >= 1.
 
-```
-function solve(N = 10^7):
-    primes = sieve_primes(N / 2)
-    total = 0
+## Pseudocode
 
-    for i = 0 to len(primes)-1:
-        p = primes[i]
-        if p * p > N: break     // p < q, so p^2 < p*q <= N not needed
-                                 // but p * next_prime > N means no valid q
-
-        for j = i+1 to len(primes)-1:
-            q = primes[j]
-            if p * q > N: break
-
-            // Find max p^a * q^b <= N with a >= 1, b >= 1
-            best = 0
-            power_p = p
-            while power_p * q <= N:
-                // For this power_p = p^a, find max b
-                power_pq = power_p * q
-                while power_pq * q <= N:
-                    power_pq *= q
-                best = max(best, power_pq)
-                power_p *= p
-
-            total += best
-
-    return total
+```text
+but p * next_prime > N means no valid q
+Find max p^a * q^b <= N with a >= 1, b >= 1
+For this power_p = p^a, find max b
 ```
 
 ## Complexity Analysis

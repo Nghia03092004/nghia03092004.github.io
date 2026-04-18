@@ -37,18 +37,20 @@ It remains to verify the existence of such $e$. We have $p - 1 = 1008 = 2^4 \cdo
 
 *Proof.* Conditions (2)--(4) ensure $\gcd(e-1, p-1) = 2$: condition (2) gives exactly one factor of $2$; conditions (3) and (4) exclude the odd prime factors $3$ and $7$ of $p - 1$. Condition (2) already ensures $v_2(e-1) = 1 \leq v_2(q-1) = 1$, so the $2$-adic contribution to $\gcd(e-1, q-1)$ is exactly $2$. Conditions (3) and (5) exclude the odd prime factors $3$ and $607$ of $q - 1$, yielding $\gcd(e-1, q-1) = 2$. $\square$
 
-## Algorithm
+## Editorial
+The minimum unconcealed count is 9, achieved when gcd(e-1, p-1) = 2 and gcd(e-1, q-1) = 2. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function SumOptimalExponents(p, q):
-    lambda_n := lcm(p - 1, q - 1)
-    total := 0
-    for e := 2 to lambda_n - 1:
-        if gcd(e, lambda_n) != 1: continue
-        if gcd(e - 1, p - 1) != 2: continue
-        if gcd(e - 1, q - 1) != 2: continue
+## Pseudocode
+
+```text
+    Set lambda_n <- lcm(p - 1, q - 1)
+    Set total <- 0
+    For e from 2 to lambda_n - 1:
+        If gcd(e, lambda_n) != 1 then continue
+        If gcd(e - 1, p - 1) != 2 then continue
+        If gcd(e - 1, q - 1) != 2 then continue
         total += e
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

@@ -31,36 +31,18 @@ Given: $L(10) = 30$, $L(100) = 3442$. Find $L(100{,}000)$.
 
 **Proof.** Since $M$ is the midpoint of $PQ$ and $O_i$ lies on the perpendicular bisector, we have $PM \perp MO_i$. By the Pythagorean theorem, $r_i^2 = |PO_i|^2 = |PM|^2 + |MO_i|^2$. $\square$
 
-## Algorithm
+## Editorial
+Restored canonical Python entry generated from local archive metadata. We enumerate primitive difference vectors (dx, dy). We then find lattice points on perpendicular bisector. Finally, parameterize centers as M + t*(-dy, dx) for valid t.
 
-```
-function count_lenticular_pairs(N):
-    result_set = set()
+## Pseudocode
 
-    // Enumerate primitive difference vectors (dx, dy)
-    for dx = 0 to 2*N:
-        for dy = 1 to 2*N:    // dy > 0 by convention
-            if gcd(dx, dy) != 1: continue  // primitive only
-            if dx == 0 and dy != 1: continue
-
-            half_len_sq = (dx^2 + dy^2) / 4  // |PM|^2
-
-            // Find lattice points on perpendicular bisector
-            // Bisector direction: (-dy, dx), through M = (dx/2, dy/2)
-            // Parameterize centers as M + t*(-dy, dx) for valid t
-
-            // For each pair of adjacent centers on bisector:
-            for each valid (t1, t2) adjacent pair:
-                r1_sq = half_len_sq + t1^2 * (dx^2 + dy^2)
-                r2_sq = half_len_sq + t2^2 * (dx^2 + dy^2)
-                r1 = sqrt(r1_sq)
-                r2 = sqrt(r2_sq)
-                if r1 and r2 are integers/valid and r1 <= r2 <= N:
-                    // Verify no lattice points in lens interior
-                    if lenticular_condition_holds:
-                        result_set.add((r1, r2))
-
-    return len(result_set)
+```text
+Enumerate primitive difference vectors (dx, dy)
+Find lattice points on perpendicular bisector
+Bisector direction: (-dy, dx), through M = (dx/2, dy/2)
+Parameterize centers as M + t*(-dy, dx) for valid t
+For each pair of adjacent centers on bisector:
+Verify no lattice points in lens interior
 ```
 
 ## Complexity Analysis

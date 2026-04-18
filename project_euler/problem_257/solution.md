@@ -44,41 +44,29 @@ $$|\{t_a \in \mathbb{Z}\} \cup \{t_b \in \mathbb{Z}\} \cup \{t_c \in \mathbb{Z}\
 
 **Proof.** Standard inclusion-exclusion principle. $\square$
 
-## Algorithm
+## Editorial
+(In practice, a more refined sieve exploiting the multiplicative structure of $s$ and the factorization of $s^2 - a^2$ is used.). We iterate over each angle bisector (by symmetry, handle a <= b <= c). We then bisector from A (opposite side a): t_a integral. Finally, bisector from B (opposite side b): t_b integral.
 
+## Pseudocode
+
+```text
+P = 10^8
+For each angle bisector (by symmetry, handle a <= b <= c):
+Bisector from A (opposite side a): t_a integral
+Bisector from B (opposite side b): t_b integral
+Bisector from C (opposite side c): t_c integral
+Method: sieve-based enumeration
+For bisector t_a: iterate over s = b+c, a < s, a+s <= P
+For each s, factor s and enumerate valid (b,c) pairs with b+c = s
+Check perfect-square condition
+Use GCD-based decomposition:
+Check triangle inequality: a < s (already ensured)
+b+c = s, 1 <= b <= c, so b <= s/2
+t_a^2 = bc(s^2 - a^2)/s^2
+Need bc(s^2 - a^2) to be a perfect square times s^2
+Apply inclusion-exclusion for multiple integral bisectors
+Subtract double-counts, add back triple-counts
 ```
-function CountTriangles(P):
-    // P = 10^8
-    count = 0
-
-    // For each angle bisector (by symmetry, handle a <= b <= c):
-    // Bisector from A (opposite side a): t_a integral
-    // Bisector from B (opposite side b): t_b integral
-    // Bisector from C (opposite side c): t_c integral
-
-    // Method: sieve-based enumeration
-    // For bisector t_a: iterate over s = b+c, a < s, a+s <= P
-    //   For each s, factor s and enumerate valid (b,c) pairs with b+c = s
-    //   Check perfect-square condition
-
-    // Use GCD-based decomposition:
-    for s = 2 to P-1:
-        for a = 1 to min(s-1, P-s):
-            // Check triangle inequality: a < s (already ensured)
-            // b+c = s, 1 <= b <= c, so b <= s/2
-            // t_a^2 = bc(s^2 - a^2)/s^2
-            // Need bc(s^2 - a^2) to be a perfect square times s^2
-            Enumerate valid b with b <= s/2, b >= max(1, s-a+1 .. handle ineq)
-            Check perfect square condition
-            if valid: count += 1
-
-    // Apply inclusion-exclusion for multiple integral bisectors
-    // Subtract double-counts, add back triple-counts
-
-    return count
-```
-
-(In practice, a more refined sieve exploiting the multiplicative structure of $s$ and the factorization of $s^2 - a^2$ is used.)
 
 ## Complexity Analysis
 

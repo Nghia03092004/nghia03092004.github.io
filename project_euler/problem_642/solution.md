@@ -28,28 +28,17 @@ $$S(N) \sim \frac{N^2}{2 \ln N}.$$
 
 **Proof.** The density of integers near $N$ with largest prime factor $\approx N^u$ is governed by $\rho(1/u)$ (Dickman function). Integrating $p \cdot (\text{density})$ over the range gives the stated asymptotic. A rigorous derivation uses partial summation and the prime number theorem. $\square$
 
-## Algorithm
+## Editorial
+We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function sum_lpf_sieve(N):
-    lpf = array[0..N] initialized to 0
-    for p = 2 to N:
-        if lpf[p] == 0:            // p is prime
-            for m = p, 2p, 3p, ..., N:
-                lpf[m] = p          // overwrite with current (larger) prime
-    S = 0
-    for n = 2 to N:
-        S += lpf[n]
-    return S
-```
+## Pseudocode
 
-```
-function sum_lpf_sublinear(N):
-    // Lucy DP for prime counting / prime summing
-    // Compute F(v, p) for v in {floor(N/k) : k = 1..N}
-    // Use the regrouping identity from Theorem 2
-    // Details: standard Lucy_Hedgehog technique
-    // Returns S(N) in O(N^{2/3}) time
+```text
+Lucy DP for prime counting / prime summing
+Compute F(v, p) for v in {floor(N/k) : k = 1..N}
+Use the regrouping identity from Theorem 2
+Details: standard Lucy_Hedgehog technique
+Returns S(N) in O(N^{2/3}) time
 ```
 
 ## Complexity Analysis

@@ -54,7 +54,7 @@ $$= \frac{4N^3 + 3N^2 + 8N - 9}{6}. \qquad\square$$
 - *$N = 3$: $S = (108 + 27 + 24 - 9)/6 = 150/6 = 25$. Diagonal entries: $\{1, 3, 5, 7, 9\}$. Sum $= 25$.*
 - *$N = 5$: $S = (500 + 75 + 40 - 9)/6 = 606/6 = 101$. Matches the problem statement.*
 
-## Algorithm
+## Editorial
 
 We evaluate the closed-form expression obtained from summing the four corner values contributed by each spiral layer. That gives the answer in constant time; the iterative layer-by-layer accumulation is retained as a verification method. This is sufficient because every diagonal entry belongs either to the center or to exactly one square ring.
 

@@ -26,32 +26,15 @@ where $\Sigma_d$ denotes the sum of all multiples of $d$ in the interval.
 
 Each $\Sigma_d$ is computed as the sum of an arithmetic progression: for multiples of $d$ in $(a, b)$, the first term is $d \cdot \lceil (a+1)/d \rceil$, the last is $d \cdot \lfloor (b-1)/d \rfloor$, and the sum is $d \cdot (k_1 + k_2)(k_2 - k_1 + 1)/2$.
 
-## Algorithm
+## Editorial
+A number n is semidivisible if exactly one of lps(n), ups(n) divides n, where lps(n) = largest prime <= sqrt(n), ups(n) = smallest prime >= sqrt(n). We sum of multiples of d in open interval (lo, hi). Finally, sum of multiples of d in (lo, hi) exclusive.
 
-```
-function solve(L):
-    // L = 999966663333
-    primes = sieve_of_eratosthenes(ceil(sqrt(L)) + margin)
-    total = 0
-    for i = 0 to len(primes) - 2:
-        p = primes[i]
-        q = primes[i + 1]
-        lo = p * p
-        hi = min(q * q, L)
-        if lo >= hi: continue
-        // Sum of multiples of d in open interval (lo, hi)
-        S_p = sum_multiples(p, lo, hi)
-        S_q = sum_multiples(q, lo, hi)
-        S_pq = sum_multiples(p * q, lo, hi)
-        total += S_p + S_q - 2 * S_pq
-    return total
+## Pseudocode
 
-function sum_multiples(d, lo, hi):
-    // Sum of multiples of d in (lo, hi) exclusive
-    k1 = floor(lo / d) + 1
-    k2 = floor((hi - 1) / d)
-    if k1 > k2: return 0
-    return d * (k1 + k2) * (k2 - k1 + 1) / 2
+```text
+L = 999966663333
+Sum of multiples of d in open interval (lo, hi)
+Sum of multiples of d in (lo, hi) exclusive
 ```
 
 ## Complexity Analysis

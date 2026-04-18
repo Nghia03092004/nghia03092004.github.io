@@ -40,22 +40,24 @@ The characteristic polynomial is $x^{m+1} - x^m - 1 = 0$, which factors as $x^{m
 
 **Proof.** Direct computation using the recurrence, verified against Problem 114 and the problem statement values. $\square$
 
-## Algorithm
+## Editorial
+Recurrence: F(m, n) = F(m, n-1) + P(n-m-1) where P(k) = sum of F(m, j) for j = -1 to k. We else.
 
-```
-function FindThreshold(m, target):
+## Pseudocode
+
+```text
     F[-1] = 1; F[0] = 1
     P[-1] = 1; P[0] = 2
     for n = 1, 2, 3, ...:
-        if n >= m:
+        If n >= m then
             idx = n - m - 1
             sum_term = P[idx] if idx >= -1 else 0
         else:
             sum_term = 0
         F[n] = F[n-1] + sum_term
         P[n] = P[n-1] + F[n]
-        if F[n] > target:
-            return n
+        If F[n] > target then
+            Return n
 ```
 
 ## Complexity Analysis

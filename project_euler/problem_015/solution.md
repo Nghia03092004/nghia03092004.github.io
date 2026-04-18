@@ -60,7 +60,7 @@ For integrality of partial products: $\prod_{k=1}^{j} \frac{n+k}{k} = \frac{(n+1
 
 $$\binom{40}{20} = \frac{40!}{(20!)^2} = 137\,846\,528\,820.$$
 
-## Algorithm
+## Editorial
 
 We compute the central binomial coefficient multiplicatively instead of expanding full factorials. The loop traverses $k = 1, \ldots, n$ and multiplies the accumulator by $(n+k)/k$ at each step, which stays integral by the binomial-coefficient derivation. This is sufficient because the resulting product is exactly $\binom{2n}{n}$, the number of lattice paths.
 

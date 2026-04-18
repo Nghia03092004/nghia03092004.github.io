@@ -31,38 +31,17 @@ Then $f(n) = \sum_{D:\, |D| \le n} c(D)$.
 
 **Proof.** By Lemma 1, if $3 \nmid \text{digitsum}$ and the digits include $\{1, 3, 7, 9\}$, then permutations ending in those digits are not automatically composite. For signatures with $|D| \le 22$, the number of permutations is at most $22! / \prod d_i!$, and probabilistic or deterministic primality tests apply to each candidate. $\square$
 
-## Algorithm
+## Editorial
+Count numbers whose digit permutations include at least one prime. We quick filters. We then all permutations divisible by 3 => friendless (unless 3 itself is a perm). Finally, otherwise, enumerate permutations ending in odd digit != 5.
 
-```
-function f(n):
-    count = 0
-    for each digit frequency vector D = (d_0, ..., d_9) with 1 <= |D| <= n:
-        // Quick filters
-        digit_sum = sum(i * d_i for i = 0..9)
-        if digit_sum % 3 == 0 and |D| > 1:
-            // All permutations divisible by 3 => friendless (unless 3 itself is a perm)
-            if not (|D| == 1 and d_3 == 1):
-                count += valid_permutation_count(D)
-                continue
-        if all digits in {0, 2, 4, 5, 6, 8}:
-            count += valid_permutation_count(D)
-            continue
-        // Otherwise, enumerate permutations ending in odd digit != 5
-        // and check primality
-        has_prime = false
-        for each permutation sigma of D with no leading zero:
-            if is_prime(sigma):
-                has_prime = true
-                break
-        if not has_prime:
-            count += valid_permutation_count(D)
-    return count
+## Pseudocode
 
-function valid_permutation_count(D):
-    total = |D|! / prod(d_i!)
-    if d_0 > 0:
-        total -= (|D| - 1)! / ((d_0 - 1)! * prod(d_i! for i=1..9))
-    return total
+```text
+Quick filters
+All permutations divisible by 3 => friendless (unless 3 itself is a perm)
+Otherwise, enumerate permutations ending in odd digit != 5
+and check primality
+for each permutation sigma of D with no leading zero
 ```
 
 ## Complexity Analysis

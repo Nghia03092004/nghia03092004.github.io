@@ -40,7 +40,7 @@ $$S = \sum_{\substack{p < N \\ p \text{ prime}}} p.$$
 
 *Proof.* By Theorem 1, the set of indices $i$ with $A[i] = \mathrm{true}$ is exactly the set of primes less than $N$. Summing over either description gives the same value. $\square$
 
-## Algorithm
+## Editorial
 
 We use the Sieve of Eratosthenes to classify all integers below $N$ as prime or composite. After initializing the table, we traverse prime bases up to $\sqrt{N-1}$ and mark their multiples starting at $p^2$, then sum the indices that remain marked. This is sufficient because every composite below $N$ has a prime factor at most $\sqrt{N-1}$.
 

@@ -30,12 +30,17 @@ For $k \le 12000$, we have $N_k \le 24000$.
 
 **Lower bound:** $N_k \ge k$ since the sum of $k$ numbers each $\ge 1$ is at least $k$.
 
-### Algorithm
+### Editorial
+We iterate over each $N$ from 2 to 24000, enumerate all factorizations of $N$ into factors $\ge 2$. We then iterate over each factorization with factors $f_1, \ldots, f_m$, compute $k = N - \sum f_i + m$. Finally, finally, sum all distinct minimal product-sum numbers.
 
-1. For each $N$ from 2 to 24000, enumerate all factorizations of $N$ into factors $\ge 2$.
-2. For each factorization with factors $f_1, \ldots, f_m$, compute $k = N - \sum f_i + m$.
-3. If $k \le 12000$ and $N < $ current best for $k$, update.
-4. Finally, sum all distinct minimal product-sum numbers.
+### Pseudocode
+
+```text
+For each $N$ from 2 to 24000, enumerate all factorizations of $N$ into factors $\ge 2$
+For each factorization with factors $f_1, \ldots, f_m$, compute $k = N - \sum f_i + m$
+If $k \le 12000$ and $N < $ current best for $k$, update
+Finally, sum all distinct minimal product-sum numbers
+```
 
 ### Factorization Enumeration
 

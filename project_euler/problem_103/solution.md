@@ -31,38 +31,14 @@ violating Property 1. If exactly one (say $C$) is empty, then $C' \subseteq B'$ 
 
 *Proof.* This construction, due to Lunnon, yields a set satisfying both properties. The minimum element is $b_m > 0$, ensuring positivity. Property 2 is satisfied because the spread $b_m + b_1$ vs.\ $b_m + b_{n-1}$ inherits the structure of the original set. Optimality is not guaranteed, but the set serves as a starting point for local search. $\blacksquare$
 
-## Algorithm
+## Editorial
+We check Property 2. Finally, check Property 1. Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
 
-```
-function SOLVE():
-    base <- [20, 31, 38, 39, 40, 42, 45]    // near-optimum, sum = 255
-    best <- base
-    best_sum <- 255
-    delta <- 3
+## Pseudocode
 
-    for each perturbation d in {-delta, ..., delta}^7:
-        a <- [base[i] + d[i] for i = 0..6]
-        if any(a[i] <= 0): continue
-        sort a; if not all distinct: continue
-        if sum(a) > best_sum: continue
-        if IS_SPECIAL(a):
-            update best, best_sum
-
-    return concatenation of best
-
-function IS_SPECIAL(a):       // a is sorted
-    n <- |a|
-    // Check Property 2
-    for k = 1 to floor(n/2):
-        if sum(a[0..k]) <= sum(a[n-k..n-1]):
-            return false
-    // Check Property 1
-    seen <- empty set
-    for mask = 1 to 2^n - 1:
-        s <- sum of a[i] where bit i is set
-        if s in seen: return false
-        seen.add(s)
-    return true
+```text
+Check Property 2
+Check Property 1
 ```
 
 ## Complexity Analysis

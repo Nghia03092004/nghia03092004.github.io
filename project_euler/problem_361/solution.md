@@ -30,18 +30,20 @@ This closed form can be evaluated modulo $M = 10^8 + 7$ using modular exponentia
 
 **Lemma 2 (Modular Inverse).** *Since $\gcd(3, 10^8+7) = 1$ (because $10^8 + 7$ is prime), the inverse $3^{-1} \bmod (10^8+7)$ exists and can be computed as $3^{10^8+5} \bmod (10^8+7)$ by Fermat's little theorem.* $\square$
 
-## Algorithm
+## Editorial
+The Thue-Morse sequence T(n) = popcount(n) mod 2. We need to find a specific subsequence sum modulo 10^18. Approach:. We evaluate the closed-form expressions derived above directly from the relevant parameters and return the resulting value.
 
-```
-function solve():
+## Pseudocode
+
+```text
     M = 10^8 + 7
     N = 10^18
-    inv3 = pow(3, M - 2, M)              // modular inverse of 3
+    inv3 = pow(3, M - 2, M) // modular inverse of 3
     half = floor((N - 1) / 2)
-    power_of_4 = pow(4, half + 1, M)     // 4^(half+1) mod M
+    power_of_4 = pow(4, half + 1, M) // 4^(half+1) mod M
     S = (2 * (power_of_4 - 1) * inv3) mod M
     if S < 0: S += M
-    return S
+    Return S
 ```
 
 ## Complexity Analysis

@@ -34,33 +34,19 @@ $$A = \frac{1}{2} \sum_{i < j} |v_i \times v_j|$$
 
 **Proof.** By the shoelace formula, the area of a polygon with vertices $P_0, P_1, \ldots, P_{N-1}$ is $\frac{1}{2}|\sum_i P_i \times P_{i+1}|$. Expressing $P_k = P_0 + \sum_{j=0}^{k-1} v_j$ and expanding yields the stated cross-product sum. $\square$
 
-## Algorithm
+## Editorial
+A **symmetrical convex grid polygon** has integer-coordinate vertices, all internal angles strictly less than $180°$, and both horizontal and vertical symmetry. Let $A(N)$ be the minimum area of such. We generate primitive lattice vectors in first quadrant, sorted by angle. We then select N/4 vectors for the first quadrant. Finally, (adjusting for axis vectors which contribute to orbits of size 2).
 
-```
-function A(N):
-    // Generate primitive lattice vectors in first quadrant, sorted by angle
-    vectors = []
-    for a = 0 to N:
-        for b = 0 to N:
-            if (a, b) != (0, 0) and gcd(a, b) == 1:
-                vectors.append((a, b))
-    sort vectors by atan2(b, a)  // ascending angle in [0, pi/2]
+## Pseudocode
 
-    // Select N/4 vectors for the first quadrant
-    // (adjusting for axis vectors which contribute to orbits of size 2)
-    selected = select_minimum_area_subset(vectors, N)
-
-    // Mirror across both axes to get all N edge vectors
-    all_edges = mirror(selected)
-
-    // Compute vertices from edge vectors (cumulative sum)
-    vertices = cumulative_sum(all_edges)
-
-    // Center the polygon
-    vertices = center(vertices)
-
-    // Compute area via shoelace formula
-    return shoelace_area(vertices)
+```text
+Generate primitive lattice vectors in first quadrant, sorted by angle
+Select N/4 vectors for the first quadrant
+(adjusting for axis vectors which contribute to orbits of size 2)
+Mirror across both axes to get all N edge vectors
+Compute vertices from edge vectors (cumulative sum)
+Center the polygon
+Compute area via shoelace formula
 ```
 
 ## Complexity Analysis

@@ -52,7 +52,7 @@ Therefore no $k$-digit number with $k \ge 8$ can be a factorion. Since $S(n) \le
 
 No other value in the search range satisfies the factorion condition. $\square$
 
-## Algorithm
+## Editorial
 
 We perform a bounded exhaustive search using the upper bound established in the mathematical development. The factorials of the digits 0 through 9 are precomputed once, then every candidate from 3 up to $7 \cdot 9!$ is tested by summing the factorials of its decimal digits. Whenever this digit-factorial sum equals the original number, the candidate is added to the running total.
 

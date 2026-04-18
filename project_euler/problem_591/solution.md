@@ -44,47 +44,18 @@ $$\begin{pmatrix} h_k & h_{k-1} \\ k_k & k_{k-1} \end{pmatrix} = \prod_{i=0}^{k}
 
 which follows from the definition $[a_0; a_1, \ldots, a_k] = a_0 + 1/(a_1 + 1/(\cdots))$ and the multiplicativity of the matrix product. $\square$
 
-## Algorithm
+## Editorial
+We compute periodic part of continued fraction of sqrt(n). We then repeat. Finally, enumerate best approximations with denominator <= N.
 
-```
-function solve(N):
-    total = 0
-    for n = 1 to N:
-        if is_perfect_square(n): continue
-        a0 = floor(sqrt(n))
-        // Compute periodic part of continued fraction of sqrt(n)
-        cf = [], m = 0, d = 1, a = a0
-        repeat:
-            m = d * a - m
-            d = (n - m * m) / d
-            a = floor((a0 + m) / d)
-            cf.append(a)
-        until a == 2 * a0
+## Pseudocode
 
-        // Enumerate best approximations with denominator <= N
-        h_prev, h_curr = 1, a0
-        k_prev, k_curr = 0, 1
-        total += 1  // denominator of h_0/k_0 = a0/1
-
-        period = len(cf), idx = 0
-        while true:
-            a_next = cf[idx % period]
-            // Semiconvergents: j from ceil(a_next/2) to a_next-1
-            j_start = (a_next + 1) / 2
-            for j = j_start to a_next - 1:
-                q = k_prev + j * k_curr
-                if q > N: goto done_n
-                total += q
-            // Full convergent (j = a_next)
-            h_new = a_next * h_curr + h_prev
-            k_new = a_next * k_curr + k_prev
-            if k_new > N: break
-            total += k_new
-            h_prev, h_curr = h_curr, h_new
-            k_prev, k_curr = k_curr, k_new
-            idx += 1
-    done_n:
-    return total
+```text
+Compute periodic part of continued fraction of sqrt(n)
+repeat
+Enumerate best approximations with denominator <= N
+while true
+Semiconvergents: j from ceil(a_next/2) to a_next-1
+Full convergent (j = a_next)
 ```
 
 ## Complexity Analysis

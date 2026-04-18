@@ -35,21 +35,23 @@ $$T(n) = \frac{r_3(8n+3)}{8}.$$
 
 **Proof.** By Theorem 1, $T(n)$ counts ordered triples of odd positive integers $(x,y,z)$ with $x^2 + y^2 + z^2 = 8n+3$. By Step 2 of Theorem 2, every integer representation $(x,y,z) \in \mathbb{Z}^3$ of $8n+3$ as a sum of three squares has all three entries odd. Each such triple with all entries nonzero and distinct in absolute value gives rise to exactly $2^3 = 8$ signed triples $(\pm x, \pm y, \pm z)$, of which exactly one lies in the positive octant. Since $8n+3 \equiv 3 \pmod{4}$, we claim no two of $|x|, |y|, |z|$ can be equal: if $x^2 = y^2$, then $2x^2 + z^2 = 8n+3$ gives $z^2 \equiv 3 \pmod{4}$, a contradiction since no square is $\equiv 3 \pmod{4}$ (as $2x^2 \equiv 2 \pmod{4}$). Likewise $|x| = |z|$ and $|y| = |z|$ are excluded. Therefore the $8$-to-$1$ correspondence is exact, and $T(n) = r_3(8n+3)/8$. $\square$
 
-## Algorithm
+## Editorial
+Count ordered triples (a,b,c) with t_a + t_b + t_c = n. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function compute_T(n):
+## Pseudocode
+
+```text
     m = 8*n + 3
     count = 0
-    for a = 0 to floor((sqrt(8*n+1) - 1) / 2):
+    For a from 0 to floor((sqrt(8*n+1) - 1) / 2):
         remainder = n - a*(a+1)/2
-        for b = 0 to floor((sqrt(8*remainder+1) - 1) / 2):
+        For b from 0 to floor((sqrt(8*remainder+1) - 1) / 2):
             remainder2 = remainder - b*(b+1)/2
             disc = 8*remainder2 + 1
             s = isqrt(disc)
-            if s*s == disc and s % 2 == 1:
+            If s*s == disc and s % 2 == 1 then
                 count += 1
-    return count
+    Return count
 ```
 
 ## Complexity Analysis

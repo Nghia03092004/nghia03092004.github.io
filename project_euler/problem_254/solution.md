@@ -35,31 +35,16 @@ $$sg(i) = 9c_9 + \sum_{d \in \text{adjustment}} d.$$
 
 **Proof.** By Lemma 2, we seek the smallest $n$ with $sf(n) = i$. For a fixed adjustment pattern $A$ (a multiset of digits from $\{1,\ldots,8\}$), define $R_A = \sum_{d \in A} d!$. Then $f(n) = R_A + c_9 \cdot 362880$, and we need $s(R_A + 362880 c_9) = i$. For each $A$, this determines $c_9$ (possibly multiple solutions; take the smallest valid $c_9 \ge 0$). Among all valid $(A, c_9)$ pairs, the optimal one minimizes total digit count $|A| + c_9$, then lexicographic order. The digit sum follows. $\square$
 
-## Algorithm
+## Editorial
+f(n) = sum of factorials of digits of n. sf(n) = digit_sum(f(n)). g(i) = smallest n with sf(n) = i. sg(i) = digit_sum(g(i)). Find sum of sg(i) for i = 1..150. Key insight: n has non-decreasing digits (to minimize n). Decompose as "base digits (1-8)" followed by k nines. f(n) = R + k * B where B = 9! = 362880, R = sum of base factorials. Need digit_sum(R + k*B) = i, i.e., x = R + k*B has digit_sum i and x ≡ R mod B. Algorithm: 1. Precompute feasibility bitsets: can[d][s] = set of residues mod B achievable with d digits and digit sum s. 2. BFS to find minimum-length base for each residue mod B. 3. For each target i and each D (number of digits of x): For each achievable residue r, find minimum x with digit_sum=i and x≡r mod B. Pick the (residue, D) giving minimum n. We iterate over each target i from 1 to 150. We then enumerate small adjustment patterns A (multisets of digits 1..8). Finally, with |A| bounded (say |A| <= 20 for safety).
 
-```
-function ComputeSum():
-    total = 0
-    // For each target i from 1 to 150:
-    for i = 1 to 150:
-        best_n = infinity
-        best_sg = 0
-        // Enumerate small adjustment patterns A (multisets of digits 1..8)
-        // with |A| bounded (say |A| <= 20 for safety)
-        for each non-decreasing multiset A of digits from {1,...,8}, |A| <= MAX_ADJ:
-            R_A = sum of d! for d in A
-            // Find smallest c9 >= 0 such that digit_sum(R_A + 362880 * c9) == i
-            for c9 = 0, 1, 2, ..., until R_A + 362880*c9 is large enough:
-                val = R_A + 362880 * c9
-                if digit_sum(val) == i:
-                    n = number formed by digits of A followed by c9 nines
-                    if n < best_n:
-                        best_n = n
-                        best_sg = 9*c9 + sum(A)
-                    break  // smallest c9 for this A
+## Pseudocode
 
-        total += best_sg
-    return total
+```text
+For each target i from 1 to 150:
+Enumerate small adjustment patterns A (multisets of digits 1..8)
+with |A| bounded (say |A| <= 20 for safety)
+Find smallest c9 >= 0 such that digit_sum(R_A + 362880 * c9) == i
 ```
 
 ## Complexity Analysis

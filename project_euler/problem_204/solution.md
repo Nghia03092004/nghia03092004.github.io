@@ -20,23 +20,14 @@ $$\Psi(N, i) = \sum_{a=0}^{\lfloor \log_{p_i} N \rfloor} \Psi\!\left(\left\lfloo
 
 **Proof.** Direct computation: $2^{29} = 536870912 < 10^9 < 2^{30}$, $3^{18} = 387420489 < 10^9 < 3^{19}$, etc. For $p = 97$: $97^4 = 88529281 < 10^9 < 97^5 = 8587340257$. $\square$
 
-## Algorithm
+## Editorial
+Count 100-smooth numbers up to 10^9. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
+## Pseudocode
+
+```text
 Input: N = 10^9, primes = [2, 3, 5, 7, 11, ..., 97] (25 primes)
 Output: count of 100-smooth numbers <= N
-
-function count(idx, limit):
-    if idx == 25: return 1
-    p = primes[idx]
-    total = 0
-    power = 1
-    while power <= limit:
-        total += count(idx + 1, limit / power)
-        power *= p
-    return total
-
-Return count(0, N)
 ```
 
 ## Complexity Analysis

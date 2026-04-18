@@ -80,31 +80,22 @@ $$n \cdot B(n) = n + \lfloor(n-1)/2\rfloor \cdot B(\lfloor(n-1)/2\rfloor) + \lce
 
 **Proof.** In standard binary search on $\{1, \ldots, n\}$, the first guess is $m = \lfloor(1+n)/2\rfloor$. If $t = m$, one guess suffices. If $t < m$, we recurse on $\{1, \ldots, m-1\}$ (size $m - 1 = \lfloor(n-1)/2\rfloor$). If $t > m$, we recurse on $\{m+1, \ldots, n\}$ (size $n - m = \lceil(n-1)/2\rceil$). The expected number of guesses is therefore $1$ (for the current guess) plus the weighted average of the expected guesses in each sub-range, yielding the stated recursion. This computes in $O(\log n)$ time since the range halves at each step. $\square$
 
-## Algorithm
+## Editorial
+R(n) = 2*H_n - 1 where H_n is the n-th harmonic number. B(n) = average depth in standard binary search tree on n elements. Find R(10^10) - B(10^10) rounded to 8 decimal places. We r(n) is computed via the recurrence solution's asymptotic form. We then r(n) = (2/1)*H_n - 1 does not hold exactly; instead solve. Finally, the recurrence numerically for moderate n, then extend.
 
-```
-function SOLVE():
-    // Compute B(n) for n = 10^10
-    function B(n):
-        if n <= 0: return 0
-        if n == 1: return 1
-        m = floor((n + 1) / 2)   // midpoint (1-indexed)
-        left = m - 1              // = floor((n-1)/2)
-        right = n - m             // = ceil((n-1)/2)
-        return 1 + (left * B(left) + right * B(right)) / n
+## Pseudocode
 
-    // Compute R(n) for n = 10^10 using asymptotic expansion
-    // R(n) is computed via the recurrence solution's asymptotic form:
-    // R(n) = (2/1)*H_n - 1 does not hold exactly; instead solve
-    // the recurrence numerically for moderate n, then extend
-    // using Euler-Maclaurin-type asymptotics
-
-    // Alternatively, use the exact formula:
-    // n^2 * R(n) = (2n-1) + (n^2-1)*R(n-1)
-    // with R(1) = 1, computed in O(n) time.
-    // For n = 10^10, this requires careful implementation.
-
-    return R(10^10) - B(10^10)
+```text
+Compute B(n) for n = 10^10
+Compute R(n) for n = 10^10 using asymptotic expansion
+R(n) is computed via the recurrence solution's asymptotic form:
+R(n) = (2/1)*H_n - 1 does not hold exactly; instead solve
+the recurrence numerically for moderate n, then extend
+using Euler-Maclaurin-type asymptotics
+Alternatively, use the exact formula:
+n^2 * R(n) = (2n-1) + (n^2-1)*R(n-1)
+with R(1) = 1, computed in O(n) time
+For n = 10^10, this requires careful implementation
 ```
 
 ## Complexity Analysis

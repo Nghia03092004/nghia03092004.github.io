@@ -22,24 +22,26 @@ where $c(i,j)$ is the cost of robot $j$ performing job $i$.
 
 **Proof.** This is a standard DP for bipartite matching on interval-ordered elements. The optimal substructure holds because the interval ordering ensures that assigning job $i$ to robot $j$ does not affect the feasibility of assigning jobs $1, \ldots, i-1$ to robots $1, \ldots, j-1$. $\square$
 
-## Algorithm
+## Editorial
+We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function solve(jobs, robots):
+## Pseudocode
+
+```text
     Sort jobs by position
     Sort robots by position
     n = len(jobs), m = len(robots)
 
     dp[0..n][0..m] = infinity
-    dp[0][j] = 0 for all j    # no jobs to assign => zero cost
+    dp[0][j] = 0 for all j # no jobs to assign => zero cost
 
-    for i in 1..n:
-        for j in 1..m:
-            dp[i][j] = dp[i][j-1]          # skip robot j
+    For each i in 1..n:
+        For each j in 1..m:
+            dp[i][j] = dp[i][j-1] # skip robot j
             if robot j can service job i:
                 dp[i][j] = min(dp[i][j], dp[i-1][j-1] + cost(i, j))
 
-    return dp[n][m]
+    Return dp[n][m]
 ```
 
 ## Complexity Analysis

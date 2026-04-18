@@ -21,13 +21,18 @@ Find the sum of all positive integers $n$ not exceeding $10^8$ such that for eve
 
 4. **Divisibility by 4 test**: If $4 | n$, then $d = 2$ gives $2 + n/2$. Also $d = 4$ gives $4 + n/4$. We need both to be prime.
 
-### Algorithm
+### Editorial
+Approach:. We generate all primes up to $10^8 + 1$ using a sieve of Eratosthenes. We then iterate over each prime $p \leq 10^8 + 1$, set $n = p - 1$. Finally, check that for every divisor $d$ of $n$, $d + n/d$ is prime.
 
-1. Generate all primes up to $10^8 + 1$ using a sieve of Eratosthenes.
-2. For each prime $p \leq 10^8 + 1$, set $n = p - 1$.
-3. Check that for every divisor $d$ of $n$, $d + n/d$ is prime.
-4. Since $n$ must be even, we only check even candidates.
-5. For divisor checking, iterate over divisors up to $\sqrt{n}$.
+### Pseudocode
+
+```text
+Generate all primes up to $10^8 + 1$ using a sieve of Eratosthenes
+For each prime $p \leq 10^8 + 1$, set $n = p - 1$
+Check that for every divisor $d$ of $n$, $d + n/d$ is prime
+Since $n$ must be even, we only check even candidates
+For divisor checking, iterate over divisors up to $\sqrt{n}$
+```
 
 ### Optimization
 

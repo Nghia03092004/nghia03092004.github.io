@@ -25,44 +25,20 @@ $$L(k, s) = \max_{0 \leq i \leq n-k} \;\min_{i \leq j < i+k-1} \mathrm{LCP}[j].$
 
 **Proof.** Note that $L(1, S_n) = |S_n|$ trivially. For $k \geq 2$, we observe that $L(k, s) \geq L(k+1, s)$ (non-increasing in $k$). Each $\mathrm{LCP}[i]$ value contributes to $L(k,s)$ for a contiguous range of $k$ values. Using a monotone stack, we compute for each index $i$ the maximal interval $[l_i, r_i]$ where $\mathrm{LCP}[i]$ is the minimum. Then $\mathrm{LCP}[i]$ is a candidate for $L(k,s)$ for $k = 2, \ldots, r_i - l_i + 2$. Aggregating these contributions and taking running maxima yields all $L(k,s)$ values in $O(n)$ total time. The sum follows by addition. $\square$
 
-## Algorithm
+## Editorial
+We build S_N or exploit Fibonacci structure. We then compute contribution of each LCP entry. Finally, iterate over each i, find span [l_i, r_i] where LCP[i] is minimum.
 
-```
-function solve(N):
-    // Build S_N or exploit Fibonacci structure
-    s = build_fibonacci_string(N)
-    n = len(s)
-    SA = suffix_array(s)          // O(n) via SA-IS
-    LCP = kasai(s, SA)            // O(n)
+## Pseudocode
 
-    // Compute contribution of each LCP entry
-    // For each i, find span [l_i, r_i] where LCP[i] is minimum
-    // using a monotone stack
-    left_bound = array of size n-1
-    right_bound = array of size n-1
-    stack = []
-    for i = 0 to n-2:
-        while stack not empty and LCP[stack.top()] >= LCP[i]:
-            right_bound[stack.pop()] = i - 1
-        left_bound[i] = stack.top() + 1 if stack not empty else 0
-        stack.push(i)
-    while stack not empty:
-        right_bound[stack.pop()] = n - 2
-
-    // Collect max L(k) for each k
-    best = array of size n+1, init 0
-    for i = 0 to n-2:
-        span = right_bound[i] - left_bound[i] + 1
-        k_max = span + 1     // k values: 2 to span+1
-        best[2] = max(best[2], LCP[i])   // at minimum, contributes to k=2..k_max
-        // (more precise bookkeeping needed for exact per-k maxima)
-
-    // Propagate and sum
-    for k = 2 to n: best[k] = max(best[k], best[k+1]) // non-increasing
-    answer = n   // L(1) = n
-    for k = 2 to n:
-        if best[k] > 0: answer += best[k]
-    return answer
+```text
+Build S_N or exploit Fibonacci structure
+Compute contribution of each LCP entry
+For each i, find span [l_i, r_i] where LCP[i] is minimum
+using a monotone stack
+while stack not empty
+Collect max L(k) for each k
+(more precise bookkeeping needed for exact per-k maxima)
+Propagate and sum
 ```
 
 ## Complexity Analysis

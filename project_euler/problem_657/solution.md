@@ -60,13 +60,18 @@ For $i = 1$: $\frac{1 - 1}{1 - 1}$ is treated as $n + 1$.
 
 For $i = 0$: the term contributes $(-1)^{\alpha+1} \cdot 1 = (-1)^{\alpha+1}$.
 
-## Algorithm
+## Editorial
+I(alpha, n) = sum_{j=1}^{alpha} (-1)^{j+1} * C(alpha,j) * geo(alpha-j, n) where geo(i, n) = (i^{n+1} - 1) / (i - 1). We compute the sum using modular arithmetic with $p = 10^9 + 7$. We then use Fermat's little theorem for modular inverses. Finally, note: most terms with $i \geq p$ vanish since $i^{n+1} \equiv i^{(n+1) \mod (p-1)} \pmod{p}$.
 
-1. Compute the sum using modular arithmetic with $p = 10^9 + 7$.
-2. Use Fermat's little theorem for modular inverses.
-3. Use modular exponentiation for $i^{n+1} \mod p$.
-4. Compute binomial coefficients $\binom{\alpha}{j}$ iteratively.
-5. Note: most terms with $i \geq p$ vanish since $i^{n+1} \equiv i^{(n+1) \mod (p-1)} \pmod{p}$.
+## Pseudocode
+
+```text
+Compute the sum using modular arithmetic with $p = 10^9 + 7$
+Use Fermat's little theorem for modular inverses
+Use modular exponentiation for $i^{n+1} \mod p$
+Compute binomial coefficients $\binom{\alpha}{j}$ iteratively
+Note: most terms with $i \geq p$ vanish since $i^{n+1} \equiv i^{(n+1) \mod (p-1)} \pmod{p}$
+```
 
 ## Correctness
 

@@ -54,14 +54,19 @@ For $n = 7$: the valid seating (with Fibonacci-sum adjacency) can be verified:
 
 ## Derivation
 
-### Algorithm
+### Editorial
+We build the recursive path constructor for $\{1, \ldots, F_k - 1\}$. We then at each level, determine which branch contains position $m = 10^{16}$. Finally, else: recurse on upper interval with $m' = m - (F_{k-2} - 1)$.
 
-1. Verify $n + 1 = F_{86}$ using Fibonacci computation.
-2. Build the recursive path constructor for $\{1, \ldots, F_k - 1\}$.
-3. At each level, determine which branch contains position $m = 10^{16}$:
-   - If $m \le F_{k-2} - 1$: recurse on lower interval.
-   - Else: recurse on upper interval with $m' = m - (F_{k-2} - 1)$.
-4. Map the leaf position back to the knight number.
+### Pseudocode
+
+```text
+Verify $n + 1 = F_{86}$ using Fibonacci computation
+Build the recursive path constructor for $\{1, \ldots, F_k - 1\}$
+At each level, determine which branch contains position $m = 10^{16}$:
+If $m \le F_{k-2} - 1$: recurse on lower interval
+Else: recurse on upper interval with $m' = m - (F_{k-2} - 1)$
+Map the leaf position back to the knight number
+```
 
 ### Fibonacci Number Computation
 
@@ -78,7 +83,7 @@ Computed via iterative addition in $O(k)$ with arbitrary precision.
 ## Complexity Analysis
 
 - **Path lookup:** $O(k) = O(\log_\varphi n) \approx 86$ steps.
-- **Fibonacci precomputation:** $O(k)$ with big-integer arithmetic.
+- **Fibonacci Precomputation:** $O(k)$ with big-integer arithmetic.
 - **Total:** $O(\log n)$.
 
 ## Answer

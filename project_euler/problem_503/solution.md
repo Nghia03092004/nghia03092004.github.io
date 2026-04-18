@@ -49,22 +49,15 @@ $$= \sum_{k=1}^{N} \frac{1}{k^2} + \sum_{1 \le k < n \le N} \frac{1}{kn} = H_N^{
 
 $\square$
 
-## Algorithm
+## Editorial
+Optimal stopping / negotiation game with alternating offers. Involves harmonic numbers and backward induction. We compute harmonic numbers H_n and H_n^(2) modularly. Finally, alternative via closed form.
 
-```
-function solve(N):
-    // Compute harmonic numbers H_n and H_n^(2) modularly
-    H = 0
-    H2 = 0
-    total = 0
-    for n = 1 to N:
-        H += modinv(n)     // H_n mod p
-        H2 += modinv(n*n)  // H_n^(2) mod p
-        total += H * modinv(n)  // accumulate H_n / n mod p
-    return total mod p
+## Pseudocode
 
-    // Alternative via closed form:
-    // total = (H_N^2 + H_N^(2)) / 2 mod p
+```text
+Compute harmonic numbers H_n and H_n^(2) modularly
+Alternative via closed form:
+total = (H_N^2 + H_N^(2)) / 2 mod p
 ```
 
 ## Complexity Analysis

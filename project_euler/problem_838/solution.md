@@ -40,42 +40,17 @@ Summing over all $O(\sqrt{N})$ blocks gives the result. $\square$
 
 **Proof.** $\Phi(N)/N^2 = \sum_{d=1}^{N} \mu(d)/d^2 + O(1/N) \to \sum_{d=1}^{\infty} \mu(d)/d^2 = \prod_p (1 - 1/p^2) = 1/\zeta(2) = 6/\pi^2$, where the Euler product follows from the multiplicativity of $\mu$ and the product formula for $\zeta(2)$. $\square$
 
-## Algorithm
+## Editorial
+Count pairs (a, b) with 1 <= a <= b <= N such that gcd(a, b) > 1. Key identity: Phi(N) = sum_{d=1}^{N} mu(d) * floor(N/d)^2 counts ordered coprime pairs, then C(N) = N(N+1)/2 - (Phi(N)+1)/2. We linear sieve for Mobius function. We then iterate over p in primes. Finally, prefix sums (Mertens function).
 
-```
-function NotCoprime(N):
-    # Step 1: Linear sieve for Mobius function
-    mu = array of size N+1, initialized to 1
-    is_prime = array of size N+1, initialized to true
-    primes = []
-    for i = 2 to N:
-        if is_prime[i]:
-            primes.append(i)
-            mu[i] = -1
-        for p in primes:
-            if i * p > N: break
-            is_prime[i*p] = false
-            if i mod p == 0:
-                mu[i*p] = 0
-                break
-            mu[i*p] = -mu[i]
+## Pseudocode
 
-    # Step 2: Prefix sums (Mertens function)
-    M = prefix_sum(mu)
-
-    # Step 3: Block summation (hyperbola method)
-    Phi = 0
-    d = 1
-    while d <= N:
-        q = N / d       # integer division
-        d2 = N / q
-        Phi += q * q * (M[d2] - M[d-1])
-        d = d2 + 1
-
-    # Step 4: Compute answer
-    total_pairs = N * (N + 1) / 2
-    coprime_pairs = (Phi + 1) / 2
-    return total_pairs - coprime_pairs
+```text
+Linear sieve for Mobius function
+for p in primes
+Prefix sums (Mertens function)
+Block summation (hyperbola method)
+Compute answer
 ```
 
 ## Complexity Analysis

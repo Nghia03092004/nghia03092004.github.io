@@ -50,25 +50,14 @@ $$\sum_{\substack{h=1 \\ \gcd(h,k)=1}}^{k-1} s(h,k) = 0. \quad \square$$
 $$\sum_{\substack{h=1 \\ \gcd(h,k)=1}}^{k-1} 12k \cdot s(h,k) = 12k \cdot 0 = 0.$$
 Summing over $k = 2, \ldots, 100$ gives $0$. $\square$
 
-## Algorithm
+## Editorial
+Compute the weighted sum of Dedekind sums: S = sum over k=2..100, h=1..k-1 with gcd(h,k)=1 of 12*k*s(h,k) where s(h,k) = sum_{r=1}^{k-1} ((r/k)) * ((hr/k)) and ((x)) is the sawtooth function: x - floor(x) - 1/2 for non-integer x, 0 otherwise. Key insight: s(h,k) + s(k-h,k) = 0 for all valid h,k with gcd(h,k)=1. Since pairing h with k-h covers all coprime residues, the total sum is 0. We by Theorem 3, the answer is 0. Finally, iterate over verification, one may compute directly.
 
-```
-function ComputeDedekindTotal():
-    // By Theorem 3, the answer is 0.
-    // For verification, one may compute directly:
-    total = 0
-    for k = 2 to 100:
-        for h = 1 to k-1:
-            if gcd(h, k) == 1:
-                ds = 0
-                for r = 1 to k-1:
-                    ds = ds + sawtooth(r/k) * sawtooth(h*r/k)
-                total = total + 12 * k * ds
-    return total   // = 0
+## Pseudocode
 
-function sawtooth(x):
-    if x == floor(x): return 0
-    return x - floor(x) - 0.5
+```text
+By Theorem 3, the answer is 0
+For verification, one may compute directly:
 ```
 
 ## Complexity Analysis

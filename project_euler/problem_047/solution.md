@@ -46,7 +46,7 @@ Each factorization is verified by confirming that $491, 23, 31, 47, 41, 59, 43, 
 
 **Minimality.** The linear scan guarantees that no $n < 134043$ satisfies the four-consecutive condition. Indeed, the scan reports the first occurrence. $\square$
 
-## Algorithm
+## Editorial
 
 We evaluate the function $\omega(n)$ for every integer up to a fixed bound by a modified sieve: whenever a prime $p$ is encountered, each multiple of $p$ receives one increment in its distinct-factor count. After this preprocessing, a single left-to-right scan locates the first run of four consecutive integers whose counts are all equal to $4$, and the first term of that run is returned.
 

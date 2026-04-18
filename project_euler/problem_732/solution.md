@@ -26,34 +26,20 @@ Given: $Q(5) = 401$, $Q(15) = 941$. Find $Q(1000)$.
 
 **Proof.** By Theorem 1, the escape order is fixed once the escape set is chosen. Processing trolls from largest $h$ to smallest, we greedily decide membership. At each step, the pile height $H$ is the sum of $h_j$ for all trolls designated as non-escapees so far. The DP state is $H$, and transitions are: include troll $i$ in the pile ($H \gets H + h_i$) or let it escape if $H + l_i \ge D_N$, adding $q_i$ to total IQ. The optimal solution maximizes total IQ subject to the sequential escape feasibility. $\square$
 
-## Algorithm
+## Editorial
+N trolls in a hole of depth D. Maximize total IQ of escapees. A troll can escape from a pile of height H if H + l_i >= D. After escaping, pile height decreases by h_i. We generate troll parameters. We then sort trolls by h in non-decreasing order. Finally, we process the trolls in reverse order with dynamic programming.
 
-```
-function MaxIQ(N):
-    // Generate troll parameters
-    for n = 0 to N-1:
-        compute h[n], l[n], q[n] from r-sequence
+## Pseudocode
 
-    D_N = sum(h) / sqrt(2)
-
-    // Sort trolls by h in non-decreasing order
-    sort trolls by h[i]
-
-    // DP: process in reverse order (largest h first)
-    // State: pile height H (discretized)
-    // For each troll: pile it or escape it
-    dp[H] = max IQ achievable with pile height H
-
-    Initialize dp[0] = 0
-    for i = N-1 downto 0:
-        for each state H in dp:
-            // Option 1: troll i stays in pile
-            update dp[H + h[i]] = max(dp[H + h[i]], dp[H])
-            // Option 2: troll i escapes (if feasible)
-            if H + l[i] >= D_N:
-                update dp[H] = max(dp[H], dp[H] + q[i])
-
-    return max over all H of dp[H]
+```text
+Generate troll parameters
+Sort trolls by h in non-decreasing order
+DP: process in reverse order (largest h first)
+State: pile height H (discretized)
+For each troll: pile it or escape it
+for each state H in dp
+Option 1: troll i stays in pile
+Option 2: troll i escapes (if feasible)
 ```
 
 ## Complexity Analysis

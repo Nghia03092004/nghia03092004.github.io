@@ -63,7 +63,7 @@ Verification of pentagonality:
 
 The search terminates after confirming that no pair with smaller $D$ exists: all $k$ up to $\frac{5482660 + 2}{3} \approx 1827554$ must be checked, but in practice the inner loop terminates early (via Lemma 2) for most $k$ values. $\square$
 
-## Algorithm
+## Editorial
 
 We iterate over the larger index $k$ in increasing order and compute $P_k$ on demand. For each fixed $k$, the smaller index $j$ is scanned downward from $k-1$, so the corresponding differences $P_k - P_j$ are examined from smallest to largest; this lets us stop the inner scan once the current difference is no better than the best solution already known. The outer loop also terminates as soon as the minimum possible gap $P_k - P_{k-1}$ exceeds the best difference, and every candidate pair is checked with the pentagonal discriminant criterion for both the sum and the difference.
 

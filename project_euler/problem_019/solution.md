@@ -48,7 +48,7 @@ In a leap year, only February changes: $D(2, y) \bmod 7 = 1$.
 
 *Proof.* The iteration is a faithful simulation of the Gregorian calendar. Each application of Theorem 1 is exact (no approximation). The count records precisely those first-of-month days falling on Sunday within the specified range. $\square$
 
-## Algorithm
+## Editorial
 
 We simulate the calendar month by month, keeping track of the weekday of the first day of the current month. Beginning from the known fact that 1 January 1900 was a Monday, we iterate through all months up to the ending year, count the months in the target interval whose first day is Sunday, and advance the weekday by the month length modulo 7. This is sufficient because every month in the range is visited exactly once.
 

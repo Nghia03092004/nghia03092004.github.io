@@ -46,30 +46,15 @@ $$C_3 = \sum_{\substack{p \text{ prime}}} \;\sum_{\substack{q \text{ prime} \\ p
 
 The three families are mutually exclusive by Lemma 1, so $f(N) = C_1 + C_2 + C_3$. $\square$
 
-## Algorithm
+## Editorial
+We case 2: n = p^3 * q, p != q. Finally, case 3: n = p * q * r with p < q < r.
 
-```
-function f(N):
-    Sieve primes up to sqrt(N) = 10^6
-    Build Lucy Hedgehog tables for pi(x) queries
+## Pseudocode
 
-    // Case 1: n = p^7
-    C1 = pi(floor(N^(1/7)))
-
-    // Case 2: n = p^3 * q, p != q
-    C2 = 0
-    for each prime p with p^3 < N:
-        C2 += pi(floor(N / p^3))
-        if p^4 <= N:
-            C2 -= 1
-
-    // Case 3: n = p * q * r with p < q < r
-    C3 = 0
-    for each prime p with p^3 < N:
-        for each prime q > p with p * q^2 <= N:
-            C3 += pi(floor(N / (p * q))) - pi(q)
-
-    return C1 + C2 + C3
+```text
+Case 1: n = p^7
+Case 2: n = p^3 * q, p != q
+Case 3: n = p * q * r with p < q < r
 ```
 
 ## Complexity Analysis

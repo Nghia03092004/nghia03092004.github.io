@@ -124,13 +124,18 @@ $$
 
 Now \(G(q)\) itself is a geometric sum in the common ratio \(10^6\), so the outer sum is again expressible through geometric-series identities. This reduces the computation to \(O(\log Q)\) modular exponentiations. $\square$
 
-## Algorithm
+## Editorial
+We simulate the first fifteen terms once and record, for each residue \(r\), the phase \(p_r\), the partial block \(U_r\), and its length \(L_r\). We then form the corresponding rotations \(C_r\) and coefficients \(A_r,B_r\). Finally, let \(N = 10^{14}\), \(Q = \lfloor N/15 \rfloor\), and \(R = N \bmod 15\).
 
-1. Simulate the first fifteen terms once and record, for each residue \(r\), the phase \(p_r\), the partial block \(U_r\), and its length \(L_r\).
-2. Form the corresponding rotations \(C_r\) and coefficients \(A_r,B_r\).
-3. Let \(N = 10^{14}\), \(Q = \lfloor N/15 \rfloor\), and \(R = N \bmod 15\).
-4. Sum the contributions of the \(Q\) complete blocks using the geometric-series formula of Theorem 2.
-5. Add the first \(R\) terms of the next block directly.
+## Pseudocode
+
+```text
+Simulate the first fifteen terms once and record, for each residue \(r\), the phase \(p_r\), the partial block \(U_r\), and its length \(L_r\)
+Form the corresponding rotations \(C_r\) and coefficients \(A_r,B_r\)
+Let \(N = 10^{14}\), \(Q = \lfloor N/15 \rfloor\), and \(R = N \bmod 15\)
+Sum the contributions of the \(Q\) complete blocks using the geometric-series formula of Theorem 2
+Add the first \(R\) terms of the next block directly
+```
 
 ## Correctness
 

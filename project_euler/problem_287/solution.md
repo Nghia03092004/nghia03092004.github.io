@@ -37,37 +37,15 @@ $$L(x_0, y_0, s) = \begin{cases} 2 & \text{if the region is uniformly black or w
 
 **Proof.** Only squares that intersect the boundary of the disk need subdivision. At depth $d$ (squares of side $2^{N-d}$), the circle boundary passes through $O(2^d)$ such squares (the boundary has length $O(r) = O(2^N)$ and each square has side $O(2^N/2^d)$, so the number of boundary-touching squares is $O(2^N / (2^N/2^d)) = O(2^d)$). The total number of internal nodes is $\sum_{d=0}^{N} O(2^d) = O(2^N)$. $\quad\square$
 
-## Algorithm
+## Editorial
+We check all-black: all 4 corners inside disk. We then check all-white: closest point outside disk. Finally, mixed: recurse on 4 quadrants.
 
-```
-function solve(N = 24):
-    c = 2^(N-1)
-    r_sq = 2^(2*(N-1))
-    return encode(0, 0, 2^N, c, r_sq)
+## Pseudocode
 
-function encode(x0, y0, s, c, r_sq):
-    // Check all-black: all 4 corners inside disk
-    if all_inside(x0, y0, s, c, r_sq):
-        return 2
-    // Check all-white: closest point outside disk
-    if closest_outside(x0, y0, s, c, r_sq):
-        return 2
-    // Mixed: recurse on 4 quadrants
-    h = s / 2
-    return 1 + encode(x0, y0, h, c, r_sq)
-             + encode(x0+h, y0, h, c, r_sq)
-             + encode(x0, y0+h, h, c, r_sq)
-             + encode(x0+h, y0+h, h, c, r_sq)
-
-function all_inside(x0, y0, s, c, r_sq):
-    for (x, y) in corners(x0, y0, s):
-        if (x-c)^2 + (y-c)^2 > r_sq: return false
-    return true
-
-function closest_outside(x0, y0, s, c, r_sq):
-    cx = clamp(c, x0, x0+s-1)
-    cy = clamp(c, y0, y0+s-1)
-    return (cx-c)^2 + (cy-c)^2 > r_sq
+```text
+Check all-black: all 4 corners inside disk
+Check all-white: closest point outside disk
+Mixed: recurse on 4 quadrants
 ```
 
 ## Complexity Analysis

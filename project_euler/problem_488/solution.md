@@ -42,43 +42,20 @@ In particular, $G(2^k - 1) = 0$ for all $k \ge 0$, i.e., heaps of size $2^k - 1$
 
 **Proof.** Direct computation using the recurrence. For $G(2^k - 1) = 0$: by induction, the reachable set from $h = 2^k - 1$ is $\{2^{k-1}, \ldots, 2^k - 2\}$, which has size $2^{k-1} - 1$. One can verify that this set contains all Grundy values $\{0, 1, \ldots, 2^{k-1} - 2\}$ but not $G = 0$ restricted to... Actually, the general pattern is more subtle and relates to the binary representation of $h$. The claim $G(2^k-1) = 0$ can be proved by strong induction. $\square$
 
-## Algorithm
+## Editorial
+A Nim variant where from heap h, you can remove 1..floor(h/2) stones. Sprague-Grundy analysis to find winning/losing positions. We use a frequency array or sorted structure. We then compute Grundy values up to max heap size. Finally, a multi-heap position is a P-position iff XOR of Grundy values is 0.
 
-```
-function COMPUTE_GRUNDY(H):
-    G[0] = 0
-    G[1] = 0
-    for h = 2 to H:
-        lo = ceil(h / 2)
-        hi = h - 1
-        // Compute mex of {G[lo], G[lo+1], ..., G[hi]}
-        // Use a frequency array or sorted structure
-        seen = set()
-        for j = lo to hi:
-            seen.add(G[j])
-        g = 0
-        while g in seen:
-            g += 1
-        G[h] = g
-    return G
+## Pseudocode
 
-function COUNT_P_POSITIONS(heaps, H):
-    // Compute Grundy values up to max heap size
-    G = COMPUTE_GRUNDY(H)
-
-    // A multi-heap position is a P-position iff XOR of Grundy values is 0
-    // Count tuples (h_1, ..., h_n) with G[h_1] XOR ... XOR G[h_n] = 0
-    // using DP over heaps with XOR state
-
-    dp[0] = 1  // empty game: XOR = 0
-    for each heap range:
-        new_dp = {}
-        for xor_val in dp:
-            for h in heap_range:
-                new_dp[xor_val XOR G[h]] += dp[xor_val]
-        dp = new_dp
-
-    return dp[0]
+```text
+Compute mex of {G[lo], G[lo+1], ..., G[hi]}
+Use a frequency array or sorted structure
+while g in seen
+Compute Grundy values up to max heap size
+A multi-heap position is a P-position iff XOR of Grundy values is 0
+Count tuples (h_1, ..., h_n) with G[h_1] XOR ... XOR G[h_n] = 0
+using DP over heaps with XOR state
+for each heap range
 ```
 
 ## Complexity Analysis

@@ -34,22 +34,18 @@ $$V = \frac{\pi v_0^2 Z^2}{g}.$$
 **Proof.** The reachable region is bounded above by $z_{\max}(r) = Z - \frac{gr^2}{2v_0^2}$ and below by $z = 0$. Inverting: $r^2(z) = \frac{2v_0^2}{g}(Z - z)$. By the disc method:
 $$V = \pi \int_0^{Z} r^2(z)\,dz = \frac{2\pi v_0^2}{g}\int_0^{Z}(Z-z)\,dz = \frac{2\pi v_0^2}{g} \cdot \frac{Z^2}{2} = \frac{\pi v_0^2 Z^2}{g}. \quad \square$$
 
-## Algorithm
+## Editorial
+The "moon" area is the gap between pi*r^2/4 and the max fence area. Key insight: The fence is a staircase path from (0,r) to (r,0) using horizontal and vertical segments along lattice lines, staying inside the quarter-circle x^2 + y^2 <= r^2. A monotone staircase has total Manhattan length = horizontal + vertical = r + r = 2r (since it goes from x=0 to x=r and y=r to y=0). But pi*r/2 ≈ 1.5708r < 2r, so the constraint is binding. We need to find the staircase that maximizes enclosed area while having length < pi*r/2. For a non-monotone path or a path that doesn't span the full range, the optimization involves finding the best trade-off between area and path length. The solution uses a continuous relaxation: the optimal bounding curve (by the isoperimetric inequality) is a circular arc of appropriate radius, then discretized to lattice lines. We set up the constrained optimization on the lattice. We then use dynamic programming or Lagrange multiplier binary search. Finally, compute the enclosed area of the optimal path.
 
-```
+## Pseudocode
+
+```text
 Input: r = 250000
 Output: Moon area (difference from pi*r^2/4) to 4 decimal places
-
-1. Set up the constrained optimization on the lattice:
-   - The staircase path goes from (0, r) to (r, 0) inside x^2 + y^2 = r^2.
-   - Total fence length must be < pi*r/2.
-2. Use dynamic programming or Lagrange multiplier binary search:
-   a. Binary search on lambda (fence-length penalty).
-   b. For each lambda, compute the optimal staircase greedily:
-      at each x, choose y to maximize (area_gain - lambda * length_cost).
-   c. Adjust lambda until the total fence length equals pi*r/2.
-3. Compute the enclosed area of the optimal path.
-4. Return pi*r^2/4 - enclosed_area, rounded to 4 decimal places.
+Set up the constrained optimization on the lattice:
+Use dynamic programming or Lagrange multiplier binary search:
+Compute the enclosed area of the optimal path
+Return pi*r^2/4 - enclosed_area, rounded to 4 decimal places
 ```
 
 ## Complexity Analysis

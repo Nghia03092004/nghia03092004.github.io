@@ -47,31 +47,14 @@ Multiplying through by $-1$ and using $(-1)^{j} \cdot (-1) = (-1)^{j+1}$ yields 
 
 *Proof.* Since addition and subtraction in $\mathbb{Z}/M\mathbb{Z}$ satisfy $(a + b) \bmod M = ((a \bmod M) + (b \bmod M)) \bmod M$ and $(a - b) \bmod M = ((a \bmod M) - (b \bmod M)) \bmod M$, the modular reduction commutes with the recurrence at each step. $\blacksquare$
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function find_first_partition_divisible_by(M):
-    p = [1]                          # p[0] = 1
-    n = 0
-    while true:
-        n += 1
-        p_n = 0
-        j = 1
-        while true:
-            g_plus  = j * (3 * j - 1) / 2
-            g_minus = j * (3 * j + 1) / 2
-            if g_plus > n and g_minus > n:
-                break
-            sign = (-1)^(j+1)        # +1 for odd j, -1 for even j
-            if g_plus <= n:
-                p_n += sign * p[n - g_plus]
-            if g_minus <= n:
-                p_n += sign * p[n - g_minus]
-            j += 1
-        p_n = p_n mod M
-        p.append(p_n)
-        if p_n == 0:
-            return n
+## Pseudocode
+
+```text
+while true
+while true
 ```
 
 ## Complexity Analysis

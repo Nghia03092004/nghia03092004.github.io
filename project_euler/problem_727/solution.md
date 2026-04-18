@@ -55,15 +55,20 @@ Count all valid triples (r_a, r_b, r_c) with 1 <= r_a < r_b < r_c <= 100 and gcd
 
 For each triple, compute d = |DE| and average.
 
-## Algorithm
+## Editorial
+Compute E(d) where d = |DE|, D = circumcenter of tangency triangle, E = inner Soddy circle center. Triples (ra, rb, rc) with 1 <= ra < rb < rc <= 100, gcd = 1. We enumerate all valid triples (r_a, r_b, r_c). We then iterate over each, set up coordinates of three circle centers. Finally, compute tangency points.
 
-1. Enumerate all valid triples (r_a, r_b, r_c)
-2. For each, set up coordinates of three circle centers
-3. Compute tangency points
-4. Compute circumcenter D of tangency triangle
-5. Compute inner Soddy circle center E
-6. Compute |DE|
-7. Average over all valid triples
+## Pseudocode
+
+```text
+Enumerate all valid triples (r_a, r_b, r_c)
+For each, set up coordinates of three circle centers
+Compute tangency points
+Compute circumcenter D of tangency triangle
+Compute inner Soddy circle center E
+Compute |DE|
+Average over all valid triples
+```
 
 ## Complexity Analysis
 

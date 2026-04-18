@@ -29,37 +29,22 @@ $$E[|L - R|] = \sum_{d=-50}^{50} |d| \cdot \Pr[L - R = d \text{ after 50 turns}]
 
 **Proof.** This follows from the definition of expected value of the absolute value of a discrete random variable. $\square$
 
-## Algorithm
+## Editorial
+Numbers 1-10 called randomly (uniform), 50 turns. Memory size 5. Larry: LRU (remove least recently called, move to front on hit). Robin: FIFO (remove oldest in memory, do NOT move on hit). Find E[|L - R|] after 50 turns, to 8 decimal places. Monte Carlo simulation approach. For the exact answer, a Markov chain with symmetry-compressed state space is needed. We enumerate compressed states. We then a state tracks: for each of the 4 categories (both, L-only, R-only, neither),. Finally, the count of items, plus the orderings in L's LRU list and R's FIFO queue.
 
-```
-function solve():
-    // Step 1: Enumerate compressed states
-    // A state tracks: for each of the 4 categories (both, L-only, R-only, neither),
-    // the count of items, plus the orderings in L's LRU list and R's FIFO queue.
-    states = enumerate_compressed_states()
+## Pseudocode
 
-    // Step 2: Build transition function
-    // For each state and each possible draw (10 equally likely):
-    //   Determine hit/miss for Larry, hit/miss for Robin
-    //   Compute new state, score_diff change in {-1, 0, +1}
-
-    // Step 3: DP over 50 turns
-    // dist[state][score_diff] = probability
-    dist = initial_distribution()  // empty memories, score_diff = 0
-
-    for turn = 1 to 50:
-        new_dist = {}
-        for (state, diff) in dist:
-            for draw = 1 to 10:  // or by category with multiplicity
-                (new_state, delta) = transition(state, draw)
-                new_dist[new_state][diff + delta] += dist[state][diff] / 10
-        dist = new_dist
-
-    // Step 4: Compute E[|L - R|]
-    result = 0
-    for (state, diff) in dist:
-        result += |diff| * dist[state][diff]
-    return result
+```text
+Enumerate compressed states
+A state tracks: for each of the 4 categories (both, L-only, R-only, neither),
+the count of items, plus the orderings in L's LRU list and R's FIFO queue
+Build transition function
+For each state and each possible draw (10 equally likely):
+Determine hit/miss for Larry, hit/miss for Robin
+Compute new state, score_diff change in {-1, 0, +1}
+DP over 50 turns
+dist[state][score_diff] = probability
+Compute E[|L - R|]
 ```
 
 ## Complexity Analysis

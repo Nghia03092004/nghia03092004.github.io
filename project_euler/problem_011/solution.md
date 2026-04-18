@@ -48,7 +48,7 @@ Total: $340 + 340 + 289 + 289 = 1258$. $\square$
 
 *Proof.* The nested loops iterate over every $(i,j) \in \mathcal{F}_{d_r,d_c}$ for each of the four directions, computing each product exactly once and tracking the running maximum. By Theorem 1, this covers all possible products. $\square$
 
-## Algorithm
+## Editorial
 
 We exhaustively evaluate the product of four adjacent entries in each relevant direction. The algorithm traverses every grid position, tests the horizontal, vertical, main-diagonal, and anti-diagonal directions whenever four cells remain in bounds, multiplies those four entries, and retains the largest product seen. This is sufficient because these four directions cover every possible set of four collinear adjacent cells.
 

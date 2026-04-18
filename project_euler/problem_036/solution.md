@@ -41,7 +41,7 @@ Find the sum of all natural numbers less than $10^6$ that are palindromic in bot
 
 *Proof.* Each binary palindrome test on a number $n < N$ costs $O(\log_2 N) \le 20$. Testing all generated palindromes: $1998 \cdot 20 = 39{,}960$ operations. The brute-force alternative tests $10^6$ numbers at cost $10^6 \cdot 20 = 2 \times 10^7$. Since $P = 1998 \ll 10^6 = N$, the generation approach is superior by a factor of $N/P \approx 500$. $\blacksquare$
 
-## Algorithm
+## Editorial
 
 We avoid scanning all integers below $10^6$ by generating only the decimal palindromes in that range. Each such palindrome is obtained by mirroring its free leading digits, and then its binary representation is tested for the same palindromic property. Summing exactly those candidates that pass both tests yields the required total.
 

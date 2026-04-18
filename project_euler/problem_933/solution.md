@@ -28,59 +28,25 @@ For $k = 7$: $f(n) \leq 7 \cdot 362880 = 2540160$. Since every orbit eventually 
 
 **Proof.** The orbit is deterministic ($f$ is a function), so the sequence of values from $n$ is uniquely determined. If $m$ is the first value in the orbit of $n$ for which $L(m)$ is already known, then the total distinct values from $n$ equal the new values before reaching $m$ plus the distinct values from $m$ onward. $\square$
 
-## Algorithm
+## Editorial
+Define f(n) = sum of factorials of digits of n. Starting from any n, repeatedly apply f to form a chain until a value repeats. Let L(n) be the number of distinct values in this chain. Compute sum_{n=1}^{N} L(n). Key observations:. We precompute factorials. We then f(n): sum of digit factorials. Finally, mark cycle members with their cycle contribution.
 
-```
-function TotalChainLength(N):
-    // Precompute factorials
-    fact[0..9] := [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+## Pseudocode
 
-    // f(n): sum of digit factorials
-    function digit_fact_sum(n):
-        s := 0
-        while n > 0:
-            s := s + fact[n mod 10]
-            n := n / 10
-        return s
-
-    // Memoization table: L[m] = chain length from m
-    L := map()
-
-    // Mark cycle members with their cycle contribution
-    // (Fixed points have L = 1; 2-cycle members have L = 2; 3-cycle members have L = 3)
-
-    total := 0
-    for n from 1 to N:
-        if n in L:
-            total := total + L[n]
-            continue
-        // Follow orbit, recording path
-        path := []
-        current := n
-        while current not in L and current not in path:
-            path.append(current)
-            current := digit_fact_sum(current)
-
-        if current in L:
-            // Backfill from end of path
-            dist := L[current]
-            for i from len(path)-1 downto 0:
-                dist := dist + 1
-                L[path[i]] := dist
-        else:
-            // current is in path: found a new cycle
-            cycle_start := index of current in path
-            cycle_len := len(path) - cycle_start
-            for i from cycle_start to len(path)-1:
-                L[path[i]] := cycle_len
-            dist := cycle_len
-            for i from cycle_start-1 downto 0:
-                dist := dist + 1
-                L[path[i]] := dist
-
-        total := total + L[n]
-
-    return total
+```text
+Precompute factorials
+f(n): sum of digit factorials
+Memoization table: L[m] = chain length from m
+Mark cycle members with their cycle contribution
+(Fixed points have L = 1; 2-cycle members have L = 2; 3-cycle members have L = 3)
+for n from 1 to N
+if n in L
+Follow orbit, recording path
+while current not in L and current not in path
+if current in L
+Backfill from end of path
+else
+current is in path: found a new cycle
 ```
 
 ## Complexity Analysis

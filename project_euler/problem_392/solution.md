@@ -46,32 +46,14 @@ Since $\sqrt{1 - x_k^2} < \sqrt{1 - x_{k-1}^2}$, the right side is negative befo
 
 **Proof.** Each $x_{k+1}$ depends continuously on $x_k$ and $x_{k-1}$, so $x_{m+1}$ is continuous in $x_1$. As $x_1 \to 0^+$, the gridlines cluster near $0$ and $x_{m+1} \to 0$. As $x_1 \to 1^-$, $x_{m+1} \to +\infty$ (the increments grow). By the intermediate value theorem, a solution $x_{m+1} = 1$ exists. Uniqueness follows from the strict monotonicity of $x_{m+1}$ as a function of $x_1$ (which can be verified by showing $\partial x_{m+1}/\partial x_1 > 0$ by induction on the recurrence). $\square$
 
-## Algorithm
+## Editorial
+A rectilinear grid of (N+2) vertical and (N+2) horizontal lines is placed with outer boundaries at x=+-1, y=+-1. Grid cells overlapping the unit circle are colored red. Position the N inner gridlines to minimize the total red cell area. Approach: By fourfold symmetry, optimize in the first quadrant. The red cells form an outer staircase under y = sqrt(1-x^2). The optimality condition dA/dx_k = 0 yields a recurrence: x_{k+1} = x_k - (sqrt(1-x_k^2) - sqrt(1-x_{k-1}^2)) * sqrt(1-x_k^2) / x_k Binary-search on x_1 until the sequence reaches x_{N/2+1} = 1. We else. Finally, recompute area with converged x1.
 
-```
-function OPTIMAL_RED_AREA(N):
-    m = N / 2
-    lo, hi = 0, 1
-    for iter = 1 to 200:  // binary search iterations
-        x1 = (lo + hi) / 2
-        x_prev = 0
-        x_curr = x1
-        for k = 1 to m:
-            x_next = x_curr - (sqrt(1 - x_curr^2) - sqrt(1 - x_prev^2))
-                              * sqrt(1 - x_curr^2) / x_curr
-            x_prev = x_curr
-            x_curr = x_next
-        if x_curr < 1:
-            lo = x1
-        else:
-            hi = x1
-    // Recompute area with converged x1
-    x_prev = 0; x_curr = x1_converged
-    area = 0
-    for k = 0 to m:
-        area += (x_next - x_prev) * sqrt(1 - x_prev^2)
-        advance recurrence
-    return 4 * area
+## Pseudocode
+
+```text
+else
+Recompute area with converged x1
 ```
 
 ## Complexity Analysis

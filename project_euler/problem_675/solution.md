@@ -61,14 +61,16 @@ $F(10) = \sum_{i=2}^{10} S(i!) = 3 + 9 + 21 + 63 + 135 + 405 + 945 + 945 + 1295 
 
 ## Derivation
 
-### Algorithm
+### Editorial
+a. Factor $i$ and update $v_p$ for each prime $p \mid i$. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-1. Sieve primes up to $N = 10^7$.
-2. Initialize $v_p = 0$ for all primes $p$.
-3. For $i = 2, 3, \ldots, N$:
-   a. Factor $i$ and update $v_p$ for each prime $p \mid i$.
-   b. For each prime $p$ whose exponent changed, update $S$ by dividing out $(2v_p^{\text{old}} + 1)$ and multiplying by $(2v_p^{\text{new}} + 1)$.
-   c. Accumulate $F \mathrel{+}= S \bmod m$.
+### Pseudocode
+
+```text
+Sieve primes up to $N = 10^7$
+Initialize $v_p = 0$ for all primes $p$
+For $i = 2, 3, \ldots, N$:
+```
 
 ### Modular Inverse
 

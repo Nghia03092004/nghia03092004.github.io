@@ -53,44 +53,16 @@ computed as a product of $k$ terms modulo $p$, multiplied by $(k!)^{-1} \bmod p$
 
 **Proof.** Since $k \le 15$ and $p = 10^9 + 7 > k$, we have $\gcd(k!, p) = 1$, so the modular inverse of $k!$ exists. The product $n(n-1)\cdots(n-k+1)$ involves $k$ terms, each reduced modulo $p$. $\square$
 
-## Algorithm
+## Editorial
+S(n,k,b) = number of solutions to x1+x2+...+xk <= n with 0 <= xm <= b^m. Find (sum_{k=10}^{15} S(10^k, k, k)) mod 10^9+7. Uses inclusion-exclusion with modular arithmetic.
 
-```
-function CONSTRAINED_SUMS():
-    MOD = 10^9 + 7
-    total = 0
+## Pseudocode
 
-    for k = 10 to 15:
-        n = 10^k
-        b = k
-        // upper bounds: u[m] = k^m for m = 1..k
-
-        S = 0
-        // Enumerate all subsets T of {1, ..., k}
-        for T = 0 to 2^k - 1:   // bitmask
-            excess = 0
-            sign = 1
-            valid = true
-            for m = 1 to k:
-                if bit m of T is set:
-                    excess += k^m + 1
-                    sign *= -1
-                    if excess > n + k:
-                        valid = false
-                        break
-
-            if valid:
-                top = n - excess + k
-                if top >= k:
-                    binom = 1
-                    for j = 0 to k - 1:
-                        binom = binom * ((top - j) mod MOD) mod MOD
-                    binom = binom * modular_inverse(k!, MOD) mod MOD
-                    S = (S + sign * binom) mod MOD
-
-        total = (total + S) mod MOD
-
-    return (total + MOD) mod MOD
+```text
+upper bounds: u[m] = k^m for m = 1..k
+Enumerate all subsets T of {1, ..., k}
+if bit m of T is set
+if valid
 ```
 
 ## Complexity Analysis

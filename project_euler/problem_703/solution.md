@@ -30,44 +30,18 @@ $$S(n) = \prod_{C \in \text{components}} I(C),$$
 
 **Proof.** Each vertex is visited $O(1)$ times during DFS/component decomposition. The DP on each component is linear in its size. Total work is $O(2^n)$. $\square$
 
-## Algorithm
+## Editorial
+We build the functional graph. We then find connected components (cycles + trees). Finally, trace the rho path to find the cycle.
 
-```
-function S(n):
-    # Build the functional graph
-    for each x in B^n:
-        next[x] = f(x)  # compute f as defined in the problem
+## Pseudocode
 
-    # Find connected components (cycles + trees)
-    visited = array of false, size 2^n
-    result = 1
-
-    for each x in B^n:
-        if not visited[x]:
-            # Trace the rho path to find the cycle
-            path = []
-            node = x
-            while node not in path and not visited[node]:
-                path.append(node)
-                node = next[node]
-
-            if visited[node]:
-                mark all path nodes as visited
-                continue
-
-            # Extract cycle
-            cycle_start = index of node in path
-            cycle = path[cycle_start:]
-            trees = path[:cycle_start]  # transient part
-
-            # Compute independent sets on this component
-            # using cycle DP + tree DP (Lemma 2 + Lemma 3)
-            component_count = independent_sets(cycle, trees, next)
-            result = result * component_count mod 1001001011
-
-            mark all nodes in component as visited
-
-    return result
+```text
+Build the functional graph
+Find connected components (cycles + trees)
+Trace the rho path to find the cycle
+Extract cycle
+Compute independent sets on this component
+using cycle DP + tree DP (Lemma 2 + Lemma 3)
 ```
 
 ## Complexity Analysis

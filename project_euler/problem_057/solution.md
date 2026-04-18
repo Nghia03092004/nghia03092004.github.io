@@ -62,7 +62,7 @@ This occurs when there exists an integer $m$ such that $q_n < 10^m \leq p_n$.
 
 *Remark.* The discrepancy between the heuristic and the exact count arises because the simple density argument counts the "fractional part in an interval" events, but the actual condition involves the floor function applied to $\log_{10}$ of two correlated sequences, which introduces a more complex pattern. In practice, the digit-excess occurs roughly every $1000/153 \approx 6.54$ iterations.
 
-## Algorithm
+## Editorial
 
 We generate the first 1000 convergents of $\sqrt{2}$ using the recurrence for successive numerators and denominators. After each update, only the decimal lengths of the current numerator and denominator need to be compared, so every expansion contributes either zero or one to the running count. The final count is the number of convergents whose numerator has more digits than the denominator.
 

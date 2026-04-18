@@ -43,35 +43,21 @@ Therefore $\Sigma(N) = \frac{2N}{3} - \frac{1}{9}(1 - (-\frac{1}{2})^N)$. $\squa
 
 **Proof.** Since $p$ is prime and $\gcd(2, p) = \gcd(3, p) = \gcd(9, p) = 1$, all modular inverses exist by Fermat's little theorem. $\square$
 
-## Algorithm
+## Editorial
+We 2N/3 mod p. We then (-1/2)^N mod p. Finally, else. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function Sigma(N, p):
-    # p = 10^9 + 7
-    inv2 = pow(2, p - 2, p)
-    inv3 = pow(3, p - 2, p)
-    inv9 = pow(9, p - 2, p)
+## Pseudocode
 
-    # 2N/3 mod p
-    term1 = 2 * (N mod p) % p * inv3 % p
-
-    # (-1/2)^N mod p
-    if N is even:
-        half_pow_N = pow(inv2, N, p)   # (1/2)^N mod p
-    else:
-        half_pow_N = p - pow(inv2, N, p)  # -(1/2)^N mod p
-
-    # 1/9 * (1 - (-1/2)^N) mod p
-    term2 = inv9 * (1 - half_pow_N) % p
-    # Note: be careful with sign: we subtract term2
-    # Sigma = term1 - term2
-
-    # But (-1/2)^N for modular: pow(-inv2, N, p) = pow(p - inv2, N, p)
-    neg_half = p - inv2
-    half_pow = pow(neg_half, N, p)
-
-    result = (term1 - inv9 * (1 - half_pow) % p + p) % p
-    return result
+```text
+p = 10^9 + 7
+2N/3 mod p
+(-1/2)^N mod p
+if N is even
+else
+1/9 * (1 - (-1/2)^N) mod p
+Note: be careful with sign: we subtract term2
+Sigma = term1 - term2
+But (-1/2)^N for modular: pow(-inv2, N, p) = pow(p - inv2, N, p)
 ```
 
 ## Complexity Analysis

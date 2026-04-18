@@ -60,7 +60,7 @@ So $E(N,M) \approx \frac{N}{2} + \frac{N}{2} \int_0^1 (2t-1)^{2M} dt = \frac{N}{
 
 But we need more precision. The exact computation uses the discrete sum.
 
-## Algorithm
+## Editorial
 
 For $N = 10^{10}$, note that $p_i$ depends on $i$ and we have symmetry $p_i = p_{N+1-i}$. The key observation is that $(1-2p_i)^M$ depends on $q_i = (i-1)^2 + (N-i)^2$, and many values of $i$ give the same $q_i$. We compute the sum using the integral approximation with correction terms.
 

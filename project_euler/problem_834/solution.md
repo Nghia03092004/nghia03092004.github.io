@@ -36,22 +36,24 @@ $$\sum_{m=1}^{N} 10^{d(m)} = \sum_{d=1}^{D} 10^d \cdot c_d$$
 
 **Verification.** For $N = 2$: $S(2) = (1\|1) + (1\|2) + (2\|1) + (2\|2) = 11 + 12 + 21 + 22 = 66$. Formula: $\frac{2 \cdot 3}{2}(10 + 10) + 2 \cdot \frac{2 \cdot 3}{2} = 3 \cdot 20 + 2 \cdot 3 = 60 + 6 = 66$. Correct.
 
-## Algorithm
+## Editorial
+S(N) = sum_{n=1}^{N} sum_{m=1}^{N} (n || m) = N(N+1)/2 * sum_{m=1}^{N} 10^{d(m)} + N * N(N+1)/2 where d(m) = number of digits of m, and n||m = n * 10^{d(m)} + m. We compute sum of 10^d(m) by digit groups.
 
-```
-function SumOfConcatenations(N, p):
-    T = N * (N + 1) / 2 mod p      # uses modular inverse of 2
-    # Compute sum of 10^d(m) by digit groups
+## Pseudocode
+
+```text
+    T = N * (N + 1) / 2 mod p # uses modular inverse of 2
+    Compute sum of 10^d(m) by digit groups
     power_sum = 0
     lo = 1
     d = 1
-    while lo <= N:
+    While lo <= N:
         hi = min(N, 10^d - 1)
         count = hi - lo + 1
         power_sum = (power_sum + pow(10, d, p) * count) mod p
         lo = 10^d
         d = d + 1
-    return (T * power_sum + N * T) mod p
+    Return (T * power_sum + N * T) mod p
 ```
 
 ## Complexity Analysis

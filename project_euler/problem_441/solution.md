@@ -63,14 +63,19 @@ $$\sum_{p'=P_s}^{q'-1} \frac{N - dq' + 1}{d^2 p' q'} = \frac{(N - dq' + 1)(H_{q'
 
 **Proof.** Under the substitution $p = dp'$, $q = dq'$, the term $\frac{1}{pq} = \frac{1}{d^2 p' q'}$. For full pairs, $dp' + dq' \leq N$ iff $p' \leq Q - q' = \beta$, and the multiplicity is $dp' + 1$. The sum $\sum_{p'=1}^{P_f} \frac{dp' + 1}{d^2 p' q'} = \frac{1}{dq'} \sum_{p'=1}^{P_f} 1 + \frac{1}{d^2 q'} \sum_{p'=1}^{P_f} \frac{1}{p'} = \frac{P_f}{dq'} + \frac{H_{P_f}}{d^2 q'}$. The partial-pair formula follows similarly, noting that $N - dq' + 1$ is constant with respect to $p'$. $\square$
 
-## Algorithm
+## Editorial
+Compute S(N) = sum_{M=2}^{N} R(M) where R(M) = sum_{1<=p<q<=M, p+q>=M, gcd(p,q)=1} 1/(pq). Method: Mobius inversion converts the coprimality constraint into a sum over d of mu(d), reducing to harmonic-number lookups. We sieve.** Compute $\mu(d)$ for $d = 1, \ldots, N$ via a linear sieve. We then harmonics.** Precompute $H_k = H_{k-1} + 1/k$ for $k = 0, 1, \ldots, N$ in floating point. Finally, main loop.** For each $d$ with $\mu(d) \neq 0$, set $Q = \lfloor N/d \rfloor$. For each $q' = 2, \ldots, Q$.
 
-1. **Sieve.** Compute $\mu(d)$ for $d = 1, \ldots, N$ via a linear sieve.
-2. **Harmonics.** Precompute $H_k = H_{k-1} + 1/k$ for $k = 0, 1, \ldots, N$ in floating point.
-3. **Main loop.** For each $d$ with $\mu(d) \neq 0$, set $Q = \lfloor N/d \rfloor$. For each $q' = 2, \ldots, Q$:
-   - Compute $P_f = \min(q'-1,\, Q - q')$. If $P_f \geq 1$, accumulate the full-pair contribution.
-   - Set $P_s = \max(1,\, Q - q' + 1)$. If $P_s \leq q' - 1$, accumulate the partial-pair contribution via harmonic differences.
-4. **Aggregate.** Multiply each $d$-contribution by $\mu(d)$ and sum.
+## Pseudocode
+
+```text
+Sieve.** Compute $\mu(d)$ for $d = 1, \ldots, N$ via a linear sieve
+Harmonics.** Precompute $H_k = H_{k-1} + 1/k$ for $k = 0, 1, \ldots, N$ in floating point
+Main loop.** For each $d$ with $\mu(d) \neq 0$, set $Q = \lfloor N/d \rfloor$. For each $q' = 2, \ldots, Q$:
+Compute $P_f = \min(q'-1,\, Q - q')$. If $P_f \geq 1$, accumulate the full-pair contribution
+Set $P_s = \max(1,\, Q - q' + 1)$. If $P_s \leq q' - 1$, accumulate the partial-pair contribution via harmonic differences
+Aggregate.** Multiply each $d$-contribution by $\mu(d)$ and sum
+```
 
 ## Complexity Analysis
 

@@ -45,31 +45,16 @@ $$E_k(q) \sim \frac{\Gamma(k)\,\zeta(k)}{\epsilon^k}.$$
 
 **Proof.** In the Lambert series, substitute $q^m = (1-\epsilon)^m$. For small $\epsilon$, the sum is well-approximated by the integral $\int_0^\infty \frac{t^k\,e^{-t\epsilon}}{1 - e^{-t\epsilon}}\,dt$. Under the change of variable $u = t\epsilon$, this becomes $\epsilon^{-(k+1)}\int_0^\infty \frac{u^k}{e^u - 1}\,du = \epsilon^{-(k+1)}\,\Gamma(k+1)\,\zeta(k+1)$. A more careful Euler--Maclaurin analysis extracting the leading singular term from $\frac{q^m}{1-q^m} \approx \frac{1}{m\epsilon} - \frac{1}{2} + O(\epsilon)$ yields the corrected exponent $E_k(q) \sim \Gamma(k)\,\zeta(k)\,\epsilon^{-k}$. $\square$
 
-## Algorithm
+## Editorial
+Compute E_k(q) = sum_{n>=1} sigma_k(n) q^n = sum_{m>=1} m^k q^m / (1 - q^m) for k=15, q = 1 - 2^{-25}. Uses the Lambert series form and mpmath for arbitrary precision. We method: sum the polylogarithm decomposition.
 
-```
-function E_k(q, k, precision_digits):
-    // Method: sum the polylogarithm decomposition
-    set working precision to precision_digits + 20 guard digits
-    S = 0
-    for j = 1, 2, 3, ...:
-        qj = q^j
-        if qj < 10^(-precision_digits - 10): break
-        // Evaluate Li_{-k}(qj) using the Eulerian polynomial
-        A = eulerian_polynomial(k)
-        term = qj * A(qj) / (1 - qj)^(k+1)
-        S = S + term
-    return S
-```
+## Pseudocode
 
-```
-function eulerian_polynomial(k):
-    // A_k(x) = sum_{i=0}^{k-1} A(k,i) x^i
-    // where A(k,i) are Eulerian numbers
-    compute A(k,i) via the recurrence:
-        A(k,0) = 1
-        A(k,i) = (k-i)*A(k-1,i-1) + (i+1)*A(k-1,i)
-    return polynomial with these coefficients
+```text
+Method: sum the polylogarithm decomposition
+Evaluate Li_{-k}(qj) using the Eulerian polynomial
+A_k(x) = sum_{i=0}^{k-1} A(k,i) x^i
+where A(k,i) are Eulerian numbers
 ```
 
 ## Complexity Analysis

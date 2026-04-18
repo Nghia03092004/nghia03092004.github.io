@@ -44,34 +44,15 @@ For $S_2$: fix a coprime pair $(a', b')$ and a multiplier $d \ge 1$. The Gaussia
 
 **Proof.** There are at most $2\sqrt{N}$ distinct values of $\lfloor N/d \rfloor$ for $d \in \{1, \ldots, N\}$. Group consecutive values of $d$ sharing the same quotient $q = \lfloor N/d \rfloor$ into blocks $[d_{\min}, d_{\max}]$ where $d_{\max} = \lfloor N/q \rfloor$. Within each block, $\sum_{d = d_{\min}}^{d_{\max}} d = (d_{\min} + d_{\max})(d_{\max} - d_{\min} + 1)/2$ is computed in $O(1)$. $\square$
 
-## Algorithm
+## Editorial
+We part 1: Divisor sum via hyperbola method. We then part 2: Gaussian integer contributions. Finally, sum over multiplier k using hyperbola method.
 
-```
-function SOLVE(N):
-    // Part 1: Divisor sum via hyperbola method
-    S1 = 0
-    d = 1
-    while d <= N:
-        q = N / d
-        d_max = N / q
-        S1 += q * (d + d_max) * (d_max - d + 1) / 2
-        d = d_max + 1
+## Pseudocode
 
-    // Part 2: Gaussian integer contributions
-    S2 = 0
-    for b = 1 to floor(sqrt(N)):
-        for a = 1 to floor(sqrt(N - b^2)):
-            if gcd(a, b) != 1: continue
-            norm = a^2 + b^2
-            // Sum over multiplier k using hyperbola method
-            k = 1
-            while k * norm <= N:
-                q = N / (k * norm)
-                k_max = N / (q * norm)
-                S2 += 2 * a * q * (k + k_max) * (k_max - k + 1) / 2
-                k = k_max + 1
-
-    return S1 + S2
+```text
+Part 1: Divisor sum via hyperbola method
+Part 2: Gaussian integer contributions
+Sum over multiplier k using hyperbola method
 ```
 
 ## Complexity Analysis

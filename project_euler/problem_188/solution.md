@@ -33,19 +33,23 @@ $$\phi(10^8) = 10^8 \cdot (1 - 1/2)(1 - 1/5) = 4 \times 10^7$$
 
 The chain of totients reaches 1 well before 1855 levels of recursion, so at sufficient depth the tower value is simply "large enough" and we use the formula with $+\phi(m)$.
 
-### Algorithm
+### Editorial
+The recursion depth is at most $O(\log(10^8))$, which is very small (~30 or so). We evaluate the closed-form expressions derived above directly from the relevant parameters and return the resulting value.
 
-```
+### Pseudocode
+
+```text
 def hyper(a, b, mod):
-    if mod == 1:
-        return 0
-    if b == 1:
-        return a % mod
+    If mod == 1 then
+        Return 0
+    If b == 1 then
+        Return a % mod
     exp = hyper(a, b - 1, euler_totient(mod))
-    return pow(a, exp + euler_totient(mod), mod)
+    Return pow(a, exp + euler_totient(mod), mod)
 ```
 
 The recursion depth is at most $O(\log(10^8))$, which is very small (~30 or so).
+```
 
 ## Complexity
 

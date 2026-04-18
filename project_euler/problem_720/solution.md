@@ -31,38 +31,19 @@ where $c_i$ (the Lehmer code) is the number of elements smaller than $P(i)$ that
 
 **Proof.** The recursive structure of the problem (exploiting $N = 2^n$) means the permutation decomposes into sub-problems of size $N/2$. The Lehmer code entries inherit this recursive structure. Precomputing factorials modulo $p$ up to $N$ costs $O(N)$, and the recursive computation of $c_i$ values costs $O(N \log N)$ using the divide-and-conquer structure. The final sum is evaluated modulo $10^9 + 7$. $\square$
 
-## Algorithm
+## Editorial
+We precompute factorials mod p. We then recursively determine the first unpredictable permutation. Finally, compute Lehmer code and lexicographic index.
 
-```
-function S(N, mod):
-    // Precompute factorials mod p
-    fact = array of size N+1
-    fact[0] = 1
-    for i = 1 to N:
-        fact[i] = fact[i-1] * i mod mod
+## Pseudocode
 
-    // Recursively determine the first unpredictable permutation
-    perm = build_first_unpredictable(N)
-
-    // Compute Lehmer code and lexicographic index
-    // Use a Fenwick tree for efficient counting
-    fenwick = FenwickTree(N)
-    for i = 1 to N: fenwick.update(i, 1)
-
-    index = 0
-    for i = 1 to N:
-        c_i = fenwick.query(perm[i] - 1)  // count of available values < perm[i]
-        index = (index + c_i * fact[N - i]) mod mod
-        fenwick.update(perm[i], -1)
-
-    return (index + 1) mod mod
-
-function build_first_unpredictable(N):
-    // Recursive divide-and-conquer for N = 2^n
-    if N <= 2: return [1, 2] (or base cases)
-    // Exploit the structure of AP-free permutations
-    // Split into sub-problems and merge
-    ...
+```text
+Precompute factorials mod p
+Recursively determine the first unpredictable permutation
+Compute Lehmer code and lexicographic index
+Use a Fenwick tree for efficient counting
+Recursive divide-and-conquer for N = 2^n
+Exploit the structure of AP-free permutations
+Split into sub-problems and merge
 ```
 
 ## Complexity Analysis

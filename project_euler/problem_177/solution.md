@@ -62,15 +62,20 @@ $$(\alpha,\beta,\gamma,\delta,\varepsilon,\zeta,\eta,\theta) \to (\beta,\alpha,\
 
 These generate 8 symmetries. Two 8-tuples in the same orbit represent similar quadrilaterals. We canonicalize each valid tuple under this group and count distinct canonical forms.
 
-## Algorithm
+## Editorial
+Count non-similar convex quadrilaterals ABCD where both diagonals split all four angles into integer-degree sub-angles. 8 sub-angles: alpha=BAC, beta=CAD, gamma=ABD, delta=DBC, epsilon=BCA, zeta=ACD, eta=CDB, theta=BDA Constraints from diagonal intersection angle p: alpha+gamma = 180-p, delta+epsilon = p, zeta+eta = 180-p, theta+beta = p Closure: sin(alpha)*sin(delta)*sin(zeta)*sin(theta) = sin(beta)*sin(gamma)*sin(epsilon)*sin(eta) Symmetry group (dihedral-8) reduces count by factor ~8. We iterate over each $p$ from 2 to 178. We then iterate over each $(\alpha, \delta, \zeta)$ in valid ranges. Finally, solve for $\theta$ using the closure condition.
 
-1. For each $p$ from 2 to 178:
-   - For each $(\alpha, \delta, \zeta)$ in valid ranges:
-     - Solve for $\theta$ using the closure condition.
-     - If $\theta$ is a positive integer in range, verify the closure and convexity.
-     - Canonicalize the 8-tuple under the dihedral-8 symmetry group.
-     - Insert into a set of canonical forms.
-2. Output the size of the set.
+## Pseudocode
+
+```text
+For each $p$ from 2 to 178:
+For each $(\alpha, \delta, \zeta)$ in valid ranges:
+Solve for $\theta$ using the closure condition
+If $\theta$ is a positive integer in range, verify the closure and convexity
+Canonicalize the 8-tuple under the dihedral-8 symmetry group
+Insert into a set of canonical forms
+Output the size of the set
+```
 
 ## Correctness
 

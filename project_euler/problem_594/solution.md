@@ -48,24 +48,14 @@ $\square$
 
 **Proof.** The plane partitions correspond to $n$-tuples of non-intersecting lattice paths. By the LGV lemma, the count equals a determinant of path counts, which are binomial coefficients. $\square$
 
-## Algorithm
+## Editorial
+We compute numerator and denominator as products, then use modular inverse. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function T(n, mod_p):
-    // Use the simplified formula: T(n) = prod_{i=1}^{n} prod_{j=1}^{n} (i+j+n-1)/(i+j-1)
-    // Compute numerator and denominator as products, then use modular inverse
+## Pseudocode
 
-    numerator = 1
-    denominator = 1
-    for i = 1 to n:
-        for j = 1 to n:
-            numerator = (numerator * (i + j + n - 1)) mod p
-            denominator = (denominator * (i + j - 1)) mod p
-
-    return (numerator * mod_inverse(denominator, p)) mod p
-
-function mod_inverse(a, p):
-    return pow(a, p - 2, p)  // Fermat's little theorem
+```text
+Use the simplified formula: T(n) = prod_{i=1}^{n} prod_{j=1}^{n} (i+j+n-1)/(i+j-1)
+Compute numerator and denominator as products, then use modular inverse
 ```
 
 ## Complexity Analysis

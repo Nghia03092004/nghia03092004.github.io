@@ -52,40 +52,16 @@ Therefore $f(n) \sim C \cdot \tau^n$ as $n \to \infty$ for some constant $C > 0$
 
 **Proof.** The characteristic polynomial $p(x) = x^3 - x^2 - x - 1$ has $p(1) = -2 < 0$ and $p(2) = 1 > 0$, so there is a real root $\tau \in (1, 2)$. By Descartes' rule, $p(x)$ has exactly one positive real root. The other two roots are complex conjugates with modulus less than $\tau$ (since $|r| < \tau$ for the complex roots, which can be verified from Vieta's formulas: the product of all three roots is 1, so the product of the complex pair is $1/\tau < 1$, meaning their common modulus is $\tau^{-1/2} < 1 < \tau$). Thus the dominant term in the closed form is $C \tau^n$. $\square$
 
-## Algorithm
+## Editorial
+A frog jumps on stepping stones 0..n, jumping 1, 2, or 3 steps forward. Count the number of distinct paths from 0 to n. Uses tribonacci recurrence and matrix exponentiation. We o(n) time, O(1) space. Finally, o(log n) time, O(1) space.
 
-```
-function FROG_PATHS_DP(n):
-    // O(n) time, O(1) space
-    if n == 0: return 1
-    if n == 1: return 1
-    if n == 2: return 2
-    a, b, c = 1, 1, 2   // f(0), f(1), f(2)
-    for k = 3 to n:
-        a, b, c = b, c, a + b + c
-    return c
+## Pseudocode
 
-function FROG_PATHS_MATRIX(n, mod):
-    // O(log n) time, O(1) space
-    if n <= 2: return [1, 1, 2][n] mod mod
-
-    A = [[1, 1, 1],
-         [1, 0, 0],
-         [0, 1, 0]]
-
-    result = matrix_power(A, n - 2, mod)
-    // f(n) = result[0][0]*2 + result[0][1]*1 + result[0][2]*1
-    return (result[0][0] * 2 + result[0][1] + result[0][2]) mod mod
-
-function MATRIX_POWER(M, exp, mod):
-    result = identity_matrix(3)
-    base = M
-    while exp > 0:
-        if exp is odd:
-            result = matrix_multiply(result, base) mod mod
-        base = matrix_multiply(base, base) mod mod
-        exp = exp >> 1
-    return result
+```text
+O(n) time, O(1) space
+O(log n) time, O(1) space
+f(n) = result[0][0]*2 + result[0][1]*1 + result[0][2]*1
+if exp is odd
 ```
 
 ## Complexity Analysis

@@ -65,14 +65,15 @@ $S(3) = f(1, 1) + f(8, 16) + f(27, 81) = 1 + ? + ? = 7128$.
 
 ## Derivation
 
-### Algorithm
+### Editorial
+b. Binary search on digit count $d$. c. Construct $f(n, m) \bmod p$ digit by digit (with optimizations for long runs of 9s). We precompute $10^j \bmod p$ for $j = 0, 1, \ldots, D_{\max}$.
 
-1. Precompute $10^j \bmod p$ for $j = 0, 1, \ldots, D_{\max}$.
-2. For each $i = 1, \ldots, k$:
-   a. Set $n = i^3$, $m = i^4$.
-   b. Binary search on digit count $d$.
-   c. Construct $f(n, m) \bmod p$ digit by digit (with optimizations for long runs of 9s).
-   d. Accumulate $S \mathrel{+}= f(n, m) \bmod p$.
+### Pseudocode
+
+```text
+Precompute $10^j \bmod p$ for $j = 0, 1, \ldots, D_{\max}$
+For each $i = 1, \ldots, k$:
+```
 
 ### Binomial Coefficient Computation
 

@@ -36,23 +36,15 @@ $$x_{k+1} = 6x_k - x_{k-1}, \qquad y_{k+1} = 6y_k - y_{k-1}$$
 
 **Proof.** By induction. Base: $x_1 = 3$ (odd), $y_1 = 2$ (even). The coupled recurrence $x_{k+1} = 3x_k + 4y_k$, $y_{k+1} = 2x_k + 3y_k$ shows: if $x_k$ is odd and $y_k$ is even, then $x_{k+1} = 3(\text{odd}) + 4(\text{even}) = \text{odd}$ and $y_{k+1} = 2(\text{odd}) + 3(\text{even}) = \text{even}$. $\square$
 
-## Algorithm
+## Editorial
+Alternatively, for computing a sum of the first $K$ square triangular numbers, iterate the recurrence and accumulate. We compute K-th square triangular number mod p. Finally, method: matrix exponentiation.
 
-```
-function SquareTriangular(K, p):
-    # Compute K-th square triangular number mod p
-    # Method: matrix exponentiation
-    M = [[3, 4], [2, 3]]   # transfer matrix
-    result = matrix_power(M, K, mod=p) * [3, 2]^T
-    x_K = result[0]
-    y_K = result[1]
-    n_K = (x_K - 1) * modinv(2, p) mod p
-    m_K = y_K * modinv(2, p) mod p
-    ST_K = m_K^2 mod p
-    return ST_K
-```
+## Pseudocode
 
-Alternatively, for computing a sum of the first $K$ square triangular numbers, iterate the recurrence and accumulate.
+```text
+Compute K-th square triangular number mod p
+Method: matrix exponentiation
+```
 
 ## Complexity Analysis
 

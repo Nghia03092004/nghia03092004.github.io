@@ -34,26 +34,14 @@ Since $\frac{a+1}{2} - \frac{a-1}{2} = 1$, these factors are coprime. $\square$
 
 **Proof.** (i) ensures $b \leq c$. (ii) follows from $b = (e-d)/2 \geq a$. (iii) is the perimeter bound. $\square$
 
-## Algorithm
+## Editorial
+Count ordered triples (a, b, c) with a <= b <= c, a^2 + b^2 = c^2 + 1, and a + b + c <= 25,000,000. Key: (c-b)(c+b) = (a-1)(a+1). Let d = c-b, e = c+b, d*e = (a-1)(a+1). b = (e-d)/2, c = (e+d)/2, perimeter = a + e. Need d,e same parity, d <= e, b >= a (e-d >= 2a), a+e <= L. For a even: n = a^2-1 is odd, so d,e both odd. n = (a-1)(a+1), gcd=1. For a odd: n = a^2-1 divisible by 4. d,e both even. n/4 = ((a-1)/2)*((a+1)/2), gcd=1. Factor using coprime factorization to enumerate divisors efficiently. We else.
 
-```
-function count_triples(L):
-    count = (L - 1) / 2          // case a = 1
+## Pseudocode
 
-    precompute SPF sieve up to L / 3
-
-    for a = 2 to L / 3:
-        if a is even:
-            enumerate divisor pairs (d, e) of (a-1)(a+1)
-            with d odd, e odd, d <= e
-        else:
-            enumerate divisor pairs (d', e') of ((a-1)/2) * ((a+1)/2)
-            set d = 2d', e = 2e'
-        for each valid (d, e):
-            if e - d >= 2a and a + e <= L:
-                count += 1
-
-    return count
+```text
+if a is even
+else
 ```
 
 ## Complexity Analysis

@@ -27,30 +27,16 @@ $$\phi(n) = n \prod_{p \mid n} \left(1 - \frac{1}{p}\right).$$
 
 **Proof.** Each prime factor $p$ of $n$ contributes exactly one factor of $(1 - 1/p)$ to the product formula. The sieve visits each prime $p$ and applies this factor to all its multiples, yielding the correct product. $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We sieve phi. We then compute f bottom-up using recurrence. Finally, sum. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function totient_staircase_sum(N):
-    // Step 1: Sieve phi
-    phi = array of size N+1
-    for i = 0 to N: phi[i] = i
-    for p = 2 to N:
-        if phi[p] == p:        // p is prime
-            for k = p to N step p:
-                phi[k] = phi[k] / p * (p - 1)
+## Pseudocode
 
-    // Step 2: Compute f bottom-up using recurrence
-    f = array of size N+1, initialized to 0
-    // f[1] = 0 (base case)
-    for n = 2 to N:
-        f[n] = 1 + f[phi[n]]
-
-    // Step 3: Sum
-    total = 0
-    for n = 2 to N:
-        total += f[n]
-
-    return total
+```text
+Sieve phi
+Compute f bottom-up using recurrence
+f[1] = 0 (base case)
+Sum
 ```
 
 ## Complexity Analysis

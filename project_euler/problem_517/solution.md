@@ -39,40 +39,16 @@ $$\binom{n}{k} \equiv n! \cdot (k!)^{-1} \cdot ((n-k)!)^{-1} \pmod{q}.$$
 
 **Proof.** Sieve primes up to $\sqrt{10^7 + 10^4} < 3163$. For each small prime $p$, mark its multiples in the interval $(10^7, 10^7 + 10^4)$. The remaining unmarked entries are prime. $\square$
 
-## Algorithm
+## Editorial
+For real a > 1: g_a(x) = 1 for x < a, g_a(x) = g_a(x-1) + g_a(x-a) for x >= a. G(n) = g_{sqrt(n)}(n). Find sum of G(p) mod 10^9+7 for primes p with 10^7 < p < 10^7+10^4. We sieve primes in (10^7, 10^7 + 10^4). We then precompute factorials mod MOD up to 10^7 + 10^4. Finally, compute G(p) for each prime p.
 
-```
-function solve():
-    MOD := 10^9 + 7
+## Pseudocode
 
-    // Step 1: Sieve primes in (10^7, 10^7 + 10^4)
-    primes := segmented_sieve(10^7 + 1, 10^7 + 10^4 - 1)
-
-    // Step 2: Precompute factorials mod MOD up to 10^7 + 10^4
-    N_max := 10^7 + 10^4
-    fact[0] := 1
-    for i := 1 to N_max:
-        fact[i] := fact[i-1] * i mod MOD
-    inv_fact[N_max] := mod_pow(fact[N_max], MOD - 2, MOD)
-    for i := N_max - 1 downto 0:
-        inv_fact[i] := inv_fact[i+1] * (i+1) mod MOD
-
-    function C(n, k):
-        if k < 0 or k > n: return 0
-        return fact[n] * inv_fact[k] % MOD * inv_fact[n-k] % MOD
-
-    // Step 3: Compute G(p) for each prime p
-    total := 0
-    for p in primes:
-        a := sqrt(p)   // irrational
-        K := floor(a)  // = floor(sqrt(p))
-        Gp := 0
-        for k := 0 to K:
-            nk := p - 1 - floor(k * (a - 1))
-            Gp := (Gp + C(nk, k)) mod MOD
-        total := (total + Gp) mod MOD
-
-    return total
+```text
+Sieve primes in (10^7, 10^7 + 10^4)
+Precompute factorials mod MOD up to 10^7 + 10^4
+Compute G(p) for each prime p
+for p in primes
 ```
 
 ## Complexity Analysis

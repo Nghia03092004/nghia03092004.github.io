@@ -57,24 +57,17 @@ For large $n$, $E(n) \approx n \ln n + (2\gamma - 1)n + O(\sqrt{n}\,\ln n)$.
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Wait -- let's reconsider. After the process runs for $T$ seconds total, on the final second the last drone begins moving. All drones drop packages when the last drone has traveled 1 cm, which takes 1 second. So total time is $T+1$ seconds. But $E(n)$ is the expected distance of the package drop point, which is the distance of each individual drone at drop time... Actually re-reading: all drones drop packages simultaneously, each at their own position. $E(n)$ seems to be the expected distance of some specific aggregated quantity. We model the process as a Markov chain on the state (number of activated drones, total accumulated "speed-time"). We then use linearity of expectation: $E(n) = \sum_{t \ge 1} E[\text{total speed at time } t \cdot \mathbb{1}_{t \le T}]$. Finally, the total speed at time $t$ equals $t$ (since each second adds 1 to some drone's speed), so $E(n) = E[T(T+1)/2] + \text{correction}$.
 
-1. Model the process as a Markov chain on the state (number of activated drones, total accumulated "speed-time").
-2. Use linearity of expectation: $E(n) = \sum_{t \ge 1} E[\text{total speed at time } t \cdot \mathbb{1}_{t \le T}]$.
-3. The total speed at time $t$ equals $t$ (since each second adds 1 to some drone's speed), so $E(n) = E[T(T+1)/2] + \text{correction}$...
+### Pseudocode
 
-Actually, more precisely: at each of the $T$ seconds before termination, one unit of speed is added. The distance traveled by a drone with speed profile is the integral of speed over time. The total distance summed over all drones equals $\sum_{t=1}^{T} (T+1-t) = T(T+1)/2$ where $T$ is the total number of seconds.
-
-Wait -- let's reconsider. After the process runs for $T$ seconds total, on the final second the last drone begins moving. All drones drop packages when the last drone has traveled 1 cm, which takes 1 second. So total time is $T+1$ seconds.
-
-At second $s$ ($1 \le s \le T$), a random drone gets +1 speed. At second $T+1$, the last drone gets +1 speed (making it speed 1) and all drop. The distance drone $i$ has traveled by the end of second $T+1$ is $\sum_{j} (T+1 - t_j^{(i)})$ where the sum is over all seconds $t_j$ when drone $i$ was selected (including possibly second $T+1$).
-
-The **total** distance over all drones is $\sum_{s=1}^{T+1} (T+1-s) = T(T+1)/2$.
-
-But $E(n)$ is the expected distance of the package drop point, which is the distance of each individual drone at drop time... Actually re-reading: all drones drop packages simultaneously, each at their own position. $E(n)$ seems to be the expected distance of some specific aggregated quantity.
-
-Given $E(2) = 7/2$ and the structure, we can verify:
-- With 2 drones: On each second, pick one of 2. Process ends when both have been picked at least once.
+```text
+Model the process as a Markov chain on the state (number of activated drones, total accumulated "speed-time")
+Use linearity of expectation: $E(n) = \sum_{t \ge 1} E[\text{total speed at time } t \cdot \mathbb{1}_{t \le T}]$
+The total speed at time $t$ equals $t$ (since each second adds 1 to some drone's speed), so $E(n) = E[T(T+1)/2] + \text{correction}$
+With 2 drones: On each second, pick one of 2. Process ends when both have been picked at least once
+```
 
 ## Verification
 

@@ -39,28 +39,17 @@ where $s = S_{N_1} \in (1, 2)$ and $x \in (0, 1)$ with $x > s - 1$.
 $$P(y > x) = \int P(y > x \mid S_{N_1} = s, \, x = u) \, f_{S_{N_1}, x}(s, u) \, ds\, du.$$
 The inner probability depends on the distribution of the stopping value for the sum starting at $s$ exceeding 2, which is itself an Irwin-Hall stopping problem shifted by $s$. The integral is evaluated numerically by truncating the series at sufficiently large $N_{\max}$ and using high-precision quadrature. $\square$
 
-## Algorithm
+## Editorial
+Julie proposes a wager: they add uniform random numbers from [0,1]. Louise adds until sum > 1, records last number x. Julie continues adding until sum > 2, records last number y. Julie wins if y > x. Find P(Julie wins). We use Monte Carlo simulation for verification and numerical integration for the exact answer. We iterate over each configuration (n1, n2) where Louise uses n1 draws, Julie uses n2 - n1. Finally, where S_{n1-1} <= 1, S_{n1} > 1, S_{n2-1} <= 2, S_{n2} > 2.
 
-```
-function compute_probability(precision):
-    N_max = 20   // Truncation; contributions for n > 20 are negligible
+## Pseudocode
 
-    // Precompute Irwin-Hall densities for n = 1 to N_max
-    // For each configuration (n1, n2) where Louise uses n1 draws, Julie uses n2 - n1:
-
-    result = 0
-    for n1 = 2 to N_max:
-        for n2 = n1+1 to N_max:
-            // Integrate over all valid (u_1, ..., u_{n2}) configurations
-            // where S_{n1-1} <= 1, S_{n1} > 1, S_{n2-1} <= 2, S_{n2} > 2
-            // and u_{n2} > u_{n1}
-
-            result += numerical_integrate(
-                joint_density(n1, n2) * indicator(u_{n2} > u_{n1}),
-                domain, tol=1e-13
-            )
-
-    return round(result, 10)
+```text
+Precompute Irwin-Hall densities for n = 1 to N_max
+For each configuration (n1, n2) where Louise uses n1 draws, Julie uses n2 - n1:
+Integrate over all valid (u_1, ..., u_{n2}) configurations
+where S_{n1-1} <= 1, S_{n1} > 1, S_{n2-1} <= 2, S_{n2} > 2
+and u_{n2} > u_{n1}
 ```
 
 ## Complexity Analysis

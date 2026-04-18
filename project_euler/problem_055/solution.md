@@ -50,7 +50,7 @@ In the absence of carries (i.e., when $d_i + d_{k-i} \leq 9$ for all $i$), $R(n)
 
 **Remark.** Whether any true Lychrel number exists in base 10 (i.e., one that never produces a palindrome regardless of the number of iterations) remains an open problem. The number 196 is the smallest candidate, with no palindrome found after more than $10^9$ iterations.
 
-## Algorithm
+## Editorial
 
 We inspect every starting value below 10,000 independently. For each candidate, the reverse-and-add transformation is applied repeatedly for at most 50 steps, and after each step the new value is checked for palindromicity. If no palindrome appears within those 50 iterations, the starting value is counted as a Lychrel candidate under the problem's convention.
 

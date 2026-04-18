@@ -38,29 +38,17 @@ $$\Psi(m) = \sum_{n=3}^{m} \psi(n)$$
 
 **Proof.** If $\psi(n) = \sum_{d \mid n} f(d)$, then $\Psi(m) = \sum_{n=3}^{m} \sum_{d \mid n} f(d) = \sum_{d=1}^{m} f(d) \lfloor m/d \rfloor - (\text{correction for } n < 3)$. The outer sum can be computed via the hyperbola method in $O(\sqrt{m})$ time if $f$ has a simple form, or by direct sieve in $O(m)$ time. For $m = 10^8$, an $O(m)$ sieve is feasible. $\square$
 
-## Algorithm
+## Editorial
+Mamma Triangolo cuts a triangular pizza into $n$ equal-area triangular pieces by choosing interior point $P$ and making $n$ cuts to the boundary. $\psi(n)$ counts distinct ways. Given $\psi(3)=7$, $\p. We based on the divisor-sum structure of psi. We then sieve: for each divisor d, add f(d) to all multiples. Finally, accumulate prefix sum.
 
-```
-function Psi(m, p):
-    // Compute psi(n) for n = 3..m using sieve-based approach
-    // Based on the divisor-sum structure of psi
+## Pseudocode
 
-    psi = array[0..m] initialized to 0
-
-    // Sieve: for each divisor d, add f(d) to all multiples
-    for d = 1 to m:
-        fd = compute_f(d)   // arithmetic function derived from analysis
-        for multiple = d, 2d, 3d, ..., m:
-            psi[multiple] = (psi[multiple] + fd) mod p
-
-    // Accumulate prefix sum
-    result = 0
-    for n = 3 to m:
-        result = (result + psi[n]) mod p
-
-    return result
-
-    // Alternative: Use hyperbola method for O(sqrt(m)) if f is simple
+```text
+Compute psi(n) for n = 3..m using sieve-based approach
+Based on the divisor-sum structure of psi
+Sieve: for each divisor d, add f(d) to all multiples
+Accumulate prefix sum
+Alternative: Use hyperbola method for O(sqrt(m)) if f is simple
 ```
 
 ## Complexity Analysis

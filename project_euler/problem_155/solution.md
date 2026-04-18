@@ -36,24 +36,26 @@ Thus swapping every parallel with series and vice versa transforms $c$ to $1/c$.
 
 **Proof.** The rational numbers form a field, and the reduced-fraction representation is canonical. $\square$
 
-## Algorithm
+## Editorial
+S(1) = {1} S(n) = union over k=1..n//2 of { a+b, a*b/(a+b) : a in S(k), b in S(n-k) } C(n) = |S(1) union ... union S(n)| Uses tuples (numerator, denominator) for speed instead of Fraction. We compute cumulative union.
 
-```
-function SOLVE(N = 18):
+## Pseudocode
+
+```text
     D = array of sets, indexed 1..N
     D[1] = {Fraction(1, 1)}
 
-    for n = 2 to N:
+    For n from 2 to N:
         D[n] = empty set
-        for k = 1 to n/2:
-            for a in D[k]:
-                for b in D[n-k]:
-                    D[n].add(a + b)              // parallel
-                    D[n].add(a * b / (a + b))    // series
+        For k from 1 to n/2:
+            For each a in D[k]:
+                For each b in D[n-k]:
+                    D[n].add(a + b) // parallel
+                    D[n].add(a * b / (a + b)) // series
 
-    // Compute cumulative union
+    Compute cumulative union
     all_values = D[1] union D[2] union ... union D[N]
-    return |all_values|
+    Return |all_values|
 ```
 
 ## Complexity Analysis

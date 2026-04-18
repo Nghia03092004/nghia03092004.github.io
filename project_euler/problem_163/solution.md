@@ -50,30 +50,32 @@ $$u = \frac{c_1 b_2 - c_2 b_1}{a_1 b_2 - a_2 b_1}, \qquad v = \frac{a_1 c_2 - a_
 
 *Proof.* Direct from the uniqueness of intersection points in distinct directions. $\square$
 
-## Algorithm
+## Editorial
+Count triangles in a cross-hatched equilateral triangle of size n = 36. Six line families in oblique coordinates (u, v) with triangle u >= 0, v >= 0, u + v <= n. A triangle is formed by choosing one line from each of three distinct families; we check containment and non-concurrency via exact rational arithmetic.
 
-```
-function COUNT_TRIANGLES(n):
+## Pseudocode
+
+```text
     total = 0
     families = [(1,0), (0,1), (1,1), (1,-1), (1,2), (2,1)]
     ranges = [0..n, 0..n, 0..n, -(n-1)..n-1, 1..2n-1, 1..2n-1]
 
     for each triple (i, j, k) with 0 <= i < j < k <= 5:
         (a1,b1), (a2,b2), (a3,b3) = families[i], families[j], families[k]
-        D12 = a1*b2 - a2*b1;  D13 = a1*b3 - a3*b1;  D23 = a2*b3 - a3*b2
-        if any D == 0: skip     // parallel pair (does not occur)
-        for c1 in ranges[i]:
-            for c2 in ranges[j]:
+        D12 = a1*b2 - a2*b1; D13 = a1*b3 - a3*b1; D23 = a2*b3 - a3*b2
+        if any D == 0: skip // parallel pair (does not occur)
+        For each c1 in ranges[i]:
+            For each c2 in ranges[j]:
                 P12 = intersect(a1,b1,c1, a2,b2,c2)
-                if P12 outside triangle: continue
-                for c3 in ranges[k]:
+                If P12 outside triangle then continue
+                For each c3 in ranges[k]:
                     P13 = intersect(a1,b1,c1, a3,b3,c3)
-                    if P13 outside triangle: continue
+                    If P13 outside triangle then continue
                     P23 = intersect(a2,b2,c2, a3,b3,c3)
-                    if P23 outside triangle: continue
-                    if P12 == P13: continue      // concurrent
+                    If P23 outside triangle then continue
+                    if P12 == P13: continue // concurrent
                     total += 1
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

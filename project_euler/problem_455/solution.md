@@ -49,20 +49,19 @@ For p=2: M_j = 2^j, branching factor 2, max 2^9 = 512 candidates.
 For p=5: M_j = 4 * 5^j, branching factor 5, worst-case 5^9 ~ 2M candidates
 (but heavily pruned in practice).
 
-### Algorithm
+### Editorial
+We iterate over each n. We then cRT combine all pairs of (mod-2^9, mod-5^9) residues. Finally, verify each CRT result: check n^x = x (mod 10^9).
 
-```
-For each n:
-  1. If 10 | n: return f(n) = 0
-  2. Solve n^x = x (mod 2^9) via combined lifting:
-     - If 2|n: solutions = {0 mod 512}
-     - Else: lift from M_1 = 2 through M_9 = 512
-  3. Solve n^x = x (mod 5^9) via combined lifting:
-     - If 5|n: solutions = {0 mod 5^9}
-     - Else: lift from M_1 = 20 through M_9 = 4*5^9
-  4. CRT combine all pairs of (mod-2^9, mod-5^9) residues
-  5. Verify each CRT result: check n^x = x (mod 10^9)
-  6. f(n) = max of verified positive solutions
+### Pseudocode
+
+```text
+For each n
+If 10 | n: return f(n) = 0
+Solve n^x = x (mod 2^9) via combined lifting:
+Solve n^x = x (mod 5^9) via combined lifting:
+CRT combine all pairs of (mod-2^9, mod-5^9) residues
+Verify each CRT result: check n^x = x (mod 10^9)
+f(n) = max of verified positive solutions
 ```
 
 ### When p | n

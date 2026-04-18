@@ -48,28 +48,19 @@ where $p^{-1}$ is the inverse of $p$ modulo $2^p$.
 
 **Proof.** Write $2^{2^p} = p \cdot f(p) + r$ in the integers (here we slightly abuse notation: $r = 2^{2^p} \bmod p$). Then $f(p) = (2^{2^p} - r)/p$. Modulo $2^p$: since $2^{2^p} \equiv 0 \pmod{2^p}$, we get $f(p) \equiv -r/p \equiv -r \cdot p^{-1} \pmod{2^p}$. The inverse $p^{-1} \bmod 2^p$ exists since $p$ is odd. $\square$
 
-## Algorithm
+## Editorial
+We iterate over each odd prime p in primes. Finally, since p is odd, use extended Euclidean or lifting. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function G(N):
-    primes = sieve_primes(N)
-    total = 0
-    for each odd prime p in primes:
-        // Step 1: Compute e = 2^p mod (p-1)
-        e = pow_mod(2, p, p - 1)
-        // Step 2: Compute r = 2^e mod p
-        r = pow_mod(2, e, p)
-        // Step 3: Compute p_inv = p^{-1} mod 2^p
-        // Since p is odd, use extended Euclidean or lifting
-        p_inv = mod_inverse(p, 2^p)
-        // Step 4: f(p) = (-r * p_inv) mod 2^p
-        fp = (-r * p_inv) mod (2^p)
-        if fp < 0: fp += 2^p
-        total += fp
-    return total
-```
+## Pseudocode
 
-**Note:** Computing $p^{-1} \bmod 2^p$ for large $p$ requires $O(p)$-bit arithmetic. An optimization uses the lifting method: starting from $p^{-1} \bmod 2$ (which is 1 since $p$ is odd), iteratively double the precision: if $x \equiv p^{-1} \pmod{2^k}$, then $x(2 - px) \equiv p^{-1} \pmod{2^{2k}}$.
+```text
+for each odd prime p in primes
+Compute e = 2^p mod (p-1)
+Compute r = 2^e mod p
+Compute p_inv = p^{-1} mod 2^p
+Since p is odd, use extended Euclidean or lifting
+f(p) = (-r * p_inv) mod 2^p
+```
 
 ## Complexity Analysis
 

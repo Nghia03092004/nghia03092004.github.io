@@ -66,7 +66,7 @@ $$16 \times 9 = 144, \quad 144 \times 5 = 720, \quad 720 \times 7 = 5{,}040,$$
 $$5{,}040 \times 11 = 55{,}440, \quad 55{,}440 \times 13 = 720{,}720,$$
 $$720{,}720 \times 17 = 12{,}252{,}240, \quad 12{,}252{,}240 \times 19 = 232{,}792{,}560. \quad\square$$
 
-## Algorithm
+## Editorial
 
 We build the least common multiple incrementally. Starting from $L = 1$, we traverse $k = 2, 3, \ldots, N$, compute $g = \gcd(L, k)$, and update $L$ to $(L / g)k$, which equals $\operatorname{lcm}(L, k)$. This is sufficient because after each step the accumulator is the least common multiple of all integers seen so far, so the final value is $\operatorname{lcm}(1, 2, \ldots, N)$.
 

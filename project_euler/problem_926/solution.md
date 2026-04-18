@@ -40,40 +40,17 @@ $$v_p\binom{m+n}{m} = v_p((m+n)!) - v_p(m!) - v_p(n!) = \sum_{j \geq 1}\left(\le
 
 Each term $\lfloor(m+n)/p^j\rfloor - \lfloor m/p^j \rfloor - \lfloor n/p^j \rfloor$ equals the carry into position $j$ when adding $m$ and $n$ in base $p$. $\square$
 
-## Algorithm
+## Editorial
+Optimized digit DP for general $p$. We use dynamic programming over the state space implied by the derivation, apply each admissible transition, and read the answer from the final table entry.
 
-```
-function CountOddEntries(N):
-    total = 0
-    for n = 0 to N:
-        total += 2^(popcount(n))
-    return total
-```
+## Pseudocode
 
-Optimized digit DP for general $p$:
-
-```
-function CountNonDivisible(N, p):
-    // Compute base-p digits of N
-    digits = base_p_representation(N)
-    s = len(digits)
-
-    // S(p^k - 1) = ((p+1)/2)^k for p=2: number of non-zero entries in rows 0..p^k-1
-    // General: product_{digit positions} sum over digit values of (d+1)
-
-    total = 0
-    prefix_product = 1
-    for i = s-1 downto 0:
-        d = digits[i]
-        // Contribution from rows with digit_i < d at position i
-        // and arbitrary lower digits (within full range 0..p-1)
-        sum_lower = sum_{j=0}^{d-1} (j+1) = d*(d+1)/2
-        full_block = ((p+1)/2)^i   // sum of prod(d_j+1) over all i-digit numbers
-        total += prefix_product * sum_lower * full_block
-        prefix_product *= (d + 1)
-
-    total += prefix_product   // contribution from row N itself
-    return total
+```text
+Compute base-p digits of N
+S(p^k - 1) = ((p+1)/2)^k for p=2: number of non-zero entries in rows 0..p^k-1
+General: product_{digit positions} sum over digit values of (d+1)
+Contribution from rows with digit_i < d at position i
+and arbitrary lower digits (within full range 0..p-1)
 ```
 
 ## Complexity Analysis

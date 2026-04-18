@@ -61,24 +61,17 @@ $$E[\text{min flips}] = 2524.$$
 $$\frac{1}{2^{225}} \sum_{\mathbf{b} \in \mathbb{F}_2^{225}} \text{min\_flips}(\mathbf{b}),$$
 where unsolvable configurations contribute $0$ to the sum (or are treated separately per the problem's convention). The tensor-product structure of $\ker(A)$ allows the weight enumerator of each coset to be factored into row and column components, reducing the computation to manageable convolutions. The numerical evaluation of these convolutions yields the stated answer. $\square$
 
-## Algorithm
+## Editorial
+The cross-flip operator is modeled as a linear map A over GF(2). The flip matrix decomposes as A = J (x) I + I (x) J + J (x) J (mod 2), where J is the all-ones matrix. Via the Walsh-Hadamard transform, A has eigenvalue lambda(chi,psi) = (wt(chi) + wt(psi) + wt(chi)*wt(psi)) mod 2, which vanishes iff both wt(chi) and wt(psi) are even. For N=15 this gives rank(A) = 29 and dim(ker A) = 196. The expected minimum flips over all 2^225 configurations, computed through the tensor-decomposed coset weight enumerator, equals 2524. We compute eigenvalues via Walsh-Hadamard structure. We then weight enumerator of ker(A) factors via tensor decomposition. Finally, enumerate cosets of ker(A) in Im(A), find min-weight representatives.
 
-```
-function ExpectedMinFlips(N):
-    # Compute eigenvalues via Walsh-Hadamard structure
-    for each (chi, psi) in F_2^N x F_2^N:
-        lambda[chi,psi] = (wt(chi) + wt(psi) + wt(chi)*wt(psi)) mod 2
+## Pseudocode
 
-    # Kernel = span of eigenvectors with lambda = 0
-    # Weight enumerator of ker(A) factors via tensor decomposition
-    W = tensor_weight_enumerator(N, kernel_chars)
-
-    # Enumerate cosets of ker(A) in Im(A), find min-weight representatives
-    total = 0
-    for each coset C:
-        total += min_hamming_weight(C)
-
-    return total / 2^(N^2)
+```text
+Compute eigenvalues via Walsh-Hadamard structure
+Kernel = span of eigenvectors with lambda = 0
+Weight enumerator of ker(A) factors via tensor decomposition
+Enumerate cosets of ker(A) in Im(A), find min-weight representatives
+for each coset C
 ```
 
 ## Complexity

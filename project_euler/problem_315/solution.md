@@ -56,22 +56,18 @@ Rewriting: $\text{Sam} - \text{Max} = \text{seg}(n_0) + 2\sum_{i=1}^{K-1}\text{s
 Using $\text{seg}(n_i) + \text{seg}(n_{i+1}) = \text{ham}(n_i, n_{i+1}) + 2\,\text{common}(n_i, n_{i+1})$, we telescope:
 $$\text{Sam} - \text{Max} = 2\sum_{i=0}^{K-1}\text{common}(n_i, n_{i+1}). \quad \square$$
 
-## Algorithm
+## Editorial
+For primes p in (10^7, 2*10^7), compute the total difference Sam(p) - Max(p) where: The difference at each transition = 2 * (common segments). Seven-segment display: _a_ | | f b |_g_| | | e c |_d_|. We sieve primes in (10^7, 2*10^7) using Sieve of Eratosthenes. We then iterate over each prime p. Finally, return global sum.
 
-```
+## Pseudocode
+
+```text
 Input: primes p in (10^7, 2*10^7)
 Output: sum of Sam(p) - Max(p) over all such primes
-
-1. Sieve primes in (10^7, 2*10^7) using Sieve of Eratosthenes.
-2. Precompute seg_count[d] and bitmask[d] for d = 0..9.
-3. For each prime p:
-     a. Build the digital root chain: n_0 = p, n_{i+1} = digit_sum(n_i),
-        stopping when n_i is a single digit.
-     b. For each consecutive pair (n_i, n_{i+1}):
-        - Align digits right, compute bitwise AND of corresponding
-          digit bitmasks, sum the popcount.
-     c. Add 2 * total_common to the global sum.
-4. Return global sum.
+Sieve primes in (10^7, 2*10^7) using Sieve of Eratosthenes
+Precompute seg_count[d] and bitmask[d] for d = 0..9
+For each prime p:
+Return global sum
 ```
 
 ## Complexity Analysis

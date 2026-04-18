@@ -30,52 +30,23 @@ $$\text{cost}(\text{cycle}) = \sum_{j=1}^{\ell} |p_j - \text{target}_j| - \max_j
 
 **Proof.** Within each cycle, the elements must rotate to their correct positions. The optimal sequence of moves within a cycle can be computed by choosing the element with maximum displacement as the "last to move" (reducing total cost). The exact formula depends on the problem's specific move semantics (stack insertion vs. in-place swaps). $\square$
 
-## Algorithm
+## Editorial
+Cards labeled 1 to N at positions $3^n \bmod (N+1)$. Merge into ordered stack with minimum total drag distance $G(N)$. Given $G(6)=8$, $G(16)=47$. Find $G(976)$. We compute the permutation. We then decompose into cycles. Finally, iterate over each cycle, compute minimum drag distance.
 
-```
-function G(N):
-    // Step 1: Compute the permutation
-    perm = array[1..N]
-    for n = 1 to N:
-        perm[n] = pow(3, n, N + 1)   // 3^n mod (N+1)
+## Pseudocode
 
-    // Step 2: Decompose into cycles
-    visited = array[1..N] of false
-    cycles = []
-    for i = 1 to N:
-        if not visited[i]:
-            cycle = []
-            j = i
-            while not visited[j]:
-                visited[j] = true
-                cycle.append(j)
-                j = perm[j]   // follow the permutation
-            cycles.append(cycle)
-
-    // Step 3: For each cycle, compute minimum drag distance
-    total_cost = 0
-    for each cycle in cycles:
-        total_cost += compute_cycle_cost(cycle, perm)
-
-    return total_cost
-
-function compute_cycle_cost(cycle, perm):
-    // Compute the minimum drag distance to sort elements in this cycle
-    // This involves finding the optimal ordering of moves within the cycle
-    L = len(cycle)
-    if L == 1: return 0
-
-    // The positions and targets for elements in this cycle
-    // Card cycle[j] is at position perm[cycle[j]] and needs to go to position cycle[j]
-    // Compute cost of rotating cycle elements optimally
-
-    cost = 0
-    for j = 0 to L-1:
-        cost += abs(perm[cycle[j]] - cycle[j])
-    // Subtract the maximum single displacement (that element moves last / for free)
-    // This is a heuristic; exact formula depends on problem semantics
-
-    return cost
+```text
+Compute the permutation
+Decompose into cycles
+For each cycle, compute minimum drag distance
+for each cycle in cycles
+Compute the minimum drag distance to sort elements in this cycle
+This involves finding the optimal ordering of moves within the cycle
+The positions and targets for elements in this cycle
+Card cycle[j] is at position perm[cycle[j]] and needs to go to position cycle[j]
+Compute cost of rotating cycle elements optimally
+Subtract the maximum single displacement (that element moves last / for free)
+This is a heuristic; exact formula depends on problem semantics
 ```
 
 ## Complexity Analysis

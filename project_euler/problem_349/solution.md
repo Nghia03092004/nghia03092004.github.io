@@ -24,54 +24,22 @@ where $B_{\text{leftover}}$ is the net black-cell change in the remaining $(N - 
 
 **Proof.** After step $L$, the behavior is periodic with period $T$. Each full cycle adds exactly $\Delta = 12$ black cells (Lemma 1). The floor division counts full cycles, and the remainder is handled by direct simulation. Since $N - L \ge 0$ and the formula accounts for all steps, the result is exact. $\square$
 
-## Algorithm
+## Editorial
+In practice, simulate until $L$ (aligned to period), record $B_L$, then. We simulate past the transient. We then adjust L to be aligned: L + r where r makes (L+r) mod 104 == 0. Finally, after transient.
 
+## Pseudocode
+
+```text
+Simulate past the transient
+Adjust L to be aligned: L + r where r makes (L+r) mod 104 == 0
+after transient
+else
+Simulate one full period to verify Delta
+Compute answer
+Simulate leftover steps
+Actually: reset to state at L, simulate leftover
+Alternatively: simulate leftover from the state at L
 ```
-function solve(N = 10^18):
-    // Step 1: Simulate past the transient
-    grid = empty hash map (default: white)
-    x, y = 0, 0
-    dx, dy = 0, -1    // initial direction: up
-    black_count = 0
-
-    L = 11000          // safe past transient
-    // Adjust L to be aligned: L + r where r makes (L+r) mod 104 == 0
-    // after transient
-
-    for step = 0 to L-1:
-        if grid[x,y] == white:
-            grid[x,y] = black; black_count += 1
-            dx, dy = -dy, dx   // turn right
-        else:
-            grid[x,y] = white; black_count -= 1
-            dx, dy = dy, -dx   // turn left
-        x += dx; y += dy
-
-    B_L = black_count
-
-    // Step 2: Simulate one full period to verify Delta
-    for step = L to L + 103:
-        (same simulation)
-    Delta = black_count - B_L   // should be 12
-
-    // Step 3: Compute answer
-    remaining = N - L
-    full_cycles = remaining // 104
-    leftover = remaining % 104
-
-    // Simulate leftover steps
-    for step = 0 to leftover-1:
-        (same simulation continuing from state at L)
-    B_leftover = black_count_after_leftover - B_L_after_one_cycle * 0
-    // Actually: reset to state at L, simulate leftover
-    // Alternatively: simulate leftover from the state at L
-
-    return B_L + full_cycles * Delta + (change in leftover steps)
-```
-
-In practice, simulate until $L$ (aligned to period), record $B_L$, then:
-$$\text{answer} = B_L + \left\lfloor \frac{10^{18} - L}{104} \right\rfloor \times 12 + \delta$$
-where $\delta$ is obtained by simulating $(10^{18} - L) \bmod 104$ additional steps.
 
 ## Complexity Analysis
 

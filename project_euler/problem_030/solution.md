@@ -43,7 +43,7 @@ For $d \geq 7$, $d \cdot 59049 < 10^{d-1}$, so no $d$-digit number with $d \geq 
 **Corollary (Answer).** *The sum of all narcissistic numbers of order 5 is*
 $$4150 + 4151 + 54748 + 92727 + 93084 + 194979 = 443839.$$
 
-## Algorithm
+## Editorial
 
 We perform a bounded exhaustive search. The algorithm precomputes the fifth power of each digit, iterates through every candidate from 2 up to the proven upper bound $6 \cdot 9^5$, computes the sum of the fifth powers of its digits, and adds the number when the digit-power sum matches the original value. This is sufficient because Lemma 1 shows that no solution can lie above that bound.
 

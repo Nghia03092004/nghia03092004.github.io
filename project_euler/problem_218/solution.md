@@ -40,14 +40,17 @@ For each pair $(u \bmod 7, v \bmod 7)$ with $\gcd(u,v)=1$, compute $m, n, m-n, m
 
 Since $4 \cdot 3 \cdot 7 = 84$ divides $A$, both $6 \mid A$ and $28 \mid A$ hold. $\square$
 
-## Algorithm
+## Editorial
+The answer is determined purely by the mathematical proof; no computation is needed. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function SolveProblem218():
-    return 0
+## Pseudocode
+
+```text
+    Return 0
 ```
 
 The answer is determined purely by the mathematical proof; no computation is needed.
+```
 
 ## Complexity Analysis
 

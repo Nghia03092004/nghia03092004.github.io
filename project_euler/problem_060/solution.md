@@ -58,7 +58,7 @@ For primes $p, q > 3$, we have $p, q \not\equiv 0 \pmod{3}$, so $p \in \{1, 2\} 
 
 *Proof of correctness.* (i) avoids redundant permutations. (ii) ensures every pair in the clique is adjacent. (iii) is a standard branch-and-bound argument. (iv) follows from Theorem 1 and Lemma 1. $\square$
 
-## Algorithm
+## Editorial
 
 We first generate the primes below a search bound and build the prime pair graph whose edges correspond to pairs of primes whose two concatenations are both prime. The desired set is then a 5-clique of minimum weight in this graph, so we search for it incrementally: a partial clique is extended only by primes adjacent to all of its current vertices, and branch-and-bound inequalities discard any branch whose best possible completion cannot improve the smallest sum found so far.
 

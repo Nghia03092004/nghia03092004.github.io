@@ -32,7 +32,7 @@ where $[c] = \{m^3 : \sigma(m^3) = \sigma(c),\; D(m^3) = d\}$. Then no cube with
 
 **Corollary.** The algorithm can process cubes in order of $n$ and finalize all classes of digit count $d$ as soon as the first $(d+1)$-digit cube is encountered.
 
-## Algorithm
+## Editorial
 
 We generate cubes in increasing order and group them by their canonical digit signatures, but only within a fixed digit length. This digit-length partition is important because once the number of digits increases, no later cube can belong to any group from the previous layer. At each such transition we inspect the completed groups from the previous digit length, and if one of them contains exactly five cubes, the smallest cube in that group is the answer. Otherwise we discard the old groups and continue with the next digit length.
 

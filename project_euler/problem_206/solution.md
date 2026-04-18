@@ -24,24 +24,16 @@ Since $n$ must be divisible by 10, the upper bound rounds to $1389199190$. $\squ
 
 **Proof.** The search is exhaustive over approximately $7.58 \times 10^6$ candidates (values of $n$ in $[1010101010, 1389199190]$ with $n \equiv 30$ or $70 \pmod{100}$). Computational verification confirms exactly one solution: $n = 1389019170$, with $n^2 = 1929374254627488900$, which matches the pattern $1\_2\_3\_4\_5\_6\_7\_8\_9\_0$. $\square$
 
-## Algorithm
+## Editorial
+We lo = 1010101030  (first multiple of 10 in range with m ending in 3). Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
 
-```
+## Pseudocode
+
+```text
 Input: pattern 1_2_3_4_5_6_7_8_9_0
 Output: the unique n such that n^2 matches the pattern
-
-1. lo = 1010101030  (first multiple of 10 in range with m ending in 3)
-   hi = 1389199190
-
-2. For n = lo to hi, stepping by 100:
-     Check n (ending in 30) and n + 40 (ending in 70):
-     For each candidate c in {n, n + 40}:
-       s = c * c
-       Extract digits at even positions (0, 2, 4, ..., 16, 18)
-       If digits match [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]:
-         Return c
-
-3. (Optimization: check digits from rightmost first for early rejection)
+lo = 1010101030  (first multiple of 10 in range with m ending in 3)
+For n = lo to hi, stepping by 100:
 ```
 
 ## Complexity Analysis

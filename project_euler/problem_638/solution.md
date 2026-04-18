@@ -47,13 +47,17 @@ The Gaussian binomial coefficient is:
 For our problem, with n = a + b and m = min(a,b):
 C(a,b,k) = [a+b choose a]_k
 
-## Algorithm
+## Editorial
+Project Euler 638: Weighted Lattice Paths C(a,b,k) = Gaussian binomial coefficient [a+b choose a]_k = prod_{i=1}^{min(a,b)} (k^{a+b-i+1} - 1) / (k^i - 1) for k >= 2 = binom(a+b, a) for k = 1 Find sum_{k=1}^{7} C(10^k+k, 10^k+k, k) mod 10^9+7. We set n = 10^k + k, a = b = n (so the lattice is n x n). We then compute [2n choose n]_k mod 10^9+7. Finally, iterate over k = 1: C = binom(2n, n) mod MOD.
 
-For each k from 1 to 7:
-1. Set n = 10^k + k, a = b = n (so the lattice is n x n)
-2. Compute [2n choose n]_k mod 10^9+7
-3. For k = 1: C = binom(2n, n) mod MOD
-4. For k >= 2: compute the product formula using modular arithmetic
+## Pseudocode
+
+```text
+Set n = 10^k + k, a = b = n (so the lattice is n x n)
+Compute [2n choose n]_k mod 10^9+7
+For k = 1: C = binom(2n, n) mod MOD
+For k >= 2: compute the product formula using modular arithmetic
+```
 
 ## Correctness
 

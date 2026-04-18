@@ -74,7 +74,7 @@ $$\sum = 26 \cdot (-1) + 25 \cdot (+1) = -26 + 25 = -1$$
 
 ## Derivation
 
-### Algorithm
+### Editorial
 
 Method 1 (closed form): By the identity, the sum is $\sum_{k=0}^{50} (-1)^{k+1} = -1$.
 

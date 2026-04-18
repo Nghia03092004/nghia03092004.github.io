@@ -42,41 +42,15 @@ $$\text{opt}(p) = \text{consec}(p) + \max_{\mathcal{C} \in \mathcal{T}} \sum_{(i
 
 **Proof.** Each protein is equally likely with probability $2^{-n}$, and each $\text{opt}(p)$ is a non-negative integer. Thus $E[\text{opt}(p)] = \frac{1}{2^n} \sum_{p} \text{opt}(p) \in \frac{1}{2^n}\mathbb{Z}$. $\square$
 
-## Algorithm
+## Editorial
+For each of 2^15 protein strings of length 15 (H/P), find the OPTIMAL (maximum) number of H-H contacts over all self-avoiding walks on 2D lattice. Average the optima. H-H contact: two H residues at lattice-adjacent positions. This includes both consecutive (always adjacent in any walk) and non-consecutive pairs (walk-dependent). Algorithm: 1. Enumerate all SAWs of length 15 (14 steps). 2. For each SAW, find non-consecutive contact pairs. 3. Group by contact topology (deduplicate). 4. For each protein (bitmask), find max non-consecutive contacts across all topologies. 5. Add consecutive H-H contacts (walk-independent). 6. Average over all 2^15 proteins. We enumerate all SAWs of n-1 steps (first step fixed rightward). We then iterate over each protein bitmask, find max contacts over topologies. Finally, iterate over C in topologies.
 
-```
-function solve(n):
-    // Step 1: Enumerate all SAWs of n-1 steps (first step fixed rightward)
-    topologies = set()
+## Pseudocode
 
-    function backtrack(pos, visited, step, contacts):
-        if step == n - 1:
-            topologies.add(frozenset(contacts))
-            return
-        for each direction in {up, down, left, right}:
-            next_pos = pos + direction
-            if next_pos in visited: continue
-            new_contacts = contacts.copy()
-            for i, v in enumerate(visited_list):
-                if |next_pos - v| == 1 and step + 1 - i > 1:
-                    new_contacts.add((i, step + 1))
-            visited.add(next_pos)
-            backtrack(next_pos, visited, step + 1, new_contacts)
-            visited.remove(next_pos)
-
-    backtrack((1,0), {(0,0), (1,0)}, 1, {})
-
-    // Step 2: For each protein bitmask, find max contacts over topologies
-    total = 0
-    for B = 0 to 2^n - 1:
-        consec = count consecutive HH pairs in B
-        best_non_consec = 0
-        for C in topologies:
-            nc = count of (i,j) in C where (B & ((1<<i)|(1<<j))) == 0
-            best_non_consec = max(best_non_consec, nc)
-        total += consec + best_non_consec
-
-    return total / 2^n
+```text
+Enumerate all SAWs of n-1 steps (first step fixed rightward)
+For each protein bitmask, find max contacts over topologies
+for C in topologies
 ```
 
 ## Complexity Analysis

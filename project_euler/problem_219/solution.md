@@ -30,36 +30,16 @@ $$\text{Total} = 5(N-1) + \sum_{i=0}^{N-2} c_i$$
 
 **Proof.** Since all $k$ leaves have the same minimum cost $c$, they would be the first $k$ leaves chosen by the sequential greedy algorithm (ties broken arbitrarily). Splitting them in any order produces the same result: each split removes one leaf of cost $c$ and adds leaves of costs $c+1$ and $c+4$. The $k$ splits are independent (they operate on distinct leaves), so the bulk operation is correct. $\square$
 
-## Algorithm
+## Editorial
+Build a prefix-free code for N = 10^9 symbols. Bit '0' costs 1, bit '1' costs 4. Minimize total cost of all codewords. Greedy approach: always split the cheapest codeword. Splitting a codeword of cost c removes it and creates c+1 and c+4. Net cost increase per split of cost c: c + 5. Use histogram (sorted dict) for bulk processing. We histogram: cost -> count. We then don't overshoot: we need N - leaves more splits. Finally, bulk split k leaves of cost c.
 
-```
-function SolveProblem219(N):
-    // Histogram: cost -> count
-    hist = {0: 1}    // one leaf of cost 0
-    leaves = 1
-    total = 0
+## Pseudocode
 
-    while leaves < N:
-        c = min key in hist
-        k = hist[c]
-
-        // Don't overshoot: we need N - leaves more splits
-        needed = N - leaves
-        if k > needed:
-            k = needed
-
-        // Bulk split k leaves of cost c
-        total += k * (c + 5)
-        leaves += k
-
-        // Update histogram
-        hist[c] -= k
-        if hist[c] == 0:
-            delete hist[c]
-        hist[c + 1] = hist.get(c + 1, 0) + k
-        hist[c + 4] = hist.get(c + 4, 0) + k
-
-    return total
+```text
+Histogram: cost -> count
+Don't overshoot: we need N - leaves more splits
+Bulk split k leaves of cost c
+Update histogram
 ```
 
 ## Complexity Analysis

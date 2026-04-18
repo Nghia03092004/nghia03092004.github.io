@@ -22,19 +22,21 @@ Sort the integers $1 \le n \le 100{,}000$ by the pair $(\operatorname{rad}(n), n
 
 *Proof.* Immediate from the definition of lexicographic order and the uniqueness of $n$. $\square$
 
-## Algorithm
+## Editorial
+Compute rad(n) for 1 <= n <= 100000 via sieve, sort by (rad(n), n), return E(10000). We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function ordered_radicals(N, K):
+## Pseudocode
+
+```text
     rad[1..N] = 1
-    for p = 2 to N:
-        if rad[p] == 1:                  // p is prime
+    For p from 2 to N:
+        if rad[p] == 1: // p is prime
             for m = p, 2p, ..., N:
                 rad[m] *= p
 
     pairs = [(rad[n], n) for n = 1 to N]
     sort pairs lexicographically
-    return pairs[K-1].n                  // 0-indexed
+    Return pairs[K-1].n // 0-indexed
 ```
 
 ## Complexity Analysis

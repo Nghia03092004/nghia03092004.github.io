@@ -29,40 +29,15 @@ Since $13! = 2^{10} \cdot 3^5 \cdot 5^2 \cdot 7 \cdot 11 \cdot 13$, the divisors
 
 **Proof.** The contribution $p^{a-1}(p-1)$ must divide $T'$, hence not exceed it. $\square$
 
-## Algorithm
+## Editorial
+We find candidate primes. Finally, recursive enumeration. We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
 
-```
-function Solve(T = 13!):
-    # Step 1: Find candidate primes
-    P = [p : d | T, p = d + 1, p is prime]
-    sort P in ascending order   # |P| = 459
+## Pseudocode
 
-    # Step 2: Recursive enumeration
-    solutions = []
-
-    function Recurse(idx, T_remaining, n_current):
-        if T_remaining == 1:
-            solutions.append(n_current)
-            return
-
-        for i = idx to |P| - 1:
-            p = P[i]
-            if p - 1 > T_remaining: break
-            if (p - 1) does not divide T_remaining: continue
-
-            T' = T_remaining / (p - 1)
-            a = 1
-            while T' >= 1:
-                Recurse(i + 1, T', n_current * p^a)
-                if p does not divide T': break
-                T' = T' / p
-                a += 1
-
-    Recurse(0, T, 1)
-
-    # Step 3: Sort and return 150000th
-    sort(solutions)
-    return solutions[149999]
+```text
+Find candidate primes
+Recursive enumeration
+Sort and return 150000th
 ```
 
 ## Complexity Analysis

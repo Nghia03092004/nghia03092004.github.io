@@ -50,27 +50,14 @@ $$\sum_{\ell=1}^{d} \binom{\ell + 9}{9} = \binom{d + 10}{10} - 1$$
 
 Uniqueness is handled by collecting results in a set. $\square$
 
-## Algorithm
+## Editorial
+Project Euler 749: Near Power Sums A positive integer n is a near power sum if there exists k such that sum of k-th powers of digits of n equals n+1 or n-1. S(d) = sum of all near power sum numbers with at most d digits. Find S(16). We check P - 1. Finally, check P + 1.
 
-```
-function S(d):
-    near_power_sums = empty set
+## Pseudocode
 
-    for k = 1 to k_max(d):          // k_max ≈ 18 for d = 16
-        for each digit multiset (c_0, ..., c_9) with 1 <= sum(c_i) <= d:
-            P = sum(c_i * i^k for i = 0..9)
-
-            // Check P - 1
-            if P > 1 and P - 1 has at most d digits:
-                if sorted_digits(P - 1) == multiset(c_0, ..., c_9):
-                    near_power_sums.add(P - 1)
-
-            // Check P + 1
-            if P + 1 has at most d digits:
-                if sorted_digits(P + 1) == multiset(c_0, ..., c_9):
-                    near_power_sums.add(P + 1)
-
-    return sum(near_power_sums)
+```text
+Check P - 1
+Check P + 1
 ```
 
 ## Complexity Analysis

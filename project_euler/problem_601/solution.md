@@ -39,21 +39,23 @@ $$P(s, N) = \left\lfloor \frac{N-2}{M_s} \right\rfloor - \left\lfloor \frac{N-2}
 
 **Remark.** By the Prime Number Theorem, $\log M_s \sim s$ (Chebyshev's theorem gives $\log \operatorname{lcm}(1,\ldots,n) \sim n$), so $M_s$ grows roughly as $e^s$. For large $i$, $M_{i+1} > 4^i - 2$, making the second floor term zero.
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function solve():
+## Pseudocode
+
+```text
     M[1] = 1
-    for k = 2 to 33:
-        M[k] = lcm(M[k-1], k+1)     // M[s] = lcm(2, 3, ..., s+1)
+    For k from 2 to 33:
+        M[k] = lcm(M[k-1], k+1) // M[s] = lcm(2, 3, ..., s+1)
 
     total = 0
-    for i = 1 to 31:
+    For i from 1 to 31:
         N = 4^i
         term = floor((N - 2) / M[i]) - floor((N - 2) / M[i+1])
         total = total + term
 
-    return total
+    Return total
 ```
 
 ## Complexity Analysis

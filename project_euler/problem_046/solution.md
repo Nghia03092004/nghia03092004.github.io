@@ -50,7 +50,7 @@ Since no witness exists, $5777 \notin \mathcal{G}$.
 
 Combining Parts 1--3, $5777 = \min(\mathcal{C}_{\mathrm{odd}} \setminus \mathcal{G})$. $\square$
 
-## Algorithm
+## Editorial
 
 We first build a primality table up to a search limit using the Sieve of Eratosthenes. Then we inspect odd composite integers in increasing order, and for each such $n$ we test all values of $k$ with $2k^2 < n$ to see whether the remainder $n - 2k^2$ is prime. The first odd composite for which no such witness exists is the smallest counterexample to Goldbach's other conjecture.
 

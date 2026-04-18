@@ -32,13 +32,18 @@ For a given starting value a and length n=36:
 - For large k (close to n), the divisibility constraint is stringent, meaning fewer values qualify.
 - The number of values in [a, a+n-1] divisible by k is floor((a+n-1)/k) - floor((a-1)/k).
 
-## Algorithm
+## Editorial
+A contiguous range [a, a+1, ..., a+n-1] of length n is a divisible range if the integers can be arranged so that the k-th term is a multiple of k. Find the 36th divisible range of length 36. Give the smallest number in the range. We iterate over each candidate starting value a (incrementing from 1). We then build a bipartite adjacency list: for each position k in 1..36, find which values in [a, a+35] are divisible by k. Finally, run Hopcroft-Karp maximum bipartite matching.
 
-1. For each candidate starting value a (incrementing from 1):
-   - Build a bipartite adjacency list: for each position k in 1..36, find which values in [a, a+35] are divisible by k.
-   - Run Hopcroft-Karp maximum bipartite matching.
-   - If the matching size equals 36, increment our counter.
-   - When the counter reaches 36, output a.
+## Pseudocode
+
+```text
+For each candidate starting value a (incrementing from 1):
+Build a bipartite adjacency list: for each position k in 1..36, find which values in [a, a+35] are divisible by k
+Run Hopcroft-Karp maximum bipartite matching
+If the matching size equals 36, increment our counter
+When the counter reaches 36, output a
+```
 
 ## Complexity Analysis
 

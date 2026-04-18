@@ -32,7 +32,7 @@ A pronic (oblong) number is a number of the form $n(n+1)$. The key insight is:
 - $c + d = x(y+1) + y(x+1) = xy + x + xy + y = 2xy + x + y$
 - Therefore $a + b = c + d + 1$. QED.
 
-### Algorithm
+### Editorial
 
 Enumerate all products $x(x+1) \cdot y(y+1) \leq 10^{14}$ where $x \leq y$, and count distinct values using a hash set or sorted merge approach.
 

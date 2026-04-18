@@ -24,38 +24,21 @@ An 8-pandigital number uses digits $\{1, 2, \ldots, 8\}$. The digit sum is $1 + 
 
 **Proof.** This follows from the computational verification by Sorenson and Webster (2016). Since 7-pandigital numbers have at most 7 digits ($\leq 7654321$), even the weaker result that witnesses $\{2, 3, 5, 7, 11, 13\}$ suffice below $3.2 \times 10^{14}$ is more than adequate. $\square$
 
-## Algorithm
+## Editorial
+A k-pandigital number uses the digits 1 through k exactly once. We check each k from 1 to 9. Key insight: A number is divisible by 3 iff its digit sum is divisible by 3. digit_sum(1..k) = k(k+1)/2. This is divisible by 3 for k in {3,5,6,8,9}, so only k in {1, 2, 4, 7} can yield primes. Results:. We by Theorem 3, only k = 1, 4, 7 can yield primes. We then generate all 7-pandigital numbers in decreasing order. Finally, iterate through permutations in reverse lexicographic order.
 
-```
-function LargestPandigitalPrime():
-    // By Theorem 3, only k = 1, 4, 7 can yield primes
-    // Check k = 7 first (largest possible pandigital primes)
+## Pseudocode
 
-    // Generate all 7-pandigital numbers in decreasing order
-    digits := [7, 6, 5, 4, 3, 2, 1]
-    // Iterate through permutations in reverse lexicographic order
-    for each permutation P of digits in decreasing numerical value:
-        n := number formed by P
-        if is_prime(n):
-            return n
-
-    // If no 7-pandigital prime found, try k = 4
-    digits := [4, 3, 2, 1]
-    for each permutation P of digits in decreasing numerical value:
-        n := number formed by P
-        if is_prime(n):
-            return n
-
-    // Finally try k = 1
-    return 7    // largest single-digit prime
-
-function is_prime(n):
-    // Deterministic Miller-Rabin for n < 3.2e14
-    if n < 2: return false
-    for each witness a in {2, 3, 5, 7, 11, 13}:
-        if miller_rabin_test(n, a) == "composite":
-            return false
-    return true
+```text
+By Theorem 3, only k = 1, 4, 7 can yield primes
+Check k = 7 first (largest possible pandigital primes)
+Generate all 7-pandigital numbers in decreasing order
+Iterate through permutations in reverse lexicographic order
+for each permutation P of digits in decreasing numerical value
+If no 7-pandigital prime found, try k = 4
+for each permutation P of digits in decreasing numerical value
+Finally try k = 1
+Deterministic Miller-Rabin for n < 3.2e14
 ```
 
 ## Complexity Analysis

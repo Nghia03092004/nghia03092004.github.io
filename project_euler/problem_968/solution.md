@@ -35,13 +35,17 @@ At level $k$, there are $2^k$ nodes.
 
 ## Derivation
 
-### Algorithm
+### Editorial
+BFS using a queue. We repeat until 1000 fractions have been processed. We evaluate the closed-form expressions derived above directly from the relevant parameters and return the resulting value.
 
-BFS using a queue:
-1. Initialize queue with $\frac{1}{1}$.
-2. Dequeue a fraction $\frac{a}{b}$; add $a$ to the sum.
-3. Enqueue children $\frac{a}{a+b}$ and $\frac{a+b}{b}$.
-4. Repeat until 1000 fractions have been processed.
+### Pseudocode
+
+```text
+Initialize queue with $\frac{1}{1}$
+Dequeue a fraction $\frac{a}{b}$; add $a$ to the sum
+Enqueue children $\frac{a}{a+b}$ and $\frac{a+b}{b}$
+Repeat until 1000 fractions have been processed
+```
 
 ## Proof of Correctness
 

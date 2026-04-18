@@ -29,19 +29,16 @@ For the $4 \times n$ board, careful enumeration of boundary states yields a tran
 
 **Proof.** Write $m$ in binary: $m = \sum_{j} b_j 2^j$. Then $\mathbf{M}^m = \prod_{j: b_j=1} \mathbf{M}^{2^j}$. Each squaring requires $O(k^3)$ multiplications, and there are $\lfloor \log_2 m \rfloor + 1$ squarings. Modular reduction at each step preserves correctness since $(AB) \bmod M = ((A \bmod M)(B \bmod M)) \bmod M$ for matrix entries. $\square$
 
-## Algorithm
+## Editorial
+T(n) = number of Hamiltonian paths on a 4 x n grid from top-left (0,0) to bottom-left (3,0), visiting every cell exactly once. Given T(10) = 2329, find T(10^12) mod 10^8. The sequence satisfies the linear recurrence: T(n) = 2*T(n-1) + 2*T(n-2) - 2*T(n-3) + T(n-4) with initial values T(1)=1, T(2)=1, T(3)=4, T(4)=8. This was found by: 1. Computing small values via brute-force backtracking. 2. Finding the minimal recurrence via Gaussian elimination. We use matrix exponentiation to compute T(10^12) mod 10^8. We construct the k x k transfer matrix M for 4 x n Hamiltonian paths. We then (top-left to bottom-left), determined by enumerating boundary states. Finally, compute M^(10^12 - 1) mod 10^8 via repeated squaring.
 
-```
-function solve():
-    // Construct the k x k transfer matrix M for 4 x n Hamiltonian paths
-    // (top-left to bottom-left), determined by enumerating boundary states
-    M = construct_transfer_matrix()
+## Pseudocode
 
-    // Compute M^(10^12 - 1) mod 10^8 via repeated squaring
-    result_matrix = matrix_power(M, 10^12 - 1, 10^8)
-
-    // Extract T(10^12) from appropriate entry
-    return e_start^T * result_matrix * e_end mod 10^8
+```text
+Construct the k x k transfer matrix M for 4 x n Hamiltonian paths
+(top-left to bottom-left), determined by enumerating boundary states
+Compute M^(10^12 - 1) mod 10^8 via repeated squaring
+Extract T(10^12) from appropriate entry
 ```
 
 ## Complexity Analysis

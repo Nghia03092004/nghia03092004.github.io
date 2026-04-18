@@ -58,32 +58,15 @@ for $m \ge 1$, starting from $B_0 = 1$. All arithmetic is in $\mathbb{F}_p$.
 
 **Proof.** This is a direct rearrangement of the defining recurrence $\sum_{j=0}^m \binom{m+1}{j}B_j = 0$, solving for $B_m$. Division by $m+1$ is valid when $p \nmid m+1$; when $p \mid m+1$, use the Kummer congruences or handle as a special case. $\square$
 
-## Algorithm
+## Editorial
+f_k(n) = sum_{i=1}^{n} i^k Compute sums of f_k evaluated at various points modulo primes, using Faulhaber's formulas and Bernoulli numbers. We iterate over each prime p in primes. We then compute Bernoulli numbers B[0..k] mod p. Finally, evaluate S_k(p).
 
-```
-function COMPUTE_S_k(k, primes):
-    result = 0
-    for each prime p in primes:
-        // Compute Bernoulli numbers B[0..k] mod p
-        B[0] = 1
-        for m = 1 to k:
-            B[m] = 0
-            for j = 0 to m-1:
-                B[m] -= C(m+1, j) * B[j]   // mod p
-            B[m] *= modular_inverse(m+1, p)  // mod p
+## Pseudocode
 
-        // Evaluate S_k(p)
-        S = 0
-        for j = 0 to k+1:
-            if (k + 1 - j) > 0 and (k + 1 - j) mod (p - 1) == 0:
-                S -= C(k+1, j) * B[j]       // mod p
-            elif j == k + 1:
-                S -= C(k+1, j) * B[j]       // mod p (exponent 0 case)
-        S *= modular_inverse(k+1, p)         // mod p
-
-        result += S mod p   // accumulate
-
-    return result
+```text
+for each prime p in primes
+Compute Bernoulli numbers B[0..k] mod p
+Evaluate S_k(p)
 ```
 
 ## Complexity Analysis

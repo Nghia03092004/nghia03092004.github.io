@@ -41,41 +41,17 @@ $$\begin{pmatrix} x_{n+1} \\ 1 \end{pmatrix} = \begin{pmatrix} a & c \\ 0 & 1 \e
 
 Total work: $O(\nu) + O(\tau) + O(\rho) = O(\tau + \rho)$ since $\nu \le \tau + \rho$. Space is $O(1)$ (two pointers). $\square$
 
-## Algorithm
+## Editorial
+LCG sequence analysis: x_{n+1} = (a*x_n + c) mod m. Cycle detection, closed-form evaluation, period finding. We matrix exponentiation approach. We then floyd's algorithm. Finally, find tail length tau.
 
-```
-function compute_x_n(a, c, m, x0, n):
-    # Matrix exponentiation approach
-    M = [[a, c], [0, 1]]
-    result = matrix_pow_mod(M, n, m)
-    return (result[0][0] * x0 + result[0][1]) mod m
+## Pseudocode
 
-function matrix_pow_mod(M, n, mod):
-    result = identity_2x2
-    base = M
-    while n > 0:
-        if n is odd:
-            result = matrix_mult_mod(result, base, mod)
-        base = matrix_mult_mod(base, base, mod)
-        n = n >> 1
-    return result
-
-function find_cycle(a, c, m, x0):
-    # Floyd's algorithm
-    slow = f(x0);  fast = f(f(x0))
-    while slow != fast:
-        slow = f(slow);  fast = f(f(fast))
-    # Find tail length tau
-    slow = x0
-    tau = 0
-    while slow != fast:
-        slow = f(slow);  fast = f(fast);  tau += 1
-    # Find period rho
-    rho = 1
-    fast = f(slow)
-    while slow != fast:
-        fast = f(fast);  rho += 1
-    return (tau, rho)
+```text
+Matrix exponentiation approach
+if n is odd
+Floyd's algorithm
+Find tail length tau
+Find period rho
 ```
 
 ## Complexity Analysis

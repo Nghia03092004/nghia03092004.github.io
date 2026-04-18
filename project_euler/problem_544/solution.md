@@ -42,17 +42,16 @@ For prime modulus $p$, Fermat's little theorem provides modular inverses: $a^{-1
 
 The small cases are verified by brute-force enumeration and match the formula predictions.
 
-## Algorithm
+## Editorial
+Count proper k-colorings of a specific graph. Key mathematics: chromatic polynomial. Algorithm: transfer matrix method. Complexity: O(k^w * n). We begin with the precomputation: Sieve or precompute necessary values up to the required bound. We then carry out the main computation: Apply the transfer matrix method to evaluate the target quantity. Finally, we combine the partial results: Sum/combine partial results with modular reduction.
 
-### Method 1: Primary Algorithm
+## Pseudocode
 
-1. **Precomputation:** Sieve or precompute necessary values up to the required bound.
-2. **Main computation:** Apply the transfer matrix method to evaluate the target quantity.
-3. **Accumulation:** Sum/combine partial results with modular reduction.
-
-### Method 2: Verification (Brute Force)
-
-For small inputs, directly enumerate all cases and verify against Method 1.
+```text
+Precomputation: Sieve or precompute necessary values up to the required bound
+Main computation: Apply the transfer matrix method to evaluate the target quantity
+Accumulation: Sum/combine partial results with modular reduction
+```
 
 ## Proof of Correctness
 

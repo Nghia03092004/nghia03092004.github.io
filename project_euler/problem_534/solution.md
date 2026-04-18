@@ -20,31 +20,32 @@ $$\mathrm{dp}[\mathrm{mask} \cup \{c\}][c] \mathrel{+}= \mathrm{dp}[\mathrm{mask
 
 **Proof.** The DP state captures exactly the information needed: which columns have been used (the bitmask ensures the permutation property) and which column was most recently placed (needed to enforce the $|\sigma(i) - \sigma(i+1)| \ge 2$ constraint). The base case assigns $\mathrm{dp}[\{c\}][c] = 1$ for each column $c$. Each transition extends a valid partial placement by one row. By induction on $|\mathrm{mask}|$, $\mathrm{dp}[\mathrm{mask}][c]$ counts all valid partial placements of $|\mathrm{mask}|$ queens using columns $\mathrm{mask}$ with the last in column $c$. Summing over all $c$ when $\mathrm{mask} = 2^n - 1$ gives $f(n)$. $\square$
 
-## Algorithm
+## Editorial
+A weak queen attacks only adjacent squares (king moves). Place n non-attacking weak queens on an n x n board, one per row. Constraint: queens in adjacent rows must be >= 2 columns apart. Compute sum_{n=1}^{12} f(n) using bitmask DP.
 
-```
-function F(n):
+## Pseudocode
+
+```text
     if n == 1: return 1
     if n <= 3: return 0
 
-    // dp[mask][last_col] = count of valid placements
+    dp[mask][last_col] = count of valid placements
     dp = map from (mask, col) -> integer, initially 0
-    for c = 0 to n-1:
+    For c from 0 to n-1:
         dp[(1 << c, c)] = 1
 
-    for row = 1 to n-1:
+    For row from 1 to n-1:
         new_dp = empty map
-        for each (mask, prev_c) in dp with popcount(mask) == row:
-            for c = 0 to n-1:
-                if mask & (1 << c) != 0: continue
-                if |c - prev_c| < 2: continue
+        For each each (mask, prev_c) in dp with popcount(mask) == row:
+            For c from 0 to n-1:
+                If mask & (1 << c) != 0 then continue
+                If |c - prev_c| < 2 then continue
                 new_dp[(mask | (1 << c), c)] += dp[(mask, prev_c)]
         merge new_dp into dp
 
-    return sum of dp[(2^n - 1, c)] for all c
+    Return sum of dp[(2^n - 1, c)] for all c
 
-function SOLVE():
-    return sum of F(n) for n = 1 to 12
+    Return sum of F(n) for n = 1 to 12
 ```
 
 ## Complexity Analysis

@@ -56,31 +56,32 @@ with $d(n^2) = 5 \cdot 5 \cdot 3 \cdot 3 \cdot 3 \cdot 3 = 2025$ and $\lceil 202
 
 **Proof.** We verify $180180$ is minimal by exhaustive search over non-increasing exponent sequences. The exponent sequence is $(2, 2, 1, 1, 1, 1)$, giving the divisor product $5 \times 5 \times 3 \times 3 \times 3 \times 3 = 2025 \geq 2001$. Any alternative sequence with product $\geq 2001$ assigned to the same or different primes yields $n \geq 180180$. This is verified by checking all feasible exponent profiles (bounded by $\log_3(2001) \approx 7$ primes and maximum exponent $\leq 10$). $\square$
 
-## Algorithm
+## Editorial
+1/x + 1/y = 1/n => (x-n)(y-n) = n^2 Number of solutions = ceil(d(n^2) / 2) d(n^2) = product of (2*a_i + 1) for prime factorization n = prod(p_i^a_i) Need d(n^2) >= 2001. Minimize n by searching over non-increasing exponent sequences assigned to primes 2, 3, 5, 7, ... We recursive search over non-increasing exponent sequences.
 
-```
-function solve():
-    target = 2001  // need d(n^2) >= 2001
+## Pseudocode
+
+```text
+    target = 2001 // need d(n^2) >= 2001
     primes = [2, 3, 5, 7, 11, 13, 17, 19, 23]
     best_n = infinity
 
-    // Recursive search over non-increasing exponent sequences
+    Recursive search over non-increasing exponent sequences
     search(exponents=[], product=1, n=1, prime_idx=0, max_exp=10)
 
-    return best_n
+    Return best_n
 
-function search(exponents, product, n, prime_idx, max_exp):
-    if product >= target:
+    If product >= target then
         best_n = min(best_n, n)
         return
-    if prime_idx >= len(primes):
+    If prime_idx >= len(primes) then
         return
     p = primes[prime_idx]
-    for a = min(max_exp, ...) down to 1:
+    For a from min(max_exp, ...) down to 1:
         new_product = product * (2*a + 1)
         new_n = n * p^a
-        if new_n >= best_n:
-            continue  // prune
+        If new_n >= best_n then
+            continue // prune
         search(exponents + [a], new_product, new_n, prime_idx + 1, a)
 ```
 

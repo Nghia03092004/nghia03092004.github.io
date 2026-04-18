@@ -30,20 +30,22 @@ $$e_p = \sum_{i=1}^{\lfloor \log_p n \rfloor} \left( \left\lfloor \frac{n}{p^i} 
 
 The desired answer is $S = \sum_{p \leq n,\, p\text{ prime}} e_p \cdot p$.
 
-## Algorithm
+## Editorial
+We iterate over p in primes. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function solve(n, k):
+## Pseudocode
+
+```text
     primes = sieve_of_eratosthenes(n)
     S = 0
     for p in primes:
         e = 0
         power = p
-        while power <= n:
+        While power <= n:
             e += floor(n / power) - floor(k / power) - floor((n - k) / power)
             power *= p
         S += e * p
-    return S
+    Return S
 ```
 
 ## Complexity Analysis

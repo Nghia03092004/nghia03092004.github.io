@@ -32,28 +32,17 @@ where $M$ is a $2^H \times 2^H$ transfer matrix, $\mathbf{v}_0$ is the initial s
 
 **Proof.** Evaluate the closed form modulo $10^9 + 7$ using modular arithmetic and fast exponentiation. $\square$
 
-## Algorithm
+## Editorial
+We otherwise, if state space is small enough. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
-function C(H, W, mod):
-    // If closed form is known:
-    return evaluate_closed_form(H, W, mod)
+## Pseudocode
 
-    // Otherwise, if state space is small enough:
-    states = enumerate_column_states(H)  // Bell(H) states
-    M = build_transfer_matrix(states, H)
-    result_vec = matrix_power(M, W - 1, mod) * initial_vector
-    return dot(result_vec, final_vector) mod mod
-```
-
-For $H = 10000$, a closed-form or recurrence in $H$ is essential.
-
-```
-function C_closed(H, W, mod):
-    // Derived closed form (problem-specific)
-    // Typically involves binomial coefficients, Catalan numbers,
-    // or other combinatorial quantities
-    return closed_form_evaluation(H, W, mod)
+```text
+If closed form is known:
+Otherwise, if state space is small enough:
+Derived closed form (problem-specific)
+Typically involves binomial coefficients, Catalan numbers,
+or other combinatorial quantities
 ```
 
 ## Complexity Analysis

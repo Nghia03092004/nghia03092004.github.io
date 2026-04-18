@@ -36,24 +36,19 @@ $$E\!\left[\prod_{i \in S} X_i\right] = P\!\left(\bigwedge_{i \in S} X_i = 1\rig
 
 This probability is computed by counting the number of permutations $\sigma \in S_n$ such that $\sigma(i) \in \{i-1, i+1\}$ for all $i \in S$, divided by $n!$. The constraint depends on the structure of $S$ as a subset of the cycle, specifically on how many connected components of consecutive elements $S$ contains and their sizes. $\square$
 
-## Algorithm
+## Editorial
+Project Euler. We precompute required combinatorial quantities. We then iterate over each n, compute the target quantity using. Finally, classification of subsets by adjacency structure in C_n.
 
-```
-function SolveRoundtable(n_max, modulus):
-    // Precompute required combinatorial quantities
-    // For each n, compute the target quantity using:
-    //   1. Classification of subsets by adjacency structure in C_n
-    //   2. Counting permutations satisfying neighbor constraints
-    //   3. Modular arithmetic for the final answer
+## Pseudocode
 
-    total = 0
-    for n = 3 to n_max:
-        // Compute the problem-specific quantity for this n
-        // using the factorial moment formulas and inclusion-exclusion
-        val = compute_quantity(n, modulus)
-        total = (total + val) % modulus
-
-    return total
+```text
+Precompute required combinatorial quantities
+For each n, compute the target quantity using:
+Classification of subsets by adjacency structure in C_n
+Counting permutations satisfying neighbor constraints
+Modular arithmetic for the final answer
+Compute the problem-specific quantity for this n
+using the factorial moment formulas and inclusion-exclusion
 ```
 
 ## Complexity Analysis

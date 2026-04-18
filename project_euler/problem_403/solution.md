@@ -56,37 +56,18 @@ $$P(K) = \frac{(K+1)(K+2)(K^2 - K + 12)}{24}.$$
 
 **Proof.** For $u \ge 1$: $|u(s+u)| \le N$ with $s \ge 0$ forces $u^2 \le N$, so $u \le \sqrt{N}$. For $v = -u > \sqrt{N}$: the valid $s$-range has width $O(N/v)$, and $\lfloor N/v \rfloor$ takes $O(\sqrt{N})$ distinct values. Within each group, $P(v+q) - P(f(v))$ is a degree-4 polynomial in $v$, summable in $O(1)$ via $\sum v^k$ for $k = 0,\ldots,4$. $\square$
 
-## Algorithm
+## Editorial
+We case u >= 1: direct iteration. We then case v = -u >= 1, v <= sqrt(N): direct iteration. Finally, clamp to v > sqrt(N) range.
 
-```
-function S_mod(N, M):
-    result = P_mod(N, M)    // Case u = 0
+## Pseudocode
 
-    // Case u >= 1: direct iteration
-    for u = 1 to isqrt(N):
-        s_max = min(floor((N - u*u) / u), N - 2*u)
-        if s_max < 0: break
-        result += P_mod(s_max, M)
-
-    // Case v = -u >= 1, v <= sqrt(N): direct iteration
-    for v = 1 to isqrt(N):
-        s_lo = max(0, 2*v - N)
-        s_hi = v + floor(N / v)
-        if s_lo > s_hi: continue
-        result += P_mod(s_hi, M) - P_mod(s_lo - 1, M)
-
-    // Case v > sqrt(N): group by q = floor(N/v)
-    for q = 1 to isqrt(N):
-        v_lo = floor(N / (q + 1)) + 1
-        v_hi = floor(N / q)
-        // Clamp to v > sqrt(N) range
-        v_lo = max(v_lo, isqrt(N) + 1)
-        if v_lo > v_hi: continue
-        // Sum P(v + q) - P(max(v - q, 2v - N) - 1) over v in [v_lo, v_hi]
-        // Each term is degree-4 polynomial in v; use Faulhaber sums
-        result += faulhaber_sum(v_lo, v_hi, q, N, M)
-
-    return result mod M
+```text
+Case u >= 1: direct iteration
+Case v = -u >= 1, v <= sqrt(N): direct iteration
+Case v > sqrt(N): group by q = floor(N/v)
+Clamp to v > sqrt(N) range
+Sum P(v + q) - P(max(v - q, 2v - N) - 1) over v in [v_lo, v_hi]
+Each term is degree-4 polynomial in v; use Faulhaber sums
 ```
 
 ## Complexity Analysis

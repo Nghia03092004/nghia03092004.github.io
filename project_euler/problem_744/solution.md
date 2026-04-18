@@ -42,29 +42,24 @@ $$f(n, p) = 1 - \frac{1}{2n+1} \sum_{m=0}^{2n-2} (1 - F(m))$$
 
 **Proof.** The negative binomial distribution for large $n$ is well-approximated by a Gaussian. The probability of the game lasting more than $m$ rounds decays exponentially in $(m - \mathbb{E}[T])^2 / \mathrm{Var}(T)$. The sum in Lemma 1 can be evaluated using the Gaussian CDF (error function) with exponentially small error terms for $n = 10^{11}$. $\square$
 
-## Algorithm
+## Editorial
+Game with 2n+1 envelopes (2n questions, 1 RED card). Expert answers with probability p. f(n,p) = prob game ends normally. Find f(10^11, 0.4999) to 10 d.p. We iterate over large n, use the negative binomial CDF with normal approximation. We then game ends when one side reaches n points. Finally, t ~ min(T_expert, T_viewer) where T_expert ~ NegBin(n, p), T_viewer ~ NegBin(n, 1-p).
 
-```
-function f(n, p):
-    // For large n, use the negative binomial CDF with normal approximation
-    // Game ends when one side reaches n points
-    // T ~ min(T_expert, T_viewer) where T_expert ~ NegBin(n, p), T_viewer ~ NegBin(n, 1-p)
+## Pseudocode
 
-    // Compute E[T] and Var[T] for both negative binomials
-    // T_viewer has smaller mean (since 1-p > p when p < 0.5)
-    // E[T_viewer] = n / (1-p), Var[T_viewer] = n*p / (1-p)^2
-
-    // Use the formula:
-    // f(n, p) = 1 - (1/(2n+1)) * sum_{m=0}^{2n-2} P(T > m)
-    // Approximate using Gaussian integral
-
-    // The dominant contribution is from T_viewer since 1-p > p
-    // P(T > m) ≈ Phi((m - n/(1-p)) / sqrt(n*p/(1-p)^2)) for m near E[T_viewer]
-
-    // Numerical integration with high-precision arithmetic
-    compute using mpfr or similar library to 12+ digits
-    round to 10 decimal places
-    return result
+```text
+For large n, use the negative binomial CDF with normal approximation
+Game ends when one side reaches n points
+T ~ min(T_expert, T_viewer) where T_expert ~ NegBin(n, p), T_viewer ~ NegBin(n, 1-p)
+Compute E[T] and Var[T] for both negative binomials
+T_viewer has smaller mean (since 1-p > p when p < 0.5)
+E[T_viewer] = n / (1-p), Var[T_viewer] = n*p / (1-p)^2
+Use the formula:
+f(n, p) = 1 - (1/(2n+1)) * sum_{m=0}^{2n-2} P(T > m)
+Approximate using Gaussian integral
+The dominant contribution is from T_viewer since 1-p > p
+P(T > m) ≈ Phi((m - n/(1-p)) / sqrt(n*p/(1-p)^2)) for m near E[T_viewer]
+Numerical integration with high-precision arithmetic
 ```
 
 ## Complexity Analysis

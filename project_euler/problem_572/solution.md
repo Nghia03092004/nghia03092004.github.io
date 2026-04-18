@@ -32,33 +32,34 @@ $$\binom{3}{0}_p = 1, \quad \binom{3}{1}_p = p^2 + p + 1, \quad \binom{3}{2}_p =
 **Proof.** Direct computation:
 $\binom{3}{1}_p = \frac{p^3 - 1}{p - 1} = p^2 + p + 1$, and $\binom{3}{2}_p = \binom{3}{1}_p$ by symmetry of Gaussian binomials. $\square$
 
-## Algorithm
+## Editorial
+.200 where I(n) counts 3x3 idempotent matrices mod n. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
 
-```
-function SOLVE(N_max = 200):
+## Pseudocode
+
+```text
     precompute primes up to N_max via sieve
 
-    total := 0
-    for n = 2 to N_max:
-        factors := prime_factorization(n)
-        I_n := 1
-        for each (p, a) in factors:
-            I_pa := 0
-            for r = 0 to 3:
-                gb := gaussian_binomial(3, r, p)
-                base := gb * p^(r * (3 - r))
-                lift := p^((a - 1) * 2 * r * (3 - r))
-                I_pa := I_pa + base * lift
-            I_n := I_n * I_pa
-        total := total + I_n
+    Set total <- 0
+    For n from 2 to N_max:
+        Set factors <- prime_factorization(n)
+        Set I_n <- 1
+        For each each (p, a) in factors:
+            Set I_pa <- 0
+            For r from 0 to 3:
+                Set gb <- gaussian_binomial(3, r, p)
+                Set base <- gb * p^(r * (3 - r))
+                Set lift <- p^((a - 1) * 2 * r * (3 - r))
+                Set I_pa <- I_pa + base * lift
+            Set I_n <- I_n * I_pa
+        Set total <- total + I_n
 
-    return total
+    Return total
 
-function GAUSSIAN_BINOMIAL(n, k, p):
     if k == 0 or k == n: return 1
-    num := product of (p^(n-i) - 1) for i = 0, ..., k-1
-    den := product of (p^(i+1) - 1) for i = 0, ..., k-1
-    return num / den
+    Set num <- product of (p^(n-i) - 1) for i = 0, ..., k-1
+    Set den <- product of (p^(i+1) - 1) for i = 0, ..., k-1
+    Return num / den
 ```
 
 ## Complexity Analysis

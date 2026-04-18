@@ -36,26 +36,17 @@ $$a^k \equiv a^{\varphi(m) + (k \bmod \varphi(m))} \pmod{m}.$$
 
 **Proof.** This is the lifting-the-exponent extension of Euler's theorem; see, e.g., Knuth, TAOCP Vol.\ 1, Section 1.2.4. $\square$
 
-## Algorithm
+## Editorial
+We build totient chain. We then evaluate tower top-down. Finally, at the top of the tower (level b), value is a.
 
-```
-function power_tower_mod_inverse(a, b, m):
-    // Step 1: Build totient chain
-    chain = [m]
-    while chain.last() > 1:
-        chain.append(euler_totient(chain.last()))
+## Pseudocode
 
-    // Step 2: Evaluate tower top-down
-    // At the top of the tower (level b), value is a
-    // At level i, compute a^(tower of height i) mod chain[b - i]
-    result = a mod chain[0]   // base case if b = 1
-    if b >= 2:
-        for level = min(b, len(chain)) down to 1:
-            exp = tower_mod(a, level - 1, chain[level])
-            result = pow_mod_generalized(a, exp, chain[level - 1])
-
-    // Step 3: Compute modular inverse
-    return extended_gcd_inverse(result, m)
+```text
+Build totient chain
+Evaluate tower top-down
+At the top of the tower (level b), value is a
+At level i, compute a^(tower of height i) mod chain[b - i]
+Compute modular inverse
 ```
 
 ## Complexity Analysis

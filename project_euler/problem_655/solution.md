@@ -52,17 +52,18 @@ $$
 
 For every right-half assignment, store its residue modulo $M$. Then enumerate all left-half assignments and ask how many right-half residues equal the additive inverse of the left residue. Because every full assignment splits uniquely into left and right halves, this counts each valid palindrome exactly once. $\square$
 
-## Algorithm
+## Editorial
+The C++ implementation stores the right-half counts in an array indexed by residues modulo $M$. We compute the weights $w_i \bmod M$. We then split the $h$ free positions into two parts, with the right part of size at most $8$. Finally, enumerate all right-half assignments and count their residues modulo $M$.
 
-For each length $d=1,\dots,32$:
+## Pseudocode
 
-1. Compute the weights $w_i \bmod M$.
-2. Split the $h$ free positions into two parts, with the right part of size at most $8$.
-3. Enumerate all right-half assignments and count their residues modulo $M$.
-4. Enumerate all left-half assignments, respecting the leading-digit condition, and add the number of matching right-half residues.
-5. Sum over all lengths.
-
-The C++ implementation stores the right-half counts in an array indexed by residues modulo $M$.
+```text
+Compute the weights $w_i \bmod M$
+Split the $h$ free positions into two parts, with the right part of size at most $8$
+Enumerate all right-half assignments and count their residues modulo $M$
+Enumerate all left-half assignments, respecting the leading-digit condition, and add the number of matching right-half residues
+Sum over all lengths
+```
 
 ## Complexity Analysis
 

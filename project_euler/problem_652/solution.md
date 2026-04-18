@@ -20,22 +20,23 @@ where $p_i$ denotes the $i$-th prime.
 
 **Corollary.** $S(N)$ equals the number of integer partitions $\lambda$ with $\prod_{i} p_i^{\lambda_i} \le N$.
 
-## Algorithm
+## Editorial
+We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
 
-```
-function CountSignatures(N):
-    primes <- [2, 3, 5, 7, 11, 13, ...]  // sufficient primes
-    return Backtrack(N, 1, infinity, 0)
+## Pseudocode
 
-function Backtrack(N, product, max_exp, prime_idx):
-    count <- 1                            // count current signature
-    p <- primes[prime_idx]
-    for exp <- 1 to max_exp:
-        new_product <- product * p^exp
-        if new_product > N:
+```text
+    Set primes <- [2, 3, 5, 7, 11, 13, ...] // sufficient primes
+    Return Backtrack(N, 1, infinity, 0)
+
+    Set count <- 1 // count current signature
+    Set p <- primes[prime_idx]
+    For exp from 1 to max_exp:
+        Set new_product <- product * p^exp
+        If new_product > N then
             break
-        count <- count + Backtrack(N, new_product, exp, prime_idx + 1)
-    return count
+        Set count <- count + Backtrack(N, new_product, exp, prime_idx + 1)
+    Return count
 ```
 
 ## Complexity Analysis

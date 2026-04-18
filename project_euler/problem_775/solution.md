@@ -44,50 +44,27 @@ $$\sum_{n=1}^{N} S(n) = \sum_{a=1}^{\lfloor N^{1/3} \rfloor} \sum_{b=a}^{\lfloor
 
 **Proof.** If $a > n^{1/3}$, then $bc < n^{2/3} < a^2$, meaning $b < a$ or $c < a$, contradicting $a \le b \le c$. Similarly, $b > (n/a)^{1/2}$ would force $c < b$. For the last claim, consider $n = 2$: the box $1 \times 1 \times 2$ has surface area $10$, while $1 \times 2 \times 2$ has surface area $16$. Indeed $c = \lceil n/(ab) \rceil$ may exceed $n/(ab)$, making $abc > n$. $\square$
 
-## Algorithm
+## Editorial
+Wrap $n$ unit cubes together vs separately. $g(n)$ = max paper savings. $G(N)=\sum g(n)$. Given $G(18)=530, G(10^6)\equiv 951640919 \pmod{10^9+7}$. Find $G(10^{{16}}) \bmod 10^9+7$. We iterate over c from b to ..., box (a,b,c) covers n in (prev_vol, a*b*c]. We then we need to compute contribution of all valid c values. Finally, actually: iterate c from b upward.
 
-```
-function G(N, MOD):
-    total_6n = 3 * N % MOD * ((N + 1) % MOD) % MOD  // = 3N(N+1) mod MOD
+## Pseudocode
 
-    sum_S = 0
-
-    // For each a from 1 to N^{1/3}
-    for a in 1 to floor(N^(1/3)) + 1:
-        // For each b from a to floor((N/a)^{1/2})
-        for b in a to floor(sqrt(N / a)) + 1:
-            // For c from b to ..., box (a,b,c) covers n in (prev_vol, a*b*c]
-            // We need to compute contribution of all valid c values
-
-            prev_vol = a * b * (b - 1)  // volume of (a, b, b-1) if b-1 >= b...
-            // Actually: iterate c from b upward
-            // The range of n for box (a,b,c) is (a*b*(c-1), a*b*c] intersected with [1, N]
-
-            c_min = b
-            c_max = ceil(N / (a * b))
-
-            for c in c_min to c_max:
-                lo = a * b * (c - 1) + 1
-                hi = min(a * b * c, N)
-                if lo > N:
-                    break
-                count = hi - lo + 1
-                sa = 2 * (a*b + b*c + c*a)
-                sum_S = (sum_S + sa * count) % MOD
-
-    // Handle overcounting: a box (a,b,c) might not be optimal for all n in its range
-    // Need to take minimum over all boxes -- this naive approach overcounts
-    // Correct approach: for each n, S(n) = min over (a,b,c) with abc >= n
-    // The enumeration must ensure we pick the minimum surface area box
-
-    // Refined approach: for each (a, b), compute S(a,b) = 2(ab + b*ceil(n/ab) + a*ceil(n/ab))
-    // and track the running minimum
-
-    return (total_6n - sum_S % MOD + MOD) % MOD
-
-// More refined: use the "hyperbola method" style enumeration
-// Enumerate all (a, b) pairs, for each compute the c = ceil(n/(ab)) contribution
-// Sum over n by grouping n-values with same ceil(n/(ab))
+```text
+For each a from 1 to N^{1/3}
+For each b from a to floor((N/a)^{1/2})
+For c from b to ..., box (a,b,c) covers n in (prev_vol, a*b*c]
+We need to compute contribution of all valid c values
+Actually: iterate c from b upward
+The range of n for box (a,b,c) is (a*b*(c-1), a*b*c] intersected with [1, N]
+Handle overcounting: a box (a,b,c) might not be optimal for all n in its range
+Need to take minimum over all boxes -- this naive approach overcounts
+Correct approach: for each n, S(n) = min over (a,b,c) with abc >= n
+The enumeration must ensure we pick the minimum surface area box
+Refined approach: for each (a, b), compute S(a,b) = 2(ab + b*ceil(n/ab) + a*ceil(n/ab))
+and track the running minimum
+More refined: use the "hyperbola method" style enumeration
+Enumerate all (a, b) pairs, for each compute the c = ceil(n/(ab)) contribution
+Sum over n by grouping n-values with same ceil(n/(ab))
 ```
 
 ## Complexity Analysis

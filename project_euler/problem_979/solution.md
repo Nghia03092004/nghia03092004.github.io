@@ -26,7 +26,7 @@ For fixed $k$ and large $n$: $J(n, k) \approx \frac{k}{k-1}(J(n-1,k)) + \text{co
 
 ## Derivation
 
-### Algorithm
+### Editorial
 
 Compute $J(n, 3)$ for each $n$ from 1 to 10000 using the iterative recurrence (building up from $J(1) = 0$).
 

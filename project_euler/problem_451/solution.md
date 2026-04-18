@@ -40,24 +40,16 @@ The cases $a = 1$ and $a = 2$ are verified by exhaustion. $\square$
 
 **Proof.** Note that $m = n - 1$ satisfies $(n-1)^2 = n^2 - 2n + 1 \equiv 1 \pmod{n}$, so $n-1$ is always a self-inverse. By definition, $I(n)$ is the largest self-inverse strictly less than $n - 1$. If no non-trivial self-inverse exists, the only solution below $n-1$ is $m = 1$, giving $I(n) = 1$. $\square$
 
-## Algorithm
+## Editorial
+Approach: Sieve-based CRT. For each n, we build up the set of self-inverses by processing one prime-power factor at a time. We store only the set of known self-inverses so far (from partial factorization). We sieve smallest prime factor spf[i] for 2 <= i <= N. Finally, return total.
 
-```
-Algorithm: Compute sum of I(n) for 3 <= n <= N via SPF sieve + CRT
+## Pseudocode
 
-1. Sieve smallest prime factor spf[i] for 2 <= i <= N.
-2. total <- 0
-3. For n = 3 to N:
-   a. Factor n using spf: obtain prime powers p1^a1, ..., pk^ak.
-   b. sols <- {1}, mod <- 1
-   c. For each (p_i, p_i^a_i):
-      i.   Compute local solutions L_i of x^2 ≡ 1 (mod p_i^a_i)
-           using Lemma 1.
-      ii.  sols <- { CRT(s1, mod, s2, p_i^a_i) : s1 in sols, s2 in L_i }
-      iii. mod <- mod * p_i^a_i
-   d. I(n) <- max{ s in sols : 1 < s < n-1 }, or 1 if no such s.
-   e. total <- total + I(n)
-4. Return total
+```text
+Sieve smallest prime factor spf[i] for 2 <= i <= N
+total <- 0
+For n = 3 to N:
+Return total
 ```
 
 ## Complexity Analysis

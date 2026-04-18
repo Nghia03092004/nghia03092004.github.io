@@ -37,26 +37,15 @@ The even-degree terms yield one equation and the odd-degree terms another. Each 
 
 **Proof.** The three tightness flags (for $a \leq b$, $b \leq N$, $k \leq m$) each have 2 states. The polynomial constraints at each level are determined by the bits processed so far, giving $O(1)$ constraint states per level. The recursion depth is $\max(\log_2 N, \log_2 m)$. $\square$
 
-## Algorithm
+## Editorial
+(a ⊗ a) ⊕ (2 ⊗ a ⊗ b) ⊕ (b ⊗ b) = k G(N, m) = number of solutions with k <= m, 0 <= a <= b <= N Find G(10^17, 1000000). We iterate over each k, count pairs (a, b) with a <= b <= N. Finally, optimized: iterate over (a, b) via digit DP, computing k.
 
-```
-function G(N, m):
-    count = 0
-    for k = 0 to m:
-        // For each k, count pairs (a, b) with a <= b <= N
-        // satisfying a(x^2) + x*a(x)*b(x) + b(x^2) = k(x)
-        count += COUNT_PAIRS(N, k)
-    return count
+## Pseudocode
 
-// Optimized: iterate over (a, b) via digit DP, computing k
-function G_OPTIMIZED(N, m):
-    return DIGIT_DP(
-        bit = MSB,
-        tight_b = true,    // b <= N
-        tight_k = true,    // k <= m
-        a_leq_b = false,   // a <= b not yet established
-        carry_state = 0
-    )
+```text
+For each k, count pairs (a, b) with a <= b <= N
+satisfying a(x^2) + x*a(x)*b(x) + b(x^2) = k(x)
+Optimized: iterate over (a, b) via digit DP, computing k
 ```
 
 ## Complexity Analysis

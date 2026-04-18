@@ -33,26 +33,15 @@ Combining: $n \equiv 0 \pmod{2}$, $n \not\equiv 0 \pmod{3}$, $n \equiv 0 \pmod{5
 
 **Proof.** Since $n$ is even, the only integers strictly between consecutive members of $\{n-9, n-3, n+3, n+9\}$ that could be prime are the odd ones: $n-7, n-5$ (between $n-9$ and $n-3$), $n-1, n+1$ (between $n-3$ and $n+3$), and $n+5, n+7$ (between $n+3$ and $n+9$). All must be composite for consecutivity. $\square$
 
-## Algorithm
+## Editorial
+Definitions: i.e., (p, p+6), (p+6, p+12), (p+12, p+18) with all four consecutive primes. (1) n-9, n-3, n+3, n+9 are all prime AND are four consecutive primes (no primes between them: n-7, n-5, n-1, n+1, n+5, n+7 all composite) (2) n-8, n-4, n, n+4, n+8 are all practical numbers Key observations:. We sieve primes up to 1.2 * 10^9 using Sieve of Eratosthenes.
 
-```
-1. Sieve primes up to 1.2 * 10^9 using Sieve of Eratosthenes
+## Pseudocode
 
-2. results = []
-   for n in arithmetic progression {10, 20, 40, 50, 70, 80, ...}
-       (i.e., n = 10 or 20 mod 30, incrementing):
-       if not (isPrime(n-9) and isPrime(n-3) and isPrime(n+3) and isPrime(n+9)):
-           continue
-       if isPrime(n-7) or isPrime(n-5) or isPrime(n-1) or
-          isPrime(n+1) or isPrime(n+5) or isPrime(n+7):
-           continue
-       if not (isPractical(n-8) and isPractical(n-4) and isPractical(n)
-               and isPractical(n+4) and isPractical(n+8)):
-           continue
-       results.append(n)
-       if len(results) == 4: break
-
-3. return sum(results)
+```text
+Sieve primes up to 1.2 * 10^9 using Sieve of Eratosthenes
+results = []
+return sum(results)
 ```
 
 ## Complexity Analysis

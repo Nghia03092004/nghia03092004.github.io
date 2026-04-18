@@ -40,34 +40,14 @@ $$\begin{pmatrix} T_n \\ T_{n-1} \end{pmatrix} = \begin{pmatrix} 2m & -c \\ 1 & 
 
 **Proof.** Direct verification: the matrix equation encodes $T_n = 2m\,T_{n-1} - c\,T_{n-2}$ in the first row, and $T_{n-1} = T_{n-1}$ in the second row. Induction on $n$ yields the stated power formula. $\square$
 
-## Algorithm
+## Editorial
+Compute G(N) = sum_{a=1}^{N} f(a, a^2) mod 999999937 where f(a, n) = floor((ceil(sqrt(a)) + sqrt(a))^n) and a ranges over non-perfect-squares. Key insight: alpha = ceil(sqrt(a)) + sqrt(a), beta = ceil(sqrt(a)) - sqrt(a) satisfy a quadratic, so alpha^n + beta^n is an integer (via linear recurrence). Since 0 < beta < 1, f(a,n) = alpha^n + beta^n - 1.
 
-```
-function G(N, p):
-    precompute perfect_squares = {1, 4, 9, 16, ...} up to N
-    result = 0
-    for a = 1 to N:
-        if a in perfect_squares: continue
-        m = ceil(sqrt(a))
-        c = m*m - a
-        // Compute T_{a^2} mod p via matrix exponentiation
-        M = [[2*m mod p, (-c) mod p], [1, 0]]
-        v = [2*m mod p, 2]
-        v = matrix_power(M, a*a - 1, p) * v
-        T = v[0]
-        result = (result + T - 1) mod p
-    return result
-```
+## Pseudocode
 
-```
-function matrix_power(M, exp, p):
-    R = identity_2x2
-    while exp > 0:
-        if exp is odd:
-            R = R * M mod p
-        M = M * M mod p
-        exp = exp >> 1
-    return R
+```text
+Compute T_{a^2} mod p via matrix exponentiation
+if exp is odd
 ```
 
 ## Complexity Analysis

@@ -22,44 +22,19 @@ Given: $P(4) = 1$, $P(30) = 3655$, $P(60) = 891045$. Find $P(120)$.
 
 **Proof.** By Lemma 1, such a sequence determines a unique convex polygon. Translation equivalence is handled by fixing the starting vertex at the origin. The polygon is then uniquely determined by its edge vectors in angular order. $\square$
 
-## Algorithm
+## Editorial
+Count convex polygons with lattice-point vertices, integer edge lengths, at least 3 vertices, no 3 collinear, perimeter <= 120. Distinct up to translation. Approach: Enumerate edge directions sorted by angle. DFS picks directions in strictly increasing angular order with multipliers for edge lengths. Polygon closes when displacement returns to origin with >= 3 edges. Memoize on (dx, dy, last_direction_index, remaining_perimeter, min(edges,3)). We generate all integer-length edge vectors with length <= L-2. We then dP over edge selections. Finally, state: (current_position (x, y), last_edge_index, remaining_perimeter).
 
-```
-function count_pythagorean_polygons(L):
-    // Step 1: Generate all integer-length edge vectors with length <= L-2
-    edges = []
-    for d = 1 to L - 2:
-        for each (a, b) with a^2 + b^2 = d^2:
-            edges.append((a, b, d))
-    sort edges by polar angle
+## Pseudocode
 
-    // Step 2: DP over edge selections
-    // State: (current_position (x, y), last_edge_index, remaining_perimeter)
-    // Use memoized DFS or bottom-up DP
-    memo = {}
-
-    function dfs(x, y, last_idx, remaining, edge_count):
-        // Try to close: if edge_count >= 3 and (x,y) can reach (0,0)
-        //   with an edge of angle > edges[last_idx] and length <= remaining
-        count = 0
-        if edge_count >= 3 and dist(x, y, 0, 0) is integer and
-           dist(x, y, 0, 0) <= remaining and
-           angle(-x, -y) > angle(edges[last_idx]):
-            count += 1
-        // Try extending with next edge
-        for i = last_idx + 1 to len(edges) - 1:
-            (a, b, d) = edges[i]
-            if d > remaining: continue
-            if dist(x+a, y+b, 0, 0) > remaining - d: continue  // prune
-            count += dfs(x+a, y+b, i, remaining-d, edge_count+1)
-        return count
-
-    total = 0
-    for i = 0 to len(edges) - 1:
-        (a, b, d) = edges[i]
-        if d <= L - 2:
-            total += dfs(a, b, i, L - d, 1)
-    return total
+```text
+Generate all integer-length edge vectors with length <= L-2
+DP over edge selections
+State: (current_position (x, y), last_edge_index, remaining_perimeter)
+Use memoized DFS or bottom-up DP
+Try to close: if edge_count >= 3 and (x,y) can reach (0,0)
+with an edge of angle > edges[last_idx] and length <= remaining
+Try extending with next edge
 ```
 
 ## Complexity Analysis

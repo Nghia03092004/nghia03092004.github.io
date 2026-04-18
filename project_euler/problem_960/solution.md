@@ -50,11 +50,16 @@ Rechecking: $n=2$: $\binom{2}{0}\cdot 0 + \binom{2}{1}\cdot 1 + \binom{2}{2}\cdo
 
 ## Derivation
 
-### Algorithm
+### Editorial
+Compute sum_{k=0}^{n} C(n,k) * k^3 mod (10^9 + 7), n = 10^6. Using Stirling numbers: k^3 = k + 3k(k-1) + k(k-1)(k-2) sum C(n,k)*k^{r_down} = n^{r_down} * 2^{n-r} Result: n*2^{n-1} + 3*n*(n-1)*2^{n-2} + n*(n-1)*(n-2)*2^{n-3} mod p Complexity: O(log n) for modular exponentiation. We compute $2^{n-1} \bmod p$, $2^{n-2} \bmod p$, $2^{n-3} \bmod p$ via modular exponentiation. Finally, compute $S = n \cdot 2^{n-1} + 3n(n-1) \cdot 2^{n-2} + n(n-1)(n-2) \cdot 2^{n-3} \pmod{p}$.
 
-1. Compute $n = 10^6$, $p = 10^9 + 7$.
-2. Compute $2^{n-1} \bmod p$, $2^{n-2} \bmod p$, $2^{n-3} \bmod p$ via modular exponentiation.
-3. Compute $S = n \cdot 2^{n-1} + 3n(n-1) \cdot 2^{n-2} + n(n-1)(n-2) \cdot 2^{n-3} \pmod{p}$.
+### Pseudocode
+
+```text
+Compute $n = 10^6$, $p = 10^9 + 7$
+Compute $2^{n-1} \bmod p$, $2^{n-2} \bmod p$, $2^{n-3} \bmod p$ via modular exponentiation
+Compute $S = n \cdot 2^{n-1} + 3n(n-1) \cdot 2^{n-2} + n(n-1)(n-2) \cdot 2^{n-3} \pmod{p}$
+```
 
 ### Generalization to Higher Powers
 

@@ -24,28 +24,20 @@ Writing $\Pr(P = p) = f_P(p)/4^9$ and $\Pr(C < p) = \Pr(C \leq p-1) = F_C(p-1)/6
 
 **Proof.** The minimum of $n$ dice each showing at least 1 is $n$; the maximum with faces up to $d$ is $nd$. For Peter: $n=9, d=4$ gives $[9, 36]$. For Colin: $n=6, d=6$ gives $[6, 36]$. $\square$
 
-## Algorithm
+## Editorial
+Peter has 9 four-sided dice; Colin has 6 six-sided dice. Find P(Peter beats Colin), rounded to 7 decimal places. Compute sum distributions via convolution, then sum over all (p, c) pairs where Peter's total p > Colin's total c. We compute f_P[9..36]: frequency distribution for sum of 9 four-sided dice. We then compute f_C[6..36]: frequency distribution for sum of 6 six-sided dice. Finally, compute cumulative F_C[t] = sum of f_C[6..t] for t = 6..36.
 
-```
+## Pseudocode
+
+```text
 Input: Peter has 9d4, Colin has 6d6
 Output: P(Peter > Colin) rounded to 7 decimal places
-
-1. Compute f_P[9..36]: frequency distribution for sum of 9 four-sided dice
-   Initialize f_P[0] = 1
-   For i = 1 to 9:
-     For s = 36 down to 1:
-       f_P[s] = sum of f_P[s-k] for k = 1 to min(4, s)
-
-2. Compute f_C[6..36]: frequency distribution for sum of 6 six-sided dice
-   (analogous convolution)
-
-3. Compute cumulative F_C[t] = sum of f_C[6..t] for t = 6..36
-
-4. winning_count = sum over p = 9..36 of f_P[p] * F_C[p-1]
-
-5. probability = winning_count / (4^9 * 6^6)
-
-6. Return round(probability, 7)
+Compute f_P[9..36]: frequency distribution for sum of 9 four-sided dice
+Compute f_C[6..36]: frequency distribution for sum of 6 six-sided dice
+Compute cumulative F_C[t] = sum of f_C[6..t] for t = 6..36
+winning_count = sum over p = 9..36 of f_P[p] * F_C[p-1]
+probability = winning_count / (4^9 * 6^6)
+Return round(probability, 7)
 ```
 
 ## Complexity Analysis

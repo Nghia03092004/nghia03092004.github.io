@@ -33,38 +33,17 @@ where $L_n$ is the $n$-th Lucas number. One shows that $\varphi^i + \varphi^{-(i
 
 **Proof.** We have $\varphi^{47} = F_{47}\varphi + F_{46} \approx 2.97 \times 10^9 \cdot \varphi + 1.84 \times 10^9 > 10^{10}$. Any single active digit at position $i > 47$ already exceeds $10^{10}$, so all active positions satisfy $i \leq 47$. Among 48 positions, the non-consecutive constraint limits the maximum number of active positions to $\lceil 48/2 \rceil = 24$. $\square$
 
-## Algorithm
+## Editorial
+A phigital palindrome is a sum of terms phi^i + phi^{-(i+1)} for non-consecutive i. The DFS search space for the full problem (10^10) is too large for pure Python; use the C++ solution for the full computation. We use high-precision arithmetic (>= 40 decimal digits). We then dFS over subsets S of {0, 1, ..., MAX_POS} with no two consecutive. Finally, option 1: skip position pos.
 
-```
-function solve():
-    LIMIT = 10^10
-    MAX_POS = 47
+## Pseudocode
 
-    # Precompute pair values: val[i] = phi^i + phi^(-(i+1))
-    # Use high-precision arithmetic (>= 40 decimal digits)
-    for i = 0 to MAX_POS:
-        val[i] = phi^i + phi^(-(i+1))
-
-    total_sum = 0
-
-    # DFS over subsets S of {0, 1, ..., MAX_POS} with no two consecutive
-    function dfs(pos, last_active, current_value):
-        if current_value > LIMIT:
-            return
-        if pos > MAX_POS:
-            if current_value > 0 and is_integer(current_value):
-                total_sum += round(current_value)
-            return
-
-        # Option 1: skip position pos
-        dfs(pos + 1, last_active, current_value)
-
-        # Option 2: activate position pos (if not consecutive)
-        if pos > last_active + 1:
-            dfs(pos + 1, pos, current_value + val[pos])
-
-    dfs(0, -2, 0)
-    return total_sum
+```text
+Precompute pair values: val[i] = phi^i + phi^(-(i+1))
+Use high-precision arithmetic (>= 40 decimal digits)
+DFS over subsets S of {0, 1, ..., MAX_POS} with no two consecutive
+Option 1: skip position pos
+Option 2: activate position pos (if not consecutive)
 ```
 
 ## Complexity Analysis

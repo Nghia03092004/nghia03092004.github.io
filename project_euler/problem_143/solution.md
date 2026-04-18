@@ -43,38 +43,21 @@ For primitivity: if $3 \mid (m - n)$, then $m \equiv n \pmod{3}$, which implies 
 
 **Proof.** The three Torricelli equations require $(p,q)$, $(p,r)$, and $(q,r)$ to each be 120-compatible. This is exactly the condition that $\{p, q, r\}$ forms a clique of size 3 in $G$. $\square$
 
-## Algorithm
+## Editorial
+At the Torricelli point T, angles ATB = BTC = CTA = 120 degrees. By cosine rule: a^2 = q^2 + qr + r^2, etc. We need p, q, r positive integers with p^2+pq+q^2, p^2+pr+r^2, q^2+qr+r^2 all perfect squares, and p+q+r <= 120000. 120-compatible pairs: (u,v) with u^2+uv+v^2 a perfect square. Primitive parametrization: u = m^2-n^2, v = 2mn+n^2 with m > n >= 1, gcd(m,n) = 1, (m-n) not divisible by 3. Then u^2+uv+v^2 = (m^2+mn+n^2)^2. All solutions are k*(u,v) for positive integer k. We generate all 120-compatible pairs. We then add both orderings. Finally, also consider (v0, u0) as a pair (swap roles).
 
-```
+## Pseudocode
+
+```text
 INPUT: L = 120000
 OUTPUT: Sum of all distinct values p+q+r <= L
-
-1. GENERATE ALL 120-COMPATIBLE PAIRS:
-   pairs = empty dict (vertex -> set of neighbors)
-   for m = 2, 3, ..., while m^2 < L:
-       for n = 1, 2, ..., m-1:
-           if gcd(m, n) != 1 or (m - n) % 3 == 0: continue
-           u0 = m^2 - n^2
-           v0 = 2*m*n + n^2
-           for k = 1, 2, ...:
-               u = k * u0
-               v = k * v0
-               if u + v > L: break
-               // Add both orderings
-               pairs[u].add(v)
-               pairs[v].add(u)
-               // Also consider (v0, u0) as a pair (swap roles)
-           // Similarly for (v0, u0) primitive pair if v0 > u0
-
-2. FIND ALL 3-CLIQUES:
-   sums = empty set
-   for each vertex p in pairs:
-       for each neighbor q of p with q < p:
-           for each r in (neighbors[p] ∩ neighbors[q]) with r < q:
-               if p + q + r <= L:
-                   sums.add(p + q + r)
-
-3. RETURN sum of all elements in sums
+GENERATE ALL 120-COMPATIBLE PAIRS:
+Add both orderings
+Also consider (v0, u0) as a pair (swap roles)
+Similarly for (v0, u0) primitive pair if v0 > u0
+FIND ALL 3-CLIQUES:
+for each vertex p in pairs
+RETURN sum of all elements in sums
 ```
 
 ## Complexity Analysis

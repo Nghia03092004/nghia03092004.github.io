@@ -61,7 +61,7 @@ $$\frac{P(k)}{4k + 1} \approx \frac{3k/(2 \ln k)}{4k} = \frac{3}{8 \ln k} \xrigh
 
 **Proposition 1 (Rough Estimate via PNT).** Setting $3/(8 \ln k) = 0.10$ gives $\ln k = 3.75$, hence $k \approx 42$, corresponding to side length $s \approx 85$. This is a very rough lower bound; the actual answer is much larger because the PNT approximation overestimates the prime count for small to moderate $k$.
 
-## Algorithm
+## Editorial
 
 We process the spiral layer by layer. For each new side length $s = 2k+1$, only the three non-square corner values need to be tested for primality, because the fourth corner is always $(2k+1)^2$ and therefore composite. Maintaining the cumulative number of diagonal entries and diagonal primes allows the prime ratio to be updated after each layer, and the first side length for which this ratio falls below 10% is returned.
 

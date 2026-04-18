@@ -26,29 +26,14 @@ Find $\displaystyle\sum_{N=5}^{10000} D(N)$.
 
 It remains to show that $(N/k)^k$ terminates if and only if $N/k$ terminates. Write $N/k = a/b$ in lowest terms. Then $(N/k)^k = a^k / b^k$ with $\gcd(a^k, b^k) = 1$ (since $\gcd(a, b) = 1$ implies $\gcd(a^k, b^k) = 1$). The denominator $b^k = (2^\alpha 5^\beta)^k = 2^{k\alpha} 5^{k\beta}$ has only factors $2$ and $5$ if and only if $b$ does. Conversely, if $b$ has a prime factor $r \notin \{2, 5\}$, then $b^k$ has the same prime factor, and $(N/k)^k$ is non-terminating. $\square$
 
-## Algorithm
+## Editorial
+For each N from 5 to 10000, find k maximising (N/k)^k. Then D(N) = -N if the maximum is a terminating decimal, else +N. Compute sum of D(N). We else. Finally, else.
 
-```
-function ComputeDSum(N_max):
-    total := 0
-    for N := 5 to N_max:
-        k1 := floor(N / e)
-        k2 := k1 + 1
-        if k1 * ln(N / k1) >= k2 * ln(N / k2):
-            k_opt := k1
-        else:
-            k_opt := k2
+## Pseudocode
 
-        d := gcd(N, k_opt)
-        denom := k_opt / d
-        while denom mod 2 = 0: denom := denom / 2
-        while denom mod 5 = 0: denom := denom / 5
-        if denom = 1:
-            total -= N
-        else:
-            total += N
-
-    return total
+```text
+else
+else
 ```
 
 ## Complexity Analysis

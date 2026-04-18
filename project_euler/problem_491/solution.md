@@ -36,22 +36,25 @@ To exclude leading zeros: position 1 is an odd-position slot. A leading zero occ
 
 **Corollary.** The answer is $\displaystyle \sum_{\mathbf{c} \text{ valid}} N(\mathbf{c})$.
 
-## Algorithm
+## Editorial
+We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
 
-```
+## Pseudocode
+
+```text
 answer = 0
-for each (c_0, c_1, ..., c_9) in {0,1,2}^10:
-    if sum(c_d) != 10: continue
+For each each (c_0, c_1, ..., c_9) in {0,1,2}^10:
+    If sum(c_d) != 10 then continue
     O = sum(d * c_d for d = 0..9)
-    if O mod 11 != 1: continue
-    odd_perms  = 10! / prod(c_d!)
+    If O mod 11 != 1 then continue
+    odd_perms = 10! / prod(c_d!)
     even_perms = 10! / prod((2 - c_d)!)
     total = odd_perms * even_perms
-    if c_0 >= 1:
+    If c_0 >= 1 then
         leading_zero = 9! / ((c_0 - 1)! * prod(c_d! for d=1..9)) * even_perms
         total -= leading_zero
     answer += total
-return answer
+Return answer
 ```
 
 ## Complexity Analysis

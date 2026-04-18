@@ -58,7 +58,7 @@ Since $h_n k_{n-1} - h_{n-1} k_n = \pm 1$, we have $\gcd(h_n, k_n) = 1$. $\squar
 
 **Proof.** From the recurrence $h_n = a_n h_{n-1} + h_{n-2} \ge a_n h_{n-1}$, so $\log_{10} h_n \ge \log_{10} a_n + \log_{10} h_{n-1}$. By induction, $\log_{10} h_n \ge \sum_{k=0}^n \log_{10} a_k$. The partial quotients for $e$ at indices $k \equiv 2 \pmod{3}$ are $2, 4, 6, \ldots, 66$ (for $k$ up to 98), contributing $\sum_{j=1}^{33} \log_{10}(2j) \approx 42$. The remaining 67 terms contribute $\log_{10}(1) = 0$ each (except $a_0 = 2$). Total: $\approx 42 + \log_{10}(2) \approx 42.3$. The actual numerator has 58 digits due to the additive term $h_{n-2}$ accumulating additional magnitude. $\square$
 
-## Algorithm
+## Editorial
 
 We use Euler's explicit pattern for the continued fraction of $e$ to determine the first $100$ partial quotients. The numerator of the convergents is then obtained from the standard recurrence, so only the two previous numerators need to be retained throughout the computation. Once the numerator of the $100$th convergent has been reached, we sum its decimal digits.
 

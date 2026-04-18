@@ -47,13 +47,18 @@ For large N = 10^7, we need to efficiently compute S(N) by exploiting:
 2. Sieving over divisors
 3. Precomputation of orders of elements in GF(2)[x]
 
-## Algorithm
+## Editorial
+F(n,k) = 2^rank of GF(2) circulant matrix S(N) = sum_{n=1}^{N} sum_{k=1}^{n} F(n,k) mod 10^9+7. We iterate over each n from 1 to N. We then iterate over each k from 1 to n. Finally, compute deg(gcd(c_k(x), x^n + 1)) in GF(2)[x].
 
-1. For each n from 1 to N:
-   - For each k from 1 to n:
-     - Compute deg(gcd(c_k(x), x^n + 1)) in GF(2)[x]
-     - Add 2^{n - deg} to S(N)
-2. Use number-theoretic optimizations to avoid explicit polynomial GCD
+## Pseudocode
+
+```text
+For each n from 1 to N:
+For each k from 1 to n:
+Compute deg(gcd(c_k(x), x^n + 1)) in GF(2)[x]
+Add 2^{n - deg} to S(N)
+Use number-theoretic optimizations to avoid explicit polynomial GCD
+```
 
 ## Correctness
 

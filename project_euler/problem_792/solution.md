@@ -28,41 +28,27 @@ $$T(n) = \frac{2(2n-1)}{n} \cdot (-2) \cdot T(n-1) \cdot \frac{1}{(-2)} = -\frac
 
 **Proof.** The tail $R(\infty) - R(n) = \sum_{k=n+1}^{\infty}(-2)^k\binom{2k}{k}$ satisfies $v_2(\text{tail}) = v_2((-2)^{n+1}\binom{2(n+1)}{n+1}) + O(1)$. By Kummer's theorem, $v_2(\binom{2k}{k}) = s_2(k)$, the number of 1-bits in the binary representation of $k$. Thus $v_2((-2)^{n+1}\binom{2(n+1)}{n+1}) = (n+1) + s_2(n+1)$. The precise formula for $u(n)$ follows from careful bookkeeping of these valuations. $\square$
 
-## Algorithm
+## Editorial
+$S(n) = \sum_{k=1}^{n} (-2)^k \binom{2k}{k}$. Define $u(n) = v_2(3S(n)+4)$ where $v_2$ is the 2-adic valuation. $U(N) = \sum_{n=1}^{N} u(n^3)$. Given $u(4)=7$ (since $3S(4)+4=2944=2^7 \cdot 23$), $U(5. We precompute S(m) mod 2^B for m up to N^3. We then since N = 10^4, n^3 up to 10^12, direct iteration infeasible. Finally, use the 2-adic closed form.
 
+## Pseudocode
+
+```text
+Precompute S(m) mod 2^B for m up to N^3
+Since N = 10^4, n^3 up to 10^12, direct iteration infeasible
+Use the 2-adic closed form:
+u(n) = v_2(3*S(n) + 4) via Kummer/digit-sum analysis
+For each n from 1 to N, compute u(n^3):
+Use the identity relating v_2(3*R(m)+1) to binary properties of m
+Compute v_2(3*R(m) + 1) using 2-adic partial sum formula
+R(m) mod 2^B via recurrence T(k) = -4(2k-1)/k * T(k-1)
+accumulated mod 2^B
+Use identity: 3*R(m) + 1 = 2 + 3*(R(m) - 1/3)
+Compute via the recurrence mod 2^B, accumulating partial sums
+Key optimization: the recurrence T(k)/T(k-1) = -4(2k-1)/k
+involves division by k, done via modular inverse in Z/2^B Z
+(k must be odd for inverse to exist; extract factors of 2 separately)
 ```
-function U(N):
-    // Precompute S(m) mod 2^B for m up to N^3
-    // Since N = 10^4, n^3 up to 10^12, direct iteration infeasible
-    // Use the 2-adic closed form:
-    // u(n) = v_2(3*S(n) + 4) via Kummer/digit-sum analysis
-
-    B = 80  // sufficient bits for 2-adic precision
-    MOD = 2^B
-    total = 0
-
-    // For each n from 1 to N, compute u(n^3):
-    // Use the identity relating v_2(3*R(m)+1) to binary properties of m
-    for n = 1 to N:
-        m = n^3
-        // Compute v_2(3*R(m) + 1) using 2-adic partial sum formula
-        // R(m) mod 2^B via recurrence T(k) = -4(2k-1)/k * T(k-1)
-        // accumulated mod 2^B
-        val = compute_3R_plus_1_mod_2B(m, B)
-        total += v_2(val)
-
-    return total
-
-function compute_3R_plus_1_mod_2B(m, B):
-    // Use identity: 3*R(m) + 1 = 2 + 3*(R(m) - 1/3)
-    // Compute via the recurrence mod 2^B, accumulating partial sums
-    // Key optimization: the recurrence T(k)/T(k-1) = -4(2k-1)/k
-    // involves division by k, done via modular inverse in Z/2^B Z
-    // (k must be odd for inverse to exist; extract factors of 2 separately)
-    ...
-```
-
-The critical optimization is that for each $m = n^3$, the partial sum $R(m) \bmod 2^B$ can be computed incrementally from $R(m-1)$ when processing the $n^3$ values in sorted order, requiring $O(N^3)$ total recurrence steps across all queries. For $N = 10^4$, this is $10^{12}$ steps, which is too slow. Instead, one uses the 2-adic closed-form expression for $u(m)$ based on the binary representation of $m$, enabling $O(\log m)$ computation per query.
 
 ## Complexity Analysis
 
