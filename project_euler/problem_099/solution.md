@@ -23,20 +23,24 @@ $$i^* = \arg\max_{i \in \{1,\ldots,1000\}} b_i \ln a_i.$$
 **Proof.** The values $v_i = b_i \ln a_i$ lie in the range $[0, 10^6 \cdot \ln(10^6)] \approx [0, 1.4 \times 10^7]$. Double-precision relative error is bounded by $\varepsilon_{\text{mach}} = 2^{-52} \approx 2.2 \times 10^{-16}$. The absolute error in each $v_i$ is at most $|v_i| \cdot 3\varepsilon_{\text{mach}} < 10^7 \cdot 10^{-15} = 10^{-8}$ (accounting for errors in $\ln$ and the multiplication). For the comparison $v_i > v_j$ to fail, we would need $|v_i - v_j| < 2 \times 10^{-8}$, which does not occur for the given dataset (the top values are well-separated). $\square$
 
 ## Editorial
-Given 1000 base/exponent pairs, find which line has the greatest value. By the strict monotonicity of ln, a^b > c^d iff b*ln(a) > d*ln(c).
+The numbers themselves are far too large to compare directly, but logarithms turn the comparison into a linear one. Instead of comparing \(a^b\) and \(c^d\), we compare \(b\ln a\) and \(d\ln c\), which preserves the ordering exactly.
+
+That reduces the whole task to a single pass over the file. Each line produces one score \(b\ln a\), and we keep the line number with the largest score seen so far. The search space is the 1000 input pairs, and the logarithmic transformation is what makes that scan numerically manageable.
 
 ## Pseudocode
 
 ```text
-    best_val = -infinity
-    best_line = 0
-    For i from 1 to |data|:
-        (a, b) = data[i]
-        v = b * ln(a)
-        If v > best_val then
-            best_val = v
-            best_line = i
-    Return best_line
+Set the best score to negative infinity and the best line number to 0.
+
+For each input line in order:
+    Read the base and exponent
+    Compute the comparison score \( \text{exponent} \times \ln(\text{base}) \)
+
+    If this score is larger than the current best:
+        update the best score
+        record the current line number
+
+Return the recorded line number.
 ```
 
 ## Complexity Analysis

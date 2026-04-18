@@ -41,7 +41,7 @@ Hence the recursive search generates every possible expression value, with exact
 
 *Proof.* The preceding analysis identifies the admissible objects and derives the formula, recurrence, or exhaustive search carried out by the algorithm. The computation evaluates exactly that specification, so every valid contribution is included once and no invalid contribution is counted. Therefore the returned value is the required answer. $\square$
 
-## Complexity
+## Complexity Analysis
 
 For a multiset of size \(m\), there are at most
 \[
@@ -61,16 +61,28 @@ There are
 digit sets, so the total search is tiny.
 
 ## Editorial
-..,9}) for which the longest consecutive run of positive integers 1..n can be obtained using +,-,*,/ and parentheses, with each digit used exactly once. We start from the four digits viewed as exact rational numbers. We then recursively choose two current values, combine them in every legal way, and continue until one value remains. Finally, record all positive integers obtained exactly.
+The search is small enough to do exhaustively, but the important implementation choice is to work with exact rational numbers. That removes all floating-point ambiguity, so every candidate value can be tested for being a positive integer with no tolerance issues.
+
+For a fixed digit set, we recursively collapse the current multiset of values: choose two values, combine them with every legal binary operation, and continue until only one number remains. That generates every parenthesized expression. After collecting all reachable exact values, we keep only the positive integers and measure the longest consecutive prefix starting from \(1\). Repeating this over all \(\binom{9}{4}\) digit sets lets us choose the best set.
 
 ## Pseudocode
 
 ```text
-Start from the four digits viewed as exact rational numbers
-Recursively choose two current values, combine them in every legal way, and continue until one value remains
-Record all positive integers obtained exactly
-Compute the longest consecutive prefix \(1,2,\dots,n\)
-Keep the best digit set
+Set the best run length to 0 and the best digit set to empty.
+
+For each 4-digit subset of \(\{1,\dots,9\}\):
+    View the four digits as exact rational numbers
+    Recursively generate every reachable value by repeatedly:
+        choosing two current values
+        replacing them with each legal result of \(+,-,\times,\div\)
+
+    Keep only the reachable values that are positive integers
+    Compute the longest consecutive run starting at 1
+
+    If this run is better than the current best:
+        record the new run length and the corresponding digit set
+
+Return the concatenation of the best four digits.
 ```
 
 ## Answer

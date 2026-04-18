@@ -34,25 +34,32 @@ A Sudoku puzzle requires filling a $9 \times 9$ grid so that each row, each colu
 **Proof.** At a branch point where the selected variable has $b$ remaining values, the search explores at most $b$ subtrees. Choosing the variable with the smallest $b$ yields the smallest immediate branching factor. While globally optimal variable ordering is NP-hard to determine, the MRV (or "fail-first") heuristic is provably optimal for a single decision under the assumption of uniform subtree sizes, and performs near-optimally in practice on Sudoku. $\square$
 
 ## Editorial
-Solve all 50 Sudoku puzzles and find the sum of the 3-digit numbers from the top-left corner of each solution. Algorithm: Constraint propagation (naked singles + hidden singles) with backtracking search using the MRV heuristic.
+Each Sudoku is treated as a constraint system on cell domains rather than as a brute-force filling problem. The immediate gains come from propagation: whenever a cell is fixed, that value is removed from all peers, which in turn can force naked singles and hidden singles.
+
+Propagation alone solves much of each puzzle, and when it stalls we branch on the most constrained cell, namely the one with the fewest remaining candidates. That keeps the search tree narrow. So the search space is explored by alternating forced deductions with MRV-guided backtracking, and the top-row 3-digit number is added once a puzzle is completely solved.
 
 ## Pseudocode
 
 ```text
-    Initialize D[r][c] for all cells from givens
-    Propagate constraints (naked singles + hidden singles)
-    Return BACKTRACK(D)
+For each Sudoku puzzle:
+    Initialize the candidate set of every cell
+    Assign all given digits and propagate the resulting constraints
 
-    if all cells assigned: return solution
-    if any D[r][c] is empty: return FAILURE
-    (r*, c*) = argmin |D[r][c]| among unassigned cells // MRV
-    For each each d in D[r*][c*]:
-        save state
-        assign d to (r*, c*); propagate
-        result = BACKTRACK(D)
-        if result != FAILURE: return result
-        restore state
-    Return FAILURE
+    Solve recursively:
+        If some cell has no candidates, this branch fails
+        If every cell is fixed, the puzzle is solved
+
+        Choose an unfixed cell with the fewest remaining candidates
+        For each candidate value of that cell:
+            save the current state
+            assign the value and propagate
+            recurse on the smaller puzzle
+            if the recursion succeeds, keep that solution
+            otherwise restore the saved state
+
+    Extract the first three digits of the solved top row and add them to the running sum
+
+Return the sum over all fifty puzzles.
 ```
 
 ## Complexity Analysis

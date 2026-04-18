@@ -65,14 +65,26 @@ and
 Hence each starting value below \(10^7\) ends at either \(1\) or \(89\).
 
 ## Editorial
-Count starting numbers below 10,000,000 that arrive at 89 by grouping numbers according to their first square-digit-sum. We iterate over every \(s\in\{1,\dots,567\}\), compute whether its chain ends at \(89\). We then run the DP recurrence for \(k=0,1,\dots,7\) to obtain the counts \(C_7(s)\). Finally, sum \(C_7(s)\) over all \(s\) whose chain ends at \(89\).
+The crucial reduction is that numbers below \(10^7\) collapse after one move into the tiny state space \(\{0,\dots,567\}\). So instead of following ten million chains separately, we only need to know which of those 568 sums eventually fall into the \(89\)-cycle.
+
+Once those destinations are known, the counting part becomes a digit DP. We treat every number below \(10^7\) as a 7-digit string with leading zeros and count how many such strings produce each possible digit-square-sum. That explores the search space by digit choices rather than by raw integers. The final answer is obtained by summing the DP counts for exactly those sums whose chains terminate at \(89\).
 
 ## Pseudocode
 
 ```text
-For every \(s\in\{1,\dots,567\}\), compute whether its chain ends at \(89\)
-Run the DP recurrence for \(k=0,1,\dots,7\) to obtain the counts \(C_7(s)\)
-Sum \(C_7(s)\) over all \(s\) whose chain ends at \(89\)
+Compute, for every sum \(s\) from 1 to 567, whether repeated digit-square steps end at \(89\).
+
+Initialize a DP table for digit strings with \(dp[0]=1\).
+
+Repeat for 7 digit positions:
+    Create a fresh table of counts
+    For each current sum and its number of realizations:
+        For each possible next digit from 0 to 9:
+            Update the count for the new square-digit-sum
+    Replace the old table with the new one
+
+Add the final counts for all sums whose destination is \(89\).
+Return that total.
 ```
 
 ## Correctness

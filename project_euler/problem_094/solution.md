@@ -47,13 +47,30 @@ Moreover, the residues alternate: $X_k \bmod 3 \in \{2, 1, 2, 1, \ldots\}$ for $
 For the alternation, we proceed by induction. Base: $X_1 = 2 \equiv 2 \pmod{3}$. Inductive step: $X_{k+1} = 2X_k + 3Y_k \equiv 2X_k \pmod{3}$. Since $2 \cdot 2 \equiv 1$ and $2 \cdot 1 \equiv 2 \pmod{3}$, the residues alternate. $\square$
 
 ## Editorial
-Both cases reduce to the Pell equation X^2 - 3Y^2 = 1 with fundamental solution (2,1) and recurrence X' = 2X + 3Y, Y' = X + 2Y. We else.
+The hard part is not searching over side lengths directly, but recognizing that the integral-area condition turns both \(a,a,a+1\) and \(a,a,a-1\) into the same Pell-type recurrence. Once that reduction is done, the original geometric search space collapses to a simple sequence of Pell solutions.
+
+Each Pell solution produces at most one almost-equilateral triangle, and the residue of \(X\) modulo \(3\) tells us which of the two cases we are in. So the algorithm generates candidates by walking through Pell solutions in increasing size, converts each one back into a perimeter, filters by the appropriate congruence case, and stops as soon as the perimeter limit is exceeded.
 
 ## Pseudocode
 
 ```text
-while true
-else
+Initialize the Pell solution to the fundamental pair \((2,1)\).
+Set the perimeter sum to 0.
+
+Repeat:
+    Inspect the current Pell solution
+
+    If it corresponds to the \(a,a,a+1\) case:
+        recover \(a\) and the perimeter from that formula
+    Otherwise:
+        recover \(a\) and the perimeter from the \(a,a,a-1\) formula
+
+    If the perimeter exceeds the limit, stop
+    If the triangle is nondegenerate, add its perimeter to the total
+
+    Advance to the next Pell solution using the linear recurrence
+
+Return the accumulated perimeter sum.
 ```
 
 ## Complexity Analysis

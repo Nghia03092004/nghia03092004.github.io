@@ -27,14 +27,34 @@ The total number of additions is $\sum_{d=1}^{N}(\lfloor N/d \rfloor - 1) \le \s
 **Proof.** Once a number is marked visited, it is never the starting point of a new exploration and causes any exploration encountering it to terminate immediately. Each number is visited at most once as a "fresh" element during some exploration and at most once as a "termination trigger" for a different exploration. Hence the total number of steps across all explorations is at most $2N$. $\square$
 
 ## Editorial
-Phase 1: Sieve for sum of proper divisors s(n) in O(N log N). Phase 2: Detect cycles via functional iteration in O(N) total. We detect cycles.
+The map \(n \mapsto s(n)\) turns the problem into a functional graph on the integers up to \(10^6\). The first phase builds that graph efficiently with a divisor-sum sieve, so after that every node has exactly one outgoing edge.
+
+The second phase is then standard cycle hunting in a functional graph. Starting from each unseen value, we follow successors until one of three things happens: the chain leaves the allowed range, it reaches a node already settled by an earlier exploration, or it revisits a node from the current walk. Only the third case creates a new amicable chain. The local position map identifies the cycle portion exactly, and the global visited array prevents the same tail from being explored again.
 
 ## Pseudocode
 
 ```text
-Compute s[n] for n = 1..N via sieve
-Detect cycles
-if n is in positions
+Compute the sum of proper divisors \(s(n)\) for every \(n \le N\) with a sieve.
+
+Create a global visited array.
+Set the best chain length and best minimum element to 0.
+
+For each starting value from 2 to \(N\):
+    If it is already globally visited, skip it
+
+    Follow the map \(n \mapsto s(n)\), recording:
+        the current chain in order
+        the position where each value first appears
+
+    Stop when the chain leaves the range, reaches a globally visited value, or repeats a value from the current walk
+
+    If a repeat occurred inside the current walk:
+        extract the cycle part
+        update the best answer if this cycle is longer
+
+    Mark every value from the explored walk as globally visited
+
+Return the smallest element from the longest cycle found.
 ```
 
 ## Complexity Analysis

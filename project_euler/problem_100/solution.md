@@ -63,19 +63,21 @@ The same derivation applies to $n_k$. Initial values: $(x_0, y_0) = (1, 1)$ give
 | 3   | 85     | 120    | $14280 = 14280$           |
 
 ## Editorial
-The condition 2b(b-1) = n(n-1) reduces to the negative Pell equation 2x^2 - y^2 = 1 via x = 2b-1, y = 2n-1. The second-order recurrence b_{k+1} = 6*b_k - b_{k-1} - 2 (and same for n) generates all solutions.
+The probability condition is awkward in \((b,n)\) directly, but after the standard substitution it becomes a Pell-type equation. That means the valid arrangements do not need to be searched combinatorially; they appear as a recurrence sequence of exact solutions.
+
+The implementation works entirely in the \((b,n)\) recurrence derived from the Pell equation. Starting from the first two nontrivial solutions, it repeatedly generates the next arrangement and stops when the total number of discs first exceeds \(10^{12}\). So the search space is explored in the exact order of valid solutions, and no invalid pair is ever considered.
 
 ## Pseudocode
 
 ```text
-    b_prev, n_prev = 1, 1
-    b_curr, n_curr = 3, 4
-    While n_curr <= T:
-        b_next = 6 * b_curr - b_prev - 2
-        n_next = 6 * n_curr - n_prev - 2
-        b_prev, n_prev = b_curr, n_curr
-        b_curr, n_curr = b_next, n_next
-    Return b_curr
+Initialize the first two solutions of the blue-disc recurrence.
+
+While the current total number of discs does not yet exceed the threshold:
+    Compute the next blue-disc count from the recurrence
+    Compute the next total-disc count from the same recurrence
+    Shift the two-solution window forward
+
+Return the current blue-disc count.
 ```
 
 ## Complexity Analysis

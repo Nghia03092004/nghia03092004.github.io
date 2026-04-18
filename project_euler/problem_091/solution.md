@@ -145,15 +145,25 @@ T(N)=3N^2+\sum_{x=1}^{N}\sum_{y=1}^{N}
 \]
 
 ## Editorial
-Count right triangles with vertices O=(0,0), P, Q on the integer grid [0,N] x [0,N] by counting how many lattice points lie on the line through each possible right-angle vertex and perpendicular to OP. We compute \(g=\gcd(x,y)\). We then let the primitive perpendicular step be \((y/g,-x/g)\). Finally, count how many times this step can be taken in each direction before leaving the square.
+The clean way to avoid overcounting is to classify triangles by the position of the right angle. The cases at the origin and on the axes are simple and contribute closed forms immediately, so the only real work is when the right angle sits at an interior lattice point \(P=(x,y)\).
+
+For such a point, the segment \(PQ\) must lie on the line through \(P\) perpendicular to \(OP\). Writing \(g=\gcd(x,y)\) gives the primitive lattice step on that perpendicular line, namely \((y/g,-x/g)\) up to sign. Every valid choice of \(Q\) is obtained by moving along this primitive direction until the square boundary is hit. So the search space is constrained to just two one-dimensional walks from each interior point, and the number of admissible steps in each direction is exactly what the formula counts.
 
 ## Pseudocode
 
 ```text
-Compute \(g=\gcd(x,y)\)
-Let the primitive perpendicular step be \((y/g,-x/g)\)
-Count how many times this step can be taken in each direction before leaving the square
-Add those counts to the running total, initialized with \(3N^2\)
+Initialize the total with the three axis-based contributions \(3N^2\).
+
+For each interior lattice point \((x,y)\) with \(1 \le x,y \le N\):
+    Compute \(g=\gcd(x,y)\)
+    Compute the primitive perpendicular step \((y/g,\;x/g)\)
+
+    Count how many forward steps keep the point inside the square
+    Count how many backward steps keep the point inside the square
+
+    Add both counts to the running total
+
+Return the running total.
 ```
 
 ## Correctness

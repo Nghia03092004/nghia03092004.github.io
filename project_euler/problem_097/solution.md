@@ -36,14 +36,20 @@ $$N \bmod 10^{10} = (28433 \cdot (2^{7830457} \bmod 10^{10}) + 1) \bmod 10^{10}.
 The exponent $e = 7830457$ has $\lfloor \log_2 7830457 \rfloor + 1 = 23$ bits, so the computation requires 23 squarings and at most 23 multiplications modulo $10^{10}$. Since $10^{10} < 2^{34}$, all intermediate products fit in 64-bit arithmetic (using 128-bit intermediate results for the multiplication step).
 
 ## Editorial
-Uses Python's built-in three-argument pow(base, exp, mod) which implements binary exponentiation (repeated squaring) in O(log exp) modular multiplications. We evaluate the closed-form expressions derived above directly from the relevant parameters and return the resulting value.
+Only the last ten digits matter, so every operation can be performed modulo \(10^{10}\). That means we never need to build the enormous number \(2^{7830457}\) itself; we only need its residue modulo the target modulus.
+
+The heavy step is modular exponentiation, and repeated squaring handles that in logarithmic time. After computing \(2^{7830457} \bmod 10^{10}\), the remaining multiplication by \(28433\) and the final addition of \(1\) are done under the same modulus. The search space is therefore reduced from a huge integer to a short sequence of modular updates.
 
 ## Pseudocode
 
 ```text
-    m = 10^10
-    power = modular_exponentiation(2, 7830457, m)
-    Return (28433 * power + 1) mod m
+Set the modulus to \(10^{10}\).
+
+Compute the residue of \(2^{7830457}\) modulo this modulus.
+Multiply that residue by \(28433\).
+Add \(1\) and reduce once more modulo \(10^{10}\).
+
+Return the resulting last ten digits.
 ```
 
 ## Complexity Analysis

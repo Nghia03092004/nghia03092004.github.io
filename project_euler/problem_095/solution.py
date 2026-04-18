@@ -56,5 +56,5 @@ def solve(limit=1_000_000):
 
 if __name__ == "__main__":
     answer = solve()
-assert answer == 14316
-print(answer)
+    assert answer == 14316
+    print(answer)

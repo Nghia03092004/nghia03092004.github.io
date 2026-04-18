@@ -30,28 +30,33 @@ An *anagram pair* consists of two distinct words that are permutations of the sa
 **Proposition 1 (Search space bound).** For word length $n$, the number of $n$-digit perfect squares is $\lfloor\sqrt{10^n - 1}\rfloor - \lceil\sqrt{10^{n-1}}\rceil + 1 = \Theta(10^{n/2})$. For the given word list with maximum length $L \le 14$, this is at most $\sim 10^7$ squares per length, and the number of anagram groups and pairs is small, making the algorithm efficient.
 
 ## Editorial
-Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
+The natural first filter is anagram structure: only words in the same sorted-letter group can ever form a square anagram pair. Once those pairs are known, the real constraint is the repetition pattern of letters. A word can only match an \(n\)-digit square whose repeated digits occur in exactly the same pattern.
+
+The implementation therefore precomputes squares grouped by length and pattern, then tries each anagram pair against only the squares with the matching pattern. For each such square it builds the induced letter-to-digit bijection from the first word, applies that mapping to the second word, and checks whether the resulting number is also a square with no leading zero. That keeps the exploration focused on structurally compatible candidates instead of all substitutions.
 
 ## Pseudocode
 
 ```text
-    groups = group words by sort(w)
-    pairs = [(w1, w2) for each group with |group| >= 2, for each pair in group]
-    max_len = max word length among pairs
+Group the input words by sorted letters and keep all anagram pairs.
+Find the maximum word length among those pairs.
 
-    for each length n from max_len down to 1:
-        squares_n = {s^2 : ceil(sqrt(10^{n-1})) <= s <= floor(sqrt(10^n - 1))}
-        sq_by_pattern = group squares_n by pat(str(s^2))
+Precompute all squares up to that length, grouped by:
+    their number of digits
+    their repetition pattern
 
-        for each pair (w1, w2) of length n:
-            p = pat(w1)
-            For each each square s in sq_by_pattern[p]:
-                phi = mapping from w1's letters to s's digits
-                s' = apply phi to w2
-                If s' has no leading zero and is_perfect_square(s') then
-                    update best = max(best, s, s')
+Set the best square found so far to 0.
 
-    Return best
+For each anagram pair \((w_1,w_2)\):
+    Look up the list of squares having the same length and pattern as \(w_1\)
+
+    For each such square:
+        build the induced letter-to-digit bijection from \(w_1\)
+        apply it to \(w_2\)
+
+        If the mapped number has no leading zero and is a perfect square:
+            update the best answer with the larger of the two squares
+
+Return the best square found.
 ```
 
 ## Complexity Analysis
