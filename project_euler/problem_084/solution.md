@@ -68,18 +68,31 @@ $$\pi_s = \sum_{d=0}^{2} \pi_{(s,d)}.$$
 The three most visited squares are those with the largest values of $\pi_s$.
 
 ## Editorial
-Using two 4-sided dice, find the six-digit modal string for the three most popular squares in Monopoly via Monte Carlo simulation. We compute stationary distribution pi.
+The theoretical model is a Markov chain on states of the form "current square plus consecutive doubles count", because those are the only pieces of information that affect the next move. In principle one can solve the stationary distribution exactly from that state graph.
+
+The implementation takes the simulation route instead. It performs a very long random walk with a fixed seed, applies every Monopoly rule exactly as it occurs, and counts how often each square is visited. Each turn generates a candidate next state from the dice roll, and that state is then constrained by the special rules for three consecutive doubles, Go To Jail, Community Chest, and Chance. After enough turns, the empirical frequencies stabilize well enough that the top three squares produce the required modal string.
 
 ## Pseudocode
 
 ```text
-    Build 120 x 120 transition matrix P from the rules in Theorem 2
-    Compute stationary distribution pi:
-        Option A: Solve pi^T P = pi^T as a linear system (eigenvalue problem)
-        Option B: Power iteration: pi <- pi * P until convergence
-        Option C: Monte Carlo simulation with N >= 10^7 turns
-    Compute marginal: pi_square[s] = sum over d in {0,1,2} of pi[(s,d)]
-    Return top 3 squares by pi_square, formatted as 6-digit string
+Initialize the board position, the consecutive-doubles counter, and an array of visit counts.
+
+Repeat for a very large number of turns:
+    Roll two 4-sided dice
+    Update the doubles counter
+
+    If this is the third consecutive double:
+        move directly to JAIL
+    Otherwise:
+        move forward by the dice total
+        apply Go To Jail if needed
+        apply Community Chest if needed
+        apply Chance if needed, including next railroad, next utility, and go-back-three-squares effects
+
+    Increase the visit count of the final square for this turn
+
+Rank the 40 squares by visit count.
+Return the top three square numbers written as a six-digit string.
 ```
 
 ## Complexity Analysis

@@ -34,13 +34,27 @@ More formally, after the downward pass, $D[i][j]$ equals the minimum cost among 
 **Proof.** The problem requires the minimum over all valid paths. Since any valid path ends at some cell in column $n-1$, the global minimum is the minimum over all ending rows. $\square$
 
 ## Editorial
-We downward pass. Finally, upward pass. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+The key observation is that when we process one column at a time, every valid path enters the new column from the left exactly once and then moves vertically within that column. Because an optimal path never reverses vertical direction inside the same column, the only possibilities are a downward sweep or an upward sweep after entering.
+
+That is why two passes are enough. We first assume every row enters directly from the left, then propagate improvements downward to capture paths that enter higher and move down, and finally propagate improvements upward to capture paths that enter lower and move up. The candidates for each row in the current column are exactly these three forms, so after the two sweeps the column is fully optimized.
 
 ## Pseudocode
 
 ```text
-Downward pass
-Upward pass
+Initialize the current cost for each row using the values in the leftmost column.
+
+For each later column:
+    Start a new column cost array by entering every row directly from the left
+
+    Sweep from top to bottom:
+        update each row using the possibility of coming from the row above
+
+    Sweep from bottom to top:
+        update each row using the possibility of coming from the row below
+
+    Replace the current cost array with this optimized column
+
+Return the smallest value in the final column.
 ```
 
 ## Complexity Analysis

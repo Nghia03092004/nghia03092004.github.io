@@ -52,15 +52,21 @@ To convert an integer to minimal Roman numeral form, greedily subtract the large
 | I              | 1     |
 
 ### Editorial
-We parse each Roman numeral string to get its integer value. We then convert the integer back to minimal Roman numeral form. Finally, the savings for each numeral = (length of original) - (length of minimal).
+Each input numeral is already valid, so there is no need to reason about alternative parses. We simply convert it to its integer value and then rebuild the unique minimal Roman representation of that same value. The number of saved characters is just the difference in lengths.
+
+Both transformations are straightforward. Parsing is determined by the subtractive rule: a symbol contributes negatively only when it stands immediately before a larger symbol. Rebuilding is greedy from the standard minimal token table, because the special subtractive forms are already included. So the candidates are the symbols or token pairs allowed by Roman notation, and the minimal-form table is what constrains the output to the shortest legal representation.
 
 ### Pseudocode
 
 ```text
-Parse each Roman numeral string to get its integer value
-Convert the integer back to minimal Roman numeral form
-The savings for each numeral = (length of original) - (length of minimal)
-Sum all savings
+Set the total number of saved characters to 0.
+
+For each Roman numeral in the data file:
+    Parse it from left to right into an integer value
+    Rebuild that value as a minimal Roman numeral using the ordered token table
+    Add the difference in string lengths to the running total
+
+Return the running total.
 ```
 
 ### Examples of Savings
@@ -75,7 +81,7 @@ Sum all savings
 
 *Proof.* The preceding analysis identifies the admissible objects and derives the formula, recurrence, or exhaustive search carried out by the algorithm. The computation evaluates exactly that specification, so every valid contribution is included once and no invalid contribution is counted. Therefore the returned value is the required answer. $\square$
 
-## Complexity
+## Complexity Analysis
 
 - **Time:** $O(N \cdot L)$ where $N = 1000$ numerals and $L$ is the average length. Essentially $O(1)$ since all values are bounded.
 - **Space:** $O(N \cdot L)$.

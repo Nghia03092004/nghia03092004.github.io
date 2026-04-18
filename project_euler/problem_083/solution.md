@@ -24,24 +24,32 @@ Suppose for contradiction that $v$ is the first vertex extracted with $\mathrm{d
 **Corollary 1.** *Since all matrix entries are positive integers, $w(e) > 0$ for all edges, so Dijkstra's algorithm correctly solves the grid shortest-path problem.*
 
 ## Editorial
-Uses Dijkstra's algorithm. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+Allowing all four directions destroys the acyclic structure that made dynamic programming work in the previous path-sum problems. Once left moves are allowed, the grid contains cycles, so the natural model is no longer a DP table but a shortest-path graph where each cell is a vertex and moving into a neighboring cell costs that neighbor's value.
+
+Dijkstra's algorithm is exactly suited to this setting because all edge weights are positive. At any moment it expands the unsettled cell with the smallest known distance, and from there it generates candidate improvements for the four neighboring cells. Any move that goes outside the grid is discarded, and any move that does not improve the best known distance is ignored. When the bottom-right cell is extracted, its value is the true minimum path sum.
 
 ## Pseudocode
 
 ```text
-    dist[i][j] = infinity for all (i,j)
-    dist[0][0] = M[0][0]
-    PQ = min-priority queue containing (M[0][0], 0, 0)
-    while PQ is not empty:
-        (d, i, j) = PQ.extract_min()
-        if d > dist[i][j]: continue // stale entry
-        if (i,j) == (n-1, n-1): return d
-        for each neighbor (i', j') of (i, j):
-            new_dist = d + M[i'][j']
-            If new_dist < dist[i'][j'] then
-                dist[i'][j'] = new_dist
-                PQ.insert(new_dist, i', j')
-    Return dist[n-1][n-1]
+Create a distance table filled with infinity.
+Set the starting cell distance to its own matrix value.
+Place the starting cell into a min-priority queue.
+
+While the queue is not empty:
+    Remove the cell with the smallest tentative distance
+
+    If this entry is stale, skip it
+    If this cell is the bottom-right corner, return its distance
+
+    For each of the four neighboring cells:
+        If the neighbor lies outside the grid, ignore it
+
+        Compute the distance obtained by entering that neighbor
+        If this improves the recorded distance:
+            update the distance table
+            insert the improved state into the priority queue
+
+Return the recorded distance for the bottom-right corner.
 ```
 
 ## Complexity Analysis

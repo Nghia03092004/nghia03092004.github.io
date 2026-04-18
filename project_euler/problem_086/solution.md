@@ -57,19 +57,27 @@ $$\mathrm{Count}(M) = \sum_{c=1}^{M} \sum_{\substack{s=2 \\ s^2 + c^2 = \square}
 **Proof.** For each largest dimension $c \in \{1, \ldots, M\}$, the sum $s = a + b$ ranges over $\{2, \ldots, 2c\}$ (since $1 \le a \le b \le c$ implies $2 \le s \le 2c$). We include only those $s$ for which $s^2 + c^2$ is a perfect square (Lemma 1). For each qualifying $(s, c)$, Lemma 2 gives the count of valid $(a, b)$ decompositions. Summing over all $c$ yields the total. $\square$
 
 ## Editorial
-Shortest path for a <= b <= c: sqrt((a+b)^2 + c^2) Let s = a+b; need s^2 + c^2 = perfect square. Count of valid (a,b) for given (s,c): floor(s/2) - max(1, s-c) + 1.
+Once the cuboid is ordered as $a \le b \le c$, the shortest surface route depends only on $c$ and on the sum $s = a + b$. That collapses the geometric problem into a number-theoretic one: we only need to know when $s^2 + c^2$ is a perfect square.
+
+The implementation grows the largest side $c$ one value at a time. For that fixed $c$, it generates every possible sum $s$ with $2 \le s \le 2c$, keeps only the values for which the shortest path length is integral, and then counts how many pairs $(a,b)$ produce that same sum while respecting $a \le b \le c$. Those decompositions are the real candidates; the perfect-square test filters which sums contribute. The first $c$ for which the cumulative total exceeds one million is the answer.
 
 ## Pseudocode
 
 ```text
-    count = 0
-    c = 0
-    While count <= 1000000:
-        c = c + 1
-        For s from 2 to 2*c:
-            If is_perfect_square(s*s + c*c) then
-                count += max(0, floor(s/2) - max(1, s - c) + 1)
-    Return c
+Set the running total of valid cuboids to 0.
+Set the current maximum side length to 0.
+
+While the running total does not yet exceed one million:
+    Increase the maximum side length c by 1
+
+    For each possible sum s from 2 to 2c:
+        Compute s^2 + c^2
+        If this is not a perfect square, continue
+
+        Count how many pairs a <= b <= c satisfy a + b = s
+        Add that number of pairs to the running total
+
+Return the first value of c that makes the total exceed one million.
 ```
 
 ## Complexity Analysis

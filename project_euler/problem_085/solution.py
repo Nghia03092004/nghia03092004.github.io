@@ -36,8 +36,8 @@ def solve():
 
 def main():
     answer = solve()
-assert answer == 2772
-print(answer)
+    assert answer == 2772
+    print(answer)
 
 
 if __name__ == "__main__":

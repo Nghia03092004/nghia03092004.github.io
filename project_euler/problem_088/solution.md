@@ -31,15 +31,29 @@ For $k \le 12000$, we have $N_k \le 24000$.
 **Lower bound:** $N_k \ge k$ since the sum of $k$ numbers each $\ge 1$ is at least $k$.
 
 ### Editorial
-We iterate over each $N$ from 2 to 24000, enumerate all factorizations of $N$ into factors $\ge 2$. We then iterate over each factorization with factors $f_1, \ldots, f_m$, compute $k = N - \sum f_i + m$. Finally, finally, sum all distinct minimal product-sum numbers.
+The important simplification is that the ones never need to be generated explicitly. Once a factorization into numbers at least 2 is fixed, the number of ones required is forced, so the corresponding set size is determined by
+
+$$
+k = N - \sum f_i + m.
+$$
+
+That means the search is really over multiplicative cores rather than over full product-sum sets. The implementation checks each candidate value $N$ up to the standard bound $2k_{\max}$, recursively enumerates its factorizations in nondecreasing order to avoid duplicates, and turns each factorization into the implied value of $k$. Whenever that $k$ is in range, we update the best known product-sum number for that set size. At the end we take the distinct minima and sum them.
 
 ### Pseudocode
 
 ```text
-For each $N$ from 2 to 24000, enumerate all factorizations of $N$ into factors $\ge 2$
-For each factorization with factors $f_1, \ldots, f_m$, compute $k = N - \sum f_i + m$
-If $k \le 12000$ and $N < $ current best for $k$, update
-Finally, sum all distinct minimal product-sum numbers
+Create an array best where best[k] stores the smallest product-sum number found for that k.
+
+For each candidate value N from 2 up to 2 x 12000:
+    Recursively enumerate factorizations of N into nondecreasing factors at least 2
+
+    For each complete factorization:
+        compute the implied set size k using the product-sum formula
+        if 2 <= k <= 12000 and N improves best[k], update best[k]
+
+After all candidates have been processed:
+    collect the distinct values among best[2] through best[12000]
+    return their sum
 ```
 
 ### Factorization Enumeration
@@ -52,7 +66,7 @@ We use a recursive approach: for each $N$, enumerate factorizations where factor
 
 *Proof.* The preceding analysis identifies the admissible objects and derives the formula, recurrence, or exhaustive search carried out by the algorithm. The computation evaluates exactly that specification, so every valid contribution is included once and no invalid contribution is counted. Therefore the returned value is the required answer. $\square$
 
-## Complexity
+## Complexity Analysis
 
 - **Time:** $O(N_{\max} \cdot d(N))$ where $d(N)$ is the number of factorizations. In practice, very fast since most numbers have few factorizations.
 - **Space:** $O(k_{\max})$ for storing the minimal value per $k$.
