@@ -1,5 +1,6 @@
 ---
 import CompetitiveProgrammingPagination from '../../../../features/competitive-programming/components/CompetitiveProgrammingPagination.astro';
+import CompetitiveProgrammingEditorial from '../../../../features/competitive-programming/components/CompetitiveProgrammingEditorial.astro';
 import CompetitiveProgrammingSourceTabs from '../../../../features/competitive-programming/components/CompetitiveProgrammingSourceTabs.astro';
 import PostLayout from '../../../../layouts/PostLayout.astro';
 import { withBase } from '../../../../lib/paths';
@@ -9,6 +10,10 @@ import {
 	getCompetitiveProgrammingSources,
 	type CompetitiveProgrammingTrack,
 } from '../../../../features/competitive-programming/lib/competitive-programming';
+import {
+	extractLatexDocument,
+	renderLatexContent,
+} from '../../../../features/competitive-programming/lib/latex-editorial';
 
 export async function getStaticPaths() {
 	const records = await getCompetitiveProgrammingRecords();
@@ -47,21 +52,46 @@ const [records, sources] = await Promise.all([
 	getCompetitiveProgrammingRecords(track),
 	getCompetitiveProgrammingSources(record),
 ]);
+
+const latexDocument = extractLatexDocument(sources.tex);
+const statementFromTex =
+	!record.hasStatementText && latexDocument.statementSource
+		? renderLatexContent(latexDocument.statementSource, {
+				headingDepthOffset: 2,
+				headingSlugPrefix: `cp-statement-${record.id}`,
+			})
+		: undefined;
+const editorial = renderLatexContent(latexDocument.editorialSource || latexDocument.body, {
+	headingDepthOffset: 2,
+	headingSlugPrefix: `cp-editorial-${record.id}`,
+});
+const statementDescription =
+	record.hasStatementText && sources.statementText
+		? 'Copied statement text kept beside the solution archive for direct reference.'
+		: statementFromTex
+			? `Rendered from the "${latexDocument.statementTitle ?? 'Problem Statement'}" section inside solution.tex because this entry has no separate statement file.`
+			: 'This archive entry does not include a standalone statement file or a dedicated statement section in solution.tex.';
+
 const currentIndex = records.findIndex((entry) => entry.id === record.id);
 const previousRecord = currentIndex > 0 ? records[currentIndex - 1] : undefined;
 const nextRecord =
 	currentIndex >= 0 && currentIndex < records.length - 1 ? records[currentIndex + 1] : undefined;
+
 const headings = [
-	{ depth: 2, slug: 'archive-overview', text: 'Archive Overview' },
-	...(record.hasStatementText ? [{ depth: 2, slug: 'problem-statement', text: 'Problem Statement' }] : []),
+	{ depth: 2, slug: 'problem-statement', text: 'Problem Statement' },
+	{ depth: 2, slug: 'editorial', text: 'Editorial' },
+	...editorial.headings,
+	{ depth: 2, slug: 'code', text: 'Code' },
 	{ depth: 2, slug: 'source-files', text: 'Source Files' },
 ];
+
 const metaItems = [
 	{ label: 'Track', value: record.trackLabel },
 	{ label: 'Year', value: String(record.year) },
 	{ label: 'Files', value: record.hasStatementText ? 'TeX, C++, statement assets' : 'TeX and C++' },
 	{ label: 'Folder', value: record.sourceDirectory },
 ];
+
 const tags = [
 	record.trackLabel,
 	String(record.year),
@@ -70,9 +100,11 @@ const tags = [
 	...(record.hasStatementText ? ['statement text'] : []),
 	...(record.hasStatementPdf ? ['statement pdf'] : []),
 ];
+
 const primaryLink = record.hasStatementPdf
 	? { label: 'Open statement PDF', href: withBase(record.assetUrls.statementPdf!) }
 	: { label: 'Open raw TeX', href: withBase(record.assetUrls.tex) };
+
 const secondaryLinks = [
 	{ label: 'Open raw C++', href: withBase(record.assetUrls.cpp) },
 	...(record.assetUrls.statementText
@@ -123,38 +155,85 @@ const secondaryLinks = [
 		</div>
 	</section>
 
-	{
-		record.hasStatementText && sources.statementText ? (
-			<section class="cp-statement panel" id="problem-statement">
-				<div class="cp-statement__header">
-					<div>
-						<span class="section-label">Statement</span>
-						<h2>Copied statement text</h2>
-						<p>
-							This is the statement text copied into the archive beside the solution files for easier
-							reference and GitHub browsing.
+	<section class="cp-content cp-content--statement panel" id="problem-statement">
+		<div class="cp-content__header">
+			<div>
+				<span class="section-label">Problem statement</span>
+				<h2>Problem Statement</h2>
+				<p>{statementDescription}</p>
+			</div>
+			<div class="cp-content__actions">
+				{record.assetUrls.statementText ? (
+					<a class="button button--ghost" href={withBase(record.assetUrls.statementText)}>
+						Raw text
+					</a>
+				) : null}
+				{record.assetUrls.statementPdf ? (
+					<a class="button button--ghost" href={withBase(record.assetUrls.statementPdf)}>
+						Statement PDF
+					</a>
+				) : null}
+				{!record.assetUrls.statementText && !record.assetUrls.statementPdf ? (
+					<a class="button button--ghost" href={withBase(record.assetUrls.tex)}>
+						Raw TeX
+					</a>
+				) : null}
+			</div>
+		</div>
+
+		{
+			record.hasStatementText && sources.statementText ? (
+				<pre class="cp-statement__plain"><code>{sources.statementText}</code></pre>
+			) : statementFromTex ? (
+				<>
+					{statementFromTex.usedFallback ? (
+						<p class="cp-content__notice">
+							The statement section falls back to raw TeX display because the copied source could not
+							be normalized safely.
 						</p>
-					</div>
-					<div class="cp-statement__actions">
-						{record.assetUrls.statementText ? (
-							<a class="button button--ghost" href={withBase(record.assetUrls.statementText)}>
-								Raw text
-							</a>
-						) : null}
-						{record.assetUrls.statementPdf ? (
-							<a class="button button--ghost" href={withBase(record.assetUrls.statementPdf)}>
-								Statement PDF
-							</a>
-						) : null}
-					</div>
-				</div>
-				<pre class="cp-statement__text"><code>{sources.statementText}</code></pre>
-			</section>
-		) : null
-	}
+					) : null}
+					<div class="cp-content__body" data-cp-math-content set:html={statementFromTex.html} />
+				</>
+			) : (
+				<p class="cp-content__notice">
+					The statement is not mirrored as a separate asset in this archive. The editorial and source
+					files remain available below.
+				</p>
+			)
+		}
+	</section>
+
+	<CompetitiveProgrammingEditorial
+		html={editorial.html}
+		rawUrl={record.assetUrls.tex}
+		usedFallback={editorial.usedFallback}
+	/>
+
+	<CompetitiveProgrammingSourceTabs
+		rootId={`cp-code-${record.id}`}
+		sectionId="code"
+		sectionLabel="Source code"
+		title="Code"
+		description="Exact copied C++ implementation from solution.cpp."
+		tabs={[
+			{
+				id: 'cpp',
+				label: 'C++',
+				description: 'Exact copied implementation source.',
+				path: record.sourcePaths.cpp,
+				rawUrl: record.assetUrls.cpp,
+				languageClass: 'language-cpp',
+				source: sources.cpp,
+			},
+		]}
+	/>
 
 	<CompetitiveProgrammingSourceTabs
 		rootId={`cp-source-${record.id}`}
+		sectionId="source-files"
+		sectionLabel="Source files"
+		title="Source Files"
+		description="Exact copied source-of-truth files. Edit solution.tex for the write-up and solution.cpp for the implementation."
 		tabs={[
 			{
 				id: 'tex',
@@ -177,8 +256,5 @@ const secondaryLinks = [
 		]}
 	/>
 
-	<CompetitiveProgrammingPagination
-		previous={previousRecord}
-		next={nextRecord}
-	/>
+	<CompetitiveProgrammingPagination previous={previousRecord} next={nextRecord} />
 </PostLayout>
