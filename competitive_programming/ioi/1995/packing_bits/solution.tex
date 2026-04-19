@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1995 -- Packing Bits}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a sequence of bits (0s and 1s) represented in a specific input format,
+pack them into bytes (groups of 8 bits) and output the result.
+
+\medskip
+\noindent\textbf{Input format:}
+\begin{itemize}
+  \item First line: $n$, the total number of bits.
+  \item Following lines: bits given as integers (each either 0 or 1),
+        up to 8 values per line.
+\end{itemize}
+
+\noindent\textbf{Output format:}
+Pack every 8 consecutive bits into one byte (most significant bit first) and output
+each byte as a decimal integer (0--255), with 8 values per output line.
+If the last group has fewer than 8 bits, pad with zeros on the right.
+
+\section{Solution Approach}
+
+This is a straightforward simulation problem.
+
+\begin{enumerate}
+  \item Read all $n$ bits into an array.
+  \item Pad the array with zeros so that its length is a multiple of 8.
+  \item Process the bits in groups of 8. For each group, compute the byte value:
+        \[
+          \text{byte} = \sum_{i=0}^{7} b_i \cdot 2^{7-i}.
+        \]
+  \item Output the resulting bytes, 8 per line.
+\end{enumerate}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <vector>
+using namespace std;
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    vector<int> bits(n);
+    for (int i = 0; i < n; i++)
+        scanf("%d", &bits[i]);
+
+    // Pad to a multiple of 8
+    while (bits.size() % 8 != 0)
+        bits.push_back(0);
+
+    int numBytes = bits.size() / 8;
+    for (int i = 0; i < numBytes; i++) {
+        int val = 0;
+        for (int j = 0; j < 8; j++)
+            val = val * 2 + bits[i * 8 + j];
+
+        if (i > 0 && i % 8 == 0)
+            printf("\n");
+        else if (i > 0)
+            printf(" ");
+        printf("%d", val);
+    }
+    printf("\n");
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n)$. Each bit is read once and each group
+        of 8 bits is processed in constant time.
+  \item \textbf{Space complexity:} $O(n)$ to store all bits. This could be reduced to
+        $O(1)$ by processing on the fly, accumulating 8 bits at a time before outputting.
+\end{itemize}
+
+\end{document}

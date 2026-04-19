@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\D. Doubles Horseback Wrestling}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Riders $i$ and $j$ can form a valid pair if there exist ratings
+$r_i \in [l_i, u_i]$ and $r_j \in [l_j, u_j]$ such that $r_i + r_j = s$.
+Equivalently,
+\[
+    l_i + l_j \le s \le u_i + u_j.
+\]
+We must output a maximum-cardinality matching in this graph.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Sort riders by increasing $l$.
+    \item For a fixed rider $i$, any partner $j$ with smaller or equal $l$ must satisfy
+    $l_j \le s - l_i$ and $u_j \ge s - u_i$.
+    \item If we process riders from large $l$ down to small $l$, then when rider $i$ is current, every still
+    unprocessed rider with $l_j \le s - l_i$ is already known and can be placed in a pool.
+    \item Among feasible partners in that pool, it is optimal to use the one with the smallest possible $u$.
+    A larger $u$ can only help future riders more than a smaller $u$ can.
+    \item If rider $i$ cannot be matched when it is processed, then it can never be matched later: all later
+    riders have even smaller $l$, so rider $i$ would still need a partner from the same pool, and the lower
+    bound on $u_j$ would only get harder to satisfy for rider $i$ itself.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Sort riders by increasing $l$.
+    \item Scan the sorted list from right to left.
+    \item Maintain a multiset of still-unmatched riders to the left of the current position whose lower bound
+    already satisfies $l_j \le s - l_i$. Store them ordered by $u_j$.
+    \item For the current rider $i$, find in the multiset the rider with smallest $u_j \ge s - u_i$.
+    \item If such a rider exists, match them and remove that rider from the multiset. Otherwise leave $i$
+    unmatched forever.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs a maximum matching.
+
+\paragraph{Lemma 1.}
+When rider $i$ is processed, the multiset contains exactly the unmatched riders $j$ to the left of $i$
+such that $l_j \le s - l_i$.
+
+\paragraph{Proof.}
+We scan riders in decreasing order of $l_i$. A pointer grows over the left prefix and inserts every rider
+whose $l_j$ has become small enough to satisfy $l_j \le s - l_i$. Since $s - l_i$ only increases during the
+scan, every such rider is inserted exactly once. We remove riders only when they are matched or when a
+former pool rider becomes the current rider itself. Therefore the multiset contains exactly the still-unmatched
+eligible riders to the left. \qed
+
+\paragraph{Lemma 2.}
+If rider $i$ is matched, choosing among all feasible partners the one with minimum $u_j$ cannot decrease
+the size of an optimal completion.
+
+\paragraph{Proof.}
+Let $j$ be the feasible partner with minimum $u_j$, and suppose some optimal solution matches $i$ with
+another feasible rider $k$. Since both are feasible for $i$, we have
+\[
+u_j \le u_k, \qquad l_j \le s - l_i, \qquad u_j \ge s - u_i.
+\]
+Replace pair $(i,k)$ by $(i,j)$. Any other rider that could be matched with $j$ in the optimal solution also
+has lower-bound requirement at most the requirement used for $i$ at this moment, and using the smaller
+$u_j$ instead of $u_k$ only frees the larger $u_k$ for later riders. So we can swap $j$ into $i$'s pair and
+use $k$ wherever $j$ was used, or leave $k$ unmatched if $j$ was unused. The number of pairs does not
+decrease. \qed
+
+\paragraph{Lemma 3.}
+If rider $i$ has no feasible partner when processed, then there exists an optimal matching in which $i$ is
+unmatched.
+
+\paragraph{Proof.}
+By Lemma 1, every possible partner of $i$ among still-unprocessed riders is already in the multiset. If no
+feasible rider there has $u_j \ge s - u_i$, then no rider to the left can pair with $i$. Riders to the right have
+already been processed and, in any pair containing $i$, rider $i$ would be the larger-$l$ endpoint. Hence
+all possible pairings involving $i$ have already been considered, and none is feasible. Therefore $i$ can be
+left unmatched in some optimal solution. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs a maximum-cardinality set of disjoint valid pairs.
+
+\paragraph{Proof.}
+Consider the riders in the order processed by the algorithm. By Lemma 2, whenever the algorithm matches
+the current rider, there exists an optimal solution consistent with that choice. By Lemma 3, whenever the
+algorithm leaves the current rider unmatched, there exists an optimal solution consistent with that choice as
+well. Inductively, after every step there remains an optimal solution consistent with all choices already made
+by the algorithm. After the final step, the algorithm itself is such an optimal solution. \qed
+
+\section*{Complexity Analysis}
+
+Sorting costs $O(n \log n)$. Every rider is inserted into and removed from the multiset at most once, and
+every query is one \texttt{lower\_bound}, so the total running time is $O(n \log n)$. The memory usage is
+$O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The multiset stores pairs $(u_j,\text{position})$ so duplicates in $u_j$ are handled naturally.
+    \item A rider may enter the multiset before becoming the current rider later; in that case we remove its
+    own entry before processing it.
+    \item The output may list the pairs in any order.
+\end{itemize}
+
+\end{document}

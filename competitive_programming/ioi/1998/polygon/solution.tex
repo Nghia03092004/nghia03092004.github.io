@@ -1,0 +1,225 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1998 -- Polygon}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A polygon-shaped game has $n$ vertices labeled with integers and $n$ edges labeled
+with \texttt{+} (addition) or \texttt{*} (multiplication). The vertices and edges
+alternate around the polygon: edge $i$ connects vertex $i$ to vertex $i+1$
+(with edge $n$ connecting vertex $n$ to vertex 1).
+
+The game proceeds in two phases:
+\begin{enumerate}
+  \item Remove one edge, converting the polygon into a chain of $n$ vertices and $n-1$ edges.
+  \item Repeatedly merge two adjacent vertices via their connecting edge: replace
+        the pair with a single vertex whose value is the result of the edge's operation
+        applied to the two vertex values. Continue until one vertex remains.
+\end{enumerate}
+
+Find the maximum possible value of the final vertex, considering all choices of
+which edge to remove and all merge orders.
+
+\medskip
+\noindent\textbf{Constraints:} $3 \le n \le 50$, vertex values in $[-32768, 32767]$.
+
+\section{Solution Approach}
+
+\subsection{Circular Interval DP}
+
+The problem is analogous to \textbf{optimal matrix chain multiplication} with the
+added complication that multiplication of negative numbers can turn a minimum into
+a maximum. We track both the maximum and minimum achievable values for each sub-interval.
+
+\subsection{Handling the Circle}
+
+Double the sequence: vertices $v_0, \ldots, v_{n-1}, v_0, \ldots, v_{n-1}$ (and
+similarly for edges). Then every contiguous sub-chain of length $n$ corresponds to
+removing one particular edge.
+
+\subsection{DP with Min and Max}
+
+For interval $[i, j]$ of the doubled sequence, define:
+\begin{align*}
+  \mathrm{maxDP}[i][j] &= \text{maximum value achievable from vertices } i \text{ through } j, \\
+  \mathrm{minDP}[i][j] &= \text{minimum value achievable from vertices } i \text{ through } j.
+\end{align*}
+
+\textbf{Base case:} $\mathrm{maxDP}[i][i] = \mathrm{minDP}[i][i] = v_i$.
+
+\textbf{Recurrence:} For each split point $k \in [i, j{-}1]$, let the edge between
+positions $k$ and $k+1$ have operation $\mathrm{op}$:
+\begin{itemize}
+  \item If $\mathrm{op} = $ \texttt{+}:
+    \begin{align*}
+      \mathrm{maxDP}[i][j] &\gets \max\bigl(\mathrm{maxDP}[i][k] + \mathrm{maxDP}[k{+}1][j]\bigr), \\
+      \mathrm{minDP}[i][j] &\gets \min\bigl(\mathrm{minDP}[i][k] + \mathrm{minDP}[k{+}1][j]\bigr).
+    \end{align*}
+  \item If $\mathrm{op} = $ \texttt{*}: consider all four products of min/max from each half,
+    since multiplying two negatives yields a positive:
+    \begin{align*}
+      \text{candidates} = \{&\mathrm{maxDP}[i][k] \cdot \mathrm{maxDP}[k{+}1][j],\;
+                             \mathrm{maxDP}[i][k] \cdot \mathrm{minDP}[k{+}1][j], \\
+                            &\mathrm{minDP}[i][k] \cdot \mathrm{maxDP}[k{+}1][j],\;
+                             \mathrm{minDP}[i][k] \cdot \mathrm{minDP}[k{+}1][j]\}.
+    \end{align*}
+\end{itemize}
+
+\subsection{Edge Indexing}
+
+In the doubled array, the edge between positions $k$ and $k+1$ is edge
+$(k + 1) \bmod n$ from the original polygon. This is because the input format gives
+edge $i$ \emph{before} vertex $i$: the $i$-th input line contains edge $i$'s operation
+followed by vertex $i$'s value, where edge $i$ connects vertex $i{-}1$ to vertex $i$
+(cyclically). So the edge between positions $k$ and $k+1$ in our 0-indexed array
+corresponds to edge $(k+1) \bmod n$.
+
+\subsection{Answer}
+
+The answer is $\max_{0 \le i < n} \mathrm{maxDP}[i][i + n - 1]$.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <climits>
+using namespace std;
+
+typedef long long ll;
+const ll NEG_INF = -1e18;
+const ll POS_INF = 1e18;
+
+int n;
+ll val[105];     // vertex values (doubled)
+char op[105];    // edge operations (doubled): 't' for +, 'x' for *
+
+ll maxDP[105][105], minDP[105][105];
+
+int main() {
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        char c;
+        int v;
+        scanf(" %c %d", &c, &v);
+        op[i] = c;
+        val[i] = v;
+    }
+
+    // Double the arrays for circular handling
+    for (int i = 0; i < n; i++) {
+        val[i + n] = val[i];
+        op[i + n] = op[i];
+    }
+
+    int N = 2 * n;
+
+    // Initialize DP
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++) {
+            maxDP[i][j] = NEG_INF;
+            minDP[i][j] = POS_INF;
+        }
+
+    for (int i = 0; i < N; i++) {
+        maxDP[i][i] = val[i];
+        minDP[i][i] = val[i];
+    }
+
+    // Fill DP for increasing interval lengths
+    for (int len = 2; len <= n; len++) {
+        for (int i = 0; i + len - 1 < N; i++) {
+            int j = i + len - 1;
+            for (int k = i; k < j; k++) {
+                // Edge between position k and k+1 is op[(k+1) % n]
+                char o = op[(k + 1) % n];
+
+                if (o == 't') {
+                    maxDP[i][j] = max(maxDP[i][j],
+                        maxDP[i][k] + maxDP[k+1][j]);
+                    minDP[i][j] = min(minDP[i][j],
+                        minDP[i][k] + minDP[k+1][j]);
+                } else { // multiplication
+                    ll cands[4] = {
+                        maxDP[i][k] * maxDP[k+1][j],
+                        maxDP[i][k] * minDP[k+1][j],
+                        minDP[i][k] * maxDP[k+1][j],
+                        minDP[i][k] * minDP[k+1][j]
+                    };
+                    for (int c = 0; c < 4; c++) {
+                        maxDP[i][j] = max(maxDP[i][j], cands[c]);
+                        minDP[i][j] = min(minDP[i][j], cands[c]);
+                    }
+                }
+            }
+        }
+    }
+
+    // Find maximum over all starting positions (each = removing one edge)
+    ll ans = NEG_INF;
+    for (int i = 0; i < n; i++)
+        ans = max(ans, maxDP[i][i + n - 1]);
+
+    printf("%lld\n", ans);
+
+    // Print which edge removals achieve the maximum (1-indexed)
+    for (int i = 0; i < n; i++)
+        if (maxDP[i][i + n - 1] == ans)
+            printf("%d ", i + 1);
+    printf("\n");
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Correctness}
+
+\begin{itemize}
+  \item We track both $\mathrm{maxDP}$ and $\mathrm{minDP}$ because multiplication with negative
+        numbers can invert the ordering. All four products of extrema are considered.
+  \item The doubled-array technique correctly enumerates all $n$ ways to break the circle.
+  \item Using \texttt{long long} prevents overflow: vertex values up to $32767$ and
+        up to 50 multiplications could produce values up to $32767^{50}$, but in practice
+        the intermediate values stay within \texttt{long long} range due to the alternation
+        of additions and multiplications, and the constraint structure.
+\end{itemize}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n^3)$. There are $O(n^2)$ intervals in the doubled
+        array (only those of length $\le n$), each with $O(n)$ split points.
+        For $n = 50$: about $125{,}000$ operations.
+  \item \textbf{Space complexity:} $O(n^2)$ for the DP tables.
+\end{itemize}
+
+\end{document}

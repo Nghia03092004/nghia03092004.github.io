@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2009 -- Garage}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A parking garage has $N$ spots with rates $r_1, \ldots, r_N$ (rate per unit weight). There are $M$ cars with weights $w_1, \ldots, w_M$. Cars arrive and depart in a given sequence of $2M$ events. On arrival, a car is assigned the lowest-numbered free spot; if none is free, it waits in a FIFO queue. On departure, the freed spot is offered to the first queued car (which gets the lowest-numbered free spot). The parking fee for a car assigned spot $j$ is $r_j \cdot w_{\text{car}}$. Compute the total revenue.
+
+\section{Solution}
+This is a direct simulation.
+\begin{enumerate}
+    \item Maintain a \texttt{set<int>} of available spots (auto-sorted, smallest first).
+    \item Maintain a \texttt{queue<int>} of waiting cars.
+    \item Process each event:
+    \begin{itemize}
+        \item \textbf{Arrival of car $c$}: If a spot is free, assign the smallest; otherwise enqueue.
+        \item \textbf{Departure of car $c$}: Free its spot. If the queue is non-empty, assign the smallest free spot to the front car.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(M \log N)$.
+    \item \textbf{Space:} $O(N + M)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, M;
+    cin >> N >> M;
+
+    vector<int> rate(N + 1);
+    for(int i = 1; i <= N; i++) cin >> rate[i];
+
+    vector<int> weight(M + 1);
+    for(int i = 1; i <= M; i++) cin >> weight[i];
+
+    set<int> available;
+    for(int i = 1; i <= N; i++) available.insert(i);
+
+    queue<int> waiting;
+    map<int, int> carSpot;
+    long long revenue = 0;
+
+    for(int e = 0; e < 2 * M; e++){
+        int x;
+        cin >> x;
+        if(x > 0){
+            if(!available.empty()){
+                int spot = *available.begin();
+                available.erase(available.begin());
+                carSpot[x] = spot;
+                revenue += (long long)rate[spot] * weight[x];
+            } else {
+                waiting.push(x);
+            }
+        } else {
+            int car = -x;
+            int spot = carSpot[car];
+            carSpot.erase(car);
+            available.insert(spot);
+            if(!waiting.empty()){
+                int nextCar = waiting.front();
+                waiting.pop();
+                int bestSpot = *available.begin();
+                available.erase(available.begin());
+                carSpot[nextCar] = bestSpot;
+                revenue += (long long)rate[bestSpot] * weight[nextCar];
+            }
+        }
+    }
+
+    cout << revenue << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

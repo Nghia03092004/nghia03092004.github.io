@@ -1,0 +1,143 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1991 -- Problem 1: Island}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given an $R \times C$ grid where each cell is either land (\texttt{1}) or
+water (\texttt{0}), count the number of islands. An island is a maximal
+connected component of land cells under 4-directional adjacency (up, down,
+left, right).
+
+\section{Solution}
+
+This is the classic connected-components-on-a-grid problem, solved by flood
+fill.
+
+\subsection{Algorithm}
+
+\begin{enumerate}
+  \item Iterate through every cell $(i, j)$ in the grid.
+  \item When an unvisited land cell is found, increment the island counter
+    and perform a BFS (or DFS) to mark all reachable land cells as visited.
+  \item The final counter equals the number of islands.
+\end{enumerate}
+
+\subsection{Correctness}
+
+Each BFS/DFS from an unvisited land cell discovers exactly one maximal
+connected component, since it visits all cells reachable via 4-adjacency
+from the starting cell. Two distinct BFS calls never visit the same cell,
+so each component is counted exactly once.
+
+\subsection{BFS vs.\ DFS}
+
+BFS (using a queue) avoids the risk of stack overflow on large grids, which
+can occur with recursive DFS. We use BFS here.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(RC)$. Each cell is enqueued and processed at most
+    once.
+  \item \textbf{Space:} $O(RC)$ for the visited array. The BFS queue holds
+    at most $O(\min(R, C))$ elements for typical grid shapes, though
+    worst-case it can hold $O(RC)$ elements.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+int main() {
+    int R, C;
+    cin >> R >> C;
+
+    vector<vector<int>> grid(R, vector<int>(C));
+    vector<vector<bool>> visited(R, vector<bool>(C, false));
+
+    for (int i = 0; i < R; i++)
+        for (int j = 0; j < C; j++)
+            cin >> grid[i][j];
+
+    const int dx[] = {0, 0, 1, -1};
+    const int dy[] = {1, -1, 0, 0};
+
+    int islands = 0;
+
+    for (int i = 0; i < R; i++) {
+        for (int j = 0; j < C; j++) {
+            if (grid[i][j] == 1 && !visited[i][j]) {
+                islands++;
+                queue<pair<int,int>> q;
+                q.push({i, j});
+                visited[i][j] = true;
+
+                while (!q.empty()) {
+                    auto [r, c] = q.front();
+                    q.pop();
+                    for (int d = 0; d < 4; d++) {
+                        int nr = r + dx[d];
+                        int nc = c + dy[d];
+                        if (nr >= 0 && nr < R && nc >= 0 && nc < C
+                            && !visited[nr][nc]
+                            && grid[nr][nc] == 1) {
+                            visited[nr][nc] = true;
+                            q.push({nr, nc});
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    cout << islands << endl;
+    return 0;
+}
+\end{lstlisting}
+
+\section{Example}
+
+\begin{verbatim}
+Input (5 x 5):
+1 1 0 0 0
+1 1 0 0 1
+0 0 0 1 1
+0 0 0 0 0
+1 0 1 0 1
+
+Output: 5
+\end{verbatim}
+
+The five islands are: $\{(0,0),(0,1),(1,0),(1,1)\}$,
+$\{(1,4),(2,3),(2,4)\}$, $\{(4,0)\}$, $\{(4,2)\}$, and $\{(4,4)\}$.
+
+\end{document}

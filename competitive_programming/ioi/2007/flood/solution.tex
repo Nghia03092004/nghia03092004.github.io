@@ -1,0 +1,161 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2007 -- Flood}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A city is represented by $N$ points and $W$ axis-aligned walls (segments between pairs of points). After a flood, water fills all regions not enclosed by walls. A wall is \textbf{visible} (survives) if and only if it separates a flooded region from a dry region. Determine which walls remain visible.
+
+\section{Solution}
+
+\subsection{Coordinate Compression and Expanded Grid}
+The standard technique for planar subdivision problems:
+\begin{enumerate}
+    \item \textbf{Compress coordinates.} Collect all distinct $x$- and $y$-values. Each compressed cell $(i, j)$ represents the rectangular region between consecutive coordinate lines.
+    \item \textbf{Expand the grid.} Use a grid of size $(2R+1) \times (2C+1)$ where $R$ and $C$ are the numbers of distinct $y$- and $x$-values. Cells at odd-odd indices represent regions; cells at even indices represent edges or corners. This lets both regions and boundaries coexist as grid cells.
+    \item \textbf{Mark walls.} Each wall blocks traversal through the corresponding edge cells.
+    \item \textbf{Flood-fill from exterior.} BFS from all boundary cells of the expanded grid, stopping at blocked cells. All reached region-cells are ``flooded.''
+    \item \textbf{Determine visibility.} A wall is visible if and only if the two region-cells on either side have different flood status (one flooded, one dry).
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N^2)$ where $N$ is the number of points, since the compressed grid has $O(N) \times O(N)$ cells.
+    \item \textbf{Space:} $O(N^2)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    vector<int> px(N), py(N);
+    for(int i = 0; i < N; i++) cin >> px[i] >> py[i];
+
+    int W;
+    cin >> W;
+    vector<int> wa(W), wb(W);
+    for(int i = 0; i < W; i++){
+        cin >> wa[i] >> wb[i];
+        wa[i]--; wb[i]--;
+    }
+
+    // Coordinate compression
+    vector<int> xs(px), ys(py);
+    sort(xs.begin(), xs.end()); xs.erase(unique(xs.begin(), xs.end()), xs.end());
+    sort(ys.begin(), ys.end()); ys.erase(unique(ys.begin(), ys.end()), ys.end());
+    auto cx = [&](int x){ return lower_bound(xs.begin(), xs.end(), x) - xs.begin(); };
+    auto cy = [&](int y){ return lower_bound(ys.begin(), ys.end(), y) - ys.begin(); };
+
+    int R = ys.size(), C = xs.size();
+    int GR = 2 * R + 1, GC = 2 * C + 1;
+    vector<vector<bool>> blocked(GR, vector<bool>(GC, false));
+
+    // Mark wall segments on the expanded grid
+    for(int i = 0; i < W; i++){
+        int x1 = cx(px[wa[i]]), y1 = cy(py[wa[i]]);
+        int x2 = cx(px[wb[i]]), y2 = cy(py[wb[i]]);
+        if(x1 == x2){ // vertical wall
+            int mn = min(y1, y2), mx = max(y1, y2);
+            for(int r = 2*mn; r <= 2*mx; r++)
+                blocked[r][2*x1] = true;
+        } else { // horizontal wall
+            int mn = min(x1, x2), mx = max(x1, x2);
+            for(int c = 2*mn; c <= 2*mx; c++)
+                blocked[2*y1][c] = true;
+        }
+    }
+
+    // BFS from boundary to mark flooded cells
+    vector<vector<bool>> flooded(GR, vector<bool>(GC, false));
+    queue<pair<int,int>> q;
+    for(int r = 0; r < GR; r++)
+        for(int c = 0; c < GC; c++)
+            if((r == 0 || r == GR-1 || c == 0 || c == GC-1)
+               && !blocked[r][c]){
+                flooded[r][c] = true;
+                q.push({r, c});
+            }
+
+    const int dr[] = {-1, 1, 0, 0};
+    const int dc[] = {0, 0, -1, 1};
+    while(!q.empty()){
+        auto [r, c] = q.front(); q.pop();
+        for(int d = 0; d < 4; d++){
+            int nr = r + dr[d], nc = c + dc[d];
+            if(nr < 0 || nr >= GR || nc < 0 || nc >= GC) continue;
+            if(flooded[nr][nc] || blocked[nr][nc]) continue;
+            flooded[nr][nc] = true;
+            q.push({nr, nc});
+        }
+    }
+
+    // Check each wall for visibility
+    vector<int> result;
+    for(int i = 0; i < W; i++){
+        int x1 = cx(px[wa[i]]), y1 = cy(py[wa[i]]);
+        int x2 = cx(px[wb[i]]), y2 = cy(py[wb[i]]);
+        bool visible = false;
+
+        if(x1 == x2){ // vertical wall: check left vs right
+            int mn = min(y1, y2), mx = max(y1, y2);
+            int gc = 2 * x1;
+            for(int r = 2*mn+1; r <= 2*mx-1; r += 2){
+                bool left  = (gc > 0)      ? flooded[r][gc-1] : true;
+                bool right = (gc < GC - 1) ? flooded[r][gc+1] : true;
+                if(left != right){ visible = true; break; }
+            }
+        } else { // horizontal wall: check above vs below
+            int mn = min(x1, x2), mx = max(x1, x2);
+            int gr = 2 * y1;
+            for(int c = 2*mn+1; c <= 2*mx-1; c += 2){
+                bool above = (gr > 0)      ? flooded[gr-1][c] : true;
+                bool below = (gr < GR - 1) ? flooded[gr+1][c] : true;
+                if(above != below){ visible = true; break; }
+            }
+        }
+        if(visible) result.push_back(i + 1);
+    }
+
+    cout << result.size() << "\n";
+    for(int id : result) cout << id << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The expanded-grid trick is the central idea. By doubling coordinates and inserting interstitial cells, walls (even-indexed cells) and regions (odd-odd cells) coexist in a single grid, enabling a standard BFS flood-fill. Boundary cells of the expanded grid are guaranteed to be ``outside'' all walls.
+
+\end{document}

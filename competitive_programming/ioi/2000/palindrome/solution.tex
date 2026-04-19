@@ -1,0 +1,182 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2000 -- Palindrome}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a string $S$ of length $N$ ($N \le 5000$), find the minimum number of
+characters that must be inserted (at any positions) to make $S$ a palindrome.
+
+\section{Solution Approach}
+
+\subsection{Key Observation}
+
+The minimum number of insertions equals:
+\[
+  N - \mathrm{LPS}(S),
+\]
+where $\mathrm{LPS}(S)$ is the length of the \textbf{longest palindromic subsequence}
+of $S$.
+
+\begin{proof}
+Every palindrome of length $\ell$ that contains $S$ as a subsequence has length
+$\ge 2N - \ell$ where $\ell$ is the longest palindromic subsequence of $S$
+(the LPS characters stay in place; each non-LPS character requires one insertion
+to create its mirror). The minimum palindrome length achievable is $2N - \mathrm{LPS}(S)$,
+requiring $N - \mathrm{LPS}(S)$ insertions.
+\end{proof}
+
+\subsection{Reduction to LCS}
+
+The longest palindromic subsequence of $S$ equals the longest common subsequence
+of $S$ and its reverse $S^R$:
+\[
+  \mathrm{LPS}(S) = \mathrm{LCS}(S, S^R).
+\]
+
+\subsection{Space-Optimized LCS}
+
+Standard LCS uses an $N \times N$ table, which for $N = 5000$ is 100 MB (too large).
+Since each row of the LCS table depends only on the previous row, we use a rolling
+two-row approach, reducing space to $O(N)$.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    char S[5001];
+    scanf("%s", S);
+
+    // Reverse of S
+    char T[5001];
+    for (int i = 0; i < N; i++)
+        T[i] = S[N - 1 - i];
+    T[N] = '\0';
+
+    // LCS(S, T) with O(N) space
+    vector<int> prev(N + 1, 0), curr(N + 1, 0);
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            if (S[i - 1] == T[j - 1]) {
+                curr[j] = prev[j - 1] + 1;
+            } else {
+                curr[j] = max(prev[j], curr[j - 1]);
+            }
+        }
+        swap(prev, curr);
+        fill(curr.begin(), curr.end(), 0);
+    }
+
+    int lps = prev[N];
+    printf("%d\n", N - lps);
+
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Alternative: Direct Interval DP}
+
+Define $\mathrm{dp}[i][j]$ = minimum insertions to make $S[i \ldots j]$ a palindrome.
+
+\textbf{Base:} $\mathrm{dp}[i][i] = 0$, $\mathrm{dp}[i][i{-}1] = 0$.
+
+\textbf{Transition:}
+\[
+  \mathrm{dp}[i][j] = \begin{cases}
+    \mathrm{dp}[i{+}1][j{-}1] & \text{if } S[i] = S[j], \\
+    \min(\mathrm{dp}[i{+}1][j],\; \mathrm{dp}[i][j{-}1]) + 1 & \text{otherwise}.
+  \end{cases}
+\]
+
+This also runs in $O(N^2)$ time. With a rolling-array technique (keeping only three
+gap-lengths at a time: current, previous, and two-back), the space reduces to $O(N)$.
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    char S[5001];
+    scanf("%s", S);
+
+    // Rolling arrays for gap-based interval DP
+    // prev2[i] = dp for gap-2 starting at i
+    // dp[i]    = dp for gap-1 starting at i
+    // ndp[i]   = dp for current gap starting at i
+    vector<int> dp(N, 0), ndp(N, 0), prev2(N, 0);
+
+    // gap = 1 (length-2 substrings)
+    for (int i = 0; i + 1 < N; i++)
+        ndp[i] = (S[i] == S[i + 1]) ? 0 : 1;
+
+    if (N >= 2) {
+        swap(prev2, dp); // prev2 = gap-0 results (all 0)
+        swap(dp, ndp);   // dp = gap-1 results
+    }
+
+    for (int gap = 2; gap < N; gap++) {
+        for (int i = 0; i + gap < N; i++) {
+            int j = i + gap;
+            if (S[i] == S[j])
+                ndp[i] = prev2[i + 1]; // dp[i+1][j-1]
+            else
+                ndp[i] = min(dp[i + 1], dp[i]) + 1;
+        }
+        swap(prev2, dp);
+        swap(dp, ndp);
+    }
+
+    printf("%d\n", dp[0]);
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(N^2)$ for both approaches.
+  \item \textbf{Space complexity:} $O(N)$ with the rolling-array optimization.
+\end{itemize}
+
+\end{document}

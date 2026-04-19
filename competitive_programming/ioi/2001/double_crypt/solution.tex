@@ -1,0 +1,135 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2001 -- Double Crypt}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+A message is encrypted twice using two different simple ciphers, each
+parameterized by a key from a known key space:
+\[
+  \mathrm{ciphertext} = E_{k_2}\bigl(E_{k_1}(\mathrm{plaintext})\bigr).
+\]
+The key spaces for $k_1$ and $k_2$ each have size up to $M$
+(e.g., $M = 2^{24}$). Given a plaintext--ciphertext pair, find
+both keys. A brute-force search over all $(k_1, k_2)$ pairs costs
+$O(M^2)$, which is prohibitive.
+
+\section{Solution: Meet in the Middle}
+
+\begin{theorem}
+The key pair $(k_1, k_2)$ satisfying
+$E_{k_2}(E_{k_1}(P)) = C$ can be found in $O(M)$ time and space.
+\end{theorem}
+
+\begin{proof}
+Rewrite the equation as $E_{k_1}(P) = D_{k_2}(C)$, where $D_{k_2}$
+denotes decryption with key $k_2$. Both sides equal a common
+\emph{intermediate value} $I$. We enumerate one side, store the
+results, and match against the other:
+
+\begin{enumerate}
+  \item \textbf{Forward phase.} For every candidate $k_1 \in [0, M)$,
+        compute $I = E_{k_1}(P)$ and insert $(I, k_1)$ into a hash table.
+  \item \textbf{Backward phase.} For every candidate $k_2 \in [0, M)$,
+        compute $I' = D_{k_2}(C)$ and look up $I'$ in the hash table.
+        A match yields a candidate pair $(k_1, k_2)$.
+\end{enumerate}
+
+Each phase performs $M$ cipher evaluations and $M$ hash-table
+operations, giving $O(M)$ total work. The hash table uses $O(M)$ space.
+\end{proof}
+
+\paragraph{Handling collisions.}
+Multiple $(k_1, k_2)$ pairs may produce the same intermediate value.
+Verify each candidate against a second plaintext--ciphertext pair (if
+available) to eliminate false positives.
+
+\section{C++ Implementation}
+
+The code below demonstrates the framework using a simple XOR cipher.
+Replace \texttt{encrypt}/\texttt{decrypt} with the actual cipher for the
+IOI problem; the meet-in-the-middle structure is unchanged.
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef unsigned int uint;
+
+uint encrypt(uint plaintext, uint key) {
+    return plaintext ^ key; // replace with actual cipher
+}
+
+uint decrypt(uint ciphertext, uint key) {
+    return ciphertext ^ key; // replace with actual cipher inverse
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    uint plaintext, ciphertext;
+    int keyBits;
+    cin >> plaintext >> ciphertext >> keyBits;
+
+    uint keySpace = 1u << keyBits;
+
+    // Phase 1: encrypt plaintext with every k1
+    unordered_map<uint, uint> table; // intermediate -> k1
+    for (uint k1 = 0; k1 < keySpace; k1++) {
+        uint mid = encrypt(plaintext, k1);
+        table[mid] = k1;
+    }
+
+    // Phase 2: decrypt ciphertext with every k2, look up match
+    for (uint k2 = 0; k2 < keySpace; k2++) {
+        uint mid = decrypt(ciphertext, k2);
+        auto it = table.find(mid);
+        if (it != table.end()) {
+            uint k1 = it->second;
+            // Optional: verify against a second pair
+            cout << "Key1: " << k1 << "\n";
+            cout << "Key2: " << k2 << "\n";
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(M)$ where $M = 2^{\texttt{keyBits}}$.
+        Each phase performs $M$ cipher evaluations plus $O(1)$-expected-time
+        hash-table operations.
+  \item \textbf{Space:} $O(M)$ for the hash table.
+\end{itemize}
+
+\end{document}

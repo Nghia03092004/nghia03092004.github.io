@@ -1,0 +1,137 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\G. Kindergarten}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+For each kid $i$ we know:
+\begin{itemize}[leftmargin=*]
+    \item $j_i$: the kid that $i$ is jealous of;
+    \item $l_i$: the kid that $i$ really likes.
+\end{itemize}
+
+An order is valid iff for every $i$ at least one of the following holds:
+\begin{enumerate}[leftmargin=*]
+    \item $j_i$ appears before $i$;
+    \item $i$ appears before $l_i$, and $l_i$ appears before $j_i$.
+\end{enumerate}
+
+So for every kid we must choose one of two precedence patterns:
+\[
+j_i \to i
+\qquad\text{or}\qquad
+i \to l_i \to j_i.
+\]
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item If we choose the first pattern for every kid, the edges $j_i \to i$ form one rooted forest plus exactly one directed cycle. That unique cycle exists because $j_i < i$ for every $i > 1$, so the only place where the monotone order can fail is through kid $1$.
+    \item Therefore the only real task is to destroy that unique cycle by choosing some kids to use the second pattern.
+    \item Suppose we choose the second pattern for some kid $x$. Then after taking the like edge $x \to l_x$, we may continue upward only by jealous edges. That jealous chain is not allowed to pass through $j_x$; otherwise we would force both $x \prec l_x \prec j_x$ and $j_x \prec x$.
+    \item This means that reversed kids must lie on a mixed walk consisting of:
+    a like edge, then zero or more jealous edges, then another like edge, and so on.
+    \item A successful construction is a mixed cycle that contains at least one jealous edge. Once we have such a cycle, we can break one jealous edge on it and output the kids in a carefully chosen order.
+\end{itemize}
+
+\section*{Search Strategy}
+
+We follow the unique jealous cycle, and try each of its vertices as the first reversed kid.
+
+During DFS we maintain:
+\begin{itemize}[leftmargin=*]
+    \item the current path;
+    \item \texttt{blocked\_parent}: after using a like edge out of $x$, the next jealous chain is forbidden to hit $j_x$;
+    \item \texttt{last\_jealous\_pos}: the path length immediately after the most recent jealous move.
+\end{itemize}
+
+At a vertex $u$ we always try:
+\begin{enumerate}[leftmargin=*]
+    \item first the jealous edge $u \to j_u$, but only if it does not hit the blocked parent;
+    \item then the like edge $u \to l_u$, which updates the blocked parent to $j_u$.
+\end{enumerate}
+
+If DFS revisits a vertex already on the current path, we only accept the loop when it contains at least one jealous edge. The path index test
+\[
+\texttt{path\_pos[u]} < \texttt{last\_jealous\_pos}
+\]
+is exactly that condition.
+
+\section*{Constructing the Order}
+
+The found path consists of maximal jealous chains separated by like edges.
+
+\begin{itemize}[leftmargin=*]
+    \item Every jealous chain must be output in reverse order.
+    \item Inside the final mixed loop, we rotate the loop if necessary so that the edge we break is a jealous edge.
+    \item After outputting all vertices on the mixed path, every untouched kid can be appended by ordinary tree order in the jealous forest: once a parent is printed, all of its jealous-children can safely be printed later.
+\end{itemize}
+
+The implementation stores the children of each jealous edge and uses a queue to append all untouched subtrees after the special path has been emitted.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs \texttt{impossible} exactly when no valid order exists, and otherwise outputs a valid order.
+
+\paragraph{Lemma 1.}
+Any valid solution chooses some set of kids that use the second precedence pattern, and those kids form a mixed walk where each like edge is followed by a jealous chain that avoids the corresponding blocked parent.
+
+\paragraph{Proof.}
+If kid $x$ uses the second pattern, then we require $x \prec l_x \prec j_x$. After moving from $x$ to $l_x$, the only way to continue forcing precedence toward cooler kids is along jealous edges. If that jealous chain ever reaches $j_x$, then we also force $j_x \prec x$, contradicting $x \prec l_x \prec j_x$. So every chosen kid contributes exactly one like edge followed by a legal jealous chain. Chaining chosen kids together gives a mixed walk of the claimed form. \qed
+
+\paragraph{Lemma 2.}
+If DFS finds a loop and accepts it, then the accepted loop is a legal mixed cycle and contains at least one jealous edge.
+
+\paragraph{Proof.}
+The DFS only traverses legal transitions: every jealous step avoids the current blocked parent, and every like step sets the next blocked parent correctly. Thus the discovered closed walk is legal by construction. The extra check
+\texttt{path\_pos[u] < last\_jealous\_pos}
+rejects exactly the loops consisting only of like edges since the most recent jealous move. Therefore every accepted loop contains at least one jealous edge. \qed
+
+\paragraph{Lemma 3.}
+If there exists a valid order, then DFS started from some vertex on the jealous cycle will accept.
+
+\paragraph{Proof.}
+By Lemma 1, the reversed kids in any valid order form a legal mixed walk. Because the original jealous edges contain exactly one cycle, this walk starts from some vertex on that cycle and eventually returns to an earlier vertex. The first repeated vertex closes a legal mixed cycle, and that cycle contains a jealous edge; otherwise reversing kids would not break the original jealous cycle. DFS explores exactly the legal transitions of such walks, so the corresponding start vertex is accepted. \qed
+
+\paragraph{Lemma 4.}
+When the algorithm constructs an order from an accepted DFS path, every kid satisfies one of the two required precedence patterns.
+
+\paragraph{Proof.}
+Consider the special mixed path first.
+
+For every maximal jealous chain on that path, the algorithm prints the chain in reverse. Hence each jealous edge on the chain becomes ``parent before child'', which satisfies the first pattern for every non-reversed kid on that chain.
+
+For every kid where the path uses a like edge, the constructed order prints that kid before the rest of the corresponding segment, then reaches the liked kid, and only later reaches the jealous parent that was intentionally bypassed. This is exactly the second pattern.
+
+Finally, all untouched kids lie in ordinary jealous subtrees hanging off already printed vertices. The queue phase prints them only after their jealous parent has been printed, so they satisfy the first pattern.
+Thus every kid satisfies one of the two allowed patterns. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs a valid permutation iff one exists.
+
+\paragraph{Proof.}
+If the algorithm outputs a permutation, Lemma 4 shows that it is valid. If the algorithm outputs \texttt{impossible}, then DFS failed from every vertex of the jealous cycle. By Lemma 3, no valid order can exist. Therefore the algorithm is correct. \qed
+
+\section*{Complexity Analysis}
+
+Each vertex enters the DFS path only a constant number of times in the successful search, and the output construction is linear. The total running time is $O(n)$ and the memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The condition for accepting a repeated vertex is delicate: the loop must contain at least one jealous edge.
+    \item When constructing the final loop, we rotate it so that the broken edge is a jealous edge; otherwise the emitted order is not valid.
+    \item The jealous-children queue is only for untouched vertices. Vertices already emitted on the special path are ignored by the queue.
+\end{itemize}
+
+\end{document}

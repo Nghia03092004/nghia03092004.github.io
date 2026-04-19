@@ -1,0 +1,161 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2011 -- Race}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given a tree with $N$ nodes and weighted edges, find a path of total weight exactly~$K$ that uses the minimum number of edges. Output $-1$ if no such path exists.
+
+\section{Solution}
+
+\subsection{Centroid Decomposition}
+Decompose the tree recursively by centroids. For each centroid~$c$:
+
+\begin{enumerate}
+    \item DFS from~$c$ into each subtree, computing pairs $(\text{dist}, \text{depth})$ where $\text{dist}$ is the weight sum and $\text{depth}$ is the edge count from~$c$.
+    \item Maintain a lookup table $\text{best}[d]$ = minimum edge count to reach weight~$d$ from~$c$ (over previously processed subtrees).
+    \item For each node~$v$ in the current subtree with weight~$d_v$ and depth~$e_v$: if $K - d_v \ge 0$ and $\text{best}[K - d_v]$ is valid, update the answer with $e_v + \text{best}[K - d_v]$.
+    \item After processing a subtree, update $\text{best}$ with its entries.
+    \item Clean up $\text{best}$ (restore to $\infty$) after processing all subtrees of~$c$.
+\end{enumerate}
+
+\subsection{Correctness}
+
+\begin{theorem}
+Every path of weight~$K$ in the tree passes through the centroid at exactly one level of the decomposition.
+\end{theorem}
+\begin{proof}
+Consider any path $u \leadsto v$ in the tree. At each level of the centroid decomposition, the centroid~$c$ either lies on this path (in which case the path is detected at this level) or $u$ and $v$ lie in the same subtree after removing~$c$ (in which case the path is detected at a deeper level). Since the decomposition partitions the tree completely, the path is detected exactly once.
+\end{proof}
+
+By processing subtrees of~$c$ one at a time and checking against previously-seen distances, we avoid pairing two nodes from the same subtree.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$ --- each node appears in $O(\log N)$ centroid levels.
+    \item \textbf{Space:} $O(N + K)$ for the lookup table.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int INF = 1e9;
+
+int N, K;
+vector<pair<int,int>> adj[200005];
+int subtreeSize[200005];
+bool removed[200005];
+int ans;
+int best[1000005];
+vector<long long> toClean;
+
+int getSubtreeSize(int u, int parent) {
+    subtreeSize[u] = 1;
+    for (auto [v, w] : adj[u])
+        if (v != parent && !removed[v])
+            subtreeSize[u] += getSubtreeSize(v, u);
+    return subtreeSize[u];
+}
+
+int getCentroid(int u, int parent, int treeSize) {
+    for (auto [v, w] : adj[u])
+        if (v != parent && !removed[v] && subtreeSize[v] > treeSize / 2)
+            return getCentroid(v, u, treeSize);
+    return u;
+}
+
+vector<pair<long long, int>> collected;
+
+void dfs(int u, int parent, long long dist, int depth) {
+    if (dist > K) return;
+    collected.push_back({dist, depth});
+    for (auto [v, w] : adj[u])
+        if (v != parent && !removed[v])
+            dfs(v, u, dist + w, depth + 1);
+}
+
+void solve(int u) {
+    int sz = getSubtreeSize(u, -1);
+    int centroid = getCentroid(u, -1, sz);
+    removed[centroid] = true;
+
+    best[0] = 0;
+    toClean.push_back(0);
+
+    for (auto [v, w] : adj[centroid]) {
+        if (removed[v]) continue;
+
+        collected.clear();
+        dfs(v, centroid, w, 1);
+
+        for (auto [dist, depth] : collected) {
+            long long need = K - dist;
+            if (need >= 0 && need <= K && best[need] < INF)
+                ans = min(ans, depth + best[need]);
+        }
+
+        for (auto [dist, depth] : collected) {
+            if (dist <= K && best[dist] > depth) {
+                best[dist] = depth;
+                toClean.push_back(dist);
+            }
+        }
+    }
+
+    for (long long d : toClean) best[d] = INF;
+    toClean.clear();
+
+    for (auto [v, w] : adj[centroid])
+        if (!removed[v])
+            solve(v);
+}
+
+int best_distance(int n, int k, int edges[][3]) {
+    N = n; K = k;
+    ans = INF;
+    for (int i = 0; i < N; i++) adj[i].clear();
+    memset(removed, false, sizeof(removed));
+    fill(best, best + K + 1, INF);
+
+    for (int i = 0; i < N - 1; i++) {
+        int u = edges[i][0], v = edges[i][1], w = edges[i][2];
+        adj[u].push_back({v, w});
+        adj[v].push_back({u, w});
+    }
+
+    solve(0);
+    return (ans >= INF) ? -1 : ans;
+}
+\end{lstlisting}
+
+\end{document}

@@ -1,0 +1,144 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2019 -- Rectangles}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given an $n \times m$ grid of distinct integers, count rectangles $(r_1, r_2, c_1, c_2)$ with $r_1 < r_2$, $c_1 < c_2$ such that every boundary cell is strictly greater than every interior cell.
+
+\section{Solution}
+
+\subsection{Two Independent Conditions}
+A rectangle $(r_1, r_2, c_1, c_2)$ is valid iff:
+\begin{enumerate}
+  \item \textbf{Row condition}: For each interior column $c \in (c_1, c_2)$, $\max(a[r_1+1..r_2-1][c]) < \min(a[r_1][c], a[r_2][c])$.
+  \item \textbf{Column condition}: For each interior row $r \in (r_1, r_2)$, $\max(a[r][c_1+1..c_2-1]) < \min(a[r][c_1], a[r][c_2])$.
+\end{enumerate}
+
+\subsection{Sparse Tables for Range Max}
+Precompute sparse tables for each column (range max over rows) and each row (range max over columns), enabling $O(1)$ queries.
+
+\subsection{Enumeration}
+For each pair of rows $(r_1, r_2)$, scan interior columns to find maximal runs satisfying the row condition. For each candidate column pair $(c_1, c_2)$ from such a run, verify the column condition.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+long long count_rectangles(vector<vector<int>> a) {
+    int n = a.size(), m = a[0].size();
+    if (n < 3 || m < 3) return 0;
+
+    int LOG = 1;
+    while ((1 << LOG) < max(n, m)) LOG++;
+
+    // Sparse table: column c, range max over rows
+    vector<vector<vector<int>>> colMax(m, vector<vector<int>>(LOG, vector<int>(n)));
+    for (int c = 0; c < m; c++) {
+        for (int r = 0; r < n; r++) colMax[c][0][r] = a[r][c];
+        for (int k = 1; k < LOG; k++)
+            for (int r = 0; r + (1 << k) <= n; r++)
+                colMax[c][k][r] = max(colMax[c][k-1][r],
+                                       colMax[c][k-1][r + (1 << (k-1))]);
+    }
+    auto qcol = [&](int c, int lo, int hi) -> int {
+        if (lo > hi) return INT_MIN;
+        int k = __lg(hi - lo + 1);
+        return max(colMax[c][k][lo], colMax[c][k][hi - (1 << k) + 1]);
+    };
+
+    // Sparse table: row r, range max over columns
+    vector<vector<vector<int>>> rowMax(n, vector<vector<int>>(LOG, vector<int>(m)));
+    for (int r = 0; r < n; r++) {
+        for (int c = 0; c < m; c++) rowMax[r][0][c] = a[r][c];
+        for (int k = 1; k < LOG; k++)
+            for (int c = 0; c + (1 << k) <= m; c++)
+                rowMax[r][k][c] = max(rowMax[r][k-1][c],
+                                       rowMax[r][k-1][c + (1 << (k-1))]);
+    }
+    auto qrow = [&](int r, int lo, int hi) -> int {
+        if (lo > hi) return INT_MIN;
+        int k = __lg(hi - lo + 1);
+        return max(rowMax[r][k][lo], rowMax[r][k][hi - (1 << k) + 1]);
+    };
+
+    long long answer = 0;
+    for (int r1 = 0; r1 < n - 2; r1++) {
+        for (int r2 = r1 + 2; r2 < n; r2++) {
+            // Find maximal runs of valid interior columns
+            int runStart = -1;
+            for (int c = 1; c < m - 1; c++) {
+                int imax = qcol(c, r1 + 1, r2 - 1);
+                bool ok = (imax < a[r1][c] && imax < a[r2][c]);
+                if (!ok) { runStart = -1; continue; }
+                if (runStart == -1) runStart = c;
+                // Check all column pairs ending at c within this run
+                for (int c1 = runStart - 1; c1 < c; c1++) {
+                    int c2 = c + 1;
+                    // Verify c1 >= 0, c2 <= m-1 (c1 = boundary col, c2 = boundary col)
+                    if (c1 < 0 || c2 >= m) continue;
+                    // Verify all interior cols c1+1..c2-1 are in run
+                    if (c1 + 1 < runStart) continue;
+                    // Check column condition for all interior rows
+                    bool colOk = true;
+                    for (int r = r1 + 1; r <= r2 - 1 && colOk; r++) {
+                        int rm = qrow(r, c1 + 1, c2 - 1);
+                        if (rm >= a[r][c1] || rm >= a[r][c2]) colOk = false;
+                    }
+                    if (colOk) answer++;
+                }
+            }
+        }
+    }
+    return answer;
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+    vector<vector<int>> a(n, vector<int>(m));
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            scanf("%d", &a[i][j]);
+    printf("%lld\n", count_rectangles(a));
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Preprocessing}: $O(nm \log(\max(n,m)))$ for sparse tables.
+  \item \textbf{Enumeration}: $O(n^2 m^2)$ worst case. The full-score solution uses monotone stacks to enumerate valid pairs efficiently, achieving $O(n^2 m + nm^2)$.
+  \item \textbf{Space}: $O(nm \log(\max(n,m)))$.
+\end{itemize}
+
+\textbf{Note.} For $n, m \le 2500$, the intended solution uses monotone stacks on each row and column to enumerate valid $(r_1, r_2)$ and $(c_1, c_2)$ pairs, combined with 2D prefix sums for efficient intersection counting.
+
+\end{document}

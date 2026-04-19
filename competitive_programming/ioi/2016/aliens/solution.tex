@@ -1,0 +1,169 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2016 -- Aliens}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+On an $m \times m$ grid, $n$ points of interest must be covered by at most $k$ axis-aligned square photos whose diagonals lie on the main diagonal. The cost of a side-$s$ photo is $s^2$. Overlapping areas between consecutive photos must be subtracted to avoid double-counting. Minimise the total cost.
+
+\section{Solution}
+
+\subsection{Reduction to 1D Intervals}
+
+Each point $(r_i, c_i)$ induces a constraint: a square starting at position $a \le \min(r_i, c_i)$ with side $s \ge \max(r_i, c_i) - a + 1$. Define $l_i = \min(r_i, c_i)$ and $u_i = \max(r_i, c_i) + 1$. After removing dominated intervals ($[l_j, u_j) \subseteq [l_i, u_i)$) and sorting, we obtain intervals with $l_1 < l_2 < \cdots$ and $u_1 < u_2 < \cdots$.
+
+\subsection{DP with Lambda Optimisation (WQS Binary Search)}
+
+Instead of constraining the number of photos to $\le k$, we add a penalty $\lambda$ per photo:
+\[
+  f(\lambda) = \min_{\text{partitions}} \left(\sum_j \text{cost}(j) + \lambda \cdot (\text{number of photos})\right).
+\]
+Binary search on $\lambda$ to find the value where the optimal count equals $k$.
+
+\subsection{Convex Hull Trick}
+
+Define $\text{ov}[i] = \max(0, u_{i-1} - l_i)$ for $i \ge 1$ and $\text{ov}[0] = 0$. The DP is:
+\[
+  \text{dp}[i] = \min_{0 \le p < i} \left\{\text{dp}[p] + (u_{i-1} - l_p)^2 - \text{ov}[p]^2 + \lambda\right\}.
+\]
+Expanding $(u_{i-1} - l_p)^2 = u_{i-1}^2 - 2 u_{i-1} l_p + l_p^2$, this becomes:
+\[
+  \text{dp}[i] = u_{i-1}^2 + \lambda + \min_p \left\{(\text{dp}[p] + l_p^2 - \text{ov}[p]^2) - 2 u_{i-1} l_p\right\}.
+\]
+This has the form $\min_p (m_p \cdot x + b_p)$ with $m_p = -2l_p$ and $b_p = \text{dp}[p] + l_p^2 - \text{ov}[p]^2$, solvable with the convex hull trick in $O(n)$ per $\lambda$ evaluation.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+typedef __int128 lll;
+
+struct Point { int l, u; };
+
+struct Line {
+    ll m, b; int cnt;
+    ll eval(ll x) { return m * x + b; }
+};
+
+struct CHT {
+    deque<Line> hull;
+    bool bad(Line l1, Line l2, Line l3) {
+        return (lll)(l3.b - l1.b) * (l1.m - l2.m) <=
+               (lll)(l2.b - l1.b) * (l1.m - l3.m);
+    }
+    void add(Line l) {
+        while (hull.size() >= 2 &&
+               bad(hull[hull.size()-2], hull[hull.size()-1], l))
+            hull.pop_back();
+        hull.push_back(l);
+    }
+    pair<ll,int> query(ll x) {
+        while (hull.size() >= 2 && hull[0].eval(x) >= hull[1].eval(x))
+            hull.pop_front();
+        return {hull[0].eval(x), hull[0].cnt};
+    }
+};
+
+vector<Point> pts;
+
+pair<ll,int> solve(ll lambda) {
+    int sz = pts.size();
+    vector<ll> dp(sz + 1);
+    vector<int> cnt(sz + 1);
+    vector<ll> ov(sz, 0);
+    for (int i = 1; i < sz; i++)
+        ov[i] = max(0, pts[i-1].u - pts[i].l);
+
+    dp[0] = 0; cnt[0] = 0;
+    CHT cht;
+    cht.add({-2LL * pts[0].l,
+             (ll)pts[0].l * pts[0].l, 0});
+
+    for (int i = 1; i <= sz; i++) {
+        ll x = pts[i-1].u;
+        auto [val, c] = cht.query(x);
+        dp[i] = val + x * x + lambda;
+        cnt[i] = c + 1;
+        if (i < sz) {
+            ll M = -2LL * pts[i].l;
+            ll B = dp[i] + (ll)pts[i].l * pts[i].l
+                         - (ll)ov[i] * ov[i];
+            cht.add({M, B, cnt[i]});
+        }
+    }
+    return {dp[sz], cnt[sz]};
+}
+
+long long take_photos(int n, int m, int k, int r[], int c[]) {
+    vector<Point> raw(n);
+    for (int i = 0; i < n; i++) {
+        raw[i].l = min(r[i], c[i]);
+        raw[i].u = max(r[i], c[i]) + 1;
+    }
+    sort(raw.begin(), raw.end(), [](const Point &a, const Point &b) {
+        return a.l < b.l || (a.l == b.l && a.u > b.u);
+    });
+    pts.clear();
+    for (auto &p : raw) {
+        while (!pts.empty() && pts.back().u <= p.u)
+            pts.pop_back();
+        if (pts.empty() || p.u > pts.back().u)
+            pts.push_back(p);
+    }
+
+    ll lo = 0, hi = (ll)m * m;
+    ll ans = 0;
+    while (lo <= hi) {
+        ll mid = (lo + hi) / 2;
+        auto [val, cnt] = solve(mid);
+        if (cnt <= k) {
+            ans = val - (ll)k * mid;
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    return ans;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n \log n + n \log C)$ where $C = m^2$ is the binary-search range for $\lambda$. Each DP evaluation is $O(n)$ with the convex hull trick.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+The lambda trick (WQS binary search / ``alien trick'') converts the $k$-constrained problem into an unconstrained Lagrangian relaxation, binary-searching for the right penalty.
+
+\end{document}

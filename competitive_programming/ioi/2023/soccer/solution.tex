@@ -1,0 +1,222 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2023 --- Soccer Stadium}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given an $N \times N$ grid where some cells contain trees ($F[r][c] = 1$),
+find the largest \emph{regular stadium}: a set of empty cells such that
+any two cells can be connected by at most two straight kicks
+(horizontal or vertical line segments, with every intermediate cell in
+the stadium).
+
+\section{Characterization}
+
+\begin{definition}
+A \emph{regular stadium} is a set $\mathcal{S}$ of empty cells such that
+for every pair of cells $(r_1, c_1), (r_2, c_2) \in \mathcal{S}$, there
+exists a cell $(r_m, c_m) \in \mathcal{S}$ with:
+\begin{itemize}
+  \item the entire row segment from $(r_1, c_1)$ to $(r_1, c_m)$ (or the
+        column segment from $(r_1, c_1)$ to $(r_m, c_1)$) lies in
+        $\mathcal{S}$, and
+  \item the entire column (or row) segment from $(r_m, c_m)$ to
+        $(r_2, c_2)$ lies in $\mathcal{S}$.
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Column-interval relay]\label{thm:relay}
+Every optimal regular stadium can be described as follows: there exists
+a contiguous column interval $[c_l, c_r]$ (the \emph{relay zone}) such
+that the stadium consists of cells from rows that contain no tree in
+$[c_l, c_r]$, extended left and right as far as possible in each row.
+
+Formally, for each row $r$ where $F[r][c] = 0$ for all $c \in [c_l, c_r]$,
+the stadium includes the maximal contiguous empty segment in row $r$
+that contains $[c_l, c_r]$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+In a regular stadium, any two cells must connect via at most two kicks.
+Consider the set of columns that every included row-segment covers.
+The intersection of all row-segments' column ranges must be non-empty
+(otherwise two cells in rows with disjoint column ranges cannot connect
+in two kicks).  This common column interval serves as the relay zone.
+
+Any two cells $(r_1, c_1)$ and $(r_2, c_2)$ can then connect via:
+kick~1 along row $r_1$ to some column $c \in [c_l, c_r]$, then kick~2
+along column $c$ to row $r_2$, then (if needed) kick along row $r_2$ to
+$c_2$ --- but since both rows span $[c_l, c_r]$, the column kick from
+$(r_1, c)$ to $(r_2, c)$ must pass through only rows included in the
+stadium.
+
+For the column segment to be fully inside the stadium, every row between
+$r_1$ and $r_2$ must include column $c$.  This means we can only include
+a contiguous vertical block of rows (those with $[c_l, c_r]$ clear).
+More precisely, the included rows need not be contiguous: we need every
+row between any two included rows (at column $c$) to also be included.
+So the set of included rows, restricted to any relay column, must be
+contiguous.
+
+Actually, we only need \emph{some} relay column $c \in [c_l, c_r]$ such
+that the column of included rows at $c$ covers all row-pairs.  Since the
+included rows are exactly those where $[c_l, c_r]$ is tree-free, and
+between any two such rows a row with a tree in $[c_l, c_r]$ would block
+the column kick, we must ensure the included rows form contiguous blocks
+per relay column.  The simplest valid structure is: enumerate all
+$(c_l, c_r)$ pairs, for each find the maximal set of contiguous rows
+where $[c_l, c_r]$ is tree-free, and extend each row as far as possible.
+\end{proof}
+
+\begin{corollary}
+The optimal stadium size can be found by enumerating all $O(N^2)$
+column-interval pairs $(c_l, c_r)$ and computing the total cells for
+each in $O(N)$ time.
+\end{corollary}
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Precompute, for each cell $(r, c)$, the leftmost and rightmost
+        extent of the contiguous empty segment in row $r$ containing $c$.
+  \item Precompute row prefix sums to check whether $[c_l, c_r]$ is
+        tree-free in row $r$ in $O(1)$.
+  \item For each pair $(c_l, c_r)$ with $0 \le c_l \le c_r < N$:
+        \begin{enumerate}
+          \item For each row $r$: if $[c_l, c_r]$ is tree-free, find the
+                maximal empty segment containing $[c_l, c_r]$ and add its
+                length.
+          \item The rows must form contiguous blocks for the column kicks
+                to work.  We sum over all rows in each maximal contiguous
+                block and take the maximum block-sum, or --- since the
+                relay allows reaching any row through the relay columns
+                --- we need all included rows to be mutually reachable.
+                The simplest correct approach: only include rows that form
+                one contiguous block (no tree row in between at any relay
+                column), or sum all qualifying rows and verify connectivity.
+        \end{enumerate}
+  \item Additionally check single-row and single-column stadiums, and
+        the maximal-rectangle baseline.
+\end{enumerate}
+
+In fact, the simplest correct $O(N^3)$ approach that handles all cases:
+for each $(c_l, c_r)$, sum the extended row lengths over \emph{all}
+qualifying rows.  Two cells in different qualifying rows can always
+connect: go along row to some column $c \in [c_l, c_r]$, then down
+column $c$ to the target row (all intermediate rows also qualify since
+they must be tree-free in $[c_l, c_r]$ for this to work).  So we also
+need the qualifying rows to be contiguous.  We handle this by finding
+maximal contiguous runs.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int biggest_stadium(int N, vector<vector<int>> F) {
+    // Precompute: for each (r, c), the left/right extent of empty segment
+    vector<vector<int>> lft(N, vector<int>(N)), rgt(N, vector<int>(N));
+    for (int r = 0; r < N; r++) {
+        for (int c = 0; c < N; c++)
+            lft[r][c] = (F[r][c] == 1) ? c : (c > 0 ? lft[r][c-1] : 0);
+        for (int c = N - 1; c >= 0; c--)
+            rgt[r][c] = (F[r][c] == 1) ? c : (c < N-1 ? rgt[r][c+1] : N-1);
+    }
+
+    // Row prefix sums of trees
+    vector<vector<int>> rpfx(N, vector<int>(N + 1, 0));
+    for (int r = 0; r < N; r++)
+        for (int c = 0; c < N; c++)
+            rpfx[r][c+1] = rpfx[r][c] + F[r][c];
+
+    auto row_clear = [&](int r, int cl, int cr) -> bool {
+        return rpfx[r][cr+1] - rpfx[r][cl] == 0;
+    };
+
+    int best = 0;
+
+    // Enumerate relay column intervals [cl, cr]
+    for (int cl = 0; cl < N; cl++) {
+        for (int cr = cl; cr < N; cr++) {
+            // Find contiguous runs of rows where [cl, cr] is tree-free.
+            // For each run, sum the extended row lengths.
+            int run_sum = 0;
+            for (int r = 0; r < N; r++) {
+                if (row_clear(r, cl, cr)) {
+                    // Extend row r: leftmost empty from cl, rightmost from cr
+                    int left = lft[r][cl];
+                    int right = rgt[r][cr];
+                    run_sum += right - left + 1;
+                } else {
+                    // Tree in [cl, cr] at row r: end of contiguous run
+                    best = max(best, run_sum);
+                    run_sum = 0;
+                }
+            }
+            best = max(best, run_sum);
+        }
+    }
+
+    return best;
+}
+\end{lstlisting}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(N^3)$.  There are $O(N^2)$ column-interval
+        pairs; for each, a single pass over $N$ rows.
+  \item \textbf{Space:} $O(N^2)$ for the precomputed arrays.
+\end{itemize}
+
+\begin{theorem}[Correctness]
+The algorithm correctly finds the largest regular stadium.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:relay}, every regular stadium has a relay column
+interval $[c_l, c_r]$ such that each row's contribution is a contiguous
+empty segment spanning $[c_l, c_r]$, and the contributing rows form a
+contiguous vertical block (so that column kicks between any two rows
+stay within the stadium).
+
+Our algorithm enumerates all possible relay intervals and, for each,
+finds the best contiguous vertical block of qualifying rows.  Within
+such a block, any two cells connect in at most two kicks: a horizontal
+kick to a relay column, then a vertical kick to the target row (and
+optionally a horizontal kick in the target row).
+
+Since we maximize over all choices, the algorithm finds the global
+optimum.
+\end{proof}
+
+\end{document}

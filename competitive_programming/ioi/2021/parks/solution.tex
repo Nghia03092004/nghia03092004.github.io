@@ -1,0 +1,179 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2021 -- Parks}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+There are $n$ fountains at positions $(x[i], y[i])$ where all coordinates are even. Two fountains are adjacent if they differ by exactly 2 in one coordinate and are equal in the other. Build roads between adjacent fountains such that the resulting graph is connected (spanning tree), and place benches at unique positions $(a, b)$ with both $a, b$ odd, such that each bench is adjacent to exactly one road (within distance 1 in each coordinate).
+
+\section{Solution Approach}
+
+\subsection{Graph Structure}
+The fountains form a grid graph with edges between fountains at distance 2 (sharing one coordinate). Each edge (road) has exactly 2 candidate bench positions. For a horizontal road between $(x, y)$ and $(x+2, y)$: bench at $(x+1, y+1)$ or $(x+1, y-1)$. For a vertical road between $(x, y)$ and $(x, y+2)$: bench at $(x+1, y+1)$ or $(x-1, y+1)$.
+
+\subsection{Checkerboard Assignment}
+The bench positions form a grid with odd coordinates. Two adjacent roads can share at most one candidate bench position. We use a checkerboard coloring based on the position of the road:
+
+For a road at midpoint $(mx, my)$:
+\begin{itemize}
+  \item If the road is horizontal (midpoint $mx$ is odd, $my$ is even): choose bench based on $(mx/2 + my/2) \bmod 2$.
+  \item If the road is vertical (midpoint $mx$ is even, $my$ is odd): choose bench based on $(mx/2 + my/2) \bmod 2$.
+\end{itemize}
+
+This ensures no two roads share the same bench.
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item Build the adjacency graph of fountains.
+  \item Find a spanning tree (BFS/DFS).
+  \item For each tree edge, assign a bench using the checkerboard rule.
+  \item Verify all bench positions are unique (guaranteed by the coloring).
+\end{enumerate}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int construct_roads(vector<int> x, vector<int> y) {
+    int n = x.size();
+    if (n == 1) {
+        // build({}, {}, {}, {}); // IOI grader call
+        return 1;
+    }
+
+    // Map positions to indices
+    map<pair<int,int>, int> pos_to_idx;
+    for (int i = 0; i < n; i++)
+        pos_to_idx[{x[i], y[i]}] = i;
+
+    // Build adjacency: check 4 neighbors
+    int dx[] = {2, -2, 0, 0};
+    int dy[] = {0, 0, 2, -2};
+
+    vector<vector<pair<int,int>>> adj(n); // (neighbor_idx, direction)
+    for (int i = 0; i < n; i++) {
+        for (int d = 0; d < 4; d++) {
+            int nx = x[i] + dx[d], ny = y[i] + dy[d];
+            auto it = pos_to_idx.find({nx, ny});
+            if (it != pos_to_idx.end()) {
+                adj[i].push_back({it->second, d});
+            }
+        }
+    }
+
+    // BFS spanning tree
+    vector<bool> visited(n, false);
+    queue<int> bfs;
+    bfs.push(0);
+    visited[0] = true;
+    int visited_count = 1;
+
+    vector<int> eu, ev, ea, eb; // edges and bench positions
+
+    set<pair<int,int>> used_benches;
+
+    while (!bfs.empty()) {
+        int u = bfs.front(); bfs.pop();
+        for (auto [v, d] : adj[u]) {
+            if (visited[v]) continue;
+            visited[v] = true;
+            visited_count++;
+            bfs.push(v);
+
+            // Add road u-v
+            eu.push_back(u);
+            ev.push_back(v);
+
+            // Determine bench position
+            int mx = (x[u] + x[v]) / 2;
+            int my = (y[u] + y[v]) / 2;
+
+            int ba, bb;
+            if (d == 0 || d == 1) {
+                // Horizontal road: bench at (mx, my+1) or (mx, my-1)
+                // Checkerboard: use (mx + my/2) % 2
+                int parity = ((mx + my / 2) % 2 + 2) % 2;
+                if (parity == 0) {
+                    ba = mx; bb = my + 1;
+                } else {
+                    ba = mx; bb = my - 1;
+                }
+            } else {
+                // Vertical road: bench at (mx+1, my) or (mx-1, my)
+                int parity = ((mx / 2 + my) % 2 + 2) % 2;
+                if (parity == 0) {
+                    ba = mx + 1; bb = my;
+                } else {
+                    ba = mx - 1; bb = my;
+                }
+            }
+
+            // Check uniqueness; if collision, use other option
+            if (used_benches.count({ba, bb})) {
+                if (d == 0 || d == 1) {
+                    bb = (bb == my + 1) ? my - 1 : my + 1;
+                } else {
+                    ba = (ba == mx + 1) ? mx - 1 : mx + 1;
+                }
+            }
+
+            used_benches.insert({ba, bb});
+            ea.push_back(ba);
+            eb.push_back(bb);
+        }
+    }
+
+    if (visited_count != n) return 0; // not connected
+
+    // build(eu, ev, ea, eb); // IOI grader call
+    // For local testing:
+    printf("%d\n", (int)eu.size());
+    for (int i = 0; i < (int)eu.size(); i++)
+        printf("%d %d %d %d\n", eu[i], ev[i], ea[i], eb[i]);
+
+    return 1;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    vector<int> x(n), y(n);
+    for (int i = 0; i < n; i++)
+        scanf("%d %d", &x[i], &y[i]);
+    int res = construct_roads(x, y);
+    if (!res) printf("0\n");
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n \log n)$ due to the map lookups. Can be reduced to $O(n)$ with hash maps.
+  \item \textbf{Space complexity:} $O(n)$.
+\end{itemize}
+
+\end{document}

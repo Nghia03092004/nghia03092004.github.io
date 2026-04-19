@@ -1,0 +1,174 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1997 -- Sentiment (Expression Evaluation)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a logical expression containing variables (single lowercase letters), the operators
+AND (\texttt{\&}), OR (\texttt|}), and NOT (\texttt{!}), with parentheses for grouping,
+evaluate the expression for given variable assignments.
+
+Operator precedence (highest to lowest): NOT, AND, OR.
+Parentheses override precedence.
+
+\medskip
+\noindent\textbf{Constraints:} Expression length up to 10{,}000 characters;
+variables are single lowercase letters.
+
+\section{Solution Approach}
+
+\subsection{Recursive Descent Parser}
+
+We implement a recursive descent parser that directly mirrors the grammar:
+
+\begin{verbatim}
+  expr     -> and_expr ('|' and_expr)*
+  and_expr -> not_expr ('&' not_expr)*
+  not_expr -> '!' not_expr | atom
+  atom     -> variable | '(' expr ')'
+\end{verbatim}
+
+Each grammar rule becomes a function that consumes input characters and returns the
+boolean value of the corresponding sub-expression. The precedence is naturally encoded:
+\texttt{parseExpr} handles OR (lowest precedence), \texttt{parseAnd} handles AND,
+and \texttt{parseNot} handles NOT (highest precedence).
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+using namespace std;
+
+char expr_str[10005];
+int pos, len;
+int vars[26]; // variable values for 'a'-'z'
+
+int parseExpr();
+int parseAnd();
+int parseNot();
+int parseAtom();
+
+// expr -> and_expr ('|' and_expr)*
+int parseExpr() {
+    int val = parseAnd();
+    while (pos < len && expr_str[pos] == '|') {
+        pos++;
+        val = val | parseAnd();
+    }
+    return val;
+}
+
+// and_expr -> not_expr ('&' not_expr)*
+int parseAnd() {
+    int val = parseNot();
+    while (pos < len && expr_str[pos] == '&') {
+        pos++;
+        val = val & parseNot();
+    }
+    return val;
+}
+
+// not_expr -> '!' not_expr | atom
+int parseNot() {
+    if (pos < len && expr_str[pos] == '!') {
+        pos++;
+        return !parseNot();
+    }
+    return parseAtom();
+}
+
+// atom -> variable | '(' expr ')'
+int parseAtom() {
+    if (expr_str[pos] == '(') {
+        pos++; // skip '('
+        int val = parseExpr();
+        pos++; // skip ')'
+        return val;
+    }
+    int idx = expr_str[pos] - 'a';
+    pos++;
+    return vars[idx];
+}
+
+void stripSpaces(char* s) {
+    int j = 0;
+    for (int i = 0; s[i]; i++)
+        if (s[i] != ' ')
+            s[j++] = s[i];
+    s[j] = '\0';
+}
+
+int main() {
+    fgets(expr_str, sizeof(expr_str), stdin);
+    // Remove trailing newline
+    len = strlen(expr_str);
+    if (len > 0 && expr_str[len-1] == '\n')
+        expr_str[--len] = '\0';
+    stripSpaces(expr_str);
+    len = strlen(expr_str);
+
+    // Read variable assignments
+    int numVars;
+    scanf("%d", &numVars);
+    for (int i = 0; i < numVars; i++) {
+        char c;
+        int v;
+        scanf(" %c %d", &c, &v);
+        vars[c - 'a'] = v;
+    }
+
+    pos = 0;
+    printf("%d\n", parseExpr());
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Correctness}
+
+The parser processes each character exactly once, advancing the global position
+\texttt{pos} monotonically. The grammar is unambiguous (left-to-right evaluation
+within each precedence level), so the parser correctly evaluates the expression.
+
+Each grammar production handles exactly the operators at its precedence level and
+delegates higher-precedence constructs to the next function.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n)$ where $n$ is the expression length.
+        Each character is visited at most once.
+  \item \textbf{Space complexity:} $O(n)$ for the recursion stack (worst case:
+        deeply nested parentheses or chained NOT operators). $O(1)$ additional space
+        for the variable table.
+\end{itemize}
+
+\end{document}

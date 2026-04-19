@@ -1,0 +1,164 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\D. Gene Folding}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a string over \texttt{A}, \texttt{C}, \texttt{G}, \texttt{T}.
+A fold chooses a cut between two adjacent characters such that the string is mirrored around that cut
+until one end of the current string is reached.
+After folding, the shorter side disappears into the longer side, so the current string becomes either a
+prefix or a suffix of the old one.
+
+We must find the minimum possible final length after any number of folds.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item A fold from the left boundary of the current string is possible exactly when the current string has an
+    \emph{even palindrome prefix}. If that palindrome has length $2k$, then folding removes the first $k$
+    characters and keeps the suffix starting at position $k$.
+    \item So, if the current left boundary is at position $\ell$ in the original string, we may jump it to a
+    larger position $c$ whenever the substring
+    \[
+        s[\ell \dots 2c-\ell-1]
+    \]
+    is an even palindrome centered at $c$.
+    \item Let $d_2[c]$ be the usual Manacher radius for the even palindrome centered at $c$, so the largest such
+    palindrome is
+    \[
+        s[c-d_2[c] \dots c+d_2[c]-1].
+    \]
+    Then the jump $\ell \to c$ is possible iff
+    \[
+        c - d_2[c] \le \ell.
+    \]
+    \item Therefore we can scan centers from left to right and maintain the furthest left boundary
+    \texttt{reach} obtainable by repeatedly folding from the left:
+    whenever a center $c$ satisfies $c-d_2[c] \le \texttt{reach}$, we can extend
+    \texttt{reach} to $c$.
+    \item The same idea works from the right by reversing the remaining string.
+    After we remove the maximal foldable prefix, the rest of the work is purely symmetric suffix-folding.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Run Manacher's algorithm for even palindromes on the original string and compute the maximum position
+    $L$ reachable by left-folds only:
+    start with \texttt{reach = 0}; for every center $c$ from left to right, if
+    $c-d_2[c] \le \texttt{reach}$, set \texttt{reach = c}.
+    At the end, $L=\texttt{reach}$.
+    \item Delete that maximal removable prefix, so the current candidate string is
+    \[
+        t = s[L \dots n-1].
+    \]
+    \item Reverse $t$, run the same left-scan again, and obtain the maximum removable prefix length $R$ of the
+    reversed string. In the original orientation, this means we can remove a suffix of length $R$ from $t$.
+    \item The answer is
+    \[
+        |t| - R.
+    \]
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Suppose the current string is the suffix $s[\ell \dots n-1]$ of the original string.
+A fold from the left boundary moves the boundary from $\ell$ to $c$ if and only if
+$c-d_2[c] \le \ell$.
+
+\paragraph{Proof.}
+Such a fold is valid exactly when the prefix
+$s[\ell \dots 2c-\ell-1]$ is an even palindrome centered at $c$.
+This happens exactly when the maximal even palindrome centered at $c$ reaches at least to $\ell$, i.e.
+\[
+    c-d_2[c] \le \ell.
+\]
+When that condition holds, folding removes the first $c-\ell$ characters and the new left boundary is $c$.
+\qed
+
+\paragraph{Lemma 2.}
+Scanning centers from left to right with the rule
+``if $c-d_2[c] \le \texttt{reach}$ then set $\texttt{reach}=c$''
+computes the furthest boundary reachable by any sequence of left-folds.
+
+\paragraph{Proof.}
+By Lemma 1, every successful left-fold must jump from the current boundary $\ell$ to some center $c$ with
+$c-d_2[c] \le \ell$.
+So whenever the scan updates \texttt{reach} to $c$, that jump is genuinely possible.
+Therefore every value produced by the scan is reachable.
+
+Conversely, consider any sequence of left-folds.
+At each step its next center must satisfy $c-d_2[c] \le \ell$, where $\ell$ is the current boundary.
+Since the scan always stores the greatest reachable boundary seen so far, it can make every jump that the
+sequence can make, and never ends earlier.
+Hence the final scan value is exactly the furthest reachable left boundary. \qed
+
+\paragraph{Lemma 3.}
+Let $L$ be the furthest left boundary computed by Lemma 2.
+There exists an optimal folding process whose first phase removes exactly the prefix $s[0 \dots L-1]$.
+
+\paragraph{Proof.}
+Any left-fold only uses a mirrored prefix of the current string, so removing characters from the right never
+helps a future left-fold; it can only make it harder by shortening the string.
+Therefore every left-boundary movement that appears in any optimal process can already be performed before
+all right-folds begin.
+By Lemma 2, the furthest boundary obtainable in that left-fold phase is exactly $L$.
+So some optimal process may start by removing the whole maximal foldable prefix and then continue from the
+suffix $s[L \dots n-1]$. \qed
+
+\paragraph{Lemma 4.}
+After the prefix $s[0 \dots L-1]$ is removed, no further left-fold is possible, and the remaining optimum is
+obtained by removing the largest possible foldable suffix.
+
+\paragraph{Proof.}
+If a left-fold were still possible on $s[L \dots n-1]$, Lemma 1 would give another valid jump beyond $L$,
+contradicting the maximality from Lemma 2.
+So only right-folds remain.
+Reversing the string turns right-folds into left-folds, and Lemma 2 applies symmetrically.
+Hence running the same scan on the reversed remainder computes exactly how many characters can still be
+removed from the right. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, the first scan computes the maximum prefix removable by repeated left-folds.
+By Lemma 3, some optimal solution begins by removing exactly that prefix.
+By Lemma 4, the rest of the optimal process is just the symmetric suffix case on the remaining string, which
+the second scan computes after reversal.
+Therefore the algorithm removes exactly the maximum possible prefix and suffix, and the remaining middle
+segment has minimum possible length. \qed
+
+\section*{Complexity Analysis}
+
+Each Manacher run is linear.
+We run it twice, once on the original string and once on the reversed remainder, so the total running time is
+$O(n)$.
+
+The palindrome-radius array stores $O(n)$ integers, so the memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item We use the direct even-palindrome version of Manacher, so center $c$ is the cut between
+    positions $c-1$ and $c$.
+    \item The scan condition is exactly \texttt{center - d2[center] <= reach}.
+    \item After removing the maximal prefix, reversing the remainder lets us reuse the same code for the suffix
+    phase.
+\end{itemize}
+
+\end{document}

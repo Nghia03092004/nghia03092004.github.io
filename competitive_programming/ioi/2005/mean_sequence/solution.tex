@@ -1,0 +1,135 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2005 -- Mean Sequence}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+The \emph{mean sequence} of $a_0, a_1, \ldots, a_N$ is
+$b_0, b_1, \ldots, b_{N-1}$ where $b_i = (a_i + a_{i+1})/2$.
+Given the mean sequence $b_0, \ldots, b_{N-1}$, find an original
+sequence of non-negative integers whose mean sequence matches.
+
+\section{Solution: Linear Algebra in $a_0$}
+
+\subsection{Expressing $a_i$ in Terms of $a_0$}
+From $a_{i+1} = 2b_i - a_i$, every element is a linear function of
+$a_0$:
+\[
+  a_i = c_i \cdot a_0 + d_i
+\]
+where $c_0 = 1$, $d_0 = 0$, and the recurrence is:
+\[
+  c_{i+1} = -c_i, \qquad d_{i+1} = 2b_i - d_i.
+\]
+In particular, $c_i = (-1)^i$, so $a_i$ alternates between $+a_0 + d_i$
+and $-a_0 + d_i$.
+
+\subsection{Handling Fractions}
+Since $b_i = (a_i + a_{i+1})/2$, the input mean values might require
+the original sequence to contain half-integers. To work in integers
+throughout, let $B_i = 2b_i$, so $a_{i+1} = B_i - a_i$. If the
+problem provides integer $b_i$, compute $B_i = 2b_i$.
+
+\subsection{Feasibility}
+The constraint $a_i \ge 0$ for all $i$ becomes:
+\begin{itemize}
+  \item If $c_i = +1$: $a_0 \ge -d_i$, i.e., $a_0 \ge \max(0, -d_i)$.
+  \item If $c_i = -1$: $a_0 \le d_i$.
+\end{itemize}
+Collecting all constraints yields an interval $[\mathrm{lo}, \mathrm{hi}]$.
+If $\mathrm{lo} > \mathrm{hi}$, no valid sequence exists. Otherwise, any
+$a_0 \in [\mathrm{lo}, \mathrm{hi}]$ works; we choose $a_0 = \mathrm{lo}$
+for the lexicographically smallest solution.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N; // length of mean sequence; original has N+1 elements
+    cin >> N;
+
+    // B[i] = 2 * b[i] to avoid fractions.
+    // Adjust if the problem provides pre-doubled values.
+    vector<long long> B(N);
+    for (int i = 0; i < N; i++) {
+        long long bi;
+        cin >> bi;
+        B[i] = 2 * bi;
+    }
+
+    // a[i] = c[i] * a[0] + d[i]
+    vector<int> c(N + 1);
+    vector<long long> d(N + 1);
+    c[0] = 1; d[0] = 0;
+
+    for (int i = 0; i < N; i++) {
+        c[i + 1] = -c[i];
+        d[i + 1] = B[i] - d[i];
+    }
+
+    // Determine valid range for a[0]
+    long long lo = 0, hi = (long long)2e18;
+    for (int i = 0; i <= N; i++) {
+        if (c[i] == 1)
+            lo = max(lo, -d[i]);
+        else
+            hi = min(hi, d[i]);
+    }
+
+    if (lo > hi) {
+        cout << "No solution\n";
+        return 0;
+    }
+
+    long long a0 = lo;
+    for (int i = 0; i <= N; i++) {
+        if (i > 0) cout << " ";
+        cout << (long long)c[i] * a0 + d[i];
+    }
+    cout << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(N)$---one pass to compute coefficients, one
+        pass to find the valid interval.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\end{document}

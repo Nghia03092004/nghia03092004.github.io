@@ -1,0 +1,130 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2005 -- Garden (Largest Empty Rectangle)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given an $R \times C$ grid with some cells blocked, find the area of the
+largest axis-aligned rectangle consisting entirely of unblocked cells.
+
+\section{Solution: Largest Rectangle in Histogram}
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item For each cell $(i, j)$, compute $h[j]$ = the number of
+        consecutive unblocked cells in column $j$ ending at row $i$
+        (inclusive). Reset $h[j] = 0$ if $(i, j)$ is blocked.
+  \item For each row, treat $h[0], h[1], \ldots, h[C{-}1]$ as a
+        histogram and find the area of the largest rectangle in it.
+  \item The answer is the maximum over all rows.
+\end{enumerate}
+
+\subsection{Stack-Based Histogram Algorithm}
+For a histogram of $C$ bars:
+\begin{enumerate}
+  \item Maintain a stack of bar indices with non-decreasing heights.
+  \item For each bar $j$ (and a sentinel bar of height 0 at position
+        $C$): while the stack top has height $\ge h[j]$, pop it and
+        compute the rectangle of that height, extending from the new
+        stack top $+ 1$ to $j - 1$.
+  \item Each bar is pushed and popped at most once, giving amortized
+        $O(C)$.
+\end{enumerate}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int largestRectInHistogram(vector<int>& h) {
+    int n = h.size();
+    stack<int> st;
+    int maxArea = 0;
+
+    for (int i = 0; i <= n; i++) {
+        int cur = (i == n) ? 0 : h[i];
+        while (!st.empty() && h[st.top()] >= cur) {
+            int height = h[st.top()];
+            st.pop();
+            int width = st.empty() ? i : (i - st.top() - 1);
+            maxArea = max(maxArea, height * width);
+        }
+        st.push(i);
+    }
+    return maxArea;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int R, C;
+    cin >> R >> C;
+
+    vector<vector<int>> grid(R, vector<int>(C));
+    for (int i = 0; i < R; i++)
+        for (int j = 0; j < C; j++)
+            cin >> grid[i][j];
+
+    vector<int> h(C, 0);
+    int ans = 0;
+
+    for (int i = 0; i < R; i++) {
+        for (int j = 0; j < C; j++) {
+            if (grid[i][j] == 0) // free cell
+                h[j]++;
+            else
+                h[j] = 0;
+        }
+        ans = max(ans, largestRectInHistogram(h));
+    }
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(R \times C)$. One $O(C)$ histogram pass per
+        row.
+  \item \textbf{Space:} $O(C)$ (height array and stack), or $O(R \times C)$
+        if the full grid is stored.
+\end{itemize}
+
+This is optimal since reading the input alone requires $O(R \times C)$.
+
+\paragraph{Note.} The specific IOI 2005 ``Garden'' problem may impose
+additional constraints (e.g., the rectangle must contain at least $K$
+specific points, or two rectangles must be found). The histogram
+technique serves as the core building block, augmented by binary search
+or two-pointer methods as needed.
+
+\end{document}

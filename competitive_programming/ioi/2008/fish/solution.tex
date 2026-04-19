@@ -1,0 +1,127 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2008 -- Fish}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+In a lake there are $N$ fish of distinct sizes, each belonging to one of $K$ species. A subset $S$ is \textbf{valid} if, for every species~$t$, the largest and smallest fish of species~$t$ in $S$ satisfy $\max \le 2 \cdot \min$. Count the number of non-empty valid subsets modulo a prime~$p$.
+
+\section{Solution}
+
+\subsection{Independence Across Species}
+\begin{lemma}
+The validity constraint is independent across species: for each species, we require $\max / \min \le 2$ within that species, regardless of other species. Therefore:
+\[
+\text{(valid subsets including empty)} = \prod_{t=1}^{K} (\text{valid subsets of species } t \text{, including empty}).
+\]
+\end{lemma}
+
+\subsection{Counting Per-Species Valid Subsets}
+For species~$t$ with fish sizes $s_1 < s_2 < \cdots < s_m$ (sorted), a valid subset is any subset $\{s_i, \ldots\}$ with $\max \le 2 \cdot \min$. We partition by the choice of minimum element.
+
+For minimum element $s_i$, the eligible elements are those with size in $[s_i, 2s_i]$. Let $f(i) = |\{j > i : s_j \le 2s_i\}|$ (elements strictly larger than $s_i$ but within the $2\times$ bound). The number of subsets with minimum exactly $s_i$ is $2^{f(i)}$ (include $s_i$ and choose any subset of the $f(i)$ eligible larger elements).
+
+Using two pointers (since $f(i)$ is non-decreasing in $i$), we compute $\sum_i 2^{f(i)}$ for each species in total $O(m)$ time.
+
+\subsection{Final Answer}
+\[
+\text{Answer} = \left(\prod_{t=1}^{K} \Bigl(1 + \sum_{i} 2^{f_t(i)}\Bigr)\right) - 1,
+\]
+where the $-1$ removes the global empty subset.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$ for sorting, $O(N)$ for the two-pointer computation.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+long long power(long long base, long long exp, long long mod) {
+    long long result = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp & 1) result = result * base % mod;
+        base = base * base % mod;
+        exp >>= 1;
+    }
+    return result;
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, K;
+    long long MOD;
+    cin >> N >> K >> MOD;
+
+    vector<long long> sz(N);
+    vector<int> sp(N);
+    for (int i = 0; i < N; i++) {
+        cin >> sz[i] >> sp[i];
+        sp[i]--;
+    }
+
+    // Group fish by species, sorted by size
+    vector<vector<long long>> bySpecies(K);
+    for (int i = 0; i < N; i++)
+        bySpecies[sp[i]].push_back(sz[i]);
+    for (int t = 0; t < K; t++)
+        sort(bySpecies[t].begin(), bySpecies[t].end());
+
+    long long ans = 1;
+    for (int t = 0; t < K; t++) {
+        auto& sizes = bySpecies[t];
+        int m = sizes.size();
+        if (m == 0) continue;
+
+        long long speciesCount = 1; // empty subset of this species
+        int j = 0;
+        for (int i = 0; i < m; i++) {
+            while (j < m && sizes[j] <= 2 * sizes[i]) j++;
+            int f = j - i - 1; // elements in (sizes[i], 2*sizes[i]]
+            speciesCount = (speciesCount + power(2, f, MOD)) % MOD;
+        }
+        ans = ans * speciesCount % MOD;
+    }
+
+    ans = (ans - 1 + MOD) % MOD; // subtract the global empty subset
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The per-species independence is the key structural insight. Within each species, the two-pointer technique efficiently counts valid subsets by tracking the rightmost element within the $2\times$ ratio bound. The pointer $j$ is monotonically non-decreasing, giving amortized $O(1)$ per element.
+
+\end{document}

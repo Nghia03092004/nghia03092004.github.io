@@ -1,0 +1,137 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\K. Tower of noiHa}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+After the first $k$ optimal moves of the classical Tower of Hanoi, Lucas's son takes the whole stack that is still on peg $0$ and drops it on top of peg $2$ in one illegal move. From that resulting possibly invalid state, we must compute the minimum number of \emph{valid} moves needed to finish the game, and print the answer in binary.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Before the illegal move, the state is a normal Hanoi state, so each peg is individually sorted from large to small.
+    \item After moving the whole stack from peg $0$ onto peg $2$, peg $0$ becomes empty and peg $2$ is the concatenation of two sorted stacks. Therefore peg $2$ has at most one inversion point. If there is no inversion, the state is already valid.
+    \item If there is an inversion, let $d$ be the first disk above it. Then $d$ is the unique \emph{bad disk}: it sits on top of some smaller disks. Every disk larger than $d$ is already in a valid relative order and never needs to interact with the trapped smaller disks below $d$.
+    \item Split the disks smaller than $d$ into two groups:
+    \begin{itemize}[leftmargin=*]
+        \item $C$: the disks trapped below $d$ on peg $2$,
+        \item $A$: the remaining smaller disks.
+    \end{itemize}
+    The disks in $A$ form an ordinary valid Hanoi configuration, and the disks in $B=\{d,d+1,\dots,n\}$ also form an ordinary valid Hanoi configuration.
+    \item While $d$ has not moved yet, every move of a disk from $B$ requires all disks of $A$ to be stacked on the third peg. Hence the cost is:
+    \[
+        \text{cost to place }A\text{ for the first }B\text{-move}
+        + \text{one or two }B\text{-moves}
+        + \text{possibly one transfer of the whole }A\text{ stack.}
+    \]
+    \item In the unique shortest path from any valid Hanoi state to a corner state, the smallest disk moves within the first two moves. Thus, for the bad disk $d$:
+    \begin{itemize}[leftmargin=*]
+        \item either $d$ is the first disk of $B$ that moves,
+        \item or one larger disk moves first, and then $d$ moves second.
+    \end{itemize}
+    \item Once $d$ moves away from the trapped disks, the whole state becomes valid. From then on, the remaining answer is just the ordinary distance from a valid Hanoi state to the final corner.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Decode the positions after the first $k$ optimal moves. This is done by scanning the padded binary representation of $k$ from the largest disk to the smallest while maintaining the current $(\text{source},\text{aux},\text{destination})$ role permutation.
+    \item Build the actual state after the illegal move: move every disk that was on peg $0$ onto the top of peg $2$.
+    \item If peg $2$ has no inversion, the whole state is valid. Use the standard Hanoi corner-distance formula:
+    \[
+        \text{scan disks from large to small, maintaining the current target peg.}
+    \]
+    \item Otherwise find the bad disk $d$, the trapped set $C$, the free-small set $A$, and the big set $B=\{d,\dots,n\}$.
+    \item Compress $A$ and $B$ separately by relative order only. For each compressed valid Hanoi state we can:
+    \begin{itemize}[leftmargin=*]
+        \item compute the ordinary distance to a target corner,
+        \item compute the first move on the unique shortest path to a target corner.
+    \end{itemize}
+    \item If every disk of $B$ is already on peg $2$, the shortest path will never move $d$. Then try the only two possibilities:
+    \begin{itemize}[leftmargin=*]
+        \item move all of $A$ to peg $0$ and move $d$ to peg $1$,
+        \item move all of $A$ to peg $1$ and move $d$ to peg $0$.
+    \end{itemize}
+    In both cases the state becomes valid, so add the ordinary finishing distance and take the smaller answer.
+    \item Otherwise compute the first move of the valid configuration $B$ toward peg $2$.
+    \begin{itemize}[leftmargin=*]
+        \item If that first move is $d$, place all disks of $A$ on the spare peg required for that move, move $d$, and the state is now valid.
+        \item If a larger disk moves first, place all disks of $A$ for that first move, execute it, move the whole stack $A$ to the spare peg needed for the second move, and then move $d$. After that the state is valid.
+    \end{itemize}
+    \item Construct the resulting valid full configuration and add its ordinary finishing distance.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs the minimum number of valid moves.
+
+\paragraph{Lemma 1.}
+After the illegal move, peg $2$ contains at most one inversion point, so there is at most one bad disk.
+
+\paragraph{Proof.}
+Before the illegal move, the disks on peg $2$ form a valid stack and the disks on peg $0$ form another valid stack. The illegal move concatenates these two valid stacks, preserving the internal order of each. Therefore every inversion can only occur at their boundary, so there is at most one first disk that lies on top of a smaller disk. \qed
+
+\paragraph{Lemma 2.}
+Let $d$ be the bad disk. Until $d$ moves, the disks in $C$ cannot move, and the disks in $A$ behave exactly like an ordinary valid Hanoi configuration.
+
+\paragraph{Proof.}
+Every disk in $C$ lies below $d$ on peg $2$, so no disk in $C$ is accessible before $d$ moves. Every disk in $A$ lies above all disks of $B$ on its peg, hence the top disk among $A$ on each peg is exactly the same as in an ordinary valid Hanoi state. Because all disks in $A$ are smaller than every disk in $B$, the disks of $B$ act only as peg bases and do not change the legality of moves among $A$. \qed
+
+\paragraph{Lemma 3.}
+In the shortest path from a valid Hanoi state to a corner state, the smallest disk moves within the first two moves.
+
+\paragraph{Proof.}
+Consider the standard recursive description of the unique shortest path. For the largest misplaced disk $x$, either:
+\begin{itemize}[leftmargin=*]
+    \item the first move is already inside the smaller recursive subproblem, or
+    \item all smaller disks are already on the required spare peg, so disk $x$ moves immediately.
+\end{itemize}
+In the first case, recurse on the smaller subproblem. If this continues until disk $1$, then disk $1$ moves first. Otherwise the recursion stops at some disk $x>1$ because all smaller disks are already on the needed spare peg; then disk $x$ moves first, and immediately afterward the remaining smaller subproblem is a corner-to-corner transfer, whose first move is disk $1$. Thus disk $1$ moves no later than the second move. \qed
+
+\paragraph{Lemma 4.}
+If the valid configuration of $B$ is not already at the final corner, then before the state becomes valid again, either one move of $B$ is needed (moving $d$ first) or exactly two moves of $B$ are needed (one larger disk, then $d$).
+
+\paragraph{Proof.}
+The first time the full state can become valid is exactly when $d$ moves away from the trapped disks of $C$. By Lemma 3, in the shortest path of the valid Hanoi configuration $B$ toward peg $2$, the smallest disk of $B$, namely $d$, moves within the first two moves. Therefore the state becomes valid after either one or two $B$-moves, unless $B$ is already entirely on peg $2$, which is handled separately. \qed
+
+\paragraph{Lemma 5.}
+For a fixed sequence of one or two $B$-moves before moving $d$, the minimum number of moves spent on $A$ is exactly what the algorithm computes.
+
+\paragraph{Proof.}
+Before each move of a disk in $B$, every disk of $A$ must be stacked on the unique spare peg not used by that $B$-move; otherwise some disk of $A$ would block the source or destination peg. By Lemma 2, the disks in $A$ form an ordinary valid Hanoi state, so the minimum cost to place them on a given peg is the standard corner-distance. If there are two $B$-moves before moving $d$, then after the first one the whole stack $A$ must move from one spare peg to another, costing exactly $2^{|A|}-1$ moves, and then the second $B$-move costs one more move. No cheaper sequence can exist because every required peg placement is forced. \qed
+
+\paragraph{Lemma 6.}
+After the algorithm moves $d$, the constructed configuration is valid and is exactly the configuration reached by some shortest sequence from the initial invalid state.
+
+\paragraph{Proof.}
+By construction, the trapped disks $C$ remain on peg $2$, the disks of $A$ are stacked on the spare peg needed for the move of $d$, and the disks of $B$ follow the first one or two moves of their unique shortest path. Therefore after $d$ moves, no disk lies on top of a smaller disk, so the state is valid. Lemma 5 shows that no shorter prefix can reach a valid state with the same required $B$-moves. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the minimum number of valid moves required to finish the game.
+
+\paragraph{Proof.}
+If the illegal move leaves a valid state, the algorithm returns the ordinary Hanoi distance, which is optimal. Otherwise, by Lemma 4, any optimal solution must reach validity again by either the special ``$B$ already finished'' case or by moving $d$ after one or two forced $B$-moves. Lemma 5 gives the minimum possible prefix cost until that happens, and Lemma 6 shows that the algorithm constructs the resulting valid state exactly. From that point on, the remaining minimum cost is the ordinary Hanoi distance from a valid state to the final corner. Summing these two optimal parts gives the global optimum. \qed
+
+\section*{Complexity Analysis}
+
+All scans are linear in the number of disks. Therefore the running time is $O(n)$ and the memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The answer can have up to $n$ binary digits, so the implementation stores it as a custom non-negative big integer over 64-bit limbs.
+    \item The standard corner-distance formula only sets bits corresponding to powers of two, so building those distances is especially simple.
+    \item The first-move routine for a valid Hanoi state is implemented iteratively to avoid recursion depth issues for $n$ up to $200\,000$.
+\end{itemize}
+
+\end{document}

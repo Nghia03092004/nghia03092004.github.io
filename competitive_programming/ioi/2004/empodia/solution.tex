@@ -1,0 +1,186 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2004 -- Empodia}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given a permutation $a_0, a_1, \ldots, a_{N-1}$ of $\{0, 1, \ldots, N-1\}$,
+find all \textbf{maximal empodia}.
+
+\begin{definition}
+An interval $[l, r]$ is a \emph{framed interval} if
+$\{a_l, a_{l+1}, \ldots, a_r\}$ is a set of consecutive integers.
+An \emph{empodio} is a framed interval $[l, r]$ where $a_l$ is the
+minimum and $a_r$ is the maximum of the set (ascending type).
+An empodio is \emph{maximal} if it is not properly contained in another
+empodio.
+\end{definition}
+
+\section{Solution}
+
+\subsection{Key Insight}
+Define $c_i = a_i - i$. If $[l, r]$ is a framed interval with
+$a_l = \min$ and $a_r = \max$, then $a_r - a_l = r - l$, which means
+$c_l = c_r$. Conversely, $c_l = c_r$ is a necessary condition.
+
+\begin{lemma}
+An interval $[l, r]$ is an ascending empodio if and only if:
+\begin{enumerate}
+  \item $c_l = c_r$ (same offset),
+  \item $a_l < a_r$,
+  \item $a_l = \min(a_l, \ldots, a_r)$ and $a_r = \max(a_l, \ldots, a_r)$.
+\end{enumerate}
+\end{lemma}
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item Group indices by their $c$-value. Within each group (sorted by
+        index), check consecutive pairs $(l, r)$ for the empodio
+        conditions.
+  \item Verify condition (3) using a sparse table for $O(1)$ range
+        min/max queries (built in $O(N \log N)$).
+  \item Collect all valid empodia, then filter for maximality.
+\end{enumerate}
+
+\subsection{Maximality Filter}
+Sort candidate intervals by $l$ ascending, breaking ties by $r$
+descending. Scan left to right, tracking the maximum $r$ seen so far.
+An interval is non-maximal (contained in a previous one) if its $r$ does
+not exceed the running maximum. Then reverse-sort the survivors by $r$
+descending and filter by $l$ similarly.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    vector<int> a(N);
+    for (int i = 0; i < N; i++) cin >> a[i];
+
+    // c[i] = a[i] - i
+    vector<int> c(N);
+    for (int i = 0; i < N; i++) c[i] = a[i] - i;
+
+    // Group indices by c-value
+    map<int, vector<int>> byC;
+    for (int i = 0; i < N; i++) byC[c[i]].push_back(i);
+
+    // Sparse table for range min and range max of a[]
+    int LOG = 1;
+    while ((1 << LOG) <= N) LOG++;
+    vector<vector<int>> rmn(LOG, vector<int>(N));
+    vector<vector<int>> rmx(LOG, vector<int>(N));
+    for (int i = 0; i < N; i++) rmn[0][i] = rmx[0][i] = a[i];
+    for (int k = 1; k < LOG; k++)
+        for (int i = 0; i + (1 << k) <= N; i++) {
+            rmn[k][i] = min(rmn[k-1][i], rmn[k-1][i + (1 << (k-1))]);
+            rmx[k][i] = max(rmx[k-1][i], rmx[k-1][i + (1 << (k-1))]);
+        }
+
+    auto qmin = [&](int l, int r) {
+        int k = __lg(r - l + 1);
+        return min(rmn[k][l], rmn[k][r - (1 << k) + 1]);
+    };
+    auto qmax = [&](int l, int r) {
+        int k = __lg(r - l + 1);
+        return max(rmx[k][l], rmx[k][r - (1 << k) + 1]);
+    };
+
+    // Find all candidate empodia
+    vector<pair<int,int>> cands;
+    for (auto& [cv, pos] : byC) {
+        for (int idx = 0; idx + 1 < (int)pos.size(); idx++) {
+            int l = pos[idx], r = pos[idx + 1];
+            if (a[l] < a[r] &&
+                qmin(l, r) == a[l] && qmax(l, r) == a[r])
+                cands.push_back({l, r});
+        }
+    }
+
+    // --- Maximality filter ---
+    // Pass 1: sort by l asc, r desc. Keep intervals with new max r.
+    sort(cands.begin(), cands.end(), [](auto& a, auto& b) {
+        return a.first != b.first ? a.first < b.first : a.second > b.second;
+    });
+    cands.erase(unique(cands.begin(), cands.end()), cands.end());
+
+    vector<pair<int,int>> pass1;
+    int maxR = -1;
+    for (auto& [l, r] : cands) {
+        if (r > maxR) {
+            pass1.push_back({l, r});
+            maxR = r;
+        }
+    }
+
+    // Pass 2: sort by r desc, l asc. Keep intervals with new min l.
+    sort(pass1.begin(), pass1.end(), [](auto& a, auto& b) {
+        return a.second != b.second ? a.second > b.second : a.first < b.first;
+    });
+    vector<pair<int,int>> result;
+    int minL = INT_MAX;
+    for (auto& [l, r] : pass1) {
+        if (l < minL) {
+            result.push_back({l, r});
+            minL = l;
+        }
+    }
+
+    sort(result.begin(), result.end());
+
+    cout << result.size() << "\n";
+    for (auto& [l, r] : result)
+        cout << l << " " << r << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Sparse table build:} $O(N \log N)$.
+  \item \textbf{Candidate enumeration:} $O(N)$ total across all
+        $c$-groups (consecutive pairs sum to $N - 1$), each checked in
+        $O(1)$.
+  \item \textbf{Maximality filter:} $O(C \log C)$ where $C$ is the
+        number of candidates.
+  \item \textbf{Overall:} $O(N \log N)$.
+  \item \textbf{Space:} $O(N \log N)$ for the sparse table.
+\end{itemize}
+
+\end{document}

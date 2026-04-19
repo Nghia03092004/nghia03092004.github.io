@@ -1,0 +1,139 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2023\\J. Bridging the Gap}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+There are $n$ walkers with crossing times $t_1,\dots,t_n$ and a bridge that can hold at most $c$ walkers
+at once. A forward crossing carries the torch to the far side; unless it is the last forward crossing, some
+walker must later bring the torch back. We must minimize the total time until everyone is across.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Sort the walkers by time:
+    \[
+    t_1 \le t_2 \le \cdots \le t_n.
+    \]
+    In an optimal solution, every backward crossing is made by exactly one walker: if several walkers came
+    back together, keeping only the fastest of them is never worse.
+    \item Before the last trip, a forward crossing consists of some number of currently slowest walkers that
+    are meant to stay on the far side, plus some number of fastest walkers that will later return one by one.
+    Using any non-fast walker as a future returner is dominated by using a faster one.
+    \item This suggests a dynamic program over:
+    \begin{itemize}[leftmargin=*]
+        \item how many slow walkers have already been moved permanently;
+        \item how many future one-person return trips have already been ``paid for'' by sending fast helpers
+        across earlier.
+    \end{itemize}
+    \item Besides mixed trips that move slow walkers, we may also take a \emph{fast-only package}: send
+    $h+1$ fastest walkers across, planning for $h$ of them to return later. This produces $h$ future return
+    credits and costs
+    \[
+    t_{h+1} + \sum_{i=1}^{h} t_i.
+    \]
+    These package costs can be precomputed with an unbounded knapsack.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Sort the crossing times increasingly.
+    \item Precompute \texttt{credit\_cost[x]} = minimum extra cost of fast-only packages that create exactly
+    $x$ future return credits.
+    \item Let \texttt{dp[done][credit]} be the minimum cost after the \texttt{done} slowest walkers have been
+    moved permanently, with \texttt{credit} net prepaid returns available.
+    \item From state \texttt{(done, credit)}, choose how many fast helpers accompany the next block of slow
+    walkers. If \texttt{helpers = h}, then:
+    \begin{itemize}[leftmargin=*]
+        \item the crossing moves $c-h$ of the remaining slow walkers permanently;
+        \item its time contribution is the slowest moved walker plus $\sum_{i=1}^{h} t_i$, because those
+        $h$ fast helpers will later return individually;
+        \item the net number of credits changes by $h-1$, since every non-final forward crossing needs one
+        return trip.
+    \end{itemize}
+    \item The DP only keeps the credit range that can still matter, which reduces the number of reachable
+    states to $O(n^2/c)$.
+    \item After all slow walkers have been transferred, add enough fast-only packages to settle any remaining
+    credit deficit and take the best final cost.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+There exists an optimal solution in which every backward crossing consists of a single walker.
+
+\paragraph{Proof.}
+Suppose some backward crossing contains several walkers. Replacing it by only the fastest walker from
+that group still returns the torch to the near side and cannot increase the time of that crossing. The other
+walkers can simply remain on the far side. Repeating this transformation yields an optimal solution with
+only single-person returns. \qed
+
+\paragraph{Lemma 2.}
+There exists an optimal solution in which every forward crossing is either:
+\begin{itemize}[leftmargin=*]
+    \item a group of the currently slowest remaining walkers, possibly together with some of the globally
+    fastest walkers that will later return; or
+    \item a fast-only package.
+\end{itemize}
+
+\paragraph{Proof.}
+By Lemma 1, future returners always cross back alone. If a forward trip contains a walker who will later
+return, replacing that walker by a faster not-yet-used walker can only decrease future return costs and
+cannot increase the forward trip time. Thus temporary helpers may be assumed to be chosen from the
+globally fastest walkers.
+
+The walkers intended to stay permanently on the far side may then be taken in decreasing order of speed:
+if two permanent walkers are transferred in the opposite order, swapping them does not worsen any trip,
+because only the slowest walker in each forward group matters. Hence some optimal solution has exactly
+the stated structure. \qed
+
+\paragraph{Lemma 3.}
+Every schedule of the form described in Lemma 2 is represented by a unique path in the dynamic
+program, and every DP path corresponds to a valid schedule of that form.
+
+\paragraph{Proof.}
+The state records precisely the two quantities needed to continue optimally: how many slow walkers have
+already been transferred permanently, and how many prepaid one-person returns are still available. Each
+transition chooses the number of fast helpers on the next forward trip, which uniquely determines how
+many slow walkers are moved, what time is added, and how the credit balance changes. Conversely, any
+schedule of the structured form yields exactly those state changes. Therefore the DP and the structured
+schedules are in one-to-one correspondence. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the minimum total crossing time.
+
+\paragraph{Proof.}
+By Lemmas 1 and 2, some optimal solution has the structured form modeled by the DP. By Lemma 3, the
+DP explores exactly all such solutions and computes their exact total cost, including the cheapest possible
+fast-only packages needed to settle the final credit balance. Therefore the minimum value produced by the
+DP is the true optimum. \qed
+
+\section*{Complexity Analysis}
+
+The pruned state space has size $O(n^2/c)$, and each state has $O(c)$ outgoing transitions, so the main
+DP runs in $O(n^2)$ time. The fast-only package preprocessing is also $O(n^2)$ in the worst case. The
+memory usage is $O(n^2/c)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The code stores only the credit range that can still matter for a given \texttt{done}, which is why
+    each DP row has a different width.
+    \item If $c \ge n$, everybody can cross together immediately and the answer is simply the slowest
+    walker's time.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,104 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\I. Steppe on It}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a weighted tree of villages and must place fire engines in exactly $f$ villages. Every village is served by the nearest engine. We want to minimize the maximum distance from any village to its nearest engine.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Fix a candidate response time $R$. Then the question becomes: can we place at most $f$ engines so that every village is within distance $R$ of some engine?
+    \item This feasibility predicate is monotone. If radius $R$ works, then every larger radius also works. Therefore we can binary search the answer.
+    \item For the feasibility check, root the tree arbitrarily. When processing a subtree, only one of two summaries matters:
+    \begin{itemize}[leftmargin=*]
+        \item the subtree is already fully covered, and we only need the distance from the root of the subtree to the closest engine inside it;
+        \item the subtree is not fully covered yet, and we only need the distance to its farthest still-uncovered village.
+    \end{itemize}
+    \item A greedy postorder DFS is enough: whenever the farthest uncovered village can no longer be covered from the parent, we must place an engine at the current node.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Binary search the minimum feasible radius $R$.
+
+    \item For a fixed $R$, run one DFS from the root.
+
+    \item For a node $u$, after processing all children, maintain:
+    \begin{itemize}[leftmargin=*]
+        \item \texttt{closest\_center}: the minimum distance from $u$ to an engine already placed in a child subtree that is fully covered;
+        \item \texttt{farthest\_uncovered}: the maximum distance from $u$ to a village in a child subtree that is still uncovered.
+    \end{itemize}
+
+    \item If
+    \[
+    \texttt{closest\_center} + \texttt{farthest\_uncovered} \le R,
+    \]
+    then the nearest engine inside the subtree covers every currently uncovered village as well, so the whole subtree becomes fully covered and we return \texttt{closest\_center}.
+
+    \item Otherwise, if $u$ is not the root and
+    \[
+    \texttt{farthest\_uncovered} > R,
+    \]
+    then even an engine at the parent would be too far away, so we must place an engine at $u$. We count one engine and return that the subtree is fully covered with nearest-engine distance $0$.
+
+    \item If neither of the two situations above applies, we return that the subtree is still uncovered, with value \texttt{farthest\_uncovered}.
+
+    \item After the DFS, if the root is still uncovered, place one final engine at the root. The check succeeds iff the total number of engines used is at most $f$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+During the feasibility check for radius $R$, if a node $u$ returns the state ``uncovered with value $d$'', then every uncovered village in the subtree of $u$ is at distance at most $d$ from $u$, and at least one such village is at distance exactly $d$.
+
+\paragraph{Proof.}
+This follows directly from the DFS definition. Whenever a child returns uncovered, we propagate the maximum uncovered distance upward by adding the edge length. Thus the stored value is exactly the farthest uncovered distance from the current node. \qed
+
+\paragraph{Lemma 2.}
+If at a non-root node $u$ we have \texttt{farthest\_uncovered} $> R$, then every feasible solution for radius $R$ must place an engine at $u$ or inside the subtree of $u$.
+
+\paragraph{Proof.}
+By Lemma 1 there is an uncovered village in the subtree of $u$ at distance more than $R$ from $u$. Any engine outside the subtree of $u$ must be even farther away, because every path from that village to the outside passes through $u$. Hence no engine above $u$ can cover that village. Therefore some engine must be placed at $u$ or below it. The greedy choice of placing it exactly at $u$ is optimal because it is the highest possible placement that still covers the problematic part of the subtree. \qed
+
+\paragraph{Lemma 3.}
+If \texttt{closest\_center} $+$ \texttt{farthest\_uncovered} $\le R$ at node $u$, then all uncovered villages in the subtree of $u$ are in fact already covered by the nearest engine in that subtree.
+
+\paragraph{Proof.}
+Every uncovered village is at distance at most \texttt{farthest\_uncovered} from $u$, while the nearest engine is at distance \texttt{closest\_center} from $u$. The unique path between them goes through $u$, so their mutual distance is at most the sum of the two values, which is at most $R$. Hence all those villages are actually covered, and the whole subtree is fully covered. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+For a fixed radius $R$, Lemma 2 shows that whenever the DFS places an engine, every feasible solution must also place an engine somewhere in that subtree, so the greedy action is necessary. Lemma 3 shows that whenever the DFS declares a subtree fully covered, this is correct. Therefore the DFS computes the minimum number of engines needed for radius $R$.
+
+Since the feasibility predicate is monotone in $R$, binary search returns the smallest radius for which the DFS uses at most $f$ engines. This is exactly the minimum guaranteed response time. \qed
+
+\section*{Complexity Analysis}
+
+Each feasibility check is one DFS, so it costs $O(n)$. The answer is found by binary search over an integer range whose upper bound is the total tree length, so the total running time is $O(n \log W)$, where $W$ is that upper bound. The memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Edge lengths and path lengths require \texttt{long long}.
+    \item The DFS is recursive in the write-up, but any equivalent postorder implementation is fine. The code roots the tree at village $1$.
+    \item If the root is still uncovered after processing all children, we must count one additional engine at the root.
+\end{itemize}
+
+\end{document}

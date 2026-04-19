@@ -1,0 +1,186 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2014 -- Holiday}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+There are $n$ cities on a line, each with a number of attractions $a_i$. You start at city $S$ (0-indexed) and have $D$ days. Each day you either move to an adjacent city or visit the current city (collecting its attractions, at most once per city). Maximise the total attractions collected.
+
+\section{Solution}
+
+\subsection{Structure of Optimal Solutions}
+
+\begin{lemma}
+An optimal strategy visits a contiguous range $[l, r]$ containing $S$. Within that range, it collects the cities with the largest attraction values.
+\end{lemma}
+
+The travel cost to visit range $[l, r]$ ($l \le S \le r$) is:
+\begin{itemize}
+  \item \textbf{Left first}: $2(S - l) + (r - S)$.
+  \item \textbf{Right first}: $(S - l) + 2(r - S)$.
+\end{itemize}
+The remaining $D - \text{cost}$ days are used to visit cities, so we collect the top $\min(D - \text{cost},\, r - l + 1)$ attraction values in $[l, r]$.
+
+\subsection{Divide and Conquer with Segment Tree}
+
+Fix the direction (left-first or right-first). For a fixed left endpoint $l$, let $r^*(l)$ be the optimal right endpoint.
+
+\begin{lemma}[Monotonicity]
+$r^*(l)$ is non-decreasing as $l$ increases, enabling divide-and-conquer optimisation.
+\end{lemma}
+
+We use D\&C on $l$: for the midpoint $l_{\text{mid}}$, sweep $r$ to find $r^*(l_{\text{mid}})$, then recurse on the two halves. A segment tree on coordinate-compressed attraction values supports:
+\begin{itemize}
+  \item $\texttt{add}(v)$: insert value $v$.
+  \item $\texttt{rem}(v)$: remove value $v$.
+  \item $\texttt{topk}(k)$: sum of the $k$ largest inserted values.
+\end{itemize}
+
+We maintain the segment tree incrementally as we expand or shrink the window $[l, r]$.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+struct SegTree {
+    int n;
+    vector<int> cnt;
+    vector<ll> sum;
+
+    void init(int _n) {
+        n = _n;
+        cnt.assign(4 * n, 0);
+        sum.assign(4 * n, 0);
+    }
+
+    void update(int node, int l, int r, int pos, int val, ll w) {
+        if (l == r) { cnt[node] += val; sum[node] += w; return; }
+        int mid = (l + r) / 2;
+        if (pos <= mid) update(2*node, l, mid, pos, val, w);
+        else update(2*node+1, mid+1, r, pos, val, w);
+        cnt[node] = cnt[2*node] + cnt[2*node+1];
+        sum[node] = sum[2*node] + sum[2*node+1];
+    }
+
+    ll query(int node, int l, int r, int k) {
+        if (k <= 0) return 0;
+        if (k >= cnt[node]) return sum[node];
+        if (l == r) return (ll)k * (sum[node] / cnt[node]);
+        int mid = (l + r) / 2;
+        if (cnt[2*node+1] >= k)
+            return query(2*node+1, mid+1, r, k);
+        return sum[2*node+1] + query(2*node, l, mid, k - cnt[2*node+1]);
+    }
+
+    void add(int pos, ll w) { update(1, 0, n-1, pos, 1, w); }
+    void rem(int pos, ll w) { update(1, 0, n-1, pos, -1, -w); }
+    ll topk(int k) { return query(1, 0, n-1, k); }
+};
+
+int N, S, D;
+vector<int> a;
+vector<int> sorted_vals;
+SegTree seg;
+ll best_ans;
+
+int compress(int v) {
+    return lower_bound(sorted_vals.begin(), sorted_vals.end(), v)
+           - sorted_vals.begin();
+}
+
+int cur_l, cur_r;
+
+void addCity(int i) { seg.add(compress(a[i]), a[i]); }
+void remCity(int i) { seg.rem(compress(a[i]), a[i]); }
+
+void expand_to(int l, int r) {
+    while (cur_r < r) { cur_r++; addCity(cur_r); }
+    while (cur_l > l) { cur_l--; addCity(cur_l); }
+    while (cur_r > r) { remCity(cur_r); cur_r--; }
+    while (cur_l < l) { remCity(cur_l); cur_l++; }
+}
+
+void solve(int lo_l, int hi_l, int lo_r, int hi_r, bool leftFirst) {
+    if (lo_l > hi_l) return;
+    int mid_l = (lo_l + hi_l) / 2;
+    int best_r = lo_r;
+    ll best_val = -1;
+
+    for (int r = max(lo_r, S); r <= min(hi_r, N - 1); r++) {
+        int l = mid_l;
+        int cost = leftFirst ? 2 * (S - l) + (r - S)
+                             : (S - l) + 2 * (r - S);
+        int visit = D - cost;
+        if (visit <= 0) continue;
+        visit = min(visit, r - l + 1);
+
+        expand_to(l, r);
+        ll val = seg.topk(visit);
+        if (val > best_val) { best_val = val; best_r = r; }
+    }
+    best_ans = max(best_ans, best_val);
+    solve(lo_l, mid_l - 1, lo_r, best_r, leftFirst);
+    solve(mid_l + 1, hi_l, best_r, hi_r, leftFirst);
+}
+
+long long findMaxAttraction(int n, int start, int d, int attraction[]) {
+    N = n; S = start; D = d;
+    a.assign(attraction, attraction + n);
+    sorted_vals = a;
+    sort(sorted_vals.begin(), sorted_vals.end());
+    sorted_vals.erase(unique(sorted_vals.begin(), sorted_vals.end()),
+                      sorted_vals.end());
+
+    best_ans = 0;
+
+    seg.init(sorted_vals.size());
+    cur_l = S; cur_r = S - 1;
+    solve(0, S, S, N - 1, true);
+
+    seg.init(sorted_vals.size());
+    cur_l = S; cur_r = S - 1;
+    solve(0, S, S, N - 1, false);
+
+    return best_ans;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n \log^2 n)$. The D\&C has $O(\log n)$ levels; at each level, the total sweep across all subproblems is $O(n)$, with each step requiring an $O(\log n)$ segment-tree operation.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

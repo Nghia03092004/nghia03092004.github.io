@@ -1,0 +1,108 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2015 -- Teams}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Each child $i$ can join only teams whose size lies in $[A_i,B_i]$.
+For one query we are given team sizes $K_1,\dots,K_m$ and must decide whether the children
+can be partitioned accordingly.
+
+\section{Hall Reformulation}
+Sort the team sizes:
+\[
+K_0 \le K_1 \le \dots \le K_{m-1}.
+\]
+Hall's theorem implies that the assignment is feasible if and only if for every interval
+$[i,j]$ of team indices,
+\[
+\#\{\,\text{children with } A \le K_j \text{ and } B \ge K_i\,\}
+    \ge \sum_{t=i}^{j} K_t.
+\]
+
+Define
+\[
+S_t = \sum_{q=0}^{t-1} K_q
+\]
+and
+\[
+Z(i,j)=\#\{\,A \in [K_i+1, K_j],\ B \ge K_j\,\}.
+\]
+
+Let $D_j$ be the minimum Hall deficit among all subsets whose largest team size is $K_j$.
+Then the official DP is
+\[
+D_j = \min_{i<j} \bigl(D_i + Z(i,j) - K_j\bigr),
+\]
+with the virtual state $D_{-1}=0$ and $K_{-1}=0$.
+The query is feasible iff every computed $D_j \ge 0$.
+
+\section{Rectangle Queries}
+Children are points $(A_i,B_i)$ in the plane.
+We preprocess them with a persistent segment tree over $B$ values, indexed by the $A$ threshold.
+Then each quantity
+\[
+\#\{\,A \in [x_1,x_2],\ B \ge y\,\}
+\]
+is answered in $O(\log N)$ time.
+
+\section{Monotone Candidate Set}
+For fixed $j$, each previous index $i$ contributes
+\[
+F_i(j)=D_i+Z(i,j).
+\]
+For two candidates $i<k$, the difference
+\[
+F_i(j)-F_k(j)
+\]
+is monotone as $j$ increases, because it is a rectangle count with a growing lower bound on $B$.
+Therefore the better candidate changes only once.
+
+This lets us maintain a deque of candidate indices, exactly like a monotone hull:
+\begin{itemize}
+  \item the best transition for the current $j$ is always the last candidate;
+  \item the time when an older candidate overtakes a newer one is found by binary search on $j$,
+        using rectangle-count queries;
+  \item each candidate is inserted and removed at most once.
+\end{itemize}
+
+\section{Complexity}
+\begin{itemize}
+  \item \textbf{Preprocessing:} $O(N \log N)$.
+  \item \textbf{Per query:} $O(m \log^2 N)$.
+  \item \textbf{Space:} $O(N \log N)$.
+\end{itemize}
+
+\section{Implementation}
+\begin{lstlisting}
+// 1. Build persistent segment-tree versions roots[a].
+// 2. For one query, sort K.
+// 3. Compute D_j left-to-right.
+// 4. Maintain the monotone candidate deque and binary-search takeover times.
+// 5. Return false immediately if some D_j becomes negative.
+\end{lstlisting}
+
+\end{document}

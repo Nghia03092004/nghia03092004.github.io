@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\F. Friendly Rivalry}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We have $2n$ chapter locations. We must choose exactly $n$ of them for the blue team and the remaining $n$ for the green team so that the minimum Euclidean distance between a blue chapter and a green chapter is as large as possible.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Fix a candidate distance $D$. If two chapters are closer than $D$, they cannot be on different teams. Therefore every pair of chapters with distance $< D$ must receive the same color.
+    \item Build a graph whose vertices are the chapters and whose edges connect pairs at distance $< D$. Then every connected component of this graph must be monochromatic.
+    \item So checking feasibility for $D$ becomes: can we choose some connected components whose total size is exactly $n$? This is a subset-sum problem on component sizes.
+    \item As $D$ increases, more edges appear, connected components only merge, and feasibility can only become harder. Thus feasibility is monotone, so binary search works.
+    \item The optimal answer is one of the pairwise distances between chapters, because the graph changes only when $D$ passes such a distance.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Let $N=2n$. Compute all $\binom{N}{2}$ squared distances and sort them.
+
+    \item For a candidate squared distance $X$:
+    \begin{enumerate}[leftmargin=*]
+        \item Build a DSU on the $N$ chapters.
+        \item Unite every pair whose squared distance is $< X$.
+        \item Extract the connected-component sizes.
+        \item Run subset sum on these sizes and check whether sum $n$ is reachable.
+    \end{enumerate}
+
+    \item Because feasibility is monotone, binary search the sorted distinct squared distances and find the largest one that is feasible.
+
+    \item Run the same DSU once more for the optimal threshold and rebuild the subset-sum DP with parent information. Backtrack to choose which components form the blue team.
+
+    \item Output $\sqrt{X}$ and all chapter indices belonging to the blue team.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed distance $D$, a team assignment is valid with minimum cross-team distance at least $D$ if and only if every connected component of the graph on edges of length $< D$ is monochromatic.
+
+\paragraph{Proof.}
+If two chapters are adjacent in that graph, their distance is $< D$, so they cannot be on different teams. Hence adjacent vertices must have the same color, and therefore every connected component must be monochromatic.
+
+Conversely, if every connected component is monochromatic, then any blue-green pair lies in different connected components, so there is no graph edge between them. Hence their distance is not $< D$, i.e. it is at least $D$. \qed
+
+\paragraph{Lemma 2.}
+For a fixed distance $D$, there exists a valid assignment if and only if some subset of connected components has total size exactly $n$.
+
+\paragraph{Proof.}
+By Lemma 1, each connected component must be entirely blue or entirely green. Therefore choosing a valid assignment is exactly choosing which components are blue. Since the blue team must contain exactly $n$ chapters, feasibility is equivalent to selecting component sizes that sum to $n$. \qed
+
+\paragraph{Lemma 3.}
+If a distance $D$ is feasible, then every smaller distance is also feasible.
+
+\paragraph{Proof.}
+When we decrease $D$, the graph keeps only a subset of the previous edges. Connected components can only split, never merge. Any component selection that worked before can be refined by keeping the same color on each new smaller component, so feasibility cannot be lost when $D$ decreases. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, the feasibility test used by the algorithm is correct. By Lemma 3, this feasibility predicate is monotone, so binary search finds the largest feasible distance among all candidate pairwise distances. Since the graph changes only when $D$ crosses an existing pairwise distance, this largest feasible candidate is exactly the optimum.
+
+Finally, the reconstruction DP chooses a subset of connected components of total size $n$, which by Lemma 2 yields a valid optimal team assignment. Therefore the algorithm outputs both the optimal distance and a corresponding blue team. \qed
+
+\section*{Complexity Analysis}
+
+Let $N=2n \le 1000$ and $M=\binom{N}{2} = O(N^2)$.
+
+\begin{itemize}[leftmargin=*]
+    \item Building and sorting all distances costs $O(N^2 \log N)$.
+    \item One feasibility test runs DSU over all edges and one subset-sum over at most $N$ components, so it costs $O(N^2 + Nn)$.
+    \item We perform $O(\log N^2)=O(\log N)$ such tests in the binary search.
+\end{itemize}
+
+Overall the running time is $O(N^2 \log N + (N^2 + Nn)\log N)$, and the memory usage is $O(N^2)$ for the edge list.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Compare squared distances, not floating-point distances, during the entire search. Take the square root only for the final output.
+    \item The threshold uses ``strictly less than'': edges of length exactly $D$ are allowed to be cross-team, so the DSU must unite only pairs with distance $< D$.
+    \item Coordinates fit in 32-bit integers, but squared distances require \texttt{long long}.
+\end{itemize}
+
+\end{document}

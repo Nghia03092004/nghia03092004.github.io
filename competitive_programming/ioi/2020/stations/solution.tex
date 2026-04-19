@@ -1,0 +1,193 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2020 -- Stations}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given a tree with $n$ nodes, assign labels from $\{0, 1, \ldots, n-1\}$ (all distinct, but need not match node indices) such that given only the labels of the current node $s$ and target node $t$, plus the sorted list of labels of $s$'s neighbors, you can determine which neighbor to route toward.
+
+Implement two functions:
+\begin{itemize}
+  \item \texttt{label(n, k, edges)}: assign labels.
+  \item \texttt{find\_next\_station(s, t, neighbors)}: given label $s$, target label $t$, and sorted neighbor labels, return the neighbor label to route to.
+\end{itemize}
+
+\section{Solution Approach}
+
+\subsection{DFS In/Out Labeling}
+The key idea is to use DFS timestamps. Assign each node either its DFS \emph{in-time} or \emph{out-time} based on its depth parity:
+\begin{itemize}
+  \item Nodes at even depth get their in-time as label.
+  \item Nodes at odd depth get their out-time as label.
+\end{itemize}
+
+This ensures that for any node $s$ with label $L_s$ and its children, the subtree ranges are deducible from the neighbor labels alone.
+
+\subsection{Routing Logic}
+Given $s$, $t$, and the sorted neighbor labels:
+\begin{itemize}
+  \item Determine if $s$ is at even or odd depth. This can be inferred from the relationship between $s$'s label and its parent's label (the parent is the neighbor whose label is outside the range of $s$'s subtree).
+  \item If $s$ is at even depth (labeled with in-time): $s$'s label is the smallest in its subtree. Each child $c$ has out-time as label, and the subtree of $c$ is $[\text{in-time of } c, \text{out-time of } c]$. The children's labels (out-times) define the subtree boundaries.
+  \item Route to the child whose subtree range contains $t$'s label.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> label(int n, int k, vector<int> u, vector<int> v) {
+    vector<vector<int>> adj(n);
+    for (int i = 0; i < n - 1; i++) {
+        adj[u[i]].push_back(v[i]);
+        adj[v[i]].push_back(u[i]);
+    }
+
+    vector<int> labels(n);
+    vector<int> in_time(n), out_time(n), depth(n);
+    int timer = 0;
+
+    // DFS from node 0
+    function<void(int, int, int)> dfs = [&](int node, int parent, int d) {
+        depth[node] = d;
+        in_time[node] = timer++;
+        for (int child : adj[node]) {
+            if (child != parent)
+                dfs(child, node, d + 1);
+        }
+        out_time[node] = timer++;
+    };
+    dfs(0, -1, 0);
+
+    // Even depth: label = in_time / 2 (compressed)
+    // Odd depth: label = out_time / 2 (compressed)
+    // Actually, we need labels in [0, k]. Since k >= n-1, we can use [0, n-1].
+
+    // Re-do with single counter [0, n-1]:
+    timer = 0;
+    function<void(int, int, int)> dfs2 = [&](int node, int parent, int d) {
+        depth[node] = d;
+        if (d % 2 == 0) {
+            labels[node] = timer++;
+            for (int child : adj[node])
+                if (child != parent)
+                    dfs2(child, node, d + 1);
+        } else {
+            for (int child : adj[node])
+                if (child != parent)
+                    dfs2(child, node, d + 1);
+            labels[node] = timer++;
+        }
+    };
+    dfs2(0, -1, 0);
+
+    return labels;
+}
+
+int find_next_station(int s, int t, vector<int> c) {
+    // c is sorted list of neighbor labels
+    // Determine if s is even or odd depth
+    // Even depth: s = in-time, smallest in subtree. Children have out-times (larger).
+    //   Parent (if exists) has out-time > s (and is larger than all children?). No...
+    //   With our labeling: even-depth gets label BEFORE children, odd-depth gets label AFTER.
+    //   So even-depth node s has label < all descendants.
+    //   Odd-depth node s has label > all descendants.
+
+    // If s < all neighbors: s is even-depth, all neighbors > s.
+    //   One of them is parent (odd-depth, labeled after subtree).
+    //   Children (odd-depth) are labeled after their subtrees.
+    //   Parent's label > all children's labels (parent's out-time is after s's entire subtree).
+    //   So parent = max(c). Children = rest.
+
+    // If s > all neighbors: s is odd-depth, all neighbors < s.
+    //   Children (even-depth) are labeled before their subtrees.
+    //   Parent (even-depth) has label < all children's labels? Not necessarily.
+    //   Parent's label = in-time of parent < in-time of s's subtree.
+    //   So parent = min(c). Children = rest.
+
+    // Actually it could be mixed. Let me reconsider.
+    // Even-depth node: labeled with in-time (before children).
+    //   Its neighbors: parent (odd-depth, out-time) and children (odd-depth, out-time).
+    //   Parent's out-time > all out-times in s's subtree, so parent = max(c).
+    //   Unless s is root (no parent).
+
+    // Odd-depth node: labeled with out-time (after children).
+    //   Its neighbors: parent (even-depth, in-time) and children (even-depth, in-time).
+    //   Parent's in-time < all in-times in s's subtree, so parent = min(c).
+    //   Unless s is root.
+
+    if (c.size() == 1) return c[0]; // leaf or single-path: only one choice
+
+    // Determine depth parity: if s < c[0] (s is less than smallest neighbor), s is even.
+    // If s > c.back() (s is greater than largest neighbor), s is odd.
+    // These are the only cases for interior nodes with our labeling.
+
+    if (s < c[0]) {
+        // s is even-depth (in-time). Parent = max(c) = c.back().
+        // Children are c[0], c[1], ..., c[size-2] (sorted out-times).
+        // Subtree of child c[i]: in-times range from (previous child's out-time + 1) to c[i].
+        // More precisely: after s (in-time), the first child's subtree starts.
+        // The in-times in child c[i]'s subtree are [prev_boundary, c[i]].
+        // For child c[0]: subtree contains in-times [s+1, c[0]].
+        // For child c[i]: subtree contains in-times [c[i-1]+1, c[i]].
+
+        // If t is in [s+1, c[0]]: route to c[0].
+        // If t is in [c[0]+1, c[1]]: route to c[1].
+        // etc.
+        // If t is not in any child's range: route to parent.
+
+        for (int i = 0; i < (int)c.size() - 1; i++) {
+            int lo = (i == 0) ? s + 1 : c[i - 1] + 1;
+            int hi = c[i];
+            if (t >= lo && t <= hi) return c[i];
+        }
+        return c.back(); // route to parent
+    } else {
+        // s is odd-depth (out-time). Parent = min(c) = c[0].
+        // Children are c[1], c[2], ..., c[size-1] (sorted in-times, ascending).
+        // But children are even-depth with in-times. Subtree of child c[i]:
+        // out-times range from c[i] to (next child's in-time - 1) or s-1.
+        // Child c[last]: subtree is [c[last], s-1].
+        // Child c[i]: subtree is [c[i], c[i+1]-1].
+
+        for (int i = 1; i < (int)c.size(); i++) {
+            int lo = c[i];
+            int hi = (i + 1 < (int)c.size()) ? c[i + 1] - 1 : s - 1;
+            if (t >= lo && t <= hi) return c[i];
+        }
+        return c[0]; // route to parent
+    }
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Labeling:} $O(n)$ -- single DFS.
+  \item \textbf{Routing:} $O(\deg(s))$ per query -- linear scan of neighbors (can be optimized to $O(\log \deg(s))$ with binary search).
+  \item \textbf{Labels range:} $[0, n-1]$, satisfying $k \ge n - 1$.
+\end{itemize}
+
+\end{document}

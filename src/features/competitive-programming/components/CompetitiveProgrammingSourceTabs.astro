@@ -1,0 +1,137 @@
+---
+import { withBase } from '../../../lib/paths';
+
+interface SourceTab {
+	id: string;
+	label: string;
+	description: string;
+	path: string;
+	rawUrl: string;
+	languageClass: string;
+	source: string;
+}
+
+interface Props {
+	rootId: string;
+	title?: string;
+	description?: string;
+	tabs: SourceTab[];
+}
+
+const {
+	rootId,
+	title = 'Source files',
+	description = 'The archive page shows the exact copied source files without rewriting or conversion.',
+	tabs,
+} = Astro.props;
+const firstTab = tabs[0];
+---
+
+<section
+	class="source-library panel"
+	id="source-files"
+	data-source-root={rootId}
+	data-default-tab={firstTab?.id ?? 'tex'}
+>
+	<div class="source-library__header">
+		<div>
+			<span class="section-label">Source files</span>
+			<h2>{title}</h2>
+			<p>{description}</p>
+		</div>
+		<div class="source-toolbar" role="tablist" aria-label="Source file type">
+			{
+				tabs.map((tab, index) => (
+					<button
+						class:list={['source-tab', index === 0 && 'is-active']}
+						type="button"
+						data-source-tab={tab.id}
+						role="tab"
+						aria-selected={index === 0 ? 'true' : 'false'}
+					>
+						{tab.label}
+					</button>
+				))
+			}
+		</div>
+	</div>
+
+	{
+		tabs.map((tab, index) => (
+			<article
+				class:list={['source-panel', index === 0 && 'is-active']}
+				data-source-panel={tab.id}
+				hidden={index === 0 ? undefined : true}
+			>
+				<div class="source-panel__meta">
+					<div class="source-panel__copy">
+						<span class="metric">{tab.label}</span>
+						<code>{tab.path}</code>
+						<p>{tab.description}</p>
+					</div>
+					<div class="source-panel__actions">
+						<a class="button button--ghost" href={withBase(tab.rawUrl)}>Raw file</a>
+						<button class="source-copy" type="button" data-source-copy={tab.id}>
+							Copy
+						</button>
+					</div>
+				</div>
+				<pre><code class={tab.languageClass}>{tab.source}</code></pre>
+			</article>
+		))
+	}
+</section>
+
+<script is:inline>
+	const sourceRoots = document.querySelectorAll('[data-source-root]');
+
+	sourceRoots.forEach((root) => {
+		const buttons = Array.from(root.querySelectorAll('[data-source-tab]'));
+		const panels = Array.from(root.querySelectorAll('[data-source-panel]'));
+		const copyButtons = Array.from(root.querySelectorAll('[data-source-copy]'));
+
+		const setActive = (tabId) => {
+			buttons.forEach((button) => {
+				const isActive = button.dataset.sourceTab === tabId;
+				button.classList.toggle('is-active', isActive);
+				button.setAttribute('aria-selected', String(isActive));
+			});
+
+			panels.forEach((panel) => {
+				const isActive = panel.dataset.sourcePanel === tabId;
+				panel.classList.toggle('is-active', isActive);
+				panel.hidden = !isActive;
+			});
+		};
+
+		buttons.forEach((button) => {
+			button.addEventListener('click', () => setActive(button.dataset.sourceTab));
+		});
+
+		copyButtons.forEach((button) => {
+			button.addEventListener('click', async () => {
+				const tabId = button.dataset.sourceCopy;
+				const codeElement = root.querySelector(`[data-source-panel="${tabId}"] code`);
+				const code = codeElement?.textContent ?? '';
+				if (!code) {
+					return;
+				}
+
+				try {
+					await navigator.clipboard.writeText(code);
+					button.textContent = 'Copied';
+					window.setTimeout(() => {
+						button.textContent = 'Copy';
+					}, 1200);
+				} catch {
+					button.textContent = 'Unavailable';
+					window.setTimeout(() => {
+						button.textContent = 'Copy';
+					}, 1200);
+				}
+			});
+		});
+
+		setActive(root.dataset.defaultTab ?? 'tex');
+	});
+</script>

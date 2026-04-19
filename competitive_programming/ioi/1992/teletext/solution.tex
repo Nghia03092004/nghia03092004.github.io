@@ -1,0 +1,175 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1992 -- Problem 2: Teletext}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A teletext display renders characters using a fixed-size pixel grid (a
+dot-matrix font). Given a library of known character patterns and an input
+image, recognize each character cell and decode the displayed message.
+
+Each character occupies a cell of $w \times h$ pixels. The input image is a
+pixel grid whose dimensions are exact multiples of $w$ and $h$. Match each
+cell against the known patterns to decode the text.
+
+\section{Solution}
+
+\subsection{Algorithm}
+
+\begin{enumerate}
+  \item \textbf{Load patterns:} For each known character, store its
+    $h \times w$ pixel grid.
+  \item \textbf{Segment the image:} Divide the input image into cells of
+    size $h \times w$.
+  \item \textbf{Match each cell:} Compare pixel-by-pixel against all
+    patterns. For exact matching, find the pattern with zero differences.
+    For noisy input, find the pattern with the smallest Hamming distance
+    (number of differing pixels).
+\end{enumerate}
+
+\subsection{Hamming Distance}
+
+The Hamming distance between two $h \times w$ binary grids $A$ and $B$ is:
+\[
+  d(A, B) = \sum_{r=0}^{h-1} \sum_{c=0}^{w-1}
+  \mathbf{1}[A[r][c] \ne B[r][c]].
+\]
+
+For noise-free input, the correct character has $d = 0$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(T \cdot K \cdot wh)$ where $T$ is the number of
+    character cells, $K$ is the alphabet size, and $wh$ is the cell size.
+  \item \textbf{Space:} $O(Kwh + WH)$ for storing patterns and the input
+    image.
+\end{itemize}
+
+For typical parameters ($K \le 128$, $w, h \le 16$), this is efficient.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <string>
+#include <climits>
+using namespace std;
+
+int main() {
+    int charW, charH, numChars;
+    cin >> charW >> charH >> numChars;
+
+    vector<char> charLabel(numChars);
+    vector<vector<string>> patterns(numChars,
+        vector<string>(charH));
+
+    for (int k = 0; k < numChars; k++) {
+        cin >> charLabel[k];
+        for (int r = 0; r < charH; r++)
+            cin >> patterns[k][r];
+    }
+
+    int imgH, imgW;
+    cin >> imgH >> imgW;
+    vector<string> image(imgH);
+    for (int r = 0; r < imgH; r++)
+        cin >> image[r];
+
+    int textRows = imgH / charH;
+    int textCols = imgW / charW;
+
+    for (int tr = 0; tr < textRows; tr++) {
+        for (int tc = 0; tc < textCols; tc++) {
+            int bestDist = INT_MAX;
+            char bestChar = '?';
+
+            for (int k = 0; k < numChars; k++) {
+                int dist = 0;
+                for (int r = 0; r < charH && dist < bestDist; r++) {
+                    for (int c = 0; c < charW; c++) {
+                        int ir = tr * charH + r;
+                        int ic = tc * charW + c;
+                        if (image[ir][ic] != patterns[k][r][c])
+                            dist++;
+                    }
+                }
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    bestChar = charLabel[k];
+                    if (dist == 0) break; // exact match
+                }
+            }
+            cout << bestChar;
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Example}
+
+Suppose characters are $3 \times 5$ pixels (width $\times$ height), with
+patterns for \texttt{A} and \texttt{B}:
+
+\begin{verbatim}
+A:          B:
+.#.         ##.
+#.#         #.#
+###         ##.
+#.#         #.#
+#.#         ##.
+\end{verbatim}
+
+An input image of height 5, width 6 containing ``AB'':
+\begin{verbatim}
+.#.##.
+#.##.#
+####.
+#.##.#
+#.###.
+\end{verbatim}
+
+The decoder extracts each $3 \times 5$ block, matches against the patterns,
+and outputs ``AB''.
+
+\section{Notes}
+
+\begin{itemize}
+  \item The inner loop includes an early termination optimization: if the
+    running distance already exceeds the best so far, we skip the remaining
+    pixels for that pattern.
+  \item When an exact match is found ($d = 0$), we immediately stop
+    comparing further patterns.
+  \item For larger alphabets, bitmask representations of pixel rows enable
+    faster comparisons using XOR and popcount operations.
+\end{itemize}
+
+\end{document}

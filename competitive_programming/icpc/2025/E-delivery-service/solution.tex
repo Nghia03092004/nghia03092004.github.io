@@ -1,0 +1,121 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\E. Delivery Service}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+After each courier is hired, we must count how many unordered pairs of cities $(u,v)$ can send packages
+to each other. The time schedule is periodic, so the natural model is a two-layer graph: one copy of each
+city for the ``home-city time'' and one copy for the ``destination-city time''.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Create two vertices for every city $u$:
+    $u_L$ for the times when couriers are in their home city, and $u_R$ for the times when couriers are in
+    their destination city.
+    A courier $(a,b)$ creates an undirected edge between $a_L$ and $b_R$.
+    \item A city is represented by the unordered pair of connected components containing its two copies.
+    For example, if both copies lie in the same component $C$, the city corresponds to $(C,C)$.
+    If the copies lie in two different components $C$ and $D$, the city corresponds to $(C,D)$.
+    \item Two cities $u$ and $v$ are connected if and only if their unordered component pairs
+    \emph{intersect}. Equivalently, the two cities share at least one DSU component among their four
+    copies.
+    \item Therefore, if for each component $C$ we know how many cities touch $C$, then
+    $\binom{\text{touch}(C)}{2}$ counts all city pairs that share component $C$.
+    A pair of cities can be counted twice only when both are split across the same two components
+    $(C,D)$, so those double counts must be subtracted once.
+    \item We can maintain this incrementally with a DSU.
+    For each DSU component we store how many cities have both copies already inside that component, and
+    a hash map counting how many cities are split between this component and another component.
+    When two DSU components merge, only counters touching these two components change.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Build a DSU on $2n$ vertices, one left copy and one right copy for each city.
+    Initially, every city is split between its two singleton components, so we insert one count for the
+    component pair $(u_L,u_R)$.
+    \item Maintain two global totals:
+    \begin{itemize}[leftmargin=*]
+        \item \texttt{tot1}: the sum over all components $C$ of
+        $\binom{z_C}{2}$, where $z_C$ is the number of cities that have at least one copy in $C$;
+        \item \texttt{tot2}: the sum over all unordered component pairs $(C,D)$ with $C \ne D$ of
+        $\binom{y_{C,D}}{2}$, where $y_{C,D}$ is the number of cities split between $C$ and $D$.
+    \end{itemize}
+    The required answer is \texttt{tot1 - tot2}.
+    \item When a courier $(a,b)$ is added, unite the DSU components containing $a_L$ and $b_R$.
+    Merge the smaller hash map into the larger one and update the two global totals in $O(\text{moved map
+    entries})$ expected time.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Two cities $u$ and $v$ are connected if and only if the unordered pair of DSU components containing
+$(u_L,u_R)$ intersects the unordered pair containing $(v_L,v_R)$.
+
+\paragraph{Proof.}
+Suppose the two unordered pairs intersect, and let $C$ be a common component.
+Then one copy of $u$ and one copy of $v$ both lie in $C$, so a package can be transferred through the
+sequence of couriers represented by paths inside $C$.
+Because the couriers are reversible over successive half-days, the same argument also gives a route in the
+opposite direction. Hence the cities are connected.
+
+Conversely, if the two unordered pairs are disjoint, then no copy of $u$ shares a connected component
+with any copy of $v$. No sequence of handoffs can ever move a package from a copy of $u$ to a copy of
+$v$, so the cities are not connected. \qed
+
+\paragraph{Lemma 2.}
+At every moment, the DSU data stored by the program represents exactly:
+\begin{itemize}[leftmargin=*]
+    \item for each component $C$, how many cities touch $C$;
+    \item for each unordered pair $(C,D)$ with $C \ne D$, how many cities are split between $C$ and $D$.
+\end{itemize}
+
+\paragraph{Proof.}
+Initially this is true by construction: each city touches exactly its two singleton components.
+A DSU union only changes data that involve one of the two merged components.
+The program removes the old contributions of those counts and inserts the new merged contributions.
+All other cities keep exactly the same touched components and split-component pair. Therefore the
+maintained counts are always exact. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, after each courier is added the program knows the exact values of all $z_C$ and $y_{C,D}$.
+Summing $\binom{z_C}{2}$ over all components counts every pair of cities once for each shared
+component. By Lemma 1, a pair is connected exactly when it shares at least one component.
+A pair can be counted twice only if both cities are split across the same two components $(C,D)$, and the
+subtracted term $\binom{y_{C,D}}{2}$ removes exactly this double counting.
+Therefore \texttt{tot1 - tot2} is exactly the number of connected city pairs. \qed
+
+\section*{Complexity Analysis}
+
+Each DSU operation is nearly constant aside from hash-map merging. With the usual small-to-large
+strategy, every map entry is moved only $O(\log n)$ times, so the total expected running time is
+$O((n+m)\log n)$ and the memory usage is $O(n+m)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The code stores only counts for split cities; cities whose two copies are already in the same DSU
+    component are tracked by a separate counter per component.
+    \item Hash maps are merged from the smaller component into the larger one to keep the total work low.
+\end{itemize}
+
+\end{document}

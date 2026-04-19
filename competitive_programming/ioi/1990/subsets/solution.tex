@@ -1,0 +1,184 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1990 -- Problem 1: Subsets}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a set of $n$ integers, find all subsets whose elements sum to a given
+target value $T$. Output each such subset.
+
+\section{Solution}
+
+We present two approaches: backtracking for small $n$ and meet-in-the-middle
+for moderate $n$.
+
+\subsection{Method 1: Backtracking ($n \le 20$)}
+
+Enumerate subsets recursively, maintaining a running sum. At each position,
+either include or exclude the current element. When the sum equals $T$,
+output the current subset.
+
+To avoid duplicate subsets when elements repeat, sort the array and skip
+consecutive equal elements at the same recursion level.
+
+\subsection{Method 2: Meet in the Middle ($n \le 40$)}
+
+Split the array into halves $A$ (first $\lfloor n/2 \rfloor$ elements) and
+$B$ (remaining elements). Enumerate all $2^{|A|}$ subset sums from $A$ and
+all $2^{|B|}$ subset sums from $B$. For each sum $s$ from $B$, look up
+$T - s$ among the sums from $A$.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Backtracking:} $O(2^n)$ worst case, significantly reduced by
+    pruning in practice.
+  \item \textbf{Meet in the Middle:} $O(2^{n/2} \cdot n)$ time,
+    $O(2^{n/2})$ space.
+\end{itemize}
+
+\section{Implementation: Backtracking}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int n, target;
+vector<int> arr;
+vector<int> current;
+int count_solutions = 0;
+
+void backtrack(int idx, int sum) {
+    if (sum == target && !current.empty()) {
+        cout << "{ ";
+        for (int x : current) cout << x << " ";
+        cout << "}" << endl;
+        count_solutions++;
+    }
+    if (idx == n) return;
+    if (sum > target && arr[idx] > 0) return; // pruning for positive values
+
+    for (int i = idx; i < n; i++) {
+        // Skip duplicates at the same level
+        if (i > idx && arr[i] == arr[i-1]) continue;
+        current.push_back(arr[i]);
+        backtrack(i + 1, sum + arr[i]);
+        current.pop_back();
+    }
+}
+
+int main() {
+    cin >> n >> target;
+    arr.resize(n);
+    for (int i = 0; i < n; i++)
+        cin >> arr[i];
+
+    sort(arr.begin(), arr.end());
+    backtrack(0, 0);
+
+    if (count_solutions == 0)
+        cout << "No subsets found." << endl;
+    return 0;
+}
+\end{lstlisting}
+
+\section{Implementation: Meet in the Middle}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <map>
+using namespace std;
+
+int main() {
+    int n, target;
+    cin >> n >> target;
+    vector<int> arr(n);
+    for (int i = 0; i < n; i++)
+        cin >> arr[i];
+
+    int half = n / 2;
+    int other = n - half;
+
+    // Generate all subset sums for the first half
+    map<int, vector<vector<int>>> leftSums;
+    for (int mask = 0; mask < (1 << half); mask++) {
+        int s = 0;
+        vector<int> subset;
+        for (int i = 0; i < half; i++) {
+            if (mask & (1 << i)) {
+                s += arr[i];
+                subset.push_back(arr[i]);
+            }
+        }
+        leftSums[s].push_back(subset);
+    }
+
+    // Generate all subset sums for the second half;
+    // look up complement in leftSums
+    for (int mask = 0; mask < (1 << other); mask++) {
+        int s = 0;
+        vector<int> subset;
+        for (int i = 0; i < other; i++) {
+            if (mask & (1 << i)) {
+                s += arr[half + i];
+                subset.push_back(arr[half + i]);
+            }
+        }
+        int need = target - s;
+        auto it = leftSums.find(need);
+        if (it != leftSums.end()) {
+            for (auto& left : it->second) {
+                if (left.empty() && subset.empty()) continue;
+                cout << "{ ";
+                for (int x : left) cout << x << " ";
+                for (int x : subset) cout << x << " ";
+                cout << "}" << endl;
+            }
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+
+\begin{itemize}
+  \item The backtracking solution is the most natural for the original IOI
+    1990 constraints (small $n$). Sorting enables both pruning and duplicate
+    avoidance.
+  \item The meet-in-the-middle approach extends the practical range to about
+    $n = 40$. Its memory usage of $O(2^{n/2})$ is the main limiting factor.
+  \item Both solutions output all valid subsets. If only the count is needed,
+    the meet-in-the-middle approach can use a simple frequency map instead of
+    storing explicit subsets.
+\end{itemize}
+
+\end{document}

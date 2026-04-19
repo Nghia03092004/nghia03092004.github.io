@@ -1,0 +1,171 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}[theorem]{Claim}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2022 --- Catfish Farm}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+We have an $N \times N$ grid.  $M$ catfish are placed at cells $(X_i, Y_i)$ with
+weight $W_i$.  In each column $c$ we may build a pier of height $h_c \ge 0$
+(height 0 means no pier), which occupies rows $0, 1, \ldots, h_c - 1$.
+
+A catfish at $(x, y)$ is \emph{caught} if and only if:
+\begin{enumerate}
+  \item it is \textbf{not} covered by a pier: $h_x \le y$, and
+  \item at least one adjacent column has a pier tall enough:
+        $h_{x-1} > y$ or $h_{x+1} > y$.
+\end{enumerate}
+Maximize the total weight of caught catfish.
+
+\section{Solution}
+
+\subsection{Column DP formulation}
+
+We process columns left to right.  Define
+\[
+  \mathrm{dp}[c][h] = \text{maximum total weight considering columns } 0,\ldots,c
+  \text{ with } h_c = h.
+\]
+
+\subsection{Transition}
+
+When transitioning from column $c-1$ with height $h_{\mathrm{prev}}$ to column
+$c$ with height $h_{\mathrm{cur}}$, two sets of catfish can be newly caught:
+
+\begin{itemize}
+  \item \textbf{Column $c{-}1$ fish caught by column $c$'s pier:}
+        those at $(c{-}1, y)$ with $y < h_{\mathrm{cur}}$ and $y \ge h_{\mathrm{prev}}$
+        (not covered by column $c{-}1$'s own pier).
+  \item \textbf{Column $c$ fish caught by column $c{-}1$'s pier:}
+        those at $(c, y)$ with $y < h_{\mathrm{prev}}$ and $y \ge h_{\mathrm{cur}}$
+        (not covered by column $c$'s own pier).
+\end{itemize}
+
+Define the column prefix sums:
+$\mathrm{psum}[c][h] = \sum\{W_i : X_i = c,\; Y_i < h\}$.
+
+\subsection{Running-maximum optimization}
+
+A naive enumeration of all $(h_{\mathrm{prev}}, h_{\mathrm{cur}})$ pairs costs
+$O(N^2)$ per column.  We split into two cases and use running maxima
+to reduce this to $O(N)$ per column.
+
+\paragraph{Case 1: $h_{\mathrm{prev}} \le h_{\mathrm{cur}}$.}
+The contribution is $\mathrm{psum}[c{-}1][h_{\mathrm{cur}}] - \mathrm{psum}[c{-}1][h_{\mathrm{prev}}]$.
+Hence
+\[
+  \mathrm{ndp}[h_{\mathrm{cur}}]
+  \;\ge\;
+  \max_{h_{\mathrm{prev}} \le h_{\mathrm{cur}}}
+  \bigl(\mathrm{dp}[h_{\mathrm{prev}}] - \mathrm{psum}[c{-}1][h_{\mathrm{prev}}]\bigr)
+  + \mathrm{psum}[c{-}1][h_{\mathrm{cur}}].
+\]
+The inner maximum is maintained as a running maximum while scanning
+$h_{\mathrm{cur}}$ upward from 0 to $N$.
+
+\paragraph{Case 2: $h_{\mathrm{prev}} > h_{\mathrm{cur}}$.}
+The contribution is $\mathrm{psum}[c][h_{\mathrm{prev}}] - \mathrm{psum}[c][h_{\mathrm{cur}}]$.
+Hence
+\[
+  \mathrm{ndp}[h_{\mathrm{cur}}]
+  \;\ge\;
+  \max_{h_{\mathrm{prev}} > h_{\mathrm{cur}}}
+  \bigl(\mathrm{dp}[h_{\mathrm{prev}}] + \mathrm{psum}[c][h_{\mathrm{prev}}]\bigr)
+  - \mathrm{psum}[c][h_{\mathrm{cur}}].
+\]
+The inner maximum is maintained as a running maximum while scanning
+$h_{\mathrm{cur}}$ downward from $N$ to 0.
+
+Each column transition therefore takes $O(N)$ time.
+
+\begin{claim}
+The fish in column $c$ that are caught by the right neighbor (column $c{+}1$)
+will be accounted for when we process column $c{+}1$, so there is no
+double-counting.
+\end{claim}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+long long max_weights(int N, int M, vector<int> X, vector<int> Y,
+                       vector<int> W) {
+    // psum[c][y] = total weight of fish in column c at rows 0..y-1
+    vector<vector<ll>> psum(N, vector<ll>(N + 1, 0));
+    for (int i = 0; i < M; i++)
+        psum[X[i]][Y[i] + 1] += W[i];
+    for (int c = 0; c < N; c++)
+        for (int y = 1; y <= N; y++)
+            psum[c][y] += psum[c][y - 1];
+
+    // dp[h] = best answer for columns 0..c with column c having pier height h
+    vector<ll> dp(N + 1, 0);
+
+    for (int c = 0; c < N; c++) {
+        vector<ll> ndp(N + 1, 0);
+
+        if (c > 0) {
+            // Case 1: h_prev <= h_cur  (scan upward)
+            ll best1 = LLONG_MIN;
+            for (int h = 0; h <= N; h++) {
+                best1 = max(best1, dp[h] - psum[c - 1][h]);
+                ndp[h] = max(ndp[h], best1 + psum[c - 1][h]);
+            }
+
+            // Case 2: h_prev > h_cur  (scan downward)
+            ll best2 = LLONG_MIN;
+            for (int h = N; h >= 0; h--) {
+                best2 = max(best2, dp[h] + psum[c][h]);
+                ndp[h] = max(ndp[h], best2 - psum[c][h]);
+            }
+        }
+
+        dp = ndp;
+    }
+
+    ll ans = 0;
+    for (int h = 0; h <= N; h++)
+        ans = max(ans, dp[h]);
+    return ans;
+}
+\end{lstlisting}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(N^2 + M)$.  Building prefix sums costs $O(N^2)$.
+        Each of the $N$ column transitions takes $O(N)$.
+  \item \textbf{Space:} $O(N^2)$ for the prefix-sum arrays.
+        This can be reduced to $O(N + M)$ with sparse storage.
+\end{itemize}
+
+\end{document}

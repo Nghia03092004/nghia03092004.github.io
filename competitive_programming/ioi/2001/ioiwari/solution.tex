@@ -1,0 +1,202 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2001 -- Ioiwari}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Ioiwari is a two-player game played on a triangular board with 10 cells
+arranged in a triangle of side 4:
+\begin{verbatim}
+        0
+       1 2
+      3 4 5
+     6 7 8 9
+\end{verbatim}
+Each cell initially contains a stone with a distinct value in $\{1,\ldots,10\}$.
+Players alternate turns. On each turn, a player picks up a stone and
+places it on an adjacent empty cell, scoring points equal to the sum of
+the values of stones in cells adjacent to the destination (excluding the
+moved stone). The game ends when no legal move remains. The player with
+the higher total score wins. Both players play optimally.
+
+Determine the game outcome and an optimal first move.
+
+\section{Solution: Minimax with Memoization}
+
+\subsection{State Space}
+A state is the board configuration---a mapping from cells to stone values
+(with one cell empty). Since stones are a permutation of $\{1,\ldots,10\}$
+with one cell empty, there are at most $10 \cdot 10! = 36{,}288{,}000$
+states (including the ``whose turn'' information). In practice, the
+reachable state space is much smaller because stones can only move to
+adjacent cells.
+
+\subsection{Minimax Recurrence}
+We use negamax: define $\operatorname{val}(s)$ as the \emph{advantage}
+of the player to move in state $s$ (their future score minus the
+opponent's future score from $s$ onward). Then:
+\[
+  \operatorname{val}(s) = \max_{m \in \text{moves}(s)}
+  \Bigl(\operatorname{score}(m) - \operatorname{val}(s')\Bigr)
+\]
+where $s'$ is the state after move $m$, and $\operatorname{score}(m)$ is
+the immediate score gained. If no moves are available,
+$\operatorname{val}(s) = 0$.
+
+\subsection{State Encoding}
+Each cell holds a value in $\{0,1,\ldots,10\}$ (0 = empty). Encode the
+board as a mixed-radix number in base 11, yielding a unique
+\texttt{long long} key for each configuration. This key indexes into a
+hash map for memoization.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Adjacency for the triangular board (cells 0-9)
+vector<int> adj[10] = {
+    {1, 2},              // 0
+    {0, 2, 3, 4},        // 1
+    {0, 1, 4, 5},        // 2
+    {1, 4, 6, 7},        // 3
+    {1, 2, 3, 5, 7, 8},  // 4
+    {2, 4, 8, 9},        // 5
+    {3, 7},              // 6
+    {3, 4, 6, 8},        // 7
+    {4, 5, 7, 9},        // 8
+    {5, 8}               // 9
+};
+
+unordered_map<long long, int> memo;
+
+long long encodeState(int board[10]) {
+    long long h = 0;
+    for (int i = 0; i < 10; i++)
+        h = h * 11 + board[i];
+    return h;
+}
+
+// Returns net advantage for the player to move.
+int minimax(int board[10]) {
+    long long key = encodeState(board);
+    auto it = memo.find(key);
+    if (it != memo.end()) return it->second;
+
+    int bestVal = INT_MIN;
+    bool hasMoves = false;
+
+    for (int from = 0; from < 10; from++) {
+        if (board[from] == 0) continue;
+        for (int to : adj[from]) {
+            if (board[to] != 0) continue;
+
+            int score = 0;
+            for (int nb : adj[to])
+                if (nb != from && board[nb] != 0)
+                    score += board[nb];
+
+            board[to] = board[from];
+            board[from] = 0;
+
+            int val = score - minimax(board);
+            bestVal = max(bestVal, val);
+            hasMoves = true;
+
+            board[from] = board[to];
+            board[to] = 0;
+        }
+    }
+
+    if (!hasMoves) bestVal = 0;
+
+    memo[key] = bestVal;
+    return bestVal;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int board[10];
+    for (int i = 0; i < 10; i++) cin >> board[i];
+
+    int bestVal = INT_MIN;
+    int bestFrom = -1, bestTo = -1;
+
+    for (int from = 0; from < 10; from++) {
+        if (board[from] == 0) continue;
+        for (int to : adj[from]) {
+            if (board[to] != 0) continue;
+
+            int score = 0;
+            for (int nb : adj[to])
+                if (nb != from && board[nb] != 0)
+                    score += board[nb];
+
+            board[to] = board[from];
+            board[from] = 0;
+
+            int val = score - minimax(board);
+            if (val > bestVal) {
+                bestVal = val;
+                bestFrom = from;
+                bestTo = to;
+            }
+
+            board[from] = board[to];
+            board[to] = 0;
+        }
+    }
+
+    if (bestVal > 0) cout << "Player 1 wins\n";
+    else if (bestVal < 0) cout << "Player 2 wins\n";
+    else cout << "Draw\n";
+
+    cout << "First move: " << bestFrom + 1 << " -> " << bestTo + 1 << "\n";
+    cout << "Advantage: " << bestVal << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} Each reachable state is evaluated once via
+        memoization. The number of reachable states is bounded by
+        $10 \cdot 10!$ but is far smaller in practice. Per state, we
+        enumerate $O(10 \cdot 6)$ candidate moves (at most 10 stones,
+        each with at most 6 neighbors).
+  \item \textbf{Space:} $O(|\text{reachable states}|)$ for the
+        memoization table.
+\end{itemize}
+
+\end{document}

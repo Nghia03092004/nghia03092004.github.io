@@ -1,0 +1,198 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1998 -- Picture}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given $n$ axis-aligned rectangles, compute the total perimeter of their union.
+Only boundary segments separating the union's interior from the exterior are counted.
+
+\medskip
+\noindent\textbf{Constraints:} $1 \le n \le 5000$, coordinates in $[-10000, 10000]$.
+
+\section{Solution Approach}
+
+\subsection{Decomposition into Horizontal and Vertical Contributions}
+
+The perimeter has horizontal segments (parallel to the $x$-axis) and vertical segments
+(parallel to the $y$-axis). We compute each contribution separately using a sweep line.
+
+\subsection{Horizontal Perimeter via Vertical Sweep}
+
+\begin{enumerate}
+  \item For each rectangle, create two events: at $y = y_1$ (bottom), \textbf{open} the
+        interval $[x_1, x_2]$; at $y = y_2$ (top), \textbf{close} it.
+  \item Sort events by $y$-coordinate. At the same $y$, process \textbf{open} events
+        before \textbf{close} events (this avoids miscounting when rectangles share a
+        horizontal edge).
+  \item Maintain the total covered length along the $x$-axis. The horizontal perimeter
+        contribution at each event $y$-coordinate is the absolute change in covered length:
+        $|\Delta L|$.
+\end{enumerate}
+
+\subsection{Vertical Perimeter via Horizontal Sweep}
+
+By symmetry, swap the roles of $x$ and $y$ and repeat the sweep.
+
+\subsection{Implementation with Coordinate Compression}
+
+For $n \le 5000$, an $O(n^2)$ approach suffices. We compress the $x$-coordinates
+and maintain a coverage count array. At each event, we update the array and recompute
+the total covered length.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+struct Rect {
+    int x1, y1, x2, y2;
+};
+
+struct Event {
+    int y, x1, x2, type; // type: +1 = open, -1 = close
+    bool operator<(const Event& o) const {
+        if (y != o.y) return y < o.y;
+        return type > o.type; // open (+1) before close (-1) at same y
+    }
+};
+
+int n;
+Rect rects[5001];
+
+// Sweep in the y-direction, measuring horizontal perimeter
+long long sweepHorizontal() {
+    vector<Event> events;
+    for (int i = 0; i < n; i++) {
+        events.push_back({rects[i].y1, rects[i].x1, rects[i].x2, +1});
+        events.push_back({rects[i].y2, rects[i].x1, rects[i].x2, -1});
+    }
+    sort(events.begin(), events.end());
+
+    // Coordinate-compress x values
+    vector<int> xs;
+    for (int i = 0; i < n; i++) {
+        xs.push_back(rects[i].x1);
+        xs.push_back(rects[i].x2);
+    }
+    sort(xs.begin(), xs.end());
+    xs.erase(unique(xs.begin(), xs.end()), xs.end());
+    int M = xs.size();
+
+    // cnt[j] = coverage count for interval [xs[j], xs[j+1])
+    vector<int> cnt(M, 0);
+
+    long long perimeter = 0;
+    int prevCovered = 0;
+
+    int i = 0;
+    while (i < (int)events.size()) {
+        int curY = events[i].y;
+        // Process all events at this y-coordinate
+        while (i < (int)events.size() && events[i].y == curY) {
+            int x1 = events[i].x1, x2 = events[i].x2, t = events[i].type;
+            for (int j = 0; j + 1 < M; j++) {
+                if (xs[j] >= x1 && xs[j + 1] <= x2)
+                    cnt[j] += t;
+            }
+            i++;
+        }
+
+        // Compute current covered length
+        int covered = 0;
+        for (int j = 0; j + 1 < M; j++)
+            if (cnt[j] > 0)
+                covered += xs[j + 1] - xs[j];
+
+        perimeter += abs(covered - prevCovered);
+        prevCovered = covered;
+    }
+
+    return perimeter;
+}
+
+// Sweep in the x-direction, measuring vertical perimeter
+// Achieved by swapping x and y coordinates and reusing sweepHorizontal
+long long sweepVertical() {
+    Rect orig[5001];
+    for (int i = 0; i < n; i++) orig[i] = rects[i];
+    for (int i = 0; i < n; i++) {
+        rects[i].x1 = orig[i].y1;
+        rects[i].x2 = orig[i].y2;
+        rects[i].y1 = orig[i].x1;
+        rects[i].y2 = orig[i].x2;
+    }
+    long long result = sweepHorizontal();
+    for (int i = 0; i < n; i++) rects[i] = orig[i]; // restore
+    return result;
+}
+
+int main() {
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++)
+        scanf("%d %d %d %d", &rects[i].x1, &rects[i].y1,
+              &rects[i].x2, &rects[i].y2);
+
+    long long horiz = sweepHorizontal();
+    long long vert = sweepVertical();
+
+    printf("%lld\n", horiz + vert);
+    return 0;
+}
+\end{lstlisting}
+
+\section{Correctness}
+
+The sweep line processes events sorted by $y$-coordinate. At each $y$, all intervals
+opening or closing at that $y$ are applied to the coverage array. The change in total
+covered length $|\Delta L|$ equals the total length of horizontal boundary segments
+at that $y$-coordinate.
+
+By processing opens before closes at the same $y$, we correctly handle rectangles
+that share an edge: the coverage never drops to zero and back, avoiding double-counting.
+
+The vertical contribution is computed identically after swapping coordinates.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n^2)$. There are $O(n)$ events, and at each event
+        we update $O(n)$ intervals. Sorting is $O(n \log n)$.
+        For an $O(n \log n)$ solution, a segment tree on compressed coordinates could
+        replace the linear scan.
+  \item \textbf{Space complexity:} $O(n)$ for events and coordinate arrays.
+\end{itemize}
+
+\end{document}

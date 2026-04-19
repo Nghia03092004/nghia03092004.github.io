@@ -1,0 +1,212 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1993 -- Day 2, Task 1: Operations}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a starting integer $s$ and a target integer $t$, find the minimum
+number of operations to transform $s$ into $t$. The allowed operations are:
+\begin{itemize}
+  \item Add 1: $x \to x + 1$
+  \item Subtract 1: $x \to x - 1$
+  \item Multiply by 2: $x \to 2x$
+  \item Integer divide by 2: $x \to \lfloor x/2 \rfloor$
+\end{itemize}
+
+Output the minimum number of steps and the operation sequence.
+
+\section{Solution}
+
+\subsection{BFS on the State Space}
+
+This is a shortest-path problem in an unweighted graph where states are
+integers and transitions are the four operations. BFS finds the minimum
+number of steps.
+
+The key question is bounding the search range. For the operation set
+$\{+1, -1, \times 2, \div 2\}$:
+
+\begin{lemma}
+An optimal path from $s$ to $t$ only visits values in
+$[\min(s,t) - 2,\; 2 \cdot \max(s,t) + 2]$.
+\end{lemma}
+
+This bound is loose but sufficient; the actual BFS terminates quickly because
+doubling shrinks the gap fast.
+
+\subsection{Alternative: Working Backwards}
+
+A cleaner approach works backwards from the target:
+\begin{itemize}
+  \item If $t > s$ and $t$ is even, halve $t$ (inverse of $\times 2$).
+  \item If $t > s$ and $t$ is odd, add 1 to $t$ first, then halve
+    (inverse of $-1$ then $\times 2$).
+  \item If $t \le s$, the answer is $s - t$ steps of $-1$.
+\end{itemize}
+
+This greedy backward approach gives $O(\log t)$ steps. However, it does not
+always produce the optimal sequence for the full 4-operation set (the BFS
+approach is exact).
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{BFS:} $O(|V| + |E|)$ where $|V|$ is bounded by the search
+    range, typically $O(\max(s,t))$.
+  \item \textbf{Backward greedy:} $O(\log t)$ time.
+\end{itemize}
+
+\section{Implementation: BFS}
+
+\begin{lstlisting}
+#include <iostream>
+#include <queue>
+#include <unordered_map>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    int start, target;
+    cin >> start >> target;
+
+    if (start == target) {
+        cout << 0 << endl;
+        return 0;
+    }
+
+    unordered_map<int, int> dist;
+    unordered_map<int, int> parent;
+    unordered_map<int, string> op;
+
+    queue<int> q;
+    q.push(start);
+    dist[start] = 0;
+
+    int lo = min(start, target) - 2;
+    int hi = max(start, target) * 2 + 2;
+
+    while (!q.empty()) {
+        int cur = q.front(); q.pop();
+
+        struct Move { int nxt; string name; };
+        Move moves[] = {
+            {cur + 1, "+1"},
+            {cur - 1, "-1"},
+            {cur * 2, "*2"},
+            {cur / 2, "/2"}
+        };
+
+        for (auto& [nxt, name] : moves) {
+            if (nxt < lo || nxt > hi) continue;
+            if (dist.count(nxt)) continue;
+
+            dist[nxt] = dist[cur] + 1;
+            parent[nxt] = cur;
+            op[nxt] = name;
+
+            if (nxt == target) {
+                cout << dist[nxt] << endl;
+                vector<string> path;
+                int x = target;
+                while (x != start) {
+                    path.push_back(op[x]);
+                    x = parent[x];
+                }
+                reverse(path.begin(), path.end());
+                for (auto& s : path)
+                    cout << s << " ";
+                cout << endl;
+                return 0;
+            }
+            q.push(nxt);
+        }
+    }
+
+    cout << -1 << endl; // unreachable (should not happen)
+    return 0;
+}
+\end{lstlisting}
+
+\section{Implementation: Backward Greedy}
+
+This approach works backwards from the target and produces the forward
+operation sequence. It is optimal for the operation set $\{+1, -1, \times 2\}$
+but may not be optimal when $\div 2$ is also available.
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    int start, target;
+    cin >> start >> target;
+
+    vector<string> revOps; // operations in reverse order
+    int cur = target;
+
+    while (cur > start) {
+        if (cur % 2 == 0) {
+            cur /= 2;
+            revOps.push_back("*2");
+        } else {
+            cur++;
+            revOps.push_back("-1");
+        }
+    }
+
+    // Now cur <= start; need (start - cur) subtract-1 operations
+    for (int i = 0; i < start - cur; i++)
+        revOps.push_back("-1");
+
+    reverse(revOps.begin(), revOps.end());
+
+    cout << revOps.size() << endl;
+    for (auto& s : revOps)
+        cout << s << " ";
+    cout << endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+
+\begin{itemize}
+  \item The BFS approach guarantees optimality for any operation set.
+  \item The backward greedy approach is simpler and runs in $O(\log t)$
+    time, but is only provably optimal for $\{+1, -1, \times 2\}$.
+  \item For the original IOI constraints, BFS within a bounded range is
+    sufficient.
+\end{itemize}
+
+\end{document}

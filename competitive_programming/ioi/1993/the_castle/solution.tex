@@ -1,0 +1,224 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1993 -- Day 1, Task 1: The Castle}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A castle is represented as an $M \times N$ grid (where the input gives $M$
+columns and $N$ rows). Each cell's walls are encoded as a 4-bit integer:
+\begin{itemize}
+  \item Bit 0 (value 1): wall on the West.
+  \item Bit 1 (value 2): wall on the North.
+  \item Bit 2 (value 4): wall on the East.
+  \item Bit 3 (value 8): wall on the South.
+\end{itemize}
+
+A \emph{room} is a maximal connected region of cells not separated by walls.
+Determine:
+\begin{enumerate}
+  \item The number of rooms.
+  \item The area of the largest room.
+  \item The largest room obtainable by removing a single wall, and which
+    wall to remove.
+\end{enumerate}
+
+\section{Solution}
+
+\subsection{Phase 1: Room Identification (Flood Fill)}
+
+Two adjacent cells $(r, c)$ and $(r', c')$ are connected if no wall
+separates them. The wall bitmask makes adjacency checks direct:
+
+\begin{center}
+\begin{tabular}{lll}
+Direction & Neighbor & No wall if \\
+\hline
+West  & $(r, c-1)$ & bit 0 is clear \\
+North & $(r-1, c)$ & bit 1 is clear \\
+East  & $(r, c+1)$ & bit 2 is clear \\
+South & $(r+1, c)$ & bit 3 is clear \\
+\end{tabular}
+\end{center}
+
+BFS from each unvisited cell assigns room IDs and computes room sizes.
+
+\subsection{Phase 2: Best Wall Removal}
+
+For every internal wall between two cells in different rooms, the combined
+room size is $\text{size}[\text{room}_1] + \text{size}[\text{room}_2]$.
+Track the maximum.
+
+The tie-breaking rule (per the USACO specification) requires iterating
+column-by-column (west to east), bottom to top within each column, and
+checking North walls before East walls.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(MN)$ for flood fill and $O(MN)$ for wall
+    enumeration.
+  \item \textbf{Space:} $O(MN)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+
+int M, N; // M = columns, N = rows
+int grid[55][55];
+int roomId[55][55];
+int roomSize[2505];
+int numRooms;
+
+// Directions: W, N, E, S
+const int dr[] = {0, -1, 0, 1};
+const int dc[] = {-1, 0, 1, 0};
+const int wallBit[] = {1, 2, 4, 8};
+
+void bfs(int sr, int sc, int id) {
+    queue<pair<int,int>> q;
+    q.push({sr, sc});
+    roomId[sr][sc] = id;
+    int sz = 0;
+
+    while (!q.empty()) {
+        auto [r, c] = q.front(); q.pop();
+        sz++;
+        for (int d = 0; d < 4; d++) {
+            if (grid[r][c] & wallBit[d]) continue;
+            int nr = r + dr[d], nc = c + dc[d];
+            if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
+            if (roomId[nr][nc] != -1) continue;
+            roomId[nr][nc] = id;
+            q.push({nr, nc});
+        }
+    }
+    roomSize[id] = sz;
+}
+
+int main() {
+    cin >> M >> N;
+
+    for (int r = 0; r < N; r++)
+        for (int c = 0; c < M; c++)
+            cin >> grid[r][c];
+
+    // Phase 1: find rooms
+    memset(roomId, -1, sizeof(roomId));
+    numRooms = 0;
+
+    for (int r = 0; r < N; r++)
+        for (int c = 0; c < M; c++)
+            if (roomId[r][c] == -1)
+                bfs(r, c, numRooms++);
+
+    int maxRoom = 0;
+    for (int i = 0; i < numRooms; i++)
+        maxRoom = max(maxRoom, roomSize[i]);
+
+    cout << numRooms << endl;
+    cout << maxRoom << endl;
+
+    // Phase 2: find best wall to remove
+    // Iterate: column by column (west to east),
+    //          bottom to top within each column,
+    //          check N wall before E wall.
+    int bestSize = 0;
+    int bestR = -1, bestC = -1;
+    char bestDir = ' ';
+
+    for (int c = 0; c < M; c++) {
+        for (int r = N - 1; r >= 0; r--) {
+            // Check North wall
+            if (r > 0 && (grid[r][c] & 2)) {
+                int id1 = roomId[r][c];
+                int id2 = roomId[r-1][c];
+                if (id1 != id2) {
+                    int combined = roomSize[id1] + roomSize[id2];
+                    if (combined > bestSize) {
+                        bestSize = combined;
+                        bestR = r; bestC = c; bestDir = 'N';
+                    }
+                }
+            }
+            // Check East wall
+            if (c < M - 1 && (grid[r][c] & 4)) {
+                int id1 = roomId[r][c];
+                int id2 = roomId[r][c+1];
+                if (id1 != id2) {
+                    int combined = roomSize[id1] + roomSize[id2];
+                    if (combined > bestSize) {
+                        bestSize = combined;
+                        bestR = r; bestC = c; bestDir = 'E';
+                    }
+                }
+            }
+        }
+    }
+
+    cout << bestSize << endl;
+    cout << bestR + 1 << " " << bestC + 1 << " " << bestDir << endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Example}
+
+\begin{verbatim}
+Input:
+7 4
+11 6 11 6 3 10 6
+7  9  6 13 5 15 5
+1 10 12  7 13  7 5
+13 11 10  8 10 12 13
+
+Output:
+5        (number of rooms)
+9        (largest room)
+16       (largest after removing one wall)
+4 1 E    (row 4, column 1, East wall)
+\end{verbatim}
+
+\section{Notes}
+
+\begin{itemize}
+  \item The wall bitmask encoding is compact: a single integer per cell
+    fully describes all four walls.
+  \item Consistency is guaranteed by the input: if cell $(r,c)$ has a wall
+    on the East, then cell $(r, c+1)$ has a wall on the West.
+  \item This problem also appears in the USACO Training Pages and is a
+    classic application of flood fill with bitmask wall encoding.
+\end{itemize}
+
+\end{document}

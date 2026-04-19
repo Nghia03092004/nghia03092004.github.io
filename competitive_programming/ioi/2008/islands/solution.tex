@@ -1,0 +1,193 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2008 -- Islands}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given a \textbf{functional graph} (each node has exactly one outgoing edge with a positive weight), find the sum of the longest simple paths within each connected component.
+
+\section{Solution}
+
+\subsection{Structure of Functional Graphs}
+Each connected component of a functional graph contains exactly one cycle. Nodes not on the cycle form trees rooted at cycle nodes (the ``rho'' shape).
+
+\subsection{Algorithm}
+For each connected component:
+\begin{enumerate}
+    \item \textbf{Find the cycle.} Walk from any unvisited node, following outgoing edges, until revisiting a node.
+    \item \textbf{Compute tree depths.} For each cycle node $c$, compute the maximum depth $d_c$ in the tree hanging off $c$ (via DFS on reverse edges, excluding cycle edges). Also track the tree diameter (longest path within each tree).
+    \item \textbf{Combine paths through the cycle.} The longest path either:
+    \begin{itemize}
+        \item lies entirely within one tree (the tree diameter), or
+        \item passes through part of the cycle: $d_i + d_j + \text{dist}(c_i, c_j)$.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Doubling Trick for Circular Optimization}
+For $L$ cycle nodes with depths $d_0, \ldots, d_{L-1}$ and cumulative edge weights $\text{prefix}[k]$, we want:
+\[
+\max_{\substack{0 \le i < j < L \\ j - i < L}} \bigl(d_i + d_j + \text{prefix}[j] - \text{prefix}[i]\bigr).
+\]
+By doubling the cycle array to length $2L$ and using a sliding-window maximum (deque) with window size $L$, we compute:
+\[
+\max_j \Bigl(d_{j \bmod L} + \text{prefix}[j] + \max_{i \in [j-L+1,\; j-1]} \bigl(d_{i \bmod L} - \text{prefix}[i]\bigr)\Bigr)
+\]
+in $O(L)$ time.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$ total.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+
+    vector<int> nxt(N + 1);
+    vector<long long> w(N + 1);
+    for (int i = 1; i <= N; i++)
+        cin >> nxt[i] >> w[i];
+
+    // Reverse adjacency list for tree DFS
+    vector<vector<pair<int, long long>>> radj(N + 1);
+    for (int i = 1; i <= N; i++)
+        radj[nxt[i]].push_back({i, w[i]});
+
+    vector<bool> visited(N + 1, false);
+    vector<bool> onCycle(N + 1, false);
+    long long totalAns = 0;
+
+    for (int start = 1; start <= N; start++) {
+        if (visited[start]) continue;
+
+        // Find the cycle in this component
+        vector<int> path;
+        unordered_set<int> inPath;
+        int cur = start;
+        while (!inPath.count(cur) && !visited[cur]) {
+            inPath.insert(cur);
+            path.push_back(cur);
+            cur = nxt[cur];
+        }
+
+        if (visited[cur]) {
+            for (int u : path) visited[u] = true;
+            continue;
+        }
+
+        // Extract cycle starting at 'cur'
+        vector<int> cycle;
+        vector<long long> cycleW;
+        bool found = false;
+        for (int u : path) {
+            if (u == cur) found = true;
+            if (found) {
+                cycle.push_back(u);
+                onCycle[u] = true;
+            }
+        }
+        int L = cycle.size();
+        cycleW.resize(L);
+        for (int i = 0; i < L; i++)
+            cycleW[i] = w[cycle[i]]; // edge cycle[i] -> cycle[(i+1)%L]
+
+        for (int u : path) visited[u] = true;
+
+        // For each cycle node, DFS into its tree to find max depth and diameter
+        vector<long long> depth(L, 0);
+        long long compAns = 0;
+
+        for (int ci = 0; ci < L; ci++) {
+            int root = cycle[ci];
+            long long treeDiam = 0;
+
+            function<long long(int)> treeDFS = [&](int u) -> long long {
+                long long mx = 0;
+                for (auto [v, wt] : radj[u]) {
+                    if (onCycle[v]) continue;
+                    if (visited[v]) continue; // safety
+                    visited[v] = true;
+                    long long childDepth = treeDFS(v) + wt;
+                    treeDiam = max(treeDiam, mx + childDepth);
+                    mx = max(mx, childDepth);
+                }
+                return mx;
+            };
+
+            depth[ci] = treeDFS(root);
+            compAns = max(compAns, treeDiam);
+        }
+
+        // Sliding window maximum on doubled cycle
+        vector<long long> prefix(2 * L + 1, 0);
+        for (int i = 0; i < 2 * L; i++)
+            prefix[i + 1] = prefix[i] + cycleW[i % L];
+
+        deque<int> dq;
+        for (int j = 0; j < 2 * L; j++) {
+            while (!dq.empty() && dq.front() <= j - L)
+                dq.pop_front();
+            if (!dq.empty()) {
+                int i = dq.front();
+                long long val = depth[j % L] + prefix[j]
+                              + depth[i % L] - prefix[i];
+                compAns = max(compAns, val);
+            }
+            long long jVal = depth[j % L] - prefix[j];
+            while (!dq.empty()) {
+                long long backVal = depth[dq.back() % L] - prefix[dq.back()];
+                if (backVal <= jVal) dq.pop_back();
+                else break;
+            }
+            dq.push_back(j);
+        }
+
+        totalAns += compAns;
+    }
+
+    cout << totalAns << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The functional-graph decomposition (cycle detection + tree DFS) is a fundamental technique. The sliding-window maximum on the doubled cycle array handles the circular distance computation in $O(L)$, and the constraint $j - i < L$ ensures the path does not revisit any cycle node.
+
+A subtle point: the tree DFS uses the reverse adjacency list and must avoid crossing back onto the cycle. The \texttt{visited} flag and \texttt{onCycle} flag together enforce this.
+
+\end{document}

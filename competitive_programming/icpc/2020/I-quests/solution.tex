@@ -1,0 +1,201 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\I. Quests}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each quest has base XP $x$ and target level $d$.
+If we complete it while our current level is below $d$, we earn $cx$ instead of $x$.
+We may do the quests in any order, and we want to maximize the final total XP.
+
+Since the base $x$ is earned no matter what, the real problem is to maximize the total base-XP value of
+the quests that still receive the multiplier.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item If a quest receives the multiplier, all quests done before it also receive the multiplier.
+    Therefore in an optimal order, all multiplied quests come first, and all non-multiplied quests come
+    after them.
+    \item Let $Y$ be the sum of the base XP values of the multiplied quests already completed.
+    Then the actual XP earned so far is exactly $cY$.
+    So quest $i$ with parameters $(x_i,d_i)$ can still be multiplied exactly when
+    \[
+        cY < d_i v.
+    \]
+    \item This is equivalent to
+    \[
+        Y \le \left\lfloor \frac{d_i v - 1}{c} \right\rfloor.
+    \]
+    So if we only look at multiplied quests, quest $i$ behaves like a job with:
+    \begin{itemize}[leftmargin=*]
+        \item processing time $x_i$,
+        \item value $x_i$,
+        \item latest allowed \emph{start time}
+        \[
+            A_i = \left\lfloor \frac{d_i v - 1}{c} \right\rfloor.
+        \]
+    \end{itemize}
+    \item Turning a start-time bound into an ordinary completion deadline gives
+    \[
+        D_i = A_i + x_i.
+    \]
+    Then a set of multiplied quests is feasible iff it can be scheduled so that every selected job finishes
+    by its deadline $D_i$.
+    \item This is now a standard deadline knapsack:
+    after sorting by deadline, if total selected processing becomes $s$, then quest $i$ may be the last
+    selected quest exactly when
+    \[
+        s \le D_i.
+    \]
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For every quest compute
+    \[
+        D_i = \left\lfloor \frac{d_i v - 1}{c} \right\rfloor + x_i.
+    \]
+    Also compute the base total
+    \[
+        B = \sum x_i.
+    \]
+    \item Sort the quests by increasing $D_i$.
+    \item Let \texttt{reachable[s]} mean:
+    after processing some prefix of the sorted quests, there exists a feasible set of multiplied quests whose
+    total base-XP sum is exactly $s$.
+    Initially only \texttt{reachable[0]} is true.
+    \item Process quests in sorted order. For quest $i$, update the bitset as a $0/1$ knapsack transition:
+    from every reachable sum $s-x_i$, we may reach $s$ if
+    \[
+        s \le D_i.
+    \]
+    \item Let $S$ be the largest reachable sum after all quests. Then the final answer is
+    \[
+        B + (c-1)S,
+    \]
+    because every multiplied quest contributes an extra $(c-1)x_i$ above its base reward.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+There exists an optimal playthrough in which every multiplied quest is done before every non-multiplied
+quest.
+
+\paragraph{Proof.}
+Every quest always contributes its base reward $x$.
+Doing a non-multiplied quest earlier can only increase the current XP and level, which can never help a
+later quest receive the multiplier.
+So if a non-multiplied quest appears before a multiplied one, swapping them cannot decrease the reward of
+either quest.
+By repeatedly applying this swap, we obtain an optimal order with all multiplied quests first. \qed
+
+\paragraph{Lemma 2.}
+If quest $i$ is multiplied after previously multiplied quests with total base-XP sum $Y$, then this is
+possible exactly when
+\[
+    Y \le \left\lfloor \frac{d_i v - 1}{c} \right\rfloor.
+\]
+
+\paragraph{Proof.}
+By Lemma 1, only multiplied quests matter before quest $i$.
+If their base-XP sum is $Y$, the actual XP already earned is $cY$.
+Quest $i$ is multiplied exactly when the current level is less than $d_i$, i.e.
+\[
+    cY < d_i v.
+\]
+Since all quantities are integers, this is equivalent to
+\[
+    Y \le \left\lfloor \frac{d_i v - 1}{c} \right\rfloor.
+\]
+\qed
+
+\paragraph{Lemma 3.}
+A set of multiplied quests is feasible iff, after giving each quest deadline
+\[
+    D_i = \left\lfloor \frac{d_i v - 1}{c} \right\rfloor + x_i,
+\]
+it can be scheduled so that every selected quest finishes by its deadline.
+
+\paragraph{Proof.}
+For a selected quest $i$, let $Y$ be the total base-XP sum of earlier selected quests.
+By Lemma 2, quest $i$ is feasible exactly when $Y \le A_i$, where
+\[
+    A_i = \left\lfloor \frac{d_i v - 1}{c} \right\rfloor.
+\]
+Since quest $i$ itself contributes $x_i$, this is equivalent to
+\[
+    Y + x_i \le A_i + x_i = D_i.
+\]
+But $Y+x_i$ is exactly the completion time of quest $i$ in the scaled scheduling model. \qed
+
+\paragraph{Lemma 4.}
+After sorting quests by nondecreasing deadlines, the bitset DP computes exactly all feasible total
+base-XP sums of multiplied quests.
+
+\paragraph{Proof.}
+For ordinary single-machine scheduling with deadlines, every feasible subset is feasible in
+nondecreasing-deadline order.
+So when processing quests in that order, a total sum $s$ is feasible exactly when there exists a feasible
+sum $s-x_i$ from earlier quests and
+\[
+    s \le D_i.
+\]
+This is exactly the transition implemented by the DP.
+Therefore the final bitset contains precisely all feasible multiplied-base-XP totals. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, we may restrict attention to a prefix of multiplied quests.
+By Lemma 3, choosing that prefix is equivalent to choosing a feasible subset in the deadline model.
+By Lemma 4, the DP finds the maximum possible total base-XP sum $S$ of such a subset.
+Each quest always contributes its base reward, and each multiplied quest contributes an additional
+$(c-1)x$.
+Hence the maximum final XP is exactly
+\[
+    \sum x_i + (c-1)S,
+\]
+which is what the algorithm outputs. \qed
+
+\section*{Complexity Analysis}
+
+Let
+\[
+    X = \sum x_i \le 4\,000\,000.
+\]
+The bitset has $X+1$ states.
+Each of the $n$ transitions is a bitset shift-and-OR, so the running time is
+\[
+    O\!\left(n \cdot \frac{X}{64}\right),
+\]
+and the memory usage is $O(X)$ bits.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The DP is done with a manual dynamic bitset for speed.
+    \item The scaled deadline
+    \[
+        \left\lfloor \frac{d_i v - 1}{c} \right\rfloor
+    \]
+    must use 64-bit arithmetic.
+    \item Sorting by deadline and then by smaller $x$ is harmless and keeps equal-deadline handling stable.
+\end{itemize}
+
+\end{document}

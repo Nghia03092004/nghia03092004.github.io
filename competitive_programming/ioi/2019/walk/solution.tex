@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2019 -- Sky Walking}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Buildings are vertical segments, skywalks are horizontal segments, and movement is allowed only
+along those segments.
+We want the shortest path from the bottom of building $s$ to the bottom of building $g$.
+
+\section{Official Geometric Pruning}
+The official review proves two key facts.
+
+\begin{enumerate}
+  \item For the general case, every skywalk crossing $s$ or $g$ can be split at the nearest tall
+        buildings around that special building. After this preprocessing, the shortest path length is
+        unchanged.
+  \item In the resulting instance, every relevant vertical move ends at a \emph{skywalk endpoint}.
+        Therefore only $O(M)$ vertical edges remain relevant.
+\end{enumerate}
+
+\section{Step 1: Split Skywalks Around $s$ and $g$}
+For a skywalk $(l,r,y)$ with $l < s < r$, let
+\[
+a = \max\{\,i \in [l,s] : h_i \ge y\,\}, \qquad
+b = \min\{\,i \in [s,r] : h_i \ge y\,\}.
+\]
+Replace $(l,r,y)$ by up to three skywalks:
+\[
+(l,a,y),\ (a,b,y),\ (b,r,y),
+\]
+discarding zero-length pieces.
+Do the same for $g$.
+The indices $a$ and $b$ are found with a segment tree over building heights.
+
+\section{Step 2: Relevant Vertical Edges}
+Process skywalks in increasing height.
+Maintain, for each building, the height of the highest already-processed skywalk that crosses it.
+This is a range-assignment / point-query structure.
+
+For an endpoint $(i,y)$ of a skywalk:
+\begin{itemize}
+  \item the lower endpoint of its relevant vertical edge is the previous crossing height on
+        building $i$, if one exists;
+  \item otherwise it is height $0$ only when $i \in \{s,g\}$.
+\end{itemize}
+
+So every skywalk endpoint contributes at most one vertical edge, hence only $O(M)$ relevant
+vertical edges exist.
+
+\section{Step 3: Relevant Horizontal Nodes}
+A point $(i,y)$ is kept in the graph if it is:
+\begin{itemize}
+  \item a skywalk endpoint,
+  \item the lower endpoint of a relevant vertical edge, or
+  \item one of the two bottom nodes $(s,0)$ and $(g,0)$.
+\end{itemize}
+
+For each height $y$, skywalk intervals of height $y$ are disjoint except possibly at endpoints.
+Hence each kept point belongs to at most two skywalks of that height, so we can attach it to the
+correct skywalk(s) by binary search.
+Along one skywalk, connect consecutive kept points with horizontal edges.
+
+\section{Final Graph}
+The graph has only $O(M)$ nodes and edges:
+\begin{itemize}
+  \item one edge for each relevant vertical segment,
+  \item one edge between consecutive kept points on each skywalk.
+\end{itemize}
+Run Dijkstra from $(s,0)$ to $(g,0)$.
+
+\section{Complexity}
+\begin{itemize}
+  \item \textbf{Time:} $O(M \log M + M \log N)$.
+  \item \textbf{Space:} $O(M)$.
+\end{itemize}
+
+\section{Implementation}
+\begin{lstlisting}
+// 1. Split skywalks around s and g.
+// 2. Sweep heights upward and generate all relevant vertical edges.
+// 3. Collect all kept points.
+// 4. For each skywalk, connect consecutive kept points horizontally.
+// 5. Run Dijkstra on the pruned graph.
+\end{lstlisting}
+
+\end{document}

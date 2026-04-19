@@ -1,0 +1,183 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{lemma}{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2019 -- Split the Attractions}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given a connected graph with $n$ nodes and $m$ edges, partition the nodes into three groups of sizes $a$, $b$, $c$ ($a + b + c = n$) such that each group induces a connected subgraph. Output the assignment or report impossibility.
+
+\section{Solution}
+
+\subsection{Centroid-Based Approach}
+\begin{enumerate}
+  \item Sort sizes so $a \le b \le c$. Build a spanning tree and find its centroid.
+  \item At the centroid, every subtree has size $\le n/2$. Since $a \le n/3 \le n/2$, we can carve out a connected subgraph of size exactly $a$.
+  \item If some child subtree has size $\ge a$, recurse into it to extract exactly $a$ nodes via DFS.
+  \item Otherwise, greedily merge entire subtrees until the total reaches $a$.
+  \item After removing the $a$-group, the remaining $n - a$ nodes form a connected tree (containing the centroid). Repeat to extract a group of size $b$; the remainder forms the $c$-group.
+\end{enumerate}
+
+\begin{lemma}
+A spanning tree with centroid $v$ always allows extracting a connected subtree of any size $s \le n/2$.
+\end{lemma}
+\begin{proof}
+Each child subtree of $v$ has size $\le n/2$. If any subtree has size $\ge s$, we can greedily take $s$ nodes from it by DFS. Otherwise, merge subtrees: since each is $< s$ and their total is $n - 1 \ge s$, we can accumulate exactly $s$ by adding whole subtrees (the overshoot is at most one subtree size $< s$, so we recurse into the last subtree).
+\end{proof}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> find_split(int n, int a, int b, int c,
+                       vector<int> p, vector<int> q) {
+    int m = p.size();
+    vector<vector<int>> adj(n);
+    for (int i = 0; i < m; i++) {
+        adj[p[i]].push_back(q[i]);
+        adj[q[i]].push_back(p[i]);
+    }
+
+    // Sort sizes; track original labels
+    int sizes[3] = {a, b, c}, labels[3] = {1, 2, 3};
+    for (int i = 0; i < 3; i++)
+        for (int j = i + 1; j < 3; j++)
+            if (sizes[i] > sizes[j]) {
+                swap(sizes[i], sizes[j]);
+                swap(labels[i], labels[j]);
+            }
+
+    // BFS spanning tree from 0
+    vector<int> par(n, -1);
+    vector<bool> vis(n, false);
+    vector<vector<int>> tree(n);
+    vector<int> order;
+    queue<int> bfs;
+    bfs.push(0); vis[0] = true;
+    while (!bfs.empty()) {
+        int u = bfs.front(); bfs.pop(); order.push_back(u);
+        for (int v : adj[u]) if (!vis[v]) {
+            vis[v] = true; par[v] = u;
+            tree[u].push_back(v);
+            bfs.push(v);
+        }
+    }
+
+    // Compute subtree sizes and find centroid
+    vector<int> sz(n, 1);
+    for (int i = (int)order.size() - 1; i >= 0; i--) {
+        int u = order[i];
+        for (int v : tree[u]) sz[u] += sz[v];
+    }
+    int centroid = 0;
+    for (int u : order)
+        for (int v : tree[u])
+            if (sz[v] > n / 2) { centroid = v; }
+
+    // Re-root at centroid
+    fill(vis.begin(), vis.end(), false);
+    for (int i = 0; i < n; i++) tree[i].clear();
+    order.clear();
+    bfs.push(centroid); vis[centroid] = true;
+    while (!bfs.empty()) {
+        int u = bfs.front(); bfs.pop(); order.push_back(u);
+        for (int v : adj[u]) if (!vis[v]) {
+            vis[v] = true; tree[u].push_back(v); bfs.push(v);
+        }
+    }
+    fill(sz.begin(), sz.end(), 1);
+    for (int i = (int)order.size() - 1; i >= 0; i--) {
+        int u = order[i];
+        for (int v : tree[u]) sz[u] += sz[v];
+    }
+
+    vector<int> ans(n, -1);
+
+    // Extract exactly 'need' nodes from subtree of u, label them
+    function<int(int, int)> extract = [&](int u, int need) -> int {
+        if (need <= 0) return 0;
+        ans[u] = 0;  // temporary mark
+        int taken = 1;
+        for (int v : tree[u]) {
+            if (taken >= need) break;
+            int take = min(sz[v], need - taken);
+            taken += extract(v, take);
+        }
+        return taken;
+    };
+
+    int small = sizes[0];
+    extract(centroid, small);  // temporarily mark with 0
+
+    // Assign label to marked nodes
+    int cnt1 = 0;
+    for (int i = 0; i < n; i++)
+        if (ans[i] == 0) { ans[i] = labels[0]; cnt1++; }
+
+    // Extract second group from remaining connected component
+    // Find a remaining node connected to centroid (or centroid itself if unmarked)
+    int start2 = -1;
+    if (ans[centroid] != labels[0]) {
+        start2 = centroid;
+    } else {
+        for (int v : tree[centroid])
+            if (ans[v] != labels[0]) { start2 = v; break; }
+    }
+
+    if (start2 != -1) {
+        // BFS on remaining nodes to extract sizes[1]
+        vector<bool> vis2(n, false);
+        queue<int> bfs2;
+        bfs2.push(start2); vis2[start2] = true;
+        int taken = 0;
+        while (!bfs2.empty() && taken < sizes[1]) {
+            int u = bfs2.front(); bfs2.pop();
+            if (ans[u] != -1) continue;
+            ans[u] = labels[1]; taken++;
+            for (int v : adj[u])
+                if (!vis2[v] && ans[v] == -1) {
+                    vis2[v] = true; bfs2.push(v);
+                }
+        }
+    }
+
+    // Remaining nodes get third label
+    for (int i = 0; i < n; i++)
+        if (ans[i] == -1) ans[i] = labels[2];
+
+    return ans;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time}: $O(n + m)$ -- spanning tree, centroid, and extractions are all linear.
+  \item \textbf{Space}: $O(n + m)$.
+\end{itemize}
+
+\end{document}

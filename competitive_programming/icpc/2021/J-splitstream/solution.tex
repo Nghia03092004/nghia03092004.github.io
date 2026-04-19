@@ -1,0 +1,183 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\J. Splitstream}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+The network starts with the sequence
+\[
+    1,2,3,\dots,m.
+\]
+Each node either:
+\begin{itemize}[leftmargin=*]
+    \item splits one sequence into odd and even positions, or
+    \item merges two sequences by alternating their elements.
+\end{itemize}
+
+For each query $(x,k)$, we must report the $k$th value on output wire $x$, or \texttt{none} if that
+output is shorter than $k$.
+
+\section*{Main Observation}
+
+We never need to materialize any sequence.
+
+If we know the length of every wire, then for a query $(x,k)$ we can walk \emph{backwards} through the
+network until we reach the original input wire $1$.
+
+\section*{Lengths of Wires}
+
+Let $\ell(w)$ be the length of wire $w$.
+
+\paragraph{Split node.}
+If a split node reads input $x$ and writes outputs $y$ and $z$, then:
+\[
+    \ell(y)=\left\lceil\frac{\ell(x)}{2}\right\rceil,
+    \qquad
+    \ell(z)=\left\lfloor\frac{\ell(x)}{2}\right\rfloor.
+\]
+
+\paragraph{Merge node.}
+If a merge node reads inputs $x$ and $y$ and writes output $z$, then:
+\[
+    \ell(z)=\ell(x)+\ell(y).
+\]
+
+These values can be computed with memoized DFS because the network is acyclic.
+
+\section*{Tracing One Query Backwards}
+
+\subsection*{Split Output}
+
+Suppose a split node takes input sequence
+\[
+    a_1,a_2,a_3,\dots
+\]
+Then:
+\begin{itemize}[leftmargin=*]
+    \item output 1 is
+    \[
+        a_1,a_3,a_5,\dots
+    \]
+    \item output 2 is
+    \[
+        a_2,a_4,a_6,\dots
+    \]
+\end{itemize}
+
+So:
+\begin{itemize}[leftmargin=*]
+    \item the $k$th element of output 1 is the $(2k-1)$th element of the input;
+    \item the $k$th element of output 2 is the $(2k)$th element of the input.
+\end{itemize}
+
+\subsection*{Merge Output}
+
+Suppose a merge node takes sequences
+\[
+    a_1,a_2,\dots,a_p
+    \qquad\text{and}\qquad
+    b_1,b_2,\dots,b_q.
+\]
+Its output is
+\[
+    a_1,b_1,a_2,b_2,\dots
+\]
+until one sequence ends, and then the remaining elements of the longer sequence continue unchanged.
+
+Therefore:
+\begin{itemize}[leftmargin=*]
+    \item while $k \le 2\min(p,q)$:
+    \begin{itemize}[leftmargin=*]
+        \item odd $k$ comes from the first input at index $(k+1)/2$;
+        \item even $k$ comes from the second input at index $k/2$.
+    \end{itemize}
+    \item after that, if $p>q$, the remaining elements come from the first input at index $k-q$;
+    \item if $q>p$, they come from the second input at index $k-p$.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Parse all nodes and record, for each output wire, which node created it.
+    \item Compute wire lengths lazily with memoized DFS.
+    \item For each query $(x,k)$:
+    \begin{itemize}[leftmargin=*]
+        \item if $k > \ell(x)$, print \texttt{none};
+        \item otherwise repeatedly replace $(x,k)$ by the corresponding predecessor wire and predecessor
+        index, using the rules above, until $x=1$.
+    \end{itemize}
+    \item On wire $1$, the sequence is simply $1,2,\dots,m$, so the answer is $k$ itself.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm answers every query correctly.
+
+\paragraph{Lemma 1.}
+For every wire, the memoized formulas compute its correct length.
+
+\paragraph{Proof.}
+The formulas follow directly from the definitions of split and merge nodes:
+\begin{itemize}[leftmargin=*]
+    \item a split sends odd-positioned elements to one output and even-positioned elements to the other;
+    \item a merge outputs every element from both inputs exactly once.
+\end{itemize}
+Since the network is acyclic, recursively applying these formulas reaches the base wire $1$ and is
+well-defined. \qed
+
+\paragraph{Lemma 2.}
+For a split node, the backward index transformation used by the algorithm is correct.
+
+\paragraph{Proof.}
+By definition of the split operation, output 1 contains exactly the odd-indexed elements of the input, in
+the same order. So its $k$th element is input element $2k-1$. Likewise output 2 contains exactly the
+even-indexed input elements, so its $k$th element is input element $2k$. \qed
+
+\paragraph{Lemma 3.}
+For a merge node, the backward index transformation used by the algorithm is correct.
+
+\paragraph{Proof.}
+The merge node alternates elements from the two inputs as long as both still have elements. Therefore the
+first $2\min(p,q)$ output positions correspond exactly to alternating positions from the two inputs. After
+the shorter input is exhausted, the output continues with the remaining suffix of the longer input without
+any further mixing. The backward formulas are exactly these cases written explicitly. \qed
+
+\paragraph{Theorem.}
+For every query $(x,k)$, the algorithm outputs the correct $k$th element of wire $x$, or \texttt{none} if
+that element does not exist.
+
+\paragraph{Proof.}
+If $k > \ell(x)$, then wire $x$ has fewer than $k$ elements, so \texttt{none} is correct by Lemma 1.
+
+Otherwise, by repeatedly applying Lemmas 2 and 3, the algorithm transforms the query to an equivalent
+query on the predecessor wire of the current node. Because the network is acyclic, this process
+eventually reaches wire $1$. On wire $1$, the $k$th element is exactly $k$. Thus the returned value is
+the unique value that maps through the network to the original query position. \qed
+
+\section*{Complexity Analysis}
+
+Let $N$ be the number of nodes and $Q$ the number of queries.
+
+Each wire length is computed at most once, so the total preprocessing is $O(N)$. Each query walks upward
+through at most one path in the DAG, so one query costs $O(N)$ in the worst case, which is easily fast
+enough for the given limits. Memory usage is $O(N)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Wire lengths fit in 64-bit integers because no wire can contain more than the original $m$
+    values.
+    \item The answer on wire $1$ is just the queried index itself.
+\end{itemize}
+
+\end{document}

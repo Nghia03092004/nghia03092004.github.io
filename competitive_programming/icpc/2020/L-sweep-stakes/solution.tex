@@ -1,0 +1,269 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\L. Sweep Stakes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each cell $(i,j)$ independently contains a mine with probability $a_{ij}=p_i+q_j$.
+We are given that the total number of mines is exactly $t$.
+For each query subset $S$ of at most $500$ cells, we must output the conditional distribution of the number of mines in
+$S$.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Let $X=\sum X_{ij}$ be the total number of mines.
+    The hard part is the conditioning on $X=t$.
+    A standard exponential tilt removes that difficulty.
+    \item For any $z>0$, define a new independent model by
+    \[
+        \Pr_z(X_{ij}=1)=b_{ij}(z)=\frac{a_{ij}z}{1-a_{ij}+a_{ij}z}.
+    \]
+    For every full configuration $\omega$ with exactly $t$ mines,
+    \[
+        \Pr_z(\omega)=C(z)\,z^t\,\Pr(\omega),
+    \]
+    where $C(z)$ depends only on $z$, not on $\omega$.
+    Therefore the conditional distribution given $X=t$ is \emph{identical} in the original and tilted models.
+    \item We choose $z$ so that $\mathbb E_z[X]=t$.
+    Then the event $X=t$ becomes a central event in the tilted model.
+    \item For a query subset $S$, let $Y$ be the number of mines inside $S$ and let $Z$ be the number of mines outside
+    $S$.
+    In the tilted model, $Y$ and $Z$ are independent, so
+    \[
+        \Pr(Y=r\mid X=t)=\frac{\Pr_z(Y=r)\Pr_z(Z=t-r)}{\Pr_z(X=t)}.
+    \]
+    The inside part $\Pr_z(Y=r)$ is exact by a tiny $O(s^2)$ DP because $s\le 500$.
+    \item We only need point probabilities near the mean.
+    So instead of storing the whole distribution of $X$, we store the distribution of $X \bmod M$ for a carefully
+    chosen odd modulus $M$.
+    If $M$ is large enough, the probability mass at the other congruent integers is exponentially tiny.
+\end{itemize}
+
+\section*{Algorithm}
+
+\subsection*{1. Choose the tilt}
+
+Let
+\[
+    f(z)=\sum_{i,j}\frac{a_{ij}z}{1-a_{ij}+a_{ij}z}.
+\]
+This is strictly increasing from $0$ to $mn$, so binary search finds the unique $z$ with $f(z)=t$.
+Then compute all tilted probabilities
+\[
+    b_{ij}= \frac{a_{ij}z}{1-a_{ij}+a_{ij}z}.
+\]
+
+\subsection*{2. Choose a modulus}
+
+Let
+\[
+    \sigma^2=\sum_{i,j} b_{ij}(1-b_{ij})
+\]
+be the tilted variance of the total count.
+For the largest query size $s_{\max}$, choose the smallest odd $M>s_{\max}$ such that
+\[
+    2\exp\!\left(-\frac{(M-s_{\max})^2}{2(\sigma^2+(M-s_{\max})/3)}\right) < 10^{-11}.
+\]
+
+This is Bernstein's tail bound. It ensures that any count at distance at least $M-s_{\max}$ from the mean has
+negligible probability, which is enough for the final $10^{-6}$ error bound.
+
+\subsection*{3. Build the total distribution modulo $M$}
+
+Let $D[r]=\Pr_z(X\equiv r \pmod M)$.
+We build it by a cyclic DP over all cells.
+If the next cell has probability $p$, then
+\[
+    D_{\text{new}}[r]=(1-p)D[r]+pD[r-1]
+\]
+with indices modulo $M$.
+This costs $O(mnM)$.
+
+\subsection*{4. Answer one query}
+
+Suppose the query cells are $c_1,\dots,c_s$.
+
+\paragraph{Inside part.}
+Run the ordinary $O(s^2)$ Poisson-binomial DP on the probabilities $b_{c_1},\dots,b_{c_s}$ to get
+\[
+    I[r]=\Pr_z(Y=r).
+\]
+
+\paragraph{Outside part modulo $M$.}
+Start from the already computed total residue distribution $D$ and remove the selected cells one by one.
+
+For one cell with probability $p$, if $C$ is the residue distribution before adding that cell and $D$ is the residue
+distribution after adding it, then
+\[
+    D[r]=(1-p)C[r]+pC[r-1].
+\]
+So answering the query requires inverting this linear transform $s$ times.
+
+Because $M$ is odd, the transform is invertible for every $0<p<1$:
+its eigenvalues are $1-p+p\omega^j$ for the $M$-th roots of unity $\omega^j$, and the only way such a value could be
+zero is $p=\tfrac12$ and $\omega^j=-1$, impossible for odd $M$.
+
+The inversion itself is done in $O(M)$ by a simple recurrence:
+\begin{itemize}[leftmargin=*]
+    \item if $p\le \tfrac12$, solve forward using
+    \[
+        C[r]=\frac{D[r]-pC[r-1]}{1-p};
+    \]
+    \item if $p> \tfrac12$, solve backward using
+    \[
+        C[r-1]=\frac{D[r]-(1-p)C[r]}{p}.
+    \]
+\end{itemize}
+In either direction one unknown initial value remains; it is determined by the final wrap-around equation.
+
+After removing all selected cells we obtain
+\[
+    O[r]=\Pr_z(Z\equiv r \pmod M).
+\]
+
+\paragraph{Final formula.}
+For every $r=0,\dots,s$ output
+\[
+    \frac{I[r]\cdot O[(t-r)\bmod M]}{D[t\bmod M]}.
+\]
+Because of the chosen bound on $M$, the residue probabilities differ from the true point probabilities by far less than
+the allowed error.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs the correct probabilities.
+
+\paragraph{Lemma 1.}
+For any $z>0$, conditioning on the total number of mines being $t$ gives the same distribution in the original and
+tilted models.
+
+\paragraph{Proof.}
+Fix a full configuration $\omega$ and let $|\omega|$ be its number of mines.
+In the original model,
+\[
+    \Pr(\omega)=\prod_{\omega_{ij}=1} a_{ij}\prod_{\omega_{ij}=0}(1-a_{ij}).
+\]
+In the tilted model,
+\[
+    \Pr_z(\omega)=\prod_{\omega_{ij}=1}\frac{a_{ij}z}{1-a_{ij}+a_{ij}z}
+    \prod_{\omega_{ij}=0}\frac{1-a_{ij}}{1-a_{ij}+a_{ij}z}.
+\]
+Therefore
+\[
+    \Pr_z(\omega)=
+    \left(\prod_{i,j}\frac{1}{1-a_{ij}+a_{ij}z}\right)
+    z^{|\omega|}\Pr(\omega).
+\]
+If $|\omega|=t$, the multiplicative factor depends only on $z$ and $t$, not on $\omega$.
+So after normalizing over all configurations with total $t$, both conditional distributions are identical. \qed
+
+\paragraph{Lemma 2.}
+For any query subset $S$ and any $r$,
+\[
+    \Pr(Y=r\mid X=t)=\frac{\Pr_z(Y=r)\Pr_z(Z=t-r)}{\Pr_z(X=t)}.
+\]
+
+\paragraph{Proof.}
+By Lemma~1 we may work in the tilted model.
+There the cells are independent, so the counts inside and outside the query are independent:
+\[
+    \Pr_z(Y=r, Z=t-r)=\Pr_z(Y=r)\Pr_z(Z=t-r).
+\]
+Since $X=Y+Z$, conditioning on $X=t$ gives exactly the stated formula. \qed
+
+\paragraph{Lemma 3.}
+The one-cell residue update
+\[
+    D[r]=(1-p)C[r]+pC[r-1]
+\]
+is invertible for odd $M$ and $0<p<1$.
+
+\paragraph{Proof.}
+This is a circulant linear map on residue vectors of length $M$.
+Its eigenvalues in the Fourier basis are
+\[
+    \lambda_j=1-p+p\omega^j,
+\]
+where $\omega$ is a primitive $M$-th root of unity.
+If $\lambda_j=0$, then $p\omega^j=-(1-p)$.
+Taking absolute values gives $p=1-p$, so $p=\tfrac12$, and then $\omega^j=-1$.
+But $-1$ is not an odd-order root of unity.
+Hence no eigenvalue is zero, so the map is invertible. \qed
+
+\paragraph{Lemma 4.}
+For each query, the algorithm computes the exact residue distribution of the outside count $Z \bmod M$.
+
+\paragraph{Proof.}
+The total residue distribution is obtained by repeatedly applying the one-cell forward update, so it is exact.
+Removing one selected cell applies the inverse of that exact linear map, which exists by Lemma~3.
+After removing all selected cells, what remains is exactly the distribution of the sum of all unselected cells modulo
+$M$, i.e.\ the residue distribution of $Z$. \qed
+
+\paragraph{Lemma 5.}
+For every quantity used in the final answer, replacing a point probability by the corresponding residue probability
+changes the value by at most the Bernstein tail bound used when choosing $M$.
+
+\paragraph{Proof.}
+In the tilted model the total count has mean $t$.
+For a query of size $s$, the outside count $Z$ has mean $t-\mathbb E_z[Y]$, so the requested point $t-r$ differs from
+that mean by at most $s$.
+Any other integer congruent to $t-r$ modulo $M$ is therefore at least $M-s$ away from the mean.
+The residue probability is the sum of the desired point probability and all those other congruent point probabilities,
+so the aliasing error is bounded by the tail probability outside distance $M-s$.
+Bernstein's inequality gives exactly the bound used by the algorithm. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs every query answer with the required accuracy.
+
+\paragraph{Proof.}
+By Lemma~2 the exact answer factorizes into the inside point probability, the outside point probability, and the total
+point probability.
+The inside part is computed exactly by the small DP.
+By Lemma~4 the outside and total residue distributions are exact modulo $M$, and by Lemma~5 the replacement of point
+probabilities by these residue probabilities introduces only a negligible error.
+Therefore every reported probability is within the required tolerance. \qed
+
+\section*{Complexity Analysis}
+
+Let $N=mn$ and let $M$ be the chosen odd modulus.
+
+\begin{itemize}[leftmargin=*]
+    \item Solving for the tilt takes $O(N \log \text{precision})$.
+    \item Building the total residue distribution takes $O(NM)$.
+    \item A query of size $s$ takes $O(s^2+sM)$.
+\end{itemize}
+
+So the whole program runs in
+\[
+    O\!\left(NM + \sum_{\text{queries}} (s^2+sM)\right)
+\]
+time and
+\[
+    O(N+M)
+\]
+memory.
+
+With the given constraints, the chosen $M$ stays small (about a few thousand at worst), so this easily fits.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The cases $t=0$ and $t=mn$ are deterministic and are handled separately.
+    \item The forward inversion is numerically stable when $p\le \tfrac12$, and the backward inversion is numerically
+    stable when $p>\tfrac12$.
+    \item After each query, the output vector is renormalized to sum to $1$ in order to remove tiny floating-point
+    drift.
+\end{itemize}
+
+\end{document}

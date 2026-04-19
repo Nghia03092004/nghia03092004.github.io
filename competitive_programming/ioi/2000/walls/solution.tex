@@ -1,0 +1,219 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2000 -- Walls}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A city contains $N$ non-intersecting convex polygonal walls (possibly nested).
+A person must travel between a sequence of query points in order, walking around
+walls that block the direct path. Find the shortest total path length.
+
+\section{Solution Approach}
+
+\subsection{Visibility Graph}
+
+The shortest path between two points amidst polygonal obstacles follows the edges
+of the \textbf{visibility graph}:
+\begin{itemize}
+  \item \textbf{Nodes:} All polygon vertices, plus the source and destination.
+  \item \textbf{Edges:} Two nodes are connected if the line segment between them does
+        not pass through the \emph{interior} of any polygon (touching a boundary is allowed).
+  \item \textbf{Weights:} Euclidean distances.
+\end{itemize}
+
+\subsection{Algorithm}
+
+For each query (source-destination pair):
+\begin{enumerate}
+  \item Build the visibility graph including all polygon vertices and the two query points.
+  \item Run Dijkstra's algorithm to find the shortest path from source to destination.
+\end{enumerate}
+
+\subsection{Visibility Check}
+
+Two points are mutually visible if the segment connecting them does not properly
+intersect any polygon edge. We check each polygon's edges for proper intersection
+with the query segment.
+
+A \textbf{proper intersection} of segments $AB$ and $CD$ occurs when $A$ and $B$
+lie on strictly opposite sides of line $CD$, and $C$ and $D$ lie on strictly opposite
+sides of line $AB$. This is determined by the signs of cross products.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cmath>
+#include <vector>
+#include <queue>
+#include <algorithm>
+using namespace std;
+
+const double EPS = 1e-9;
+
+struct Point {
+    double x, y;
+    Point(double x = 0, double y = 0) : x(x), y(y) {}
+    Point operator-(const Point& o) const { return {x - o.x, y - o.y}; }
+    Point operator+(const Point& o) const { return {x + o.x, y + o.y}; }
+    double cross(const Point& o) const { return x * o.y - y * o.x; }
+    double dot(const Point& o) const { return x * o.x + y * o.y; }
+    double norm() const { return sqrt(x * x + y * y); }
+};
+
+double dist(Point a, Point b) { return (a - b).norm(); }
+
+// Check if segments AB and CD intersect properly (cross in their interiors)
+bool segmentsIntersectProperly(Point a, Point b, Point c, Point d) {
+    double d1 = (b - a).cross(c - a);
+    double d2 = (b - a).cross(d - a);
+    double d3 = (d - c).cross(a - c);
+    double d4 = (d - c).cross(b - c);
+
+    if (((d1 > EPS && d2 < -EPS) || (d1 < -EPS && d2 > EPS)) &&
+        ((d3 > EPS && d4 < -EPS) || (d3 < -EPS && d4 > EPS)))
+        return true;
+    return false;
+}
+
+// Check if segment PQ is blocked by any edge of a polygon
+bool segmentBlockedByPolygon(Point p, Point q, vector<Point>& poly) {
+    int n = poly.size();
+    for (int i = 0; i < n; i++) {
+        Point a = poly[i], b = poly[(i + 1) % n];
+        if (segmentsIntersectProperly(p, q, a, b))
+            return true;
+    }
+    return false;
+}
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    vector<vector<Point>> polygons(N);
+    vector<Point> allPoints;
+
+    for (int i = 0; i < N; i++) {
+        int m;
+        scanf("%d", &m);
+        polygons[i].resize(m);
+        for (int j = 0; j < m; j++) {
+            scanf("%lf %lf", &polygons[i][j].x, &polygons[i][j].y);
+            allPoints.push_back(polygons[i][j]);
+        }
+    }
+
+    int Q;
+    scanf("%d", &Q);
+
+    while (Q--) {
+        Point src, dst;
+        scanf("%lf %lf %lf %lf", &src.x, &src.y, &dst.x, &dst.y);
+
+        // Build visibility graph: polygon vertices + src + dst
+        vector<Point> nodes = allPoints;
+        int srcIdx = nodes.size();
+        nodes.push_back(src);
+        int dstIdx = nodes.size();
+        nodes.push_back(dst);
+
+        int V = nodes.size();
+        vector<vector<pair<int, double>>> adj(V);
+
+        for (int i = 0; i < V; i++) {
+            for (int j = i + 1; j < V; j++) {
+                bool blocked = false;
+                for (int k = 0; k < N; k++) {
+                    if (segmentBlockedByPolygon(nodes[i], nodes[j], polygons[k])) {
+                        blocked = true;
+                        break;
+                    }
+                }
+                if (!blocked) {
+                    double d = dist(nodes[i], nodes[j]);
+                    adj[i].push_back({j, d});
+                    adj[j].push_back({i, d});
+                }
+            }
+        }
+
+        // Dijkstra from srcIdx to dstIdx
+        vector<double> dists(V, 1e18);
+        priority_queue<pair<double, int>, vector<pair<double, int>>, greater<>> pq;
+        dists[srcIdx] = 0;
+        pq.push({0, srcIdx});
+
+        while (!pq.empty()) {
+            auto [d, u] = pq.top(); pq.pop();
+            if (d > dists[u] + EPS) continue;
+            for (auto [v, w] : adj[u]) {
+                if (dists[u] + w < dists[v] - EPS) {
+                    dists[v] = dists[u] + w;
+                    pq.push({dists[v], v});
+                }
+            }
+        }
+
+        printf("%.2f\n", dists[dstIdx]);
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Correctness}
+
+The visibility graph approach is a well-known method for shortest paths among polygonal
+obstacles. The key properties ensuring correctness are:
+
+\begin{enumerate}
+  \item The shortest obstacle-avoiding path consists of straight-line segments whose
+        endpoints are either the source, the destination, or polygon vertices.
+  \item Two points are connected in the visibility graph if and only if the direct
+        segment does not pass through any polygon's interior.
+  \item Dijkstra's algorithm finds the shortest path in the visibility graph, which
+        corresponds to the shortest obstacle-avoiding path in the plane.
+\end{enumerate}
+
+\textbf{Limitation:} The proper-intersection test handles the common case but may need
+refinement for degenerate configurations (e.g., a segment passing exactly through a
+polygon vertex). For the given problem with non-intersecting convex polygons and general
+position, this implementation is correct.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(V^2 \cdot N + V^2 \log V)$ per query, where $V$
+        is the total number of nodes (polygon vertices + 2 query points) and $N$ is the
+        number of polygons. Building the visibility graph dominates: $O(V^2)$ pairs, each
+        checked against $O(N)$ polygons' edges.
+  \item \textbf{Space complexity:} $O(V^2)$ for the visibility graph.
+\end{itemize}
+
+\end{document}

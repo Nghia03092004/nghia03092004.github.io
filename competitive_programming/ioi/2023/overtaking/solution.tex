@@ -1,0 +1,190 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}{Observation}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2023 --- Overtaking}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+$N$ buses and one reserve bus (bus $N$) travel a road with $M$ sorting
+stations at positions $S[0] < S[1] < \cdots < S[M{-}1]$.  Bus $i$ has
+speed $W[i]$ (time per unit distance) and departure time $T[i]$.  The
+reserve bus has speed $X$ and variable departure time $Y$.
+
+Between stations, each bus travels at its own speed.  At each station,
+a bus's arrival time is the maximum of its own expected arrival and the
+expected arrivals of all buses that arrived at the previous station
+\emph{strictly before} it (slower buses ahead block faster ones).
+
+For each query value of $Y$, determine the reserve bus's arrival time
+at the last station.
+
+\section{Solution}
+
+\subsection{Key observation}
+
+\begin{observation}
+The reserve bus's presence does not affect the non-reserve buses'
+mutual blocking order among themselves.  A slower non-reserve bus $i$
+only blocks the reserve bus if $i$ arrived at the previous station
+strictly before the reserve bus.
+\end{observation}
+
+This holds because the reserve bus can only block buses behind it (those
+arriving later), but we only care about the reserve bus's own arrival
+time, and the buses that block the reserve bus at each station are
+exactly those non-reserve buses that arrived earlier.
+
+\subsection{Precomputation}
+
+Simulate the $N$ non-reserve buses through all $M$ stations (without
+the reserve bus).  For each station $j$, store the arrival times sorted,
+along with prefix maxima of their expected arrivals at station $j + 1$.
+
+\subsection{Per-query processing}
+
+For a given $Y$:
+\begin{enumerate}
+  \item Set $t_{\mathrm{res}} = Y$.
+  \item For each segment from station $j$ to $j + 1$:
+        \begin{enumerate}
+          \item Compute the reserve bus's expected arrival:
+                $e = t_{\mathrm{res}} + X \cdot (S[j{+}1] - S[j])$.
+          \item Binary-search among non-reserve buses at station $j$ to find
+                those arriving strictly before $t_{\mathrm{res}}$.
+          \item The blocking value is the prefix maximum of their expected
+                arrivals at station $j + 1$.
+          \item $t_{\mathrm{res}} \gets \max(e, \text{blocking value})$.
+        \end{enumerate}
+  \item Return $t_{\mathrm{res}}$.
+\end{enumerate}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+int N, M;
+ll X_speed;
+vector<ll> S_pos;
+// Per station j: sorted (arrival_time, expected_next) and prefix max
+vector<vector<pair<ll,ll>>> sorted_st;
+vector<vector<ll>> pfx_max;
+
+void init(int L, int _N, vector<ll> T, vector<int> W,
+          int _X, int _M, vector<int> S) {
+    N = _N; M = _M; X_speed = _X;
+    S_pos.resize(M);
+    for (int i = 0; i < M; i++) S_pos[i] = S[i];
+
+    // Simulate non-reserve buses
+    vector<vector<ll>> arr(M, vector<ll>(N));
+    for (int i = 0; i < N; i++) arr[0][i] = T[i];
+
+    for (int j = 0; j + 1 < M; j++) {
+        ll dist = S_pos[j+1] - S_pos[j];
+        vector<pair<ll,ll>> av(N); // (arrival_j, expected_j+1)
+        for (int i = 0; i < N; i++)
+            av[i] = {arr[j][i], arr[j][i] + (ll)W[i] * dist};
+
+        vector<int> ord(N);
+        iota(ord.begin(), ord.end(), 0);
+        sort(ord.begin(), ord.end(), [&](int a, int b){
+            return av[a].first < av[b].first;
+        });
+
+        ll rmx = 0;
+        for (int idx : ord) {
+            ll e = av[idx].second;
+            arr[j+1][idx] = max(e, rmx);
+            rmx = max(rmx, e);
+        }
+    }
+
+    // Build sorted station data
+    sorted_st.resize(M);
+    pfx_max.resize(M);
+    for (int j = 0; j + 1 < M; j++) {
+        ll dist = S_pos[j+1] - S_pos[j];
+        vector<pair<ll,ll>> ae(N);
+        for (int i = 0; i < N; i++)
+            ae[i] = {arr[j][i], arr[j][i] + (ll)W[i] * dist};
+        sort(ae.begin(), ae.end());
+        sorted_st[j] = ae;
+        pfx_max[j].resize(N);
+        ll mx = 0;
+        for (int i = 0; i < N; i++) {
+            mx = max(mx, ae[i].second);
+            pfx_max[j][i] = mx;
+        }
+    }
+}
+
+ll arrival_time(ll Y) {
+    ll t = Y;
+    for (int j = 0; j + 1 < M; j++) {
+        ll dist = S_pos[j+1] - S_pos[j];
+        ll expected = t + X_speed * dist;
+
+        // Binary search: last bus at station j with arrival < t
+        auto& ss = sorted_st[j];
+        int lo = 0, hi = N - 1, pos = -1;
+        while (lo <= hi) {
+            int mid = (lo + hi) / 2;
+            if (ss[mid].first < t) { pos = mid; lo = mid + 1; }
+            else hi = mid - 1;
+        }
+
+        ll blocking = (pos >= 0) ? pfx_max[j][pos] : 0;
+        t = max(expected, blocking);
+    }
+    return t;
+}
+\end{lstlisting}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Preprocessing:} $O(NM \log N)$ --- simulating $N$ buses
+        through $M$ stations with sorting at each station.
+  \item \textbf{Per query:} $O(M \log N)$ --- binary search at each of
+        $M$ stations.
+  \item \textbf{Space:} $O(NM)$.
+\end{itemize}
+
+\paragraph{Correctness.}  The reserve bus does not alter non-reserve
+buses' arrival times in this formulation because we compute the
+non-reserve simulation independently.  The only interaction is
+one-directional: non-reserve buses block the reserve bus.  This is valid
+because the problem's blocking rule only considers buses arriving
+\emph{strictly before} the current bus, and adding the reserve bus does
+not change the relative ordering among non-reserve buses.
+
+\end{document}

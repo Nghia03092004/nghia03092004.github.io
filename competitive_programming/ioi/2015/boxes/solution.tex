@@ -1,0 +1,103 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2015 -- Boxes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+You are at position~0 on a circular track of length $L$ with $n$ boxes at sorted positions $p_0 \le p_1 \le \cdots \le p_{n-1}$. You can carry at most $K$ boxes at a time and must return to position~0 after each trip. Minimise the total distance travelled to deliver all boxes.
+
+\section{Solution}
+
+\subsection{Key Observations}
+
+For each trip, the deliverer goes clockwise (cost $= 2 \cdot p_{\max}$ for the farthest box in the group) or counter-clockwise (cost $= 2(L - p_{\min})$), or goes all the way around (cost $= L$).
+
+Group the boxes into consecutive batches of at most $K$, delivered from the left (clockwise) or from the right (counter-clockwise).
+
+\subsection{DP Formulation}
+
+Define prefix and suffix cost arrays:
+\begin{align*}
+  \textit{leftCost}[i] &= \textit{leftCost}[\max(0, i-K)] + 2 \cdot p_{i-1}, \\
+  \textit{rightCost}[j] &= \textit{rightCost}[\max(0, j-K)] + 2 \cdot (L - p_{n-j}).
+\end{align*}
+
+The answer is:
+\[
+  \min_{0 \le i \le n} \min\!\big(\textit{leftCost}[i] + \textit{rightCost}[n-i],\;
+  \textit{leftCost}[\max(0,i-K)] + \textit{rightCost}[\max(0,n-i-K)] + L\big).
+\]
+
+The second term handles the case where the last left-group and first right-group are merged into a single round trip of cost $L$.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+long long delivery(int N, int K, int L, int p[]) {
+    vector<ll> leftCost(N + 1, 0), rightCost(N + 1, 0);
+
+    for (int i = 1; i <= N; i++) {
+        int groupStart = max(0, i - K);
+        leftCost[i] = leftCost[groupStart] + 2LL * p[i - 1];
+    }
+    for (int i = 1; i <= N; i++) {
+        int groupStart = max(0, i - K);
+        rightCost[i] = rightCost[groupStart] + 2LL * (L - p[N - i]);
+    }
+
+    ll ans = LLONG_MAX;
+    for (int i = 0; i <= N; i++) {
+        int ri = N - i;
+        // Option 1: separate left and right trips
+        ans = min(ans, leftCost[i] + rightCost[ri]);
+        // Option 2: merge boundary groups into a round trip
+        if (i > 0 && ri > 0) {
+            ll lp = leftCost[max(0, i - K)];
+            ll rp = rightCost[max(0, ri - K)];
+            ans = min(ans, lp + rp + (ll)L);
+        }
+    }
+    return ans;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n)$ (input is pre-sorted).
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

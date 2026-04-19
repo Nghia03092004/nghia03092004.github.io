@@ -1,0 +1,222 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1993 -- Day 2, Task 2: The School Bus}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A school bus starts at a depot, picks up students at $n$ locations, and
+returns. The bus has capacity $C$, so it may need multiple round trips.
+Each location $i$ has coordinates $(x_i, y_i)$ and $s_i$ students. Minimize
+the total Euclidean distance traveled across all trips.
+
+This is a variant of the \textbf{Capacitated Vehicle Routing Problem (CVRP)}.
+
+\section{Solution}
+
+\subsection{Two-Phase Bitmask DP}
+
+For small $n$ (up to about 15), we use an exact algorithm in two phases.
+
+\subsubsection{Phase 1: Optimal Tour for Each Subset (Held--Karp TSP)}
+
+For each subset $S$ of locations whose total student count does not exceed
+$C$, compute the shortest round trip from the depot visiting all locations
+in $S$.
+
+Define $\text{tsp}[S][v]$ as the minimum distance to visit every location in
+$S$, starting from the depot and ending at location $v$. The recurrence is:
+\[
+  \text{tsp}[S][v] = \min_{u \in S \setminus \{v\}}
+    \bigl(\text{tsp}[S \setminus \{v\}][u] + d(u, v)\bigr),
+\]
+with base case $\text{tsp}[\{v\}][v] = d(\text{depot}, v)$.
+
+The round-trip cost for subset $S$ is:
+\[
+  \text{tour}[S] = \min_{v \in S}
+    \bigl(\text{tsp}[S][v] + d(v, \text{depot})\bigr).
+\]
+
+\subsubsection{Phase 2: Set Partition DP}
+
+Partition all $n$ locations into capacity-feasible trips to minimize total
+cost:
+\[
+  \text{dp}[S] = \min_{\substack{T \subseteq S,\; T \ne \emptyset \\
+    \text{students}(T) \le C}}
+    \bigl(\text{tour}[T] + \text{dp}[S \setminus T]\bigr),
+\]
+with $\text{dp}[\emptyset] = 0$.
+
+Subsets of $S$ are enumerated using the standard bitmask trick:
+\texttt{for (T = S; T > 0; T = (T-1) \& S)}.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Phase 1 (TSP):} $O(2^n \cdot n^2)$ time, $O(2^n \cdot n)$
+    space.
+  \item \textbf{Phase 2 (partition):} $O(3^n)$ time (sum over all $S$ of the
+    number of subsets of $S$ equals $3^n$).
+  \item \textbf{Total:} $O(2^n \cdot n^2 + 3^n)$ time, $O(2^n \cdot n)$
+    space.
+  \item Feasible for $n \le 15$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+
+const int MAXN = 16;
+const double INF = 1e18;
+
+int n, capacity;
+int students[MAXN];
+double dist_mat[MAXN+1][MAXN+1]; // 0 = depot, 1..n = locations
+
+double tspDp[1 << MAXN][MAXN];
+double tourCost[1 << MAXN];
+int totalStudents[1 << MAXN];
+bool feasible[1 << MAXN];
+double partDp[1 << MAXN];
+
+int main() {
+    cin >> n >> capacity;
+
+    double dx[MAXN+1], dy[MAXN+1];
+    cin >> dx[0] >> dy[0]; // depot
+    for (int i = 1; i <= n; i++)
+        cin >> dx[i] >> dy[i] >> students[i-1];
+
+    // Distance matrix
+    for (int i = 0; i <= n; i++)
+        for (int j = 0; j <= n; j++)
+            dist_mat[i][j] = hypot(dx[i]-dx[j], dy[i]-dy[j]);
+
+    int full = (1 << n) - 1;
+
+    // Precompute total students per subset
+    for (int S = 0; S <= full; S++) {
+        totalStudents[S] = 0;
+        for (int i = 0; i < n; i++)
+            if (S & (1 << i))
+                totalStudents[S] += students[i];
+        feasible[S] = (totalStudents[S] <= capacity);
+    }
+
+    // Phase 1: TSP DP
+    for (int S = 0; S <= full; S++)
+        for (int i = 0; i < n; i++)
+            tspDp[S][i] = INF;
+
+    for (int i = 0; i < n; i++)
+        tspDp[1 << i][i] = dist_mat[0][i+1];
+
+    for (int S = 1; S <= full; S++) {
+        if (!feasible[S]) continue;
+        for (int v = 0; v < n; v++) {
+            if (!(S & (1 << v))) continue;
+            if (tspDp[S][v] >= INF) continue;
+            for (int u = 0; u < n; u++) {
+                if (S & (1 << u)) continue;
+                int newS = S | (1 << u);
+                if (!feasible[newS]) continue;
+                double cost = tspDp[S][v] + dist_mat[v+1][u+1];
+                if (cost < tspDp[newS][u])
+                    tspDp[newS][u] = cost;
+            }
+        }
+    }
+
+    // Tour cost for each feasible subset
+    for (int S = 0; S <= full; S++) {
+        tourCost[S] = INF;
+        if (!feasible[S] || S == 0) continue;
+        for (int v = 0; v < n; v++) {
+            if (!(S & (1 << v))) continue;
+            double cost = tspDp[S][v] + dist_mat[v+1][0];
+            tourCost[S] = min(tourCost[S], cost);
+        }
+    }
+
+    // Phase 2: Set partition DP
+    for (int S = 0; S <= full; S++)
+        partDp[S] = INF;
+    partDp[0] = 0;
+
+    for (int S = 1; S <= full; S++) {
+        for (int T = S; T > 0; T = (T - 1) & S) {
+            if (feasible[T] && tourCost[T] < INF) {
+                double val = partDp[S ^ T] + tourCost[T];
+                if (val < partDp[S])
+                    partDp[S] = val;
+            }
+        }
+    }
+
+    cout.precision(2);
+    cout << fixed << partDp[full] << endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Example}
+
+\begin{verbatim}
+Input:
+4 6
+0 0              (depot)
+1 1 3            (location 1: 3 students)
+3 1 2            (location 2: 2 students)
+2 3 4            (location 3: 4 students)
+4 2 1            (location 4: 1 student)
+
+Total students = 10, capacity = 6.
+At least 2 trips are needed.
+\end{verbatim}
+
+The DP finds the optimal partition into trips and the shortest tour for each.
+
+\section{Notes}
+
+\begin{itemize}
+  \item This problem is NP-hard in general (it contains TSP as a special case
+    when $C \ge \sum s_i$).
+  \item The bitmask DP gives an exact solution for $n \le 15$.
+  \item For larger $n$, heuristics (nearest-neighbor, savings algorithm) or
+    metaheuristics (simulated annealing) are necessary.
+  \item The subset enumeration identity $\sum_{S \subseteq [n]} 2^{|S|} = 3^n$
+    explains the $O(3^n)$ time for Phase~2.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,126 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\U. Toy Train Tracks}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given at most $s$ straight track pieces and at most $c$ curved pieces. A valid answer is a single
+simple closed loop on the square grid. We must output any loop of maximum possible length.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item In every closed orthogonal loop, the number of straight pieces is even and the number of curved
+    pieces is even. So we may discard one unused piece of either type if its count is odd.
+    \item If no straight pieces are used, the best possible lengths are:
+    \begin{itemize}[leftmargin=*]
+        \item $4$, using \texttt{LLLL};
+        \item or any multiple of $4$ at least $12$, using a four-sided staircase loop.
+    \end{itemize}
+    There is no all-curves loop of length $8$.
+    \item If at least two straight pieces are available, then every even number of curves at least $4$ is
+    achievable together with every even number of straight pieces.
+    \item The implementation constructs the loop as a sequence of \emph{absolute movement directions} on
+    the grid and converts that cyclic direction sequence into the required alphabet
+    \texttt{S/L/R} by comparing consecutive directions.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Replace $(s,c)$ by the largest even counts not exceeding them.
+    \item If fewer than two straight pieces remain:
+    \begin{itemize}[leftmargin=*]
+        \item use $4$ curves if fewer than $12$ curves remain;
+        \item otherwise use the largest multiple of $4$ not exceeding $c$.
+    \end{itemize}
+    \item If at least two straight pieces remain and $c \equiv 0 \pmod 4$, build the direction sequence
+    \[
+    N^a\ W\ (SW)^q\ S^a\ E\ (NE)^q,
+    \]
+    where $a=s/2+1$ and $q=(c-4)/4$.
+    \item If at least two straight pieces remain and $c \equiv 2 \pmod 4$, build
+    \[
+    N^2\ (WN)^p\ W^b\ (SE)^{p+1}\ S\ E^{b-1},
+    \]
+    where $b=s/2+1$ and $p=(c-6)/4$.
+    \item Convert the cyclic direction sequence into \texttt{S/L/R} and output it.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Any closed loop uses an even number of straight pieces and an even number of curved pieces.
+
+\paragraph{Proof.}
+The total horizontal displacement and the total vertical displacement of a closed loop are both zero, so
+the number of steps in each direction must balance. This forces the number of straight pieces to be even.
+Also, the total turning angle of a simple closed loop is $\pm 360^\circ$, so the difference between the
+numbers of left and right turns is $\pm 4$. Therefore their sum, which is the total number of curved
+pieces, is even. \qed
+
+\paragraph{Lemma 2.}
+The direction families used by the algorithm are simple closed loops and use exactly the claimed numbers
+of straight and curved pieces.
+
+\paragraph{Proof.}
+Each family is a concatenation of monotone staircase sides. Their horizontal and vertical displacements
+cancel by construction, so the walk closes. Because the sides are monotone and nested outward, the walk
+never revisits a cell before the end, so it is simple.
+
+Counting consecutive equal directions gives the number of straight pieces, and counting direction changes
+gives the number of curved pieces. For the two families these counts are respectively
+\[
+2a-2,\ 4+4q
+\quad\text{and}\quad
+2b-2,\ 6+4p,
+\]
+which are exactly the requested values after substituting $a=s/2+1$, $b=s/2+1$, $q=(c-4)/4$, and
+$p=(c-6)/4$. \qed
+
+\paragraph{Lemma 3.}
+For the all-curves case, the algorithm uses the largest feasible number of curves.
+
+\paragraph{Proof.}
+By Lemma 1, only even numbers of curves are possible. The staircase all-curves family realizes every
+multiple of $4$ at least $12$, and \texttt{LLLL} realizes $4$. The only even value below $12$ not covered
+by these constructions is $8$, which is impossible. Hence the algorithm picks the largest feasible number
+of curves when no straight pieces can be used. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs a loop of maximum possible length.
+
+\paragraph{Proof.}
+By Lemma 1, any optimal solution can use only even numbers of straight and curved pieces, so rounding
+the available counts down to even values loses nothing.
+
+If fewer than two straight pieces remain, Lemma 3 shows that the algorithm uses the maximum possible
+number of curves. Otherwise, Lemma 2 shows that the algorithm can realize every even curve count at
+least $4$ together with every even straight count, so it uses all available pieces after the parity adjustment.
+No longer loop can exist. \qed
+
+\section*{Complexity Analysis}
+
+The algorithm constructs the answer string directly. The running time is linear in the output length, and
+the memory usage is also linear in the output length.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The output does not need to match the sample exactly; any maximum-length simple loop is
+    accepted.
+\end{itemize}
+
+\end{document}

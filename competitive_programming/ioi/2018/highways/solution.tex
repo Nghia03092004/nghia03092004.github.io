@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{lemma}{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2018 -- Highway Tolls}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+We are given a connected undirected graph with $N$ vertices and $M$ edges.
+Two hidden vertices $s \neq t$ were chosen. For each query we assign every
+edge weight $A$ or $B$ ($A < B$), and the grader returns the shortest-path
+distance between $s$ and $t$ in that weighted graph. We must recover $s$ and
+$t$ using few queries.
+
+\section{Key Observation}
+
+Let $W$ be the answer when every edge has weight $A$. Then $W/A$ is the
+length of a shortest $s$--$t$ path in the unweighted graph.
+
+Now fix any ordering of the edges. If we turn a prefix of that order from
+weight $A$ to weight $B$, the answer stays equal to $W$ until the prefix first
+hits an edge that belongs to \emph{some} shortest $s$--$t$ path. From that point
+on the answer becomes larger than $W$.
+
+\begin{lemma}
+For any fixed edge order, binary search on the prefix length finds the
+smallest-indexed edge that belongs to some shortest $s$--$t$ path.
+\end{lemma}
+
+\begin{proof}
+If the prefix contains no edge from any shortest path, one shortest path still
+has total weight $W$. Once the prefix contains an edge from some shortest
+path, every shortest path using that edge becomes more expensive, hence the
+minimum distance increases. This is a monotone predicate, so binary search
+applies.
+\end{proof}
+
+\section{Finding One Shortest-Path Edge}
+
+First, use the original edge indices as the ordering and apply the lemma above.
+This yields one edge $e = (u, v)$ that lies on a shortest $s$--$t$ path.
+
+Compute unweighted distances from $u$ and from $v$:
+\[
+  d_u(x), \qquad d_v(x).
+\]
+
+Define two regions:
+\[
+  S = \{x \mid d_u(x) < d_v(x)\}, \qquad
+  T = \{x \mid d_v(x) < d_u(x)\}.
+\]
+
+Because $e$ lies on a shortest path, one hidden endpoint is in $S$ and the
+other is in $T$. Intuitively, before crossing edge $e$ the path is strictly
+closer to $u$, and after crossing it the path is strictly closer to $v$.
+
+\section{Recovering One Endpoint Inside a Region}
+
+Consider region $S$ rooted at $u$; the same argument is applied symmetrically
+to region $T$ rooted at $v$.
+
+Build a BFS tree of the subgraph induced by vertices in $S$. Order its tree
+edges by nondecreasing depth from the root. We want to binary search for the
+\emph{last} tree edge on the shortest-path segment from $u$ to the hidden
+endpoint inside $S$.
+
+To make this valid, every edge that could create an alternative shortest path
+must be forced to weight $B$:
+\begin{itemize}
+  \item every edge leaving the region,
+  \item every edge between the two regions (except the already-known critical
+        edge $e$),
+  \item every non-tree edge that still goes from depth $d$ to depth $d+1$
+        inside the BFS layering, because such an edge can also belong to a
+        shortest path from the root.
+\end{itemize}
+
+After that, any path of cost $W$ must use the BFS-tree path from the root to
+the hidden endpoint inside the region. Therefore the predicate
+
+\medskip
+\centerline{``does the set of tree edges with order at least $\texttt{mid}$ intersect
+the hidden path segment?''}
+\medskip
+
+is monotone, so another binary search finds the last tree edge on that segment.
+If no such edge exists, the root itself is the hidden endpoint.
+
+\section{Algorithm}
+
+\begin{enumerate}
+  \item Query all edges with weight $A$ and store the baseline distance $W$.
+  \item Binary search on the original edge order to find one edge
+        $e = (u, v)$ on a shortest $s$--$t$ path.
+  \item Run BFS from $u$ and from $v$ to obtain $d_u$ and $d_v$.
+  \item In the region $S = \{x \mid d_u(x) < d_v(x)\}$, build the BFS tree,
+        force all other candidate edges to weight $B$, and binary search for
+        the last tree edge on the hidden path segment. This gives one endpoint.
+  \item Repeat symmetrically in region $T$ to obtain the other endpoint.
+\end{enumerate}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Queries:} $1 + \lceil \log_2 M \rceil + 2\lceil \log_2 N \rceil$.
+  \item \textbf{Time:} $O(N + M)$ preprocessing for BFS plus
+        $O((N + M)\log N)$ total local work.
+  \item \textbf{Space:} $O(N + M)$.
+\end{itemize}
+
+This comfortably fits the official query limit.
+
+\end{document}

@@ -1,0 +1,163 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2022 --- Digital Circuit}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A digital circuit has $N$ \emph{threshold gates} (numbered $0,\ldots,N{-}1$)
+and $M$ \emph{source gates} (numbered $N,\ldots,N{+}M{-}1$).  Gate~0 is the
+output.  Each non-root gate has a unique parent (a threshold gate).  Every
+threshold gate $i$ with $c_i$ inputs has a parameter $p_i \in [1, c_i]$: the
+gate outputs 1 iff at least $p_i$ of its inputs are 1.
+
+Source gates have binary states.  After each \emph{update} (toggling source
+gates in a contiguous range $[L, R]$), count the number of parameter
+assignments that make gate~0 output~1, modulo $10^9 + 22$.
+
+\section{Solution}
+
+\subsection{Per-gate counting}
+
+For each threshold gate $i$ with $c_i$ inputs, if exactly $k$ of its inputs
+output~1, then exactly $\min(k, c_i)$ choices of $p_i$ make gate~$i$
+output~1, and $c_i - \min(k, c_i)$ make it output~0.
+
+\subsection{Aggregation with generating polynomials}
+
+For each gate $i$, define:
+\begin{align*}
+  \mathrm{ways\_on}[i]  &= \text{number of parameter assignments in the
+                            subtree of } i \text{ making } i \text{ output 1,}\\
+  \mathrm{ways\_off}[i] &= \text{the complementary count.}
+\end{align*}
+
+For a source gate $s$: $\mathrm{ways\_on}[s] = \text{state}(s)$ and
+$\mathrm{ways\_off}[s] = 1 - \text{state}(s)$.
+
+For a threshold gate $i$ with children $g_1, \ldots, g_{c_i}$, we accumulate
+two quantities over the children:
+\begin{align*}
+  A &= \prod_j \bigl(\mathrm{ways\_on}[g_j] + \mathrm{ways\_off}[g_j]\bigr),\\
+  B &= \sum_{\text{subsets }S}
+       |S| \cdot \prod_{j \in S} \mathrm{ways\_on}[g_j]
+             \cdot \prod_{j \notin S} \mathrm{ways\_off}[g_j].
+\end{align*}
+Then $\mathrm{ways\_on}[i] = B$ and
+$\mathrm{ways\_off}[i] = c_i \cdot A - B$.
+
+The pair $(A, B)$ can be maintained incrementally.  Writing
+$\mathrm{tot}_j = \mathrm{ways\_on}[g_j] + \mathrm{ways\_off}[g_j]$,
+the transition when appending child $g_{j+1}$ is
+\begin{align*}
+  A' &= A \cdot \mathrm{tot}_{j+1},\\
+  B' &= B \cdot \mathrm{tot}_{j+1} + A \cdot \mathrm{ways\_on}[g_{j+1}].
+\end{align*}
+
+\subsection{Handling toggle updates}
+
+When source gates in $[L,R]$ are toggled, the values
+$\mathrm{ways\_on}$ and $\mathrm{ways\_off}$ change for all ancestors.
+A full bottom-up recomputation takes $O(N + M)$ per update.
+
+\begin{lemma}
+The total work per update is $O(N + M)$ since each gate is recomputed
+at most once in the bottom-up pass.
+\end{lemma}
+
+For full-score performance, one can factor each gate's contribution
+as a product of per-source-gate affine functions and maintain these
+products under range toggles using a segment tree with lazy
+propagation.  We present the simpler $O((N+M)Q)$ recomputation below.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int MOD = 1000002022;
+
+int N, M;
+vector<int> par;
+vector<vector<int>> ch;
+vector<int> src_state;
+
+ll ways_on_0;
+
+void recompute() {
+    vector<ll> won(N + M), woff(N + M);
+    for (int i = N; i < N + M; i++) {
+        won[i]  = src_state[i - N];
+        woff[i] = 1 - src_state[i - N];
+    }
+    for (int i = N - 1; i >= 0; i--) {
+        ll A = 1, B = 0;
+        int ci = (int)ch[i].size();
+        for (int g : ch[i]) {
+            ll tot = (won[g] + woff[g]) % MOD;
+            ll nA = A * tot % MOD;
+            ll nB = (B % MOD * tot % MOD + A % MOD * (won[g] % MOD)) % MOD;
+            A = nA;
+            B = nB;
+        }
+        won[i]  = B % MOD;
+        woff[i] = ((ll)ci % MOD * (A % MOD) % MOD - B % MOD + MOD) % MOD;
+    }
+    ways_on_0 = won[0];
+}
+
+void init(int _N, int _M, vector<int> P, vector<int> A) {
+    N = _N; M = _M;
+    par = P;
+    src_state = A;
+    ch.resize(N + M);
+    for (int i = 1; i < N + M; i++)
+        ch[P[i]].push_back(i);
+}
+
+int count_ways(int L, int R) {
+    for (int i = L; i <= R; i++)
+        src_state[i - N] ^= 1;
+    recompute();
+    return (int)(ways_on_0 % MOD);
+}
+\end{lstlisting}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Initialization:} $O(N + M)$.
+  \item \textbf{Per update (above code):} $O(N + M)$ for full recomputation.
+  \item \textbf{Per update (optimized):} $O(N + M + \log M)$ using a segment
+        tree over source gates that maintains the product of affine
+        contributions and supports range-toggle with lazy propagation.
+  \item \textbf{Space:} $O(N + M)$.
+\end{itemize}
+
+\end{document}

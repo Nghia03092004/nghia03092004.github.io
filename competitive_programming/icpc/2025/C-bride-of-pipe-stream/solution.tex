@@ -1,0 +1,121 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\C. Bride of Pipe Stream}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+At every station we may split the incoming flow arbitrarily among the outgoing ducts, while each duct
+then distributes its flow to lower stations and reservoirs by fixed percentages. The graph is acyclic
+because every duct only goes to larger-numbered objects. We must maximize the minimum percentage of
+the total source flow that reaches any reservoir.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Let $x=(x_1,\dots,x_r)$ be the vector of reservoir inflows produced by some station-splitting
+    strategy. The set of all such vectors is convex, because every station can mix two strategies by using
+    the corresponding convex combination of its split ratios.
+    \item For any weight vector $\lambda \ge 0$ with $\sum \lambda_i = 1$, maximizing
+    $\lambda \cdot x$ is easy. If $H_i(\lambda)$ denotes the best weighted value obtainable from station $i$,
+    then
+    \[
+    H_i(\lambda)=\max_{\text{duct }d\text{ out of }i}
+    \left(\sum_{j=1}^{r} \lambda_j \cdot \text{res}_{d,j}
+    + \sum_{k} \text{frac}_{d,k} \cdot H_k(\lambda)\right).
+    \]
+    \item The original objective is
+    \[
+    \max_x \min_j x_j.
+    \]
+    Over a convex feasible set this is equal to
+    \[
+    \min_{\lambda \ge 0,\ \sum \lambda_i=1} \max_x \lambda \cdot x.
+    \]
+    So we only need to minimize $H_1(\lambda)$ over the simplex.
+    \item Since $r \le 3$, the simplex has dimension at most $2$. The function $H_1$ is convex because it
+    is the pointwise maximum of linear functions, so one-dimensional and nested golden-section searches
+    are sufficient.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Store every duct of every station as:
+    the fixed fractions going to later stations, and the fixed fractions going directly to the reservoirs.
+    \item For a fixed $\lambda$, evaluate $H_i(\lambda)$ by dynamic programming from station $s$ down to
+    station $1$, since all edges go to larger indices.
+    \item If $r=1$, the answer is just $H_1(1)$.
+    \item If $r=2$, write $\lambda=(t,1-t)$ and minimize the convex function $H_1(t,1-t)$ on $[0,1]$ by
+    golden-section search.
+    \item If $r=3$, write $\lambda=(x,y,1-x-y)$ with $x,y \ge 0$ and $x+y \le 1$.
+    For a fixed $y$, minimize over $x \in [0,1-y]$ by golden search, then minimize the resulting convex
+    function of $y$ by another golden search.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed weight vector $\lambda$, the dynamic program computes the maximum possible value of
+$\lambda \cdot x$ obtainable from each station.
+
+\paragraph{Proof.}
+Consider a station $i$. Once the incoming flow reaches $i$, the only decision is how to split that flow
+among its outgoing ducts. Because the weighted objective is linear, sending all flow through the outgoing
+duct with the largest downstream weighted value is optimal. The formula used by the program is exactly
+that best value. Processing stations in reverse order is valid because every duct goes only to larger
+indices, so all needed subproblems are already known. \qed
+
+\paragraph{Lemma 2.}
+The optimum minimum reservoir inflow equals
+\[
+\min_{\lambda \ge 0,\ \sum \lambda_i=1} H_1(\lambda).
+\]
+
+\paragraph{Proof.}
+Let $F$ be the convex set of all feasible reservoir vectors. For any feasible $x$ and any simplex weight
+vector $\lambda$, we have $\min_j x_j \le \lambda \cdot x$. Therefore
+\[
+\max_{x \in F} \min_j x_j \le \min_{\lambda} \max_{x \in F} \lambda \cdot x.
+\]
+Conversely, if $z$ is the optimal max-min value, then the set $F$ intersects the box
+$[z,\infty)^r$ and does not intersect the interior of any strictly larger such box. A supporting
+hyperplane of $F$ at an optimal point gives a simplex weight vector $\lambda$ for which
+$\max_{x \in F}\lambda \cdot x = z$. Hence equality holds. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, for every tested $\lambda$ the program evaluates $H_1(\lambda)$ correctly. By Lemma 2,
+the true answer is the minimum of this function over the simplex. Because $H_1$ is convex, its
+restriction to any line segment is also convex, hence unimodal. Therefore the golden-section searches
+used by the program converge to the global minimum in the one-dimensional and nested two-dimensional
+cases covered by $r \le 3$. Thus the printed value is the optimal minimum reservoir inflow. \qed
+
+\section*{Complexity Analysis}
+
+Let $D$ be the number of ducts. One evaluation of $H_1(\lambda)$ costs $O(D \cdot r)$, which is
+$O(D)$ because $r \le 3$. The search performs only a fixed number of evaluations, so the total running
+time is $O(D)$ up to a constant factor, and the memory usage is $O(D)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The output is a percentage, so the program multiplies the final fraction by $100$.
+    \item Using about $80$--$200$ golden-search iterations is easily enough for the required $10^{-6}$
+    absolute error.
+\end{itemize}
+
+\end{document}

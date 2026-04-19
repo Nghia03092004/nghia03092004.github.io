@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\C. Domes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given $n$ dome positions inside the rectangle $[0,dx] \times [0,dy]$ and a permutation
+$p_1, p_2, \dots, p_n$.
+We must find the area of all photographer positions $X$ inside the rectangle from which one can take a
+180-degree photo whose left-to-right order of domes is exactly
+\[
+    p_1, p_2, \dots, p_n.
+\]
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item In a 180-degree photo, the domes are ordered exactly by the angular order of the rays from the photographer.
+    Therefore for every pair $i < j$, dome $p_i$ must appear before dome $p_j$ in that angular order.
+    \item For a fixed pair $i < j$, the condition ``$p_i$ is before $p_j$'' is equivalent to saying that the
+    photographer lies on the \emph{right-hand side} of the directed line from dome $p_i$ to dome $p_j$.
+    In coordinates, if $A$ is the position of $p_i$, $B$ the position of $p_j$, and $X$ the photographer, then we need
+    \[
+        \operatorname{cross}(B-A,\; X-A) \le 0.
+    \]
+    \item Hence the feasible region is the intersection of:
+    \begin{itemize}[leftmargin=*]
+        \item the original rectangle,
+        \item one half-plane for every pair $i < j$.
+    \end{itemize}
+    \item An intersection of half-planes is convex, so we can start from the rectangle and clip it repeatedly.
+    Since $n \le 100$, there are at most $\binom{100}{2} = 4950$ half-planes, which is small enough for ordinary
+    polygon clipping.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Reorder the dome coordinates according to the requested permutation
+    $p_1, p_2, \dots, p_n$.
+    \item Initialize the current polygon as the rectangle
+    \[
+        (0,0),\ (dx,0),\ (dx,dy),\ (0,dy).
+    \]
+    \item For every pair $i < j$:
+    \begin{itemize}[leftmargin=*]
+        \item let $A$ be dome $p_i$ and $B$ be dome $p_j$;
+        \item clip the current polygon with the half-plane
+        \[
+            \operatorname{cross}(B-A,\; X-A) \le 0.
+        \]
+    \end{itemize}
+    We use the standard Sutherland--Hodgman clipping step for one convex polygon against one line.
+    \item After all clips, compute the area of the remaining polygon with the shoelace formula.
+    If the polygon becomes empty, the answer is $0$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For two domes $A$ and $B$, with $A$ required to appear before $B$ in the photo, a photographer position $X$ is valid
+for this pair if and only if $X$ lies on the right-hand side of the directed line $A \to B$.
+
+\paragraph{Proof.}
+The left-to-right order in a 180-degree photo is the angular order of the rays from $X$ to the domes inside one
+visible semicircle.
+So ``$A$ appears before $B$'' means that when rotating from ray $XA$ to ray $XB$, we move clockwise by an angle strictly
+less than $\pi$.
+That is exactly the condition that the oriented triangle $(A,B,X)$ has non-positive signed area, or equivalently
+\[
+    \operatorname{cross}(B-A,\; X-A) \le 0.
+\]
+The boundary case is collinearity; it has area $0$, so including it does not affect the final answer. \qed
+
+\paragraph{Lemma 2.}
+If a position $X$ satisfies the half-plane condition for every pair $i < j$, then there exists a 180-degree photo from
+which the domes appear in the requested order $p_1, p_2, \dots, p_n$.
+
+\paragraph{Proof.}
+Let $\alpha_k$ be the polar angle of the ray from $X$ to dome $p_k$.
+For every $i < j$, Lemma 1 gives that the directed angle from ray $Xp_i$ to ray $Xp_j$ is clockwise and smaller than
+$\pi$.
+Therefore the angles can be lifted to real numbers so that
+\[
+    \alpha_1 > \alpha_2 > \dots > \alpha_n
+    \quad\text{and}\quad
+    \alpha_1 - \alpha_n < \pi.
+\]
+So all rays lie inside one open semicircle, and their angular order inside that semicircle is exactly
+$p_1, p_2, \dots, p_n$.
+Point the camera toward the middle direction of that semicircle.
+Then all domes are visible and appear in the required left-to-right order. \qed
+
+\paragraph{Lemma 3.}
+If there exists a valid photo from position $X$ whose dome order is $p_1, p_2, \dots, p_n$, then $X$ satisfies all the
+half-plane constraints used by the algorithm.
+
+\paragraph{Proof.}
+In a valid photo, for every pair $i < j$, dome $p_i$ appears before dome $p_j$.
+By Lemma 1, this implies that $X$ lies on the right-hand side of the directed line from $p_i$ to $p_j$.
+Hence all pair constraints hold. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 3, every valid photographer position lies in every half-plane used by the algorithm, so it survives all
+clipping steps.
+By Lemma 2, every position that survives all clipping steps is indeed valid for the requested photo order.
+Thus the final polygon produced by the algorithm is exactly the feasible region inside the rectangle.
+The shoelace formula therefore computes exactly the desired area. \qed
+
+\section*{Complexity Analysis}
+
+There are $O(n^2)$ half-planes.
+Each clipping step is linear in the current polygon size, which is also $O(n^2)$ in the worst case.
+Therefore the running time is $O(n^4)$ in the worst case, which is easily fast enough for $n \le 100$.
+
+The polygon itself has $O(n^2)$ vertices, so the memory usage is $O(n^2)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The algorithm clips with \emph{all} pairs $i < j$, not only consecutive pairs in the permutation.
+    \item Using \texttt{long double} for the geometric computation is sufficient for the required $10^{-3}$ accuracy.
+    \item After clipping, removing consecutive duplicate vertices helps keep the polygon stable numerically.
+\end{itemize}
+
+\end{document}

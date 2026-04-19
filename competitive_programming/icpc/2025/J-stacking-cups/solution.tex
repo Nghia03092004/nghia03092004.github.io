@@ -1,0 +1,130 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\J. Stacking Cups}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Cup $i$ has height $2i-1$ and fits inside every larger cup. We must output an ordering of all cups whose
+stacked height is exactly $h$, or report that this is impossible.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item If a cup is placed immediately after a larger cup, it falls into that cup and cannot increase the
+    current total height. So cups that follow a larger cup only ``raise the floor'' for later cups by $1$ each.
+    \item Therefore every ordering can be rearranged, without changing the final height, into a canonical
+    form:
+    \[
+    n,n-1,\dots,b+1,\ x_1,x_2,\dots,x_a,\ \text{all remaining cups from }b\text{ down to }1,
+    \]
+    where $1 \le x_1 < x_2 < \dots < x_a \le b$.
+    The first descending block contributes only $n-b$ to the height, and only the increasing subsequence
+    $x_1,\dots,x_a$ can create new maxima.
+    \item In this canonical form the total height is
+    \[
+    h = (n-b) + \sum_{i=1}^{a}(2x_i-1)
+      = (n-b) + 2\sum_{i=1}^{a}x_i - a.
+    \]
+    So the problem becomes: choose $b$, choose a size $a$, and choose $a$ distinct numbers from
+    $\{1,\dots,b\}$ with a prescribed sum.
+    \item For fixed $a$ and $b$, every sum between the minimum
+    $\frac{a(a+1)}{2}$ and the maximum
+    $\frac{a(2b-a+1)}{2}$
+    is achievable by distinct numbers in $\{1,\dots,b\}$.
+    A simple greedy adjustment from the smallest set
+    $\{1,2,\dots,a\}$ reaches any target in this interval.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item The smallest possible height is $2n-1$ (strictly decreasing order), and the largest is $n^2$
+    (strictly increasing order). If $h$ lies outside this range, answer \texttt{impossible}.
+    \item Iterate over every possible $b$. Let
+    \[
+    t = h - (n-b).
+    \]
+    We now need
+    \[
+    t = 2\sum x_i - a.
+    \]
+    \item For this $b$, choose a candidate size $a$ from the parity and range constraints implied by the
+    observation above. Check whether the required sum
+    \[
+    \sum x_i = \frac{t+a}{2}
+    \]
+    lies in the attainable interval for $a$ distinct numbers from $\{1,\dots,b\}$.
+    \item If it does, build the set greedily:
+    start from $\{1,2,\dots,a\}$ and move elements upward from right to left until the target sum is
+    reached.
+    \item Output the canonical order
+    $n,n-1,\dots,b+1,x_1,\dots,x_a,$ then the remaining numbers from $b$ down to $1$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Every cup ordering can be transformed into the canonical form above without changing the final height.
+
+\paragraph{Proof.}
+Whenever a cup follows a larger cup, it cannot create a new maximum height; it only increases the base
+level inside that larger cup by $1$. Such cups may therefore be postponed past any later cups that do
+create new maxima, without affecting the moments when the global height increases. Repeating this
+exchange argument yields a form in which all height-increasing cups appear as one increasing subsequence
+$x_1<\dots<x_a$, preceded by a descending block of cups larger than $b$ and followed by all remaining
+smaller cups in descending order. \qed
+
+\paragraph{Lemma 2.}
+For a canonical ordering with parameters $b$ and $x_1<\dots<x_a$, the final height is
+\[
+(n-b)+\sum_{i=1}^{a}(2x_i-1).
+\]
+
+\paragraph{Proof.}
+The initial descending block $n,n-1,\dots,b+1$ never creates a new maximum after the first cup; it only
+raises the internal floor by $1$ each time, so it contributes exactly $n-b$.
+Each cup $x_i$ in the increasing subsequence is the first cup after a smaller one, so it creates a new top,
+and its contribution above the current floor is exactly $2x_i-1$.
+The final descending tail again creates no new maximum. Summing these contributions proves the
+formula. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, if a height $h$ is achievable at all, then it is achievable by some canonical ordering.
+By Lemma 2, canonical orderings are in one-to-one correspondence with choices of $b$ and a subset
+$\{x_1,\dots,x_a\}$ whose sum satisfies the target equation used by the program.
+The greedy construction produces such a subset whenever the target sum lies in the attainable interval,
+and the interval characterization is exact for distinct numbers in $\{1,\dots,b\}$.
+Therefore whenever the algorithm prints an order, that order has height exactly $h$; and whenever the
+algorithm reports \texttt{impossible}, no canonical representation exists, hence no valid ordering exists at
+all. \qed
+
+\section*{Complexity Analysis}
+
+The algorithm tries all $b$ from $1$ to $n$ once and performs only linear work for the successful
+construction. Hence the running time is $O(n)$ and the memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The code works with cup indices internally and converts them to actual heights $2i-1$ only when
+    printing.
+    \item The special impossible case near the maximum height is covered explicitly by the canonical
+    characterization used by the implementation.
+\end{itemize}
+
+\end{document}

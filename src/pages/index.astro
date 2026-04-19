@@ -5,38 +5,51 @@ import { formatDate } from '../lib/content';
 import { formatProblemNumber, getEulerRecords } from '../features/project-euler/lib/euler';
 import { withBase } from '../lib/paths';
 import { focusAreas } from '../site.config';
+import {
+	getCompetitiveProgrammingRecords,
+	getCompetitiveProgrammingTrackSummaries,
+} from '../features/competitive-programming/lib/competitive-programming';
 
-const entries = await getEulerRecords();
+const [eulerEntries, competitiveProgrammingEntries, cpSummaries] = await Promise.all([
+	getEulerRecords(),
+	getCompetitiveProgrammingRecords(),
+	getCompetitiveProgrammingTrackSummaries(),
+]);
 const featuredProblems = [1, 48, 250, 700].flatMap((problem) => {
-	const entry = entries.find((item) => item.problem === problem);
+	const entry = eulerEntries.find((item) => item.problem === problem);
 	return entry ? [entry] : [];
 });
-const latestEntries = [...entries]
+const latestEulerEntries = [...eulerEntries]
 	.sort((a, b) => b.updated.getTime() - a.updated.getTime())
 	.slice(0, 4);
-const totalWords = entries.reduce((sum, entry) => sum + entry.wordCount, 0);
+const totalEulerWords = eulerEntries.reduce((sum, entry) => sum + entry.wordCount, 0);
+const totalCompetitiveProgrammingEntries = competitiveProgrammingEntries.length;
+const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEntries * 2;
 ---
 
 <BaseLayout
-	title="Project Euler"
-	description="A polished Project Euler archive with full mathematical solutions and source code."
+	title="Home"
+	description="Project Euler, competitive programming archives, and technical notes by Ethan Pham."
 >
 	<section class="hero">
 		<div class="panel hero-copy">
 			<div class="hero-copy__topline">
-				<span class="eyebrow">Project Euler archive</span>
-				<span class="hero-copy__burst">{entries.length} full problems</span>
+				<span class="eyebrow">Personal archive</span>
+				<span class="hero-copy__burst">
+					{eulerEntries.length} Euler + {totalCompetitiveProgrammingEntries} competitive programming
+					entries
+				</span>
 			</div>
-			<h1>Full Project Euler solutions, cleaner design, both C++ and Python.</h1>
+			<h1>Project Euler, competitive programming, and theory-heavy engineering notes.</h1>
 			<p>
-				This site is centered on Project Euler: full mathematical writeups, algorithm
-				explanations, and source code side by side. It stays static, fast, and easy to scan even
-				with hundreds of problems in the archive.
+				Project Euler is still the deepest subsystem here, but it now sits alongside a dedicated
+				competitive programming archive for ICPC and IOI. The site stays source-first: proofs,
+				write-ups, and implementations remain editable in their original files.
 			</p>
 			<div class="hero-actions">
-				<a class="button" href={withBase('/project-euler')}>Browse all problems</a>
-				<a class="button button--ghost" href={withBase('/project-euler/problem-0001')}>
-					Open problem 0001
+				<a class="button" href={withBase('/project-euler')}>Browse Project Euler</a>
+				<a class="button button--ghost" href={withBase('/competitive-programming')}>
+					Browse Competitive Programming
 				</a>
 			</div>
 			<div class="hero-ledger">
@@ -51,34 +64,35 @@ const totalWords = entries.reduce((sum, entry) => sum + entry.wordCount, 0);
 
 		<aside class="hero-aside">
 			<div class="hero-aside__panel hero-aside__panel--warm">
-				<span class="eyebrow">What each page includes</span>
+				<span class="eyebrow">What the archives keep</span>
 				<p class="lede">
-					The problem statement, a full derivation, the final answer, and the original C++ and
-					Python files from the archive.
+					Source-of-truth write-ups, exact implementations, and contest-specific context without
+					turning the repo into a pile of generated HTML.
 				</p>
 				<p class="hero-note">
-					The detail pages are built for reference: read the reasoning first, then switch
-					directly into source code without leaving the page.
+					Project Euler pages expose the polished archive format. Competitive programming entries
+					preserve the TeX and C++ source files directly, with ICPC statement assets carried over
+					when they are useful.
 				</p>
 			</div>
 			<div class="hero-aside__panel hero-aside__panel--grid">
 				<span class="section-label">Archive scope</span>
 				<div class="stats-grid">
 					<div class="stat">
-						<span class="stat__value">{entries.length}</span>
+						<span class="stat__value">{eulerEntries.length}</span>
 						<span class="stat__label">Euler problems</span>
 					</div>
 					<div class="stat">
-						<span class="stat__value">{entries.length * 2}</span>
+						<span class="stat__value">{totalCompetitiveProgrammingEntries}</span>
+						<span class="stat__label">CP entries</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{cpSummaries.length + 1}</span>
+						<span class="stat__label">Major archives</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{Math.round(totalSourceFiles / 100) / 10}k</span>
 						<span class="stat__label">Source files</span>
-					</div>
-					<div class="stat">
-						<span class="stat__value">2</span>
-						<span class="stat__label">Languages per page</span>
-					</div>
-					<div class="stat">
-						<span class="stat__value">{Math.round(totalWords / 1000)}k</span>
-						<span class="stat__label">Words in archive</span>
 					</div>
 				</div>
 			</div>
@@ -86,14 +100,59 @@ const totalWords = entries.reduce((sum, entry) => sum + entry.wordCount, 0);
 	</section>
 
 	<div class="section-stack">
+		<section class="section-panel">
+			<div class="section-heading">
+				<div>
+					<span class="section-label">Major areas</span>
+					<h2>The site now has two archive-scale problem-solving sections</h2>
+					<p>
+						Project Euler remains the largest corpus, and Competitive Programming now gives ICPC and
+						IOI their own clean archive instead of being buried inside the repo.
+					</p>
+				</div>
+			</div>
+			<div class="track-grid">
+				<a class="card track-card" data-tone="warm" href={withBase('/project-euler')}>
+					<span class="track-card__index">01</span>
+					<span class="eyebrow">Project Euler</span>
+					<h3>The long-form mathematics archive</h3>
+					<p>
+						{eulerEntries.length} full problems with statements, proofs, final answers, and both C++
+						and Python implementations.
+					</p>
+					<span class="track-card__link">Browse Project Euler</span>
+				</a>
+				<a class="card track-card" data-tone="cool" href={withBase('/competitive-programming')}>
+					<span class="track-card__index">02</span>
+					<span class="eyebrow">Competitive Programming</span>
+					<h3>ICPC and IOI as source-first contest archives</h3>
+					<p>
+						{totalCompetitiveProgrammingEntries} entries with exact TeX write-ups and C++
+						implementations copied into a clean, GitHub-friendly structure.
+					</p>
+					<span class="track-card__link">Open the archive</span>
+				</a>
+				<a class="card track-card" data-tone="olive" href={withBase('/about')}>
+					<span class="track-card__index">03</span>
+					<span class="eyebrow">About</span>
+					<h3>The broader technical direction behind the archive</h3>
+					<p>
+						AI/ML engineering, algebra, post-quantum cryptography, and the workflow behind keeping
+						these archives maintainable.
+					</p>
+					<span class="track-card__link">Read the background</span>
+				</a>
+			</div>
+		</section>
+
 		<section class="section-panel section-panel--spotlight">
 			<div class="section-heading">
 				<div>
-					<span class="section-label">Archive format</span>
-					<h2>Built like a serious Project Euler library</h2>
+					<span class="section-label">Project Euler</span>
+					<h2>The deepest archive is still the Euler library</h2>
 					<p>
-						The front page stays editorial, but the archive and detail pages are optimized for
-						actual use: scan, open, verify, copy, move on.
+						The front page stays editorial, but the archive and detail pages are optimized for actual
+						use: scan, open, verify, copy, move on.
 					</p>
 				</div>
 			</div>
@@ -125,8 +184,8 @@ const totalWords = entries.reduce((sum, entry) => sum + entry.wordCount, 0);
 		<section class="section-panel">
 			<div class="section-heading">
 				<div>
-					<span class="section-label">Featured problems</span>
-					<h2>Good entry points into the archive</h2>
+					<span class="section-label">Featured Euler problems</span>
+					<h2>Good entry points into the largest archive</h2>
 					<p>
 						A few handpicked problems to show the range: warmup arithmetic, modular arithmetic,
 						combinatorics, and one high-number late-archive problem.
@@ -151,17 +210,19 @@ const totalWords = entries.reduce((sum, entry) => sum + entry.wordCount, 0);
 		<section class="section-panel section-panel--signal">
 			<div class="section-heading">
 				<div>
-					<span class="section-label">Latest sync</span>
-					<h2>Recently updated source entries</h2>
+					<span class="section-label">Latest Euler sync</span>
+					<h2>Recently updated Project Euler entries</h2>
 					<p>
-						These are pulled from the source file timestamps, so the homepage can surface
-						recently touched Project Euler entries without manual editing.
+						These are pulled from the source file timestamps, so the homepage can surface recently
+						touched Project Euler entries without manual editing.
 					</p>
 				</div>
-				<a class="button button--ghost" href={withBase('/about')}>About this archive</a>
+				<a class="button button--ghost" href={withBase('/about')}>
+					About this archive
+				</a>
 			</div>
 			<div class="signal-grid">
-				{latestEntries.map((entry, index) => (
+				{latestEulerEntries.map((entry, index) => (
 					<a class="signal-card" data-tone="olive" href={withBase(`/project-euler/${entry.id}`)}>
 						<span class="signal-card__index">0{index + 1}</span>
 						<div>
@@ -175,6 +236,37 @@ const totalWords = entries.reduce((sum, entry) => sum + entry.wordCount, 0);
 						</div>
 					</a>
 				))}
+			</div>
+		</section>
+
+		<section class="section-panel">
+			<div class="section-heading">
+				<div>
+					<span class="section-label">Archive depth</span>
+					<h2>The Euler corpus still drives the longest-form writing</h2>
+					<p>
+						The competitive programming section is source-first and intentionally lean. Project Euler
+						remains the place where the site accumulates the most detailed written mathematics.
+					</p>
+				</div>
+			</div>
+			<div class="stats-grid">
+				<div class="stat">
+					<span class="stat__value">{Math.round(totalEulerWords / 1000)}k</span>
+					<span class="stat__label">Words in Euler archive</span>
+				</div>
+				<div class="stat">
+					<span class="stat__value">{cpSummaries[0]?.entryCount ?? 0}</span>
+					<span class="stat__label">ICPC entries</span>
+				</div>
+				<div class="stat">
+					<span class="stat__value">{cpSummaries[1]?.entryCount ?? 0}</span>
+					<span class="stat__label">IOI entries</span>
+				</div>
+				<div class="stat">
+					<span class="stat__value">{cpSummaries.reduce((sum, summary) => sum + summary.yearCount, 0)}</span>
+					<span class="stat__label">CP contest years</span>
+				</div>
 			</div>
 		</section>
 	</div>

@@ -1,0 +1,160 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2004 -- Artemis}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given $N$ points in the plane, find an axis-aligned rectangle containing
+the maximum number of points \emph{strictly} in its interior (no point
+on the boundary).
+
+\section{Solution: Sweep with Maximum Subarray}
+
+\subsection{Key Observations}
+\begin{enumerate}
+  \item Since no point may lie on the boundary, the rectangle's sides
+        must be placed in gaps between consecutive distinct coordinate
+        values.
+  \item Only the $O(N)$ distinct $x$- and $y$-coordinates matter for
+        placing sides (coordinate compression).
+  \item Fix the left and right boundaries (choosing from gaps between
+        consecutive $x$-groups). The interior points form a
+        one-dimensional problem: find the $y$-interval maximizing the
+        count.
+\end{enumerate}
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item Group points by their $x$-coordinate and sort the groups.
+  \item Compress $y$-coordinates.
+  \item For each left boundary $l$ (placed just right of
+        $x$-group $l$), sweep the right boundary $r$ rightward:
+        \begin{itemize}
+          \item When $r$ advances past group $g$, add group $g$'s
+                points to a column histogram $\mathrm{cnt}[y]$.
+          \item After each update, find the maximum contiguous subarray
+                sum of $\mathrm{cnt}[]$ (Kadane's algorithm in $O(M)$
+                where $M$ is the number of distinct $y$-values).
+        \end{itemize}
+  \item The maximum over all $(l, r)$ pairs is the answer.
+\end{enumerate}
+
+\subsection{Correctness of Kadane's Step}
+Choosing the best $y$-interval corresponds to finding bottom/top
+boundaries that maximize the number of interior points. Since boundaries
+are placed in gaps between distinct $y$-values, all points in a
+contiguous range of compressed $y$-indices are captured. This is
+exactly the maximum contiguous subarray sum.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+
+    vector<int> px(N), py(N);
+    for (int i = 0; i < N; i++)
+        cin >> px[i] >> py[i];
+
+    // Compress y-coordinates
+    vector<int> ys = py;
+    sort(ys.begin(), ys.end());
+    ys.erase(unique(ys.begin(), ys.end()), ys.end());
+    int M = ys.size();
+
+    vector<int> cy(N);
+    for (int i = 0; i < N; i++)
+        cy[i] = lower_bound(ys.begin(), ys.end(), py[i]) - ys.begin();
+
+    // Sort points by x, group by distinct x-values
+    vector<int> order(N);
+    iota(order.begin(), order.end(), 0);
+    sort(order.begin(), order.end(),
+         [&](int a, int b) { return px[a] < px[b]; });
+
+    vector<vector<int>> groups; // groups[g] = list of compressed y-indices
+    for (int i = 0; i < N; ) {
+        int j = i;
+        while (j < N && px[order[j]] == px[order[i]]) j++;
+        vector<int> g;
+        for (int k = i; k < j; k++)
+            g.push_back(cy[order[k]]);
+        groups.push_back(g);
+        i = j;
+    }
+
+    int G = groups.size();
+    int ans = 0;
+
+    // Enumerate left boundary (just right of group l)
+    for (int l = 0; l < G; l++) {
+        vector<int> cnt(M, 0);
+        // Right boundary just left of group r; interior = groups l+1..r-1
+        for (int r = l + 2; r < G; r++) {
+            // Add group r-1 (now strictly inside)
+            for (int y : groups[r - 1])
+                cnt[y]++;
+
+            // Kadane's algorithm: max contiguous subarray sum of cnt[]
+            int best = 0, cur = 0;
+            for (int y = 0; y < M; y++) {
+                cur += cnt[y];
+                best = max(best, cur);
+                if (cur < 0) cur = 0;
+            }
+            ans = max(ans, best);
+        }
+    }
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(G^2 \cdot M)$ where $G \le N$ is the number
+        of distinct $x$-groups and $M \le N$ is the number of distinct
+        $y$-values. Worst case $O(N^3)$.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+For the IOI constraints ($N \le 20{,}000$), more sophisticated
+approaches using balanced BSTs or divide-and-conquer reduce the
+complexity to $O(N^2 \log N)$ or $O(N^2)$.
+
+\end{document}

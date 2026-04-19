@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\I. Slot Machine}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+The machine has $n$ wheels, all carrying the same cyclic order of $n$ symbols. Rotating a wheel only
+changes its offset in that common cycle. After every action we are told only the number of distinct
+symbols currently visible. We must use at most $10\,000$ actions to make all wheels show the same
+symbol.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Fix all wheels except one wheel $i$, and rotate only $i$ through a full cycle. For each position of
+    wheel $i$, the reported number of distinct symbols is minimal exactly when the symbol shown by
+    wheel $i$ is already present on at least one of the other wheels. So one full scan of a wheel gives a
+    binary mask of which symbols are currently present elsewhere.
+    \item First scan wheel $1$. From this mask we can pick one symbol $s$ that is absent from all other
+    wheels, and one symbol $r$ that is present on some other wheel.
+    \item Now fix wheel $1$ to show $s$ and scan another wheel $j$. Then fix wheel $1$ to show $r$ and
+    scan $j$ again. The only difference between the two scans is the position where wheel $j$ itself
+    shows symbol $s$. Therefore comparing the two masks reveals exactly how much wheel $j$ must be
+    rotated to show $s$.
+    \item Repeating this for every wheel gives a common target symbol, so the final phase is just rotating
+    every wheel to its discovered offset.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Maintain the current offset of each wheel modulo $n$.
+    \item Define \texttt{scan(i)}:
+    rotate wheel $i$ through all $n$ positions, record the reported distinct-count value for each one, and
+    mark the positions that attain the minimum value.
+    \item Scan wheel $1$ once. Choose one position labeled $0$ in the resulting mask and call its symbol
+    $s$; choose one position labeled $1$ and call its symbol $r$.
+    \item Rotate wheel $1$ to $s$. For each wheel $j \ge 2$:
+    \begin{itemize}[leftmargin=*]
+        \item scan $j$ with wheel $1$ fixed at $s$;
+        \item rotate wheel $1$ to $r$ and scan $j$ again;
+        \item compare the two masks to find the unique position where wheel $j$ shows symbol $s$;
+        \item rotate wheel $1$ back to $s$.
+    \end{itemize}
+    \item Finally, rotate every wheel to the stored position that makes it show $s$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a scan of wheel $i$, a position is marked by the algorithm if and only if the symbol shown by wheel
+$i$ at that position is already shown by at least one other wheel.
+
+\paragraph{Proof.}
+Fix the other $n-1$ wheels. If wheel $i$ is rotated to a symbol that is absent from all other wheels, the
+total number of distinct visible symbols increases by one compared to showing any already-present
+symbol. Therefore the minimum possible distinct-count value is attained exactly at the positions where
+wheel $i$ shows a symbol already present elsewhere. \qed
+
+\paragraph{Lemma 2.}
+For every wheel $j \ge 2$, comparing the two scans described above identifies the unique offset at which
+wheel $j$ shows the chosen target symbol $s$.
+
+\paragraph{Proof.}
+The two scans differ only in the symbol shown by wheel $1$: once it is $s$, once it is $r$.
+All other wheels are unchanged. By construction, $s$ is absent from the other wheels when wheel $1$
+shows $s$, while $r$ is present on at least one other wheel when wheel $1$ shows $r$.
+Hence the membership test from Lemma 1 changes exactly at the position where wheel $j$ itself shows
+$s$. That position is therefore identified uniquely. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, for every wheel we discover an offset that makes it show the same symbol $s$.
+After the final rotation phase, all wheels therefore display $s$, so the machine shows only one distinct
+symbol and the jackpot condition is met. \qed
+
+\section*{Complexity Analysis}
+
+One scan uses exactly $n$ actions. We perform one scan for wheel $1$, two scans for every other wheel,
+and then $O(n)$ final rotations. Thus the number of actions is at most
+\[
+1 + n + 2(n-1)n + O(n) < 2n^2 + 3n \le 5150
+\]
+for $n \le 50$, well below the limit of $10\,000$. The local memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The helper \texttt{rotateTo} always uses the shorter cyclic rotation.
+    \item The solution exits immediately when the judge reports $k=1$, as required by the interaction
+    protocol.
+\end{itemize}
+
+\end{document}

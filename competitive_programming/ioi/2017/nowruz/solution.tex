@@ -1,0 +1,107 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2017 -- Nowruz}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+This is an \emph{output-only} task.
+We are given a grid with rocks (`\#') and free cells (`.').
+We may turn some free cells into bushes (`X').
+The remaining free cells must form a maze, i.e.\ for every two free cells there is exactly one simple
+path between them.
+
+In graph terms, if we keep only the free cells and connect orthogonally adjacent cells, the remaining
+graph must be a tree.
+A kid can hide exactly in a free cell of degree $1$, so the score is the number of leaves of that tree.
+
+\section{Editorial Heuristic}
+The official editorial suggests the following strong heuristic.
+
+\begin{itemize}
+  \item Start from one free cell.
+  \item Only add a cell that currently has exactly one neighbor already inside the tree.
+        This preserves the invariant ``the chosen cells form a tree''.
+  \item A stronger move is to take such a frontier cell $u$, add it, and then also add every free
+        neighbor $v$ of $u$ that currently has no tree neighbor.
+        After the move, each such $v$ becomes a leaf.
+  \item Repeat the best-looking expansion, and try many different random starts.
+\end{itemize}
+
+This does not guarantee the optimal score, but it is exactly the kind of approach intended for this
+output-only problem.
+
+\section{Why the Invariant Holds}
+Suppose the current chosen cells already form a tree.
+
+If we add one new cell with exactly one neighbor in the current tree, then we attach a new vertex by
+one edge, so the graph stays connected and acyclic.
+
+For the batched expansion around a center $u$:
+\begin{itemize}
+  \item $u$ has exactly one neighbor in the old tree, so it attaches safely;
+  \item every extra cell $v$ added together with $u$ has no neighbor in the old tree;
+  \item therefore each such $v$ is adjacent only to $u$ inside the new graph.
+\end{itemize}
+
+So one expansion adds a small star to the current tree, and the result is still a tree.
+
+\section{Implemented Strategy}
+For each chosen starting cell, the implementation tries two constructions.
+
+\begin{enumerate}
+  \item \textbf{Greedy star-expansion.}
+        Repeatedly consider every frontier cell $u$ (a free cell with exactly one tree neighbor).
+        Let $L(u)$ be the neighbors of $u$ that are still unused and currently have no tree neighbor.
+        Adding $u$ together with $L(u)$ creates $\max(1, |L(u)|)$ immediate leaves, so we choose the
+        best frontier cell by this score, with a few tie-breakers.
+
+  \item \textbf{Randomized scan.}
+        This is the simpler editorial method: repeatedly scan the cells in random order and add every
+        cell that currently has exactly one tree neighbor until nothing changes.
+\end{enumerate}
+
+We run these heuristics from many deterministic pseudo-random starting points and keep the output with
+the largest number of leaves.
+
+\section{Complexity}
+Let $F$ be the number of free cells and $R$ the number of restarts.
+
+\begin{itemize}
+  \item \textbf{Time:} about $O(RF^2)$ in the current implementation, which is easily fast enough for
+        the small IOI output files.
+  \item \textbf{Space:} $O(F)$.
+\end{itemize}
+
+\section{Implementation}
+\begin{lstlisting}
+// 1. Treat the free cells as a grid graph.
+// 2. Grow only by attaching cells that currently have exactly one tree neighbor.
+// 3. Prefer frontier cells that can immediately spawn many new leaves.
+// 4. Also try the simpler randomized scan heuristic from the editorial.
+// 5. Keep the valid tree with the largest number of leaves.
+\end{lstlisting}
+
+\end{document}

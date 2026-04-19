@@ -1,0 +1,126 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2010 -- Hotter Colder}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+An interactive problem on the integer line $[1, N]$. A hidden value $X$ is fixed. Starting from position $1$, each guess $G$ receives a response:
+\begin{itemize}
+    \item \texttt{Hotter} ($+1$): $|G - X| < |P - X|$ where $P$ is the previous guess.
+    \item \texttt{Colder} ($-1$): $|G - X| > |P - X|$.
+    \item \texttt{Same} ($0$): $|G - X| = |P - X|$.
+\end{itemize}
+Find $X$ using at most $\lceil \log_2 N \rceil + 1$ queries.
+
+\section{Solution}
+
+\subsection{Key Observation}
+If the previous guess is $P$ and the new guess is $G$, the perpendicular bisector of $P$ and $G$ is at position $M = (P + G) / 2$. The response partitions the line:
+\begin{itemize}
+    \item \texttt{Hotter}: $X$ is on the same side of $M$ as $G$.
+    \item \texttt{Colder}: $X$ is on the same side of $M$ as $P$.
+    \item \texttt{Same}: $X = M$ (only possible when $P + G$ is even).
+\end{itemize}
+
+\subsection{Algorithm}
+Maintain a feasible interval $[\mathit{lo}, \mathit{hi}]$ for $X$, initially $[1, N]$. At each step:
+\begin{enumerate}
+    \item Compute the midpoint $\mathit{mid} = \lfloor (\mathit{lo} + \mathit{hi}) / 2 \rfloor$.
+    \item Choose $G = 2 \cdot \mathit{mid} + 1 - P$ so that the bisector of $P$ and $G$ falls at $\mathit{mid} + 0.5$ (between $\mathit{mid}$ and $\mathit{mid}+1$). Clamp $G$ to $[1, N]$.
+    \item If \texttt{Hotter} and $G > P$: set $\mathit{lo} = \mathit{mid} + 1$.
+    \item If \texttt{Hotter} and $G < P$: set $\mathit{hi} = \mathit{mid}$.
+    \item \texttt{Colder} is symmetric.
+    \item If \texttt{Same}: $X = (P + G) / 2$ (return immediately).
+    \item Update $P \leftarrow G$.
+\end{enumerate}
+
+\subsection{Correctness and Query Bound}
+
+\begin{theorem}
+The algorithm finds $X$ in at most $\lceil \log_2 N \rceil + 1$ queries.
+\end{theorem}
+\begin{proof}
+After the first query, we have $P \neq 1$ in general, and the feasible interval has been halved. Each subsequent query halves the interval, requiring $\lceil \log_2 N \rceil$ halvings. Adding the initial positioning query gives at most $\lceil \log_2 N \rceil + 1$ total queries.
+\end{proof}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Queries:} $O(\log N)$.
+    \item \textbf{Time and space:} $O(1)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Grader: returns +1 (Hotter), -1 (Colder), 0 (Same)
+int Guess(int G);
+
+int HC(int N) {
+    int lo = 1, hi = N;
+    int prev = 1;
+
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+        int G;
+        if (prev <= mid) {
+            G = 2 * mid + 1 - prev;
+        } else {
+            G = 2 * mid - prev;
+        }
+        G = max(1, min(N, G));
+
+        int result = Guess(G);
+
+        if (result == 0) {
+            return (prev + G) / 2;
+        }
+
+        int boundary = (prev + G) / 2;
+        if (result == 1) {
+            // X closer to G
+            if (G > prev) lo = boundary + 1;
+            else          hi = boundary;
+        } else {
+            // X closer to prev
+            if (G > prev) hi = boundary;
+            else          lo = boundary + 1;
+        }
+
+        prev = G;
+    }
+
+    return lo;
+}
+\end{lstlisting}
+
+\end{document}

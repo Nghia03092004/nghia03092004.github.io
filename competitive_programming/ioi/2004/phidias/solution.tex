@@ -1,0 +1,135 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2004 -- Phidias}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given a rectangular marble slab of size $W \times H$ ($W, H \le 600$)
+and $N$ desired piece sizes $(w_i, h_i)$, cut the slab by making
+full-width or full-height cuts (each cut traverses the entire current
+piece). Minimize the total wasted area (area not covered by any desired
+piece).
+
+\section{Solution: 2D DP on Rectangle Dimensions}
+
+\subsection{Recurrence}
+Every cut splits a rectangle into two sub-rectangles. Define
+$\mathrm{dp}[a][b]$ = minimum waste when optimally cutting a rectangle
+of size $a \times b$.
+
+\[
+  \mathrm{dp}[a][b] = \min\Bigl(
+    \min_{\substack{w \in \mathcal{W} \\ 0 < w < a}}
+      \bigl(\mathrm{dp}[w][b] + \mathrm{dp}[a{-}w][b]\bigr),\;
+    \min_{\substack{h \in \mathcal{H} \\ 0 < h < b}}
+      \bigl(\mathrm{dp}[a][h] + \mathrm{dp}[a][b{-}h]\bigr)
+  \Bigr)
+\]
+where $\mathcal{W}$ and $\mathcal{H}$ are the sets of widths and
+heights appearing among the desired pieces.
+
+Base cases: $\mathrm{dp}[a][b] = a \cdot b$ (all waste) unless
+$(a, b)$ matches a desired piece, in which case $\mathrm{dp}[a][b] = 0$.
+
+\begin{lemma}[Cut position restriction]
+It suffices to cut only at positions in $\mathcal{W}$ (for vertical
+cuts) or $\mathcal{H}$ (for horizontal cuts). Cutting at any other
+position cannot produce a desired piece boundary, so it cannot reduce
+waste below what these cuts achieve.
+\end{lemma}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int dp[601][601];
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int W, H, N;
+    cin >> W >> H >> N;
+
+    vector<int> pw(N), ph(N);
+    set<int> ws, hs;
+    set<pair<int,int>> pieces;
+
+    for (int i = 0; i < N; i++) {
+        cin >> pw[i] >> ph[i];
+        ws.insert(pw[i]);
+        hs.insert(ph[i]);
+        pieces.insert({pw[i], ph[i]});
+    }
+
+    for (int a = 1; a <= W; a++) {
+        for (int b = 1; b <= H; b++) {
+            dp[a][b] = a * b; // worst case: all waste
+
+            if (pieces.count({a, b})) {
+                dp[a][b] = 0;
+                continue;
+            }
+
+            // Vertical cuts at widths from desired pieces
+            for (int w : ws) {
+                if (w >= a) break;
+                dp[a][b] = min(dp[a][b], dp[w][b] + dp[a - w][b]);
+            }
+
+            // Horizontal cuts at heights from desired pieces
+            for (int h : hs) {
+                if (h >= b) break;
+                dp[a][b] = min(dp[a][b], dp[a][h] + dp[a][b - h]);
+            }
+        }
+    }
+
+    cout << dp[W][H] << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(W \cdot H \cdot N)$. For each of the
+        $W \times H$ states, we try at most $|\mathcal{W}| + |\mathcal{H}|
+        \le 2N$ cut positions.
+  \item \textbf{Space:} $O(W \cdot H)$.
+\end{itemize}
+
+With $W, H \le 600$ and $N \le 600$, the total work is at most
+$600 \times 600 \times 1200 \approx 4.3 \times 10^8$, which is tight
+but feasible. The \texttt{break} when the cut position exceeds the
+current dimension prunes many iterations in practice.
+
+\end{document}

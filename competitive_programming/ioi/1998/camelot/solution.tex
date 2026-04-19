@@ -1,0 +1,207 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1998 -- Camelot}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+On an $R \times C$ chessboard ($R \le 30$, $C \le 26$), there is one king and
+up to 63 knights. All pieces must gather at a single square. A knight may optionally
+pick up the king en route: it visits the king's square, carries the king, and
+continues to the gathering point. The king walks using Chebyshev distance (one step
+in any of 8 directions per move).
+
+Find the minimum total number of moves for all pieces to gather.
+
+\section{Solution Approach}
+
+\subsection{BFS for Knight Distances}
+
+Precompute the shortest knight distance between every pair of squares using BFS from
+each square. Let $\mathrm{kdist}[s][t]$ denote this distance. The board has at most
+$S = 30 \times 26 = 780$ squares.
+
+\subsection{King Distance}
+
+The king's distance is the Chebyshev distance:
+\[
+  \mathrm{kingDist}((r_k, c_k), (r, c)) = \max(|r_k - r|, |c_k - c|).
+\]
+
+\subsection{Enumeration}
+
+For each potential gathering square $g$, compute:
+
+\paragraph{Option 1 -- King walks alone.}
+\[
+  \mathrm{cost}_1 = \sum_{i} \mathrm{kdist}[\mathrm{knight}_i][g] + \mathrm{kingDist}(\mathrm{king}, g).
+\]
+
+\paragraph{Option 2 -- A knight picks up the king.}
+Knight $i$ detours through pickup square $p$, where the king walks to $p$:
+\[
+  \mathrm{cost}_2 = \sum_{j \ne i} \mathrm{kdist}[\mathrm{knight}_j][g]
+    + \mathrm{kdist}[\mathrm{knight}_i][p] + \mathrm{kdist}[p][g]
+    + \mathrm{kingDist}(\mathrm{king}, p).
+\]
+
+Take the minimum over all $g$, all knights $i$, and all pickup points $p$.
+
+\subsection{Pickup Point Search}
+
+To guarantee correctness, we search \textbf{all} squares as potential pickup points.
+Although this increases the time to $O(S^2 \cdot n)$, it remains feasible for the
+given constraints ($S \le 780$, $n \le 63$).
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <queue>
+#include <algorithm>
+#include <climits>
+using namespace std;
+
+const int MAXR = 30, MAXC = 26;
+int R, C;
+int kdist[MAXR * MAXC][MAXR * MAXC];
+int dx[] = {-2, -2, -1, -1, 1, 1, 2, 2};
+int dy[] = {-1, 1, -2, 2, -2, 2, -1, 1};
+
+int idx(int r, int c) { return r * C + c; }
+
+void bfs(int src) {
+    queue<int> q;
+    q.push(src);
+    kdist[src][src] = 0;
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        int r = u / C, c = u % C;
+        for (int d = 0; d < 8; d++) {
+            int nr = r + dx[d], nc = c + dy[d];
+            if (nr < 0 || nr >= R || nc < 0 || nc >= C) continue;
+            int v = idx(nr, nc);
+            if (kdist[src][v] == -1) {
+                kdist[src][v] = kdist[src][u] + 1;
+                q.push(v);
+            }
+        }
+    }
+}
+
+int main() {
+    scanf("%d %d", &R, &C);
+    int total = R * C;
+
+    // Read king position
+    char col;
+    int row;
+    scanf(" %c %d", &col, &row);
+    int kingR = row - 1, kingC = col - 'A';
+
+    // Read knight positions
+    int knights[65], numKnights = 0;
+    while (scanf(" %c %d", &col, &row) == 2) {
+        int kr = row - 1, kc = col - 'A';
+        knights[numKnights++] = idx(kr, kc);
+    }
+
+    // BFS from every square
+    memset(kdist, -1, sizeof(kdist));
+    for (int i = 0; i < total; i++)
+        bfs(i);
+
+    // Replace unreachable entries with a large sentinel
+    const int INF = 1000000;
+    for (int i = 0; i < total; i++)
+        for (int j = 0; j < total; j++)
+            if (kdist[i][j] == -1)
+                kdist[i][j] = INF;
+
+    // Handle edge case: no knights
+    if (numKnights == 0) {
+        printf("0\n");
+        return 0;
+    }
+
+    int ans = INT_MAX;
+
+    // Try each gathering point
+    for (int g = 0; g < total; g++) {
+        int gr = g / C, gc = g % C;
+
+        // Sum of all knight distances to g
+        int base = 0;
+        bool reachable = true;
+        for (int i = 0; i < numKnights; i++) {
+            if (kdist[knights[i]][g] >= INF) { reachable = false; break; }
+            base += kdist[knights[i]][g];
+        }
+        if (!reachable) continue;
+
+        // Option 1: king walks alone to g
+        int kingAlone = base + max(abs(kingR - gr), abs(kingC - gc));
+        ans = min(ans, kingAlone);
+
+        // Option 2: one knight picks up king at some pickup point p
+        for (int i = 0; i < numKnights; i++) {
+            int saved = kdist[knights[i]][g];
+
+            for (int p = 0; p < total; p++) {
+                int pr = p / C, pc = p % C;
+                int kingWalk = max(abs(kingR - pr), abs(kingC - pc));
+                int knightDetour = kdist[knights[i]][p] + kdist[p][g];
+                if (knightDetour >= INF) continue;
+                int cost = base - saved + knightDetour + kingWalk;
+                ans = min(ans, cost);
+            }
+        }
+    }
+
+    printf("%d\n", ans);
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:}
+    \begin{itemize}
+      \item BFS from every square: $O(S^2)$ where $S = R \times C \le 780$.
+      \item Main enumeration: for each gathering point ($O(S)$), for each knight ($O(n)$),
+            for each pickup point ($O(S)$): $O(S^2 \cdot n)$.
+      \item Total: $O(S^2 \cdot n) \approx 780^2 \times 63 \approx 38{,}000{,}000$.
+    \end{itemize}
+
+  \item \textbf{Space complexity:} $O(S^2)$ for the knight distance table ($\approx 2.4$ MB).
+\end{itemize}
+
+\end{document}

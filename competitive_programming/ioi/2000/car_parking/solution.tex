@@ -1,0 +1,145 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2000 -- Car Parking}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A parking lot has $N$ spaces. Cars are initially arranged in some configuration
+(a permutation with one empty space, denoted 0), and must be rearranged to a target
+configuration. Each move drives one car into the (unique) empty space.
+Find the minimum number of moves.
+
+\section{Solution Approach}
+
+\subsection{Permutation Cycle Decomposition}
+
+The initial and target configurations define a permutation $\pi$: for each space $i$,
+the item currently at $i$ needs to move to some target position. Decompose $\pi$ into
+cycles.
+
+\begin{itemize}
+  \item A \textbf{fixed point} (cycle of length 1) costs 0 moves.
+  \item A cycle of length $k$ containing the empty space costs $k - 1$ moves.
+        The empty space can rotate the cycle in $k - 1$ steps.
+  \item A cycle of length $k$ \emph{not} containing the empty space costs $k + 1$ moves:
+        1 move to bring the empty space into the cycle, then $k$ moves to rotate all
+        $k$ elements into place (the empty space ends up back outside the cycle).
+\end{itemize}
+
+\begin{proof}[Proof of the $k + 1$ bound]
+To rotate a cycle of length $k$ that does not contain the empty space, we must first
+move the empty space to some position in the cycle (1 move), then perform $k$ moves
+to shift each element one position along the cycle. Total: $k + 1$. This is optimal
+because each of the $k$ misplaced elements must move at least once, and one additional
+move is needed to bring the empty space into the cycle.
+\end{proof}
+
+\subsection{Algorithm}
+
+\begin{enumerate}
+  \item Build the permutation from initial to target configuration.
+  \item Find all cycles using standard cycle-finding.
+  \item For each non-trivial cycle ($k \ge 2$): add $k - 1$ if it contains the empty
+        space, or $k + 1$ otherwise.
+\end{enumerate}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <vector>
+#include <map>
+using namespace std;
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    vector<int> initial(N + 1), target(N + 1);
+    int emptyPos = -1;
+
+    for (int i = 1; i <= N; i++) {
+        scanf("%d", &initial[i]);
+        if (initial[i] == 0) emptyPos = i;
+    }
+    for (int i = 1; i <= N; i++)
+        scanf("%d", &target[i]);
+
+    // Map each car to its target position
+    map<int, int> targetPos;
+    int emptyTarget = -1;
+    for (int i = 1; i <= N; i++) {
+        if (target[i] == 0) emptyTarget = i;
+        else targetPos[target[i]] = i;
+    }
+
+    // Build permutation: perm[i] = where the item at position i should go
+    vector<int> perm(N + 1);
+    for (int i = 1; i <= N; i++) {
+        if (initial[i] == 0)
+            perm[i] = emptyTarget;
+        else
+            perm[i] = targetPos[initial[i]];
+    }
+
+    // Find cycles and compute total moves
+    vector<bool> visited(N + 1, false);
+    int totalMoves = 0;
+
+    for (int i = 1; i <= N; i++) {
+        if (visited[i]) continue;
+        int len = 0;
+        bool containsEmpty = false;
+        int cur = i;
+        while (!visited[cur]) {
+            visited[cur] = true;
+            if (cur == emptyPos) containsEmpty = true;
+            len++;
+            cur = perm[cur];
+        }
+        if (len <= 1) continue; // fixed point
+        if (containsEmpty)
+            totalMoves += len - 1;
+        else
+            totalMoves += len + 1;
+    }
+
+    printf("%d\n", totalMoves);
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(N)$. Each position is visited exactly once during
+        cycle detection.
+  \item \textbf{Space complexity:} $O(N)$ for the permutation and visited arrays.
+\end{itemize}
+
+\end{document}

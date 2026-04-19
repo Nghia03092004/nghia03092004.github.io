@@ -1,0 +1,212 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2005 -- Mountain}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Maintain a function $f$ on discrete points $\{1, \ldots, N\}$,
+initially $f(x) = 0$. Support three operations:
+\begin{enumerate}
+  \item \textbf{Range add:} given $l, r, v$, set $f(x) \gets f(x) + v$
+        for $x \in [l, r]$.
+  \item \textbf{Clamp to zero:} set $f(x) \gets \max(f(x), 0)$ for
+        all $x$.
+  \item \textbf{Threshold query:} given $h$, find the leftmost $x$
+        with $f(x) \ge h$, or report that none exists.
+\end{enumerate}
+
+\section{Solution: Segment Tree with Lazy Propagation}
+
+\subsection{Lazy Tags}
+Each node carries two lazy tags:
+\begin{itemize}
+  \item \texttt{lazy\_add}: pending additive update.
+  \item \texttt{lazy\_set} / \texttt{set\_val}: pending ``set all to
+        value'' (from the clamp operation).
+\end{itemize}
+When pushing down, the ``set'' tag is applied first (overriding
+children), then the ``add'' tag.
+
+\subsection{Clamp Operation}
+The ``clamp to zero'' is handled recursively:
+\begin{itemize}
+  \item If $\min \ge 0$ in the segment: no change.
+  \item If $\max \le 0$: set the entire segment to 0.
+  \item Otherwise: push down lazy tags and recurse into children.
+\end{itemize}
+This is a form of the \textbf{Segment Tree Beats} technique. Segments
+that are entirely non-negative or entirely non-positive are handled in
+$O(1)$; only mixed segments require recursion.
+
+\subsection{Threshold Query}
+To find the leftmost $x$ with $f(x) \ge h$: if the segment's max
+is $< h$, return $-1$. Otherwise, recurse left first; if not found,
+recurse right.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 1000005;
+
+struct Node {
+    long long mn, mx;
+    long long lazy_add;
+    bool lazy_set;
+    long long set_val;
+};
+
+Node tree[4 * MAXN];
+int n;
+
+void build(int v, int l, int r) {
+    tree[v] = {0, 0, 0, false, 0};
+    if (l == r) return;
+    int mid = (l + r) / 2;
+    build(v * 2, l, mid);
+    build(v * 2 + 1, mid + 1, r);
+}
+
+void pushDown(int v, int l, int r) {
+    if (l == r) return;
+    for (int c : {v * 2, v * 2 + 1}) {
+        if (tree[v].lazy_set) {
+            tree[c].mn = tree[c].mx = tree[v].set_val;
+            tree[c].lazy_add = 0;
+            tree[c].lazy_set = true;
+            tree[c].set_val = tree[v].set_val;
+        }
+        tree[c].mn += tree[v].lazy_add;
+        tree[c].mx += tree[v].lazy_add;
+        if (tree[c].lazy_set)
+            tree[c].set_val += tree[v].lazy_add;
+        else
+            tree[c].lazy_add += tree[v].lazy_add;
+    }
+    tree[v].lazy_add = 0;
+    tree[v].lazy_set = false;
+}
+
+void pull(int v) {
+    tree[v].mn = min(tree[v * 2].mn, tree[v * 2 + 1].mn);
+    tree[v].mx = max(tree[v * 2].mx, tree[v * 2 + 1].mx);
+}
+
+void rangeAdd(int v, int l, int r, int ql, int qr, long long val) {
+    if (ql > r || qr < l) return;
+    if (ql <= l && r <= qr) {
+        tree[v].mn += val;
+        tree[v].mx += val;
+        if (tree[v].lazy_set) tree[v].set_val += val;
+        else tree[v].lazy_add += val;
+        return;
+    }
+    pushDown(v, l, r);
+    int mid = (l + r) / 2;
+    rangeAdd(v * 2, l, mid, ql, qr, val);
+    rangeAdd(v * 2 + 1, mid + 1, r, ql, qr, val);
+    pull(v);
+}
+
+void clampZero(int v, int l, int r) {
+    if (tree[v].mn >= 0) return;
+    if (tree[v].mx <= 0) {
+        tree[v].mn = tree[v].mx = 0;
+        tree[v].lazy_add = 0;
+        tree[v].lazy_set = true;
+        tree[v].set_val = 0;
+        return;
+    }
+    if (l == r) {
+        tree[v].mn = tree[v].mx = max(tree[v].mn, 0LL);
+        return;
+    }
+    pushDown(v, l, r);
+    int mid = (l + r) / 2;
+    clampZero(v * 2, l, mid);
+    clampZero(v * 2 + 1, mid + 1, r);
+    pull(v);
+}
+
+int query(int v, int l, int r, int ql, int qr, long long h) {
+    if (ql > r || qr < l || tree[v].mx < h) return -1;
+    if (l == r) return l;
+    pushDown(v, l, r);
+    int mid = (l + r) / 2;
+    int res = query(v * 2, l, mid, ql, qr, h);
+    if (res != -1) return res;
+    return query(v * 2 + 1, mid + 1, r, ql, qr, h);
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int Q;
+    cin >> n >> Q;
+    build(1, 1, n);
+
+    while (Q--) {
+        char op;
+        cin >> op;
+        if (op == 'A') {
+            int l, r;
+            long long val;
+            cin >> l >> r >> val;
+            rangeAdd(1, 1, n, l, r, val);
+        } else if (op == 'M') {
+            clampZero(1, 1, n);
+        } else if (op == 'Q') {
+            long long h;
+            cin >> h;
+            cout << query(1, 1, n, 1, n, h) << "\n";
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Range add:} $O(\log N)$ per operation.
+  \item \textbf{Clamp:} Amortized $O(\log^2 N)$ per operation (Segment
+        Tree Beats analysis).
+  \item \textbf{Query:} $O(\log N)$ per query.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\paragraph{Note.} For the full IOI 2005 problem with linear-function
+additions ($f(x) \gets f(x) + s + d(x - l)$ on $[l, r]$), each node
+stores a lazy tag $(s, d)$ and tracks min/max at segment endpoints. The
+clamp logic remains the same.
+
+\end{document}

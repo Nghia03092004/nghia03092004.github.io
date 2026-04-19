@@ -1,0 +1,129 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\V. Three Kinds of Dice}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given two dice $D_1$ and $D_2$, where $D_1$ has an advantage over $D_2$. We want two extremal
+values over all possible third dice $D_3$:
+\begin{itemize}[leftmargin=*]
+    \item the minimum possible $\text{score}(D_3,D_2)$ subject to $\text{score}(D_3,D_1)\ge 1/2$;
+    \item the maximum possible $\text{score}(D_3,D_1)$ subject to $\text{score}(D_3,D_2)\le 1/2$.
+\end{itemize}
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Fix one face value $v$ of $D_3$. Its contribution against $D_1$ and $D_2$ is the point
+    \[
+    p(v)=\bigl(\text{score}(D_1,v),\ \text{score}(D_2,v)\bigr),
+    \]
+    where $\text{score}(D_i,v)$ is the expected score of $D_i$ against a deterministic one-face die
+    showing $v$.
+    \item A general die $D_3$ is just a multiset of face values, so the pair
+    \[
+    \bigl(\text{score}(D_1,D_3),\ \text{score}(D_2,D_3)\bigr)
+    \]
+    is a convex combination of points $p(v)$. Thus the set of all achievable pairs is exactly the convex
+    hull of the candidate points.
+    \item The point $p(v)$ changes only when $v$ crosses a face value of $D_1$ or $D_2$. So it is enough
+    to consider $1$, $\max+1$, and for every face value $x$ appearing on either die also $x$ and $x-1$.
+    \item Once the convex hull is known, the required extrema are intersections of that hull with the
+    half-planes $x \le 1/2$ and $y \ge 1/2$.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Sort both dice. If necessary, swap them so that the first one is the stronger die.
+    \item Enumerate all candidate face values $v$ described above.
+    \item For each $v$, compute $p(v)$ by binary searching in the two sorted dice.
+    \item Sort these points by $x$ and keep, for each equal $x$, only the largest $y$.
+    \item Build the upper convex hull of the remaining points.
+    \item Scan the hull:
+    \begin{itemize}[leftmargin=*]
+        \item maximize $y$ over the part with $x \le 1/2$;
+        \item minimize $x$ over the part with $y \ge 1/2$;
+        \item if an edge crosses one of those threshold lines, interpolate on that edge.
+    \end{itemize}
+    \item Convert back using $\text{score}(D_3,D_i)=1-\text{score}(D_i,D_3)$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For every possible die $D_3$, the pair
+\[
+\bigl(\text{score}(D_1,D_3),\ \text{score}(D_2,D_3)\bigr)
+\]
+lies in the convex hull of the candidate points.
+
+\paragraph{Proof.}
+If the faces of $D_3$ are $v_1,\dots,v_m$, then
+\[
+\text{score}(D_i,D_3)=\frac{1}{m}\sum_{j=1}^{m}\text{score}(D_i,v_j)
+\]
+for $i=1,2$. Hence the pair for $D_3$ is the average of the points $p(v_j)$, so it lies in the convex
+hull. \qed
+
+\paragraph{Lemma 2.}
+Every point in the convex hull of the candidate points is achievable by some die $D_3$.
+
+\paragraph{Proof.}
+The candidate points themselves are produced by deterministic one-face dice. Any convex combination
+with rational coefficients can be realized by taking the corresponding number of copies of each face
+value. Therefore the whole convex hull is achievable. \qed
+
+\paragraph{Lemma 3.}
+It is sufficient to consider only the candidate face values listed by the algorithm.
+
+\paragraph{Proof.}
+For a fixed die $D_i$, the value $\text{score}(D_i,v)$ depends only on how many faces of $D_i$ are less
+than $v$ and how many are equal to $v$. These counts change only when $v$ crosses a face value already
+present on $D_1$ or $D_2$. Thus every open interval between consecutive critical values yields the same
+point, so one representative per interval is enough. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct two extremal scores.
+
+\paragraph{Proof.}
+By Lemmas 1 and 2, the achievable region for
+\[
+\bigl(\text{score}(D_1,D_3),\ \text{score}(D_2,D_3)\bigr)
+\]
+is exactly the convex hull of the candidate points. Therefore minimizing $\text{score}(D_3,D_2)$ under
+$\text{score}(D_3,D_1)\ge 1/2$ is equivalent to maximizing $\text{score}(D_2,D_3)$ under
+$\text{score}(D_1,D_3)\le 1/2$, which is precisely the highest point of the hull inside $x \le 1/2$. The
+second answer is symmetric.
+
+The optimum of a linear objective over a convex polygon is attained either at a vertex or on an edge
+crossing the boundary line. Thus scanning the upper hull and interpolating on crossing edges yields the
+correct values. \qed
+
+\section*{Complexity Analysis}
+
+Let $n_1$ and $n_2$ be the numbers of faces on the two given dice. We create $O(n_1+n_2)$ candidate
+values. Each candidate point is evaluated with binary searches in the sorted dice, so the total running
+time is $O((n_1+n_2)\log(n_1+n_2))$. The memory usage is $O(n_1+n_2)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The implementation first ensures the first die is the stronger one, so the output formula is
+    always the same.
+    \item \texttt{long double} is sufficient for the required precision.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\D. Buggy Rover}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+The rover always follows one of the $4!=24$ possible direction orderings. For each recorded move we
+know the current cell and the direction actually taken, but the ordering may change between consecutive
+moves. We must minimize how many times the ordering changed.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item There are only $24$ possible direction orderings, so we can treat each ordering as a small DP state.
+    \item For a fixed move step and a fixed ordering, it is easy to test whether that ordering is compatible
+    with the recorded move: the chosen direction must be valid, and every valid direction that appears
+    earlier in the ordering must be absent.
+    \item Once we know, for every step, which of the $24$ orderings are allowed, the rest is a shortest-path
+    problem on a layered graph:
+    staying with the same ordering costs $0$, switching to a different ordering costs $1$.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Enumerate all $24$ permutations of $\{N,E,S,W\}$.
+    \item Simulate the recorded walk once to recover the rover position before each move.
+    \item For every step and every permutation, test whether that permutation could have produced the
+    recorded move from that position, and store the result in a boolean table \texttt{allowed[step][perm]}.
+    \item Run dynamic programming over the move sequence:
+    \[
+    dp[i][p] = \text{minimum number of changes after processing moves }0..i
+    \]
+    with permutation $p$ used at move $i$.
+    The transition is
+    \[
+    dp[i][p] = \min_q \bigl(dp[i-1][q] + [p \ne q]\bigr),
+    \]
+    restricted to allowed states.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For any step and any permutation, \texttt{allowed[step][perm]} is true exactly when that permutation
+could have produced the recorded move at that step.
+
+\paragraph{Proof.}
+The rover chooses the first direction in its ordering that leads to a valid neighboring cell. Therefore a
+permutation is compatible exactly when the recorded direction is valid and every other valid direction that
+appears earlier in the permutation is impossible. This is exactly the test performed by the program. \qed
+
+\paragraph{Lemma 2.}
+The DP value $dp[i][p]$ equals the minimum possible number of ordering changes among all explanations
+of the first $i+1$ moves that use permutation $p$ on move $i$.
+
+\paragraph{Proof.}
+The base case $i=0$ is correct because there is no earlier move, so every allowed first permutation costs
+$0$ changes. For $i>0$, any valid explanation ending with permutation $p$ on move $i$ must come from
+some permutation $q$ used on move $i-1$. If $q=p$ we pay no extra cost; otherwise we pay exactly one
+change. Taking the minimum over all valid $q$ gives precisely the recurrence above. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, the DP only considers permutations that are locally consistent with the recorded moves.
+By Lemma 2, each DP value is the minimum number of changes among all globally consistent explanations
+with the specified final permutation. Therefore the minimum over the last layer is exactly the minimum
+number of times the rover's direction ordering could have changed. \qed
+
+\section*{Complexity Analysis}
+
+Let $m=|s|$. Testing all step-permutation pairs costs $O(24 \cdot 4 \cdot m)=O(m)$. The DP costs
+$O(24^2 m)$, which is well within the limits. The memory usage is $O(24m)$ for the compatibility table
+and $O(24)$ for the rolling DP arrays.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The rover position must be updated using the recorded move sequence, not by replaying guessed
+    permutations.
+    \item A two-row rolling DP is enough because the transition only depends on the previous step.
+\end{itemize}
+
+\end{document}

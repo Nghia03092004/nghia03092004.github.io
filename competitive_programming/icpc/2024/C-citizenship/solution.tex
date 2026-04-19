@@ -1,0 +1,126 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\C. Citizenship}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+For an application date $A$, the previous $y$ years are the $y$ consecutive intervals
+\[
+[A-365, A-1], [A-730, A-366], \dots, [A-365y, A-365(y-1)-1].
+\]
+In each such interval we must have been present at least $d$ days, which is equivalent to being absent at
+most $365-d$ days. We must output the earliest valid application date after the last recorded trip.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item The only thing that matters about a date is its position modulo $365$. For a fixed residue
+    $r = A \bmod 365$, the relevant 12-month periods are aligned to a fixed partition of the timeline into
+    blocks of length $365$.
+    \item Therefore there are only $365$ possible alignments to check.
+    \item For one fixed residue $r$, define block $b$ as
+    \[
+        [r + 365b,\; r + 365b + 364].
+    \]
+    The application date $A = r + 365t$ is valid exactly when blocks
+    $t-y, t-y+1, \dots, t-1$ are all good, where a block is good if it contains at most $365-d$ absent days.
+    \item The absence intervals are few, but the total date range is still small enough: at most about
+    $5000 \cdot 365 + 1001 \cdot 365$. A plain prefix-sum over days is easily fast enough.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Convert every calendar date to an integer day number using the fixed 365-day calendar.
+    \item Mark all absent days with a difference array and build a prefix sum of absent days.
+    \item Let $L$ be the last day in the input. It is enough to search up to
+    $L + 365(y+1)$, because after that all $y$ required years lie completely after the last trip and are
+    therefore automatically valid.
+    \item For each residue $r \in \{0,\dots,364\}$:
+    \begin{enumerate}[leftmargin=*]
+        \item Scan the 365-day blocks with that alignment.
+        \item For each block, compute its absent-day count in $O(1)$ from the prefix sum and decide
+        whether the block is good.
+        \item Maintain the current run length of consecutive good blocks.
+        \item As soon as the run length reaches $y$, the application date immediately after the last block in
+        that run is valid. If it is after $L$, update the global minimum answer.
+    \end{enumerate}
+    \item Convert the minimum day number back to \texttt{YYYY-MM-DD}.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs the earliest valid application date.
+
+\paragraph{Lemma 1.}
+For a fixed residue $r$, an application date $A \equiv r \pmod{365}$ is valid if and only if the $y$
+consecutive 365-day blocks immediately before $A$ in the $r$-aligned partition are all good.
+
+\paragraph{Proof.}
+Write $A = r + 365t$. Then
+\[
+[A-365, A-1] = [r + 365(t-1),\; r + 365t - 1],
+\]
+which is exactly block $t-1$. Similarly, the next earlier year is block $t-2$, and so on down to block
+$t-y$. So the $y$ periods required by the statement are exactly the $y$ consecutive blocks immediately
+before $A$. Each period is valid exactly when its absent-day count is at most $365-d$. \qed
+
+\paragraph{Lemma 2.}
+For a fixed residue $r$, when the scan first finds a run of at least $y$ consecutive good blocks ending at
+block $b$, the date $A = r + 365(b+1)$ is the earliest valid application date with residue $r$.
+
+\paragraph{Proof.}
+By Lemma 1, $A$ is valid because the preceding $y$ blocks are good. Any earlier date with the same
+residue has the form $r + 365t$ with $t \le b$. Its preceding $y$ blocks must therefore end at some block
+strictly before $b$. Since $b$ is the first point where the scan sees $y$ consecutive good blocks, no such
+earlier date can be valid. \qed
+
+\paragraph{Lemma 3.}
+There exists a valid application date no later than $L + 365(y+1)$, where $L$ is the last day in the input.
+
+\paragraph{Proof.}
+Consider any date $A > L + 365y + 364$. Then the earliest of the $y$ required periods starts at
+$A - 365y > L$. So all $y$ required 365-day periods lie completely after the last recorded trip and contain
+zero absent days. Hence they are all valid. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the earliest valid application date after the last input date.
+
+\paragraph{Proof.}
+By Lemma 3, the search range always contains at least one valid date. For each residue class, Lemma 2
+gives the earliest valid date with that residue. Taking the minimum over all 365 residues therefore yields
+the earliest valid date overall. \qed
+
+\section*{Complexity Analysis}
+
+Let $T$ be the number of days scanned. Here
+\[
+T = O(5000 \cdot 365 + y \cdot 365),
+\]
+which is at most about $2.2 \cdot 10^6$.
+
+Building the difference array and prefix sums takes $O(T + n)$. The 365 residue scans together also
+process only $O(T)$ blocks. Thus the total running time is $O(T + n)$ and the memory usage is $O(T)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Since the calendar is fixed and has no leap years, date conversion is just base-365 arithmetic with
+    the given month lengths.
+    \item The output must be \emph{after} the last date in the input, so the candidate date must satisfy
+    $A > L$.
+    \item Difference arrays handle inclusive absence intervals cleanly: add $+1$ at the start day and $-1$
+    at the day after the end.
+\end{itemize}
+
+\end{document}

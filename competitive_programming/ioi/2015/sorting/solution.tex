@@ -1,0 +1,130 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2015 -- Sorting}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+Given a permutation $S[0..n{-}1]$ and a sequence of $m$ grader swaps $(P_i, Q_i)$, in each round $i$ the grader first applies swap $(P_i, Q_i)$ to $S$, then you apply your own swap $(X_i, Y_i)$. Find the minimum number of rounds $m^*$ to sort $S$, and output your swaps.
+
+\section{Solution}
+
+\subsection{Binary Search on the Number of Rounds}
+
+\begin{lemma}
+The minimum number of swaps to sort a permutation equals $n$ minus the number of cycles in the permutation.
+\end{lemma}
+
+Let $S'$ be the permutation obtained by applying grader swaps $(P_0,Q_0), \ldots, (P_{m-1}, Q_{m-1})$ to $S$. Then $m$ rounds suffice if and only if the number of swaps needed to sort $S'$ is at most $m$, i.e., $n - \text{cycles}(S') \le m$.
+
+This predicate is monotone in $m$ (applying more grader swaps can only be compensated by more of our swaps), so we binary search on $m$.
+
+\subsection{Constructing the Swap Sequence}
+
+Given the optimal $m^*$:
+\begin{enumerate}
+  \item Compute $S'$ by applying grader swaps $0, \ldots, m^*{-}1$ to $S$.
+  \item Find the cycle decomposition of $S'$ and generate a list of $\le m^*$ swaps that sort $S'$ (pad with dummy swaps $(0,0)$).
+  \item These swaps are expressed in terms of \emph{elements} (not positions). Simulate forward: at each round, after the grader's swap, find the current positions of the two target elements and swap those positions.
+\end{enumerate}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int findSwapPairs(int n, int S[], int m,
+                  int P[], int Q[], int X[], int Y[]) {
+    auto check = [&](int rounds) -> bool {
+        vector<int> T(S, S + n);
+        for (int i = 0; i < rounds; i++) swap(T[P[i]], T[Q[i]]);
+        vector<bool> vis(n, false);
+        int cycles = 0;
+        for (int i = 0; i < n; i++) {
+            if (!vis[i]) {
+                cycles++;
+                for (int j = i; !vis[j]; j = T[j]) vis[j] = true;
+            }
+        }
+        return n - cycles <= rounds;
+    };
+
+    int lo = 0, hi = m;
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+        if (check(mid)) hi = mid; else lo = mid + 1;
+    }
+    int ans = lo;
+
+    // Build swap sequence
+    vector<int> T(S, S + n);
+    for (int i = 0; i < ans; i++) swap(T[P[i]], T[Q[i]]);
+
+    vector<pair<int,int>> planned;
+    vector<bool> vis(n, false);
+    for (int i = 0; i < n; i++) {
+        if (!vis[i] && T[i] != i) {
+            vector<int> cyc;
+            for (int j = i; !vis[j]; j = T[j]) { vis[j] = true; cyc.push_back(j); }
+            for (int k = (int)cyc.size()-1; k >= 1; k--)
+                planned.push_back({cyc[0], cyc[k]});
+        }
+    }
+    while ((int)planned.size() < ans) planned.push_back({0, 0});
+
+    // Simulate forward, translating element-swaps to position-swaps
+    vector<int> pos(n), elem(n);
+    for (int i = 0; i < n; i++) { elem[i] = S[i]; pos[S[i]] = i; }
+
+    for (int i = 0; i < ans; i++) {
+        // Grader swap
+        int a = elem[P[i]], b = elem[Q[i]];
+        swap(elem[P[i]], elem[Q[i]]);
+        pos[a] = Q[i]; pos[b] = P[i];
+
+        // Our swap (by element)
+        int u = planned[i].first, v = planned[i].second;
+        X[i] = pos[u]; Y[i] = pos[v];
+        swap(elem[X[i]], elem[Y[i]]);
+        pos[u] = Y[i]; pos[v] = X[i];
+    }
+    return ans;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O((n + m) \log m)$ for binary search, $O(n + m)$ for construction.
+  \item \textbf{Space}: $O(n + m)$.
+\end{itemize}
+
+\end{document}

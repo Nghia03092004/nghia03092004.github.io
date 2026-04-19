@@ -1,0 +1,196 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2018 -- Seats}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+An $H \times W$ grid has seats numbered $0$ to $N-1$ ($N = HW$), each at a unique cell. A prefix $\{0, 1, \ldots, k-1\}$ is ``rectangular'' if these seats occupy a contiguous rectangular subgrid. After each swap of two seats, count the number of rectangular prefixes.
+
+\section{Solution}
+
+\subsection{Characterization via $2 \times 2$ Blocks}
+
+\begin{theorem}
+A prefix $\{0, \ldots, k-1\}$ forms a rectangle if and only if every $2 \times 2$ sub-block of the grid has an even number (0, 2, or 4) of its cells in the prefix, \emph{and} the prefix satisfies boundary conditions (handled by virtual sentinel cells).
+\end{theorem}
+
+For a $2 \times 2$ block with cells having seat numbers $a < b < c < d$, the block has an odd count of prefix members exactly when $k \in (a, b] \cup (c, d]$.
+
+Define $\text{bad}(k)$ = number of $2 \times 2$ blocks with an odd count for prefix $k$. Then $\{0, \ldots, k-1\}$ is rectangular iff $\text{bad}(k) = 0$.
+
+\subsection{Segment Tree for Counting Zeros}
+
+We maintain a segment tree over indices $k = 1, \ldots, N$ that supports:
+\begin{itemize}
+  \item \textbf{Range add}: add $\pm 1$ to $\text{bad}(k)$ for $k \in [l, r]$.
+  \item \textbf{Count zeros}: count how many $k$ have $\text{bad}(k) = 0$.
+\end{itemize}
+
+Each $2 \times 2$ block with sorted values $a < b < c < d$ contributes $+1$ to $\text{bad}$ on intervals $(a, b]$ and $(c, d]$.
+
+\subsection{Handling Swaps}
+
+When swapping seats $a$ and $b$, at most 8 blocks are affected (the up-to-4 blocks touching each seat). Remove those blocks' contributions, perform the swap, then re-add.
+
+\subsection{Boundary Handling}
+
+To account for boundary constraints, pad the grid with a virtual border of cells assigned seat number $N$ (larger than all real seats). This ensures that boundary $2 \times 2$ blocks correctly enforce the rectangle property.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int H, W, N;
+vector<int> R, C;  // R[i], C[i] = row, col of seat i
+vector<vector<int>> grid;  // grid[r][c] = seat number
+
+struct SegTree {
+    int n;
+    vector<int> mn, cnt, lazy;
+
+    void init(int _n) {
+        n = _n;
+        mn.assign(4 * n, 0);
+        cnt.assign(4 * n, 0);
+        lazy.assign(4 * n, 0);
+    }
+
+    void build(int nd, int l, int r) {
+        if (l == r) { mn[nd] = 0; cnt[nd] = 1; return; }
+        int mid = (l + r) / 2;
+        build(2*nd, l, mid);
+        build(2*nd+1, mid+1, r);
+        pull(nd);
+    }
+
+    void pull(int nd) {
+        if (mn[2*nd] < mn[2*nd+1]) {
+            mn[nd] = mn[2*nd]; cnt[nd] = cnt[2*nd];
+        } else if (mn[2*nd] > mn[2*nd+1]) {
+            mn[nd] = mn[2*nd+1]; cnt[nd] = cnt[2*nd+1];
+        } else {
+            mn[nd] = mn[2*nd]; cnt[nd] = cnt[2*nd] + cnt[2*nd+1];
+        }
+    }
+
+    void push(int nd) {
+        if (lazy[nd]) {
+            for (int c : {2*nd, 2*nd+1}) {
+                mn[c] += lazy[nd];
+                lazy[c] += lazy[nd];
+            }
+            lazy[nd] = 0;
+        }
+    }
+
+    void update(int nd, int l, int r, int ql, int qr, int val) {
+        if (ql > qr || ql > r || qr < l) return;
+        if (ql <= l && r <= qr) { mn[nd] += val; lazy[nd] += val; return; }
+        push(nd);
+        int mid = (l + r) / 2;
+        update(2*nd, l, mid, ql, qr, val);
+        update(2*nd+1, mid+1, r, ql, qr, val);
+        pull(nd);
+    }
+
+    int countZeros() {
+        return (mn[1] == 0) ? cnt[1] : 0;
+    }
+} seg;
+
+// Get seat number at (r, c), with boundary = N
+int getSeat(int r, int c) {
+    if (r < 0 || r >= H || c < 0 || c >= W) return N;
+    return grid[r][c];
+}
+
+// Add or remove contribution of 2x2 block at top-left (r, c)
+void processBlock(int r, int c, int sign) {
+    int vals[4] = {getSeat(r,c), getSeat(r+1,c), getSeat(r,c+1), getSeat(r+1,c+1)};
+    sort(vals, vals + 4);
+    // Contribute to bad(k) for k in (vals[0], vals[1]] and (vals[2], vals[3]]
+    if (vals[0] + 1 <= vals[1])
+        seg.update(1, 1, N, vals[0] + 1, vals[1], sign);
+    if (vals[2] + 1 <= vals[3])
+        seg.update(1, 1, N, vals[2] + 1, vals[3], sign);
+}
+
+int give_initial_chart(int _H, int _W, vector<int> _R, vector<int> _C) {
+    H = _H; W = _W; N = H * W;
+    R = _R; C = _C;
+    grid.assign(H, vector<int>(W));
+    for (int i = 0; i < N; i++)
+        grid[R[i]][C[i]] = i;
+
+    seg.init(N + 1);
+    seg.build(1, 1, N);
+
+    // Process all 2x2 blocks (including boundary blocks)
+    for (int r = -1; r < H; r++)
+        for (int c = -1; c < W; c++)
+            processBlock(r, c, +1);
+
+    return seg.countZeros();
+}
+
+int swap_seats(int a, int b) {
+    // Collect affected blocks
+    set<pair<int,int>> affected;
+    for (int s : {a, b}) {
+        int r = R[s], c = C[s];
+        for (int dr = -1; dr <= 0; dr++)
+            for (int dc = -1; dc <= 0; dc++)
+                affected.insert({r + dr, c + dc});
+    }
+
+    for (auto [r, c] : affected) processBlock(r, c, -1);
+
+    swap(grid[R[a]][C[a]], grid[R[b]][C[b]]);
+    swap(R[a], R[b]);
+    swap(C[a], C[b]);
+
+    for (auto [r, c] : affected) processBlock(r, c, +1);
+
+    return seg.countZeros();
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Initialization}: $O(HW \log(HW))$ for building the segment tree and processing all blocks.
+  \item \textbf{Per swap}: $O(\log(HW))$ -- at most 8 affected blocks, each requiring $O(\log N)$ updates.
+  \item \textbf{Space}: $O(HW)$.
+\end{itemize}
+
+\end{document}

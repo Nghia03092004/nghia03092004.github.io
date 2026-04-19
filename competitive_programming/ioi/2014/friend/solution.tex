@@ -1,0 +1,157 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}[theorem]{Claim}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2014 -- Friend}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+A social network is built by adding people one at a time. Each new person $i$ ($i \ge 1$) has a ``host'' $h_i$ (an existing person) and a protocol:
+\begin{itemize}
+  \item \textbf{IAmYourFriend} (protocol~0): $i$ becomes friends with $h_i$.
+  \item \textbf{MyFriendsAreYourFriends} (protocol~1): $i$ becomes friends with all current friends of $h_i$ (but \emph{not} $h_i$ itself).
+  \item \textbf{WeAreYourFriends} (protocol~2): $i$ becomes friends with $h_i$ and all current friends of $h_i$.
+\end{itemize}
+
+Each person has a confidence value $w_i \ge 0$. Find the maximum total confidence of a subset of people in which no two are friends (i.e., a maximum-weight independent set).
+
+\section{Key Observation}
+
+\begin{lemma}
+The graph produced by these three protocols is always a \emph{cograph} (a graph with no induced $P_4$). Maximum-weight independent set on cographs is solvable in polynomial time.
+\end{lemma}
+
+Rather than exploiting the cograph structure directly, we observe that protocols~1 and~2 allow us to \emph{merge} nodes, reducing the problem to MWIS on a forest (which is solvable by tree DP).
+
+\section{Solution}
+
+Process persons $1, 2, \ldots, n-1$ in order. Maintain a union-find structure where each representative carries a weight and adjacency list. Let $\operatorname{rep}(x)$ denote the representative of $x$.
+
+For each new person $i$ with host $h = \operatorname{rep}(h_i)$ and own representative $\text{me} = \operatorname{rep}(i)$:
+
+\begin{itemize}
+  \item \textbf{Protocol~0} (IAmYourFriend): Add a tree edge between $h$ and $\text{me}$.
+
+  \item \textbf{Protocol~1} (MyFriendsAreYourFriends): Person $i$ is a \emph{false twin} of $h$ (same open neighbourhood). In any independent set, at most one of $\{i, h\}$ contributes, so we merge them, keeping weight $\max(w_i, w_h)$.
+
+  \item \textbf{Protocol~2} (WeAreYourFriends): Person $i$ is adjacent to $h$ and all of $h$'s neighbours. If we do not pick $h$ in the independent set, we \emph{may} pick $i$ instead, gaining $w_i$. Equivalently, merge $i$ into $h$ with weight $w_h + w_i$: the DP on the tree will decide whether to include the combined node.
+\end{itemize}
+
+After processing all protocols, only protocol-0 edges remain among surviving representatives, forming a forest. We solve MWIS on this forest with standard tree DP:
+\[
+  \text{dp}[u][0] = \sum_{v \in \text{children}(u)} \max(\text{dp}[v][0],\, \text{dp}[v][1]), \qquad
+  \text{dp}[u][1] = w_u + \sum_{v \in \text{children}(u)} \text{dp}[v][0].
+\]
+
+\begin{claim}
+For protocol~2, the weight update $w_h \gets w_h + w_i$ is correct because $i$ and $h$ are adjacent and $i$ shares all of $h$'s neighbours. In any independent set of the merged forest, choosing the combined node corresponds to choosing exactly one of $\{h, i\}$ in the original graph (choosing $h$ alone gives $w_h$; choosing $i$ alone gives $w_i$; we cannot choose both since they are adjacent). The tree DP correctly maximizes over including or excluding this combined node.
+\end{claim}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int findSample(int n, int confidence[], int host[], int protocol[]) {
+    vector<int> par(n);
+    vector<long long> w(n);
+    iota(par.begin(), par.end(), 0);
+    for (int i = 0; i < n; i++) w[i] = confidence[i];
+
+    function<int(int)> find = [&](int x) -> int {
+        return par[x] == x ? x : par[x] = find(par[x]);
+    };
+
+    vector<vector<int>> adj(n);
+
+    for (int i = 1; i < n; i++) {
+        int h = find(host[i]);
+        int me = find(i);
+        if (protocol[i] == 0) {
+            adj[h].push_back(me);
+            adj[me].push_back(h);
+        } else if (protocol[i] == 1) {
+            // False twin: keep max weight, merge into survivor
+            if (w[me] > w[h]) {
+                for (int x : adj[h]) {
+                    adj[me].push_back(x);
+                    for (auto &y : adj[x])
+                        if (y == h) y = me;
+                }
+                adj[h].clear();
+                par[h] = me;
+            } else {
+                w[h] = max(w[h], w[me]);
+                par[me] = h;
+            }
+        } else {
+            // True twin + adjacent: sum weights
+            w[h] += w[me];
+            par[me] = h;
+        }
+    }
+
+    // MWIS on the resulting forest via DFS
+    vector<bool> visited(n, false);
+    vector<long long> dp0(n, 0), dp1(n, 0);
+    long long ans = 0;
+
+    function<void(int, int)> dfs = [&](int u, int p) {
+        visited[u] = true;
+        dp1[u] = w[u];
+        dp0[u] = 0;
+        for (int v : adj[u]) {
+            if (v == p || find(v) != v) continue;
+            dfs(v, u);
+            dp0[u] += max(dp0[v], dp1[v]);
+            dp1[u] += dp0[v];
+        }
+    };
+
+    for (int i = 0; i < n; i++) {
+        if (find(i) == i && !visited[i]) {
+            dfs(i, -1);
+            ans += max(dp0[i], dp1[i]);
+        }
+    }
+
+    return (int)ans;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n\,\alpha(n))$ amortised for union-find operations. Adjacency transfers for protocol~1 are $O(n)$ total amortised (each edge is transferred at most once). The tree DP is $O(n)$. Overall: $O(n)$.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

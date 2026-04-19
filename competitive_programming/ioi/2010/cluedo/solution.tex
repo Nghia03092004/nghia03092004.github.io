@@ -1,0 +1,106 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2010 -- Cluedo}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+This is an interactive problem modeled after the board game Cluedo. There are $M$ murderers, $W$ weapons, and $L$ locations. The secret answer is a triple $(m^*, w^*, l^*)$. In each query you guess a triple $(m, w, l)$ and the system returns:
+\begin{itemize}
+    \item $0$ if the guess is correct,
+    \item $1$ if the murderer $m$ is wrong,
+    \item $2$ if the weapon $w$ is wrong,
+    \item $3$ if the location $l$ is wrong.
+\end{itemize}
+When multiple components are wrong, the system returns exactly one of them (any one). The goal is to find the correct triple within a limited number of queries.
+
+\section{Solution}
+\subsection{Algorithm}
+Maintain candidate sets $\mathcal{M}$, $\mathcal{W}$, and $\mathcal{L}$ (initially all murderers, weapons, and locations respectively). In each query, guess the triple formed by the current candidate from each set. Based on the response, eliminate the wrong candidate from its set. When a set has exactly one element, that element is correct and is never eliminated.
+
+\subsection{Correctness}
+
+\begin{lemma}
+Every query with a non-zero response eliminates at least one incorrect candidate.
+\end{lemma}
+\begin{proof}
+If the response is $1$, then the guessed murderer $m \neq m^*$, so removing $m$ from $\mathcal{M}$ is safe. The same argument applies for responses $2$ and $3$.
+\end{proof}
+
+\begin{theorem}
+The algorithm terminates with the correct triple in at most $M + W + L - 3$ queries.
+\end{theorem}
+\begin{proof}
+Each query either finds the answer (response $0$) or eliminates one candidate. Since the correct candidate in each set is never eliminated, after removing all $M - 1$ wrong murderers, $W - 1$ wrong weapons, and $L - 1$ wrong locations, the triple is uniquely determined. This totals at most $(M-1) + (W-1) + (L-1) = M + W + L - 3$ eliminations.
+\end{proof}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Queries:} at most $M + W + L - 3$.
+    \item \textbf{Time:} $O(M + W + L)$ amortized (using index tracking instead of erasure).
+    \item \textbf{Space:} $O(M + W + L)$.
+\end{itemize}
+
+\section{Implementation}
+The code below uses index-based tracking to avoid the $O(n)$ cost of vector erasure. Each set maintains a current index; when a candidate is eliminated, we swap it with the last element and shrink the valid range.
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Grader function: returns 0 if correct, 1/2/3 for wrong component
+int Theory(int m, int w, int l);
+
+void Solve(int M, int W, int L) {
+    vector<int> murderers(M), weapons(W), locations(L);
+    iota(murderers.begin(), murderers.end(), 1);
+    iota(weapons.begin(), weapons.end(), 1);
+    iota(locations.begin(), locations.end(), 1);
+
+    int mSz = M, wSz = W, lSz = L;
+    int mi = 0, wi = 0, li = 0;
+
+    while (true) {
+        int result = Theory(murderers[mi], weapons[wi], locations[li]);
+        if (result == 0) return;
+        if (result == 1) {
+            swap(murderers[mi], murderers[--mSz]);
+            if (mi >= mSz) mi = 0;
+        } else if (result == 2) {
+            swap(weapons[wi], weapons[--wSz]);
+            if (wi >= wSz) wi = 0;
+        } else {
+            swap(locations[li], locations[--lSz]);
+            if (li >= lSz) li = 0;
+        }
+    }
+}
+\end{lstlisting}
+
+\end{document}

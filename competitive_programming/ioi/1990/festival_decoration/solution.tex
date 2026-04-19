@@ -1,0 +1,183 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1990 -- Problem 3: Festival Decoration}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given $k$ colors with counts $c_1, c_2, \ldots, c_k$ (totaling
+$n = c_1 + c_2 + \cdots + c_k$ balls), arrange all $n$ balls in a line such
+that no two adjacent balls share the same color. Output one valid arrangement,
+or report that none exists.
+
+\section{Solution}
+
+\subsection{Feasibility Condition}
+
+\begin{theorem}
+A valid arrangement exists if and only if
+\[
+  \max_i\, c_i \le \left\lceil \frac{n}{2} \right\rceil.
+\]
+\end{theorem}
+\begin{proof}
+\textbf{Necessity.} In any valid arrangement of $n$ elements, a single color
+can occupy at most every other position, i.e., at most $\lceil n/2 \rceil$
+positions.
+
+\textbf{Sufficiency.} The greedy algorithm below always produces a valid
+arrangement when this condition holds, as shown in the correctness argument
+that follows.
+\end{proof}
+
+\subsection{Greedy Algorithm}
+
+Maintain a max-heap of $(\text{count}, \text{color})$ pairs:
+
+\begin{enumerate}
+  \item Extract the color with the highest remaining count.
+  \item If it differs from the previously placed color, place it.
+  \item Otherwise, extract the second-highest color, place it, and push
+    the first color back.
+  \item Repeat until all balls are placed.
+\end{enumerate}
+
+\begin{lemma}[Correctness]
+If $\max_i\, c_i \le \lceil n/2 \rceil$, the greedy algorithm never gets
+stuck.
+\end{lemma}
+\begin{proof}
+The algorithm gets stuck only when the heap contains a single color that
+matches the last placed color. At that point, the remaining count of that
+color must be at least~1 while the total remaining is also that count. But
+this means $c_{\max} > \lceil n'/2 \rceil$ for the remaining $n'$ items,
+which contradicts the invariant maintained by always placing the most frequent
+available color first.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(n \log k)$. Each of the $n$ placement steps
+    involves at most two heap operations, each costing $O(\log k)$.
+  \item \textbf{Space:} $O(k)$ for the heap.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+#include <queue>
+#include <string>
+using namespace std;
+
+int main() {
+    int k;
+    cin >> k;
+
+    priority_queue<pair<int,int>> pq;
+    int total = 0;
+
+    for (int i = 0; i < k; i++) {
+        int c;
+        cin >> c;
+        if (c > 0) {
+            pq.push({c, i});
+            total += c;
+        }
+    }
+
+    if (pq.empty()) {
+        cout << endl;
+        return 0;
+    }
+
+    if (pq.top().first > (total + 1) / 2) {
+        cout << "IMPOSSIBLE" << endl;
+        return 0;
+    }
+
+    string result;
+    int lastColor = -1;
+
+    while (!pq.empty()) {
+        auto [cnt1, col1] = pq.top();
+        pq.pop();
+
+        if (col1 != lastColor) {
+            result += ('A' + col1);
+            lastColor = col1;
+            if (cnt1 - 1 > 0)
+                pq.push({cnt1 - 1, col1});
+        } else {
+            if (pq.empty()) {
+                // Should not happen if feasibility check passed
+                cout << "IMPOSSIBLE" << endl;
+                return 0;
+            }
+            auto [cnt2, col2] = pq.top();
+            pq.pop();
+
+            result += ('A' + col2);
+            lastColor = col2;
+
+            pq.push({cnt1, col1});
+            if (cnt2 - 1 > 0)
+                pq.push({cnt2 - 1, col2});
+        }
+    }
+
+    cout << result << endl;
+    return 0;
+}
+\end{lstlisting}
+
+\section{Example}
+
+\textbf{Input:} 3 colors with counts $[3, 2, 1]$, total $n = 6$.
+
+Since $\max(c_i) = 3 = \lceil 6/2 \rceil$, a valid arrangement exists.
+
+\medskip
+\noindent Greedy execution:
+\begin{enumerate}
+  \item Heap: $\{(3,\mathrm{A}),\, (2,\mathrm{B}),\, (1,\mathrm{C})\}$.
+    Place \texttt{A}. Remaining: $[2,2,1]$.
+  \item Top is $\mathrm{A}$ again (tied with $\mathrm{B}$); last was
+    $\mathrm{A}$, so take $\mathrm{B}$. Place \texttt{B}. Remaining:
+    $[2,1,1]$.
+  \item Place \texttt{A}. Remaining: $[1,1,1]$.
+  \item Place \texttt{B}. Remaining: $[1,0,1]$.
+  \item Place \texttt{A}. Remaining: $[0,0,1]$.
+  \item Place \texttt{C}. Done.
+\end{enumerate}
+
+Result: \texttt{ABABAC}.
+
+\end{document}

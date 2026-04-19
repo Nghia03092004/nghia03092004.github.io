@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\L. Walking on Sunshine}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We may move anywhere in the plane. Only movement with a southward component is painful, and even that
+cost disappears inside the shaded rectangles. We must minimize the total painful distance needed to get
+from the contest to the awards ceremony.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item If the destination is not south of the start, the answer is immediately $0$: we can move only east,
+    west, and north.
+    \item Horizontal movement is always free. Northward movement is always free. Only the southward part
+    of our motion matters.
+    \item Because horizontal motion is free, whenever a shaded rectangle intersects some $y$-range we may
+    move sideways for free and use that rectangle to descend through that entire vertical interval without
+    paying.
+    \item Therefore the $x$-coordinates are irrelevant. The answer is simply:
+    the total required southward drop, minus the total length of the union of the shaded $y$-intervals that
+    intersect that drop.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item If $y_a \ge y_c$, print $0$.
+    \item Otherwise, the total unavoidable southward range is $[y_a,y_c]$.
+    For each rectangle, intersect its vertical interval with this range.
+    If the intersection is nonempty, store that interval.
+    \item Sort the stored intervals by their lower endpoint and merge them.
+    Let $U$ be the total merged length.
+    \item The answer is
+    \[
+    (y_c-y_a)-U.
+    \]
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Any path from the contest to the awards ceremony must have total southward displacement at least
+$y_c-y_a$ when $y_a < y_c$.
+
+\paragraph{Proof.}
+The starting $y$-coordinate is $y_c$ and the final one is $y_a$.
+Northward motion cannot reduce the required net drop, so the total southward component of the path is at
+least $y_c-y_a$. \qed
+
+\paragraph{Lemma 2.}
+Every shaded $y$-interval intersecting $[y_a,y_c]$ can be traversed with zero pain.
+
+\paragraph{Proof.}
+Horizontal motion is free, so before descending through a shaded interval we may move sideways into the
+corresponding rectangle at no cost. While inside shade, even southward movement is free. After leaving
+that interval we may again move sideways for free. Thus the entire covered vertical interval contributes
+zero painful distance. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, any valid path must pay for at least the part of the necessary southward drop that is not
+covered by shade. By Lemma 2, every shaded subinterval of $[y_a,y_c]$ can indeed be used to make that
+part of the descent free. Therefore the minimum painful distance is exactly the uncovered length of
+$[y_a,y_c]$, which is what the algorithm computes. \qed
+
+\section*{Complexity Analysis}
+
+Sorting the rectangle intervals costs $O(n \log n)$. Merging them is linear. The memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Because the rectangles are disjoint, the merge step is especially simple, but the standard interval
+    union code already handles the general case.
+    \item The answer is printed as a floating-point number only because the judge allows that format; in this
+    solution it is actually the length of a union of intervals.
+\end{itemize}
+
+\end{document}

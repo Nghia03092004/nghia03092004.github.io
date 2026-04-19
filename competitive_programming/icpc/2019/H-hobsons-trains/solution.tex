@@ -1,0 +1,99 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\H. Hobson's Trains}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+The graph is functional: every station has exactly one outgoing edge. For each station $v$, we must count how many starting stations can reach $v$ in at most $k$ legs.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Every functional graph decomposes into directed cycles with directed trees feeding into the cycle vertices.
+    \item If $v$ is a tree node, then only nodes in the reverse-tree subtree of $v$ can ever reach $v$.
+    \item If $v$ is a cycle node, then reachable starts come from all attached trees around that cycle: a node in the tree attached to cycle vertex $c_i$ can reach cycle vertex $c_j$ iff
+    \[
+    \text{depth-to-}c_i + \text{forward distance on the cycle from } c_i \text{ to } c_j \le k.
+    \]
+\end{itemize}
+
+\section*{Algorithm}
+
+\paragraph{1. Find the cycle nodes.}
+Use the standard indegree-peeling process for functional graphs. Remove every indegree-$0$ vertex, decrease the indegree of its successor, and continue. The remaining vertices are exactly the cycle vertices.
+
+\paragraph{2. Build the reverse forest.}
+For every cycle vertex, keep only reverse edges coming from non-cycle vertices. This gives a forest rooted at the cycle vertices. Define depth $0$ on the roots, then depth increases by $1$ along reverse-tree edges.
+
+\paragraph{3. Count answers for tree nodes.}
+Do an Euler tour of the reverse forest. For any node $v$, its reverse-tree subtree is a contiguous Euler interval. A node $u$ in that subtree reaches $v$ within $k$ legs exactly when
+\[
+\text{depth}(u) \le \text{depth}(v) + k.
+\]
+So we sort all nodes by depth, sort all queries $v$ by the threshold $\text{depth}(v)+k$, and answer subtree counts with a Fenwick tree over Euler order.
+
+\paragraph{4. Count answers for cycle nodes.}
+Process each directed cycle separately. For every node $u$ attached to cycle vertex $c_i$ (including $c_i$ itself), let $d$ be its depth to the cycle. Then $u$ contributes $1$ to every cycle vertex on the forward arc of length
+\[
+\min(m-1,\, k-d),
+\]
+starting at $c_i$, where $m$ is the cycle length. Add these contributions with a difference array on the doubled cycle, then read the total for each cycle vertex.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs the correct count for every station.
+
+\paragraph{Lemma 1.}
+If $v$ is not on a cycle, then a starting station can reach $v$ only if it lies in the reverse-tree subtree of $v$.
+
+\paragraph{Proof.}
+Every node has exactly one outgoing edge. Once a path leaves the unique reverse-tree path toward the cycle, it can never come back to $v$. Hence any start that reaches $v$ must lie on the reverse-tree descendants of $v$. \qed
+
+\paragraph{Lemma 2.}
+For a tree node $v$, a node $u$ reaches $v$ in at most $k$ legs if and only if $u$ is in the reverse-tree subtree of $v$ and
+\[
+\text{depth}(u) \le \text{depth}(v) + k.
+\]
+
+\paragraph{Proof.}
+Inside the reverse tree, the path from $u$ to $v$ is unique and has length $\text{depth}(u)-\text{depth}(v)$. Therefore the condition is exactly that $u$ is a descendant of $v$ and this difference is at most $k$. \qed
+
+\paragraph{Lemma 3.}
+For a cycle vertex $c_j$, a node $u$ attached to cycle vertex $c_i$ reaches $c_j$ in at most $k$ legs if and only if
+\[
+\text{depth}(u) + \operatorname{dist}_{\text{cycle}}(c_i, c_j) \le k,
+\]
+where the cycle distance is measured forward along the directed cycle.
+
+\paragraph{Proof.}
+The path from $u$ first climbs uniquely to $c_i$ in $\text{depth}(u)$ steps, then continues deterministically forward around the cycle. The first time it reaches $c_j$ is after exactly the stated number of steps, and any later visit is longer by a whole cycle length, so the inequality above is necessary and sufficient. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs, for every station $v$, the number of starting stations that can reach $v$ in at most $k$ legs.
+
+\paragraph{Proof.}
+By Lemma 2, the Fenwick-tree phase counts exactly the valid starts for every tree node. By Lemma 3, the cycle phase adds exactly the valid starts for every cycle node via arc updates on that cycle. Since every station is either a tree node or a cycle node, all answers are correct. \qed
+
+\section*{Complexity Analysis}
+
+Indegree peeling, Euler tour, sorting, Fenwick processing, and cycle interval updates are all linear or near-linear. The total running time is $O(n \log n)$ because of the sorting and Fenwick tree operations, and the memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The reverse forest includes each cycle node as a root, so the subtree computation also counts the nodes in its own attached tree.
+    \item Cycle answers are computed from scratch with interval additions, so the root values from the tree phase are overwritten for cycle nodes.
+    \item Using a doubled cycle turns wrapped arcs into ordinary intervals.
+\end{itemize}
+
+\end{document}

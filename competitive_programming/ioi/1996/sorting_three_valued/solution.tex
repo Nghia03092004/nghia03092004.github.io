@@ -1,0 +1,146 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1996 -- Sorting a Three-Valued Sequence}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a sequence of $n$ integers, each being 1, 2, or 3, sort the sequence in
+non-decreasing order using the minimum number of swaps. Each swap exchanges exactly
+two elements at arbitrary positions.
+
+\medskip
+\noindent\textbf{Constraints:} $1 \le n \le 1000$.
+
+\section{Solution Approach}
+
+\subsection{Zones and Misplacement Counts}
+
+In the sorted sequence, we know exactly which positions hold each value:
+\begin{itemize}
+  \item \textbf{Zone 1} (positions $1 \ldots n_1$): should contain all 1s.
+  \item \textbf{Zone 2} (positions $n_1{+}1 \ldots n_1{+}n_2$): should contain all 2s.
+  \item \textbf{Zone 3} (positions $n_1{+}n_2{+}1 \ldots n$): should contain all 3s.
+\end{itemize}
+Here $n_v = |\{i : a_i = v\}|$ for $v \in \{1,2,3\}$.
+
+Define $c_{ij}$ as the number of positions in zone $i$ that currently hold value $j$.
+For example, $c_{12}$ counts the 2s sitting in positions meant for 1s.
+
+\subsection{Two-Cycles and Three-Cycles}
+
+A \textbf{two-cycle} is a pair of misplaced elements that can fix each other with one swap.
+For instance, a 2 in zone 1 paired with a 1 in zone 2 can be swapped, fixing both.
+The number of such swaps between zones $i$ and $j$ is $\min(c_{ij}, c_{ji})$.
+
+After exhausting all two-cycles, the remaining misplaced elements form
+\textbf{three-cycles}, each involving one element from each zone (e.g., a 2 in zone~1,
+a 3 in zone~2, and a 1 in zone~3). Each three-cycle requires 2 swaps.
+
+\subsection{Formula}
+
+After performing two-cycle swaps, the residual counts satisfy
+$c_{12}' = c_{23}' = c_{31}'$ (one rotation direction) and
+$c_{13}' = c_{32}' = c_{21}'$ (the other direction), since the surplus must balance
+across all three zones. The total number of swaps is:
+\[
+  \text{swaps} = \underbrace{\min(c_{12}, c_{21}) + \min(c_{13}, c_{31}) + \min(c_{23}, c_{32})}_{\text{two-cycles}}
+                 + \underbrace{2 \cdot (c_{12}' + c_{13}')}_{\text{three-cycles}}.
+\]
+
+\begin{proof}[Proof of optimality]
+Each swap fixes at most 2 misplaced elements. Two-cycles achieve this maximum.
+Three-cycles require 2 swaps for 3 misplacements (the best possible since 1 swap
+can fix at most 2). Thus no strategy can use fewer swaps.
+\end{proof}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int a[1001];
+    int cnt[4] = {}; // cnt[v] = count of value v
+
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+        cnt[a[i]]++;
+    }
+
+    // Zone boundaries (0-indexed)
+    // Zone 1: [0, cnt[1])
+    // Zone 2: [cnt[1], cnt[1]+cnt[2])
+    // Zone 3: [cnt[1]+cnt[2], n)
+
+    // c[i][j] = count of value j in zone i
+    int c[4][4] = {};
+    for (int i = 0; i < n; i++) {
+        int zone;
+        if (i < cnt[1]) zone = 1;
+        else if (i < cnt[1] + cnt[2]) zone = 2;
+        else zone = 3;
+        c[zone][a[i]]++;
+    }
+
+    // Two-cycle swaps
+    int swaps = 0;
+    int two12 = min(c[1][2], c[2][1]);
+    int two13 = min(c[1][3], c[3][1]);
+    int two23 = min(c[2][3], c[3][2]);
+    swaps += two12 + two13 + two23;
+
+    // Subtract two-cycle contributions
+    c[1][2] -= two12; c[2][1] -= two12;
+    c[1][3] -= two13; c[3][1] -= two13;
+    c[2][3] -= two23; c[3][2] -= two23;
+
+    // Remaining misplacements form three-cycles, each needing 2 swaps
+    swaps += 2 * (c[1][2] + c[1][3]);
+
+    printf("%d\n", swaps);
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n)$. One pass to count values and compute zone
+        membership; the rest is $O(1)$ arithmetic.
+  \item \textbf{Space complexity:} $O(n)$ for the input array. The counting arrays
+        use $O(1)$ additional space.
+\end{itemize}
+
+\end{document}

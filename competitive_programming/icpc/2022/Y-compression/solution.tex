@@ -1,0 +1,99 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\Y. Compression}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a binary string and may repeatedly apply the allowed compression operation. We must
+output a shortest string that can be reached.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item The first character never changes.
+    \item The last character never changes.
+    \item If the original string contains both \texttt{0} and \texttt{1}, then no sequence of operations can
+    delete all occurrences of one of the two characters.
+    \item These three invariants already determine the unique shortest answer.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item If all characters are equal, output that single character.
+    \item Otherwise, both bits occur in the string.
+    \item If the first and last characters are different, output exactly those two characters.
+    \item If the first and last characters are equal, output
+    \[
+    \text{first} \;+\; \text{opposite bit} \;+\; \text{last}.
+    \]
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Every reachable string has the same first character and the same last character as the original
+string.
+
+\paragraph{Proof.}
+The allowed compression never changes the two endpoints of the current string, so by induction
+over all operations the first and last characters remain invariant. \qed
+
+\paragraph{Lemma 2.}
+If the original string contains both \texttt{0} and \texttt{1}, then every reachable string also contains
+both \texttt{0} and \texttt{1}.
+
+\paragraph{Proof.}
+This is the third key invariant of the operation: it is impossible to erase all occurrences of one
+character while the other remains. Therefore any reachable string from a mixed binary string must
+still contain both bits. \qed
+
+\paragraph{Lemma 3.}
+The string produced by the algorithm is reachable and no shorter reachable string exists.
+
+\paragraph{Proof.}
+If the string is constant, a single-character answer is clearly optimal.
+
+Now assume both bits occur. By repeatedly compressing inside equal runs, we can first transform
+the string into an alternating one. After that, repeated compressions of the front remove two
+characters at a time while preserving the same endpoint characters. Thus we can always reduce to
+the shortest alternating string with the same endpoints.
+
+If the endpoints differ, the shortest such alternating string is exactly the length-$2$ string formed
+by those endpoints. If the endpoints are equal, a length-$2$ string is impossible, and because both
+bits must remain present by Lemma 2, the shortest possibility is the length-$3$ string
+\texttt{first opposite first}. Hence the algorithm's answer is reachable and optimal. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs a shortest reachable string.
+
+\paragraph{Proof.}
+By Lemma 1 and Lemma 2, any reachable optimum must satisfy the same endpoints and, when the
+input is mixed, must contain both bits. Lemma 3 shows that the algorithm constructs exactly the
+shortest string satisfying those necessary conditions. Therefore the answer is correct. \qed
+
+\section*{Complexity Analysis}
+
+We only scan the string once to test whether all characters are equal. The running time is $O(n)$
+and the memory usage is $O(1)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Once the three cases above are identified, the answer can be printed directly without
+    simulating any compression steps.
+\end{itemize}
+
+\end{document}

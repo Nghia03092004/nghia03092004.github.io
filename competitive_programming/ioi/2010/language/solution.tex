@@ -1,0 +1,117 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2010 -- Language}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Nature of the Task}
+
+This is \emph{not} a classical exact-algorithm task. It is an online
+classification problem: for each excerpt, we must guess one of 56 languages,
+then the grader reveals the correct answer and we may update our model.
+
+The official editorial explicitly notes that many approaches are possible:
+Rocchio-style classification is enough for the easier subtask, while stronger
+results come from using character bigrams and trigrams. Therefore the right goal
+here is not a proof of optimality, but a strong, clean heuristic model.
+
+\section{Chosen Model}
+
+We use a \textbf{hashed character $n$-gram model} with
+\[
+  n \in \{1,2,3\}.
+\]
+
+For each language we maintain frequency tables for:
+\begin{itemize}
+  \item unigrams,
+  \item bigrams,
+  \item trigrams.
+\end{itemize}
+
+The Unicode symbol IDs are randomized by the task setter, so hand-written
+language knowledge is useless. However, \emph{local symbol patterns} still carry
+signal: neighboring characters in the same language version of Wikipedia create
+stable statistical fingerprints. Character $n$-grams capture exactly this.
+
+To keep the model compact and fast, each $n$-gram is hashed into a fixed-size
+bucket table. This introduces a small number of collisions, but allows a much
+denser and faster implementation than storing every raw $n$-gram explicitly.
+
+\section{Scoring Rule}
+
+Given an excerpt, we extract its sparse unigram / bigram / trigram counts and
+score each language with a smoothed multinomial log-likelihood:
+\[
+  \text{score}(\ell)
+  =
+  w_1 \sum_{g \in G_1} c(g)\log \Pr(g \mid \ell)
+  +
+  w_2 \sum_{g \in G_2} c(g)\log \Pr(g \mid \ell)
+  +
+  w_3 \sum_{g \in G_3} c(g)\log \Pr(g \mid \ell)
+  +
+  w_0 \log(1 + \text{docs}_\ell).
+\]
+
+Here:
+\begin{itemize}
+  \item $G_1, G_2, G_3$ are the unigram, bigram, and trigram feature sets,
+  \item $c(g)$ is the count of feature $g$ in the current excerpt,
+  \item $\Pr(g \mid \ell)$ is estimated from the online counts for language
+        $\ell$ using additive smoothing,
+  \item the trigram term gets the highest weight, because it carries the most
+        contextual information.
+\end{itemize}
+
+This is substantially stronger than the previous baseline, which only used
+reduced bigram overlap.
+
+\section{Online Update}
+
+After the grader reveals the true language, we simply add the excerpt's
+unigram, bigram, and trigram counts to that language model. Since the task is
+online, this continual update is the whole point: the classifier improves as
+more labeled excerpts arrive.
+
+\section{Complexity}
+
+If an excerpt has length $L$:
+\begin{itemize}
+  \item feature extraction takes $O(L \log L)$ because we sort the hashed
+        $n$-gram lists to compress them into sparse counts;
+  \item scoring takes time proportional to the number of sparse features times
+        the number of languages already observed;
+  \item memory usage is fixed by the hash-table dimensions for the 56 languages.
+\end{itemize}
+
+\section{Remark}
+
+For this specific task, presenting a strong heuristic and describing it honestly
+is more rigorous than pretending there is an exact combinatorial solution. The
+implementation below does exactly that.
+
+\end{document}

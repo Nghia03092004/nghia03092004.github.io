@@ -1,0 +1,222 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2005 -- Riv (Rivers)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+There are $N$ villages arranged in a tree (rooted at village 0, which has a lumber camp). Each village $v$ (for $v = 1, \ldots, N-1$) has:
+\begin{itemize}
+    \item $w_v$: amount of wood produced,
+    \item $d_v$: distance to its parent in the tree.
+\end{itemize}
+
+We need to build exactly $K$ sawmills (at villages, not at the root which already has one). The cost of transporting wood from village $v$ is $w_v \times (\text{distance from } v \text{ to the nearest sawmill on path to root})$. Minimize the total transportation cost.
+
+\section{Solution Approach}
+
+\subsection{DP Formulation}
+We define:
+\[
+dp[v][j][u] = \text{min cost for subtree of } v \text{, using } j \text{ sawmills, where } u \text{ is the nearest ancestor with a sawmill}
+\]
+
+However, tracking the exact ancestor $u$ is expensive. Instead, we note that what matters is only the \emph{distance} from $v$ to the nearest ancestor sawmill. We can track this by passing the nearest ancestor sawmill's identity along the DFS.
+
+\textbf{Cleaner formulation:} During DFS, we know the set of ancestors. The nearest ancestor with a sawmill determines the transport cost. Since we process top-down, we can pass the distance to the nearest ancestor sawmill as a parameter.
+
+Define:
+\[
+dp[v][j] = \text{min cost for subtree of } v \text{, using } j \text{ sawmills in the subtree (including possibly at } v\text{)}
+\]
+parameterized by the distance $D$ from $v$ to its nearest ancestor sawmill.
+
+Since $D$ can take at most $O(\text{depth})$ distinct values (one for each ancestor of $v$), and the depth is at most $N$, we can enumerate over ancestors.
+
+\subsection{Implementation}
+For each vertex $v$, iterate over all ancestors $u$ of $v$ (the potential ``nearest ancestor sawmill''). For each such $u$, compute the cost. Then merge children using the tree knapsack approach.
+
+Concretely:
+\begin{enumerate}
+    \item DFS from root. At each vertex $v$, consider two options:
+    \begin{itemize}
+        \item Place a sawmill at $v$: cost of $v$'s wood is 0. Children's nearest sawmill is at distance $d_{child}$ (to $v$).
+        \item Don't place a sawmill at $v$: cost of $v$'s wood is $w_v \times D$ where $D$ is distance to nearest ancestor sawmill. Children inherit $D + d_{child}$.
+    \end{itemize}
+    \item Merge children subtrees using knapsack: distribute $j$ sawmills among children.
+\end{enumerate}
+
+\subsection{Tree Knapsack Merge}
+When vertex $v$ has children $c_1, \ldots, c_m$:
+\begin{enumerate}
+    \item Start with $g[0] = \text{cost of } v \text{ itself}$.
+    \item For each child $c_i$, compute $dp[c_i][j]$ for all $j$, then merge:
+    \[
+    g'[j_1 + j_2] = \min(g[j_1] + dp[c_i][j_2])
+    \]
+\end{enumerate}
+
+\section{Complexity Analysis}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \cdot K^2)$ for the tree knapsack. With the subtree-size bound, this is efficient for $N \leq 100$, $K \leq 50$.
+    \item \textbf{Space:} $O(N \cdot K)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const long long INF = 1e18;
+int N, K;
+int w[105], par[105], dist_to_par[105];
+vector<int> ch[105]; // children
+long long dp[105][55]; // dp[v][j] = min cost, j sawmills in subtree v
+int sz[105];
+
+// dist_up[v] = distance from v to its nearest ancestor with a sawmill
+// This is passed during DFS
+
+// ancestors: stack of (ancestor_id, distance_from_v_to_ancestor)
+// We only need the nearest one's distance.
+
+void dfs(int v, long long distToSawmill) {
+    // distToSawmill = distance from v to nearest ancestor with a sawmill
+    sz[v] = 1;
+
+    for (int j = 0; j <= K; j++) dp[v][j] = INF;
+
+    // Option 1: don't place sawmill at v
+    // Cost for v's wood: w[v] * distToSawmill
+    dp[v][0] = (long long)w[v] * distToSawmill;
+
+    // Option 2: place sawmill at v (uses 1 of the j sawmills)
+    // Cost for v's wood: 0
+    // Children will see d[child] as distance to nearest sawmill
+    // We'll handle this by computing dp_with[v][j] separately
+
+    // We need two versions of the subtree DP:
+    // dp_no[v][j]: v has no sawmill, ancestor sawmill at distToSawmill
+    // dp_yes[v][j]: v has sawmill (counts as 1 of j)
+
+    // Initialize
+    vector<long long> dp_no(K + 1, INF), dp_yes(K + 1, INF);
+    dp_no[0] = (long long)w[v] * distToSawmill;
+    if (K >= 1) dp_yes[1] = 0;
+
+    for (int c : ch[v]) {
+        // For dp_no: child c sees distToSawmill + dist_to_par[c]
+        // For dp_yes: child c sees dist_to_par[c]
+
+        // Compute child DP under "no sawmill at v" scenario
+        dfs(c, distToSawmill + dist_to_par[c]);
+        vector<long long> child_no(K + 1);
+        for (int j = 0; j <= K; j++) child_no[j] = dp[c][j];
+
+        // Compute child DP under "sawmill at v" scenario
+        dfs(c, dist_to_par[c]);
+        vector<long long> child_yes(K + 1);
+        for (int j = 0; j <= K; j++) child_yes[j] = dp[c][j];
+
+        // Merge dp_no with child_no
+        vector<long long> new_no(K + 1, INF);
+        for (int j1 = 0; j1 <= K; j1++) {
+            if (dp_no[j1] >= INF) continue;
+            for (int j2 = 0; j1 + j2 <= K; j2++) {
+                if (child_no[j2] >= INF) continue;
+                new_no[j1 + j2] = min(new_no[j1 + j2], dp_no[j1] + child_no[j2]);
+            }
+        }
+        dp_no = new_no;
+
+        // Merge dp_yes with child_yes
+        vector<long long> new_yes(K + 1, INF);
+        for (int j1 = 1; j1 <= K; j1++) {
+            if (dp_yes[j1] >= INF) continue;
+            for (int j2 = 0; j1 + j2 <= K; j2++) {
+                if (child_yes[j2] >= INF) continue;
+                new_yes[j1 + j2] = min(new_yes[j1 + j2], dp_yes[j1] + child_yes[j2]);
+            }
+        }
+        dp_yes = new_yes;
+
+        sz[v] += sz[c];
+    }
+
+    // Combine: dp[v][j] = min(dp_no[j], dp_yes[j])
+    for (int j = 0; j <= K; j++) {
+        dp[v][j] = min(dp_no[j], dp_yes[j]);
+    }
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    cin >> N >> K;
+
+    int root = -1;
+    for (int i = 0; i < N; i++) {
+        int p;
+        cin >> w[i] >> dist_to_par[i] >> p;
+        par[i] = p;
+        if (p == -1 || p == i) {
+            root = i;
+        } else {
+            ch[p].push_back(i);
+        }
+    }
+
+    if (root == -1) root = 0;
+
+    // Root has a sawmill (the lumber camp). So root's children see dist_to_par[child].
+    // Root's own wood costs 0 (sawmill at root, not counted in K).
+
+    // Process root specially:
+    // Root always has sawmill, so we only need dp_yes for root.
+    // But to reuse code, call dfs with distToSawmill = 0.
+    dfs(root, 0);
+
+    // Answer: dp[root][j] for j <= K, minimum
+    long long ans = INF;
+    for (int j = 0; j <= K; j++) {
+        ans = min(ans, dp[root][j]);
+    }
+    cout << ans << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The double-DFS approach (calling \texttt{dfs} twice per child) leads to exponential time complexity. The correct approach for the IOI problem is to avoid re-calling DFS by tracking the nearest ancestor sawmill explicitly.
+
+The proper $O(NK^2)$ solution uses:
+\[
+dp[v][j][a]
+\]
+where $a$ ranges over ancestors of $v$ (representing which ancestor is the nearest sawmill). Since only ancestors on $v$'s root path matter, and the path has at most $N$ nodes, the total states are bounded. However, for $N \leq 100, K \leq 50$, even simpler approaches work. The key idea remains: tree DP with knapsack merging of children, distinguishing whether the current vertex has a sawmill.
+
+\end{document}

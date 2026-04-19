@@ -1,0 +1,152 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2022 --- Insects}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+There are $N$ insects, each of some unknown type.  A machine supports
+three operations:
+\begin{itemize}
+  \item $\texttt{move\_inside}(i)$: place insect $i$ in the machine.
+  \item $\texttt{move\_outside}(i)$: remove insect $i$ from the machine.
+  \item $\texttt{press\_button}()$: return the maximum frequency among all
+        types currently in the machine.
+\end{itemize}
+Determine the cardinality of the rarest insect type.
+
+\section{Solution}
+
+\subsection{Step 1: Count distinct types}
+
+Insert insects one by one.  After each insertion, if
+$\texttt{press\_button}() > 1$, remove the insect (it is a duplicate).
+The number of insects remaining in the machine equals the number of
+distinct types~$d$.  Then clear the machine.
+
+This step uses at most $2N$ operations ($N$ insertions + at most $N$ removals
++ $N$ button presses + $d$ removals to clear).
+
+\subsection{Step 2: Binary search on the answer}
+
+Binary search on $k \in [1, \lfloor N/d \rfloor]$, testing whether the
+minimum type frequency is at most $k$.
+
+\paragraph{Check for a given $k$.}
+Insert insects one by one, rejecting any insect whose insertion would
+cause $\texttt{press\_button}() > k$.  After processing all $N$ insects, the
+machine contains exactly $\min(k, \mathrm{count}(t))$ insects of each type~$t$.
+The total inside is $T = \sum_t \min(k, \mathrm{count}(t))$.
+
+If $T < d \cdot k$, then some type has fewer than $k$ insects, so the
+minimum frequency is $\le k$.  Otherwise every type has count $\ge k$
+and we set $\mathrm{lo} = k + 1$.
+
+Each check uses $O(N)$ operations.  The binary search has
+$O(\log(N/d))$ iterations.
+
+\subsection{Total operation count}
+
+$O(N \log(N/d))$ operations overall.  For the IOI limits
+($N \le 2000$), this is at most roughly $2000 \times 11 \approx 22000$,
+well within the allowed budget.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+void move_inside(int i);
+void move_outside(int i);
+int press_button();
+
+int min_cardinality(int N) {
+    // Step 1: count distinct types
+    vector<bool> inside(N, false);
+    int num_types = 0;
+    for (int i = 0; i < N; i++) {
+        move_inside(i);
+        if (press_button() > 1) {
+            move_outside(i);
+        } else {
+            inside[i] = true;
+            num_types++;
+        }
+    }
+    // Clear the machine
+    for (int i = 0; i < N; i++)
+        if (inside[i]) {
+            move_outside(i);
+            inside[i] = false;
+        }
+
+    // Step 2: binary search on the rarest frequency
+    int lo = 1, hi = N / num_types;
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+
+        // Check: is the minimum frequency <= mid?
+        int total_inside = 0;
+        vector<bool> in_machine(N, false);
+        for (int i = 0; i < N; i++) {
+            move_inside(i);
+            if (press_button() > mid) {
+                move_outside(i);
+            } else {
+                in_machine[i] = true;
+                total_inside++;
+            }
+        }
+
+        bool has_rare = (total_inside < (long long)num_types * mid);
+
+        // Clean up
+        for (int i = 0; i < N; i++)
+            if (in_machine[i])
+                move_outside(i);
+
+        if (has_rare)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
+\end{lstlisting}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Operations:} $O(N \log(N/d))$ where $d$ is the number of
+        distinct types.  Each binary-search iteration uses $O(N)$
+        move/press calls.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\end{document}

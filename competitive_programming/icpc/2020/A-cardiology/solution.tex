@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\A. Cardiology}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Fix the pickup position $p$ of the indicated column. If the chosen card is currently in row $x$ and column
+$y$, then after collecting columns and redealing rows, its new location depends only on $x$.
+We must choose $p$ so that every card converges to one unique stable cell, and among all such choices
+we want the stable cell closest to the center. We also need the worst-case number of iterations.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Let rows be $0$-based. If the indicated column is picked up in position $p$, then the selected card
+    becomes the $((p-1)r + x)$-th card in the face-up deck, regardless of its old column.
+    \item Therefore the next row is
+    \[
+        f(x) = \left\lfloor \frac{(p-1)r + x}{c} \right\rfloor .
+    \]
+    After one iteration, only the row matters.
+    \item The map $f$ is monotone nondecreasing, so repeated application cannot create cycles of length
+    greater than $1$; every row eventually reaches a fixed row.
+    \item Write $a = (p-1)r$ and $q = c-1$. A fixed row $x$ satisfies
+    \[
+        x = \left\lfloor \frac{a + x}{c} \right\rfloor
+        \iff qx \le a < qx + c.
+    \]
+    For $1 < p < c$, this gives a unique fixed row exactly when $a \bmod q \ne 0$, in which case
+    \[
+        x^* = \left\lfloor \frac{a}{q} \right\rfloor.
+    \]
+    The edge cases $p=1$ and $p=c$ always have the unique fixed rows $0$ and $r-1$.
+    \item Once a card reaches row $x^*$, one more iteration sends it to the unique stable cell. So the final
+    answer for the number of iterations is one plus the maximum number of row transitions needed to reach
+    $x^*$.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Iterate over every $p \in [1, c]$.
+    \item Compute the unique fixed row and column:
+    \begin{itemize}[leftmargin=*]
+        \item if $p=1$, the stable cell is $(1,1)$;
+        \item if $p=c$, the stable cell is $(r,c)$;
+        \item otherwise, skip this $p$ when $((p-1)r) \bmod (c-1)=0$;
+        \item for the remaining values,
+        \[
+            x^* = \left\lfloor \frac{(p-1)r}{c-1} \right\rfloor,\qquad
+            y^* = ((p-1)r \bmod (c-1)) + 1.
+        \]
+    \end{itemize}
+    \item Compute the distance from $(x^*+1,y^*)$ to the nearest central row and nearest central column.
+    \item To find the worst-case number of iterations, simulate the row map $f$ only for the bottommost
+    and topmost rows. Because $f$ is monotone, after $t$ row transitions every possible row lies inside
+    the interval $[f^{(t)}(0), f^{(t)}(r-1)]$. Once both endpoints equal $x^*$, every row has reached $x^*$.
+    \item The total number of card iterations is that row count plus one.
+    \item Choose the candidate with minimum distance; break ties by the smallest $p$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed pickup position $p$, the next location of a card depends only on its current row.
+
+\paragraph{Proof.}
+Suppose the card is in row $x$ and in the column indicated by the spectator.
+When the columns are collected, the indicated column is picked up in position $p$, so exactly $(p-1)r$
+cards are placed before it. Inside that column, the card is the $(x+1)$-st card from the top.
+Hence its new deck index is $(p-1)r + x$, independent of its old column. Redealing row by row makes the
+next position depend only on this index, and therefore only on $x$. \qed
+
+\paragraph{Lemma 2.}
+For $1 < p < c$, there is a unique fixed row iff $((p-1)r) \bmod (c-1) \ne 0$. In that case the fixed row is
+$\left\lfloor \frac{(p-1)r}{c-1} \right\rfloor$. The cases $p=1$ and $p=c$ have the unique fixed rows $0$ and
+$r-1$, respectively.
+
+\paragraph{Proof.}
+Let $a=(p-1)r$ and let $x$ be a fixed row. Then
+\[
+    x=\left\lfloor \frac{a+x}{c}\right\rfloor
+    \iff (c-1)x \le a < (c-1)x + c.
+\]
+For $1<p<c$, write $q=c-1$. If $a=qk+t$ with $1 \le t \le q-1$, then only $x=k$ satisfies the inequality,
+so the fixed row is unique and equals $\lfloor a/q \rfloor$.
+If $a=qk$ with $1 \le k \le r-1$, then both $x=k-1$ and $x=k$ satisfy the inequality, so the fixed row is
+not unique.
+For $p=1$, we have $a=0$, so $x=0$ is the only valid fixed row. For $p=c$, we have $a=(c-1)r$, so
+$x=r-1$ is the only valid fixed row in the range $[0,r-1]$. \qed
+
+\paragraph{Lemma 3.}
+If the fixed row is unique and equal to $x^*$, then after $t$ row transitions every possible row lies in
+$[f^{(t)}(0), f^{(t)}(r-1)]$.
+
+\paragraph{Proof.}
+The map $f$ is monotone nondecreasing. Therefore for every row $x \in [0,r-1]$,
+\[
+    f^{(t)}(0) \le f^{(t)}(x) \le f^{(t)}(r-1)
+\]
+for every $t \ge 0$. \qed
+
+\paragraph{Lemma 4.}
+If both endpoints $0$ and $r-1$ reach $x^*$ after $T$ row transitions, then every card reaches the stable
+cell after at most $T+1$ full iterations, and some card needs exactly $T+1$ iterations.
+
+\paragraph{Proof.}
+By Lemma 3, after $T$ row transitions every row has become $x^*$. By Lemma 1, the next full iteration
+sends every such card to the same stable cell determined by row $x^*$, so every card is stable after at
+most $T+1$ iterations.
+
+Conversely, because $f$ is monotone, one of the endpoint rows is the last row to reach $x^*$. Any card in
+that row but not already in the stable column needs one extra iteration after its row first becomes $x^*$,
+so $T+1$ iterations are sometimes necessary. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+For each candidate $p$, Lemma 2 exactly characterizes whether there is a unique stable row and gives its
+location. Lemma 1 gives the corresponding stable cell. Lemma 4 shows that the algorithm computes the
+correct worst-case number of iterations for that $p$. The algorithm then compares all valid $p$ by the
+required distance-to-center rule and breaks ties by the smallest $p$, so the reported quadruple is exactly
+the one requested. \qed
+
+\section*{Complexity Analysis}
+
+We test all $c$ pickup positions. For each valid one we iterate the row map until the two endpoint rows
+meet the fixed row; this takes $O(\log_c r + 1)$ steps. Therefore the total running time is
+$O(c(\log r + 1))$, which is easily fast enough for $r,c \le 10^6$. The memory usage is $O(1)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Use 64-bit integers because $(p-1)r$ can be as large as $10^{12}$.
+    \item The proof is easiest with $0$-based rows, but the output row is converted back to $1$-based.
+    \item The nearest central distance is the sum of the nearest central-row distance and nearest
+    central-column distance.
+\end{itemize}
+
+\end{document}

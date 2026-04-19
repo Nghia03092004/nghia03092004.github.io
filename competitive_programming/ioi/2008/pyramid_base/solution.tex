@@ -1,0 +1,156 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2008 -- Pyramid Base}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given an $R \times C$ grid with $P$ rectangular obstacles (each with a removal cost) and a budget $B$, find the largest side length $s$ of an axis-aligned square that can be placed on the grid such that the total cost of overlapping obstacles is at most $B$.
+
+\section{Solution}
+
+\subsection{Binary Search on Side Length}
+\begin{lemma}[Monotonicity]
+If a square of side $s$ can be placed with cost $\le B$, then any square of side $s' < s$ can be placed at the same position with cost $\le B$ (it overlaps a subset of the same obstacles). This justifies binary search on $s$.
+\end{lemma}
+
+\subsection{Feasibility Check via Sweep Line}
+For a given side length $s$, determine if any placement has cost $\le B$:
+\begin{enumerate}
+    \item For each obstacle $i$ with bounding box $[x_1^i, y_1^i] \times [x_2^i, y_2^i]$ and cost $c_i$, the set of top-left corners $(r, c)$ whose $s \times s$ square overlaps this obstacle forms a rectangle. Specifically:
+    \[
+    r \in [\max(1, x_1^i - s + 1),\; \min(R - s + 1, x_2^i)], \quad
+    c \in [\max(1, y_1^i - s + 1),\; \min(C - s + 1, y_2^i)].
+    \]
+    \item Create sweep-line events: at row $r_{\text{start}}$, add $c_i$ to the column range; at row $r_{\text{end}}+1$, subtract $c_i$.
+    \item Sweep rows top to bottom, maintaining a \textbf{segment tree} supporting range-add and global-minimum queries. If the global minimum $\le B$ at any row, side length $s$ is feasible.
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O\bigl(\log(\min(R,C)) \cdot (R + P) \cdot \log C\bigr)$.
+    \item \textbf{Space:} $O(R + C + P)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct SegTree {
+    int n;
+    vector<long long> mn, lazy;
+
+    SegTree(int n) : n(n), mn(4*n, 0), lazy(4*n, 0) {}
+
+    void push(int v) {
+        if (lazy[v]) {
+            for (int c : {2*v, 2*v+1}) {
+                mn[c] += lazy[v];
+                lazy[c] += lazy[v];
+            }
+            lazy[v] = 0;
+        }
+    }
+
+    void update(int v, int l, int r, int ql, int qr, long long val) {
+        if (ql > r || qr < l) return;
+        if (ql <= l && r <= qr) {
+            mn[v] += val; lazy[v] += val; return;
+        }
+        push(v);
+        int mid = (l + r) / 2;
+        update(2*v, l, mid, ql, qr, val);
+        update(2*v+1, mid+1, r, ql, qr, val);
+        mn[v] = min(mn[2*v], mn[2*v+1]);
+    }
+
+    void update(int ql, int qr, long long val) {
+        if (ql > qr) return;
+        update(1, 1, n, ql, qr, val);
+    }
+
+    long long query() { return mn[1]; }
+};
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int R, C, P;
+    long long B;
+    cin >> R >> C >> P >> B;
+
+    vector<int> x1(P), y1(P), x2(P), y2(P);
+    vector<long long> cost(P);
+    for (int i = 0; i < P; i++)
+        cin >> x1[i] >> y1[i] >> x2[i] >> y2[i] >> cost[i];
+
+    int lo = 1, hi = min(R, C), ans = 0;
+    while (lo <= hi) {
+        int s = (lo + hi) / 2;
+        int maxR = R - s + 1, maxC = C - s + 1;
+        if (maxR < 1 || maxC < 1) { hi = s - 1; continue; }
+
+        // Create events: events[row] = list of (col_start, col_end, delta)
+        vector<vector<tuple<int,int,long long>>> events(maxR + 2);
+        for (int i = 0; i < P; i++) {
+            int rs = max(1, x1[i] - s + 1);
+            int re = min(maxR, x2[i]);
+            if (rs > re) continue;
+            int cs = max(1, y1[i] - s + 1);
+            int ce = min(maxC, y2[i]);
+            if (cs > ce) continue;
+            events[rs].emplace_back(cs, ce, cost[i]);
+            if (re + 1 <= maxR)
+                events[re + 1].emplace_back(cs, ce, -cost[i]);
+        }
+
+        SegTree seg(maxC);
+        bool feasible = false;
+        for (int r = 1; r <= maxR && !feasible; r++) {
+            for (auto& [cs, ce, delta] : events[r])
+                seg.update(cs, ce, delta);
+            if (seg.query() <= B) feasible = true;
+        }
+
+        if (feasible) { ans = s; lo = s + 1; }
+        else hi = s - 1;
+    }
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The segment tree supports lazy range-add and global-minimum queries. Each obstacle creates two sweep-line events (entry and exit). The total work per binary-search iteration is $O((R + P) \log C)$, giving an efficient overall solution.
+
+For $B = 0$, the problem reduces to finding the largest obstacle-free square, which this approach handles as a special case.
+
+\end{document}

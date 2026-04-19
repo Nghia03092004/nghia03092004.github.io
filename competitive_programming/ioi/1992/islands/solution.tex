@@ -1,0 +1,238 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1992 -- Problem 3: Islands}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given an $R \times C$ elevation grid and a water level $L$, a cell is
+\emph{land} if its elevation is strictly greater than $L$, and \emph{water}
+otherwise. Count the number of islands (maximal connected components of land
+cells under 4-adjacency).
+
+An extended version asks for island counts at multiple water levels.
+
+\section{Solution}
+
+\subsection{Single Water Level: Flood Fill}
+
+\begin{enumerate}
+  \item Mark each cell as land if $\text{elevation}[r][c] > L$.
+  \item Count connected components of land cells using BFS.
+\end{enumerate}
+
+\subsection{Multiple Water Levels: Offline DSU}
+
+To answer $Q$ queries efficiently:
+\begin{enumerate}
+  \item Sort all cells by elevation in decreasing order.
+  \item Process cells one by one. When a cell ``emerges'' above the current
+    water level, activate it in a Disjoint Set Union (DSU) structure and
+    merge it with any already-active 4-neighbors.
+  \item Record the component count at each distinct elevation threshold.
+  \item Answer each query by looking up the component count at the
+    appropriate threshold.
+\end{enumerate}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Single water level:} $O(RC)$ time and space.
+  \item \textbf{Multiple water levels:} $O(RC\,\alpha(RC) + Q\log(RC))$
+    total, where $\alpha$ is the inverse Ackermann function.
+\end{itemize}
+
+\section{Implementation: Single Water Level}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+int main() {
+    int R, C, L;
+    cin >> R >> C >> L;
+
+    vector<vector<int>> elev(R, vector<int>(C));
+    for (int i = 0; i < R; i++)
+        for (int j = 0; j < C; j++)
+            cin >> elev[i][j];
+
+    vector<vector<bool>> visited(R, vector<bool>(C, false));
+    const int dx[] = {0, 0, 1, -1};
+    const int dy[] = {1, -1, 0, 0};
+    int islands = 0;
+
+    for (int i = 0; i < R; i++) {
+        for (int j = 0; j < C; j++) {
+            if (elev[i][j] > L && !visited[i][j]) {
+                islands++;
+                queue<pair<int,int>> q;
+                q.push({i, j});
+                visited[i][j] = true;
+                while (!q.empty()) {
+                    auto [r, c] = q.front(); q.pop();
+                    for (int d = 0; d < 4; d++) {
+                        int nr = r + dx[d], nc = c + dy[d];
+                        if (nr >= 0 && nr < R && nc >= 0 && nc < C
+                            && !visited[nr][nc]
+                            && elev[nr][nc] > L) {
+                            visited[nr][nc] = true;
+                            q.push({nr, nc});
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    cout << islands << endl;
+    return 0;
+}
+\end{lstlisting}
+
+\section{Implementation: Multiple Water Levels (DSU)}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <map>
+using namespace std;
+
+struct DSU {
+    vector<int> parent, rank_;
+    int components;
+
+    DSU(int n) : parent(n, -1), rank_(n, 0), components(0) {}
+
+    void activate(int x) {
+        parent[x] = x;
+        components++;
+    }
+
+    bool active(int x) const { return parent[x] != -1; }
+
+    int find(int x) {
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]]; // path splitting
+            x = parent[x];
+        }
+        return x;
+    }
+
+    void unite(int a, int b) {
+        a = find(a); b = find(b);
+        if (a == b) return;
+        if (rank_[a] < rank_[b]) swap(a, b);
+        parent[b] = a;
+        if (rank_[a] == rank_[b]) rank_[a]++;
+        components--;
+    }
+};
+
+int main() {
+    int R, C;
+    cin >> R >> C;
+
+    vector<vector<int>> elev(R, vector<int>(C));
+    vector<pair<int,int>> cells; // (elevation, flat_index)
+
+    for (int i = 0; i < R; i++)
+        for (int j = 0; j < C; j++) {
+            cin >> elev[i][j];
+            cells.push_back({elev[i][j], i * C + j});
+        }
+
+    // Sort by decreasing elevation
+    sort(cells.begin(), cells.end(), greater<>());
+
+    DSU dsu(R * C);
+    const int dx[] = {0, 0, 1, -1};
+    const int dy[] = {1, -1, 0, 0};
+
+    // Process cells from highest to lowest elevation.
+    // After processing all cells with elevation > L,
+    // dsu.components gives the island count at water level L.
+    map<int, int> levelIslands;
+
+    int i = 0;
+    while (i < (int)cells.size()) {
+        int e = cells[i].first;
+        // Process all cells with this elevation
+        int j = i;
+        while (j < (int)cells.size() && cells[j].first == e) {
+            int idx = cells[j].second;
+            int r = idx / C, c = idx % C;
+            dsu.activate(idx);
+            for (int d = 0; d < 4; d++) {
+                int nr = r + dx[d], nc = c + dy[d];
+                if (nr >= 0 && nr < R && nc >= 0 && nc < C) {
+                    int nidx = nr * C + nc;
+                    if (dsu.active(nidx))
+                        dsu.unite(idx, nidx);
+                }
+            }
+            j++;
+        }
+        // Water level = e - 1 means all cells with elev > e-1
+        // (i.e., elev >= e) are land.
+        levelIslands[e - 1] = dsu.components;
+        i = j;
+    }
+
+    int Q;
+    cin >> Q;
+    while (Q--) {
+        int L;
+        cin >> L;
+        auto it = levelIslands.upper_bound(L);
+        if (it == levelIslands.begin())
+            cout << 0 << "\n";
+        else {
+            --it;
+            cout << it->second << "\n";
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+
+\begin{itemize}
+  \item The single-water-level solution is a straightforward BFS flood fill.
+  \item The DSU solution processes cells in decreasing elevation order. When
+    a batch of cells at elevation~$e$ is activated, the resulting component
+    count equals the number of islands for any water level in $[e-1, e')$
+    where $e'$ is the next lower elevation present.
+  \item Path splitting (iterative path compression) is used instead of
+    recursive path compression to avoid stack overflow on large inputs.
+\end{itemize}
+
+\end{document}

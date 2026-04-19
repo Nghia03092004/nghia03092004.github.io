@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2001 -- Mobile Phones}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Maintain an $S \times S$ grid (initially all zeros, $S \le 1024$)
+under two operations:
+\begin{enumerate}
+  \item $\textsc{Update}(x, y, v)$: add $v$ to cell $(x, y)$.
+  \item $\textsc{Query}(x_1, y_1, x_2, y_2)$: return the sum of all cells
+        in the rectangle $[x_1, x_2] \times [y_1, y_2]$.
+\end{enumerate}
+
+\section{Solution: 2D Binary Indexed Tree}
+
+A 2D BIT (Fenwick tree) extends the classical 1D structure to support
+point updates and prefix-sum queries in two dimensions.
+
+\paragraph{Update.} To add $v$ to position $(x, y)$ (1-indexed):
+\begin{lstlisting}[numbers=none,frame=none]
+for (int i = x; i <= S; i += i & (-i))
+    for (int j = y; j <= S; j += j & (-j))
+        tree[i][j] += v;
+\end{lstlisting}
+
+\paragraph{Prefix sum.}
+$\displaystyle\mathrm{sum}(x, y) = \sum_{i=1}^{x}\sum_{j=1}^{y} a[i][j]$
+is computed by:
+\begin{lstlisting}[numbers=none,frame=none]
+int s = 0;
+for (int i = x; i > 0; i -= i & (-i))
+    for (int j = y; j > 0; j -= j & (-j))
+        s += tree[i][j];
+\end{lstlisting}
+
+\paragraph{Rectangle sum.} By inclusion--exclusion:
+\[
+  \mathrm{RectSum}(x_1,y_1,x_2,y_2)
+  = \mathrm{sum}(x_2,y_2)
+  - \mathrm{sum}(x_1{-}1,y_2)
+  - \mathrm{sum}(x_2,y_1{-}1)
+  + \mathrm{sum}(x_1{-}1,y_1{-}1).
+\]
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int S;
+int tree[1025][1025];
+
+void update(int x, int y, int v) {
+    for (int i = x; i <= S; i += i & (-i))
+        for (int j = y; j <= S; j += j & (-j))
+            tree[i][j] += v;
+}
+
+int query(int x, int y) {
+    int s = 0;
+    for (int i = x; i > 0; i -= i & (-i))
+        for (int j = y; j > 0; j -= j & (-j))
+            s += tree[i][j];
+    return s;
+}
+
+int rectQuery(int x1, int y1, int x2, int y2) {
+    return query(x2, y2)
+         - query(x1 - 1, y2)
+         - query(x2, y1 - 1)
+         + query(x1 - 1, y1 - 1);
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int op;
+    cin >> op >> S; // op == 0: initialise
+
+    memset(tree, 0, sizeof(tree));
+
+    while (cin >> op) {
+        if (op == 3) break; // terminate
+
+        if (op == 1) {
+            int x, y, v;
+            cin >> x >> y >> v;
+            x++; y++; // convert 0-indexed input to 1-indexed BIT
+            update(x, y, v);
+        } else if (op == 2) {
+            int l, b, r, t;
+            cin >> l >> b >> r >> t;
+            l++; b++; r++; t++; // convert to 1-indexed
+            cout << rectQuery(l, b, r, t) << "\n";
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Update:} $O(\log^2 S)$.
+  \item \textbf{Query:} $O(\log^2 S)$ (four prefix-sum queries).
+  \item \textbf{Space:} $O(S^2) = O(1024^2) \approx 10^6$.
+  \item \textbf{Total time:} $O(Q \log^2 S)$ for $Q$ operations.
+\end{itemize}
+
+\end{document}

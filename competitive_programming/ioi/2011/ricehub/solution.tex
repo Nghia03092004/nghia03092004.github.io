@@ -1,0 +1,98 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2011 -- Ricehub}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+There are $R$ rice fields at sorted positions $x_1 < x_2 < \cdots < x_R$ along a line. A hub can be placed at any integer position. The cost of connecting field~$i$ to a hub at position~$h$ is $|x_i - h|$. Given budget~$B$, find the maximum number of fields connectable to a single hub.
+
+\section{Solution}
+
+\subsection{Key Observations}
+
+\begin{lemma}
+The optimal hub for a contiguous set of fields $\{x_l, \ldots, x_r\}$ is at the median $x_m$ where $m = \lfloor(l+r)/2\rfloor$.
+\end{lemma}
+\begin{proof}
+The sum of absolute deviations $\sum_{i=l}^{r} |x_i - h|$ is minimized when $h$ is the median of the set, a standard result.
+\end{proof}
+
+\begin{lemma}
+The optimal set of fields is a contiguous subarray of the sorted positions.
+\end{lemma}
+\begin{proof}
+If two fields $x_a$ and $x_b$ with $x_a < x_b$ are connected, then every field between them has cost $\le \max(|x_a - h|, |x_b - h|)$, so including it cannot increase the cost.
+\end{proof}
+
+\subsection{Algorithm: Two Pointers with Prefix Sums}
+Use a sliding window $[l, r]$. For each right endpoint $r$, expand while the cost is within budget $B$, and shrink $l$ when it exceeds $B$. The cost for window $[l, r]$ with median at $m = \lfloor(l+r)/2\rfloor$:
+\[
+\text{cost} = x_m(m - l + 1) - S_m + S_r - x_m(r - m)
+\]
+where $S_k = \sum_{i=0}^{k} x_i$ is the prefix sum (using appropriate indexing).
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(R)$ with two pointers.
+    \item \textbf{Space:} $O(R)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int besthub(int R, int L, int X[], long long B) {
+    vector<long long> prefix(R + 1, 0);
+    for (int i = 0; i < R; i++)
+        prefix[i + 1] = prefix[i] + X[i];
+
+    auto cost = [&](int l, int r) -> long long {
+        int m = (l + r) / 2;
+        long long leftCost = (long long)X[m] * (m - l + 1)
+                           - (prefix[m + 1] - prefix[l]);
+        long long rightCost = (prefix[r + 1] - prefix[m])
+                            - (long long)X[m] * (r - m + 1);
+        return leftCost + rightCost;
+    };
+
+    int ans = 0, l = 0;
+    for (int r = 0; r < R; r++) {
+        while (cost(l, r) > B)
+            l++;
+        ans = max(ans, r - l + 1);
+    }
+
+    return ans;
+}
+\end{lstlisting}
+
+\end{document}

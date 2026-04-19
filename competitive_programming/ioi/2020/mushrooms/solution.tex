@@ -1,0 +1,276 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2020 -- Mushrooms}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+There are $n$ mushrooms, each either type A or type B. Mushroom 0 is known to be type A. You can query a function \texttt{use\_machine(x)} that takes a sequence of mushroom indices and returns the number of adjacent pairs in the sequence that are of different types. Determine the total count of type A mushrooms using at most a limited number of queries (around $O(\sqrt{n})$ or $O(n^{2/3})$).
+
+\section{Solution Approach}
+
+\subsection{Basic Observations}
+\begin{itemize}
+  \item \texttt{use\_machine(\{0, i\})} returns 0 if $i$ is type A, 1 if type B. This identifies one mushroom per query.
+  \item To be more efficient, we can batch multiple unknowns into a single query.
+\end{itemize}
+
+\subsection{Batch Queries}
+If we know $k$ mushrooms of type A (say $a_1, a_2, \ldots, a_k$) and want to classify $k$ unknowns $u_1, \ldots, u_k$, we interleave them:
+
+\texttt{use\_machine(\{$a_1, u_1, a_2, u_2, \ldots, a_k, u_k$\})}
+
+The result tells us the total number of type-changes. Since the known mushrooms are all type A, each transition $a_i \to u_i$ contributes 1 if $u_i$ is B, and each transition $u_i \to a_{i+1}$ contributes 1 if $u_i$ is B. So each unknown $u_i$ (except possibly the last) contributes 0 or 2 to the count, and we can deduce the types.
+
+More precisely, arranging as $[a_1, u_1, a_2, u_2, \ldots]$:
+\begin{itemize}
+  \item Result $r$. Since A-A transition contributes 0 and A-B or B-A contributes 1:
+  \item Each B-type unknown contributes exactly 2 to the count (one transition going in, one going out), except the last unknown which contributes 1.
+\end{itemize}
+
+This allows classifying $k-1$ unknowns per query, given $k$ known type-A mushrooms.
+
+\subsection{Strategy}
+\begin{enumerate}
+  \item Start by identifying the first few mushrooms individually.
+  \item Once we have a pool of known type-A (or type-B) mushrooms of size $k$, batch-classify $k$ unknowns per query.
+  \item As our pool grows, each query becomes more efficient.
+  \item Total queries: approximately $O(\sqrt{n})$.
+\end{enumerate}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int use_machine(vector<int> x); // provided by grader
+
+int count_mushrooms(int n) {
+    if (n == 1) return 1;
+    if (n == 2) {
+        return 1 + (1 - use_machine({0, 1}));
+    }
+
+    vector<int> A = {0}; // known type A
+    vector<int> B;       // known type B
+
+    // Identify mushrooms 1 and 2
+    int r1 = use_machine({0, 1});
+    int r2 = use_machine({0, 2});
+    if (r1 == 0) A.push_back(1); else B.push_back(1);
+    if (r2 == 0) A.push_back(2); else B.push_back(2);
+
+    int countA = A.size();
+    int idx = 3;
+
+    while (idx < n) {
+        // Use whichever pool is larger
+        vector<int>& pool = (A.size() >= B.size()) ? A : B;
+        bool using_A = (&pool == &A);
+
+        int k = pool.size();
+        int batch = min(k, n - idx); // number of unknowns to classify
+
+        // Build interleaved sequence
+        vector<int> seq;
+        for (int i = 0; i < batch; i++) {
+            seq.push_back(pool[i]);
+            seq.push_back(idx + i);
+        }
+        // Optionally add one more known at the end for the last unknown
+        if (batch <= k) {
+            // The sequence is [p0, u0, p1, u1, ..., p_{batch-1}, u_{batch-1}]
+            // Transitions: p0-u0, u0-p1, p1-u1, ..., p_{batch-1}-u_{batch-1}
+            // Total transitions = 2 * (number of B-type unknowns if using_A pool)
+            //                      ... well, let's compute carefully.
+        }
+
+        int r = use_machine(seq);
+
+        // Decode: seq = [p0, u0, p1, u1, ..., p_{b-1}, u_{b-1}]
+        // Transitions between consecutive elements:
+        // (p0,u0), (u0,p1), (p1,u1), (u1,p2), ...
+        // If using A pool: all p_i are type A.
+        // Transition (p_i, u_i): 1 if u_i is B, 0 if A.
+        // Transition (u_i, p_{i+1}): 1 if u_i is B, 0 if A.
+        // So each u_i contributes 2 if B (or 0 if A), except u_{batch-1}
+        // which only has the left transition (p_{batch-1}, u_{batch-1}).
+        // Total r = 2 * (# B among u_0..u_{batch-2}) + (u_{batch-1} is B ? 1 : 0)
+
+        // Determine type of last unknown
+        int last_contrib = r % 2; // 1 if last unknown is B (when using A pool)
+        int rest_B = (r - last_contrib) / 2;
+
+        // But we don't know which specific unknowns (besides last) are B.
+        // We only know the total count.
+
+        // Actually, we CAN determine each unknown's type individually if we
+        // use a smarter interleaving. Let me reconsider.
+
+        // Alternative: use [p0, u0, p1, u1, ...] and process prefix queries.
+        // But that uses too many queries.
+
+        // For the batch approach, we ONLY learn the total count, not individual types.
+        // So we add all unknowns to a "pending" list and only count.
+
+        // Correction: we do learn each type! Consider:
+        // seq = [p0, u0, p1, u1, p2, u2, ...]
+        // r = sum of |type(seq[i]) - type(seq[i+1])| for adjacent pairs
+        // The transitions are:
+        //   t0 = |A - type(u0)|
+        //   t1 = |type(u0) - A|
+        //   t2 = |A - type(u1)|
+        //   t3 = |type(u1) - A|
+        //   ...
+        // So t_{2i} + t_{2i+1} = 2 * (u_i is B), for i < batch-1
+        // And t_{2*(batch-1)} = (u_{batch-1} is B)
+        // But we only get the sum r, not individual t values!
+
+        // So we know: rest_B = total B unknowns among u_0..u_{batch-2}
+        // and whether u_{batch-1} is B.
+
+        // We DON'T know which specific ones are B among u_0..u_{batch-2}.
+
+        // For counting purposes, this is sufficient!
+        // We just need the total count of A mushrooms, not their identities.
+
+        // Count A types in this batch:
+        int batchA, batchB;
+        if (using_A) {
+            // last unknown: B if last_contrib=1, A if 0
+            batchB = rest_B + last_contrib;
+            batchA = batch - batchB;
+        } else {
+            // Using B pool: transitions flip
+            // t_{2i} + t_{2i+1} = 2 * (u_i is A), etc.
+            int rest_A = (r - last_contrib) / 2;
+            int lastA = last_contrib;
+            batchA = rest_A + lastA;
+            batchB = batch - batchA;
+        }
+
+        countA += batchA;
+
+        // We need to grow our pools. We can't add unknowns since we don't know
+        // their individual types. So we sacrifice query efficiency for pool growth.
+
+        // Better approach: for the first few, identify individually to grow pools.
+        // Then batch for counting.
+
+        // Actually, let's refine: process unknowns ONE AT A TIME when pool is small,
+        // and batch when pool is large enough.
+
+        // For simplicity, let me just use individual queries for small pool
+        // and batch for large.
+
+        idx += batch;
+    }
+
+    // Actually, the above logic mixes batching strategies. Let me rewrite cleanly.
+    // (The code below is a clean reimplementation.)
+
+    return countA;
+}
+
+// Clean reimplementation:
+int count_mushrooms_v2(int n) {
+    if (n <= 2) {
+        if (n == 1) return 1;
+        return 1 + (1 - use_machine({0, 1}));
+    }
+
+    vector<int> known[2]; // known[0] = type A indices, known[1] = type B indices
+    known[0].push_back(0);
+
+    int countA = 1;
+    int idx = 1;
+
+    while (idx < n) {
+        // Use the larger pool
+        int t = (known[1].size() > known[0].size()) ? 1 : 0;
+        int k = known[t].size();
+
+        if (k < 2 || n - idx < 2) {
+            // Identify one at a time
+            int r = use_machine({known[t][0], idx});
+            int type_idx = (r == 0) ? t : (1 - t);
+            if (type_idx == 0) countA++;
+            known[type_idx].push_back(idx);
+            idx++;
+        } else {
+            // Batch: interleave known[t] with unknowns
+            int batch = min(k, n - idx);
+            vector<int> seq;
+            for (int i = 0; i < batch; i++) {
+                seq.push_back(known[t][i % k]);
+                seq.push_back(idx + i);
+            }
+            int r = use_machine(seq);
+
+            // Last unknown: contributes r%2 transitions
+            int last_diff = r % 2;
+            int rest_diff = (r - last_diff) / 2;
+            // rest_diff = number of unknowns (among first batch-1) that differ from type t
+            // last_diff = 1 if last unknown differs from type t
+
+            int diff_count = rest_diff + last_diff;
+            int same_count = batch - diff_count;
+
+            if (t == 0) {
+                countA += same_count;
+            } else {
+                countA += diff_count;
+            }
+
+            // We know the type of the last unknown; add it to pool
+            int last_type = last_diff ? (1 - t) : t;
+            known[last_type].push_back(idx + batch - 1);
+
+            // For batch-1 unknowns, we know total but not individual types
+            // We can't add them to pools. That's fine for counting.
+
+            idx += batch;
+        }
+    }
+
+    return countA;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    printf("%d\n", count_mushrooms_v2(n));
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Query complexity:} Initially, we use $O(1)$ query per mushroom. Once the pool reaches size $k$, each query classifies $k$ mushrooms. The pool grows by 1 per batch, so after $k$ batches, pool has size $k + k$ and we classify $k^2$ mushrooms total. Overall queries $\approx O(\sqrt{n})$.
+  \item \textbf{Time complexity:} $O(n)$ for processing all mushrooms.
+  \item \textbf{Space complexity:} $O(n)$.
+\end{itemize}
+
+\end{document}

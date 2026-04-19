@@ -1,0 +1,147 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\J. ’S No Problem}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+The campus sidewalks form a weighted tree. Two snow blowers each follow one route, together covering
+every edge at least once, and we want the minimum total travelled distance.
+
+On a tree, the natural baseline is to traverse every edge twice. The optimization comes from selecting some
+edges that are traversed only once instead of twice.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item In an optimal solution, every sidewalk is used either once or twice. Any third traversal would contain
+    an unnecessary back-and-forth on a tree edge.
+    \item Start from the multiset where every edge is used twice; this costs $2W$, where $W$ is the sum of all
+    edge lengths. If we decide that some edges are used only once, we save exactly the total weight of those
+    edges.
+    \item Let $F$ be the set of edges used once. Since the original graph is a tree, $F$ is a forest.
+    \item The multigraph of traversed edges must be coverable by at most two trails. A connected multigraph is
+    coverable by $k$ trails exactly when it has at most $2k$ odd-degree vertices. Because every original edge
+    still keeps at least one copy, the traversed multigraph stays connected. Therefore $F$ is valid exactly
+    when it has at most four odd-degree vertices.
+    \item So the whole problem becomes: find a maximum-weight forest contained in the tree that has at most
+    four odd-degree vertices.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Root the tree at an arbitrary node, say node $1$.
+    \item For every node $u$, compute a DP over its rooted subtree:
+    \[
+        \text{dp}[u][o][p]
+    \]
+    is the maximum total weight of selected edges in the subtree of $u$ such that:
+    \begin{itemize}[leftmargin=*]
+        \item exactly $o$ vertices in this subtree have odd selected degree;
+        \item the selected degree of $u$ itself has parity $p \in \{0,1\}$.
+    \end{itemize}
+    \item Initialize a leaf with $\text{dp}[u][0][0]=0$.
+    \item Merge one child $v$ of $u$ at a time.
+    There are two choices for edge $(u,v)$:
+    \begin{itemize}[leftmargin=*]
+        \item do not select it: odd counts and the parity of $u$ remain unchanged;
+        \item select it: add its weight, and flip the parities of both $u$ and $v$, updating the odd-count
+        total accordingly.
+    \end{itemize}
+    \item After processing all children, $\max_{o \le 4,\, p \in \{0,1\}} \text{dp}[1][o][p]$ is the maximum total
+    weight of a valid forest $F$.
+    \item The answer is
+    \[
+        2W - \max \text{weight}(F).
+    \]
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+There exists an optimal pair of snow-blower routes in which every edge is traversed either once or twice.
+
+\paragraph{Proof.}
+Suppose some edge is traversed at least three times in total. Because the underlying graph is a tree, every
+traversal of that edge from one side to the other must eventually be matched by a traversal back across the
+same edge unless the edge lies on one of the route endpoints. Removing one unnecessary back-and-forth
+pair preserves coverage of all edges and does not invalidate the endpoints of the routes, while strictly
+decreasing the total distance. Therefore an optimal solution never uses an edge more than twice. \qed
+
+\paragraph{Lemma 2.}
+Let $F$ be the set of edges used exactly once in such an optimal solution. Then $F$ is a forest with at most
+four odd-degree vertices.
+
+\paragraph{Proof.}
+Because $F$ is a subgraph of a tree, it is itself a forest.
+Start from the doubled tree, where every edge appears twice. Removing one copy of each edge in $F$
+produces exactly the multigraph traversed by the two routes. This multigraph remains connected because
+every original edge still has at least one copy.
+
+A connected multigraph can be decomposed into at most two trails only if it has at most four odd-degree
+vertices. Removing one copy of an edge toggles the parity of its endpoints, so the odd-degree vertices of
+the traversed multigraph are exactly the odd-degree vertices of $F$. Hence $F$ has at most four odd-degree
+vertices. \qed
+
+\paragraph{Lemma 3.}
+Conversely, every forest $F$ with at most four odd-degree vertices can be realized as the set of edges used
+exactly once by some valid pair of routes.
+
+\paragraph{Proof.}
+Take the doubled tree and remove one copy of each edge in $F$. The resulting multigraph is still connected,
+and by the same parity argument it has at most four odd-degree vertices. Therefore it can be decomposed
+into at most two trails. Traversing those trails uses every edge not in $F$ twice and every edge in $F$ once,
+so this is a valid pair of routes. \qed
+
+\paragraph{Lemma 4.}
+For every node $u$, the DP state $\mathrm{dp}[u][o][p]$ equals the maximum total weight of a selected-edge
+forest in the subtree of $u$ with exactly the stated odd-count and parity conditions.
+
+\paragraph{Proof.}
+We use induction on subtree size. The base case of a leaf is immediate.
+Assume the statement holds for all children of $u$. When we merge a child $v$:
+\begin{itemize}[leftmargin=*]
+    \item if edge $(u,v)$ is not selected, the two forests stay disjoint inside the subtree, so odd counts add
+    and the parity of $u$ is unchanged;
+    \item if edge $(u,v)$ is selected, it contributes its weight and flips the degree parity of both endpoints,
+    so the total odd-count changes by exactly the two parity flips.
+\end{itemize}
+These are the only two possibilities, and every valid forest arises from exactly one sequence of such
+choices while processing the children. Thus the merge is complete and optimal, proving the claim. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemmas 2 and 3, minimizing the total route length is equivalent to maximizing the total weight of a
+selected-edge forest with at most four odd-degree vertices. Lemma 4 shows that the DP computes exactly
+that maximum. Since the doubled tree costs $2W$ and each selected edge saves its weight once, the output
+$2W - \max \text{weight}(F)$ is exactly the minimum total distance. \qed
+
+\section*{Complexity Analysis}
+
+Each node stores $5 \times 2$ DP states. Merging one child tries all pairs of parent/child states, so every
+edge is processed in constant time with a small factor. The total running time is $O(n)$ and the memory
+usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Use 64-bit integers because the total answer can be as large as $2 \cdot 500 \cdot (n-1)$.
+    \item An iterative DFS avoids recursion-depth issues on a path-shaped tree with $100\,000$ nodes.
+    \item States with more than four odd vertices are discarded immediately.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,157 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\N. What’s Our Vector, Victor?}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given $n$ known vectors $p_1,\dots,p_n \in \mathbb{R}^d$ and the Euclidean distances from an
+unknown vector $x$ to each of them. We must output any vector $x$ consistent with all those distances.
+
+The hidden test data is generated from an actual vector, so a solution always exists.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Let $y = x - p_1$. Then $\|y\| = e_1$.
+    \item For every $i \ge 2$, let $v_i = p_i - p_1$. Since $\|x-p_i\| = e_i$, we get
+    \[
+        \|y - v_i\|^2 = e_i^2.
+    \]
+    Subtracting $\|y\|^2 = e_1^2$ removes the quadratic term:
+    \[
+        2\,v_i \cdot y = \|v_i\|^2 + e_1^2 - e_i^2.
+    \]
+    So all constraints except the first become linear equations in $y$.
+    \item The linear equations define an affine subspace. We need any point in that subspace whose norm is
+    exactly $e_1$.
+    \item If we compute a basis of the nullspace of the linear system, then the point of minimum norm in the
+    affine subspace is obtained by projecting any particular solution away from the nullspace.
+    \item The difference between $e_1^2$ and that minimum norm tells us how much freedom remains in a
+    nullspace direction.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Build the linear system
+    \[
+        v_i \cdot y = \frac{\|v_i\|^2 + e_1^2 - e_i^2}{2}
+        \qquad (i = 2,\dots,n).
+    \]
+    \item Run Gaussian elimination on the augmented matrix to obtain:
+    \begin{itemize}[leftmargin=*]
+        \item one particular solution $y_0$ (set all free variables to $0$),
+        \item one basis vector for each free variable in the nullspace.
+    \end{itemize}
+    \item Orthonormalize the nullspace basis with Gram--Schmidt.
+    \item Project $y_0$ away from the nullspace to get the minimum-norm solution $y_{\min}$.
+    \item If $\|y_{\min}\| = e_1$, we are done.
+    Otherwise, add
+    \[
+        \sqrt{e_1^2 - \|y_{\min}\|^2}
+    \]
+    times any unit nullspace vector. This stays inside the affine subspace and fixes the norm.
+    \item Output $x = p_1 + y$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For every $i \ge 2$, the constraint $\|x-p_i\| = e_i$ is equivalent to the linear equation
+\[
+    v_i \cdot y = \frac{\|v_i\|^2 + e_1^2 - e_i^2}{2},
+\]
+where $y=x-p_1$ and $v_i=p_i-p_1$.
+
+\paragraph{Proof.}
+We have $\|y\|=\|x-p_1\|=e_1$ and $\|y-v_i\|=\|x-p_i\|=e_i$.
+Expanding $\|y-v_i\|^2=e_i^2$ gives
+\[
+    \|y\|^2 - 2v_i \cdot y + \|v_i\|^2 = e_i^2.
+\]
+Substituting $\|y\|^2=e_1^2$ and rearranging yields the stated linear equation. \qed
+
+\paragraph{Lemma 2.}
+Every solution of the original problem is exactly a vector of the form $x=p_1+y$, where $y$ belongs to
+the affine subspace defined by the linear equations from Lemma 1 and also satisfies $\|y\|=e_1$.
+
+\paragraph{Proof.}
+By Lemma 1, satisfying all distances except the first is equivalent to belonging to the affine subspace.
+The first distance is exactly $\|x-p_1\|=\|y\|=e_1$. Therefore the original system and the stated affine
+subspace plus norm condition are equivalent. \qed
+
+\paragraph{Lemma 3.}
+Let $A$ be the linear system from Lemma 1. After Gaussian elimination, the algorithm constructs:
+\begin{itemize}[leftmargin=*]
+    \item a particular solution $y_0$ of $Ay=b$,
+    \item a basis of the nullspace $\mathcal{N}=\{z:Az=0\}$.
+\end{itemize}
+Then every solution of $Ay=b$ is of the form $y_0+z$ with $z \in \mathcal{N}$.
+
+\paragraph{Proof.}
+This is the standard characterization of solutions to a consistent linear system after row reduction. Free
+variables generate the nullspace, and setting them all to zero gives one particular solution. \qed
+
+\paragraph{Lemma 4.}
+The vector $y_{\min}$ produced by projecting $y_0$ away from the nullspace is the minimum-norm solution
+of $Ay=b$.
+
+\paragraph{Proof.}
+After orthonormalizing the nullspace basis, subtracting from $y_0$ its orthogonal projection onto the
+nullspace gives a vector $y_{\min}$ that is orthogonal to the nullspace.
+Any other solution has the form $y_{\min}+z$ with $z \in \mathcal{N}$ by Lemma 3, and orthogonality gives
+\[
+    \|y_{\min}+z\|^2 = \|y_{\min}\|^2 + \|z\|^2 \ge \|y_{\min}\|^2.
+\]
+So $y_{\min}$ is exactly the minimum-norm solution. \qed
+
+\paragraph{Lemma 5.}
+If the affine subspace contains any vector of norm $e_1$, then the algorithm constructs one.
+
+\paragraph{Proof.}
+By Lemma 4, every solution has norm at least $\|y_{\min}\|$.
+If $\|y_{\min}\|=e_1$, the algorithm already has a valid vector.
+Otherwise, because a valid vector exists, the affine subspace must have a nontrivial nullspace direction.
+Moving along any unit nullspace vector keeps us inside the affine subspace, and by orthogonality to
+$y_{\min}$ the norm becomes
+\[
+    \|y_{\min} + t u\|^2 = \|y_{\min}\|^2 + t^2.
+\]
+Choosing $t = \sqrt{e_1^2 - \|y_{\min}\|^2}$ gives norm exactly $e_1$. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, it is enough to find a vector $y$ in the affine subspace with norm $e_1$.
+Lemmas 3, 4, and 5 show that the algorithm constructs such a vector, and therefore $x=p_1+y$ satisfies
+all required distances. \qed
+
+\section*{Complexity Analysis}
+
+Gaussian elimination on at most $499$ equations and $500$ variables takes $O(nd^2)$ time here, and the
+nullspace orthonormalization costs $O(d^3)$ in the worst case. With $d,n \le 500$, this easily fits.
+The memory usage is $O(d^2)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Using `long double` keeps the numerical error comfortably below the $10^{-5}$ tolerance.
+    \item The generated test data is consistent, so we do not need to handle infeasible systems.
+    \item Small negative values caused by floating-point roundoff are clamped to zero before taking square
+    roots.
+\end{itemize}
+
+\end{document}

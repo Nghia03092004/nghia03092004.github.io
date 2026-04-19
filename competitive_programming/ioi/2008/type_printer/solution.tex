@@ -1,0 +1,175 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2008 -- Type Printer}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A printer uses a stack of letters. Three operations:
+\begin{enumerate}
+    \item \textbf{Push}$(c)$: push letter $c$ onto the stack.
+    \item \textbf{Pop}: remove the top letter.
+    \item \textbf{Print}: output the word formed by the stack (bottom to top).
+\end{enumerate}
+Given $N$ words, find a minimum-length sequence of operations that prints all words (each exactly once, in any order).
+
+\section{Solution}
+
+\subsection{Trie + DFS}
+\begin{enumerate}
+    \item Build a trie from all $N$ words.
+    \item Each trie edge corresponds to a Push (descending) or Pop (ascending). Each terminal node requires a Print operation.
+    \item A DFS traversal visits every edge twice (down and up), except the \textbf{last} path traversed, which needs no Pops.
+    \item \textbf{Optimization}: Save the longest word for last. This avoids $L_{\max}$ Pops.
+\end{enumerate}
+
+\subsection{Total Operations}
+\[
+\text{Operations} = 2 \times |\text{trie edges}| - L_{\max} + N,
+\]
+where $L_{\max}$ is the length of the longest word.
+
+\subsection{Implementation}
+\begin{enumerate}
+    \item Build the trie and find the longest word.
+    \item Mark the path from root to the longest word in the trie.
+    \item DFS from the root. At each node, visit all children, but visit the child on the longest-word path \textbf{last}.
+    \item The \texttt{isLast} flag propagates down: only the very last child at each node on the longest-word path skips its Pop.
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(\sum |w_i|)$.
+    \item \textbf{Space:} $O(\sum |w_i| \cdot |\Sigma|)$ for the trie.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct TrieNode {
+    int ch[26];
+    bool isEnd;
+    bool onLongest;
+    TrieNode() {
+        memset(ch, -1, sizeof(ch));
+        isEnd = false;
+        onLongest = false;
+    }
+};
+
+vector<TrieNode> trie;
+vector<char> ops;
+
+int newNode() {
+    trie.emplace_back();
+    return trie.size() - 1;
+}
+
+void insert(const string& s) {
+    int cur = 0;
+    for (char c : s) {
+        int ci = c - 'a';
+        if (trie[cur].ch[ci] == -1)
+            trie[cur].ch[ci] = newNode();
+        cur = trie[cur].ch[ci];
+    }
+    trie[cur].isEnd = true;
+}
+
+void markLongest(const string& word) {
+    int cur = 0;
+    for (char c : word) {
+        cur = trie[cur].ch[c - 'a'];
+        trie[cur].onLongest = true;
+    }
+}
+
+void dfs(int v, bool isLast) {
+    if (trie[v].isEnd) ops.push_back('P');
+
+    // Collect children; put longest-path child last
+    vector<int> children;
+    int longChild = -1;
+    for (int c = 0; c < 26; c++) {
+        if (trie[v].ch[c] == -1) continue;
+        if (trie[trie[v].ch[c]].onLongest)
+            longChild = (int)children.size();
+        children.push_back(c);
+    }
+    if (longChild != -1)
+        swap(children[longChild], children.back());
+
+    for (int i = 0; i < (int)children.size(); i++) {
+        int c = children[i];
+        bool last = (i == (int)children.size() - 1) && isLast;
+        ops.push_back('a' + c);
+        dfs(trie[v].ch[c], last);
+        if (!last) ops.push_back('-');
+    }
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    newNode(); // root
+
+    vector<string> words(N);
+    int maxLen = 0, maxIdx = 0;
+    for (int i = 0; i < N; i++) {
+        cin >> words[i];
+        insert(words[i]);
+        if ((int)words[i].size() > maxLen) {
+            maxLen = words[i].size();
+            maxIdx = i;
+        }
+    }
+
+    markLongest(words[maxIdx]);
+    dfs(0, true);
+
+    cout << ops.size() << "\n";
+    for (char c : ops) {
+        if (c == 'P') cout << "P\n";
+        else if (c == '-') cout << "-\n";
+        else cout << c << "\n";
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The \texttt{isLast} parameter ensures that only the final edge traversal (from root to the longest word's leaf) avoids Pops. At each node on the longest-word path, the marked child is visited last; after returning from it, no Pop is emitted. All other children emit Push/DFS/Pop as usual.
+
+The optimality of choosing the longest word for the Pop-free path follows from the fact that every trie edge must be Pushed at least once, and Popped at least once except on the last path. Choosing the longest path maximizes the number of saved Pops.
+
+\end{document}

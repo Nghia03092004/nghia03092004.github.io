@@ -1,0 +1,248 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\E. Hand of the Free Marked}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+From the deck, $k$ cards are chosen uniformly at random. The assistant hides one of them and lays out the
+other $k-1$ cards in some order. The magician sees:
+\begin{itemize}[leftmargin=*]
+    \item the exact identities of the $k-1$ visible cards;
+    \item the back marking of the hidden card.
+\end{itemize}
+
+We want the highest possible probability that the magician can identify the hidden card.
+
+\section*{Split by Mark Pattern}
+
+Let the mark counts be $c_1, c_2, \dots, c_m$. For one random choice of $k$ cards, only the multiset of
+marks matters. Write that multiset as
+\[
+    x_1, x_2, \dots, x_m,
+\]
+where $x_i$ cards of mark $i$ were selected and
+\[
+    x_1 + x_2 + \cdots + x_m = k.
+\]
+
+Once the cards are on the table, the magician knows this vector exactly: the visible cards reveal their
+marks, and the hidden card reveals its back mark. Therefore different vectors $(x_1,\dots,x_m)$ are
+completely independent subproblems, and the assistant and magician may use a different optimal strategy
+for each one.
+
+\section*{Bipartite Graph for One Pattern}
+
+Fix one pattern $x$.
+
+\paragraph{Right side.}
+Each vertex is an actual $k$-card subset having this mark pattern. The number of such subsets is
+\[
+    R(x) = \prod_{i=1}^m \binom{c_i}{x_i}.
+\]
+
+\paragraph{Left side.}
+Each vertex is one possible table state:
+\begin{itemize}[leftmargin=*]
+    \item which mark the hidden card has;
+    \item which $k-1$ cards are visible;
+    \item in what order they are shown.
+\end{itemize}
+
+If the hidden card has mark $h$, then the visible cards contain
+\[
+    x_h - 1
+\]
+cards of mark $h$ and $x_i$ cards of every other mark $i$. So the number of left vertices with hidden
+mark $h$ is
+\[
+    (k-1)! \binom{c_h}{x_h - 1} \prod_{i \ne h} \binom{c_i}{x_i}.
+\]
+Summing over all possible hidden marks gives
+\[
+    L(x) = (k-1)! \sum_{h : x_h > 0}
+    \binom{c_h}{x_h - 1} \prod_{i \ne h} \binom{c_i}{x_i}.
+\]
+
+\paragraph{Edges.}
+A right vertex is adjacent to exactly the table states that can be produced from that selected $k$-set.
+Choosing a strategy is exactly choosing, for as many right vertices as possible, distinct adjacent left
+vertices. That is a matching problem.
+
+By the same symmetry argument used in the classical Fitch Cheney trick, this graph always has a matching
+that saturates the smaller side. Therefore, for this pattern, the number of successful selected sets is
+\[
+    \min(L(x), R(x)).
+\]
+
+\section*{A Useful Simplification}
+
+Divide $L(x)$ by $R(x)$:
+\[
+    \frac{L(x)}{R(x)}
+    = (k-1)! \sum_{h : x_h > 0}
+    \frac{\binom{c_h}{x_h - 1}}{\binom{c_h}{x_h}}
+    = (k-1)! \sum_{h : x_h > 0}
+    \frac{x_h}{c_h - x_h + 1}.
+\]
+
+So the success probability conditioned on pattern $x$ is
+\[
+    \min\!\left(1,\,
+    (k-1)! \sum_{h : x_h > 0}
+    \frac{x_h}{c_h - x_h + 1}\right).
+\]
+
+The probability of obtaining pattern $x$ in the random draw is the multivariate hypergeometric value
+\[
+    \frac{R(x)}{\binom{n}{k}}.
+\]
+
+Therefore the final answer is
+\[
+    \sum_{x_1+\cdots+x_m=k}
+    \frac{R(x)}{\binom{n}{k}}
+    \cdot
+    \min\!\left(1,\,
+    (k-1)! \sum_{h : x_h > 0}
+    \frac{x_h}{c_h - x_h + 1}\right),
+\]
+with the additional restriction $0 \le x_i \le c_i$.
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Enumerate all vectors $(x_1,\dots,x_m)$ such that
+    \[
+        x_1+\cdots+x_m=k, \qquad 0 \le x_i \le c_i.
+    \]
+    Since $k,m \le 10$, this search space is tiny.
+    \item For each vector:
+    \begin{itemize}[leftmargin=*]
+        \item compute
+        \[
+            R(x) = \prod_i \binom{c_i}{x_i};
+        \]
+        \item compute the conditional success factor
+        \[
+            \min\!\left(1,\,
+            (k-1)! \sum_h \frac{x_h}{c_h - x_h + 1}\right);
+        \]
+        \item add the corresponding weighted contribution to the answer.
+    \end{itemize}
+\end{enumerate}
+
+All binomial coefficients only need $r \le 10$, so they can be evaluated directly in $O(r)$ time using
+long doubles.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the optimal success probability.
+
+\paragraph{Lemma 1.}
+Different mark patterns $(x_1,\dots,x_m)$ can be optimized independently.
+
+\paragraph{Proof.}
+The magician sees all visible cards and also the mark on the hidden card. Hence the full mark multiset of
+the chosen $k$ cards is known before any final guess is made. So the assistant and magician may agree on
+a separate strategy for each mark pattern without any ambiguity. \qed
+
+\paragraph{Lemma 2.}
+For a fixed mark pattern $x$, the number of selectable $k$-card subsets is
+\[
+    R(x) = \prod_i \binom{c_i}{x_i}.
+\]
+
+\paragraph{Proof.}
+For each mark $i$, we choose exactly $x_i$ of the $c_i$ cards having that mark. The choices are
+independent across marks, so the counts multiply. \qed
+
+\paragraph{Lemma 3.}
+For a fixed mark pattern $x$, the number of possible table states is
+\[
+    L(x) = (k-1)! \sum_{h : x_h > 0}
+    \binom{c_h}{x_h - 1} \prod_{i \ne h} \binom{c_i}{x_i}.
+\]
+
+\paragraph{Proof.}
+Fix the hidden mark $h$. Then the visible cards must contain $x_h-1$ cards of mark $h$ and $x_i$ cards
+of every other mark $i$. The number of ways to choose those visible cards is exactly
+\[
+    \binom{c_h}{x_h - 1} \prod_{i \ne h} \binom{c_i}{x_i}.
+\]
+After choosing them, the assistant may arrange them in any of $(k-1)!$ orders. Summing over every
+possible hidden mark gives the formula. \qed
+
+\paragraph{Lemma 4.}
+For a fixed mark pattern $x$, the maximum number of selected sets that can be decoded correctly is
+\[
+    \min(L(x), R(x)).
+\]
+
+\paragraph{Proof.}
+Model the situation as the bipartite graph described above: right vertices are selected $k$-sets of type
+$x$, left vertices are table states of type $x$, and an edge means that the assistant can realize that
+table state from that selected set.
+
+Choosing a deterministic optimal strategy is exactly choosing distinct table states for as many selected
+sets as possible, which is a matching. By the symmetry of this graph inside the fixed pattern class, Hall's
+theorem guarantees that the smaller side can be saturated, so the maximum matching size is
+\[
+    \min(L(x), R(x)).
+\]
+\qed
+
+\paragraph{Lemma 5.}
+Conditioned on mark pattern $x$, the optimal success probability equals
+\[
+    \min\!\left(1,\,
+    (k-1)! \sum_h \frac{x_h}{c_h - x_h + 1}\right).
+\]
+
+\paragraph{Proof.}
+By Lemma 4 the conditional success probability is
+\[
+    \frac{\min(L(x),R(x))}{R(x)} = \min\!\left(1,\frac{L(x)}{R(x)}\right).
+\]
+Using Lemma 3 and canceling the common factor $R(x)$ yields
+\[
+    \frac{L(x)}{R(x)}
+    = (k-1)! \sum_h
+    \frac{\binom{c_h}{x_h - 1}}{\binom{c_h}{x_h}}
+    = (k-1)! \sum_h \frac{x_h}{c_h - x_h + 1}.
+    \qedhere
+\]
+
+\paragraph{Theorem.}
+The algorithm outputs the highest possible probability of guessing the hidden card correctly.
+
+\paragraph{Proof.}
+By Lemma 1, patterns can be treated independently. For each pattern, Lemma 5 gives the optimal
+conditional success probability, and Lemma 2 gives the probability that this pattern occurs. Summing these
+weighted contributions over all feasible patterns yields exactly the optimal overall success probability.
+\qed
+
+\section*{Complexity Analysis}
+
+The number of states $(x_1,\dots,x_m)$ is the number of weak compositions of $k$ into $m$ parts, which is
+small because $k,m \le 10$. For each state we do only $O(mk)$ arithmetic, so the running time is tiny and
+the memory usage is $O(m)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item We evaluate $\binom{N}{r}$ directly with a short multiplicative loop. Since $r \le 10$, this is
+    both fast and numerically stable enough with long doubles.
+    \item The final formula never needs huge exact integers; we work only with probabilities and ratios.
+\end{itemize}
+
+\end{document}

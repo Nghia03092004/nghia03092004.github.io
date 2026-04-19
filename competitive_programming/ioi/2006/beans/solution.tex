@@ -1,0 +1,118 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2006 -- Beans (Mexicane\~{n}o)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+We are given $N$ beans with integer values $a_1, a_2, \ldots, a_N$ arranged in a circle. We must select a subset of beans such that no two selected beans are adjacent in the circle, maximizing the total value of selected beans.
+
+\section{Solution}
+
+\subsection{Linear Case (No Wrap-Around)}
+Consider first the simpler problem where the beans are arranged in a line. Define:
+\begin{align*}
+dp[i][0] &= \text{maximum sum using beans } 1, \ldots, i \text{ with bean } i \text{ \emph{not} selected,} \\
+dp[i][1] &= \text{maximum sum using beans } 1, \ldots, i \text{ with bean } i \text{ selected.}
+\end{align*}
+The recurrence is:
+\begin{align*}
+dp[i][0] &= \max(dp[i-1][0],\; dp[i-1][1]), \\
+dp[i][1] &= dp[i-1][0] + a_i,
+\end{align*}
+with base case $dp[1][0] = 0$, $dp[1][1] = a_1$. The answer for the linear case is $\max(dp[N][0], dp[N][1])$.
+
+This can be computed using only $O(1)$ space since each row depends only on the previous row.
+
+\subsection{Circular Case}
+When the beans are arranged in a circle, beans $1$ and $N$ are adjacent. We reduce to two linear sub-problems:
+\begin{enumerate}
+    \item \textbf{Exclude bean 1}: Solve the linear problem on beans $2, 3, \ldots, N$.
+    \item \textbf{Include bean 1}: Since bean 1 is selected, beans 2 and $N$ are forbidden. Solve the linear problem on beans $3, 4, \ldots, N-1$ and add $a_1$.
+\end{enumerate}
+The answer is the maximum of these two cases.
+
+\begin{lemma}
+This reduction is correct because every valid circular selection either includes bean 1 or does not.
+\end{lemma}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$ -- two linear passes.
+    \item \textbf{Space:} $O(1)$ with the rolling-variable optimization (or $O(N)$ if storing the full DP table).
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    vector<long long> a(N);
+    for(int i = 0; i < N; i++) cin >> a[i];
+
+    if(N == 1){
+        cout << max(0LL, a[0]) << "\n";
+        return 0;
+    }
+    if(N == 2){
+        cout << max({0LL, a[0], a[1]}) << "\n";
+        return 0;
+    }
+
+    // Solve max-weight independent set on a path
+    auto solveLinear = [](const long long* v, int n) -> long long {
+        if(n <= 0) return 0;
+        if(n == 1) return max(0LL, v[0]);
+        long long prev_no = 0, prev_yes = max(0LL, v[0]);
+        for(int i = 1; i < n; i++){
+            long long new_no = max(prev_no, prev_yes);
+            long long new_yes = prev_no + v[i];
+            prev_no = new_no;
+            prev_yes = new_yes;
+        }
+        return max(prev_no, prev_yes);
+    };
+
+    // Case 1: exclude a[0], solve on a[1..N-1]
+    long long ans1 = solveLinear(a.data() + 1, N - 1);
+
+    // Case 2: include a[0], exclude a[1] and a[N-1], solve on a[2..N-2]
+    long long ans2 = a[0] + solveLinear(a.data() + 2, N - 3);
+
+    cout << max(ans1, ans2) << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{IOI 2023 -- Closing Time}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given a weighted tree, two special vertices $X$ and $Y$, and budget $K$, choose closing times to maximize the total number of vertices reachable from $X$ and from $Y$.
+
+\section{Solution}
+
+\subsection{Two Costs per Vertex}
+Let
+\[
+p_v = \min(\mathrm{dist}(X,v), \mathrm{dist}(Y,v)), \qquad
+q_v = \max(\mathrm{dist}(X,v), \mathrm{dist}(Y,v)).
+\]
+Each vertex can contribute in two ways:
+\begin{itemize}
+  \item paying $p_v$ means it is covered from the nearer endpoint;
+  \item paying $q_v$ means it is covered from both sides / after the common part is chosen.
+\end{itemize}
+
+\subsection{Case 1: Solutions with a Common Part}
+If the chosen reachable sets share vertices on the path from $X$ to $Y$, the official solution sweeps a border along that path. Vertices already forced into the common part contribute fixed cost, while the remaining vertices are optimized using Fenwick trees over a sorted multiset of candidate values. This allows us to compute the best leftover score for each border in $O(\log n)$.
+
+\subsection{Case 2: Solutions without a Common Part}
+If the two reachable sets are disjoint, then each vertex contributes either $p_v$ or $q_v$, independently. The optimum is obtained by sorting all $2n$ candidate costs and greedily taking the cheapest ones within budget.
+
+\subsection{Final Answer}
+Take the maximum over the two cases above. Distances from $X$ and $Y$ are computed once with DFS, so the whole solution is dominated by sorting and Fenwick operations.
+
+\section{Complexity}
+\begin{itemize}
+  \item Distance preprocessing: $O(n)$.
+  \item Fenwick-based optimization and sorting: $O(n \log n)$.
+  \item Total: $O(n \log n)$.
+\end{itemize}
+
+\end{document}

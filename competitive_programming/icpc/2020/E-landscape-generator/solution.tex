@@ -1,0 +1,162 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\E. Landscape Generator}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Initially all $n$ heights are $0$.
+We then apply $k$ additive operations on intervals:
+\texttt{R} and \texttt{D} add $\pm 1$ on a whole segment,
+while \texttt{H} and \texttt{V} add a symmetric triangular profile
+\[
+    1,2,3,\dots,\text{peak},\dots,3,2,1
+\]
+or its negation.
+
+We must output the final height at every position.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Every operation is purely additive, so the order does not matter. We only need the sum of all
+    contributions at each position.
+    \item A constant raise/depress on $[x_1, x_2]$ is just the linear function
+    \[
+        0 \cdot x + (\pm 1)
+    \]
+    on that interval.
+    \item A hill or valley is piecewise linear. Let
+    \[
+        m = \left\lfloor \frac{x_1 + x_2}{2} \right\rfloor.
+    \]
+    Then a hill on $[x_1, x_2]$ equals
+    \[
+        x - x_1 + 1 \quad \text{for } x \in [x_1, m],
+    \]
+    and
+    \[
+        x_2 - x + 1 \quad \text{for } x \in [m+1, x_2].
+    \]
+    A valley is just the negative of the same profile.
+    \item So every operation can be decomposed into at most two interval updates of a linear function
+    \[
+        a x + b.
+    \]
+    \item If we keep two difference arrays, one for the active coefficient $a$ and one for the active
+    coefficient $b$, then after a prefix sum we know the total linear function applying at each position.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Maintain two difference arrays:
+    \begin{itemize}[leftmargin=*]
+        \item \texttt{diffA} for slope coefficients,
+        \item \texttt{diffB} for constant coefficients.
+    \end{itemize}
+    An update ``add $ax+b$ on $[L,R]$'' is handled by
+    \[
+        \texttt{diffA}[L] += a,\quad \texttt{diffA}[R+1] -= a,
+    \]
+    and similarly for \texttt{diffB}.
+    \item For \texttt{R} and \texttt{D}, add the constant functions $+1$ or $-1$ on $[x_1,x_2]$.
+    \item For \texttt{H} or \texttt{V}, let \texttt{sign} be $+1$ for a hill and $-1$ for a valley, and let
+    $m=\lfloor (x_1+x_2)/2 \rfloor$.
+    Then add
+    \[
+        \texttt{sign} \cdot x + \texttt{sign}(1-x_1)
+    \]
+    on $[x_1,m]$, and
+    \[
+        -\texttt{sign} \cdot x + \texttt{sign}(x_2+1)
+    \]
+    on $[m+1,x_2]$.
+    \item After processing all operations, sweep from left to right.
+    Prefix-sum \texttt{diffA} and \texttt{diffB} into the current coefficients $A$ and $B$.
+    The final height at position $i$ is then
+    \[
+        A \cdot i + B.
+    \]
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For any interval $[L,R]$, the update ``add $ax+b$ for every $x \in [L,R]$'' is represented correctly by
+adding $a$ and $b$ to the two difference arrays at $L$ and subtracting them at $R+1$.
+
+\paragraph{Proof.}
+After taking prefix sums of the difference arrays, coefficient $a$ is present exactly on indices in
+$[L,R]$, and absent elsewhere. The same is true for coefficient $b$.
+Therefore the value contributed at index $x$ is exactly $ax+b$ when $x \in [L,R]$ and $0$ otherwise.
+\qed
+
+\paragraph{Lemma 2.}
+Let $m=\lfloor (x_1+x_2)/2 \rfloor$.
+A hill on $[x_1,x_2]$ is exactly the sum of the two linear pieces
+\[
+    x-x_1+1 \quad \text{on } [x_1,m]
+\]
+and
+\[
+    x_2-x+1 \quad \text{on } [m+1,x_2].
+\]
+A valley is the negative of the same decomposition.
+
+\paragraph{Proof.}
+For $x \in [x_1,m]$, the distance from $x$ to the nearer endpoint is $x-x_1$, so the hill adds
+$x-x_1+1$.
+For $x \in [m+1,x_2]$, the nearer endpoint is the right one, so the hill adds $x_2-x+1$.
+These are exactly the values specified in the statement:
+$1$ at both ends, increasing by $1$ toward the middle, with one peak for odd length and two equal middle
+values for even length.
+Negating the profile gives a valley. \qed
+
+\paragraph{Lemma 3.}
+For every position $i$, the algorithm computes exactly the total contribution of all operations at $i$.
+
+\paragraph{Proof.}
+By Lemma 2, each input operation is decomposed into one or two linear interval updates that reproduce its
+exact effect.
+By Lemma 1, each such linear interval update is represented exactly in the difference arrays.
+Summing all active coefficients at position $i$ therefore gives the sum of all operation contributions at
+$i$, which is the final height there. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+Every input operation is transformed into an equivalent set of linear interval updates by Lemma 2.
+Those updates are accumulated exactly by the two difference arrays by Lemma 1.
+By Lemma 3, the final sweep computes the exact total height at every position.
+Therefore the algorithm outputs the correct landscape. \qed
+
+\section*{Complexity Analysis}
+
+Each modification performs only $O(1)$ work, and the final sweep is linear.
+So the total running time is $O(n+k)$.
+
+The two difference arrays use $O(n)$ memory.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The split point is always $m=\lfloor (x_1+x_2)/2 \rfloor$.
+    This handles both odd and even interval lengths correctly.
+    \item Using 64-bit integers is important because many large hills or valleys can accumulate.
+    \item The second linear segment is empty when $x_1=x_2$; the helper simply skips empty intervals.
+\end{itemize}
+
+\end{document}

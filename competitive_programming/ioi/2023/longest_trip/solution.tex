@@ -1,0 +1,189 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2023 --- Longest Trip}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+$N$ landmarks are connected by roads.  The graph satisfies a
+\emph{density} condition: for any triple of nodes, at least $D$ of
+the three possible edges exist ($D \in \{1, 2, 3\}$).  Using an
+interactive function $\texttt{are\_connected}(A, B)$ (which tests
+whether any edge exists between sets $A$ and $B$), find the longest
+simple path.
+
+\section{Solution}
+
+\subsection{Case $D = 3$: complete graph}
+
+Every pair is connected, so any permutation of all $N$ nodes is a
+Hamiltonian path.
+
+\subsection{Case $D = 2$}
+
+Any three nodes span at least 2 edges.  A Hamiltonian path always
+exists.
+
+\subsection{Case $D = 1$: general}
+
+\begin{lemma}\label{lem:merge}
+When adding node $i$ that is not adjacent to any endpoint of path $P$
+or path $Q$, the density condition forces $P$'s last node and $Q$'s
+last node to be adjacent.  Hence we can concatenate $P$ and $Q$.
+\end{lemma}
+
+\begin{proof}
+Consider the triple ($i$, $P.\mathrm{back}$, $Q.\mathrm{back}$).  We
+tested that $i$--$P.\mathrm{back}$ and $i$--$Q.\mathrm{back}$ are
+non-edges.  Since at least 1 edge must exist among the three, the edge
+$P.\mathrm{back}$--$Q.\mathrm{back}$ exists.
+\end{proof}
+
+\paragraph{Algorithm.}
+Maintain two paths $P$ and $Q$ (as deques).  For each new node $i$:
+\begin{enumerate}
+  \item If $i$ connects to an endpoint of $P$, extend $P$.
+  \item Else if $i$ connects to an endpoint of $Q$, extend $Q$.
+  \item Else by Lemma~\ref{lem:merge}, merge $P$ and $Q$ (appending
+        $Q$ reversed to $P$), then start a new $Q = \{i\}$.
+\end{enumerate}
+
+After all nodes are processed, try to merge $P$ and $Q$ by testing
+all four endpoint combinations.  If no endpoint connection exists,
+use binary search to find an internal connection point (costing
+$O(\log N)$ additional queries) and splice the paths together.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+bool are_connected(vector<int> A, vector<int> B);
+
+vector<int> longest_trip(int N, int D) {
+    if (N == 1) return {0};
+
+    deque<int> P, Q;
+    P.push_back(0);
+    if (N > 1) Q.push_back(1);
+
+    for (int i = 2; i < N; i++) {
+        if (are_connected({i}, {(int)P.back()})) {
+            P.push_back(i);
+        } else if (are_connected({i}, {(int)P.front()})) {
+            P.push_front(i);
+        } else if (!Q.empty() && are_connected({i}, {(int)Q.back()})) {
+            Q.push_back(i);
+        } else if (!Q.empty() && are_connected({i}, {(int)Q.front()})) {
+            Q.push_front(i);
+        } else {
+            // By density D >= 1: P.back()--Q.back() must be an edge
+            while (!Q.empty()) {
+                P.push_back(Q.back());
+                Q.pop_back();
+            }
+            Q.push_back(i);
+        }
+    }
+
+    if (Q.empty())
+        return vector<int>(P.begin(), P.end());
+
+    // Try all 4 endpoint pairs
+    if (are_connected({(int)P.back()}, {(int)Q.front()})) {
+        for (auto x : Q) P.push_back(x);
+        return vector<int>(P.begin(), P.end());
+    }
+    if (are_connected({(int)P.back()}, {(int)Q.back()})) {
+        while (!Q.empty()) { P.push_back(Q.back()); Q.pop_back(); }
+        return vector<int>(P.begin(), P.end());
+    }
+    if (are_connected({(int)P.front()}, {(int)Q.front()})) {
+        vector<int> res;
+        while (!P.empty()) { res.push_back(P.back()); P.pop_back(); }
+        for (auto x : Q) res.push_back(x);
+        return res;
+    }
+    if (are_connected({(int)P.front()}, {(int)Q.back()})) {
+        while (!Q.empty()) { P.push_front(Q.back()); Q.pop_back(); }
+        return vector<int>(P.begin(), P.end());
+    }
+
+    // No endpoint connection: binary search for internal link
+    vector<int> pv(P.begin(), P.end()), qv(Q.begin(), Q.end());
+    if (!are_connected(pv, qv))
+        return (pv.size() >= qv.size()) ? pv : qv;
+
+    // Binary search on P for a node connected to Q
+    int lo = 0, hi = (int)pv.size() - 1, p_idx = 0;
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+        vector<int> sub(pv.begin() + lo, pv.begin() + mid + 1);
+        if (are_connected(sub, qv))
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    p_idx = lo;
+
+    // Binary search on Q for the partner
+    lo = 0; hi = (int)qv.size() - 1;
+    int q_idx = 0;
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+        vector<int> sub(qv.begin() + lo, qv.begin() + mid + 1);
+        if (are_connected({pv[p_idx]}, sub))
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    q_idx = lo;
+
+    // Splice: ...P[p_idx] -- Q[q_idx]...
+    vector<int> result;
+    for (int i = p_idx + 1; i < (int)pv.size(); i++) result.push_back(pv[i]);
+    for (int i = 0; i <= p_idx; i++) result.push_back(pv[i]);
+    for (int i = q_idx; i < (int)qv.size(); i++) result.push_back(qv[i]);
+    for (int i = 0; i < q_idx; i++) result.push_back(qv[i]);
+    return result;
+}
+\end{lstlisting}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Queries during construction:} $O(N)$ --- at most 4 queries
+        per node for endpoint checks.
+  \item \textbf{Queries for merging:} $O(\log N)$ for binary search on each
+        path.  Total: $O(\log^2 N)$.
+  \item \textbf{Overall:} $O(N + \log^2 N) = O(N)$ queries.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\end{document}

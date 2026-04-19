@@ -1,0 +1,198 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\B. Dungeon Crawler}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a weighted tree. In one query we start at room $s$, the key is in room $k$, and room $t$
+is trapped until the key has been collected. We must visit every room at least once and may stop
+anywhere.
+
+If reaching $k$ already requires entering $t$, then the query is impossible. Otherwise we need the minimum
+possible walk length.
+
+\section*{Unrestricted Tour}
+
+Forget the key and the trap for a moment. If the walk starts at $s$ and ends at some room $e$, then every
+edge outside the simple path $P(s,e)$ is used twice, while every edge on $P(s,e)$ is used once. Therefore
+the optimal unrestricted cost is
+\[
+    2W - \mathrm{dist}(s,e),
+\]
+where $W$ is the sum of all edge weights.
+
+So without the trap, we would simply choose the farthest possible endpoint from $s$.
+
+\section*{What the Trap Changes}
+
+Assume the query is feasible, so $t$ is not on the path from $s$ to $k$.
+
+Root the tree at $s$ and let $l$ be the lowest common ancestor of $k$ and $t$. The edges on the path
+from $l$ down to $k$ are special. Why?
+
+To collect the key first, we must walk from $s$ to $k$. If we later want to finish in a place whose final
+simple path also uses some prefix of that same route, then those shared edges are no longer ``saved'' by
+ending there:
+\begin{itemize}[leftmargin=*]
+    \item first we traverse them while going from $s$ to $k$;
+    \item then we backtrack over them to leave the key branch and handle the trap side;
+    \item finally we may traverse them again on the way to the final endpoint.
+\end{itemize}
+
+So an edge on this special path is used three times instead of once. Relative to the baseline cost $2W$,
+that means:
+\begin{itemize}[leftmargin=*]
+    \item a normal edge on the final path contributes a saving of $w$;
+    \item a special edge on the final path contributes a penalty of $w$.
+\end{itemize}
+
+Hence, for a chosen endpoint $e$, the effective saving is
+\[
+    \mathrm{dist}(s,e) - 2 \cdot \mathrm{len}\bigl(P(s,e) \cap P(l,k)\bigr).
+\]
+
+The answer is
+\[
+    2W - \max_e
+    \left(
+        \mathrm{dist}(s,e) - 2 \cdot \mathrm{len}\bigl(P(s,e) \cap P(l,k)\bigr)
+    \right).
+\]
+
+\section*{Turning the Formula into an $O(n)$ Query}
+
+Fix the root $s$. Write the special path as
+\[
+    l \to a_1 \to a_2 \to \cdots \to a_r = k.
+\]
+
+If the final endpoint leaves this branch immediately at $l$, then it touches none of the special edges and
+its saving is just its ordinary distance from $s$.
+
+If the endpoint follows the branch down to $a_i$ and then leaves it there, then it uses exactly the first
+$i$ special edges, so the penalty is
+\[
+    2 \cdot \mathrm{dist}(l, a_i).
+\]
+Inside the rooted tree at $s$, the relevant endpoints are:
+\begin{itemize}[leftmargin=*]
+    \item outside the subtree of $a_1$;
+    \item inside the subtree of $a_i$ but outside the subtree of $a_{i+1}$ for $1 \le i < r$;
+    \item anywhere inside the subtree of $k$.
+\end{itemize}
+
+For a fixed root $s$, we precompute:
+\begin{itemize}[leftmargin=*]
+    \item $\text{dist}_s[v]$ and the parent of every node;
+    \item $\text{subtreeBest}_s[v]$: maximum $\text{dist}_s[x]$ over the subtree of $v$;
+    \item $\text{outsideBest}_s[v]$: maximum $\text{dist}_s[x]$ outside the subtree of $v$;
+    \item $\text{branchBest}_s[v]$: if $p$ is the parent of $v$, the maximum $\text{dist}_s[x]$ inside the
+    subtree of $p$ but outside the subtree of $v$.
+\end{itemize}
+
+Then one query is handled by climbing from $k$ up toward $l$:
+\begin{itemize}[leftmargin=*]
+    \item endpoints outside the first special subtree use $\text{outsideBest}$ with penalty $0$;
+    \item endpoints diverging at an internal special node use $\text{branchBest}$ minus the corresponding
+    penalty;
+    \item endpoints staying all the way inside the subtree of $k$ use $\text{subtreeBest}$ minus the full
+    penalty.
+\end{itemize}
+
+Since we only traverse the special path itself, each query costs $O(\text{length}(P(l,k))) \subseteq O(n)$.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the optimal answer for every query.
+
+\paragraph{Lemma 1.}
+A query is feasible if and only if $t$ does not lie on the path from $s$ to $k$.
+
+\paragraph{Proof.}
+If $t$ lies on the path from $s$ to $k$, then every route from $s$ to $k$ enters $t$ before the key is
+collected, so the query is impossible.
+
+If $t$ is not on that path, then we can walk from $s$ to $k$ first, collect the key, and from then on the
+trap restriction disappears. So the query is feasible. \qed
+
+\paragraph{Lemma 2.}
+Fix a feasible query and a final endpoint $e$. Relative to the baseline cost $2W$, every edge on
+$P(s,e) \setminus P(l,k)$ contributes a saving of its weight, while every edge on
+$P(s,e) \cap P(l,k)$ contributes a penalty of its weight.
+
+\paragraph{Proof.}
+Any edge not on the final simple path is still used twice, contributing exactly its baseline cost.
+
+Consider an edge on $P(s,e)$ that is not special. It behaves exactly as in the unrestricted problem: we
+cross it once and never come back, so it saves one traversal.
+
+Now consider a special edge, meaning it lies on both $P(s,k)$ and $P(k,t)$. We must cross it once while
+moving from $s$ to $k$. To later reach the trap side, we must cross it again in the opposite direction.
+If the final endpoint also lies beyond that edge on the key side, we cross it a third time while heading
+toward the endpoint. So compared with the baseline of twice, that edge costs one extra traversal instead of
+saving one. \qed
+
+\paragraph{Lemma 3.}
+For any endpoint $e$, the minimum feasible walk ending at $e$ has length
+\[
+    2W - \mathrm{dist}(s,e) + 2 \cdot \mathrm{len}\bigl(P(s,e) \cap P(l,k)\bigr).
+\]
+
+\paragraph{Proof.}
+This is exactly the contribution count from Lemma 2, summed over all edges. No other edge changes its
+multiplicity compared with the baseline tour of length $2W$. \qed
+
+\paragraph{Lemma 4.}
+If the endpoint first leaves the special branch at node $a_i$, then the penalty term is exactly
+$2 \cdot \mathrm{dist}(l,a_i)$.
+
+\paragraph{Proof.}
+The shared part of the final path and the special path is precisely the prefix from $l$ down to $a_i$.
+Those are exactly the special edges that the final path keeps using. \qed
+
+\paragraph{Theorem.}
+For every feasible query, the algorithm outputs the minimum total traversal time.
+
+\paragraph{Proof.}
+By Lemma 1, infeasible queries are detected correctly.
+
+For a feasible query, Lemma 3 shows that minimizing the walk length is equivalent to maximizing the
+effective saving. By Lemma 4, that saving depends only on where the final path leaves the special branch.
+The algorithm enumerates all possible departure regions:
+\begin{itemize}[leftmargin=*]
+    \item outside the first special subtree;
+    \item each side region along the special branch;
+    \item the subtree of $k$ itself.
+\end{itemize}
+For each region it uses the farthest possible endpoint in that region and subtracts exactly the correct
+penalty. Therefore it computes the maximum feasible saving, and subtracting it from $2W$ gives the optimum
+answer. \qed
+
+\section*{Complexity Analysis}
+
+For each possible start room $s$, we root the tree at $s$ once and compute all auxiliary tables in $O(n)$
+time. Over all roots, preprocessing costs $O(n^2)$ time and $O(n^2)$ memory.
+
+Each query climbs only the special path from $k$ to the branching point $l$, so it is answered in $O(n)$
+time in the worst case.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The helper \texttt{on\_path(a, b, c)} checks whether $b$ lies on the path from $a$ to $c$ using the
+    all-pairs distance table.
+    \item \texttt{branchBest[child]} stores the best endpoint that stays inside the parent subtree but leaves
+    the special branch immediately at that parent.
+\end{itemize}
+
+\end{document}

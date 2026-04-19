@@ -1,0 +1,151 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2024 -- Tree}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given a rooted tree with $N$ nodes, each with weight $W[i]$. Assign integer ``coefficients'' $C[i]$ to each node such that for every node $i$, the sum of coefficients in its subtree is between $L$ and $R$ (given per query). Minimize the total cost $\sum |C[i]| \cdot W[i]$.
+
+\section{Solution Approach}
+
+\subsection{Key Observation}
+Let $S[i]$ denote the sum of coefficients in the subtree of $i$. Then $L \le S[i] \le R$ for all $i$, and $C[i] = S[i] - \sum_{j \in \text{children}(i)} S[j]$.
+
+So the cost is:
+\[\sum_{i=0}^{N-1} |S[i] - \sum_{j \in \text{children}(i)} S[j]| \cdot W[i]\]
+
+We want to choose $S[i] \in [L, R]$ for all $i$ to minimize this cost.
+
+\subsection{Greedy / DP on Tree}
+Process the tree bottom-up. For each leaf $i$: $S[i] \in [L, R]$ and $C[i] = S[i]$, so cost contribution is $|S[i]| \cdot W[i]$. Since $L \ge 1$ (usually), choose $S[i] = L$ to minimize.
+
+For an internal node $i$ with children $j_1, \ldots, j_k$:
+\begin{itemize}
+  \item The children have already chosen their $S[j]$ values.
+  \item Let $T = \sum_j S[j]$. Then $C[i] = S[i] - T$.
+  \item To minimize $|C[i]| \cdot W[i]$, choose $S[i]$ as close to $T$ as possible, subject to $S[i] \in [L, R]$.
+  \item So $S[i] = \text{clamp}(T, L, R)$ and $|C[i]| = |S[i] - T|$.
+\end{itemize}
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item For each leaf: $S[i] = L$.
+  \item For each internal node (bottom-up): $T = \sum_{j \in \text{children}} S[j]$. $S[i] = \max(L, \min(R, T))$.
+  \item Cost contribution: $|S[i] - T| \cdot W[i]$ for internal nodes, $|S[i]| \cdot W[i] = L \cdot W[i]$ for leaves.
+\end{enumerate}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+int N;
+vector<int> par, weight;
+vector<vector<int>> children;
+vector<int> order; // topological order (leaves first)
+
+void init(vector<int> P, vector<int> W) {
+    N = P.size();
+    par = P;
+    weight = W;
+    children.resize(N);
+    for (int i = 1; i < N; i++)
+        children[P[i]].push_back(i);
+
+    // Compute topological order (bottom-up)
+    order.clear();
+    vector<bool> visited(N, false);
+    // BFS from leaves
+    queue<int> q;
+    vector<int> degree(N, 0);
+    for (int i = 0; i < N; i++)
+        degree[i] = children[i].size();
+
+    for (int i = 0; i < N; i++)
+        if (degree[i] == 0)
+            q.push(i);
+
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        order.push_back(u);
+        if (par[u] >= 0) {
+            degree[par[u]]--;
+            if (degree[par[u]] == 0)
+                q.push(par[u]);
+        }
+    }
+}
+
+ll query(int L, int R) {
+    vector<ll> S(N);
+    ll total_cost = 0;
+
+    for (int u : order) {
+        if (children[u].empty()) {
+            // Leaf
+            S[u] = L;
+            total_cost += (ll)L * weight[u];
+        } else {
+            ll child_sum = 0;
+            for (int c : children[u])
+                child_sum += S[c];
+
+            S[u] = max((ll)L, min((ll)R, child_sum));
+            total_cost += abs(S[u] - child_sum) * weight[u];
+        }
+    }
+
+    return total_cost;
+}
+
+int main() {
+    int n, q;
+    scanf("%d %d", &n, &q);
+    vector<int> P(n), W(n);
+    P[0] = -1;
+    for (int i = 1; i < n; i++) scanf("%d", &P[i]);
+    for (int i = 0; i < n; i++) scanf("%d", &W[i]);
+    init(P, W);
+    while (q--) {
+        int L, R;
+        scanf("%d %d", &L, &R);
+        printf("%lld\n", query(L, R));
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Preprocessing:} $O(N)$ for topological sort.
+  \item \textbf{Per query:} $O(N)$ for bottom-up traversal.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\textbf{Optimization:} For queries with $L = 1$, the structure simplifies: leaves always have $S = 1$, and the optimal $S[i]$ values depend on the tree structure. We can precompute the answer as a function of $R$ using the observation that increasing $R$ only affects nodes where the children's sum exceeds $R$ (clamping reduces the excess). With careful analysis, the answer is a piecewise linear function of $R$, enabling $O(\log N)$ per query after $O(N \log N)$ preprocessing.
+
+\end{document}

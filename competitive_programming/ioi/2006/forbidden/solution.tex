@@ -1,0 +1,168 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2006 -- Forbidden Patterns (Writing)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given a set of $K$ forbidden patterns (short strings) over an alphabet of size $\Sigma$, count the number of strings of length $N$ that do not contain any forbidden pattern as a substring. Output the count modulo a given prime.
+
+\section{Solution}
+
+\subsection{Aho-Corasick Automaton + DP}
+We build an Aho-Corasick automaton from all forbidden patterns and then run a DP over the automaton states.
+
+\begin{enumerate}
+    \item \textbf{Build the automaton.} Insert all forbidden patterns into a trie, then compute failure links via BFS from the root. During BFS, propagate the ``forbidden'' flag: a state is forbidden if it is the endpoint of a pattern or its failure chain reaches such a state.
+    \item \textbf{Complete the goto function.} For each state $s$ and character $c$, if $s$ has no child on $c$, set $\delta(s,c) = \delta(\text{fail}(s), c)$. This eliminates the need to follow failure links during the DP.
+    \item \textbf{DP.} Let $dp[i][s]$ be the number of valid strings of length $i$ that leave the automaton in state $s$. The base case is $dp[0][\text{root}] = 1$. The transition is:
+    \[
+    dp[i+1][s'] \mathrel{+}= dp[i][s] \qquad \text{for each character } c \text{ with } \delta(s,c) = s',
+    \]
+    skipping transitions where $s$ or $s'$ is forbidden.
+    \item \textbf{Answer.} $\displaystyle\sum_{s \text{ not forbidden}} dp[N][s]$.
+\end{enumerate}
+
+\subsection{Matrix Exponentiation (for large $N$)}
+The DP transition can be expressed as a matrix-vector product. Let $M$ be the number of non-forbidden states and $A$ the $M \times M$ transition matrix. Then $dp[N] = A^N \cdot dp[0]$, computable in $O(M^3 \log N)$ via fast matrix exponentiation.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Basic DP:} $O(N \cdot M \cdot \Sigma)$ time, $O(M)$ space (rolling two DP layers).
+    \item \textbf{Matrix exponentiation:} $O(M^3 \log N)$ time, $O(M^2)$ space.
+\end{itemize}
+Here $M = O(\sum |P_i|)$ is the number of automaton states.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MOD = 1e9 + 7;
+
+struct AhoCorasick {
+    int ALPHA;
+    struct Node {
+        vector<int> ch;
+        int fail;
+        bool forbidden;
+        Node(int alpha) : ch(alpha, -1), fail(0), forbidden(false) {}
+    };
+    vector<Node> trie;
+
+    AhoCorasick(int alpha) : ALPHA(alpha) {
+        trie.emplace_back(ALPHA); // root = node 0
+    }
+
+    void insert(const string& s) {
+        int cur = 0;
+        for (char c : s) {
+            int ci = c - 'a';
+            if (trie[cur].ch[ci] == -1) {
+                trie[cur].ch[ci] = trie.size();
+                trie.emplace_back(ALPHA);
+            }
+            cur = trie[cur].ch[ci];
+        }
+        trie[cur].forbidden = true;
+    }
+
+    void build() {
+        queue<int> q;
+        for (int c = 0; c < ALPHA; c++) {
+            if (trie[0].ch[c] == -1)
+                trie[0].ch[c] = 0;
+            else {
+                trie[trie[0].ch[c]].fail = 0;
+                q.push(trie[0].ch[c]);
+            }
+        }
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            trie[u].forbidden |= trie[trie[u].fail].forbidden;
+            for (int c = 0; c < ALPHA; c++) {
+                if (trie[u].ch[c] == -1)
+                    trie[u].ch[c] = trie[trie[u].fail].ch[c];
+                else {
+                    trie[trie[u].ch[c]].fail = trie[trie[u].fail].ch[c];
+                    q.push(trie[u].ch[c]);
+                }
+            }
+        }
+    }
+
+    int size() const { return trie.size(); }
+};
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, K, ALPHA;
+    cin >> N >> K >> ALPHA;
+
+    AhoCorasick ac(ALPHA);
+    for (int i = 0; i < K; i++) {
+        string p;
+        cin >> p;
+        ac.insert(p);
+    }
+    ac.build();
+
+    int M = ac.size();
+
+    // DP with rolling array
+    vector<long long> dp(M, 0);
+    dp[0] = 1;
+
+    for (int i = 0; i < N; i++) {
+        vector<long long> ndp(M, 0);
+        for (int s = 0; s < M; s++) {
+            if (dp[s] == 0 || ac.trie[s].forbidden) continue;
+            for (int c = 0; c < ALPHA; c++) {
+                int ns = ac.trie[s].ch[c];
+                if (!ac.trie[ns].forbidden)
+                    ndp[ns] = (ndp[ns] + dp[s]) % MOD;
+            }
+        }
+        dp = ndp;
+    }
+
+    long long ans = 0;
+    for (int s = 0; s < M; s++)
+        if (!ac.trie[s].forbidden)
+            ans = (ans + dp[s]) % MOD;
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The Aho-Corasick automaton captures exactly the suffix information needed to detect forbidden patterns. By completing the goto function during construction, the DP transition becomes a simple table lookup. The forbidden-flag propagation through failure links ensures that states reachable via a suffix match are correctly marked.
+
+For the IOI 2006 constraints, the basic $O(NM\Sigma)$ DP suffices. If $N$ is extremely large (e.g., $N \le 10^{18}$), use matrix exponentiation on the $M \times M$ transition matrix.
+
+\end{document}

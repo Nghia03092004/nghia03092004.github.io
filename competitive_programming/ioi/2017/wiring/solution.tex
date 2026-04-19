@@ -1,0 +1,119 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2017 -- Wiring}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+We have red and blue points on a line.
+Each point must be incident to at least one wire of the opposite color, and the cost of a wire is
+the distance between its endpoints.
+
+\section{Minimum Edge Cover View}
+This is a weighted edge-cover problem on the complete bipartite graph
+(reds on one side, blues on the other).
+
+For each red point $r_i$, let
+\[
+c_r(i)=\min_j |r_i-b_j|,
+\]
+and similarly for each blue point $b_j$ let
+\[
+c_b(j)=\min_i |r_i-b_j|.
+\]
+
+If every vertex chooses its cheapest incident edge independently, we pay
+\[
+\text{base}=\sum_i c_r(i)+\sum_j c_b(j).
+\]
+Whenever we replace the two individual cheapest choices of $(r_i,b_j)$ by a \emph{single}
+shared edge $(r_i,b_j)$, we save
+\[
+c_r(i)+c_b(j)-|r_i-b_j|.
+\]
+Therefore,
+\[
+\text{answer}=\text{base}-\text{(maximum total savings of a matching)}.
+\]
+
+\section{Savings on One Boundary}
+Merge all points and group consecutive equal colors into blocks.
+Positive savings occur only across one boundary between two adjacent blocks.
+
+Consider adjacent blocks
+\[
+a_1 < \dots < a_p < b_1 < \dots < b_q.
+\]
+Let $u$ be the closest opposite-colored point on the left of the $a$-block
+(or $-\infty$ if none exists), and let $v$ be the closest opposite-colored point on the right
+of the $b$-block (or $+\infty$ if none exists).
+
+For one pair $(a_i,b_j)$ the saving has the separable form
+\[
+(b_1-a_p)
+ + \min\!\bigl(0,\ 2a_i-(u+b_1)\bigr)
+ + \min\!\bigl(0,\ (v+a_p)-2b_j\bigr).
+\]
+
+Hence for a fixed boundary, if we choose exactly $t$ matched pairs:
+\begin{itemize}
+  \item we take the best $t$ vertices from the left block, which is a suffix;
+  \item we take the best $t$ vertices from the right block, which is a prefix.
+\end{itemize}
+
+So the best profit for exactly $t$ pairs across one boundary is easy to precompute with
+prefix/suffix sums.
+
+\section{DP on the Block Chain}
+Let $P_k(t)$ be the best profit for taking exactly $t$ matching edges across boundary $k$.
+If block $k$ has size $sz_k$, then the numbers of matching edges on its left and right boundaries
+must satisfy
+\[
+t_{k-1}+t_k \le sz_k.
+\]
+
+This gives a simple DP on the path of block boundaries:
+\[
+dp_k(t_k)=P_k(t_k)+
+\max_{t_{k-1}\le sz_k-t_k} dp_{k-1}(t_{k-1}).
+\]
+The transition is optimized with prefix maxima.
+
+\section{Complexity}
+\begin{itemize}
+  \item \textbf{Time:} $O(N)$ after sorting the points.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+\begin{lstlisting}
+// 1. Merge points into alternating color blocks.
+// 2. Compute the base edge-cover cost from nearest opposite-colored points.
+// 3. For each boundary, precompute P_k(t).
+// 4. Run the DP on boundaries.
+// 5. Return base - best_profit.
+\end{lstlisting}
+
+\end{document}

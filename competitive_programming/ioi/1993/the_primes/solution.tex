@@ -1,0 +1,227 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1993 -- Day 1, Task 2: The Primes}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Fill a $5 \times 5$ grid with digits such that:
+\begin{enumerate}
+  \item Each row (read left-to-right) is a 5-digit prime.
+  \item Each column (read top-to-bottom) is a 5-digit prime.
+  \item The main diagonal (top-left to bottom-right) is a 5-digit prime.
+  \item The anti-diagonal (top-right to bottom-left) is a 5-digit prime.
+  \item Every row has the same digit sum~$S$.
+  \item The top-left digit equals a given digit~$d$.
+\end{enumerate}
+
+Output all valid grids in lexicographic order.
+
+\section{Solution}
+
+\subsection{Precomputation}
+
+\begin{enumerate}
+  \item Generate all 5-digit primes via the Sieve of Eratosthenes
+    ($10000$ to $99999$). There are $8713$ such primes.
+  \item Filter to those with digit sum $S$. Typically $100$--$400$ remain.
+  \item Build a prefix set: for each length $\ell \in \{1, 2, 3, 4, 5\}$,
+    store the set of all $\ell$-digit prefixes of primes with digit sum $S$.
+\end{enumerate}
+
+\subsection{Row-by-Row Backtracking with Prefix Pruning}
+
+Fill the grid row by row (rows 0 through 4). For each candidate row (a prime
+with digit sum $S$):
+
+\begin{enumerate}
+  \item \textbf{Row 0:} Must start with digit $d$.
+  \item \textbf{After placing row $k$:} Check that all 5 column prefixes
+    of length $k+1$ are in the prefix set. Also check both diagonal prefixes
+    of length $k+1$.
+  \item \textbf{Row 4:} After placement, all columns and diagonals are
+    fully determined. The prefix check at length 5 is equivalent to verifying
+    they are primes with digit sum $S$.
+\end{enumerate}
+
+This aggressive pruning eliminates the vast majority of candidates early.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item Let $P_S$ denote the number of 5-digit primes with digit sum $S$
+    (typically $100$--$400$).
+  \item In the worst case without pruning, there are $P_S^5$ combinations.
+    With prefix pruning, the effective search tree is orders of magnitude
+    smaller.
+  \item \textbf{Space:} $O(P)$ where $P$ is the number of 5-digit primes,
+    plus $O(1)$ for the $5 \times 5$ grid.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <set>
+#include <algorithm>
+using namespace std;
+
+bool sieve[100000];
+int S, startDigit;
+
+int digitSum(int p) {
+    int s = 0;
+    while (p) { s += p % 10; p /= 10; }
+    return s;
+}
+
+// Prefix sets: validPrefixes[len] contains all len-digit
+// prefixes of 5-digit primes with digit sum S.
+set<int> validPrefixes[6];
+
+int grid[5][5];
+vector<string> solutions;
+
+bool checkPartialCols(int rowsFilled) {
+    for (int c = 0; c < 5; c++) {
+        int prefix = 0;
+        for (int r = 0; r < rowsFilled; r++)
+            prefix = prefix * 10 + grid[r][c];
+        if (validPrefixes[rowsFilled].find(prefix)
+            == validPrefixes[rowsFilled].end())
+            return false;
+    }
+    return true;
+}
+
+bool checkPartialDiags(int rowsFilled) {
+    // Main diagonal
+    int prefix = 0;
+    for (int i = 0; i < rowsFilled; i++)
+        prefix = prefix * 10 + grid[i][i];
+    if (validPrefixes[rowsFilled].find(prefix)
+        == validPrefixes[rowsFilled].end())
+        return false;
+    // Anti-diagonal
+    prefix = 0;
+    for (int i = 0; i < rowsFilled; i++)
+        prefix = prefix * 10 + grid[i][4-i];
+    if (validPrefixes[rowsFilled].find(prefix)
+        == validPrefixes[rowsFilled].end())
+        return false;
+    return true;
+}
+
+void solve(int row, vector<vector<int>>& candidates) {
+    if (row == 5) {
+        string sol;
+        for (int r = 0; r < 5; r++) {
+            for (int c = 0; c < 5; c++)
+                sol += ('0' + grid[r][c]);
+            sol += '\n';
+        }
+        solutions.push_back(sol);
+        return;
+    }
+
+    for (auto& d : candidates) {
+        if (row == 0 && d[0] != startDigit) continue;
+
+        for (int c = 0; c < 5; c++) grid[row][c] = d[c];
+
+        if (!checkPartialCols(row + 1)) continue;
+        if (!checkPartialDiags(row + 1)) continue;
+
+        solve(row + 1, candidates);
+    }
+}
+
+int main() {
+    // Sieve of Eratosthenes
+    memset(sieve, true, sizeof(sieve));
+    sieve[0] = sieve[1] = false;
+    for (int i = 2; i < 100000; i++)
+        if (sieve[i])
+            for (long long j = (long long)i * i; j < 100000; j += i)
+                sieve[j] = false;
+
+    cin >> S >> startDigit;
+
+    vector<vector<int>> candidates;
+
+    for (int p = 10000; p <= 99999; p++) {
+        if (!sieve[p]) continue;
+        if (digitSum(p) != S) continue;
+
+        vector<int> d(5);
+        int tmp = p;
+        for (int i = 4; i >= 0; i--) {
+            d[i] = tmp % 10;
+            tmp /= 10;
+        }
+        candidates.push_back(d);
+
+        // Build prefix sets for this prime
+        int prefix = 0;
+        for (int len = 1; len <= 5; len++) {
+            prefix = prefix * 10 + d[len - 1];
+            validPrefixes[len].insert(prefix);
+        }
+    }
+
+    solve(0, candidates);
+
+    if (solutions.empty()) {
+        cout << "NONE" << endl;
+    } else {
+        sort(solutions.begin(), solutions.end());
+        for (int i = 0; i < (int)solutions.size(); i++) {
+            if (i > 0) cout << endl;
+            cout << solutions[i];
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+
+\begin{itemize}
+  \item Prefix pruning is the critical optimization. After placing row $k$,
+    each column has a $(k{+}1)$-digit prefix that must extend to a valid
+    5-digit prime. Most candidates fail this check, dramatically reducing
+    the search tree.
+  \item The prefix sets are built during precomputation from all primes with
+    the required digit sum, so they automatically enforce both the primality
+    and digit-sum constraints on columns and diagonals.
+  \item Solutions are output in lexicographic order, separated by blank
+    lines.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,200 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\B. The Cost of Speed Limits}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a tree whose edges already have speed limits.
+We may:
+\begin{itemize}[leftmargin=*]
+    \item install signs at an intersection, paying $c$ dollars per incident road there if the final speed limits around
+    that intersection are not all equal;
+    \item increase any road speed from $s$ to $t \ge s$, paying $t-s$.
+\end{itemize}
+
+We must minimize the total upgrade cost plus the total sign cost.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item If an edge is finally assigned some speed $x$, and $x$ is not one of the original edge speeds, we can lower it
+    to the largest original speed that is still at most $x$ without breaking any equality requirement. This never
+    increases the cost.
+    Therefore we only need to consider the sorted list of distinct original speeds
+    \[
+        W_0 < W_1 < \dots < W_{m-1},
+    \]
+    where $m \le n-1$.
+    \item Root the tree at an arbitrary vertex.
+    For a non-root vertex $v$ with parent edge speed $s_v$, define
+    \[
+        dp_v[i]
+    \]
+    as the minimum cost inside the subtree of $v$, \emph{excluding} the upgrade cost of the parent edge, under the
+    condition that the final speed on the parent edge equals $W_i$.
+    This state is only meaningful when $W_i \ge s_v$.
+    \item For every child $u$ of $v$, if we force the edge $(v,u)$ to end at speed $W_i$, then the contribution of that
+    whole child branch is
+    \[
+        (W_i - s_{vu}) + dp_u[i].
+    \]
+    We also need
+    \[
+        best_u = \min_i \bigl((W_i - s_{vu}) + dp_u[i]\bigr),
+    \]
+    which is the cheapest possible total contribution of child $u$ when $v$ decides to place a sign.
+    \item At a vertex $v$ there are exactly two cases:
+    \begin{itemize}[leftmargin=*]
+        \item \textbf{Place a sign at $v$.}
+        Then all child branches are independent.
+        \item \textbf{Do not place a sign at $v$.}
+        Then every incident edge of $v$ must end with the same speed, so every child edge must also become $W_i$.
+    \end{itemize}
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Compress all original edge speeds into the sorted array $W$.
+    \item Root the tree and process it with DFS from the leaves upward.
+    \item For a leaf $v$, $dp_v[i] = 0$ for every feasible $i$, because there is no cost inside its subtree once the
+    parent edge speed is fixed.
+    \item For an internal non-root vertex $v$, let its children be $u_1,\dots,u_k$.
+    Compute
+    \[
+        sign(v) =
+        \begin{cases}
+            \deg(v)\,c + \sum best_{u_j}, & \deg(v) \ge 2, \\
+            \sum best_{u_j}, & \deg(v) \le 1.
+        \end{cases}
+    \]
+    Then for every feasible $i$:
+    \[
+        nosign_v(i) = \sum_{j=1}^{k} \bigl((W_i - s_{vu_j}) + dp_{u_j}[i]\bigr),
+    \]
+    and
+    \[
+        dp_v[i] = \min(sign(v), nosign_v(i)).
+    \]
+    Finally,
+    \[
+        best_v = \min_i \bigl((W_i - s_v) + dp_v[i]\bigr).
+    \]
+    \item The root has no parent edge, so its answer is simply
+    \[
+        \min\left(sign(root), \min_i \sum_j \bigl((W_i - s_{root,u_j}) + dp_{u_j}[i]\bigr)\right).
+    \]
+    \item In the implementation, every vertex stores only the tail of its table starting from the first feasible speed.
+    When merging children, we only keep the common tail that is feasible for all of them.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+There exists an optimal solution in which every final edge speed is one of the original edge speeds from the input.
+
+\paragraph{Proof.}
+Take any optimal solution and any edge whose final speed is $x$.
+If $x$ is already an original speed, do nothing.
+Otherwise let $y$ be the largest original speed with $y < x$.
+All constraints in the problem depend only on equalities between incident edge speeds and on the requirement that no
+edge is decreased below its original speed.
+If a set of edges was all equal to $x$, changing all of them to $y$ keeps them equal and still keeps every edge at
+least its original speed, because every original speed in that set is at most $y$ by construction.
+The total upgrade cost strictly decreases or stays the same.
+Repeating this argument removes every non-original final speed. \qed
+
+\paragraph{Lemma 2.}
+For a non-root vertex $v$ and a feasible speed $W_i$, if we place a sign at $v$, then the minimum possible cost inside
+the subtree of $v$ equals $sign(v)$.
+
+\paragraph{Proof.}
+If $v$ has a sign, then the speeds on different child edges are independent; they no longer need to match the parent
+edge or each other.
+For each child $u$, the cheapest possible contribution of that whole branch is exactly $best_u$ by definition.
+The sign itself costs $\deg(v)\,c$ when $\deg(v)\ge 2$, and zero otherwise.
+Summing these independent costs gives $sign(v)$, and no cheaper solution exists because every child branch is already
+optimized independently. \qed
+
+\paragraph{Lemma 3.}
+For a non-root vertex $v$ and a feasible speed $W_i$, if we do not place a sign at $v$, then the minimum possible cost
+inside the subtree of $v$ equals $nosign_v(i)$.
+
+\paragraph{Proof.}
+Without a sign at $v$, all incident final speeds at $v$ must be equal.
+Since the parent edge has speed $W_i$, every child edge must also end at speed $W_i$.
+For a child $u$, upgrading edge $(v,u)$ to $W_i$ costs $W_i - s_{vu}$, and the remaining optimal cost inside $u$'s
+subtree is exactly $dp_u[i]$ by definition of the state.
+Different child subtrees are disjoint, so their costs add.
+Hence the total minimum cost is precisely $nosign_v(i)$. \qed
+
+\paragraph{Lemma 4.}
+For every non-root vertex $v$ and feasible speed $W_i$, the recurrence
+\[
+    dp_v[i] = \min(sign(v), nosign_v(i))
+\]
+is correct.
+
+\paragraph{Proof.}
+Every valid solution for the subtree of $v$ falls into exactly one of the two cases from Lemma 2 and Lemma 3:
+either $v$ has a sign or it does not.
+The two lemmas give the optimal cost for each case, so taking their minimum yields the true optimum for state
+$dp_v[i]$. \qed
+
+\paragraph{Lemma 5.}
+For every non-root vertex $v$, the value
+\[
+    best_v = \min_i \bigl((W_i - s_v) + dp_v[i]\bigr)
+\]
+is exactly the minimum total contribution of the whole branch rooted at $v$ to its parent.
+
+\paragraph{Proof.}
+If the final speed on the parent edge is $W_i$, then its own upgrade cost is $W_i - s_v$, and the remainder of the
+branch costs $dp_v[i]$.
+Taking the minimum over all feasible $i$ gives exactly the cheapest possible total contribution of that branch. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, restricting the DP to the compressed speed set loses no optimal solution.
+For every non-root vertex, Lemma 4 computes each DP state correctly, and Lemma 5 computes the correct branch summary
+$best_v$ that its parent needs.
+Therefore the DFS computes correct values bottom-up for the whole rooted tree.
+At the root, the same two cases remain: either place a sign and pay $sign(root)$, or require all incident edges to be
+equal to one compressed speed $W_i$ and pay the corresponding no-sign sum.
+The algorithm returns the minimum of exactly these possibilities, so the final answer is optimal. \qed
+
+\section*{Complexity Analysis}
+
+Let $m$ be the number of distinct original speeds, so $m \le n-1$.
+
+Each vertex processes at most $m$ DP states, and each child merge is linear in the length of the common feasible tail.
+Thus the running time is $O(nm)$, which is $O(n^2)$ in the worst case.
+
+The implementation stores only tail tables and merges children immediately, so it does not need to keep a full
+$n \times m$ table in memory at once.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The DP state excludes the upgrade cost of the parent edge. This keeps the recurrence clean and makes
+    $best_v$ the only summary value needed by the parent.
+    \item States with $W_i$ below the original parent-edge speed are impossible and are not stored.
+    \item Sorting children by decreasing subtree size keeps the DFS memory usage low in long skinny trees.
+    \item Use \texttt{long long}: the answer can exceed $2^{31}-1$.
+\end{itemize}
+
+\end{document}

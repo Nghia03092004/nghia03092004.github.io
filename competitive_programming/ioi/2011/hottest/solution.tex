@@ -1,0 +1,132 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2011 -- Hottest (Hot)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given $N$ measurement points in the plane, each at $(x_i, y_i)$ with temperature $t_i$, find a circle of radius $R$ that maximizes the average temperature of enclosed points. Output the center of such a circle.
+
+\section{Solution}
+
+\subsection{Key Observation}
+The optimal circle must have at least one measurement point on or near its boundary, or two points defining its boundary. Therefore, the set of candidate centers is:
+\begin{enumerate}
+    \item Each measurement point itself.
+    \item For each pair of points within distance $2R$, the two centers of circles of radius~$R$ passing through both points.
+\end{enumerate}
+
+\subsection{Algorithm}
+For each candidate center $(c_x, c_y)$, compute the average temperature of all points within distance~$R$. Return the center with the highest average.
+
+For two points $(x_i, y_i)$ and $(x_j, y_j)$ with distance $d \le 2R$, the two candidate centers lie at:
+\[
+\left(\frac{x_i + x_j}{2} \pm h \cdot \frac{-(y_j - y_i)}{d},\;
+      \frac{y_i + y_j}{2} \pm h \cdot \frac{x_j - x_i}{d}\right)
+\]
+where $h = \sqrt{R^2 - d^2/4}$.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N^3)$ --- $O(N^2)$ candidate centers, each evaluated in $O(N)$.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+For larger $N$, an $O(N^2 \log N)$ angular sweep can be used: for each point~$i$, compute the angular intervals of centers that include each other point~$j$ (with $d_{ij} \le 2R$), then sweep to find the maximum weighted count.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    double R;
+    cin >> N >> R;
+
+    vector<double> x(N), y(N), t(N);
+    for (int i = 0; i < N; i++)
+        cin >> x[i] >> y[i] >> t[i];
+
+    double bestAvg = -1e18;
+    double bestCx = 0, bestCy = 0;
+
+    auto eval = [&](double cx, double cy) {
+        double sumT = 0;
+        int cnt = 0;
+        for (int i = 0; i < N; i++) {
+            double dx = x[i] - cx, dy = y[i] - cy;
+            if (dx*dx + dy*dy <= R*R + 1e-9) {
+                sumT += t[i];
+                cnt++;
+            }
+        }
+        if (cnt > 0) {
+            double avg = sumT / cnt;
+            if (avg > bestAvg) {
+                bestAvg = avg;
+                bestCx = cx;
+                bestCy = cy;
+            }
+        }
+    };
+
+    // Candidate 1: each point as center
+    for (int i = 0; i < N; i++)
+        eval(x[i], y[i]);
+
+    // Candidate 2: pairs of points on boundary
+    for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+            double dx = x[j] - x[i], dy = y[j] - y[i];
+            double d2 = dx*dx + dy*dy;
+            if (d2 > 4*R*R + 1e-9) continue;
+
+            double mx = (x[i] + x[j]) / 2;
+            double my = (y[i] + y[j]) / 2;
+            double h = sqrt(max(0.0, R*R - d2/4));
+            double len = sqrt(d2);
+            if (len < 1e-12) continue;
+
+            double px = -dy / len, py = dx / len;
+            eval(mx + h * px, my + h * py);
+            eval(mx - h * px, my - h * py);
+        }
+    }
+
+    cout << fixed << setprecision(6) << bestCx << " " << bestCy << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\E. Flipping Container}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We have a rectangular box with distinct side lengths $a,b,c$. Starting from orientation $(a,b,c)$ on the $(x,y,z)$ axes, one move flips the box over one bottom edge, so one horizontal side swaps with the vertical side. We must move the box center by $(x,y)$ in the plane, end in the original orientation, and minimize the number of flips.
+
+It is convenient to double all planar coordinates. Then every single flip moves by an integer distance: if the current orientation is $(X,Y,Z)$, an east/west flip changes the doubled $x$-coordinate by $\pm (X+Z)$ and swaps $X$ with $Z$, while a north/south flip changes the doubled $y$-coordinate by $\pm (Y+Z)$ and swaps $Y$ with $Z$.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Because $a,b,c$ are distinct, an orientation is determined only by which length lies on each axis. There are exactly six orientations, and they form a cycle:
+    \[
+    (a,b,c)\to(a,c,b)\to(b,c,a)\to(b,a,c)\to(c,a,b)\to(c,b,a)\to(a,b,c).
+    \]
+    Moving along one cycle edge always changes only one axis in the plane.
+    \item The six cycle edges use only the three pair sums
+    \[
+    a+b,\quad a+c,\quad b+c.
+    \]
+    In doubled coordinates, one traversal of an edge contributes $\pm$ its pair sum on the corresponding axis.
+    \item If we are currently in one orientation, traversing one incident cycle edge and then immediately traversing it back keeps the orientation unchanged. The net planar effect is either $0$ or a signed shift of size twice that edge length.
+    \item Therefore an optimal solution can be split into two parts:
+    \begin{enumerate}[leftmargin=*]
+        \item a \emph{skeleton walk} on the 6-cycle in which no directed edge is repeated;
+        \item while visiting its states, any number of extra back-and-forth operations that keep the orientation fixed.
+    \end{enumerate}
+    The number of possible skeleton walks is tiny.
+    \item Once the visited orientations are fixed, the extra movement on each axis becomes independent. For one axis we get a set of allowed lengths $d_1,\dots,d_k$ and we need the minimum number of signed terms whose weighted sum equals a target value.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Work in doubled coordinates, so the target becomes $(2x,2y)$.
+
+    \item Enumerate all skeleton walks. We DFS on the 6-cycle, starting at state $0$, and allow each directed cycle edge at most once. Whenever the DFS returns to state $0$, we record that closed walk. This produces only $45$ skeletons, including the empty walk.
+
+    \item For each skeleton:
+    \begin{itemize}[leftmargin=*]
+        \item record its sequence of traversed cycle edges;
+        \item record which orientations are visited;
+        \item from the visited orientations, extract the pair-sum lengths that can be used for extra back-and-forth motion on the $x$-axis and on the $y$-axis.
+    \end{itemize}
+
+    \item For each skeleton, iterate over all sign choices of its single traversals. A skeleton has at most $12$ steps, so this is at most $2^{12}$ cases.
+
+    \item Suppose the skeleton contributes $(B_x,B_y)$ in doubled coordinates. Then the remaining required movement is
+    \[
+    R_x = 2x - B_x,\qquad R_y = 2y - B_y.
+    \]
+    Extra back-and-forth operations always contribute even doubled displacement, so both $R_x$ and $R_y$ must be even. Divide by $2$ and solve two independent 1D problems.
+
+    \item 1D solver. Let the available lengths on one axis be $d_1,\dots,d_k$, and let $t$ be the required displacement on that axis.
+    \begin{itemize}[leftmargin=*]
+        \item Divide all lengths and $t$ by their gcd. If the gcd does not divide $t$, this case is impossible.
+        \item Let $M=\max d_i$ and $B=M(M-1)$.
+        \item Compute the exact minimum number of signed moves needed to reach every value $0,1,\dots,B$ by BFS on absolute positions $0,1,\dots,B+M$, using transitions
+        \[
+        u \to |u-d_i|,\qquad u \to u+d_i.
+        \]
+        \item For each residue class modulo $M$, store an \emph{anchor} value $a_r \in [0,B]$ minimizing
+        \[
+        \text{dist}[a_r]\cdot M - a_r.
+        \]
+        \item For a query $t$:
+        \begin{itemize}[leftmargin=*]
+            \item if $|t|\le B$, return the exact BFS value;
+            \item otherwise, with $r=|t|\bmod M$, use
+            \[
+            \text{dist}[a_r] + \frac{|t|-a_r}{M}.
+            \]
+        \end{itemize}
+    \end{itemize}
+
+    \item The total number of flips for one case is
+    \[
+    |\text{skeleton}| + 2\cdot \text{cost}_x + 2\cdot \text{cost}_y,
+    \]
+    because every extra 1D move is one back-and-forth pair, i.e. two flips.
+
+    \item Take the minimum over all skeletons and sign choices. If no case is feasible, print \texttt{impossible}.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+The orientation graph is exactly the 6-cycle described above, and every flip corresponds to traversing one cycle edge while adding $\pm(a+b)$, $\pm(a+c)$, or $\pm(b+c)$ to exactly one doubled coordinate.
+
+\paragraph{Proof.}
+Each flip swaps the vertical side with exactly one horizontal side, so only the permutation of $(a,b,c)$ on the axes matters. Since the dimensions are distinct, this gives exactly $3!=6$ orientations. From any orientation there are two possible neighboring orientations, one for flipping over an east/west edge and one for flipping over a north/south edge. Listing these states in order gives the 6-cycle. The doubled planar displacement of one flip is the sum of the two side lengths involved in the rotation, with sign determined by which parallel edge was used. Only the corresponding axis changes. \qed
+
+\paragraph{Lemma 2.}
+Fix any solution. It can be transformed, without changing its endpoint or number of flips, into a form consisting of a skeleton walk with no repeated directed cycle edge, plus extra back-and-forth operations performed while staying inside visited orientations.
+
+\paragraph{Proof.}
+Whenever the solution is in some orientation and traverses one incident cycle edge and later traverses the same directed edge again, the part between those two traversals starts and ends in the same orientation. Its only purpose is extra planar displacement, not state change. Such displacement can be postponed to moments when we are already in visited orientations, because in one orientation we may always perform back-and-forth traversals of an incident edge, which keep the orientation fixed and generate exactly the same type of signed shift on one axis. Repeating this elimination removes all repeated directed edges from the state-changing part, leaving a skeleton walk plus stay-in-place back-and-forth operations. \qed
+
+\paragraph{Lemma 3.}
+For a fixed skeleton and fixed signs of its single traversals, the remaining optimization splits into two independent 1D problems, one for $x$ and one for $y$.
+
+\paragraph{Proof.}
+The skeleton contributes a fixed doubled displacement $(B_x,B_y)$. Every extra back-and-forth operation in a visited orientation changes only one planar axis: either $x$ by twice one available pair sum, or $y$ by twice one available pair sum. Therefore the remaining requirements on $x$ and $y$ do not interact. Minimizing the total number of extra flips is equivalent to minimizing the number of back-and-forth pairs independently on the two axes. \qed
+
+\paragraph{Lemma 4.}
+For a fixed 1D length set $D=\{d_1,\dots,d_k\}$, the 1D solver returns the minimum number of signed moves needed to realize the requested displacement.
+
+\paragraph{Proof.}
+After dividing by the gcd, only normalized targets are reachable. The BFS on absolute positions is exactly the shortest-path computation in the quotient graph obtained by identifying positions $u$ and $-u$, so it returns the exact optimum for every value up to $B=M(M-1)$.
+
+Now consider some reachable value $t>B$, with residue $r=t\bmod M$. For any representation of $t$ using $\ell$ signed moves, define its reduced cost to be $\ell M - t$. Replacing a move of length $d$ by a move of length $M$ changes the reduced cost by $M-d\ge 0$, so for fixed residue class the optimum for large values is determined by the minimum possible reduced cost in that residue. By construction, the anchor $a_r$ is the value in residue $r$ with minimum reduced cost among the exact prefix. Appending one move of length $M$ increases both the value and the number of moves by $1$, so it preserves reduced cost. Hence every larger value in the same residue class is obtained optimally by starting from $a_r$ and appending $(t-a_r)/M$ moves of length $M$, giving
+\[
+\text{dist}[a_r] + \frac{t-a_r}{M}.
+\]
+Thus the solver is exact for all targets. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the minimum possible number of flips, or \texttt{impossible} if the target cannot be reached.
+
+\paragraph{Proof.}
+By Lemma 2, some optimal solution has a skeleton-plus-extra-shifts decomposition considered by the algorithm. By Lemma 3, once the skeleton and its signs are fixed, the remaining optimization is exactly the two independent 1D problems solved by the 1D solver. By Lemma 4, those costs are computed optimally. Therefore the algorithm evaluates the exact cost of every possible optimal decomposition and takes the minimum over them. If no decomposition is feasible, then no solution exists. \qed
+
+\section*{Complexity Analysis}
+
+The number of skeleton walks is constant ($45$), and each has at most $12$ steps, so the number of skeleton/sign cases is at most
+\[
+\sum 2^{|\text{skeleton}|} < 70{,}000.
+\]
+For each distinct 1D length set we build one BFS table. If the maximum normalized length is $M$, this costs $O(M^2)$ time and memory. Here $M \le 1999$, so this is easily small enough. Everything else is constant-factor enumeration.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The implementation uses doubled coordinates throughout. Single skeleton traversals contribute odd values if needed; extra back-and-forth moves always contribute even doubled displacement, so parity must be checked before calling the 1D solvers.
+    \item The 1D BFS runs on absolute positions only, using transitions $u \to |u-d|$ and $u \to u+d$.
+    \item All final answers fit in 64-bit signed integers, but intermediate target values should still be stored in \texttt{long long}.
+\end{itemize}
+
+\end{document}

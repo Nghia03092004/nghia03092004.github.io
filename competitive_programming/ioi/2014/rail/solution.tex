@@ -1,0 +1,135 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2014 -- Rail}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+There are $n$ railway stations on a line, each of type~C (``left-turn'') or type~D (``right-turn''). Station~0 is type~C at a known position. You may query the distance $d(i,j)$ between any two stations. Using at most $O(n)$ queries, determine the type and position of every station.
+
+The distance function reflects the rail mechanics: trains bounce off intermediate stations of the opposite type, so $d(i,j)$ is not simply $|\text{pos}_i - \text{pos}_j|$ in general.
+
+\section{Solution}
+
+\begin{enumerate}
+  \item \textbf{Find the nearest D-station.} Query $d(0, i)$ for all $i \ge 1$. The station $r$ minimising $d(0, r)$ is the nearest D-station to the right of station~0. Its position is $\text{pos}[0] + d(0, r)$.
+
+  \item \textbf{Classify stations.} Query $d(r, i)$ for each remaining station $i$. Using the triangle-inequality test:
+  \begin{itemize}
+    \item If $d(0, i) = d(0, r) + d(r, i)$: station $i$ lies to the right of $r$ (candidate C-station).
+    \item Otherwise: station $i$ lies to the left of station~0 (candidate D-station).
+  \end{itemize}
+
+  \item \textbf{Verify and determine positions.} Process right-side candidates sorted by $d(r, i)$ (ascending), tracking the last confirmed D-station. For each candidate, one verification query against the last confirmed D-station determines its type and position. Symmetrically, process left-side candidates sorted by $d(0, i)$, tracking the last confirmed C-station.
+\end{enumerate}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Grader-provided: int getDistance(int i, int j);
+
+void findLocation(int n, int first, int location[], int stype[]) {
+    stype[0] = 1;
+    location[0] = first;
+    if (n == 1) return;
+
+    vector<int> d0(n);
+    d0[0] = 0;
+    for (int i = 1; i < n; i++)
+        d0[i] = getDistance(0, i);
+
+    // Nearest station to 0 is the closest D-station to its right
+    int r = 1;
+    for (int i = 2; i < n; i++)
+        if (d0[i] < d0[r]) r = i;
+    stype[r] = 2;
+    location[r] = first + d0[r];
+
+    vector<int> dr(n, -1);
+    vector<int> rightC, leftD;
+    for (int i = 1; i < n; i++) {
+        if (i == r) continue;
+        dr[i] = getDistance(r, i);
+        if (d0[i] == d0[r] + dr[i])
+            rightC.push_back(i);
+        else
+            leftD.push_back(i);
+    }
+
+    // Process right-side C-candidates
+    sort(rightC.begin(), rightC.end(),
+         [&](int a, int b) { return dr[a] < dr[b]; });
+    int lastD = r;
+    for (int i : rightC) {
+        int expected_pos = location[r] + dr[i];
+        int dist_check = getDistance(lastD, i);
+        int direct = expected_pos - location[lastD];
+        if (dist_check == direct && direct >= 0) {
+            stype[i] = 1;
+            location[i] = expected_pos;
+        } else {
+            stype[i] = 2;
+            location[i] = location[lastD] - dist_check;
+            lastD = i;
+        }
+    }
+
+    // Process left-side D-candidates
+    sort(leftD.begin(), leftD.end(),
+         [&](int a, int b) { return d0[a] < d0[b]; });
+    int lastC = 0;
+    for (int i : leftD) {
+        int expected_pos = location[0] - d0[i];
+        int dist_check = getDistance(lastC, i);
+        int direct = location[lastC] - expected_pos;
+        if (dist_check == direct && direct >= 0) {
+            stype[i] = 2;
+            location[i] = expected_pos;
+        } else {
+            stype[i] = 1;
+            location[i] = location[lastC] + dist_check;
+            lastC = i;
+        }
+    }
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Queries}: $(n-1)$ for $d(0,\cdot)$ + $(n-2)$ for $d(r,\cdot)$ + at most $(n-2)$ verification queries $= 3n - 5$ total, i.e., $O(n)$.
+  \item \textbf{Time}: $O(n \log n)$ due to sorting.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

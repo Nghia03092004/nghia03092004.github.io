@@ -1,0 +1,121 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2005 -- Birthday}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Initially child $i$ sits in seat $i$ around a circle.
+We want the final circular order to be the given permutation, up to choosing one of the two possible
+orientations of that cycle.
+All children move simultaneously, and the cost is the maximum circular distance moved by any child.
+
+\section{Fix One Orientation}
+Consider one clockwise order
+\[
+q_0, q_1, \dots, q_{n-1}.
+\]
+If child $q_0$ is placed into final seat $f$, then child $q_i$ must end in seat $f+i \pmod n$.
+
+For child $q_i$, define the signed movement
+\[
+d_i^{(f)} = (f+i-(q_i-1)) \bmod n
+\]
+converted to the shortest signed circular move:
+\begin{itemize}
+  \item keep it positive if it is at most $n/2$,
+  \item otherwise subtract $n$.
+\end{itemize}
+When the two directions are equally short ($n$ even and the move is $n/2$), we keep the positive
+value, exactly as in the official analysis.
+
+So every movement belongs to the cyclic set
+\[
+D = \{\,1-\lceil n/2 \rceil,\ 2-\lceil n/2 \rceil,\ \dots,\ \lfloor n/2 \rfloor\,\},
+\]
+which contains exactly $n$ consecutive integers.
+
+\section{Shifting the First Child}
+Let $S_f = \{d_i^{(f)}\}$.
+If we increase $f$ by $1$, every signed movement also increases by $1$, except that
+$\lfloor n/2 \rfloor$ wraps around to $1-\lceil n/2 \rceil$.
+Hence all $S_f$ are just cyclic shifts of one base set, say $S_0$.
+
+Therefore the problem becomes:
+\begin{quote}
+Choose a cyclic shift of the occupied values in $D$ so that the largest absolute occupied value is
+minimized.
+\end{quote}
+
+\section{Largest Empty Cyclic Gap}
+Mark which values of $D$ appear in $S_0$.
+Let $C$ be the maximum length of a consecutive cyclic block of values in $D$ that does \emph{not}
+appear.
+
+Then all occupied values can be rotated into one ordinary interval of length
+\[
+L = n - C.
+\]
+Among all intervals of $L$ consecutive signed values, the best one is centered as close to $0$ as
+possible, so the minimum possible mess is
+\[
+\left\lfloor \frac{L}{2} \right\rfloor
+=
+\left\lfloor \frac{n-C}{2} \right\rfloor.
+\]
+
+Thus one orientation is solved in linear time:
+\begin{enumerate}
+  \item compute all signed moves for $f=0$,
+  \item mark the values that appear,
+  \item find the longest cyclic run of values that do not appear,
+  \item return $\lfloor (n-C)/2 \rfloor$.
+\end{enumerate}
+
+\section{Two Possible Final Orientations}
+The permutation can be realized in two circular directions:
+\begin{itemize}
+  \item $p_1, p_2, \dots, p_n$,
+  \item $p_1, p_n, p_{n-1}, \dots, p_2$.
+\end{itemize}
+We solve both and take the smaller answer.
+
+\section{Complexity}
+\begin{itemize}
+  \item \textbf{Time:} $O(n)$.
+  \item \textbf{Space:} $O(n)$.
+\end{itemize}
+
+\section{Implementation}
+\begin{lstlisting}
+// 1. Fix one orientation of the target cycle.
+// 2. For f = 0, compute each child's shortest signed move.
+// 3. Mark which movement values occur in the cyclic domain D.
+// 4. Find the longest cyclic gap of absent values.
+// 5. That orientation's answer is floor((n - gap) / 2).
+// 6. Repeat for the reversed orientation and take the minimum.
+\end{lstlisting}
+
+\end{document}

@@ -1,0 +1,168 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2003 -- Amazing (Maze Exploration)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+This is an interactive problem. You are placed in an $R \times C$ grid
+maze whose structure is unknown. At each step you can query which
+directions (N, S, E, W) are open from the current cell. Navigate from a
+start cell to a goal cell using as few moves as possible.
+
+\section{Solution: BFS-Based Exploration}
+
+\subsection{Strategy}
+Since the maze is initially unknown, we must explore it on the fly.
+We maintain a map of all explored cells and their open walls. At each
+step:
+\begin{enumerate}
+  \item If the current cell is unvisited, query its open directions and
+        record them.
+  \item Run BFS on the \emph{known} graph to plan a route:
+        \begin{itemize}
+          \item If the goal is reachable through known cells, follow the
+                shortest known path.
+          \item Otherwise, navigate toward the nearest unvisited cell
+                reachable from the known graph.
+        \end{itemize}
+  \item Execute one step of the planned route.
+\end{enumerate}
+
+\subsection{Correctness}
+Every cell is visited at most once (we never re-query a visited cell).
+Each navigation step either visits a new cell or moves along a shortest
+path in the known graph. Since BFS always targets the nearest frontier
+cell, every reachable cell is eventually explored.
+
+\subsection{Alternative: Tremaux's Algorithm}
+For a DFS-based exploration, Tremaux's algorithm guarantees visiting
+each edge at most twice, giving $O(R \times C)$ total moves with
+simpler bookkeeping.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int dx[] = {-1, 1, 0, 0}; // N, S, E, W
+const int dy[] = {0, 0, 1, -1};
+const char dirChar[] = {'N', 'S', 'E', 'W'};
+
+int main() {
+    int R, C, sr, sc, gr, gc;
+    cin >> R >> C >> sr >> sc >> gr >> gc;
+
+    int cx = sr, cy = sc;
+
+    auto cellKey = [](int x, int y) -> long long {
+        return ((long long)x << 32) | (unsigned)y;
+    };
+
+    unordered_map<long long, vector<int>> openDirs;
+    unordered_set<long long> visited;
+
+    while (cx != gr || cy != gc) {
+        long long key = cellKey(cx, cy);
+
+        if (!visited.count(key)) {
+            visited.insert(key);
+            string dirs;
+            cin >> dirs;
+            vector<int> open;
+            for (char c : dirs)
+                for (int d = 0; d < 4; d++)
+                    if (c == dirChar[d])
+                        open.push_back(d);
+            openDirs[key] = open;
+        }
+
+        // BFS to find goal or nearest unvisited cell
+        queue<pair<int, int>> q;
+        unordered_map<long long, long long> parent;
+        unordered_map<long long, int> parentDir;
+        q.push({cx, cy});
+        parent[key] = -1;
+
+        int tx = cx, ty = cy;
+        bool found = false;
+
+        while (!q.empty()) {
+            auto [x, y] = q.front(); q.pop();
+            long long ck = cellKey(x, y);
+
+            if (x == gr && y == gc) {
+                tx = x; ty = y; found = true; break;
+            }
+
+            if (!openDirs.count(ck)) continue;
+            for (int d : openDirs[ck]) {
+                int nx = x + dx[d], ny = y + dy[d];
+                long long nk = cellKey(nx, ny);
+                if (parent.count(nk)) continue;
+                parent[nk] = ck;
+                parentDir[nk] = d;
+                if (!visited.count(nk) && !found) {
+                    tx = nx; ty = ny; found = true;
+                }
+                q.push({nx, ny});
+            }
+        }
+
+        // Reconstruct path from (cx,cy) to (tx,ty) and take first step
+        vector<int> path;
+        long long tk = cellKey(tx, ty);
+        while (tk != cellKey(cx, cy)) {
+            path.push_back(parentDir[tk]);
+            tk = parent[tk];
+        }
+        reverse(path.begin(), path.end());
+
+        if (!path.empty()) {
+            cout << dirChar[path[0]] << endl;
+            cx += dx[path[0]];
+            cy += dy[path[0]];
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Total moves:} $O(R \times C)$---each cell is visited at
+        most a constant number of times.
+  \item \textbf{Time per step:} $O(R \times C)$ for BFS over the known
+        graph. Total computation: $O((R \times C)^2)$ worst case, but
+        typically much better.
+  \item \textbf{Space:} $O(R \times C)$ for the explored maze graph.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,182 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1997 -- The Buses}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A person observes bus arrivals at a stop and records arrival times during an observation
+period. From these times, determine the bus routes (schedules).
+
+Each bus route is characterized by:
+\begin{itemize}
+  \item A \textbf{start time} $s$ (first arrival).
+  \item An \textbf{interval} $d > 0$ (time between consecutive buses).
+  \item A \textbf{count} $c \ge 2$ (number of buses on this route).
+\end{itemize}
+
+Every recorded arrival must belong to exactly one route. Find a set of routes that
+explains all arrivals using the \textbf{minimum number of routes}.
+
+\medskip
+\noindent\textbf{Constraints:} Number of arrivals $n \le 300$, arrival times $\le 59$.
+
+\section{Solution Approach}
+
+\subsection{Backtracking with Pruning}
+
+The small time range (0--59) makes backtracking feasible:
+
+\begin{enumerate}
+  \item Maintain a frequency array $\mathtt{cnt}[0..59]$ of unassigned arrival times.
+  \item Find the smallest unassigned time $t_{\min}$. This time must be the start of
+        some route, so we try all routes beginning at $t_{\min}$.
+  \item For each interval $d \in [1, 59]$, check the maximum number of evenly spaced
+        arrivals $t_{\min}, t_{\min}+d, t_{\min}+2d, \ldots$ that are all available.
+        For each valid count $c \ge 2$ (tried largest first to cover more arrivals per route),
+        subtract the route from $\mathtt{cnt}$ and recurse.
+  \item Prune: if the current number of routes already equals the best found, stop.
+\end{enumerate}
+
+\subsection{Correctness}
+
+The key invariant is that the smallest unassigned time must start some route.
+By trying all possible intervals and counts for that starting time, we enumerate
+all valid decompositions. The pruning condition ensures we find a minimum-route solution.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int n;
+int cnt[60]; // available count for each arrival time
+int bestRoutes;
+
+struct Route {
+    int start, interval, count;
+};
+vector<Route> bestSolution, currentSolution;
+
+bool canUse(int s, int d, int c) {
+    for (int i = 0; i < c; i++) {
+        int t = s + i * d;
+        if (t > 59 || cnt[t] <= 0) return false;
+    }
+    return true;
+}
+
+void applyRoute(int s, int d, int c, int delta) {
+    for (int i = 0; i < c; i++)
+        cnt[s + i * d] += delta;
+}
+
+int remaining() {
+    int r = 0;
+    for (int i = 0; i < 60; i++) r += cnt[i];
+    return r;
+}
+
+void solve() {
+    if (remaining() == 0) {
+        if ((int)currentSolution.size() < bestRoutes) {
+            bestRoutes = (int)currentSolution.size();
+            bestSolution = currentSolution;
+        }
+        return;
+    }
+
+    // Prune: cannot improve on current best
+    if ((int)currentSolution.size() + 1 >= bestRoutes) return;
+
+    // Find first unassigned time (must be the start of some route)
+    int first = -1;
+    for (int i = 0; i < 60; i++)
+        if (cnt[i] > 0) { first = i; break; }
+
+    // Try all routes starting at 'first'
+    for (int d = 1; d <= 59; d++) {
+        // Count maximum consecutive multiples present
+        int maxc = 0;
+        for (int t = first; t <= 59; t += d) {
+            if (cnt[t] > 0) maxc++;
+            else break;
+        }
+        if (maxc < 2) continue;
+
+        // Try from largest count downward (greedy: cover more with fewer routes)
+        for (int c = maxc; c >= 2; c--) {
+            if (canUse(first, d, c)) {
+                applyRoute(first, d, c, -1);
+                currentSolution.push_back({first, d, c});
+                solve();
+                currentSolution.pop_back();
+                applyRoute(first, d, c, +1);
+            }
+        }
+    }
+}
+
+int main() {
+    scanf("%d", &n);
+    memset(cnt, 0, sizeof(cnt));
+    for (int i = 0; i < n; i++) {
+        int t;
+        scanf("%d", &t);
+        cnt[t]++;
+    }
+
+    bestRoutes = n; // upper bound
+    solve();
+
+    printf("%d\n", bestRoutes);
+    for (auto& r : bestSolution)
+        printf("Start: %d, Interval: %d, Count: %d\n",
+               r.start, r.interval, r.count);
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} Exponential in the worst case, but heavily pruned.
+        At each recursion level, we fix the smallest unassigned time and try $O(59)$
+        intervals, each with $O(59)$ possible counts. The pruning bound on the
+        number of routes limits the recursion depth. In practice, for $n \le 300$
+        and times $\le 59$, the search terminates quickly.
+  \item \textbf{Space complexity:} $O(n)$ for the route stack and the frequency array.
+\end{itemize}
+
+\end{document}

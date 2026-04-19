@@ -1,0 +1,130 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\A. Billboards}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each sponsor has a nonnegative continuous value density along the billboard. We must partition the
+billboard into contiguous pieces, assign one piece to each sponsor, and guarantee that sponsor $i$
+receives value at least $1/n$ of its total value.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Let $\mu_i([a,b])$ be sponsor $i$'s value on interval $[a,b]$. Because the density is continuous
+    and nonnegative, $\mu_i([x,y])$ is continuous in $y$ and never decreases.
+    \item Fix a current left boundary $x$. If sponsor $i$ cuts the \emph{leftmost} point $c_i \ge x$ such
+    that $\mu_i([x,c_i]) = \mu_i([0,\ell])/n$, then every point before $c_i$ is still worth at most that
+    amount to sponsor $i$.
+    \item Therefore, if we choose the sponsor whose leftmost such cut is smallest, every other remaining
+    sponsor loses at most $1/n$ of its total value from the left prefix we remove.
+    \item This is exactly the invariant needed for a proportional contiguous allocation: after removing one
+    piece, each remaining sponsor still values the suffix enough for the remaining number of pieces.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For each sponsor, precompute the prefix integral of its piecewise linear density at every breakpoint.
+    This gives the total value $T_i$ and the target value $T_i / n$.
+    \item Maintain the current left boundary $L$ and the set of sponsors not assigned yet.
+    \item While more than one sponsor remains:
+    \begin{enumerate}[leftmargin=*]
+        \item For every remaining sponsor $i$, find the smallest point $c_i \ge L$ such that
+        $\mu_i([L,c_i]) = T_i / n$.
+        \item Pick the sponsor $p$ with minimum $c_i$.
+        \item Assign interval $[L,c_p]$ to sponsor $p$, output $(c_p, p)$, and set $L = c_p$.
+    \end{enumerate}
+    \item Assign the remaining suffix $[L,\ell]$ to the last sponsor.
+\end{enumerate}
+
+To evaluate $\mu_i([0,x])$ quickly, we binary search the segment containing $x$ and integrate the linear
+function on that segment. To recover the leftmost cut point from a target prefix area, we binary search the
+first breakpoint whose prefix area reaches that target, then solve one linear or quadratic equation inside that
+segment.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm always outputs a valid allocation.
+
+\paragraph{Lemma 1.}
+Suppose the current left boundary is $L$, sponsor $i$ is still unassigned, and
+$\mu_i([L,\ell]) \ge k \cdot T_i / n$ where $k$ is the number of unassigned sponsors. Then there exists a
+smallest point $c_i \in [L,\ell]$ such that $\mu_i([L,c_i]) = T_i / n$.
+
+\paragraph{Proof.}
+At $y=L$ the value $\mu_i([L,y])$ is $0$, and at $y=\ell$ it is at least $T_i/n$. The function
+$\mu_i([L,y])$ is continuous and nondecreasing in $y$, so by the intermediate value theorem there exists
+at least one such point. Taking the smallest one is well-defined. \qed
+
+\paragraph{Lemma 2.}
+When the algorithm assigns the next piece, every still-unassigned sponsor loses value at most $T_i / n$
+from the removed prefix.
+
+\paragraph{Proof.}
+Let $p$ be the sponsor selected by the algorithm, so $c_p \le c_j$ for every other remaining sponsor $j$.
+By definition, $c_j$ is the \emph{smallest} point where sponsor $j$ has accumulated value exactly $T_j/n$
+from the current left boundary. Since $c_p \le c_j$, the prefix $[L,c_p]$ is entirely before that first
+threshold for sponsor $j$, hence $\mu_j([L,c_p]) \le T_j/n$. \qed
+
+\paragraph{Lemma 3.}
+After each assignment, if $k-1$ sponsors remain, then every remaining sponsor $j$ values the remaining
+suffix at least $(k-1) \cdot T_j / n$.
+
+\paragraph{Proof.}
+Before the step, the inductive hypothesis gives $\mu_j([L,\ell]) \ge k \cdot T_j / n$. By Lemma 2,
+the removed interval is worth at most $T_j/n$ to sponsor $j$. Therefore
+\[
+\mu_j([c_p,\ell]) = \mu_j([L,\ell]) - \mu_j([L,c_p])
+\ge k \cdot T_j / n - T_j / n
+= (k-1) \cdot T_j / n.
+\]
+\qed
+
+\paragraph{Theorem.}
+The algorithm outputs a contiguous allocation where every sponsor receives at least $T_i / n$ value.
+
+\paragraph{Proof.}
+Initially $k=n$ and every sponsor trivially values the whole billboard at $n \cdot T_i / n = T_i$, so the
+invariant of Lemma 3 holds. By Lemma 1 the next cut always exists, and by Lemma 3 the invariant is
+preserved after each assignment.
+
+When only one sponsor remains, the invariant says that this sponsor values the remaining suffix at least
+$1 \cdot T_i / n$, so assigning the entire suffix is valid. All assigned pieces are contiguous, disjoint, and
+their union is the whole billboard because each step cuts off a prefix of the remaining suffix. Thus every
+sponsor receives a valid piece of value at least $T_i / n$. \qed
+
+\section*{Complexity Analysis}
+
+Let $M$ be the total number of breakpoints over all sponsors. Precomputing prefix areas costs $O(M)$.
+
+For each of the first $n-1$ assignments, we scan all remaining sponsors. For one sponsor we do two binary
+searches over its breakpoints: one to evaluate the prefix integral at the current left boundary, and one to
+locate the segment containing the target cut. Thus the total running time is
+\[
+O\!\left(M + \sum_{i=1}^{n} n \log m_i \right),
+\]
+which is safely within the limits for $n \le 5000$ and $\sum m_i \le 500000$. The memory usage is $O(M)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Prefix areas are stored as \texttt{long double} because cut points are real numbers.
+    \item Inside a segment, recovering the cut point means solving
+    $b \Delta x + \frac{s}{2} \Delta x^2 = \text{needed area}$, where $b$ is the left endpoint value and
+    $s$ is the slope on that segment.
+    \item The statement allows tiny absolute or relative error, so printing with 15 digits after the decimal
+    point is more than enough.
+\end{itemize}
+
+\end{document}

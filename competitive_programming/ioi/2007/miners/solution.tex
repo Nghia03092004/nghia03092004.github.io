@@ -1,0 +1,115 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2007 -- Miners}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$N$ food carts arrive sequentially, each carrying one of 3 food types (M, F, G). There are 2 mines. Each cart must be assigned to one mine. When a mine receives a cart, the \emph{bonus} is the number of distinct food types among its last (up to) 3 deliveries. Maximize the total bonus.
+
+\section{Solution}
+
+\subsection{DP Formulation}
+The bonus at a mine depends only on its \textbf{last two deliveries} (plus the new one). Encode the state as $(a_1, a_2, b_1, b_2)$ where $a_1, a_2$ are the last two deliveries to mine~1 and $b_1, b_2$ to mine~2. Each coordinate takes values in $\{0,1,2,3\}$ (three food types plus a ``none'' sentinel for fewer than 2 past deliveries). This gives $4^4 = 256$ states.
+
+\textbf{Transition.} For cart $i$ with food type $c$:
+\begin{itemize}
+    \item \emph{Send to mine 1:} New state $(c, a_1, b_1, b_2)$. Bonus $= |\{c, a_1, a_2\} \setminus \{3\}|$.
+    \item \emph{Send to mine 2:} New state $(a_1, a_2, c, b_1)$. Bonus $= |\{c, b_1, b_2\} \setminus \{3\}|$.
+\end{itemize}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(256 \cdot 2 \cdot N) = O(N)$.
+    \item \textbf{Space:} $O(256) = O(1)$ (rolling two DP layers).
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    string s;
+    cin >> s;
+
+    auto encode = [](char c) -> int {
+        if(c == 'M') return 0;
+        if(c == 'F') return 1;
+        return 2;
+    };
+
+    // Pack state (a1, a2, b1, b2) into a single int
+    auto pack = [](int a1, int a2, int b1, int b2) -> int {
+        return a1 * 64 + a2 * 16 + b1 * 4 + b2;
+    };
+
+    // Count distinct food types among c, x, y (ignoring sentinel 3)
+    auto bonus = [](int c, int x, int y) -> int {
+        bool seen[3] = {};
+        seen[c] = true;
+        if(x < 3) seen[x] = true;
+        if(y < 3) seen[y] = true;
+        return seen[0] + seen[1] + seen[2];
+    };
+
+    vector<int> dp(256, -1);
+    dp[pack(3, 3, 3, 3)] = 0;
+
+    for(int i = 0; i < N; i++){
+        int c = encode(s[i]);
+        vector<int> ndp(256, -1);
+        for(int st = 0; st < 256; st++){
+            if(dp[st] == -1) continue;
+            int a1 = (st / 64) % 4, a2 = (st / 16) % 4;
+            int b1 = (st / 4) % 4,  b2 = st % 4;
+
+            // Send to mine 1
+            int ns1 = pack(c, a1, b1, b2);
+            int val1 = dp[st] + bonus(c, a1, a2);
+            ndp[ns1] = max(ndp[ns1], val1);
+
+            // Send to mine 2
+            int ns2 = pack(a1, a2, c, b1);
+            int val2 = dp[st] + bonus(c, b1, b2);
+            ndp[ns2] = max(ndp[ns2], val2);
+        }
+        dp = ndp;
+    }
+
+    cout << *max_element(dp.begin(), dp.end()) << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The problem is a clean DP exercise. The state space is $4^4=256$ because each mine needs only its two most recent deliveries (plus the sentinel for ``no delivery yet''). The bonus function counts distinct types in a window of size~3 (current delivery plus last~2). Since the state space is constant, the algorithm runs in $O(N)$ time.
+
+\end{document}

@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\D. Guardians of the Gallery}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a simple polygon, the guard position, and the center of a sculpture. The guard may move
+only inside the polygon, and we want the minimum distance needed to reach a position from which at
+least half of an infinitesimally small circular sculpture is visible.
+
+So the real task is:
+\begin{itemize}[leftmargin=*]
+    \item describe the region of points from which the sculpture is ``visible enough'',
+    \item then find the shortest path from the guard to that region.
+\end{itemize}
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Fix a ray starting at the sculpture center and going outward. As we move along that ray, the
+    only moments when the visibility status can change are when the ray hits the polygon boundary.
+
+    \item A \emph{proper crossing} of the ray by the polygon boundary blocks both halves of the sculpture
+    at once. A \emph{tangent touch} blocks only one side. Along one ray, the guard may continue moving
+    until both sides have been blocked at least once.
+
+    \item Therefore, on every relevant ray, the valid positions form one prefix segment starting at the
+    sculpture center and ending at the first point where both sides are blocked.
+
+    \item The only rays that matter are the rays passing through polygon vertices. Between two consecutive
+    such rays, the combinatorial description of the blocking boundary does not change.
+
+    \item Once these boundary rays are known, the rest is a standard shortest-path-in-polygon problem:
+    a shortest path bends only at polygon vertices, and the final straight segment ends on one of the
+    boundary spokes.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For every polygon vertex $v$, consider the ray from the sculpture center $s$ through $v$.
+
+    \item For one fixed ray, scan all polygon edges:
+    \begin{itemize}[leftmargin=*]
+        \item if an edge crosses the ray properly, it blocks both sides;
+        \item if a boundary vertex lies on the ray, inspect the two polygon chains incident to that vertex:
+        if they approach the ray from opposite sides, this is also a two-sided block; otherwise it is a
+        one-sided block.
+    \end{itemize}
+    Let $t_+$ and $t_-$ be the first distances on the ray where the positive and negative side become
+    blocked. The usable part of the ray ends at
+    \[
+        \max(t_+, t_-).
+    \]
+
+    \item Rays with the same direction are merged, keeping only the farthest reachable endpoint. This gives
+    a set of boundary spokes, each represented by one segment from $s$ to its cutoff point.
+
+    \item Build the usual visibility graph on the guard and all polygon vertices. Two nodes are connected if
+    the straight segment between them lies inside the polygon closure.
+
+    \item Run Dijkstra from the guard to all graph nodes.
+
+    \item For each graph node $q$ and each boundary spoke $T$:
+    \begin{itemize}[leftmargin=*]
+        \item compute the subset of $T$ directly visible from $q$;
+        \item add the distance from $q$ to the nearest visible point of $T$.
+    \end{itemize}
+    The visible subset of one spoke is found by splitting the spoke at all parameters where the line from
+    $q$ to the spoke passes through a polygon vertex. Between two consecutive split points, the visibility
+    status is constant, so a midpoint test is enough.
+
+    \item Also check whether the guard itself, or any polygon vertex reached by Dijkstra, already lies in
+    the valid region.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Along a fixed ray starting at the sculpture center, the set of valid guard positions is exactly one prefix
+segment of that ray.
+
+\paragraph{Proof.}
+Moving outward along the ray can only lose visibility, never regain it, because every blocking event lies
+between the sculpture and all farther points on the same ray.
+
+A proper crossing of the boundary blocks both sides of the tiny circle immediately. A tangential contact
+blocks only one side. To see at least half of the sculpture, at least one side must remain unblocked.
+Hence the valid points are precisely those before the first position where both sides have been blocked.
+So the valid set on that ray is one prefix segment. \qed
+
+\paragraph{Lemma 2.}
+The endpoint of the valid prefix on a ray is completely determined by polygon edges and vertices lying on
+that ray, and only rays through polygon vertices can change the combinatorial answer.
+
+\paragraph{Proof.}
+Between two consecutive rays through polygon vertices, every polygon edge stays on the same side of the
+ray, so the ordering of one-sided and two-sided blocking events does not change. Therefore the cutoff
+value varies continuously without changing combinatorial type, and all changes happen exactly at rays
+through vertices. The cutoff on such a ray is determined by the first blocking event on each side, which
+comes from the ray hitting polygon edges or polygon vertices. \qed
+
+\paragraph{Lemma 3.}
+There exists an optimal path that consists of a shortest path from the guard to some visibility-graph node,
+followed by one straight segment to a boundary spoke.
+
+\paragraph{Proof.}
+The valid region is contained in the polygon and is bounded by the spokes computed above. Any shortest
+path inside a simple polygon bends only at polygon vertices; the last bend before entering the target
+region is therefore either the guard itself or a polygon vertex. From that final bend, the remainder of the
+path is a straight segment to the first point where the path enters the target region, and that entry point
+lies on the boundary of the target region, hence on one of the boundary spokes. \qed
+
+\paragraph{Lemma 4.}
+For a fixed graph node $q$ and a fixed spoke $T$, splitting $T$ at parameters where the line $qx$ passes
+through a polygon vertex is sufficient to determine all directly visible subsegments of $T$.
+
+\paragraph{Proof.}
+As the endpoint $x$ moves continuously along $T$, the segment $qx$ can change its intersection pattern
+with the polygon boundary only when it passes through a polygon vertex. Between two consecutive such
+events, no combinatorial change is possible, so the visibility status is constant on the whole open
+subsegment. Therefore midpoint testing on each interval is sufficient. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemmas 1 and 2, the algorithm computes exactly the boundary spokes of the valid region.
+By Lemma 3, some optimal path is represented by a visibility-graph path to a node $q$ and one final
+straight segment from $q$ to a spoke. By Lemma 4, the algorithm checks exactly all such final straight
+segments. Dijkstra provides the correct shortest distance from the guard to every possible last bend.
+Taking the minimum over all graph nodes and all spokes therefore yields the true optimum. \qed
+
+\section*{Complexity Analysis}
+
+Let $n$ be the number of polygon vertices.
+
+\begin{itemize}[leftmargin=*]
+    \item Computing all spoke cutoffs costs $O(n^2)$.
+    \item Building the visibility graph costs $O(n^3)$ because there are $O(n)$ nodes and each visibility
+    test against the polygon costs $O(n)$.
+    \item For every graph node and every spoke, we split by all polygon vertices and run $O(n)$ segment
+    tests, so this phase is $O(n^4)$.
+\end{itemize}
+
+With $n \le 100$, this is easily fast enough. Memory usage is $O(n^2)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Boundary points are allowed. Geometrically, standing exactly on a limiting spoke corresponds to
+    seeing exactly half of the infinitesimal circle, which is valid.
+    \item The code tests segment containment in the polygon by collecting all boundary-intersection
+    parameters, then checking the midpoint of every open interval between them.
+    \item Several vertices can lie on the same ray from the sculpture; those rays are merged by normalized
+    direction.
+\end{itemize}
+
+\end{document}

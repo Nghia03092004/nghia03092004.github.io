@@ -1,0 +1,171 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2006 -- Pyramid}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given an $R \times C$ grid of integers, find two axis-aligned rectangles -- an outer rectangle of dimensions $a \times b$ and an inner rectangle of dimensions $c \times d$ -- such that the inner rectangle is strictly contained in the outer rectangle (with at least one row/column of margin on each side), and the \emph{border sum} (sum of the outer rectangle minus the sum of the inner rectangle) is maximized.
+
+\section{Solution}
+
+\subsection{2D Prefix Sums}
+Precompute the 2D prefix-sum array so that any rectangle sum can be queried in $O(1)$:
+\[
+S[i][j] = \sum_{r=1}^{i} \sum_{c=1}^{j} \text{grid}[r][c].
+\]
+Then:
+\[
+\text{rectSum}(r_1, c_1, r_2, c_2) = S[r_2][c_2] - S[r_1{-}1][c_2] - S[r_2][c_1{-}1] + S[r_1{-}1][c_1{-}1].
+\]
+
+\subsection{Reducing to a 2D Sliding-Window Minimum}
+For a fixed outer rectangle with top-left corner at $(r, c)$, the border sum is:
+\[
+\text{rectSum}(r, c, r{+}a{-}1, c{+}b{-}1) - \min_{\substack{(r', c') \text{ s.t. inner} \\ \text{fits inside outer}}} \text{rectSum}(r', c', r'{+}c{-}1, c'{+}d{-}1).
+\]
+The inner top-left $(r', c')$ ranges over $[r+1,\; r+a-c-1] \times [c+1,\; c+b-d-1]$.
+
+To maximize the border sum, for each outer position we need the \emph{minimum} inner sum. This is a \textbf{2D sliding-window minimum} problem.
+
+\subsection{2D Sliding Minimum via Two Passes of 1D Deque}
+\begin{enumerate}
+    \item \textbf{Precompute inner sums.} For each valid $(i,j)$, let $I[i][j] = \text{rectSum}(i, j, i{+}c{-}1, j{+}d{-}1)$.
+    \item \textbf{Row-wise sliding minimum.} For each row $i$, compute the sliding minimum of $I[i][j]$ over windows of width $W_c = b - d - 1$ using a deque. Store results in $\text{rowMin}[i][j]$.
+    \item \textbf{Column-wise sliding minimum.} For each column $j$, compute the sliding minimum of $\text{rowMin}[i][j]$ over windows of height $W_r = a - c - 1$ using a deque. This gives the 2D sliding minimum $\text{minInner}[i][j]$.
+    \item \textbf{Combine.} For each outer position $(r, c)$, the answer candidate is $\text{outerSum}(r, c) - \text{minInner}[r+1][c+1]$.
+\end{enumerate}
+
+Each element enters and leaves each deque at most once, so the total work is $O(R \times C)$.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(R \times C)$.
+    \item \textbf{Space:} $O(R \times C)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int R, C;
+    cin >> R >> C;
+
+    vector<vector<long long>> S(R + 1, vector<long long>(C + 1, 0));
+    for(int i = 1; i <= R; i++)
+        for(int j = 1; j <= C; j++){
+            int v; cin >> v;
+            S[i][j] = v + S[i-1][j] + S[i][j-1] - S[i-1][j-1];
+        }
+
+    auto rectSum = [&](int r1, int c1, int r2, int c2) -> long long {
+        return S[r2][c2] - S[r1-1][c2] - S[r2][c1-1] + S[r1-1][c1-1];
+    };
+
+    int a, b, c, d;
+    cin >> a >> b >> c >> d;
+
+    // Inner window dimensions for the sliding minimum
+    int wh = a - c - 1; // number of valid inner row offsets
+    int ww = b - d - 1; // number of valid inner column offsets
+    int maxOuterR = R - a + 1;
+    int maxOuterC = C - b + 1;
+
+    if(maxOuterR < 1 || maxOuterC < 1){
+        cout << "No valid placement\n";
+        return 0;
+    }
+
+    // Precompute inner rectangle sums
+    int innerMaxR = R - c + 1;
+    int innerMaxC = C - d + 1;
+    vector<vector<long long>> I(innerMaxR + 1, vector<long long>(innerMaxC + 1));
+    for(int i = 1; i <= innerMaxR; i++)
+        for(int j = 1; j <= innerMaxC; j++)
+            I[i][j] = rectSum(i, j, i + c - 1, j + d - 1);
+
+    // Step 1: row-wise sliding minimum (window width ww + 1)
+    int winW = ww + 1;
+    vector<vector<long long>> rowMin(innerMaxR + 1, vector<long long>(maxOuterC + 1, LLONG_MAX));
+    for(int i = 1; i <= innerMaxR; i++){
+        deque<int> dq;
+        for(int j = 1; j <= innerMaxC; j++){
+            while(!dq.empty() && I[i][dq.back()] >= I[i][j])
+                dq.pop_back();
+            dq.push_back(j);
+            if(dq.front() < j - winW + 1) dq.pop_front();
+            if(j >= winW){
+                // The outer column for this entry: outer_c = j - winW + 1 - 1 + 1
+                // Inner col starts at outer_c + 1, range [outer_c+1 .. outer_c+ww+1]
+                // j - winW + 1 is the first inner col in window, map to outer col = (j - winW + 1) - 1
+                int oc = j - winW; // 1-based outer column
+                if(oc >= 1 && oc <= maxOuterC)
+                    rowMin[i][oc] = I[i][dq.front()];
+            }
+        }
+    }
+
+    // Step 2: column-wise sliding minimum (window height wh + 1) on rowMin
+    int winH = wh + 1;
+    long long ans = LLONG_MIN;
+
+    for(int oc = 1; oc <= maxOuterC; oc++){
+        deque<int> dq;
+        for(int i = 1; i <= innerMaxR; i++){
+            if(rowMin[i][oc] == LLONG_MAX) continue;
+            while(!dq.empty() && rowMin[dq.back()][oc] >= rowMin[i][oc])
+                dq.pop_back();
+            dq.push_back(i);
+            if(dq.front() < i - winH + 1) dq.pop_front();
+            if(i >= winH){
+                int or_ = i - winH; // 1-based outer row
+                if(or_ >= 1 && or_ <= maxOuterR){
+                    long long outerS = rectSum(or_, oc, or_ + a - 1, oc + b - 1);
+                    long long minInner = rowMin[dq.front()][oc];
+                    ans = max(ans, outerS - minInner);
+                }
+            }
+        }
+    }
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The 2D sliding-window minimum is the core technique. It decomposes into two passes of the classical 1D sliding-window minimum (using a monotone deque), each amortized $O(1)$ per element.
+
+The index arithmetic requires care: the inner rectangle's top-left must satisfy $r' \in [r+1,\; r + a - c - 1]$ and $c' \in [c+1,\; c + b - d - 1]$ for outer top-left $(r, c)$.
+
+\end{document}

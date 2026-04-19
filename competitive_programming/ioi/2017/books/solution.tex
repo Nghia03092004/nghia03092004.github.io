@@ -1,0 +1,199 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2017 -- Books}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+There are $n$ books on a shelf, forming a permutation $P[0..n-1]$. Book at position $i$ should be at position $P[i]$. A librarian starts at position $S$ and can move left or right, picking up and placing books. Each step costs 1 unit. Find the minimum total distance the librarian must travel to sort all books.
+
+\section{Solution Approach}
+
+\textbf{Cycle decomposition}: The permutation consists of cycles. Books within fixed points (cycles of length 1) don't need to move. For each non-trivial cycle, the librarian must visit all positions in the cycle to sort the books.
+
+\textbf{Mandatory distance}: For each non-trivial cycle, the librarian must travel at least the span of the cycle (max position - min position in the cycle) in each direction. The total mandatory distance is $\sum_{\text{cycle}} 2 \times (\max - \min)$ but consecutive cycles can share travel.
+
+\textbf{Key insight}: The minimum distance is the mandatory distance (visiting all positions in all cycles) plus possible extra travel if the starting position $S$ requires backtracking.
+
+More precisely:
+\begin{itemize}
+  \item The mandatory distance is $2 \times \sum_{\text{cycle}} (\max_i - \min_i)$ if we optimally route through all cycles. But cycles may overlap or be nested.
+  \item The librarian must cover the range $[L, R]$ where $L$ = leftmost position in any non-trivial cycle and $R$ = rightmost. The minimum distance to cover $[L, R]$ starting from $S$ is $(R - L) + \min(|S - L|, |S - R|) + (R - L)$... no, that's for a single sweep.
+\end{itemize}
+
+\textbf{Correct approach}:
+\begin{enumerate}
+  \item Find all cycles. Compute the mandatory travel: the sum of cycle spans times 2.
+  \item The librarian starts at $S$. Determine the leftmost $L$ and rightmost $R$ positions needed.
+  \item The librarian goes left to $L$ and right to $R$ (or vice versa). Extra cost = $\max(0, S - L) + \max(0, R - S)$, but this is just $(R - L)$ if $L \le S \le R$. If $S < L$, extra = $L - S$. If $S > R$, extra = $S - R$.
+  \item But the librarian needs to choose whether to go left first or right first, incurring different costs.
+\end{enumerate}
+
+Minimum extra travel beyond mandatory:
+\[
+  \text{extra} = \min(S - L, R - S) + (R - L)
+\]
+Wait, the total travel is: mandatory cycle costs + cost of traveling between cycles + returning to handle the starting offset.
+
+For subtasks, a simpler formula works: total cost = mandatory + extra, where extra handles the starting position.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+long long minimum_walk(vector<int> p, int s) {
+    int n = p.size();
+
+    // Find cycles
+    vector<bool> visited(n, false);
+    ll mandatory = 0;
+    int globalL = n, globalR = -1;
+
+    // For each cycle, compute its span
+    vector<pair<int,int>> cycleSpans; // (min, max) of each non-trivial cycle
+
+    for (int i = 0; i < n; i++) {
+        if (visited[i] || p[i] == i) { visited[i] = true; continue; }
+        int lo = i, hi = i;
+        int j = i;
+        while (!visited[j]) {
+            visited[j] = true;
+            lo = min(lo, j);
+            hi = max(hi, j);
+            j = p[j];
+        }
+        mandatory += 2LL * (hi - lo);
+        cycleSpans.push_back({lo, hi});
+        globalL = min(globalL, lo);
+        globalR = max(globalR, hi);
+    }
+
+    if (cycleSpans.empty()) return 0; // already sorted
+
+    // Extra cost: the librarian needs to reach globalL and globalR from s.
+    // Minimum: go one direction first, come back, then go the other.
+    // Extra = min(abs(s - globalL), abs(s - globalR)) * 2
+    //         + max(0, globalL < s ? s - globalL : 0)
+    //         + max(0, globalR > s ? globalR - s : 0)
+    // Actually: total travel = mandatory - overlaps + travel from s to cover [globalL, globalR]
+    // The mandatory counts 2*(hi-lo) for each cycle, but consecutive cycles
+    // share some travel (the region between cycles is traversed for free).
+    // Wait no, the mandatory IS the sum of 2*(hi-lo) per cycle, but the librarian
+    // also needs to travel between disconnected cycles.
+
+    // Correct formula:
+    // Sort cycle spans. Merge overlapping ones.
+    // The "mandatory" region is the union of cycle spans.
+    // The librarian must traverse this entire region.
+    // Additional cost: travel between non-overlapping cycle regions
+    //   (already counted in individual 2*(hi-lo) if they overlap).
+
+    // Actually, 2*(hi-lo) per cycle just means the librarian traverses
+    // each cycle's range. The total mandatory is at least 2 * (union length).
+    // But individual cycles might not share range, so mandatory = sum of 2*(hi-lo)
+    // which might exceed 2*(globalR - globalL) if cycles overlap.
+    // No: overlapping cycles would have overlapping ranges, and the librarian
+    // traversing one cycle's range also traverses the overlapping part.
+
+    // The correct total:
+    // mandatory = 2 * (total length of union of all cycle ranges)
+    // Plus: for gaps between cycle ranges, the librarian must traverse them
+    // (going from one cycle region to another).
+
+    // Merge cycle spans:
+    sort(cycleSpans.begin(), cycleSpans.end());
+    vector<pair<int,int>> merged;
+    for (auto &[lo, hi] : cycleSpans) {
+        if (!merged.empty() && lo <= merged.back().second) {
+            merged.back().second = max(merged.back().second, hi);
+        } else {
+            merged.push_back({lo, hi});
+        }
+    }
+
+    // Mandatory = 2 * sum of merged range lengths
+    mandatory = 0;
+    for (auto &[lo, hi] : merged) mandatory += 2LL * (hi - lo);
+
+    // Gaps between merged ranges: librarian must traverse these to get
+    // from one region to another. Each gap is traversed twice (go and return)
+    // unless the librarian starts/ends in a direction that avoids doubling.
+    // Actually, gaps must be traversed twice (go across, come back... or not).
+    // The librarian chooses the optimal route.
+
+    // For the starting position s:
+    // If s is within [globalL, globalR]:
+    //   Total = mandatory + (gap traversals) + extra for starting position
+    //   The starting position means the librarian goes one way first.
+    //   Extra = min(s - globalL, globalR - s)
+    //     (the shorter direction is traversed twice: once to start, once to come back)
+
+    // If s < globalL:
+    //   Extra = globalL - s (one-way trip to the region)
+    // If s > globalR:
+    //   Extra = s - globalR
+
+    ll extra;
+    if (s >= globalL && s <= globalR) {
+        extra = min((ll)(s - globalL), (ll)(globalR - s));
+    } else if (s < globalL) {
+        extra = globalL - s;
+    } else {
+        extra = s - globalR;
+    }
+
+    // Total = mandatory + 2 * (sum of gaps) + extra
+    // Gaps: between consecutive merged regions
+    ll gaps = 0;
+    for (int i = 0; i + 1 < (int)merged.size(); i++) {
+        gaps += merged[i+1].first - merged[i].second;
+    }
+
+    return mandatory + 2 * gaps + extra;
+}
+
+int main() {
+    int n, s;
+    scanf("%d %d", &n, &s);
+    vector<int> p(n);
+    for (int i = 0; i < n; i++) scanf("%d", &p[i]);
+    printf("%lld\n", minimum_walk(p, s));
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n \log n)$ for sorting cycle spans, $O(n)$ for everything else.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

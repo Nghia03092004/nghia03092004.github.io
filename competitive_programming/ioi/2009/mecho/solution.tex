@@ -1,0 +1,145 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2009 -- Mecho}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Mecho the bear is on an $N \times N$ grid with grass, trees, bee hives, his starting position $M$, and his home $D$. Bees spread to all adjacent grass cells each minute. Mecho can move $S$ steps per minute (after bees spread). Mecho eats honey for $t$ minutes before moving. Find the maximum $t$ such that Mecho can still reach home.
+
+\section{Solution}
+
+\subsection{Binary Search on Waiting Time}
+\begin{lemma}[Monotonicity]
+If Mecho can escape after waiting $t$ minutes, he cannot necessarily escape after waiting $t+1$ minutes (bees have spread further). Conversely, if he cannot escape at time $t$, he cannot at $t+1$. So the feasibility function is monotone, justifying binary search.
+\end{lemma}
+
+\textbf{Feasibility check for a given $t$:}
+\begin{enumerate}
+    \item \textbf{Bee BFS}: Multi-source BFS from all hives to compute $\text{bee\_time}[r][c]$ = the minute bees first reach $(r,c)$. Bees cannot enter the home cell $D$.
+    \item \textbf{Mecho BFS}: BFS from $M$. Cell $(r,c)$ is reachable at step-distance $d$ only if $\text{bee\_time}[r][c] > t + \lfloor d/S \rfloor$ (bees have not yet arrived when Mecho enters the cell).
+    \item If $D$ is reached, return true.
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N^2 \log N)$ -- $O(\log N)$ binary search iterations, each with $O(N^2)$ BFS.
+    \item \textbf{Space:} $O(N^2)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, S;
+    cin >> N >> S;
+
+    vector<string> grid(N);
+    int mr, mc, dr, dc;
+    vector<pair<int,int>> hives;
+
+    for(int i = 0; i < N; i++){
+        cin >> grid[i];
+        for(int j = 0; j < N; j++){
+            if(grid[i][j] == 'M'){ mr = i; mc = j; }
+            if(grid[i][j] == 'D'){ dr = i; dc = j; }
+            if(grid[i][j] == 'H') hives.push_back({i, j});
+        }
+    }
+
+    // Bee BFS
+    const int dx[] = {0, 0, 1, -1};
+    const int dy[] = {1, -1, 0, 0};
+    vector<vector<int>> beeTime(N, vector<int>(N, INT_MAX));
+    queue<pair<int,int>> q;
+    for(auto [r, c] : hives){
+        beeTime[r][c] = 0;
+        q.push({r, c});
+    }
+    while(!q.empty()){
+        auto [r, c] = q.front(); q.pop();
+        for(int d = 0; d < 4; d++){
+            int nr = r + dx[d], nc = c + dy[d];
+            if(nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
+            if(grid[nr][nc] == 'T' || grid[nr][nc] == 'D') continue;
+            if(beeTime[nr][nc] <= beeTime[r][c] + 1) continue;
+            beeTime[nr][nc] = beeTime[r][c] + 1;
+            q.push({nr, nc});
+        }
+    }
+
+    auto canEscape = [&](int t) -> bool {
+        if(beeTime[mr][mc] <= t) return false;
+
+        vector<vector<int>> dist(N, vector<int>(N, INT_MAX));
+        dist[mr][mc] = 0;
+        queue<pair<int,int>> bfs;
+        bfs.push({mr, mc});
+
+        while(!bfs.empty()){
+            auto [r, c] = bfs.front(); bfs.pop();
+            if(r == dr && c == dc) return true;
+            for(int d = 0; d < 4; d++){
+                int nr = r + dx[d], nc = c + dy[d];
+                if(nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
+                if(grid[nr][nc] == 'T') continue;
+                if(dist[nr][nc] != INT_MAX) continue;
+                int newDist = dist[r][c] + 1;
+                int minute = t + newDist / S;
+                if(nr != dr || nc != dc) // home is always safe
+                    if(beeTime[nr][nc] <= minute) continue;
+                dist[nr][nc] = newDist;
+                bfs.push({nr, nc});
+            }
+        }
+        return false;
+    };
+
+    int lo = 0, hi = N * N, ans = -1;
+    while(lo <= hi){
+        int mid = (lo + hi) / 2;
+        if(canEscape(mid)){ ans = mid; lo = mid + 1; }
+        else hi = mid - 1;
+    }
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The bee BFS is computed once and reused across all binary-search iterations. In the Mecho BFS, the ``minute'' at which Mecho enters a cell is $t + \lfloor d/S \rfloor$, where $d$ is the number of individual steps taken. The home cell $D$ is excluded from bee spread, so Mecho can always enter it regardless of bee timing.
+
+\end{document}

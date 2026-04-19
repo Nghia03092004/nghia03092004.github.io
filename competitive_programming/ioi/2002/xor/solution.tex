@@ -1,0 +1,131 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2002 -- XOR}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given an $M \times N$ grid of 0s and 1s ($M, N \le 500$), find the
+largest-area subrectangle whose XOR (equivalently, the parity of its
+number of 1s) equals~1.
+
+\section{Solution: 2D Prefix XOR}
+
+\subsection{Prefix XOR}
+Define the 2D prefix XOR:
+\[
+  P[i][j] = \bigoplus_{r=1}^{i}\bigoplus_{c=1}^{j} a[r][c].
+\]
+The XOR of subrectangle $(r_1, c_1)$ to $(r_2, c_2)$ is:
+\[
+  P[r_2][c_2] \oplus P[r_1{-}1][c_2]
+  \oplus P[r_2][c_1{-}1] \oplus P[r_1{-}1][c_1{-}1].
+\]
+
+\subsection{Reduction to 1D}
+Fix rows $r_1$ and $r_2$. Define
+$Q[c] = P[r_2][c] \oplus P[r_1{-}1][c]$.
+The subrectangle XOR becomes $Q[c_2] \oplus Q[c_1{-}1]$, which
+equals 1 if and only if $Q[c_2] \ne Q[c_1{-}1]$.
+
+To maximize $c_2 - c_1 + 1$, for each $c_2$ we want the smallest
+$c_1{-}1$ such that $Q[c_1{-}1] \ne Q[c_2]$. Since $Q$ values are
+in $\{0, 1\}$, it suffices to track the first occurrence of each value:
+
+\begin{lemma}
+Let $\mathrm{first}[b]$ be the smallest index $c'$ with $Q[c'] = b$
+(scanning $c' = 0, 1, \ldots$). Then for a given $c_2$, the widest
+subrectangle ending at column $c_2$ has width
+$c_2 - \mathrm{first}[1 - Q[c_2]]$ (provided $\mathrm{first}[1 - Q[c_2]]$
+exists; otherwise no valid subrectangle ends at $c_2$).
+\end{lemma}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int M, N;
+    cin >> M >> N;
+
+    vector<vector<int>> a(M + 1, vector<int>(N + 1, 0));
+    for (int i = 1; i <= M; i++)
+        for (int j = 1; j <= N; j++)
+            cin >> a[i][j];
+
+    // 2D prefix XOR
+    vector<vector<int>> P(M + 1, vector<int>(N + 1, 0));
+    for (int i = 1; i <= M; i++)
+        for (int j = 1; j <= N; j++)
+            P[i][j] = a[i][j] ^ P[i - 1][j]
+                     ^ P[i][j - 1] ^ P[i - 1][j - 1];
+
+    int bestArea = 0;
+
+    for (int r1 = 1; r1 <= M; r1++) {
+        for (int r2 = r1; r2 <= M; r2++) {
+            int height = r2 - r1 + 1;
+
+            // Track first occurrence of Q-values 0 and 1.
+            // Q[0] = P[r2][0] ^ P[r1-1][0] = 0, so first[0] = 0.
+            int first[2] = {0, -1};
+
+            for (int c = 1; c <= N; c++) {
+                int qc = P[r2][c] ^ P[r1 - 1][c];
+                if (first[qc] == -1)
+                    first[qc] = c;
+
+                int need = 1 - qc;
+                if (first[need] != -1) {
+                    int width = c - first[need];
+                    bestArea = max(bestArea, height * width);
+                }
+            }
+        }
+    }
+
+    cout << bestArea << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(M^2 \cdot N)$. We enumerate $O(M^2)$ row
+        pairs and scan $N$ columns per pair.
+  \item \textbf{Space:} $O(M \cdot N)$ for the prefix XOR array.
+\end{itemize}
+
+\end{document}

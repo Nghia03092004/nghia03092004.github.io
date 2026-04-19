@@ -1,0 +1,140 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\R. Zoo Management}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each move is a collection of vertex-disjoint directed cycles in the enclosure graph: every animal on such a
+cycle moves one step along a tunnel, and no other animal moves. We must decide whether the initial
+labeling of the vertices can be transformed into the target labeling.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item A bridge can never be used in any move, because no cycle contains a bridge. So animals never
+    cross bridges, and every connected component after removing bridges is independent.
+    \item Inside one bridge-free component there are three qualitatively different cases:
+    \begin{itemize}[leftmargin=*]
+        \item the component is a single simple cycle;
+        \item the component is a cactus made of several simple cycles sharing only vertices;
+        \item some edge belongs to more than one cycle.
+    \end{itemize}
+    \item On a single simple cycle, the only possible operation is a rotation of that cycle, so the target
+    sequence must be a cyclic shift of the initial sequence.
+    \item If some edge belongs to more than one cycle, then one can realize arbitrary swaps and therefore
+    arbitrary permutations of the vertices in that component.
+    \item If the component is a cactus with more than one cycle, then all even permutations are possible.
+    If at least one cycle has even length, that cycle itself is an odd permutation, so in fact all
+    permutations become possible.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Find all bridges and remove them.
+    \item For each remaining connected component:
+    \begin{itemize}[leftmargin=*]
+        \item first compare the multisets of initial and target animal types inside the component;
+        \item if the component is a simple cycle, build the cyclic order of vertices and test cyclic
+        equivalence of the two label sequences;
+        \item otherwise run one DFS inside the component and count, for each tree edge, how many back
+        edges cover it.
+    \end{itemize}
+    \item If some tree edge is covered by more than one back edge, then some edge lies on multiple cycles,
+    so the component allows all permutations.
+    \item Otherwise the component is a cactus. Check whether one of its cycle lengths is even:
+    \begin{itemize}[leftmargin=*]
+        \item if yes, all permutations are possible;
+        \item if not, only even permutations are possible.
+    \end{itemize}
+    \item In the even-only case, parity matters only when all labels in the component are distinct. Then
+    compute the parity of the permutation sending the initial labeling to the target labeling.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+No animal can ever cross a bridge.
+
+\paragraph{Proof.}
+Each move is a union of directed cycles. A bridge belongs to no undirected cycle, so it cannot be used in
+any move. Hence animals remain forever inside the same connected component of the graph after bridges
+are removed. \qed
+
+\paragraph{Lemma 2.}
+If a bridge-free component is a simple cycle, then the reachable labelings are exactly the cyclic shifts of
+its current labeling.
+
+\paragraph{Proof.}
+The only cycle present in the component is the whole component itself, so every move rotates the labels by
+one step clockwise or counterclockwise. Repeating such moves gives exactly all cyclic shifts and nothing
+else. \qed
+
+\paragraph{Lemma 3.}
+If a bridge-free component contains an edge that lies on more than one cycle, then every permutation of
+its vertices is achievable.
+
+\paragraph{Proof.}
+The standard argument used in the official sketch shows that three edge-disjoint paths between two
+vertices allow a transposition of arbitrary labels inside that subgraph. Combining such local swaps with the
+available cycle rotations generates the full symmetric group on the component. \qed
+
+\paragraph{Lemma 4.}
+If a bridge-free component is a cactus with more than one cycle, then every even permutation is
+achievable. If one of its cycles has even length, then every permutation is achievable.
+
+\paragraph{Proof.}
+For two adjacent cycles in a cactus, the commutator
+\[
+aba^{-1}b^{-1}
+\]
+acts as a 3-cycle on labels, so the alternating group is generated. Thus every even permutation is
+reachable.
+
+A cycle of length $L$ is a permutation of sign $(-1)^{L-1}$. Hence an even-length cycle is an odd
+permutation. Once both all even permutations and one odd permutation are available, the full symmetric
+group is generated. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs \texttt{possible} exactly when the target arrangement can be achieved.
+
+\paragraph{Proof.}
+By Lemma 1, components after bridge removal are independent, so it is necessary and sufficient to solve
+each one separately.
+
+If a component is a simple cycle, Lemma 2 gives the exact criterion. Otherwise, the DFS cover counts tell
+us whether some edge lies on multiple cycles. In that case Lemma 3 applies and only multiset equality is
+needed. If not, the component is a cactus, so Lemma 4 tells us whether all permutations or only even
+permutations are available.
+
+In the even-only case, when some label appears at least twice, swapping two equal labels changes the
+permutation parity without changing the final arrangement, so parity imposes no restriction. If all labels
+are distinct, the parity of the unique permutation from the initial labeling to the target labeling is the exact
+remaining condition. Therefore the algorithm is correct. \qed
+
+\section*{Complexity Analysis}
+
+Bridge finding and the later DFS traversals are linear. Comparing label multisets inside components
+requires sorting their labels, so the total running time is $O((n+m) + n \log n)$, and the memory usage is
+$O(n+m)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The code uses an iterative DFS for both bridge finding and cycle-structure analysis to avoid
+    recursion-depth problems at $4 \cdot 10^5$ vertices and edges.
+\end{itemize}
+
+\end{document}

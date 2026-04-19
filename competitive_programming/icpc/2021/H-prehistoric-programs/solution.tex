@@ -1,0 +1,187 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\H. Prehistoric Programs}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each tablet is a parentheses string. We may permute the tablets, then concatenate all strings. We need
+the final concatenation to be a correct bracket sequence:
+\begin{itemize}[leftmargin=*]
+    \item every prefix must have nonnegative balance;
+    \item the total balance must be zero.
+\end{itemize}
+
+\section*{Per-Tablet Statistics}
+
+For one string, define:
+\begin{itemize}[leftmargin=*]
+    \item $\text{bal}$: total balance, where \texttt{(} is $+1$ and \texttt{)} is $-1$;
+    \item $\text{minPref}$: the minimum prefix balance inside that string.
+\end{itemize}
+
+If the current balance before appending this string is $B$, then the string is safe to append exactly when
+\[
+    B + \text{minPref} \ge 0.
+\]
+After appending it, the new balance becomes
+\[
+    B + \text{bal}.
+\]
+
+\section*{Split into Two Groups}
+
+Strings with nonnegative total balance are helpful: once we append them, the available balance never gets
+smaller in the long run. Strings with negative total balance are dangerous and should be postponed.
+
+So we split all tablets into:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{positive group}: $\text{bal} \ge 0$;
+    \item \textbf{negative group}: $\text{bal} < 0$.
+\end{itemize}
+
+If a valid order exists at all, there is one where all positive-group strings come first and all
+negative-group strings come last.
+
+\section*{How to Sort the Positive Group}
+
+Inside the positive group, we want the least demanding strings first: the ones that require the smallest
+starting balance. That means sorting by
+\[
+    \text{minPref}
+\]
+in decreasing order.
+
+Then we greedily append them in that order, checking
+\[
+    B + \text{minPref} \ge 0.
+\]
+
+\section*{How to Sort the Negative Group}
+
+For negative-balance strings, the right measure is not just $\text{minPref}$, because after appending the
+string we lose some balance permanently.
+
+The standard way to view this group is to reverse each string and swap open/close parentheses. This turns
+it into a positive-balance problem. Under that transformation, the relevant key becomes
+\[
+    \text{bal} - \text{minPref}.
+\]
+
+Therefore the negative group should be sorted by
+\[
+    \text{bal} - \text{minPref}
+\]
+in decreasing order, and then greedily appended in that order.
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For each string, compute $\text{bal}$ and $\text{minPref}$.
+    \item If the total balance over all strings is not zero, output \texttt{impossible}.
+    \item Split strings into the positive and negative groups.
+    \item Sort:
+    \begin{itemize}[leftmargin=*]
+        \item positive group by decreasing $\text{minPref}$;
+        \item negative group by decreasing $\text{bal} - \text{minPref}$.
+    \end{itemize}
+    \item Traverse first the sorted positive group, then the sorted negative group.
+    \item Maintain the current balance $B$. If some string has
+    \[
+        B + \text{minPref} < 0,
+    \]
+    output \texttt{impossible}.
+    \item Otherwise append it, update
+    \[
+        B \leftarrow B + \text{bal},
+    \]
+    and record the index.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs a valid permutation exactly when one exists.
+
+\paragraph{Lemma 1.}
+If a string with statistics $(\text{bal}, \text{minPref})$ is appended when the current balance is $B$, then
+the concatenation remains prefix-valid if and only if
+\[
+    B + \text{minPref} \ge 0.
+\]
+
+\paragraph{Proof.}
+Inside the string, every prefix changes the balance by exactly the corresponding prefix balance of that
+string. The worst such drop is $\text{minPref}$. So all resulting prefixes stay nonnegative exactly when
+the minimum possible one, namely $B+\text{minPref}$, is nonnegative. \qed
+
+\paragraph{Lemma 2.}
+If a valid ordering exists, then there also exists a valid ordering in which every string with
+$\text{bal} \ge 0$ appears before every string with $\text{bal} < 0$.
+
+\paragraph{Proof.}
+A nonnegative-balance string never reduces the total available balance after it is appended, while a
+negative-balance string does. Swapping a negative string that appears before a nonnegative string cannot
+make the future balance smaller at the point where the nonnegative string starts. Repeating this exchange
+process pushes all nonnegative strings to the front without destroying validity. \qed
+
+\paragraph{Lemma 3.}
+Among strings with $\text{bal} \ge 0$, sorting by decreasing $\text{minPref}$ is optimal for greedy
+construction.
+
+\paragraph{Proof.}
+Take two such strings $A$ and $B$ with $\text{minPref}(A) \ge \text{minPref}(B)$. If some current balance
+$X$ can append $B$ first, then
+\[
+    X + \text{minPref}(B) \ge 0.
+\]
+Since $\text{minPref}(A)$ is at least as large, $A$ is also appendable from $X$. After appending $A$, the
+balance does not decrease overall because $\text{bal}(A)\ge0$, so whatever was possible after $B$ remains
+possible after $A$. Thus placing the larger $\text{minPref}$ first is never worse. \qed
+
+\paragraph{Lemma 4.}
+Among strings with $\text{bal} < 0$, sorting by decreasing $\text{bal} - \text{minPref}$ is optimal.
+
+\paragraph{Proof.}
+Reverse each negative string and swap every parenthesis. This transforms it into a string with nonnegative
+total balance. Under this transformation, the role of $\text{minPref}$ becomes exactly
+\[
+    \text{bal} - \text{minPref}.
+\]
+So by Lemma 3, the transformed strings should be sorted by decreasing that quantity. Reversing the
+transformation gives exactly the claimed order for the original negative strings. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs a valid permutation if and only if one exists.
+
+\paragraph{Proof.}
+By Lemma 2, it is enough to consider orders with all positive strings first and all negative strings last.
+By Lemma 3, the chosen order is optimal for the positive group, and by Lemma 4 it is optimal for the
+negative group. During the final scan, Lemma 1 exactly characterizes whether each next string can be
+appended safely.
+
+Therefore, if the algorithm fails, no valid ordering exists. If it succeeds, every prefix stays
+nonnegative and the total balance is zero, so the produced order is a correct bracket sequence. \qed
+
+\section*{Complexity Analysis}
+
+Let $L$ be the total number of parentheses in the input. Computing all statistics takes $O(L)$ time.
+Sorting the tablets takes $O(n \log n)$ time. The memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item We never need to store the full strings after computing $(\text{bal}, \text{minPref})$.
+    \item The final total balance must be zero; otherwise a correct bracket sequence is impossible no matter
+    how we permute the tablets.
+\end{itemize}
+
+\end{document}

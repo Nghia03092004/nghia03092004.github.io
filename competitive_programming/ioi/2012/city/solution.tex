@@ -1,0 +1,182 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2012 -- Ideal City}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+A city consists of $N$ unit-square blocks on a grid (connected via shared edges). The distance between two blocks is the shortest path length through adjacent blocks. Compute the sum of pairwise shortest-path distances modulo $10^9$.
+
+\section{Solution}
+
+\subsection{Decomposition into Horizontal and Vertical Components}
+The shortest path distance between any two blocks in a connected grid equals the Manhattan distance (the grid has no ``holes'' blocking shortest paths between adjacent connected components). The key structural insight is:
+
+\begin{theorem}
+The sum of pairwise distances decomposes as:
+\[
+\sum_{i < j} d(i, j) = \sum_{i < j} |x_i - x_j|_{\mathrm{eff}} + \sum_{i < j} |y_i - y_j|_{\mathrm{eff}}
+\]
+where the effective horizontal and vertical distances are computed via segment trees.
+\end{theorem}
+
+\textbf{Horizontal segments:} Group blocks into maximal horizontal runs (consecutive blocks in the same row). Build a tree where two segments are adjacent if they overlap in column range and lie in consecutive rows. The horizontal contribution to the distance between two blocks equals the tree distance between their respective horizontal segments.
+
+\textbf{Vertical segments:} Analogously, group blocks into maximal vertical runs and build a vertical segment tree.
+
+\subsection{Computing the Tree Contribution}
+For a tree with $n$ nodes where node~$i$ has weight~$w_i$ (the number of blocks in that segment), the sum of weighted pairwise distances is:
+\[
+\sum_{\text{edge } (u,v)} w_u^{\text{sub}} \cdot (W - w_u^{\text{sub}})
+\]
+where $w_u^{\text{sub}}$ is the total weight of $u$'s subtree and $W = \sum w_i$. Each edge is counted once, contributing the product of the weights on its two sides.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$ for sorting and building segment adjacency.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MOD = 1000000000;
+
+long long treePairwiseDist(vector<vector<int>> &adj, vector<int> &w, int n) {
+    if (n == 0) return 0;
+
+    vector<int> subtreeW(n, 0), parent(n, -1), order;
+    vector<bool> visited(n, false);
+    queue<int> q;
+    q.push(0);
+    visited[0] = true;
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        order.push_back(u);
+        for (int v : adj[u])
+            if (!visited[v]) {
+                visited[v] = true;
+                parent[v] = u;
+                q.push(v);
+            }
+    }
+
+    for (int i = 0; i < n; i++) subtreeW[i] = w[i];
+    for (int i = n - 1; i >= 1; i--)
+        subtreeW[parent[order[i]]] += subtreeW[order[i]];
+
+    int totalW = subtreeW[0];
+    long long result = 0;
+    for (int i = 1; i < n; i++) {
+        long long a = subtreeW[order[i]];
+        result = (result + a % MOD * ((totalW - a) % MOD)) % MOD;
+    }
+    return result;
+}
+
+long long solve(vector<pair<int,int>> &blocks, bool horizontal) {
+    int N = (int)blocks.size();
+    vector<pair<int,int>> sb = blocks;
+
+    if (horizontal)
+        sort(sb.begin(), sb.end(), [](auto &a, auto &b) {
+            return a.second != b.second ? a.second < b.second : a.first < b.first;
+        });
+    else
+        sort(sb.begin(), sb.end());
+
+    // Build segments
+    struct Seg { int fixed, start, end, weight; };
+    vector<Seg> segs;
+    map<pair<int,int>, int> blockToSeg;
+
+    int i = 0;
+    while (i < N) {
+        int j = i;
+        if (horizontal) {
+            int row = sb[i].second;
+            while (j < N && sb[j].second == row &&
+                   (j == i || sb[j].first == sb[j-1].first + 1))
+                j++;
+        } else {
+            int col = sb[i].first;
+            while (j < N && sb[j].first == col &&
+                   (j == i || sb[j].second == sb[j-1].second + 1))
+                j++;
+        }
+        int segId = (int)segs.size();
+        if (horizontal)
+            segs.push_back({sb[i].second, sb[i].first, sb[j-1].first, j - i});
+        else
+            segs.push_back({sb[i].first, sb[i].second, sb[j-1].second, j - i});
+        for (int k = i; k < j; k++)
+            blockToSeg[sb[k]] = segId;
+        i = j;
+    }
+
+    int nSeg = (int)segs.size();
+    vector<vector<int>> adj(nSeg);
+    set<pair<int,int>> edgeSet;
+
+    for (auto &[pos, segId] : blockToSeg) {
+        pair<int,int> nbr = horizontal
+            ? make_pair(pos.first, pos.second + 1)
+            : make_pair(pos.first + 1, pos.second);
+        if (blockToSeg.count(nbr)) {
+            int nbrSeg = blockToSeg[nbr];
+            if (nbrSeg != segId) {
+                auto edge = make_pair(min(segId, nbrSeg), max(segId, nbrSeg));
+                if (!edgeSet.count(edge)) {
+                    edgeSet.insert(edge);
+                    adj[segId].push_back(nbrSeg);
+                    adj[nbrSeg].push_back(segId);
+                }
+            }
+        }
+    }
+
+    vector<int> weights(nSeg);
+    for (int s = 0; s < nSeg; s++) weights[s] = segs[s].weight;
+    return treePairwiseDist(adj, weights, nSeg);
+}
+
+int DistanceSum(int N, int *X, int *Y) {
+    vector<pair<int,int>> blocks(N);
+    for (int i = 0; i < N; i++) blocks[i] = {X[i], Y[i]};
+
+    long long hDist = solve(blocks, true);
+    long long vDist = solve(blocks, false);
+    return (int)((hDist + vDist) % MOD);
+}
+\end{lstlisting}
+
+\end{document}

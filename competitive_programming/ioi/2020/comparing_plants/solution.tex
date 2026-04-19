@@ -1,0 +1,48 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{IOI 2020 -- Comparing Plants}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Plants are arranged on a circle. The value $r[i]$ describes the local ranking constraint for plant $i$ inside the next $k$ positions. For each query $(x,y)$, we must decide whether every valid height assignment forces $x$ to be taller than $y$, forces $y$ to be taller than $x$, or leaves them incomparable.
+
+\section{Solution}
+
+\subsection{Canonical Permutation}
+The official solution first reconstructs one canonical permutation of the plants that is consistent with the array $r$. This is done with:
+\begin{itemize}
+  \item a segment tree that tracks which positions are currently feasible to place next;
+  \item a cyclic ordered set that maintains the gaps between active positions.
+\end{itemize}
+The result is an ordering $V$ and its inverse position array.
+
+\subsection{Forced Comparisons as Jumps}
+Once the canonical order is known, the key observation is that a forced comparison can be propagated clockwise or counterclockwise by jumping to the next position whose canonical rank is strictly larger inside a window of length $k$.
+
+For every start position we compute:
+\begin{itemize}
+  \item the next forced clockwise jump;
+  \item the next forced counterclockwise jump.
+\end{itemize}
+These jumps are found with Fenwick trees over the canonical ranks. Binary lifting then lets us follow many jumps in $O(\log n)$ time.
+
+\subsection{Answering Queries}
+To check whether $a$ is definitely taller than $b$, test whether there is a valid jump chain from $a$ to $b$ either clockwise or counterclockwise. If yes, answer $1$. Otherwise test the reverse direction and answer $-1$ if it holds. If neither direction is forced, answer $0$.
+
+\section{Complexity}
+\begin{itemize}
+  \item Canonical reconstruction: $O(n \log n)$.
+  \item Jump preprocessing: $O(n \log n)$.
+  \item Each comparison query: $O(\log n)$.
+\end{itemize}
+
+\end{document}

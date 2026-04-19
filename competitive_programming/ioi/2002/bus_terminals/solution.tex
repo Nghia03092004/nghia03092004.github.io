@@ -1,0 +1,187 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2002 -- Bus Terminals}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given $N$ points ($N \le 20{,}000$) in the plane, choose two terminal
+locations $T_1, T_2$ and assign each point to one of them so as to
+minimize the maximum Manhattan distance from any point to its assigned
+terminal:
+\[
+  \min_{T_1,T_2,\sigma}\; \max_{i}\; d_{\text{Man}}(p_i, T_{\sigma(i)}).
+\]
+
+\section{Solution: Rotation + Binary Search}
+
+\subsection{Rotation to $L_\infty$}
+Under the change of coordinates $u = x + y$, $v = x - y$, Manhattan
+distance becomes Chebyshev ($L_\infty$) distance:
+\[
+  |x_1 - x_2| + |y_1 - y_2| = \max(|u_1 - u_2|, |v_1 - v_2|).
+\]
+A ``ball'' of radius $R$ in $L_\infty$ is an axis-aligned square of
+side $2R$.
+
+\subsection{Binary Search on the Answer}
+Binary search on $R$ (half the side of each covering square). For a
+given $R$, check whether the point set can be covered by two
+axis-aligned squares of side $2R$.
+
+\subsection{Feasibility Check}
+A set of points fits inside a $2R \times 2R$ square if and only if its
+bounding box has width $\le 2R$ and height $\le 2R$.
+
+To check whether two such squares suffice, try splitting the points
+into a \emph{prefix} and a \emph{suffix} along one sorted coordinate:
+\begin{enumerate}
+  \item Sort points by $u$-coordinate. For each split position $i$,
+        the prefix $[0,i]$ fits in a square iff its $u$-range and
+        $v$-range are both $\le 2R$. Likewise check the suffix.
+  \item Repeat with points sorted by $v$-coordinate, splitting along $v$.
+\end{enumerate}
+If either splitting direction yields a valid partition, $R$ is feasible.
+
+\begin{lemma}
+Trying both splitting directions (by $u$ and by $v$) is sufficient.
+Any optimal two-square cover admits a separating line parallel to one
+of the axes in the rotated coordinate system.
+\end{lemma}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+
+    vector<long long> u(N), v(N);
+    for (int i = 0; i < N; i++) {
+        long long x, y;
+        cin >> x >> y;
+        u[i] = x + y;
+        v[i] = x - y;
+    }
+
+    // --- Sort by u and precompute suffix v-extremes ---
+    vector<int> idxU(N);
+    iota(idxU.begin(), idxU.end(), 0);
+    sort(idxU.begin(), idxU.end(),
+         [&](int a, int b) { return u[a] < u[b]; });
+
+    vector<long long> sufMinV(N + 1), sufMaxV(N + 1);
+    sufMinV[N] = LLONG_MAX;  sufMaxV[N] = LLONG_MIN;
+    for (int i = N - 1; i >= 0; i--) {
+        sufMinV[i] = min(sufMinV[i + 1], v[idxU[i]]);
+        sufMaxV[i] = max(sufMaxV[i + 1], v[idxU[i]]);
+    }
+
+    auto checkU = [&](long long twoR) -> bool {
+        long long pMinV = LLONG_MAX, pMaxV = LLONG_MIN;
+        for (int i = 0; i < N; i++) {
+            pMinV = min(pMinV, v[idxU[i]]);
+            pMaxV = max(pMaxV, v[idxU[i]]);
+            if (u[idxU[i]] - u[idxU[0]] <= twoR &&
+                pMaxV - pMinV <= twoR) {
+                if (i == N - 1) return true;
+                long long sUR = u[idxU[N - 1]] - u[idxU[i + 1]];
+                long long sVR = sufMaxV[i + 1] - sufMinV[i + 1];
+                if (sUR <= twoR && sVR <= twoR) return true;
+            }
+        }
+        return false;
+    };
+
+    // --- Sort by v and precompute suffix u-extremes ---
+    vector<int> idxV(N);
+    iota(idxV.begin(), idxV.end(), 0);
+    sort(idxV.begin(), idxV.end(),
+         [&](int a, int b) { return v[a] < v[b]; });
+
+    vector<long long> sufMinU(N + 1), sufMaxU(N + 1);
+    sufMinU[N] = LLONG_MAX;  sufMaxU[N] = LLONG_MIN;
+    for (int i = N - 1; i >= 0; i--) {
+        sufMinU[i] = min(sufMinU[i + 1], u[idxV[i]]);
+        sufMaxU[i] = max(sufMaxU[i + 1], u[idxV[i]]);
+    }
+
+    auto checkV = [&](long long twoR) -> bool {
+        long long pMinU = LLONG_MAX, pMaxU = LLONG_MIN;
+        for (int i = 0; i < N; i++) {
+            pMinU = min(pMinU, u[idxV[i]]);
+            pMaxU = max(pMaxU, u[idxV[i]]);
+            if (v[idxV[i]] - v[idxV[0]] <= twoR &&
+                pMaxU - pMinU <= twoR) {
+                if (i == N - 1) return true;
+                long long sVR = v[idxV[N - 1]] - v[idxV[i + 1]];
+                long long sUR = sufMaxU[i + 1] - sufMinU[i + 1];
+                if (sVR <= twoR && sUR <= twoR) return true;
+            }
+        }
+        return false;
+    };
+
+    auto feasible = [&](long long twoR) -> bool {
+        return checkU(twoR) || checkV(twoR);
+    };
+
+    // Binary search: twoR = 2R is the side length of each square.
+    // The answer (max Manhattan distance) equals twoR / 2 = R,
+    // but since L_inf distance R = Manhattan distance R, the answer
+    // is simply R = twoR (the Chebyshev radius, which equals the
+    // Manhattan radius due to the rotation).
+    long long lo = 0, hi = 4000000000LL;
+    while (lo < hi) {
+        long long mid = lo + (hi - lo) / 2;
+        if (feasible(mid)) hi = mid;
+        else lo = mid + 1;
+    }
+
+    cout << lo << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(N \log N + N \log C)$ where $C$ is the
+        coordinate range. Sorting is $O(N \log N)$; each feasibility
+        check is $O(N)$; binary search runs $O(\log C)$ iterations.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\end{document}

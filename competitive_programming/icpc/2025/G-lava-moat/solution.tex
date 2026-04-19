@@ -1,0 +1,133 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\G. Lava Moat}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+For a chosen elevation $c$, the lava moat must follow the contour line where the terrain has height $c$.
+We must find the shortest such contour path that connects the western border edge of the rectangle to the
+eastern border edge, or determine that no contour of any elevation can do so.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Fix an elevation $c$ that is not equal to any vertex height.
+    In each triangle, the intersection with the horizontal plane $z=c$ is either empty or a single line
+    segment joining the two triangle edges whose endpoints lie on opposite sides of the level.
+    \item As $c$ moves between two consecutive vertex heights, the combinatorial structure of these contour
+    segments does not change. Only their lengths change, and inside one triangle that length is a linear
+    function of $c$.
+    \item Therefore every connected contour component in such an interval has total length of the form
+    $A c + B$.
+    A minimum over a linear function on an interval is attained at an endpoint, so it is enough to inspect
+    levels equal to vertex heights.
+    \item A contour component is built by gluing triangle-edge crossings together.
+    This suggests a DSU on triangulation edges rather than on vertices.
+    When a triangle is active in a whole interval of elevations, it contributes one linear-length segment
+    joining two crossing edges, so within that interval we should union those two edge components and add
+    that segment length.
+    \item A triangle is active on one or two disjoint intervals of the sorted vertex heights.
+    These intervals can be inserted into a segment tree over the height order and processed with a rollback
+    DSU.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Sort all vertices by height. Each leaf of the segment tree corresponds to one vertex height.
+    \item For every triangle, determine the height intervals in which the contour crosses that triangle.
+    On each such interval, identify the two crossed triangle edges and compute the segment length in the
+    form $a c + b$. Insert this ``active segment'' into the segment tree interval.
+    \item Traverse the segment tree with a rollback DSU on triangulation edges.
+    Each DSU component stores the sum of its currently active contour lengths in the form $A c + B$.
+    \item At a leaf with elevation $c$:
+    \begin{itemize}[leftmargin=*]
+        \item if the west border edge and east border edge are already in the same DSU component, that
+        component itself is a candidate moat;
+        \item otherwise, the only new connection that can appear exactly at this height is through the leaf
+        vertex.
+        For every incident triangle we test whether the contour at level $c$ connects the vertex to the
+        opposite triangle edge, compute that short segment length, and combine it with the best DSU
+        component lengths reaching the west and east sides.
+    \end{itemize}
+    \item The minimum candidate over all leaves is the answer.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Between two consecutive vertex heights, the set of crossed edges in every triangle is fixed, and every
+active triangle contributes a contour segment whose length is linear in the elevation $c$.
+
+\paragraph{Proof.}
+Inside one triangle, the terrain is an affine function of $(x,y)$. Intersecting an affine plane with the
+horizontal plane $z=c$ produces a line. As long as $c$ stays strictly between the same two vertex heights,
+the line meets the same pair of triangle edges, so the contour segment endpoints move linearly along
+those edges. Hence the segment length is linear in $c$. \qed
+
+\paragraph{Lemma 2.}
+For any open interval between consecutive vertex heights, the total length of every connected contour
+component is a linear function of $c$ on that interval.
+
+\paragraph{Proof.}
+By Lemma 1, each active triangle contributes one linear-length segment throughout the interval.
+The contour connectivity does not change inside the interval because no triangle changes its crossed edges.
+Therefore a connected component is always the union of the same set of triangle segments, and its total
+length is the sum of linear functions, hence linear. \qed
+
+\paragraph{Lemma 3.}
+Some optimal moat is attained at a vertex height.
+
+\paragraph{Proof.}
+Take any interval between consecutive vertex heights. By Lemma 2, every contour component length on
+that interval is linear in $c$, so the minimum value of any fixed candidate path is attained at one of the
+two endpoints of the interval. Since every feasible moat belongs to one of these candidates, an overall
+optimum exists at a vertex height. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 3 it is enough to inspect vertex heights.
+For one such height $c$, the rollback DSU contains exactly the contour segments that remain active up to
+that leaf, with exactly the correct length expressions, so every already-connected west-to-east contour
+component is evaluated correctly.
+If west and east are not already in the same component, the only new topological event at level $c$ can
+occur at the vertex whose height equals $c$. The per-triangle checks performed at the leaf enumerate all
+ways in which the contour can leave that vertex and join an already maintained DSU component.
+Combining one such branch on the west side and one on the east side gives every possible moat passing
+through that vertex, and no other new connection can appear at this exact height.
+Therefore every feasible moat is considered and evaluated with its exact length, so the minimum printed
+by the algorithm is the true optimum. \qed
+
+\section*{Complexity Analysis}
+
+Let $n$ be the number of vertices and $m$ the number of triangles.
+Each triangle contributes $O(1)$ active intervals, each interval is inserted into the segment tree in
+$O(\log n)$ nodes, and each inserted segment causes one rollback-DSU union.
+Hence the total running time is $O((n+m)\log n)$, and the memory usage is $O((n+m)\log n)$ for the
+segment tree plus $O(n+m)$ for the geometric data and the DSU.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The DSU is built on triangulation edges because contour segments connect edge crossings, not
+    vertices.
+    \item Rollback is essential: the same active contour segment belongs to many segment-tree nodes, so we
+    need to undo unions when returning from recursion.
+    \item All geometry is done with doubles; the required error tolerance is generous enough for this.
+\end{itemize}
+
+\end{document}

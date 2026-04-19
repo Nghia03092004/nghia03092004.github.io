@@ -1,0 +1,42 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{IOI 2024 -- Hieroglyphs}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given two sequences $A$ and $B$, find their universal common subsequence (UCS), or report that none exists.
+
+\section{Solution}
+
+\subsection{Filtering and Compression}
+Elements that appear in only one sequence can never be part of a common subsequence, so we remove them first. The remaining values are coordinate-compressed.
+
+\subsection{Candidate Construction}
+The official full solution constructs a candidate subsequence by comparing how often each value still appears in the suffixes of $A$ and $B$. Whenever the next forced symbol can only come from one side, we append it and advance that sequence. If both sides can force different next symbols, no UCS exists.
+
+\subsection{Verification}
+The candidate is then verified with a structural criterion: there must be no ``single crossing'' between the two sequences with respect to the candidate. This is checked using:
+\begin{itemize}
+  \item earliest-occurrence index vectors;
+  \item reversed sequences;
+  \item a range minimum query structure.
+\end{itemize}
+If the candidate passes the crossing test in both directions, it is the UCS; otherwise the answer is $-1$.
+
+\section{Complexity}
+\begin{itemize}
+  \item Filtering and candidate construction: near-linear.
+  \item Verification with RMQ and index vectors: near-linear.
+  \item Total: $O((n+m)\log(n+m))$ due to sorting / balanced-tree operations.
+\end{itemize}
+
+\end{document}

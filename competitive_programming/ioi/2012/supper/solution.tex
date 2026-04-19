@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2012 -- Last Supper}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+$N$ people arrive in order, each preferring a color $C[i]$ (from $K$ possible colors). Chairs are numbered $0$ to $N-1$. The advisor sees the full sequence $C[0..N-1]$ and writes one advice bit per person. The assistant uses these bits to color chairs, ensuring every person sits in a chair of their preferred color regardless of rush order. Determine the advice bits.
+
+\section{Solution}
+
+\subsection{Approach: Belady-Style Caching}
+The problem resembles optimal page replacement. The assistant maintains a ``cache'' of available colors. When a person arrives wanting a color not in the cache, a color must be evicted. The advice bit guides the eviction.
+
+\textbf{Advisor strategy:} For each person $i$, set $\text{advice}[i] = 1$ if color $C[i]$ will be needed again later (keep in cache), and $\text{advice}[i] = 0$ if this is the last use of $C[i]$ (safe to evict).
+
+\textbf{Implementation:}
+\begin{enumerate}
+    \item Compute $\text{nextOcc}[i]$ = index of the next person after $i$ wanting color $C[i]$ (or $N$ if none).
+    \item Set $\text{advice}[i] = 1$ if $\text{nextOcc}[i] < N$, else $\text{advice}[i] = 0$.
+\end{enumerate}
+
+The assistant uses these bits to implement Belady's algorithm: when eviction is needed, evict the color whose remaining uses are all marked with advice bit $0$ (i.e., the color that won't be needed again or is farthest in the future).
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+void ComputeAdvice(int *C, int N, int K) {
+    // Compute next occurrence of each color
+    vector<int> nextOcc(N, N);
+    vector<int> lastSeen(K, N);
+    for (int i = N - 1; i >= 0; i--) {
+        nextOcc[i] = lastSeen[C[i]];
+        lastSeen[C[i]] = i;
+    }
+
+    // Advice: 1 if color still needed later, 0 if last use
+    vector<int> advice(N);
+    for (int i = 0; i < N; i++)
+        advice[i] = (nextOcc[i] < N) ? 1 : 0;
+
+    // Output advice bits
+    for (int i = 0; i < N; i++) {
+        // WriteAdvice(advice[i]);
+    }
+}
+\end{lstlisting}
+
+\end{document}

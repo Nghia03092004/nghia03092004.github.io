@@ -1,0 +1,181 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2002 -- Batch Scheduling}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+There are $N$ jobs ($N \le 10{,}000$) to be processed on a single
+machine in the fixed order $1, 2, \ldots, N$. Jobs may be grouped into
+consecutive batches. Each batch incurs a setup time of $S$ before
+processing begins. Job $i$ has processing time $t_i$ and cost weight
+$f_i$. All jobs in a batch finish simultaneously at the batch's
+completion time. The cost of job $i$ is $f_i \cdot C_i$, where $C_i$
+is the completion time of job $i$'s batch. Minimize
+$\sum_{i=1}^{N} f_i \cdot C_i$.
+
+\section{Solution: DP with Convex Hull Trick}
+
+\subsection{DP Formulation}
+Define prefix sums $T[j] = \sum_{i=1}^{j} t_i$ and
+$F[j] = \sum_{i=1}^{j} f_i$, with $T[0] = F[0] = 0$.
+
+Let $dp[j]$ be the minimum total cost for scheduling jobs
+$1, \ldots, j$, where job $j$ is the last job in its batch.
+
+If the last batch contains jobs $k{+}1, \ldots, j$, then:
+\begin{itemize}
+  \item The batch finishes at time
+        $C = S + T[j]$ plus the total setup and processing time of all
+        previous batches.
+  \item The setup time $S$ for this batch delays \emph{all} jobs
+        $k{+}1, \ldots, N$.
+\end{itemize}
+
+A standard reformulation accounts for the delay penalty directly:
+\[
+  dp[j] = \min_{0 \le k < j}
+  \Bigl\{ dp[k] + \bigl(S + T[j] - T[k]\bigr)
+  \cdot \bigl(F[N] - F[k]\bigr) \Bigr\}.
+\]
+Base case: $dp[0] = 0$. Answer: $dp[N]$.
+
+\begin{lemma}[Correctness of the reformulation]
+Expanding the recurrence telescopically, $dp[N]$ equals the total
+weighted completion time $\sum_{i=1}^{N} f_i \cdot C_i$.
+The key idea is that placing setup time $S$ before the batch ending at
+$j$ delays all remaining jobs $k{+}1, \ldots, N$ by exactly
+$S + (T[j] - T[k])$, contributing cost proportional to
+$F[N] - F[k]$.
+\end{lemma}
+
+\subsection{Convex Hull Trick}
+Expand the transition:
+\begin{align*}
+  dp[j] &= \min_{k} \Bigl\{
+    dp[k] + (S + T[j] - T[k]) \cdot (F[N] - F[k])
+  \Bigr\} \\
+  &= \min_{k} \Bigl\{
+    \underbrace{(F[N] - F[k])}_{\text{slope}} \cdot T[j]
+    + \underbrace{dp[k] + (S - T[k])(F[N] - F[k])}_{\text{intercept}}
+  \Bigr\}.
+\end{align*}
+Define line $\ell_k: y = m_k \cdot x + b_k$ where:
+\[
+  m_k = F[N] - F[k], \qquad
+  b_k = dp[k] + (S - T[k]) \cdot (F[N] - F[k]).
+\]
+Since $F[k]$ is non-decreasing, the slopes $m_k$ are non-increasing.
+The query points $x = T[j]$ are non-decreasing.
+
+We maintain a convex hull (lower envelope) of lines in a deque. Lines
+are added at the back (decreasing slope); queries advance from the
+front (increasing $x$). Each line is inserted and removed at most once,
+giving amortized $O(1)$ per transition.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    long long S;
+    cin >> N >> S;
+
+    vector<long long> t(N + 1), f(N + 1);
+    vector<long long> T(N + 1, 0), F(N + 1, 0);
+
+    for (int i = 1; i <= N; i++) {
+        cin >> t[i] >> f[i];
+        T[i] = T[i - 1] + t[i];
+        F[i] = F[i - 1] + f[i];
+    }
+
+    vector<long long> dp(N + 1, 0);
+
+    // Convex Hull Trick: minimise over lines y = m*x + b
+    // with decreasing slopes and increasing query points.
+    struct Line {
+        long long m, b;
+        long long eval(long long x) const { return m * x + b; }
+    };
+
+    deque<Line> hull;
+
+    auto bad = [](const Line& l1, const Line& l2,
+                  const Line& l3) -> bool {
+        return (__int128)(l3.b - l1.b) * (l1.m - l2.m)
+            <= (__int128)(l2.b - l1.b) * (l1.m - l3.m);
+    };
+
+    auto addLine = [&](long long slope, long long intercept) {
+        Line ln{slope, intercept};
+        while (hull.size() >= 2 &&
+               bad(hull[hull.size() - 2], hull.back(), ln))
+            hull.pop_back();
+        hull.push_back(ln);
+    };
+
+    auto query = [&](long long x) -> long long {
+        while (hull.size() >= 2 &&
+               hull[0].eval(x) >= hull[1].eval(x))
+            hull.pop_front();
+        return hull.front().eval(x);
+    };
+
+    // Add line for k = 0
+    addLine(F[N], S * F[N]); // m=F[N]-F[0]=F[N], b=dp[0]+(S-0)*F[N]
+
+    for (int j = 1; j <= N; j++) {
+        dp[j] = query(T[j]);
+
+        long long slope = F[N] - F[j];
+        long long intercept = dp[j] + (S - T[j]) * (F[N] - F[j]);
+        addLine(slope, intercept);
+    }
+
+    cout << dp[N] << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(N)$. Each line is inserted into and removed
+        from the deque at most once.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\end{document}

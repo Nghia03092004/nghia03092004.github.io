@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\X. Quartets}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Four players play with $32$ cards, grouped into $8$ sets of $4$ cards. We are given the observed
+sequence of asks and quartet declarations. We must decide whether all actions can be legal for
+some initial deal of eight cards to each player. If not, we must output the first action after which
+cheating is unavoidable.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item It is enough to understand what each observed action implies about the \emph{initial}
+    deal. The later movement of cards only matters because it changes what we already know.
+    \item For each card we can maintain:
+    \begin{itemize}[leftmargin=*]
+        \item a forced starting owner, if known;
+        \item a set of forbidden starting owners;
+        \item its current known position: unknown, held by one player, or already gone in a declared
+        quartet.
+    \end{itemize}
+    \item We also need one more kind of information: a player may be known to have started with
+    \emph{some} card from a given set, even if we do not yet know which card it was.
+    \item After replaying a prefix of the log, deciding consistency is a pure feasibility problem on the
+    initial deal. The $8$ sets are almost independent: they interact only through the condition that
+    each player must start with exactly $8$ cards.
+    \item Prefix consistency is monotone: once a prefix is impossible, every longer prefix is also
+    impossible. Therefore we can binary-search the first bad action.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Define a procedure \texttt{prefix\_consistent(k)} that replays the first $k$ actions.
+    \item While replaying, maintain:
+    \begin{itemize}[leftmargin=*]
+        \item \texttt{start\_owner[card]}: forced initial owner, if known;
+        \item \texttt{forbidden[card][player]}: this player cannot have started with this card;
+        \item \texttt{cur\_owner[card]}: current known holder, or \texttt{GONE};
+        \item \texttt{need[player][set]}: this player must have started with some still-unidentified card
+        from this set.
+    \end{itemize}
+    \item For an ask ``player $x$ asks player $y$ for card $c$'':
+    \begin{itemize}[leftmargin=*]
+        \item first ensure that $x$ is known to have some card in that set, adding a
+        \texttt{need[x][set]} constraint if necessary;
+        \item if the answer is yes, then $c$ must currently belong to $y$ unless it was previously
+        unknown, in which case we learn that $y$ started with $c$;
+        \item if the answer is no and $c$ has not moved yet, then $y$ cannot have started with $c$.
+    \end{itemize}
+    \item For a quartet declaration by player $x$, every still-unmoved card in that set must have
+    started with $x$, and afterwards all four cards become \texttt{GONE}.
+    \item If the replay creates a direct contradiction, this prefix is impossible.
+    \item Otherwise, test whether some initial deal satisfies all accumulated constraints:
+    \begin{itemize}[leftmargin=*]
+        \item for one set, enumerate all $4^4 = 256$ assignments of its four cards to starting players;
+        \item keep only assignments satisfying the forced/forbidden information for those cards and
+        the \texttt{need} conditions for that set;
+        \item run a dynamic program over the $8$ sets and the numbers of cards already given to
+        players $0,1,2$; player $3$ is implicit.
+    \end{itemize}
+    \item If the whole log is consistent, output \texttt{yes}. Otherwise binary-search the smallest
+    prefix length that is inconsistent and output \texttt{no} with that index.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+After replaying any prefix, the maintained constraints describe exactly the set of initial deals
+compatible with all observed actions in that prefix.
+
+\paragraph{Proof.}
+We argue by induction over the replayed actions.
+
+Initially there are no constraints, so every initial deal is allowed. Consider one more action.
+For a successful ask, either the asked-for card already has a known current owner, in which case
+that owner must be the asked player, or the card has never been seen before, in which case it must
+have started with the asked player. For an unsuccessful ask, if the card has never moved then the
+asked player cannot have started with it. In both cases, the asking player must be known to hold
+some card from that set, either because we already knew it or because this action forces that fact.
+
+For a quartet declaration, every card of that set that has not moved before must have started with
+the declaring player; afterwards those cards are removed from play. Every contradiction detected by
+the replay makes the prefix impossible, and every surviving initial deal remains compatible with the
+updated constraints. Thus the maintained data is exact after every prefix. \qed
+
+\paragraph{Lemma 2.}
+For a fixed replayed prefix, the set-by-set dynamic program returns true exactly when some initial
+deal satisfies all accumulated constraints.
+
+\paragraph{Proof.}
+Within one set there are only four cards, so every possible local assignment of those four starting
+cards to players appears among the $256$ enumerated assignments. Filtering removes exactly the
+assignments that violate forced owners, forbidden owners, or the requirement that a player must
+have started with at least one card from that set.
+
+Different sets interact only through the total number of cards each player must receive overall.
+Therefore a DP state storing how many cards players $0,1,2$ have received after processing some
+sets is sufficient; player $3$ is determined by the total processed cards. A transition corresponds
+exactly to choosing one feasible local assignment for the next set. Hence the DP reaches the final
+state $(8,8,8)$ if and only if there exists a globally valid initial deal. \qed
+
+\paragraph{Lemma 3.}
+If a prefix is inconsistent, then every longer prefix is also inconsistent.
+
+\paragraph{Proof.}
+By Lemma 1, inconsistency means that no initial deal can realize all actions in that prefix. Adding
+more observed actions can only impose additional constraints on the same initial deal; it cannot
+create a new initial deal that already satisfied the shorter prefix. Therefore inconsistency is
+monotone. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1 and Lemma 2, \texttt{prefix\_consistent(k)} is true exactly for those prefixes that can
+occur without cheating. If the full log is consistent, outputting \texttt{yes} is correct. Otherwise,
+Lemma 3 shows that the inconsistent prefixes form a suffix, so binary search finds the smallest bad
+prefix length exactly. Thus the reported answer is correct. \qed
+
+\section*{Complexity Analysis}
+
+Checking one prefix of length $k$ takes $O(k)$ time for the replay plus
+$O(8 \cdot 256 \cdot 9^3)$ time for the DP, which is a fixed constant for this game size. The memory
+usage is $O(9^3)$.
+
+The full algorithm does one full-prefix check and then $O(\log n)$ more checks during binary
+search, so the overall running time is $O(n \log n)$ and the memory usage remains $O(9^3)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The DP is done by sets, not by individual cards, because each set has only four cards and
+    the cross-set coupling is only through the final hand sizes.
+    \item The code stores the fourth player's card count implicitly, which keeps the DP array small and
+    simple.
+\end{itemize}
+
+\end{document}

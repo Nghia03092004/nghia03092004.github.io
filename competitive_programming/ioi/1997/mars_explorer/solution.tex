@@ -1,0 +1,170 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1997 -- Mars Explorer}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A robot navigates an $n \times n$ grid where some cells are obstacles.
+Starting at $(1,1)$, it must reach $(n,n)$, return to $(1,1)$, and go to $(n,n)$ again ---
+three traversals total. On forward trips the robot moves only right or down;
+on the return trip it moves only left or up.
+
+Maximize the number of \textbf{distinct} non-obstacle cells visited across all
+three traversals.
+
+\medskip
+\noindent\textbf{Constraints:} $n \le 30$.
+
+\section{Solution Approach}
+
+\subsection{Reduction to Three Simultaneous Forward Paths}
+
+A return trip from $(n,n)$ to $(1,1)$ using left/up moves is equivalent to a forward
+trip from $(1,1)$ to $(n,n)$ using right/down moves (simply reverse the path).
+Thus the problem reduces to finding three forward paths from $(1,1)$ to $(n,n)$
+that collectively visit the maximum number of distinct cells.
+
+\subsection{DP on Three Simultaneous Paths}
+
+We advance all three paths in lockstep. At step $t$ (where $0 \le t \le 2(n-1)$),
+each path occupies a cell $(r_i, c_i)$ with $r_i + c_i = t + 2$. Since $c_i$ is
+determined by $t$ and $r_i$, the state is $(t, r_1, r_2, r_3)$.
+
+\medskip
+\noindent\textbf{Value:} Maximum distinct cells visited by positions $1, \ldots, t$.
+
+\medskip
+\noindent\textbf{Transition:} Each path moves right ($r_i$ unchanged) or down ($r_i + 1$),
+giving $2^3 = 8$ combinations per state.
+
+\subsection{Symmetry Optimization}
+
+Without loss of generality, enforce $r_1 \le r_2 \le r_3$. This reduces the number of
+states by a factor of up to 6.
+
+\subsection{Counting Distinct Cells}
+
+At each step, the three paths occupy cells $(r_1, c_1)$, $(r_2, c_2)$, $(r_3, c_3)$.
+Since they share the same $t$, distinct cells correspond to distinct $r$-values:
+positions with the same $r_i$ also share $c_i$. The number of new distinct cells
+is $|\{r_1, r_2, r_3\}|$ (provided all cells are non-obstacles).
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+int n;
+int grid[32][32]; // 1 = free, 0 = obstacle
+int dp[62][32][32][32]; // dp[t][r1][r2][r3]
+
+// Returns number of distinct free cells, or -1 if any cell is invalid
+int countDistinct(int t, int r1, int r2, int r3) {
+    int c1 = t - r1 + 2, c2 = t - r2 + 2, c3 = t - r3 + 2;
+    if (r1 < 1 || r1 > n || c1 < 1 || c1 > n || !grid[r1][c1]) return -1;
+    if (r2 < 1 || r2 > n || c2 < 1 || c2 > n || !grid[r2][c2]) return -1;
+    if (r3 < 1 || r3 > n || c3 < 1 || c3 > n || !grid[r3][c3]) return -1;
+
+    int cnt = 1;
+    if (r2 != r1) cnt++;
+    if (r3 != r1 && r3 != r2) cnt++;
+    return cnt;
+}
+
+int main() {
+    scanf("%d", &n);
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            scanf("%d", &grid[i][j]);
+
+    memset(dp, -1, sizeof(dp));
+
+    int maxT = 2 * (n - 1);
+
+    // Base case: t = 0, all three paths at (1,1)
+    if (grid[1][1])
+        dp[0][1][1][1] = 1;
+
+    for (int t = 0; t < maxT; t++) {
+        for (int r1 = 1; r1 <= n; r1++) {
+            int c1 = t - r1 + 2;
+            if (c1 < 1 || c1 > n) continue;
+            for (int r2 = r1; r2 <= n; r2++) {
+                int c2 = t - r2 + 2;
+                if (c2 < 1 || c2 > n) continue;
+                for (int r3 = r2; r3 <= n; r3++) {
+                    int c3 = t - r3 + 2;
+                    if (c3 < 1 || c3 > n) continue;
+                    if (dp[t][r1][r2][r3] < 0) continue;
+
+                    int cur = dp[t][r1][r2][r3];
+
+                    // Try all 8 move combinations (right or down for each path)
+                    for (int d1 = 0; d1 <= 1; d1++)
+                    for (int d2 = 0; d2 <= 1; d2++)
+                    for (int d3 = 0; d3 <= 1; d3++) {
+                        int nr1 = r1 + d1, nr2 = r2 + d2, nr3 = r3 + d3;
+
+                        // Sort to maintain r1 <= r2 <= r3 invariant
+                        int sr[3] = {nr1, nr2, nr3};
+                        sort(sr, sr + 3);
+
+                        int add = countDistinct(t + 1, sr[0], sr[1], sr[2]);
+                        if (add < 0) continue;
+
+                        int& ref = dp[t+1][sr[0]][sr[1]][sr[2]];
+                        ref = max(ref, cur + add);
+                    }
+                }
+            }
+        }
+    }
+
+    printf("%d\n", dp[maxT][n][n][n]);
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n^4)$.
+        There are $2(n-1) + 1$ time steps and $O(n^3/6)$ ordered triples per step
+        (after the symmetry reduction). Each state tries 8 transitions. Total:
+        $O(n \cdot n^3 / 6 \cdot 8) = O(n^4)$.
+        For $n = 30$: roughly $30 \cdot 30^3 / 6 \cdot 8 \approx 1{,}080{,}000$ operations.
+  \item \textbf{Space complexity:} $O(n^4)$ for the DP table. For $n = 30$:
+        $60 \times 30^3 \approx 1{,}620{,}000$ entries, each a 4-byte integer.
+\end{itemize}
+
+\end{document}

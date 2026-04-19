@@ -1,0 +1,135 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\O. Which Planet is This?!}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each map is a set of points on a sphere, described by latitude and longitude. Two maps describe the same
+planet exactly when one can be obtained from the other by adding one constant angle to every longitude,
+while keeping all latitudes unchanged.
+
+We must test this for up to $400\,000$ points, so the solution has to be almost linear after sorting.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Points with the same longitude always stay together under a rotation around the axis. Therefore it is
+    natural to compress the map into \emph{longitude buckets}.
+    \item For one fixed longitude bucket, the only information that matters is:
+    \begin{itemize}[leftmargin=*]
+        \item the sorted list of latitudes in that bucket,
+        \item the angular gap to the next occupied longitude.
+    \end{itemize}
+    \item After sorting the occupied longitudes around the circle, a global rotation only changes where the
+    circular order starts. So two maps are the same iff their bucket descriptions are equal up to a cyclic
+    shift.
+    \item Cyclic-shift testing can be done with a linear-time string-matching algorithm such as KMP once we
+    encode the bucket descriptions into a token sequence.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Parse all coordinates exactly as integers scaled by $10^4$.
+    Normalize longitudes into $[0,360 \cdot 10^4)$.
+    \item For each map:
+    \begin{itemize}[leftmargin=*]
+        \item sort all points by longitude, then by latitude;
+        \item group equal longitudes into one bucket;
+        \item for each bucket, append to a token sequence:
+        \[
+            \texttt{START},\ \text{all latitudes},\ \texttt{SEP},\ \text{gap to next bucket},\ \texttt{END}.
+        \]
+    \end{itemize}
+    Distinct sentinel tokens ensure that a match can only start at a bucket boundary.
+    \item Let the two token sequences be $A$ and $B$.
+    Use KMP to test whether $B$ appears in $A+A$ with starting position less than $|A|$.
+    \item Output \texttt{Same} iff such a match exists.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+If two maps differ by a rotation around the axis, then after sorting their occupied longitudes in circular
+order, the sequence of longitude buckets is identical up to a cyclic shift.
+
+\paragraph{Proof.}
+Adding a constant angle to every longitude preserves:
+\begin{itemize}[leftmargin=*]
+    \item which points share a longitude,
+    \item the sorted list of latitudes inside each shared longitude,
+    \item the circular order of the occupied longitudes,
+    \item the gap between consecutive occupied longitudes.
+\end{itemize}
+Only the starting position on the circle changes, so the bucket sequence changes by a cyclic shift and
+nothing else. \qed
+
+\paragraph{Lemma 2.}
+If the bucket sequences of two maps are identical up to a cyclic shift, then the two maps differ by a
+rotation around the axis.
+
+\paragraph{Proof.}
+Take the cyclic shift that aligns the first bucket of the first map with the matching bucket of the second.
+Because the gap to the next bucket is part of the encoded data, all later occupied longitudes are forced to
+line up as well after applying that same rotation. Since each matched bucket also contains exactly the same
+sorted list of latitudes, every point of the first map is sent to a point of the second map, and vice versa.
+Therefore the maps differ by one global longitude shift. \qed
+
+\paragraph{Lemma 3.}
+The token sequences produced by the algorithm are equal up to a cyclic shift exactly when the bucket
+sequences are equal up to a cyclic shift.
+
+\paragraph{Proof.}
+Each bucket is encoded as
+\[
+    \texttt{START},\ \text{latitudes},\ \texttt{SEP},\ \text{gap},\ \texttt{END},
+\]
+with sentinel tokens that never occur as latitude or gap values. Hence the encoding is unambiguous and
+preserves bucket boundaries. A cyclic shift of buckets is therefore exactly a cyclic shift of the token
+sequence, and conversely any full-sequence match must start at a \texttt{START} token, so it corresponds to
+whole buckets. \qed
+
+\paragraph{Lemma 4.}
+The KMP step returns true exactly when the two token sequences are equal up to a cyclic shift.
+
+\paragraph{Proof.}
+Searching for $B$ inside $A+A$ is the standard reduction from cyclic-shift matching to ordinary substring
+matching. Restricting the start position to be less than $|A|$ ensures that we only consider one full wrap
+around the circle. Since KMP finds exactly all occurrences of $B$ in linear time, the result is correct. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, equal maps under rotation must produce bucket sequences that differ only by a cyclic shift.
+By Lemma 2, any such cyclic shift really corresponds to a valid rotation. Lemmas 3 and 4 show that the
+algorithm detects exactly this condition, so it outputs \texttt{Same} exactly for pairs of maps describing the
+same planet. \qed
+
+\section*{Complexity Analysis}
+
+Sorting dominates the running time: $O(n \log n)$.
+Building the token sequences and running KMP are both linear in the number of points.
+The memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Parsing coordinates as scaled integers avoids floating-point comparison issues completely.
+    \item A bucket containing all points is legal; in that case the gap to itself is stored as the full circle.
+    \item Negative longitudes are normalized by adding $360 \cdot 10^4$.
+\end{itemize}
+
+\end{document}

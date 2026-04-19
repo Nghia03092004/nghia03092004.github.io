@@ -1,0 +1,221 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1996 -- Magic Squares}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A $2 \times 4$ grid contains a permutation of the numbers 1 through 8, arranged
+in a cycle:
+\begin{verbatim}
+    1 2 3 4
+    8 7 6 5
+\end{verbatim}
+We store this linearly as positions $s[0..7]$, where $s[0..3]$ is the top row
+(left to right) and $s[4..7]$ is the bottom row (left to right). In the initial
+configuration, the bottom row reads $8, 7, 6, 5$ left to right.
+
+Three operations are defined:
+\begin{itemize}
+  \item \textbf{A -- Row swap:} Exchange the top and bottom rows.
+    {\small
+    $\begin{pmatrix}s_0 & s_1 & s_2 & s_3 \\ s_4 & s_5 & s_6 & s_7\end{pmatrix}
+     \;\to\;
+     \begin{pmatrix}s_4 & s_5 & s_6 & s_7 \\ s_0 & s_1 & s_2 & s_3\end{pmatrix}$}
+
+  \item \textbf{B -- Circular right shift:} Shift each row one position to the right
+    (the rightmost element wraps to the left).
+    {\small
+    $\begin{pmatrix}s_0 & s_1 & s_2 & s_3 \\ s_4 & s_5 & s_6 & s_7\end{pmatrix}
+     \;\to\;
+     \begin{pmatrix}s_3 & s_0 & s_1 & s_2 \\ s_7 & s_4 & s_5 & s_6\end{pmatrix}$}
+
+  \item \textbf{C -- Center rotation:} Rotate the inner $2 \times 2$ block
+    (positions $s_1, s_2, s_5, s_6$) clockwise by 90 degrees.
+    {\small
+    $\begin{pmatrix}s_0 & s_1 & s_2 & s_3 \\ s_4 & s_5 & s_6 & s_7\end{pmatrix}
+     \;\to\;
+     \begin{pmatrix}s_0 & s_5 & s_1 & s_3 \\ s_4 & s_6 & s_2 & s_7\end{pmatrix}$}
+\end{itemize}
+
+Given a target configuration, find the shortest sequence of operations to transform
+the initial state into the target.
+
+\section{Solution Approach}
+
+\subsection{BFS on Permutations}
+
+The state space consists of all permutations of $\{1,\ldots,8\}$, totaling $8! = 40{,}320$
+states. This is small enough for breadth-first search, which finds the shortest path.
+
+\begin{enumerate}
+  \item Represent each state as an array of 8 elements.
+  \item Encode each state as a unique integer for hashing (e.g., treat the digits as
+        a base-10 number).
+  \item Start BFS from the initial state.
+  \item At each state, apply all three operations A, B, C to generate neighbors.
+  \item When the target is reached, reconstruct the path by following parent pointers.
+\end{enumerate}
+
+\subsection{Operation A -- Correctness}
+
+Operation A swaps the two rows. In our linear representation, this means:
+\[
+  (s_0, s_1, s_2, s_3, s_4, s_5, s_6, s_7) \;\to\; (s_4, s_5, s_6, s_7, s_0, s_1, s_2, s_3).
+\]
+Note that this is a direct row swap, \emph{not} a reversal. The original code had a bug
+where \texttt{opA} performed $r[i] = s[7-i]$ and $r[7-i] = s[i]$, which reverses each row
+rather than swapping them. The corrected version below simply exchanges positions
+$0 \leftrightarrow 4$, $1 \leftrightarrow 5$, $2 \leftrightarrow 6$, $3 \leftrightarrow 7$.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <queue>
+#include <map>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+typedef long long ll;
+
+struct State {
+    int s[8];
+};
+
+ll encode(const State& st) {
+    ll v = 0;
+    for (int i = 0; i < 8; i++)
+        v = v * 10 + st.s[i];
+    return v;
+}
+
+// Operation A: swap top and bottom rows
+State opA(const State& st) {
+    State r;
+    for (int i = 0; i < 4; i++) {
+        r.s[i] = st.s[i + 4];
+        r.s[i + 4] = st.s[i];
+    }
+    return r;
+}
+
+// Operation B: circular right shift each row
+State opB(const State& st) {
+    State r;
+    r.s[0] = st.s[3]; r.s[1] = st.s[0]; r.s[2] = st.s[1]; r.s[3] = st.s[2];
+    r.s[4] = st.s[7]; r.s[5] = st.s[4]; r.s[6] = st.s[5]; r.s[7] = st.s[6];
+    return r;
+}
+
+// Operation C: clockwise rotation of center 2x2 block
+// Center block positions: s[1], s[2] (top), s[5], s[6] (bottom)
+// Clockwise: top-left <- bottom-left, top-right <- top-left,
+//            bottom-right <- top-right, bottom-left <- bottom-right
+// i.e., s[1] <- s[5], s[2] <- s[1], s[6] <- s[2], s[5] <- s[6]
+State opC(const State& st) {
+    State r = st;
+    r.s[1] = st.s[5];
+    r.s[2] = st.s[1];
+    r.s[6] = st.s[2];
+    r.s[5] = st.s[6];
+    return r;
+}
+
+int main() {
+    // Initial state: 1 2 3 4 / 8 7 6 5
+    State init;
+    init.s[0]=1; init.s[1]=2; init.s[2]=3; init.s[3]=4;
+    init.s[4]=8; init.s[5]=7; init.s[6]=6; init.s[7]=5;
+
+    // Read target
+    State target;
+    for (int i = 0; i < 8; i++)
+        scanf("%d", &target.s[i]);
+
+    ll initCode = encode(init);
+    ll targetCode = encode(target);
+
+    if (initCode == targetCode) {
+        printf("0\n\n");
+        return 0;
+    }
+
+    // BFS
+    map<ll, pair<ll, char>> parent;
+    map<ll, bool> visited;
+    queue<State> q;
+    q.push(init);
+    visited[initCode] = true;
+
+    while (!q.empty()) {
+        State cur = q.front(); q.pop();
+        ll curCode = encode(cur);
+
+        State nexts[3] = {opA(cur), opB(cur), opC(cur)};
+        char ops[3] = {'A', 'B', 'C'};
+
+        for (int i = 0; i < 3; i++) {
+            ll nc = encode(nexts[i]);
+            if (!visited[nc]) {
+                visited[nc] = true;
+                parent[nc] = {curCode, ops[i]};
+                if (nc == targetCode) {
+                    // Reconstruct path
+                    string path;
+                    ll c = targetCode;
+                    while (c != initCode) {
+                        path += parent[c].second;
+                        c = parent[c].first;
+                    }
+                    reverse(path.begin(), path.end());
+                    printf("%d\n%s\n", (int)path.size(), path.c_str());
+                    return 0;
+                }
+                q.push(nexts[i]);
+            }
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(8!)$. We visit at most $8! = 40{,}320$ states,
+        applying 3 operations per state. The \texttt{map} operations add an $O(\log(8!))$
+        factor, giving $O(8! \cdot \log(8!)) \approx 640{,}000$ operations in total.
+  \item \textbf{Space complexity:} $O(8!)$ for the visited map and parent pointers.
+\end{itemize}
+
+\end{document}

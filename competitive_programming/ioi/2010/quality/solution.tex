@@ -1,0 +1,124 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2010 -- Quality of Living}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given an $R \times C$ grid where each cell has a unique quality rating from $1$ to $RC$, find an $H \times W$ subgrid whose median is minimized. The median of $HW$ values is the $\lceil HW/2 \rceil$-th smallest value.
+
+\section{Solution}
+
+\subsection{Algorithm: Binary Search on the Median}
+Binary search on the answer $m$. For a candidate median $m$, define an indicator matrix:
+\[
+B[i][j] =
+\begin{cases}
+1 & \text{if } \text{grid}[i][j] \le m, \\
+0 & \text{otherwise.}
+\end{cases}
+\]
+Let $k = \lceil HW / 2 \rceil$. There exists an $H \times W$ subgrid with median $\le m$ if and only if some subgrid contains at least $k$ cells with values $\le m$, i.e., $\sum B[i][j] \ge k$ over that subgrid. This is checked via 2D prefix sums.
+
+\subsection{Correctness}
+
+\begin{lemma}
+The predicate ``there exists an $H \times W$ subgrid with median $\le m$'' is monotone in $m$.
+\end{lemma}
+\begin{proof}
+If the predicate holds for $m$, it holds for all $m' \ge m$, since increasing $m$ can only increase the count of values $\le m'$ in any subgrid. Hence binary search applies.
+\end{proof}
+
+\begin{theorem}
+The smallest $m$ for which the predicate holds is the minimum achievable median.
+\end{theorem}
+\begin{proof}
+At the transition point $m^*$, some subgrid has at least $k$ values $\le m^*$, so its median is $\le m^*$. For $m^* - 1$, no subgrid has $k$ values $\le m^* - 1$, so every subgrid has median $\ge m^*$.
+\end{proof}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(RC \log(RC))$ --- $O(\log(RC))$ binary search iterations, each taking $O(RC)$ to build prefix sums and check all subgrids.
+    \item \textbf{Space:} $O(RC)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int R, C, H, W;
+    cin >> R >> C >> H >> W;
+
+    vector<vector<int>> grid(R, vector<int>(C));
+    for (int i = 0; i < R; i++)
+        for (int j = 0; j < C; j++)
+            cin >> grid[i][j];
+
+    int medianPos = (H * W + 1) / 2; // 1-indexed rank of the median
+
+    auto check = [&](int m) -> bool {
+        // Build prefix sum of indicator (grid[i][j] <= m)
+        vector<vector<int>> ps(R + 1, vector<int>(C + 1, 0));
+        for (int i = 0; i < R; i++)
+            for (int j = 0; j < C; j++)
+                ps[i+1][j+1] = (grid[i][j] <= m ? 1 : 0)
+                    + ps[i][j+1] + ps[i+1][j] - ps[i][j];
+
+        // Check all H x W subgrids
+        for (int i = H; i <= R; i++)
+            for (int j = W; j <= C; j++) {
+                int cnt = ps[i][j] - ps[i-H][j] - ps[i][j-W] + ps[i-H][j-W];
+                if (cnt >= medianPos) return true;
+            }
+        return false;
+    };
+
+    int lo = 1, hi = R * C, ans = hi;
+    while (lo <= hi) {
+        int mid = (lo + hi) / 2;
+        if (check(mid)) {
+            ans = mid;
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

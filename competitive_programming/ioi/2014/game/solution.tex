@@ -1,0 +1,147 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2014 -- Game}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+You play the role of an interactor. A player asks queries of the form ``Is there an edge between $u$ and $v$?'' about a hidden graph on $n$ nodes. You must answer each query consistently (there must exist \emph{some} valid graph matching all your answers) and the final graph must be \textbf{connected}. Your goal is to \emph{maximise} the number of queries before the player can determine all edges, i.e., answer in a way that forces the player to ask all $\binom{n}{2}$ possible queries.
+
+\section{Solution}
+
+\begin{theorem}
+The following greedy strategy forces the player to ask all $\binom{n}{2}$ queries: answer \textbf{NO} to every query unless doing so would make it impossible to connect the graph using remaining unqueried edges; in that case, answer \textbf{YES}.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+After all queries are answered, the graph must be connected. At each query $(u,v)$:
+\begin{itemize}
+  \item If $u$ and $v$ are already in the same connected component, answering NO is always safe (removing an edge within a connected component cannot disconnect it), and the player gains no new information about cross-component edges.
+  \item If $u$ and $v$ are in different components, answering NO is safe \emph{unless} $(u,v)$ is the last unqueried edge between these two components. In that case we must answer YES to preserve the possibility of connecting them.
+\end{itemize}
+Since the player cannot determine any edge without asking it (both answers remain consistent with some connected graph until the query is forced), the player must ask all $\binom{n}{2}$ queries.
+\end{proof}
+
+\textbf{Implementation.} Maintain a union-find and, for each pair of components, a count of unqueried inter-component edges.  When components merge, aggregate the counts.  Use lazy initialisation: the initial count between components of sizes $s_a$ and $s_b$ is $s_a \cdot s_b$.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct DSU {
+    vector<int> parent, rank_;
+    void init(int n) {
+        parent.resize(n);
+        rank_.assign(n, 0);
+        iota(parent.begin(), parent.end(), 0);
+    }
+    int find(int x) {
+        while (parent[x] != x) x = parent[x] = parent[parent[x]];
+        return x;
+    }
+    bool unite(int a, int b) {
+        a = find(a); b = find(b);
+        if (a == b) return false;
+        if (rank_[a] < rank_[b]) swap(a, b);
+        parent[b] = a;
+        if (rank_[a] == rank_[b]) rank_[a]++;
+        return true;
+    }
+};
+
+DSU dsu;
+vector<int> comp_size;
+map<pair<int,int>, int> remaining;
+
+pair<int,int> makeKey(int a, int b) {
+    return a < b ? make_pair(a, b) : make_pair(b, a);
+}
+
+void initialize(int n) {
+    dsu.init(n);
+    comp_size.assign(n, 1);
+    remaining.clear();
+}
+
+int hasEdge(int u, int v) {
+    int a = dsu.find(u), b = dsu.find(v);
+    if (a == b) return 0;
+
+    auto key = makeKey(a, b);
+    if (remaining.find(key) == remaining.end())
+        remaining[key] = comp_size[a] * comp_size[b];
+    remaining[key]--;
+
+    if (remaining[key] == 0) {
+        // Last unqueried edge between a and b: must answer YES
+        remaining.erase(key);
+        int sa = comp_size[a], sb = comp_size[b];
+
+        // Merge remaining-edge counts for all other components
+        map<int, int> neighbours;
+        vector<pair<int,int>> to_erase;
+        for (auto &[k, val] : remaining) {
+            if (k.first == a || k.second == a) {
+                int other = (k.first == a) ? k.second : k.first;
+                if (other != b) neighbours[other] += val;
+                to_erase.push_back(k);
+            } else if (k.first == b || k.second == b) {
+                int other = (k.first == b) ? k.second : k.first;
+                if (other != a) neighbours[other] += val;
+                to_erase.push_back(k);
+            }
+        }
+        for (auto &k : to_erase) remaining.erase(k);
+
+        dsu.unite(a, b);
+        int root = dsu.find(a);
+        comp_size[root] = sa + sb;
+
+        for (auto &[c, cnt] : neighbours)
+            remaining[makeKey(root, dsu.find(c))] = cnt;
+
+        return 1;
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Queries answered}: all $\binom{n}{2}$, which is optimal.
+  \item \textbf{Time per query}: $O(\alpha(n))$ for DSU operations. Component merges are $O(n)$ in the worst case but occur at most $n-1$ times, giving $O(n^2)$ total across all merges.
+  \item \textbf{Total time}: $O(n^2)$.
+  \item \textbf{Space}: $O(n^2)$ worst case for the map entries.
+\end{itemize}
+
+\end{document}

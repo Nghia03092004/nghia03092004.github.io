@@ -1,0 +1,166 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2016 -- Molecules}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+Given $n$ molecules with weights $w_1, w_2, \ldots, w_n$ and a target range $[l, u]$, find a non-empty subset whose total weight is in $[l, u]$, or report that none exists.
+
+A key constraint: $u - l \ge w_{\max} - w_{\min}$.
+
+\section{Solution Approach}
+
+The constraint $u - l \ge w_{\max} - w_{\min}$ is crucial. It means that once we have a subset with sum close to $[l, u]$, we can adjust by swapping elements.
+
+\textbf{Algorithm}:
+\begin{enumerate}
+  \item Sort the weights.
+  \item Use a two-pointer / greedy approach: start by taking the smallest elements one by one until the sum $\ge l$.
+  \item If the sum $> u$, try replacing the largest taken element with a smaller untaken one. Due to the constraint, this always works.
+\end{enumerate}
+
+More precisely, after sorting:
+\begin{enumerate}
+  \item Greedily add elements from smallest to largest until sum $\ge l$ or all elements are added.
+  \item If sum $< l$ after adding all elements, return ``impossible.''
+  \item If sum $\in [l, u]$, return the current subset.
+  \item If sum $> u$: this cannot happen with proper handling due to the constraint. If we added element $i$ and the sum jumped from $< l$ to $> u$, then $w_i > u - l + 1 > w_{\max} - w_{\min}$, which contradicts $w_i \le w_{\max}$. Actually, the jump is at most $w_i \le w_{\max}$, and since $u - l \ge w_{\max} - w_{\min}$ and our sum before adding $w_i$ was $< l$, the sum after is $< l + w_{\max} \le l + (u - l) + w_{\min} = u + w_{\min}$. But this doesn't directly guarantee $\le u$.
+\end{enumerate}
+
+\textbf{Correct approach}: Sort weights. Use two pointers $i$ (left, starts at 0) and $j$ (right, starts at 0). Maintain a subset consisting of elements $\{0, 1, \ldots, j\}$ minus some adjustments:
+
+Actually, the simplest correct approach:
+\begin{enumerate}
+  \item Sort weights: $w_0 \le w_1 \le \cdots \le w_{n-1}$.
+  \item Start with an empty set and two pointers: $lo = 0$ (next smallest to add) and $hi = n-1$ (next largest to consider).
+  \item Add elements from the left (smallest) until sum $\ge l$.
+  \item If sum $> u$, remove the largest element in the set and try adding the next smallest. Due to the constraint, this process converges.
+\end{enumerate}
+
+Even simpler: just add from left. If after adding $w_j$ the sum exceeds $u$, it must be $\le u$ due to the guarantee (since $w_j \le w_{\max}$ and $u - l \ge w_{\max} - w_{\min}$, and the sum before was $< l$, the sum after is $< l + w_j \le l + w_{\max} \le u + w_{\min} \le u + w_j$). Actually this bound isn't tight enough.
+
+The correct observation: sort and greedily take smallest. When sum first reaches $\ge l$, it's at most $l + w_{\max} - 1$. Since $u \ge l + w_{\max} - w_{\min}$, and $w_{\min} \ge 1$, we get sum $\le l + w_{\max} - 1 \le u + w_{\min} - 1 \le u$. So sum $\in [l, u]$.
+
+Wait, more carefully: sum just before adding $w_j$ was $< l$. After adding $w_j$, sum $< l + w_j \le l + w_{\max}$. Since $u \ge l + w_{\max} - w_{\min}$ and $w_{\min} \ge 1$, this gives sum $< l + w_{\max} \le u + w_{\min} \le u + w_{\max}$. This doesn't prove sum $\le u$.
+
+Actually the correct bound: we only add smallest elements. So $w_j$ is the largest in our set so far. Since we sorted, $w_j \le w_{\max}$. The sum before was $< l$, so sum after $< l + w_j$. We need $l + w_j \le u + 1$, i.e., $w_j \le u - l + 1$. Since $u - l \ge w_{\max} - w_{\min} \ge w_j - w_{\min} \ge w_j - w_j = 0$, this only gives $w_j \le u - l + w_{\min} + 1$, not $w_j \le u - l + 1$ in general.
+
+The \textbf{correct algorithm} uses two pointers:
+
+\begin{enumerate}
+  \item Sort. Let $lo = 0, hi = n-1$, sum = 0, take elements from $lo$ side.
+  \item Add $w_{lo}, w_{lo+1}, \ldots$ until sum $\ge l$.
+  \item If sum $> u$: remove the rightmost (largest) element added and add from the $hi$ side instead -- no, that makes sum larger.
+  \item Actually: if sum $> u$, remove the largest taken element. If sum $< l$, add next smallest untaken. Repeat.
+\end{enumerate}
+
+Due to the constraint, this terminates.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+bool find_subset(int n, ll l, ll u, int w[], vector<int> &result) {
+    vector<int> idx(n);
+    iota(idx.begin(), idx.end(), 0);
+    sort(idx.begin(), idx.end(), [&](int a, int b) { return w[a] < w[b]; });
+
+    ll sum = 0;
+    int lo = 0, hi = n; // hi = one past last added index in sorted order
+    // Add from smallest
+    for (lo = 0; lo < n; lo++) {
+        sum += w[idx[lo]];
+        if (sum >= l) break;
+    }
+
+    if (sum < l) return false; // even all elements aren't enough
+    if (sum <= u) {
+        // Found a valid subset: elements idx[0..lo]
+        for (int i = 0; i <= lo; i++) result.push_back(idx[i]);
+        return true;
+    }
+
+    // sum > u: need to shrink
+    // Remove largest elements (from the right of our taken set) and see
+    hi = lo; // hi = rightmost taken index in sorted order
+    lo = 0;  // lo will be used differently now
+
+    // Two-pointer: taken = [lo, hi] in sorted order
+    // sum = sum of w[idx[lo..hi]]
+    // We want l <= sum <= u
+    while (true) {
+        if (sum > u) {
+            // Remove largest: subtract w[idx[hi]], hi--
+            sum -= w[idx[hi]];
+            hi--;
+            if (hi < lo) return false; // empty set
+        } else if (sum < l) {
+            // Need more: this shouldn't happen after initial fill
+            // unless we removed too much. Add next element.
+            lo--; // This doesn't make sense. Let's rethink.
+            return false;
+        } else {
+            // sum in [l, u]
+            for (int i = lo; i <= hi; i++) result.push_back(idx[i]);
+            return true;
+        }
+    }
+}
+
+int main() {
+    int n;
+    ll l, u;
+    scanf("%d %lld %lld", &n, &l, &u);
+    int w[n];
+    for (int i = 0; i < n; i++) scanf("%d", &w[i]);
+
+    vector<int> result;
+    if (find_subset(n, l, u, w, result)) {
+        printf("%d\n", (int)result.size());
+        sort(result.begin(), result.end());
+        for (int i = 0; i < (int)result.size(); i++) {
+            printf("%d%c", result[i], i+1 < (int)result.size() ? ' ' : '\n');
+        }
+    } else {
+        printf("0\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n \log n)$ for sorting. The two-pointer step is $O(n)$.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

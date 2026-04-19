@@ -1,0 +1,144 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2004 -- Farmer}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+A farmer has $N$ cows at known positions on a number line, and $M$ barns
+(each with a capacity) also at known positions. Assign every cow to a
+barn (respecting capacities) so as to minimize the maximum distance any
+cow travels to its assigned barn.
+
+\section{Solution: Binary Search + Greedy}
+
+\subsection{Binary Search}
+Binary search on the answer $D$ (the maximum allowed distance). For
+each candidate $D$, check feasibility in $O(N + M)$.
+
+\subsection{Feasibility Check}
+\begin{lemma}
+If both cows and barns are sorted by position, the greedy strategy of
+assigning each cow (left to right) to the leftmost barn within distance
+$D$ that still has capacity is optimal.
+\end{lemma}
+\begin{proof}
+Suppose cow $i$ is assigned to barn $b$ in the greedy solution but to
+a different barn $b'$ in some optimal solution. Since $b$ is the leftmost
+feasible barn, $b$ is at most as far right as $b'$. Swapping the
+assignments of cow $i$ and whatever cow used barn $b$ cannot increase
+the maximum distance (an exchange argument). By induction, the greedy
+assignment is feasible whenever any assignment is.
+\end{proof}
+
+\subsection{Implementation Detail}
+Maintain a barn pointer $b$ that advances past barns too far to the left
+or with zero remaining capacity. Since cows are processed left to right,
+the pointer never needs to retreat: any barn too far left for cow $i$ is
+also too far left for cow $i{+}1$.
+
+If the pointer's barn is beyond $\mathrm{cow}[i] + D$, the check fails.
+Otherwise, decrement that barn's remaining capacity.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, M;
+    cin >> N >> M;
+
+    vector<long long> cow(N);
+    for (int i = 0; i < N; i++) cin >> cow[i];
+
+    vector<long long> barn(M);
+    vector<int> cap(M);
+    for (int i = 0; i < M; i++) cin >> barn[i] >> cap[i];
+
+    sort(cow.begin(), cow.end());
+
+    // Sort barns by position, keeping capacity
+    vector<int> order(M);
+    iota(order.begin(), order.end(), 0);
+    sort(order.begin(), order.end(),
+         [&](int a, int b) { return barn[a] < barn[b]; });
+
+    vector<long long> sb(M);
+    vector<int> sc(M);
+    for (int i = 0; i < M; i++) {
+        sb[i] = barn[order[i]];
+        sc[i] = cap[order[i]];
+    }
+
+    auto check = [&](long long D) -> bool {
+        vector<int> rem(sc.begin(), sc.end());
+        int b = 0;
+        for (int i = 0; i < N; i++) {
+            // Advance past barns too far left or empty
+            while (b < M && (sb[b] < cow[i] - D || rem[b] <= 0))
+                b++;
+            if (b >= M || sb[b] > cow[i] + D)
+                return false;
+            rem[b]--;
+        }
+        return true;
+    };
+
+    long long lo = 0, hi = 2000000000LL;
+    while (lo < hi) {
+        long long mid = lo + (hi - lo) / 2;
+        if (check(mid)) hi = mid;
+        else lo = mid + 1;
+    }
+
+    cout << lo << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\paragraph{Bug note.} The two-pointer greedy above has a subtle issue:
+when a barn runs out of capacity, the pointer $b$ advances past it via
+the \texttt{while} loop. However, the pointer \emph{also} skips barns
+that are too far left. This is correct because cows are sorted, so
+$\mathrm{cow}[i] - D$ is non-decreasing.
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O((N + M) \log V)$ where $V$ is the coordinate
+        range. Sorting is $O(N \log N + M \log M)$; each feasibility
+        check is $O(N + M)$; binary search runs $O(\log V)$ iterations.
+  \item \textbf{Space:} $O(N + M)$.
+\end{itemize}
+
+\end{document}

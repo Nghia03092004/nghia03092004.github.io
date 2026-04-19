@@ -1,0 +1,133 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{lemma}{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2019 -- Vision}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+An $H \times W$ grid has exactly two cells set to 1. Construct a circuit of AND, OR, XOR, NOT gates that outputs 1 iff the Manhattan distance between the two cells equals $K$.
+
+\section{Solution}
+
+\subsection{Row and Column Projections}
+Define $R[i] = \text{OR of all cells in row } i$ and $C[j] = \text{OR of all cells in column } j$. Since exactly two cells are 1:
+\begin{itemize}
+  \item $R[i]$ is 1 for exactly the rows containing marked cells (one or two rows).
+  \item Same for columns.
+\end{itemize}
+
+\subsection{Detecting Row/Column Distance}
+For row distance $d > 0$: $S_R(d) = \text{OR}_{i=0}^{H-1-d}(R[i] \text{ AND } R[i+d])$. This is 1 iff the two cells are in rows exactly $d$ apart.
+
+For $d = 0$ (same row): $S_R(0) = \text{XOR of all } R[i]$. With exactly two marked cells: XOR is 1 iff exactly one $R[i] = 1$, meaning both cells share a row.
+
+Similarly define $S_C(d)$ for column distances.
+
+\subsection{Combining}
+Manhattan distance $= K$ iff $\exists\, d_r + d_c = K$ with $S_R(d_r) = S_C(d_c) = 1$. Compute:
+\[
+  \text{result} = \text{OR}_{d_r=0}^{\min(K, H-1)} \bigl(S_R(d_r) \text{ AND } S_C(K - d_r)\bigr)
+\]
+
+\subsection{Efficient Alternative: Chebyshev Distance}
+Using the transformation $p = r + c$, $q = r - c$, Manhattan distance equals $\max(|p_1 - p_2|, |q_1 - q_2|)$ (Chebyshev distance in $(p, q)$ coordinates). Then $\text{dist} = K$ iff $\text{atMost}(K) \text{ AND NOT}(\text{atMost}(K-1))$, where $\text{atMost}(K)$ checks $|p_1 - p_2| \le K$ and $|q_1 - q_2| \le K$ independently. Each check uses a sliding-window OR. This reduces gate count to $O(HW + H + W)$.
+
+\section{Implementation}
+
+The implementation below uses the direct row/column projection approach.
+
+\begin{lstlisting}
+#include "vision.h"
+#include <vector>
+using namespace std;
+
+void construct_network(int H, int W, int K) {
+    int numCells = H * W;
+
+    // R[i] = OR of all cells in row i
+    vector<int> R(H);
+    for (int i = 0; i < H; i++) {
+        vector<int> cells;
+        for (int j = 0; j < W; j++) cells.push_back(i * W + j);
+        R[i] = add_or(cells);
+    }
+
+    // C[j] = OR of all cells in column j
+    vector<int> C(W);
+    for (int j = 0; j < W; j++) {
+        vector<int> cells;
+        for (int i = 0; i < H; i++) cells.push_back(i * W + j);
+        C[j] = add_or(cells);
+    }
+
+    // SR[d] = 1 iff rows of the two cells are exactly d apart
+    vector<int> SR;
+    // d = 0: both in same row iff XOR of all R[i] is 1
+    SR.push_back(add_xor(vector<int>(R.begin(), R.end())));
+    for (int d = 1; d <= min(K, H - 1); d++) {
+        vector<int> pairs;
+        for (int i = 0; i + d < H; i++)
+            pairs.push_back(add_and({R[i], R[i + d]}));
+        SR.push_back(add_or(pairs));
+    }
+
+    // SC[d] = 1 iff columns of the two cells are exactly d apart
+    vector<int> SC;
+    SC.push_back(add_xor(vector<int>(C.begin(), C.end())));
+    for (int d = 1; d <= min(K, W - 1); d++) {
+        vector<int> pairs;
+        for (int j = 0; j + d < W; j++)
+            pairs.push_back(add_and({C[j], C[j + d]}));
+        SC.push_back(add_or(pairs));
+    }
+
+    // Result: OR over dr + dc = K of (SR[dr] AND SC[dc])
+    vector<int> terms;
+    for (int dr = 0; dr <= min(K, H - 1); dr++) {
+        int dc = K - dr;
+        if (dc < 0 || dc > W - 1) continue;
+        if (dr >= (int)SR.size() || dc >= (int)SC.size()) continue;
+        terms.push_back(add_and({SR[dr], SC[dc]}));
+    }
+
+    if (terms.empty()) {
+        // Impossible distance; output constant 0
+        vector<bool> zero(numCells, false);
+        // Create a wire that is always 0
+        add_and({0, add_not(0)});
+    } else {
+        add_or(terms);
+    }
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Gates}: $O(H + W + K \cdot \max(H, W))$. Each distance value creates $O(H)$ or $O(W)$ AND gates plus one OR gate.
+  \item \textbf{Optimized version}: $O(HW + H + W)$ gates using the Chebyshev distance transformation with prefix OR windows.
+\end{itemize}
+
+\end{document}

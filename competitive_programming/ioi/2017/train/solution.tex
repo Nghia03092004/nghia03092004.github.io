@@ -1,0 +1,189 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2017 -- Train}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+A train travels on a directed graph with $n$ nodes and $m$ edges. Each node is either a ``charging station'' (good) or not. Each node is controlled by either player A or player B. Player A wants the train to visit charging stations infinitely often; player B wants to prevent this.
+
+At each node, the controlling player chooses the next edge to traverse. Determine for each starting node whether player A has a winning strategy.
+
+\section{Solution Approach}
+
+This is a two-player graph game with a reachability/B\"uchi objective (visit good nodes infinitely often).
+
+\textbf{Algorithm}: Use backward induction / attractor computation.
+
+\begin{enumerate}
+  \item Find all nodes from which no charging station is reachable. Player B wins from these nodes (the train eventually gets stuck without charging). Mark these as losing for A.
+  \item From the remaining graph, find the \textbf{attractor} of the losing set:
+    \begin{itemize}
+      \item A node controlled by B is losing if \emph{any} successor leads to a losing node.
+      \item A node controlled by A is losing if \emph{all} successors lead to losing nodes.
+    \end{itemize}
+  \item Repeat: in the remaining graph, check if all nodes can reach a charging station. Remove those that cannot and recompute.
+  \item The process converges. Remaining nodes are winning for A.
+\end{enumerate}
+
+More precisely, this is solved by computing the \textbf{winning region} for the B\"uchi game:
+
+\begin{enumerate}
+  \item Compute $W_B$ (losing for A): initially empty.
+  \item Repeat:
+    \begin{enumerate}
+      \item Remove nodes in $W_B$ from the graph.
+      \item Find nodes that cannot reach any charging station in the remaining graph. Add them to $W_B$.
+      \item Compute the attractor of $W_B$ (for player B): nodes where B can force reaching $W_B$.
+    \end{enumerate}
+  \item Until $W_B$ stabilizes. The complement is $W_A$.
+\end{enumerate}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> who_wins(int n, int m, vector<int> &owner,
+                     vector<int> &charge,
+                     vector<vector<int>> &adj,
+                     vector<vector<int>> &radj) {
+    // owner[i]: 0 = A, 1 = B
+    // charge[i]: 1 = charging station, 0 = not
+    // adj[i]: outgoing edges from i
+    // radj[i]: incoming edges to i
+
+    vector<bool> removed(n, false);
+    vector<int> out_deg(n);
+    for (int i = 0; i < n; i++) out_deg[i] = adj[i].size();
+
+    bool changed = true;
+    while (changed) {
+        changed = false;
+
+        // Step 1: Find nodes that cannot reach any charging station
+        // BFS backward from all charging stations (not removed)
+        vector<bool> canReach(n, false);
+        queue<int> q;
+        for (int i = 0; i < n; i++) {
+            if (!removed[i] && charge[i]) {
+                canReach[i] = true;
+                q.push(i);
+            }
+        }
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            for (int v : radj[u]) {
+                if (!removed[v] && !canReach[v]) {
+                    canReach[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+
+        // Nodes that can't reach charging: mark as losing (remove)
+        queue<int> losing;
+        for (int i = 0; i < n; i++) {
+            if (!removed[i] && !canReach[i]) {
+                removed[i] = true;
+                losing.push(i);
+                changed = true;
+            }
+        }
+
+        // Step 2: Compute attractor of losing nodes (for player B)
+        // Recompute out_deg for remaining nodes (minus removed successors)
+        // A node controlled by B: if any successor is removed -> it's losing
+        // A node controlled by A: if all successors are removed -> it's losing
+
+        // Reset out_deg to count non-removed successors
+        vector<int> cur_deg(n, 0);
+        for (int i = 0; i < n; i++) {
+            if (removed[i]) continue;
+            for (int j : adj[i]) {
+                if (!removed[j]) cur_deg[i]++;
+            }
+        }
+
+        while (!losing.empty()) {
+            int u = losing.front(); losing.pop();
+            for (int v : radj[u]) {
+                if (removed[v]) continue;
+                cur_deg[v]--;
+                if (owner[v] == 1) {
+                    // B controls v: B can choose to go to removed node -> v is losing
+                    removed[v] = true;
+                    losing.push(v);
+                    changed = true;
+                } else {
+                    // A controls v: losing only if all successors removed
+                    if (cur_deg[v] == 0) {
+                        removed[v] = true;
+                        losing.push(v);
+                        changed = true;
+                    }
+                }
+            }
+        }
+    }
+
+    vector<int> result(n);
+    for (int i = 0; i < n; i++) {
+        result[i] = removed[i] ? 0 : 1; // 1 = A wins, 0 = B wins
+    }
+    return result;
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+    vector<int> owner(n), charge(n);
+    for (int i = 0; i < n; i++) scanf("%d", &owner[i]);
+    for (int i = 0; i < n; i++) scanf("%d", &charge[i]);
+    vector<vector<int>> adj(n), radj(n);
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        adj[u].push_back(v);
+        radj[v].push_back(u);
+    }
+    vector<int> res = who_wins(n, m, owner, charge, adj, radj);
+    for (int i = 0; i < n; i++) printf("%d\n", res[i]);
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n \cdot (n + m))$ in the worst case, since the outer loop can iterate $O(n)$ times and each iteration does $O(n + m)$ work. In practice, each node is removed at most once, giving amortized $O(n + m)$ total for the attractor computation, but the reachability BFS might repeat.
+  \item With careful implementation (only re-check reachability for affected regions), the total time is $O(n \cdot (n + m))$.
+  \item \textbf{Space}: $O(n + m)$.
+\end{itemize}
+
+\end{document}

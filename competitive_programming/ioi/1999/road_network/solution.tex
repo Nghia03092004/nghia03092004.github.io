@@ -1,0 +1,161 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1999 -- Road Network (Tree Median)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a weighted tree with $N$ nodes, find the node $v$ that minimizes the sum of
+distances to all other nodes:
+\[
+  S(v) = \sum_{u=1}^{N} d(v, u).
+\]
+Output that node and the minimum sum.
+
+\section{Solution Approach}
+
+\subsection{Rerooting Technique}
+
+A naive approach computes $S(v)$ independently for each $v$, taking $O(N^2)$ time.
+The rerooting technique reduces this to $O(N)$.
+
+\paragraph{Pass 1 -- Root at node 1.} Compute via DFS:
+\begin{itemize}
+  \item $\mathrm{sz}[v]$: number of nodes in the subtree rooted at $v$.
+  \item $\mathrm{subSum}[v]$: sum of distances from $v$ to all nodes in its subtree.
+\end{itemize}
+Then $S(1) = \mathrm{subSum}[1]$.
+
+\paragraph{Pass 2 -- Reroot.} When moving from parent $p$ to child $c$ along an
+edge of weight $w$:
+\[
+  S(c) = S(p) + w \cdot (N - 2 \cdot \mathrm{sz}[c]).
+\]
+
+\begin{proof}[Derivation]
+Relative to $p$, all $\mathrm{sz}[c]$ nodes in $c$'s subtree become $w$ closer
+to $c$, contributing $-w \cdot \mathrm{sz}[c]$. The remaining $N - \mathrm{sz}[c]$
+nodes become $w$ farther, contributing $+w \cdot (N - \mathrm{sz}[c])$. Combining:
+\[
+  S(c) = S(p) - w \cdot \mathrm{sz}[c] + w \cdot (N - \mathrm{sz}[c])
+       = S(p) + w \cdot (N - 2\,\mathrm{sz}[c]).
+\]
+\end{proof}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <vector>
+#include <stack>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    vector<vector<pair<int, long long>>> adj(N + 1);
+    for (int i = 0; i < N - 1; i++) {
+        int u, v;
+        long long w;
+        scanf("%d %d %lld", &u, &v, &w);
+        adj[u].push_back({v, w});
+        adj[v].push_back({u, w});
+    }
+
+    vector<long long> sz(N + 1, 0), subSum(N + 1, 0), dist(N + 1, 0);
+    vector<int> order, parent(N + 1, 0);
+    vector<long long> parentW(N + 1, 0);
+    vector<bool> visited(N + 1, false);
+
+    // Pass 1: BFS/DFS from node 1 to get traversal order
+    stack<int> stk;
+    stk.push(1);
+    visited[1] = true;
+    while (!stk.empty()) {
+        int u = stk.top(); stk.pop();
+        order.push_back(u);
+        for (auto& [v, w] : adj[u]) {
+            if (!visited[v]) {
+                visited[v] = true;
+                parent[v] = u;
+                parentW[v] = w;
+                stk.push(v);
+            }
+        }
+    }
+
+    // Compute subtree sizes and sums (process leaves first)
+    for (int i = (int)order.size() - 1; i >= 0; i--) {
+        int u = order[i];
+        sz[u] = 1;
+        subSum[u] = 0;
+        for (auto& [v, w] : adj[u]) {
+            if (v != parent[u]) {
+                sz[u] += sz[v];
+                subSum[u] += subSum[v] + w * sz[v];
+            }
+        }
+    }
+
+    // Pass 2: reroot to compute dist[u] = S(u)
+    dist[1] = subSum[1];
+    for (int i = 0; i < (int)order.size(); i++) {
+        int u = order[i];
+        for (auto& [v, w] : adj[u]) {
+            if (v != parent[u]) {
+                dist[v] = dist[u] + w * (N - 2 * sz[v]);
+            }
+        }
+    }
+
+    // Find the node minimizing S(v)
+    int bestNode = 1;
+    long long bestDist = dist[1];
+    for (int u = 1; u <= N; u++) {
+        if (dist[u] < bestDist) {
+            bestDist = dist[u];
+            bestNode = u;
+        }
+    }
+
+    printf("%d\n%lld\n", bestNode, bestDist);
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(N)$. Two linear passes over the tree.
+  \item \textbf{Space complexity:} $O(N)$ for adjacency lists and auxiliary arrays.
+\end{itemize}
+
+\end{document}

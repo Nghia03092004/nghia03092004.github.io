@@ -1,0 +1,184 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\L. Where Am I?}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+For each possible starting cell inside the given $dx \times dy$ rectangle, the subject observes a binary
+sequence while walking on the fixed clockwise spiral:
+\begin{itemize}[leftmargin=*]
+    \item $1$ if the current cell contains a marker,
+    \item $0$ otherwise.
+\end{itemize}
+
+The subject stops as soon as the observed prefix is compatible with only one starting cell.
+
+We must compute:
+\begin{itemize}[leftmargin=*]
+    \item the average stopping time over all starting cells,
+    \item the maximum stopping time,
+    \item all starting cells attaining that maximum.
+\end{itemize}
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item All markers lie inside the given rectangle, and the starting cell is also inside that rectangle.
+    Therefore every marker is at relative offset
+    \[
+        (\Delta x, \Delta y) \in [-(dx-1), dx-1] \times [-(dy-1), dy-1].
+    \]
+    If we define
+    \[
+        R = \max(dx-1, dy-1),
+    \]
+    then every relevant marker lies inside the square $[-R, R]^2$.
+
+    \item The spiral visits every cell in that square within its first
+    \[
+        (2R+1)^2
+    \]
+    visited positions (including the starting cell). So after that many observations, every subject has
+    already checked every relative position where a marker could possibly exist.
+
+    \item Therefore each starting cell can be represented by one finite binary string of length
+    \[
+        L = (2R+1)^2,
+    \]
+    where bit $t$ tells whether the spiral position numbered $t$ contains a marker.
+
+    \item A starting cell is identified after exactly $k$ steps iff its first $k+1$ bits form a prefix that no
+    other starting cell has. Equivalently, if the largest common-prefix length with any other string is
+    $\ell$, then the answer for that start is exactly $\ell$.
+
+    \item After sorting all binary strings lexicographically, the largest common prefix of one string with
+    any other string is attained by one of its two neighbors in sorted order. So only adjacent pairs matter.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Generate the spiral order inside the square $[-R,R]^2$ and store, for each relative offset, the
+    time when the spiral visits it.
+
+    \item For each starting cell $(s_x, s_y)$, build its binary observation string:
+    \begin{itemize}[leftmargin=*]
+        \item for each marker $(m_x, m_y)$,
+        \item compute the relative offset $(m_x-s_x, m_y-s_y)$,
+        \item look up the spiral time of that offset,
+        \item set that bit to $1$.
+    \end{itemize}
+    Since there are at most $100$ markers, this is much cheaper than simulating the whole spiral for every
+    start.
+
+    \item Store every binary string as packed $64$-bit words.
+
+    \item Sort the starting cells lexicographically by these packed bit strings.
+
+    \item For every adjacent pair in sorted order, compute their common-prefix length by scanning the
+    words until the first differing word, then locating the first differing bit inside that word.
+
+    \item For each start, let $\ell$ be the maximum common-prefix length with its predecessor and successor
+    in sorted order. Then $\ell$ is exactly the required number of steps for that start.
+
+    \item Aggregate the average, the maximum, and all coordinates achieving the maximum.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For any starting cell, every marker that can ever be observed lies at a relative offset inside $[-R,R]^2$.
+
+\paragraph{Proof.}
+Both the starting cell and every marker lie inside the input rectangle. Hence the $x$-difference between
+them is between $-(dx-1)$ and $dx-1$, and similarly the $y$-difference is between $-(dy-1)$ and
+$dy-1$. Since $R = \max(dx-1, dy-1)$, every relative offset lies in $[-R,R]^2$. \qed
+
+\paragraph{Lemma 2.}
+For every starting cell, its infinite observation sequence is completely determined by the first
+$L=(2R+1)^2$ visited positions of the spiral.
+
+\paragraph{Proof.}
+By Lemma 1, a marker can occur only at one of the $(2R+1)^2$ relative offsets inside $[-R,R]^2$.
+The spiral visits each cell of this square exactly once before leaving it permanently. Therefore after the
+first $L$ observations, the subject has already checked every relative position where a marker could exist.
+All later observations are necessarily $0$, so the infinite sequence is fully determined by the first $L$
+bits. \qed
+
+\paragraph{Lemma 3.}
+If two starting cells have longest common prefix of length $\ell$, then the first starting cell is identified
+after exactly $\ell$ steps against the second one.
+
+\paragraph{Proof.}
+The first $\ell$ bits of the two observation strings are equal, so after fewer than $\ell$ steps the subject
+has seen only a prefix that is still compatible with both starts. At step $\ell$, the subject has seen the
+bit at index $\ell$, and this bit differs between the two strings. Thus these two starts become
+distinguishable exactly after $\ell$ steps. \qed
+
+\paragraph{Lemma 4.}
+After lexicographically sorting all observation strings, for every string its maximum common-prefix length
+with any other string is attained by one of its adjacent neighbors in the sorted order.
+
+\paragraph{Proof.}
+This is the standard property of lexicographic order. Fix a string $S$, and consider any other string $T$.
+All strings sharing a given prefix with $S$ form a contiguous interval in sorted order. Therefore among all
+strings, the ones with the longest shared prefix with $S$ must appear immediately next to $S$ on one
+side or the other. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, the finite bit string built by the algorithm contains exactly the relevant observations for
+each starting cell. By Lemma 3, the number of steps needed to distinguish one start from another is the
+common-prefix length of their strings. By Lemma 4, it is enough to compare each string only with its
+sorted neighbors to find the worst competing start. Therefore the algorithm computes the correct stopping
+time for every starting cell. The reported average, maximum, and list of maximizers are then immediate
+from these correct per-cell values. \qed
+
+\section*{Complexity Analysis}
+
+Let
+\[
+    S = dx \cdot dy,\qquad M = \text{number of markers},\qquad L = (2R+1)^2.
+\]
+
+Building all bit strings takes $O(SM)$. Sorting them takes
+\[
+    O\!\left(S \log S \cdot \frac{L}{64}\right)
+\]
+word comparisons in the worst case. Computing all adjacent longest common prefixes takes
+\[
+    O\!\left(S \cdot \frac{L}{64}\right).
+\]
+With $dx,dy \le 100$, this easily fits within the limits.
+
+The memory usage is
+\[
+    O\!\left(S \cdot \frac{L}{64}\right)
+\]
+for the packed observation strings.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The spiral order is exactly the one from the statement: up $1$, right $1$, down $2$, left $2$,
+    up $3$, right $3$, and so on.
+    \item The input rows are given from top to bottom, so line $j$ corresponds to $y = dy-j+1$.
+    \item If two strings first differ inside one $64$-bit word, the first differing bit is found with
+    \texttt{\_\_builtin\_ctzll}.
+\end{itemize}
+
+\end{document}

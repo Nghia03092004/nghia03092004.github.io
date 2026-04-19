@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\K. Treasure Map}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We know some depths on an $n \times m$ grid and must extend them to a full map such that on every unit
+square the two possible diagonal triangulations produce the same linear interpolation. Among all valid
+extensions with nonnegative depths everywhere, we want the smallest possible depth at the treasure
+point.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item On one unit square with corners $A,B,C,D$ in cyclic order, the two diagonal interpolations agree
+    everywhere if and only if
+    \[
+    d(A)+d(C)=d(B)+d(D).
+    \]
+    \item This is exactly the condition that the discrete mixed second difference is zero. Therefore every
+    valid map has the form
+    \[
+    d(x,y)=R_x + C_y
+    \]
+    for some row potentials $R_x$ and column potentials $C_y$.
+    \item Every known depth gives one equation $R_x + C_y = d$.
+    This is a bipartite graph on the row vertices and column vertices.
+    Inside one connected component, all potentials are determined up to one free shift
+    \[
+    R \leftarrow R+t,\qquad C \leftarrow C-t.
+    \]
+    \item Nonnegativity means $R_x + C_y \ge 0$ for every grid point.
+    For one connected component containing both row and column vertices, the quantity
+    \[
+    \min R_x + \min C_y
+    \]
+    is invariant under the shift above; if it is negative, the instance is impossible.
+    \item To minimize the treasure depth, if the treasure row and treasure column are in different connected
+    components, we can shift those two components independently as far downward as nonnegativity
+    allows.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Build a bipartite graph with row vertices $1,\dots,n$ and column vertices $n+1,\dots,n+m$.
+    For every known point $(x,y,d)$, add edges encoding $R_x + C_y = d$.
+    \item Run BFS/DFS on each connected component.
+    Fix one starting potential to $0$ and propagate all other potentials using the equations.
+    If we ever derive two different values for the same vertex, output \texttt{impossible}.
+    \item For every connected component, record:
+    the minimum row potential inside it and the minimum column potential inside it.
+    If the component contains both sides and their sum is negative, output \texttt{impossible}.
+    \item Let the treasure row be $R_{t_x}$ and the treasure column be $C_{t_y}$.
+    If they lie in the same component, their sum is fixed.
+    Otherwise, shift the row component down to make its minimum row potential $0$, and shift the column
+    component down to make its minimum column potential $0$.
+    The resulting treasure depth is the minimum possible one.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+The interpolation condition on every unit square is equivalent to the existence of row and column
+potentials with $d(x,y)=R_x+C_y$.
+
+\paragraph{Proof.}
+If $d(x,y)=R_x+C_y$, then for any square with corners $(x,y),(x+1,y),(x+1,y+1),(x,y+1)$ we have
+\[
+d(x,y)+d(x+1,y+1)=R_x+C_y+R_{x+1}+C_{y+1}
+                  =d(x+1,y)+d(x,y+1),
+\]
+so the diagonal-interpolation condition holds.
+
+Conversely, if the mixed second difference is zero on every unit square, fix $R_1=0$ and define
+$C_y=d(1,y)$ and $R_x=d(x,1)-C_1$.
+The zero second-difference condition then propagates inductively to all grid points and yields
+$d(x,y)=R_x+C_y$. \qed
+
+\paragraph{Lemma 2.}
+Within one connected component of the known-point graph, all potentials are determined up to the shift
+$R \leftarrow R+t$, $C \leftarrow C-t$.
+
+\paragraph{Proof.}
+Every known point gives one equation of the form $R_x + C_y = d$.
+Along any path in the bipartite graph, once one endpoint value is fixed, all others are forced.
+Changing all row values by $+t$ and all column values by $-t$ preserves every such equation, and this is
+the only remaining freedom in a connected component. \qed
+
+\paragraph{Lemma 3.}
+For one connected component, nonnegativity is feasible if and only if
+\[
+\min R_x + \min C_y \ge 0.
+\]
+
+\paragraph{Proof.}
+Under the shift from Lemma 2, every sum $R_x+C_y$ inside the same component is unchanged.
+Hence the smallest possible value anywhere in the component is exactly
+$\min R_x + \min C_y$, which is therefore shift-invariant.
+If this number is negative, some grid point in the component is necessarily negative in every extension.
+If it is nonnegative, then all sums in the component are nonnegative already. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, every valid map is exactly a choice of row and column potentials satisfying the known-point
+equations. Lemma 2 describes all freedom left after propagating those equations, and Lemma 3 gives the
+exact feasibility test for nonnegativity.
+
+If the treasure row and treasure column are in the same connected component, their sum is invariant under
+all allowed shifts, so the treasure depth is fixed.
+If they are in different components, the two components can be shifted independently, and pushing each
+one downward until one of its minima becomes $0$ clearly minimizes the treasure sum.
+Therefore the value printed by the algorithm is exactly the smallest possible treasure depth. \qed
+
+\section*{Complexity Analysis}
+
+The graph has $n+m$ vertices and $k$ edges. The BFS/DFS over all components runs in $O(n+m+k)$
+time and uses $O(n+m+k)$ memory.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The implementation stores row vertices as $1,\dots,n$ and column vertices as $n+1,\dots,n+m$.
+    \item Potentials are kept as 64-bit integers; the statement guarantees that the optimum is integral.
+\end{itemize}
+
+\end{document}

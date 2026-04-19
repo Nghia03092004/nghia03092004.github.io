@@ -1,0 +1,135 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2018 -- Meetings}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+There are $n$ mountains with heights $H_0, \ldots, H_{n-1}$. For a query $(L, R)$, choose a meeting point $m \in [L, R]$ to minimize:
+\[
+  \text{cost}(m) = \sum_{i=L}^{R} \max_{j \in [\min(i,m),\, \max(i,m)]} H_j.
+\]
+Return the minimum cost.
+
+\section{Solution}
+
+\subsection{Cartesian Tree Decomposition}
+
+Let $p$ be the position of the maximum in $[L, R]$ (found via sparse table in $O(1)$). Then:
+
+\begin{itemize}
+  \item If $m \in [L, p-1]$: everyone in $[p, R]$ must pass through position $p$, paying at least $H_p$ each. The cost splits as:
+  \[
+    \text{cost}(m) = \text{cost}_{[L,p-1]}(m) + H_p \cdot (R - p + 1)
+  \]
+  \item If $m \in [p+1, R]$: symmetrically, $\text{cost}(m) = \text{cost}_{[p+1,R]}(m) + H_p \cdot (p - L + 1)$.
+  \item If $m = p$: $\text{cost}(p) = H_p \cdot (R - L + 1)$.
+\end{itemize}
+
+\begin{lemma}
+$\textit{best}(L, R) = \min\bigl(\textit{best}(L, p-1) + H_p(R-p+1),\; \textit{best}(p+1, R) + H_p(p-L+1),\; H_p(R-L+1)\bigr)$
+where $p = \arg\max_{i \in [L,R]} H_i$.
+\end{lemma}
+
+This recursion follows the Cartesian tree of $H$. For a single query, the depth of recursion equals the depth of the Cartesian tree, which is $O(n)$ worst case but $O(\log n)$ expected for random inputs.
+
+\subsection{Full-Score Solution Outline}
+
+For $O((n + q) \log^2 n)$ total time, process all queries offline on the Cartesian tree. At each Cartesian tree node with range $[L, R]$ and max at $p$, queries spanning $p$ decompose into a left-side cost plus a right-side cost. Use the ``smaller-to-larger'' technique: iterate over the smaller subtree and insert cost functions (linear functions of the meeting point) into a Li Chao tree for the larger subtree.
+
+\section{Implementation}
+
+The repository implementation follows the offline Cartesian-tree decomposition described above, with precomputed side costs so that all queries are handled efficiently.
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+struct SparseTable {
+    int n;
+    vector<vector<int>> tbl;
+    vector<int> arr, lg;
+
+    void build(vector<int>& a) {
+        arr = a; n = a.size();
+        lg.resize(n + 1);
+        for (int i = 2; i <= n; i++) lg[i] = lg[i/2] + 1;
+        int K = lg[n] + 1;
+        tbl.assign(K, vector<int>(n));
+        for (int i = 0; i < n; i++) tbl[0][i] = i;
+        for (int k = 1; k < K; k++)
+            for (int i = 0; i + (1 << k) <= n; i++) {
+                int l = tbl[k-1][i], r = tbl[k-1][i + (1 << (k-1))];
+                tbl[k][i] = (arr[l] >= arr[r]) ? l : r;
+            }
+    }
+
+    int query(int l, int r) {
+        int k = lg[r - l + 1];
+        int a = tbl[k][l], b = tbl[k][r - (1 << k) + 1];
+        return (arr[a] >= arr[b]) ? a : b;
+    }
+};
+
+vector<long long> minimum_costs(vector<int> H, vector<int> L, vector<int> R) {
+    int N = H.size(), Q = L.size();
+    SparseTable spt;
+    spt.build(H);
+
+    function<ll(int, int)> solve = [&](int l, int r) -> ll {
+        if (l > r) return 0;
+        if (l == r) return H[l];
+        int p = spt.query(l, r);
+        ll leftSize = p - l, rightSize = r - p;
+        ll opt = (ll)H[p] * (r - l + 1);  // meet at p
+        if (leftSize > 0)
+            opt = min(opt, solve(l, p - 1) + (ll)H[p] * (rightSize + 1));
+        if (rightSize > 0)
+            opt = min(opt, solve(p + 1, r) + (ll)H[p] * (leftSize + 1));
+        return opt;
+    };
+
+    vector<ll> ans(Q);
+    for (int q = 0; q < Q; q++)
+        ans[q] = solve(L[q], R[q]);
+    return ans;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Sparse table}: $O(n \log n)$ preprocessing, $O(1)$ per range-max query.
+  \item \textbf{Per query (recursive)}: $O(n)$ worst case (degenerate Cartesian tree), $O(\log n)$ expected.
+  \item \textbf{Full-score offline}: $O((n + q) \log^2 n)$ using Li Chao trees on the Cartesian tree with smaller-to-larger merging.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,132 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2023\\K. Alea Iacta Est}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We repeatedly roll $d$ dice. After each roll we may keep any subset of the dice and reroll the rest. A
+roll is successful if the top letters can be permuted to form some dictionary word. We must compute the
+minimum possible expected number of rolls until success, or decide that success is impossible.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item A state is a vector in $\{1,2,3,4,5,6,*\}^d$. A fixed state has no \texttt{*} symbols and describes
+    one concrete roll outcome. An undetermined state has stars in the positions we are about to reroll.
+    \item The goal states are exactly the fixed states whose letters, after sorting, match some sorted
+    dictionary word.
+    \item From a fixed state we may, at cost $0$, choose any nonempty subset of coordinates and replace
+    them by stars. That moves us to an undetermined state.
+    \item If an undetermined state has $s$ stars, then one reroll replaces them uniformly by one of $6^s$
+    matching fixed states and costs $1$ roll.
+    \item This yields Bellman equations on a finite state graph. Running the relaxations \emph{backwards}
+    from goal states leads to a Dijkstra-like algorithm.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Encode every state in base $7$, using digit $6$ for \texttt{*}. Precompute for each state whether it
+    is fixed and how many stars it contains.
+    \item Initialize distance $0$ for every goal fixed state and $\infty$ for all other states. Process states in
+    increasing tentative distance with a priority queue.
+    \item When a fixed state $x$ is finalized, update every undetermined state $y$ obtained by replacing a
+    nonempty subset of coordinates of $x$ by stars.
+    \item For one such $y$, let $D_y$ be the set of matching fixed states that have already been finalized. If
+    $y$ has $s$ stars, then using only those finalized fixed states as stopping states gives candidate value
+    \[
+    \frac{6^s + \sum_{z \in D_y} \mathrm{dist}[z]}{|D_y|}.
+    \]
+    Maintain this value incrementally by storing $|D_y|$ and the sum of finalized distances.
+    \item When an undetermined state $y$ is finalized, update every matching fixed state $x$ with
+    \[
+    \mathrm{dist}[x] \le \mathrm{dist}[y],
+    \]
+    because from $x$ we may immediately choose to reroll exactly the starred coordinates of $y$.
+    \item The answer is the distance of the all-star state. If it stays infinite, output \texttt{impossible}.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed state $x$ and any nonempty subset of coordinates, moving from $x$ to the corresponding
+undetermined state $y$ has additional expected cost $0$.
+
+\paragraph{Proof.}
+Choosing which dice to reroll is a free decision taken after observing the current roll. No new roll is
+performed yet, so the expected number of \emph{future} rolls from $x$ after choosing that subset is exactly
+the expected number of future rolls from $y$. \qed
+
+\paragraph{Lemma 2.}
+Let $y$ be an undetermined state with $s$ stars, and let $D$ be any nonempty set of matching fixed states.
+If we keep rerolling those starred coordinates until the outcome first lands in $D$, then the expected
+remaining number of rolls is
+\[
+\frac{6^s + \sum_{z \in D}\mathrm{dist}[z]}{|D|}.
+\]
+
+\paragraph{Proof.}
+Each roll of the $s$ starred dice is uniformly distributed over the $6^s$ matching fixed states, so the
+probability of landing in $D$ on one attempt is $|D|/6^s$. Therefore the expected number of attempts
+until the first success is $6^s/|D|$.
+
+Conditioned on success, the reached state is uniformly distributed over $D$, so the expected future cost
+after that success is
+\[
+\frac{1}{|D|}\sum_{z \in D}\mathrm{dist}[z].
+\]
+Adding these two expectations gives the stated formula. \qed
+
+\paragraph{Lemma 3.}
+When the algorithm finalizes a state, its recorded distance equals the true optimal expected number of
+future rolls from that state.
+
+\paragraph{Proof.}
+We process states in nondecreasing tentative distance. For fixed states, every relaxation to them comes
+from an already finalized undetermined state by Lemma 1, so their tentative value is the best value
+obtainable from already optimal successor states.
+
+For an undetermined state $y$, Lemma 2 shows that any strategy based on a set $D$ of already finalized
+matching fixed states yields exactly the candidate value maintained by the algorithm. Adding a not-yet
+finalized fixed state cannot improve the optimum before that state's own distance is known, because all
+finalized states have distance no larger than any unfinalized one. Thus the first time $y$ is extracted from
+the priority queue, its tentative value already matches the true optimum. The usual Dijkstra induction now
+applies to both kinds of states. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the minimum expected number of rolls needed to form a dictionary word, or
+\texttt{impossible} if no word can ever be formed.
+
+\paragraph{Proof.}
+By Lemma 3, every finalized distance is optimal. The all-star state represents the situation before the first
+roll, so its optimal expected future number of rolls is exactly the answer required by the statement. If its
+distance remains infinite, then no goal state is reachable under any strategy, so the correct output is
+\texttt{impossible}. \qed
+
+\section*{Complexity Analysis}
+
+There are $7^d$ total states and at most $6^d$ fixed states. Since $d \le 6$, this is small enough to
+enumerate explicitly. Each state's relaxations are over subsets or completions of at most $d$ coordinates,
+so the total running time is polynomial in $7^d$ and easily fits the limit. The memory usage is $O(7^d)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Dictionary words are stored in sorted form, because the order of dice does not matter when
+    checking whether a fixed state forms a word.
+    \item Distances are stored in floating point and printed with nine digits after the decimal point.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,103 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\G. First of Her Name}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Lady $i$ has name
+\[
+c_i + \text{name}(p_i),
+\]
+that is, one new letter prepended to her mother's name. For each query string $s$, we must count how many ladies have names that start with $s$.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Prefixes are awkward because new letters are added at the \emph{front}. Reverse every name and every query.
+    \item After reversal, Lady $i$'s reversed name is
+    \[
+    \text{rev(name}(p_i)) + c_i,
+    \]
+    so in the reversed world each daughter is obtained by appending one letter to her mother's string.
+    \item A query $s$ is a prefix of the original name exactly when $\text{rev}(s)$ is a suffix of the reversed name.
+    \item Counting how many processed strings end with each query string is exactly what the Aho-Corasick automaton is built for.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Read all ladies and store only their mother index and added letter.
+    \item Insert every reversed query string into an Aho-Corasick trie.
+    \item Build suffix links and completed transitions of the automaton.
+    \item Process the ladies in increasing order:
+    \begin{itemize}[leftmargin=*]
+        \item let $state[i]$ be the automaton state reached by the reversed name of Lady $i$;
+        \item since reversed names are built by appending one letter, we get
+        \[
+        state[i] = go(state[parent[i]], c_i).
+        \]
+        \item increment a counter on $state[i]$.
+    \end{itemize}
+    \item After all ladies are processed, propagate counters upward along suffix links in reverse BFS order. Then each state contains the number of lady names whose reversed name has the corresponding trie string as a suffix.
+    \item For each query, output the counter of the terminal state of its reversed string.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs the correct count for every query.
+
+\paragraph{Lemma 1.}
+For every lady $i$, the automaton state \texttt{state[i]} computed by the algorithm is exactly the state reached after reading the reversed name of Lady $i$.
+
+\paragraph{Proof.}
+By definition, Lady $1$'s reversed name is just one letter, so the formula holds immediately. For $i > 1$, the reversed name of Lady $i$ is the reversed name of her mother followed by the new letter $c_i$. Therefore applying one automaton transition from \texttt{state[parent[i]]} by $c_i$ reaches exactly the state for Lady $i$'s reversed name. Induction on $i$ proves the claim. \qed
+
+\paragraph{Lemma 2.}
+For any query string $s$, a lady's original name starts with $s$ if and only if her reversed name ends with $\text{rev}(s)$.
+
+\paragraph{Proof.}
+Reversing a string turns prefixes into suffixes and vice versa. So
+\[
+\text{name} = s + t
+\]
+holds exactly when
+\[
+\text{rev(name)} = \text{rev}(t) + \text{rev}(s),
+\]
+which says that $\text{rev}(s)$ is a suffix of the reversed name. \qed
+
+\paragraph{Lemma 3.}
+After propagating counts upward along suffix links, the counter stored at any automaton state equals the number of ladies whose reversed names end with the string represented by that state.
+
+\paragraph{Proof.}
+Before propagation, each lady contributes $1$ only to the state reached by her full reversed name. In the Aho-Corasick automaton, following suffix links enumerates exactly the trie strings that are suffixes of that full string. Therefore, when counts are added from each state to its suffix-link parent, every lady contributes to all terminal states corresponding to suffixes of her reversed name, and to no others. \qed
+
+\paragraph{Theorem.}
+For every query string $s$, the algorithm outputs the number of ladies whose names have $s$ as a prefix.
+
+\paragraph{Proof.}
+Let $v$ be the terminal state of $\text{rev}(s)$. By Lemma 3, the counter at $v$ is the number of ladies whose reversed names end with $\text{rev}(s)$. By Lemma 2, this is exactly the number of ladies whose original names start with $s$. \qed
+
+\section*{Complexity Analysis}
+
+Let $L$ be the total length of all queries. The automaton has $O(L)$ states and is built in $O(L \cdot \Sigma)$ with $\Sigma = 26$, which is linear for a fixed alphabet. Processing all ladies is $O(n)$. Propagating counts is also $O(L)$. Thus the total running time is $O(n + L)$, and the memory usage is $O(L + n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The code stores the automaton with fixed arrays of size $26$ per state, which is appropriate for the uppercase alphabet.
+    \item Query answers are stored by terminal state, so duplicate queries are handled automatically.
+    \item Because mothers always have smaller indices than daughters, the ladies can be processed in input order without any extra topological work.
+\end{itemize}
+
+\end{document}

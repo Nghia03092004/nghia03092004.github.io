@@ -1,0 +1,215 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2003 -- Reverse}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given a sequence of $N$ integers and $Q$ reverse operations, each
+specifying a range $[l, r]$, apply all reversals in order and output the
+final sequence.
+
+A secondary variant asks for the minimum number of reversals to sort a
+permutation.
+
+\section{Solution 1: Simulation with Implicit-Key Treap}
+
+\subsection{Approach}
+An implicit-key treap (or splay tree) supports range reversal in
+$O(\log N)$ amortized time via lazy propagation. Each node carries a
+\texttt{rev} flag. When pushed down, it swaps the left and right
+children and propagates the flag.
+
+\subsection{Operations}
+\begin{itemize}
+  \item \texttt{split(t, k, l, r)}: split tree $t$ into the first $k$
+        elements ($l$) and the rest ($r$).
+  \item \texttt{merge(t, l, r)}: merge trees $l$ and $r$ by priority.
+  \item \texttt{reverseRange(root, l, r)}: split off
+        $[l, r]$, flip its \texttt{rev} flag, and merge back.
+\end{itemize}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+mt19937 rng(42);
+
+struct Node {
+    int val, sz, pri;
+    bool rev;
+    Node *l, *r;
+    Node(int v) : val(v), sz(1), pri(rng()), rev(false),
+                  l(nullptr), r(nullptr) {}
+};
+
+int sz(Node* t) { return t ? t->sz : 0; }
+
+void push(Node* t) {
+    if (t && t->rev) {
+        swap(t->l, t->r);
+        if (t->l) t->l->rev ^= 1;
+        if (t->r) t->r->rev ^= 1;
+        t->rev = false;
+    }
+}
+
+void upd(Node* t) {
+    if (t) t->sz = 1 + sz(t->l) + sz(t->r);
+}
+
+void split(Node* t, int k, Node*& l, Node*& r) {
+    if (!t) { l = r = nullptr; return; }
+    push(t);
+    if (sz(t->l) + 1 <= k) {
+        split(t->r, k - sz(t->l) - 1, t->r, r);
+        l = t;
+    } else {
+        split(t->l, k, l, t->l);
+        r = t;
+    }
+    upd(t);
+}
+
+void merge(Node*& t, Node* l, Node* r) {
+    push(l); push(r);
+    if (!l || !r) { t = l ? l : r; return; }
+    if (l->pri > r->pri) {
+        merge(l->r, l->r, r);
+        t = l;
+    } else {
+        merge(r->l, l, r->l);
+        t = r;
+    }
+    upd(t);
+}
+
+void reverseRange(Node*& root, int l, int r) {
+    Node *a, *b, *c;
+    split(root, l - 1, a, b);
+    split(b, r - l + 1, b, c);
+    if (b) b->rev ^= 1;
+    merge(b, b, c);
+    merge(root, a, b);
+}
+
+void inorder(Node* t, vector<int>& res) {
+    if (!t) return;
+    push(t);
+    inorder(t->l, res);
+    res.push_back(t->val);
+    inorder(t->r, res);
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    Node* root = nullptr;
+    for (int i = 0; i < N; i++) {
+        int x; cin >> x;
+        Node* node = new Node(x);
+        merge(root, root, node);
+    }
+
+    int Q;
+    cin >> Q;
+    while (Q--) {
+        int l, r;
+        cin >> l >> r;
+        reverseRange(root, l, r);
+    }
+
+    vector<int> result;
+    inorder(root, result);
+    for (int i = 0; i < N; i++)
+        cout << result[i] << (i + 1 < N ? ' ' : '\n');
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Solution 2: Minimum Reversals to Sort (BFS)}
+
+For small $N$ ($N \le 8$), enumerate all permutation states via BFS.
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    vector<int> perm(N);
+    for (int i = 0; i < N; i++) cin >> perm[i];
+
+    vector<int> target(N);
+    iota(target.begin(), target.end(), 1);
+    if (perm == target) { cout << 0 << "\n"; return 0; }
+
+    map<vector<int>, int> dist;
+    queue<vector<int>> q;
+    dist[perm] = 0;
+    q.push(perm);
+
+    while (!q.empty()) {
+        auto cur = q.front(); q.pop();
+        int d = dist[cur];
+        for (int l = 0; l < N; l++) {
+            for (int r = l + 1; r < N; r++) {
+                auto next = cur;
+                reverse(next.begin() + l, next.begin() + r + 1);
+                if (next == target) {
+                    cout << d + 1 << "\n";
+                    return 0;
+                }
+                if (!dist.count(next)) {
+                    dist[next] = d + 1;
+                    q.push(next);
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Solution 1 (Treap):} $O((N + Q) \log N)$ time,
+        $O(N)$ space.
+  \item \textbf{Solution 2 (BFS):} $O(N! \cdot N^2)$ time,
+        $O(N! \cdot N)$ space. Feasible only for $N \le 8$.
+\end{itemize}
+
+\end{document}

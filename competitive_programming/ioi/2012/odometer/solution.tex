@@ -1,0 +1,119 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2012 -- Odometer}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+A robot on an $R \times C$ grid has two odometers: one counting horizontal moves and one counting vertical moves. Given a start and target position (with obstacles), find a path where the horizontal and vertical odometer readings are equal at the end.
+
+\section{Solution}
+
+\subsection{Key Observation}
+Let $h$ = number of horizontal moves and $v$ = number of vertical moves along any path. We need $h = v$, equivalently $h - v = 0$. Every move changes $h - v$ by $\pm 1$, so every move flips the parity of $h - v$.
+
+\begin{lemma}
+If a path with $h - v = d$ exists and there is room for a ``detour'' (a back-and-forth pair of moves in one direction), then a path with $h - v = d \pm 2$ also exists.
+\end{lemma}
+\begin{proof}
+Insert a horizontal back-and-forth (right then left) to increase $h$ by $2$ without changing $v$, or a vertical back-and-forth to increase $v$ by $2$. This requires an adjacent empty cell.
+\end{proof}
+
+\begin{theorem}
+A valid path exists if and only if the target is reachable with the correct parity of the total number of moves (even parity, since $h = v$ implies $h + v$ is even) and there is room for detours to correct the balance.
+\end{theorem}
+
+\subsection{Algorithm: BFS with Parity State}
+Since every move flips the parity of $h - v$, and we need $h - v \equiv 0 \pmod{2}$ at the target, we perform BFS with state $(r, c, p)$ where $p = (h - v) \bmod 2$. Any move flips $p$.
+
+Starting state: $(s_r, s_c, 0)$ (zero moves, even parity). We need to reach $(t_r, t_c, 0)$.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(RC)$.
+    \item \textbf{Space:} $O(RC)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int R, C;
+    cin >> R >> C;
+
+    vector<string> grid(R);
+    int sr, sc, tr, tc;
+    for (int i = 0; i < R; i++) {
+        cin >> grid[i];
+        for (int j = 0; j < C; j++) {
+            if (grid[i][j] == 'S') { sr = i; sc = j; grid[i][j] = '.'; }
+            if (grid[i][j] == 'T') { tr = i; tc = j; grid[i][j] = '.'; }
+        }
+    }
+
+    // BFS with state (row, col, parity of h-v)
+    vector<vector<array<int,2>>> dist(R, vector<array<int,2>>(C, {-1, -1}));
+    queue<tuple<int,int,int>> q;
+    dist[sr][sc][0] = 0;
+    q.push({sr, sc, 0});
+
+    int dr[] = {0, 0, 1, -1};
+    int dc[] = {1, -1, 0, 0};
+
+    while (!q.empty()) {
+        auto [r, c, p] = q.front(); q.pop();
+        int np = 1 - p; // any move flips parity
+        for (int d = 0; d < 4; d++) {
+            int nr = r + dr[d], nc = c + dc[d];
+            if (nr < 0 || nr >= R || nc < 0 || nc >= C) continue;
+            if (grid[nr][nc] != '.') continue;
+            if (dist[nr][nc][np] != -1) continue;
+            dist[nr][nc][np] = dist[r][c][p] + 1;
+            q.push({nr, nc, np});
+        }
+    }
+
+    if (dist[tr][tc][0] != -1)
+        cout << dist[tr][tc][0] << "\n";
+    else
+        cout << -1 << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\textbf{Remark.} The above checks reachability with correct parity. In the full problem, one must also verify that a detour cell exists along the path to adjust $h - v$ from its natural value to zero. In most grid configurations with more than one open cell adjacent to the path, this is possible.
+
+\end{document}

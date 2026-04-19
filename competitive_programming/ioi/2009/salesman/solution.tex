@@ -1,0 +1,276 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2009 -- Salesman}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+A salesman lives at position $Y$ on a river (positions $1$ to $N$). There are $M$ fairs, each at a specific time, position, and profit. The salesman can attend any subset of fairs, but must attend them in chronological order. Traveling from position $a$ to position $b$ costs $D \cdot |a - b|$ if going downstream or $U \cdot |a - b|$ if going upstream. More precisely, moving to a higher position costs $U$ per unit and moving to a lower position costs $D$ per unit. Find the maximum profit (profit from attended fairs minus travel cost), starting and ending at home $Y$.
+
+\section{Solution Approach}
+Sort all fairs by time (and by position as tiebreaker). Define $\text{dp}[i]$ = maximum profit obtainable by attending fair $i$ as the last fair visited (starting from home).
+
+The transition is:
+\[
+\text{dp}[i] = \max\left(\text{profit from traveling directly from home}, \max_{j < i} \left(\text{dp}[j] - \text{travel\_cost}(j \to i)\right)\right) + \text{money}[i]
+\]
+
+The travel cost from position $p_j$ to $p_i$:
+\begin{itemize}
+    \item If $p_i > p_j$: cost $= U \cdot (p_i - p_j)$
+    \item If $p_i < p_j$: cost $= D \cdot (p_j - p_i)$
+\end{itemize}
+
+So for $p_j \leq p_i$: $\text{dp}[j] - U \cdot p_i + U \cdot p_j = (\text{dp}[j] + U \cdot p_j) - U \cdot p_i$.
+
+For $p_j > p_i$: $\text{dp}[j] - D \cdot p_j + D \cdot p_i = (\text{dp}[j] - D \cdot p_j) + D \cdot p_i$.
+
+This means we need to maintain:
+\begin{itemize}
+    \item Maximum of $\text{dp}[j] + U \cdot p_j$ for positions $\leq p_i$ (use a segment tree on positions).
+    \item Maximum of $\text{dp}[j] - D \cdot p_j$ for positions $> p_i$ (another segment tree query).
+\end{itemize}
+
+We use two segment trees (or one BIT) indexed by position.
+
+\textbf{Special handling:} Multiple fairs at the same time must be processed carefully --- the salesman can only attend fairs in chronological order, so fairs at the same time can only have one attended. Actually, fairs at the same time can all be visited if positions are compatible (the salesman moves instantly within a time step? This depends on the exact problem statement). In the standard formulation, fairs at the same time at different positions can be visited by traveling between them (paying travel cost).
+
+For fairs at the same time, we process them by position and do a left-to-right sweep and a right-to-left sweep.
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(M \log N)$
+    \item \textbf{Space:} $O(N + M)$
+\end{itemize}
+
+\section{C++ Solution}
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const long long NEG_INF = -1e18;
+
+struct SegTree {
+    int n;
+    vector<long long> tree;
+    SegTree() : n(0) {}
+    SegTree(int n) : n(n), tree(4 * n, NEG_INF) {}
+    void update(int pos, long long val, int node, int lo, int hi){
+        if(lo == hi){
+            tree[node] = max(tree[node], val);
+            return;
+        }
+        int mid = (lo + hi) / 2;
+        if(pos <= mid) update(pos, val, 2*node, lo, mid);
+        else update(pos, val, 2*node+1, mid+1, hi);
+        tree[node] = max(tree[2*node], tree[2*node+1]);
+    }
+    void update(int pos, long long val){ update(pos, val, 1, 0, n-1); }
+    long long query(int l, int r, int node, int lo, int hi){
+        if(l > r || lo > r || hi < l) return NEG_INF;
+        if(l <= lo && hi <= r) return tree[node];
+        int mid = (lo + hi) / 2;
+        return max(query(l, r, 2*node, lo, mid),
+                   query(l, r, 2*node+1, mid+1, hi));
+    }
+    long long query(int l, int r){ return query(l, r, 1, 0, n-1); }
+};
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, U, D, S;
+    cin >> N >> U >> D >> S;
+
+    struct Fair {
+        int t, pos, money;
+    };
+    int M;
+    cin >> M;
+    vector<Fair> fairs(M);
+    for(int i = 0; i < M; i++){
+        cin >> fairs[i].t >> fairs[i].pos >> fairs[i].money;
+    }
+
+    // Sort by time, then by position
+    sort(fairs.begin(), fairs.end(), [](const Fair &a, const Fair &b){
+        if(a.t != b.t) return a.t < b.t;
+        return a.pos < b.pos;
+    });
+
+    // Segment trees indexed by position (1-indexed, up to N)
+    // treeUp: stores dp[j] + U * pos[j] for querying max over pos <= p
+    // treeDown: stores dp[j] - D * pos[j] for querying max over pos >= p
+    SegTree treeUp(N + 1), treeDown(N + 1);
+
+    // Initialize with starting position S (home)
+    // dp value at home before any fair = 0
+    treeUp.update(S, 0 + (long long)U * S);
+    treeDown.update(S, 0 - (long long)D * S);
+
+    vector<long long> dp(M);
+
+    // Group fairs by time
+    int i = 0;
+    while(i < M){
+        int j = i;
+        while(j < M && fairs[j].t == fairs[i].t) j++;
+        // Fairs i..j-1 have the same time
+
+        // First compute dp[k] for each fair k in this time group
+        // from the segment trees (transitions from previous time groups)
+        for(int k = i; k < j; k++){
+            int p = fairs[k].pos;
+            long long best = NEG_INF;
+            // From position <= p: max(dp[j'] + U*pos[j']) - U*p
+            long long v1 = treeUp.query(0, p);
+            if(v1 > NEG_INF) best = max(best, v1 - (long long)U * p);
+            // From position >= p: max(dp[j'] - D*pos[j']) + D*p
+            long long v2 = treeDown.query(p, N);
+            if(v2 > NEG_INF) best = max(best, v2 + (long long)D * p);
+            dp[k] = best + fairs[k].money;
+        }
+
+        // Now handle fairs at the same time: sweep left-to-right and right-to-left
+        // Left to right: from smaller position to larger (going upstream, cost U per unit)
+        {
+            long long bestVal = NEG_INF;
+            for(int k = i; k < j; k++){
+                int p = fairs[k].pos;
+                if(bestVal > NEG_INF)
+                    dp[k] = max(dp[k], bestVal - (long long)U * p + fairs[k].money);
+                bestVal = max(bestVal, dp[k] - fairs[k].money + (long long)U * p);
+                // Actually dp[k] already includes money, let me redo:
+                // We want: dp[k] = max(dp[k], dp[k'] - U*(p - p[k']) + money[k])
+                // = max(dp[k], (dp[k'] + U*p[k']) - U*p + money[k])
+                // But dp[k'] already includes money[k'], so this is:
+                // visiting k' then k: profit = dp[k'] - U*(p-p') + money[k]
+            }
+            // Redo properly:
+            bestVal = NEG_INF;
+            for(int k = i; k < j; k++){
+                int p = fairs[k].pos;
+                if(bestVal > NEG_INF)
+                    dp[k] = max(dp[k], bestVal - (long long)U * p + fairs[k].money);
+                bestVal = max(bestVal, dp[k] + (long long)U * p - fairs[k].money);
+                // Hmm, the accounting is tricky. Let me think again.
+                // dp[k'] = best profit ending at fair k' (including money[k']).
+                // If we go from k' to k (same time, k'.pos < k.pos):
+                // cost = U * (p_k - p_k')
+                // new dp[k] candidate = dp[k'] - U*(p_k - p_k') + money[k]
+                //                     = (dp[k'] + U*p_k') - U*p_k + money[k]
+                bestVal = max(bestVal, dp[k] + (long long)U * p);
+                // Wait, dp[k] includes money[k]. If we continue from k to k+1:
+                // we'd double-count money[k]. Need to subtract it.
+                // Actually no. dp[k] is the best profit ENDING at k.
+                // Going from k to k+1 means: dp[k+1] = dp[k] - cost(k->k+1) + money[k+1]
+                // dp[k] already includes money[k], which is correct.
+            }
+            // Let me redo cleanly:
+            bestVal = NEG_INF;
+            for(int k = i; k < j; k++){
+                int p = fairs[k].pos;
+                long long cand = NEG_INF;
+                if(bestVal > NEG_INF)
+                    cand = bestVal - (long long)U * p + fairs[k].money;
+                dp[k] = max(dp[k], cand);
+                bestVal = max(bestVal, dp[k] + (long long)U * p - fairs[k].money);
+                // dp[k] + U*p - money is what the "next" fair can use
+                // next fair k': dp[k'] = (dp[k] + U*p) - U*p' + money'
+                // but this assumes travel cost U*(p'-p). Since p' > p, correct.
+                // But dp[k] already includes money[k], and we subtract it... no.
+                // dp[k] is the profit from attending fairs up to k.
+                // To go from k to k': new profit = dp[k] - U*(p'-p) + money[k']
+                // bestVal should track max(dp[k] + U*p)
+                bestVal = max(bestVal, dp[k] + (long long)U * p);
+                // Then dp[k'] = bestVal - U*p' + money[k']
+                // Redo the loop:
+            }
+            // REDO properly:
+            bestVal = NEG_INF;
+            for(int k = i; k < j; k++){
+                int p = fairs[k].pos;
+                if(bestVal > NEG_INF){
+                    long long cand = bestVal - (long long)U * p + fairs[k].money;
+                    dp[k] = max(dp[k], cand);
+                }
+                bestVal = max(bestVal, dp[k] + (long long)U * p);
+            }
+        }
+
+        // Right to left: from larger position to smaller (going downstream, cost D per unit)
+        {
+            long long bestVal = NEG_INF;
+            for(int k = j - 1; k >= i; k--){
+                int p = fairs[k].pos;
+                if(bestVal > NEG_INF){
+                    long long cand = bestVal + (long long)D * p + fairs[k].money;
+                    dp[k] = max(dp[k], cand);
+                }
+                bestVal = max(bestVal, dp[k] - (long long)D * p);
+            }
+        }
+
+        // Need another left-to-right pass to propagate updates from right-to-left
+        {
+            long long bestVal = NEG_INF;
+            for(int k = i; k < j; k++){
+                int p = fairs[k].pos;
+                if(bestVal > NEG_INF){
+                    long long cand = bestVal - (long long)U * p + fairs[k].money;
+                    dp[k] = max(dp[k], cand);
+                }
+                bestVal = max(bestVal, dp[k] + (long long)U * p);
+            }
+        }
+
+        // Update segment trees with dp values from this time group
+        for(int k = i; k < j; k++){
+            int p = fairs[k].pos;
+            treeUp.update(p, dp[k] + (long long)U * p);
+            treeDown.update(p, dp[k] - (long long)D * p);
+        }
+
+        i = j;
+    }
+
+    // Answer: max over all fairs dp[k] - cost to return home
+    long long ans = 0; // can attend no fairs
+    for(int k = 0; k < M; k++){
+        int p = fairs[k].pos;
+        long long costHome;
+        if(p <= S) costHome = (long long)U * (S - p);
+        else costHome = (long long)D * (p - S);
+        ans = max(ans, dp[k] - costHome);
+    }
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

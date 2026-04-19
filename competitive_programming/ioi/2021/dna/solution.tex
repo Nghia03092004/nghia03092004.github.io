@@ -1,0 +1,164 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2021 -- DNA}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given two strings $a$ and $b$ of equal length over the alphabet $\{A, T, C\}$, answer queries: for a given substring range $[l, r]$, what is the minimum number of swaps to transform $a[l..r]$ into $b[l..r]$? If impossible, return $-1$.
+
+\section{Solution Approach}
+
+\subsection{Feasibility Check}
+The transformation is possible iff $a[l..r]$ and $b[l..r]$ have the same character frequencies. This is checked using prefix sums.
+
+\subsection{Counting Swaps}
+Consider positions where $a[i] \ne b[i]$ (mismatches). Group them by the pair $(a[i], b[i])$:
+\begin{itemize}
+  \item $\text{cnt}_{AC}$: positions where $a[i] = A, b[i] = C$
+  \item $\text{cnt}_{CA}$: positions where $a[i] = C, b[i] = A$
+  \item $\text{cnt}_{AT}$: positions where $a[i] = A, b[i] = T$
+  \item $\text{cnt}_{TA}$: positions where $a[i] = T, b[i] = A$
+  \item $\text{cnt}_{CT}$: positions where $a[i] = C, b[i] = T$
+  \item $\text{cnt}_{TC}$: positions where $a[i] = T, b[i] = C$
+\end{itemize}
+
+\textbf{2-cycles:} Pair $(A \to C)$ with $(C \to A)$: each such pair resolves with 1 swap. Similarly for $(A,T)$ with $(T,A)$ and $(C,T)$ with $(T,C)$.
+
+Number of 2-cycles: $\min(\text{cnt}_{AC}, \text{cnt}_{CA}) + \min(\text{cnt}_{AT}, \text{cnt}_{TA}) + \min(\text{cnt}_{CT}, \text{cnt}_{TC})$.
+
+\textbf{3-cycles:} After resolving 2-cycles, remaining mismatches form 3-cycles. A 3-cycle $(A \to C \to T \to A)$ or $(A \to T \to C \to A)$ requires 2 swaps.
+
+The remaining counts after 2-cycles must satisfy: $\text{cnt}_{AC} - \min(\text{cnt}_{AC}, \text{cnt}_{CA}) = \text{cnt}_{CT} - \min(\text{cnt}_{CT}, \text{cnt}_{TC}) = \text{cnt}_{TA} - \min(\text{cnt}_{TA}, \text{cnt}_{AT})$. Call this $r_1$.
+
+Similarly the other direction has remainder $r_2$. We need $r_1 = r_2 = r$ (some common value), and these contribute $2r$ swaps (or $r$ 3-cycles, each costing 2 swaps).
+
+\textbf{Formula:}
+\[\text{swaps} = \min(\text{cnt}_{AC}, \text{cnt}_{CA}) + \min(\text{cnt}_{AT}, \text{cnt}_{TA}) + \min(\text{cnt}_{CT}, \text{cnt}_{TC}) + 2r\]
+
+where $r = |\text{cnt}_{AC} - \min(\text{cnt}_{AC}, \text{cnt}_{CA})|$ (which equals the 3-cycle count).
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Prefix sums for each pair type
+int ps[6][200005]; // AC, CA, AT, TA, CT, TC
+int char_ps[3][200005]; // A, T, C counts in a and b
+int char_ps_b[3][200005];
+
+void init(string a, string b) {
+    int n = a.size();
+    auto idx = [](char c) -> int {
+        if (c == 'A') return 0;
+        if (c == 'T') return 1;
+        return 2; // C
+    };
+
+    memset(ps, 0, sizeof(ps));
+    memset(char_ps, 0, sizeof(char_ps));
+    memset(char_ps_b, 0, sizeof(char_ps_b));
+
+    for (int i = 0; i < n; i++) {
+        for (int k = 0; k < 6; k++) ps[k][i+1] = ps[k][i];
+        for (int k = 0; k < 3; k++) {
+            char_ps[k][i+1] = char_ps[k][i];
+            char_ps_b[k][i+1] = char_ps_b[k][i];
+        }
+
+        char_ps[idx(a[i])][i+1]++;
+        char_ps_b[idx(b[i])][i+1]++;
+
+        if (a[i] != b[i]) {
+            int ai = idx(a[i]), bi = idx(b[i]);
+            // Pair index: AC=0, CA=1, AT=2, TA=3, CT=4, TC=5
+            if (ai == 0 && bi == 2) ps[0][i+1]++;      // AC
+            else if (ai == 2 && bi == 0) ps[1][i+1]++;  // CA
+            else if (ai == 0 && bi == 1) ps[2][i+1]++;  // AT
+            else if (ai == 1 && bi == 0) ps[3][i+1]++;  // TA
+            else if (ai == 2 && bi == 1) ps[4][i+1]++;  // CT
+            else if (ai == 1 && bi == 2) ps[5][i+1]++;  // TC
+        }
+    }
+}
+
+int get_distance(int x, int y) {
+    // Check feasibility: same character counts in a[x..y] and b[x..y]
+    for (int k = 0; k < 3; k++)
+        if (char_ps[k][y+1] - char_ps[k][x] != char_ps_b[k][y+1] - char_ps_b[k][x])
+            return -1;
+
+    int ac = ps[0][y+1] - ps[0][x];
+    int ca = ps[1][y+1] - ps[1][x];
+    int at = ps[2][y+1] - ps[2][x];
+    int ta = ps[3][y+1] - ps[3][x];
+    int ct = ps[4][y+1] - ps[4][x];
+    int tc = ps[5][y+1] - ps[5][x];
+
+    // 2-cycles
+    int two_cycles = min(ac, ca) + min(at, ta) + min(ct, tc);
+
+    // Remaining after 2-cycles
+    int rem_ac = ac - min(ac, ca);
+    int rem_ca = ca - min(ac, ca);
+    int rem_at = at - min(at, ta);
+    int rem_ta = ta - min(at, ta);
+    int rem_ct = ct - min(ct, tc);
+    int rem_tc = tc - min(ct, tc);
+
+    // 3-cycles: ACT cycle (AC -> CT -> TA) and ATC cycle (AT -> TC -> CA)
+    // rem_ac = rem_ct = rem_ta (one direction)
+    // rem_at = rem_tc = rem_ca (other direction)
+    // Both must be equal for feasibility (which is guaranteed by char count check)
+
+    int three_cycles = rem_ac + rem_at; // rem_ac = rem_ct = rem_ta, rem_at = rem_tc = rem_ca
+
+    return two_cycles + 2 * three_cycles;
+}
+
+int main() {
+    string a, b;
+    cin >> a >> b;
+    init(a, b);
+    int q;
+    cin >> q;
+    while (q--) {
+        int x, y;
+        cin >> x >> y;
+        cout << get_distance(x, y) << "\n";
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Preprocessing:} $O(n)$ for prefix sums.
+  \item \textbf{Per query:} $O(1)$.
+  \item \textbf{Space:} $O(n)$.
+\end{itemize}
+
+\end{document}

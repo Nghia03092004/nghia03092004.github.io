@@ -1,0 +1,220 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\C. Fair Division}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+There are $n$ pirates in a circle. Every time a pirate receives some loot, they keep a fraction
+$f \in (0,1)$ and pass the remaining fraction $1-f$ to the next pirate. This continues forever.
+
+We must find a rational fraction $f = \frac{p}{q}$ such that the \emph{total} amount eventually assigned to
+each pirate is an integer. Among all valid fractions, we want the smallest denominator $q$, and among those
+the smallest numerator $p$.
+
+\section*{From Infinite Process to Integer Geometric Progression}
+
+Let
+\[
+    r = 1 - f.
+\]
+If the total loot is $m$, then pirate $i$ receives
+\[
+    m \cdot f \cdot r^i
+\]
+in the first round, then the same amount multiplied by $r^n$ in the next round, and so on. Therefore the
+total share of pirate $i$ is
+\[
+    x_i = m \cdot \frac{f r^i}{1-r^n}.
+\]
+
+So the pirates' final shares form a geometric progression:
+\[
+    x_{i+1} = r x_i.
+\]
+The problem is equivalent to asking for \emph{integer} values
+\[
+    x_0, x_1, \dots, x_{n-1}
+\]
+with common ratio $r \in (0,1)$ and total sum $m$.
+
+\section*{Lowest-Term Form}
+
+Write
+\[
+    r = \frac{a}{q}
+\]
+in lowest terms, where $1 \le a < q$ and $\gcd(a,q)=1$. Then every share has the form
+\[
+    x_i = y \cdot q^{n-1-i} a^i
+\]
+for some positive integer $y$. Indeed, the denominators force the first term to contain a factor
+$q^{n-1}$, and after that all terms are integral automatically.
+
+Summing the progression gives
+\[
+    m
+    = y \sum_{i=0}^{n-1} q^{n-1-i} a^i
+    = y \cdot D(q,a),
+\]
+where
+\[
+    D(q,a) = q^{n-1} + q^{n-2}a + \cdots + a^{n-1}.
+\]
+
+Therefore a fraction is valid exactly when
+\[
+    D(q,a) \mid m.
+\]
+
+Since
+\[
+    f = 1-r = \frac{q-a}{q},
+\]
+the output numerator is
+\[
+    p = q-a.
+\]
+Because $\gcd(a,q)=1$, we also have $\gcd(p,q)=1$, so this denominator is already minimal for that choice.
+
+\section*{Search Strategy}
+
+We search denominators $q=2,3,4,\dots$ in increasing order. For a fixed $q$, we try numerators
+$p=1,2,\dots,q-1$ in increasing order, which is exactly the required tie-break order.
+
+For one candidate:
+\begin{itemize}[leftmargin=*]
+    \item the remainder ratio is $a = q-p$;
+    \item the candidate works iff $\gcd(p,q)=1$ and $D(q,a)$ divides $m$.
+\end{itemize}
+
+The smallest possible value of $D(q,a)$ for this denominator happens when $a=1$, namely
+\[
+    1 + q + q^2 + \cdots + q^{n-1}.
+\]
+Once even this minimum exceeds $m$, no larger denominator can work and the search stops.
+
+\section*{Useful Bound}
+
+The absolute smallest divisor over \emph{all} valid fractions occurs at $q=2$ and $a=1$, which gives
+\[
+    2^n - 1.
+\]
+If $n \ge 60$, then
+\[
+    2^n - 1 > 10^{18} \ge m,
+\]
+so no solution exists at all. This removes the large-$n$ cases immediately.
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item If $n \ge 60$, output \texttt{impossible}.
+    \item For $q = 2,3,\dots$:
+    \begin{itemize}[leftmargin=*]
+        \item compute $D(q,1)$; if it already exceeds $m$, stop and output \texttt{impossible};
+        \item for each $p=1,2,\dots,q-1$:
+        \begin{itemize}[leftmargin=*]
+            \item skip it if $\gcd(p,q) \ne 1$;
+            \item let $a=q-p$;
+            \item compute $D(q,a)$ with overflow capping at $m+1$;
+            \item if $D(q,a)$ divides $m$, output $p$ and $q$.
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+
+To evaluate
+\[
+    D(q,a) = q^{n-1} + q^{n-2}a + \cdots + a^{n-1},
+\]
+we use the recurrence
+\[
+    S_1 = 1, \qquad S_{k+1} = qS_k + a^k.
+\]
+This avoids separate exponentiation.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the required fraction whenever one exists.
+
+\paragraph{Lemma 1.}
+If the final shares are integers, then they form an integer geometric progression with ratio $r=1-f$.
+
+\paragraph{Proof.}
+Pirate $i$ receives a fraction $f$ of the amount arriving at their position in every round. Between pirate
+$i$ and pirate $i+1$, the remaining loot is multiplied by $r=1-f$. Therefore every contribution to pirate
+$i+1$ is exactly $r$ times the corresponding contribution to pirate $i$, and summing over all rounds gives
+$x_{i+1}=r x_i$. \qed
+
+\paragraph{Lemma 2.}
+Let $r=\frac{a}{q}$ be in lowest terms. There exists a valid division if and only if
+$D(q,a)$ divides $m$.
+
+\paragraph{Proof.}
+Suppose a valid division exists. By Lemma 1, the shares are an integer geometric progression with ratio
+$\frac{a}{q}$. Because $\gcd(a,q)=1$, integrality forces the first term to be a multiple of $q^{n-1}$, so
+the progression has the form
+\[
+    y q^{n-1},\; y q^{n-2}a,\; \dots,\; y a^{n-1}
+\]
+for some positive integer $y$. Summing yields $m = y D(q,a)$, so $D(q,a)\mid m$.
+
+Conversely, if $D(q,a)\mid m$, let $y = \frac{m}{D(q,a)}$ and define
+\[
+    x_i = y q^{n-1-i} a^i.
+\]
+These are integers, their ratio is $\frac{a}{q}$, and their sum is exactly $m$. Taking
+$f = 1-\frac{a}{q} = \frac{q-a}{q}$ produces exactly those total shares. \qed
+
+\paragraph{Lemma 3.}
+For a fixed denominator $q$, checking $p=1,2,\dots,q-1$ in increasing order finds the correct tie-break
+winner for that denominator.
+
+\paragraph{Proof.}
+The output fraction is $f=\frac{p}{q}$, and the statement asks for the smallest numerator among equal
+denominators. The loop checks these numerators in exactly that order and stops at the first valid one. \qed
+
+\paragraph{Lemma 4.}
+If $D(q,1) > m$, then no denominator larger than $q$ can be valid.
+
+\paragraph{Proof.}
+For fixed $q$, the smallest possible remainder numerator is $a=1$, which minimizes $D(q,a)$. Also
+$D(q,1)$ increases with $q$. Therefore if the minimum value for this denominator already exceeds $m$, then
+every candidate with denominator at least $q$ has divisor larger than $m$ and cannot divide $m$. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs \texttt{impossible} exactly when no suitable fraction exists; otherwise it outputs the
+valid fraction with smallest denominator, and among those, smallest numerator.
+
+\paragraph{Proof.}
+By Lemma 2, a candidate fraction is valid exactly when the algorithm's divisibility test succeeds. By
+Lemma 4, once the outer loop stops, no unseen denominator can work. Since denominators are tested in
+increasing order and, for each denominator, numerators are tested in increasing order, the first valid
+fraction found is exactly the one required by the problem. If no candidate is found before the stopping
+condition, then no valid fraction exists. \qed
+
+\section*{Complexity Analysis}
+
+If $n \ge 60$, the answer is immediate.
+
+Otherwise, every candidate evaluation takes $O(n)$ time, and the outer search stops quickly because
+$D(q,1)$ grows as a degree-$(n-1)$ polynomial in $q$. The memory usage is $O(1)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The recurrence for $D(q,a)$ is evaluated with \texttt{\_\_int128} and capped at $m+1$ to avoid
+    overflow.
+    \item Because $\gcd(q-a,q)=\gcd(a,q)$, checking $\gcd(p,q)=1$ is enough.
+\end{itemize}
+
+\end{document}

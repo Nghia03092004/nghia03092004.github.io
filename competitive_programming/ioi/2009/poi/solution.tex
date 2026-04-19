@@ -1,0 +1,94 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2009 -- POI}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+$N$ contestants solve $T$ tasks. The score for a task equals the number of contestants who did \emph{not} solve it. Each contestant's total score is the sum of scores of tasks they solved. Rank contestants by score (descending), breaking ties by number of tasks solved (descending), then by contestant number (ascending). Output the score and rank of contestant~$P$.
+
+\section{Solution}
+\begin{enumerate}
+    \item Compute $\text{solvers}[j]$ for each task $j$.
+    \item For each contestant $i$: $\text{score}[i] = \sum_{j:\text{solved}} (N - \text{solvers}[j])$, $\text{tasks}[i] = $ number of tasks solved.
+    \item Sort by the given criteria and find $P$'s rank.
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(NT + N \log N)$.
+    \item \textbf{Space:} $O(NT)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, T, P;
+    cin >> N >> T >> P;
+    P--;
+
+    vector<vector<int>> solved(N, vector<int>(T));
+    vector<int> solvers(T, 0);
+
+    for(int i = 0; i < N; i++)
+        for(int j = 0; j < T; j++){
+            cin >> solved[i][j];
+            solvers[j] += solved[i][j];
+        }
+
+    vector<int> score(N, 0), taskCount(N, 0);
+    for(int i = 0; i < N; i++)
+        for(int j = 0; j < T; j++)
+            if(solved[i][j]){
+                score[i] += N - solvers[j];
+                taskCount[i]++;
+            }
+
+    vector<int> order(N);
+    iota(order.begin(), order.end(), 0);
+    sort(order.begin(), order.end(), [&](int a, int b){
+        if(score[a] != score[b]) return score[a] > score[b];
+        if(taskCount[a] != taskCount[b]) return taskCount[a] > taskCount[b];
+        return a < b;
+    });
+
+    int rank = 0;
+    for(int i = 0; i < N; i++)
+        if(order[i] == P){ rank = i + 1; break; }
+
+    cout << score[P] << " " << rank << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

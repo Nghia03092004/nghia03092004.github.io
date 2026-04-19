@@ -1,0 +1,243 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1990 -- Problem 2: Map Labelling}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given $n$ points on a 2D map, each requiring a rectangular label of specified
+dimensions, place each label adjacent to its point (in one of 2 candidate
+positions) such that no two labels overlap. Determine whether a valid
+labelling exists, and if so, output one.
+
+\section{Solution}
+
+\subsection{2-SAT Formulation}
+
+When each point has exactly two candidate positions, this is a classic
+\textbf{2-SAT} problem:
+
+\begin{itemize}
+  \item For each point $i$, define a boolean variable $x_i$:
+    $x_i = \texttt{true}$ means position~0, $x_i = \texttt{false}$ means
+    position~1.
+  \item For each pair $(i, j)$ with $i < j$, check all 4 combinations
+    of positions. If positions $(p_i, p_j)$ cause an overlap, add the
+    clause $(\neg x_i^{p_i} \lor \neg x_j^{p_j})$, which forbids both
+    choices simultaneously.
+\end{itemize}
+
+\subsection{Solving 2-SAT via Kosaraju's Algorithm}
+
+\begin{enumerate}
+  \item \textbf{Build the implication graph.} For each clause
+    $(\ell_1 \lor \ell_2)$, add directed edges $\neg\ell_1 \to \ell_2$
+    and $\neg\ell_2 \to \ell_1$.
+  \item \textbf{First DFS pass} on the original graph to compute a
+    topological finishing order.
+  \item \textbf{Second DFS pass} on the reverse graph, processing vertices
+    in reverse finishing order, to identify strongly connected components
+    (SCCs).
+  \item \textbf{Check satisfiability:} if $x_i$ and $\neg x_i$ belong to
+    the same SCC for any~$i$, the instance is unsatisfiable.
+  \item \textbf{Extract assignment:} set $x_i = \texttt{true}$ if $x_i$'s
+    SCC has a higher topological index than $\neg x_i$'s SCC.
+\end{enumerate}
+
+\begin{theorem}
+A 2-SAT formula is satisfiable if and only if no variable and its negation
+belong to the same SCC in the implication graph. When satisfiable, the SCC
+ordering yields a valid assignment.
+\end{theorem}
+
+\subsection{Overlap Detection}
+
+Two axis-aligned rectangles with corners $(lx_i, ly_i)$ and
+$(lx_i + w_i, ly_i + h_i)$ overlap if and only if:
+\[
+  lx_i < lx_j + w_j \;\land\; lx_j < lx_i + w_i
+  \;\land\; ly_i < ly_j + h_j \;\land\; ly_j < ly_i + h_i.
+\]
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(n^2)$ for generating clauses (checking all pairs),
+    plus $O(n + m)$ for the two DFS passes where $m = O(n^2)$ is the number
+    of implication edges. Total: $O(n^2)$.
+  \item \textbf{Space:} $O(n^2)$ for the implication graph.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+const int MAXN = 2005;
+
+struct TwoSat {
+    int n;
+    vector<int> adj[2 * MAXN], radj[2 * MAXN];
+    int comp[2 * MAXN];
+    bool visited[2 * MAXN];
+    vector<int> topo;
+
+    void init(int _n) {
+        n = _n;
+        for (int i = 0; i < 2 * n; i++) {
+            adj[i].clear();
+            radj[i].clear();
+        }
+    }
+
+    // Add clause (a OR b). Literal for variable i:
+    // true = 2*i, false = 2*i+1.
+    void addClause(int a, int b) {
+        adj[a ^ 1].push_back(b);
+        adj[b ^ 1].push_back(a);
+        radj[b].push_back(a ^ 1);
+        radj[a].push_back(b ^ 1);
+    }
+
+    void dfs1(int u) {
+        visited[u] = true;
+        for (int v : adj[u])
+            if (!visited[v]) dfs1(v);
+        topo.push_back(u);
+    }
+
+    void dfs2(int u, int c) {
+        comp[u] = c;
+        for (int v : radj[u])
+            if (comp[v] == -1) dfs2(v, c);
+    }
+
+    bool solve(vector<bool>& result) {
+        fill(visited, visited + 2 * n, false);
+        topo.clear();
+        for (int i = 0; i < 2 * n; i++)
+            if (!visited[i]) dfs1(i);
+        fill(comp, comp + 2 * n, -1);
+        int c = 0;
+        for (int i = 2 * n - 1; i >= 0; i--) {
+            int u = topo[i];
+            if (comp[u] == -1) dfs2(u, c++);
+        }
+        result.resize(n);
+        for (int i = 0; i < n; i++) {
+            if (comp[2 * i] == comp[2 * i + 1])
+                return false;
+            result[i] = (comp[2 * i] > comp[2 * i + 1]);
+        }
+        return true;
+    }
+};
+
+struct Point {
+    double x, y;
+    double w, h;
+    // Position 0: label to the right
+    // Position 1: label to the left
+    double lx(int pos) const {
+        return pos == 0 ? x : x - w;
+    }
+    double ly(int /*pos*/) const {
+        return y;
+    }
+};
+
+bool overlaps(const Point& a, int pa, const Point& b, int pb) {
+    double ax = a.lx(pa), ay = a.ly(pa);
+    double bx = b.lx(pb), by = b.ly(pb);
+    return ax < bx + b.w && bx < ax + a.w &&
+           ay < by + b.h && by < ay + a.h;
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<Point> pts(n);
+    for (int i = 0; i < n; i++)
+        cin >> pts[i].x >> pts[i].y >> pts[i].w >> pts[i].h;
+
+    TwoSat sat;
+    sat.init(n);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            for (int pi = 0; pi < 2; pi++) {
+                for (int pj = 0; pj < 2; pj++) {
+                    if (overlaps(pts[i], pi, pts[j], pj)) {
+                        // Forbid (x_i = pi) AND (x_j = pj).
+                        // Literal for "x_i = pi": 2*i if pi=0,
+                        //                         2*i+1 if pi=1.
+                        // Negation: 2*i+1 if pi=0, 2*i if pi=1.
+                        int li = (pi == 0) ? (2*i+1) : (2*i);
+                        int lj = (pj == 0) ? (2*j+1) : (2*j);
+                        sat.addClause(li, lj);
+                    }
+                }
+            }
+        }
+    }
+
+    vector<bool> result;
+    if (sat.solve(result)) {
+        cout << "YES" << endl;
+        for (int i = 0; i < n; i++) {
+            int pos = result[i] ? 0 : 1;
+            cout << "Point " << i+1 << ": position " << pos
+                 << " (" << pts[i].lx(pos) << ", "
+                 << pts[i].ly(pos) << ")" << endl;
+        }
+    } else {
+        cout << "NO" << endl;
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+
+\begin{itemize}
+  \item The 2-SAT approach handles the case of exactly 2 candidate positions
+    per point. For 4 positions per point, the problem becomes NP-hard in
+    general.
+  \item Kosaraju's algorithm requires two full DFS passes, which is simple
+    to implement. Tarjan's single-pass SCC algorithm is an alternative.
+  \item For floating-point coordinates, exact overlap detection may require
+    care with precision. Using integer coordinates and strict inequalities
+    avoids this issue in most contest settings.
+\end{itemize}
+
+\end{document}

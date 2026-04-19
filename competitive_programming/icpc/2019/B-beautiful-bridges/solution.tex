@@ -1,0 +1,192 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\B. Beautiful Bridges}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We must build pillars at a subsequence of the given key points, always including the first and last points. Every pillar reaches height $h$, so a pillar placed at $(x_i, y_i)$ costs $\alpha (h - y_i)$.
+
+If consecutive chosen pillars are $i < j$, then they are connected by a semicircular arch whose diameter is the horizontal segment from $(x_i, h)$ to $(x_j, h)$. Its radius is
+\[
+r = \frac{x_j - x_i}{2},
+\]
+and the arch is valid only if the entire ground profile between $x_i$ and $x_j$ stays on or below that semicircle.
+
+The cost of that arch is $\beta (x_j - x_i)^2$. We must find the minimum total cost or report \texttt{impossible}.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Once we choose the pillar positions, the total cost is just the sum of independent pillar costs and arch costs. Therefore the problem is a shortest-path / dynamic-programming problem on the key points.
+    \item The hard part is deciding whether an arch from $i$ to $j$ is valid. Let $r = (x_j - x_i)/2$ and let $m = (x_i + x_j)/2$ be the center's $x$-coordinate. The arch is the union of:
+    \begin{itemize}[leftmargin=*]
+        \item the left half: the lower semicircle from $x_i$ to $m$,
+        \item the right half: the lower semicircle from $m$ to $x_j$.
+    \end{itemize}
+    \item Therefore an arch $i \to j$ is valid if and only if:
+    \begin{itemize}[leftmargin=*]
+        \item the left half of radius $r$ grown from pillar $i$ does not hit the ground, and
+        \item the symmetric right half of radius $r$ grown from pillar $j$ does not hit the ground.
+    \end{itemize}
+    \item So it is enough to precompute, for every point $i$, the largest radius $L_i$ for which the left half grown from $i$ stays valid. The analogous values $R_i$ for right halves are obtained by reversing the terrain and reusing the same computation.
+\end{itemize}
+
+\section*{Geometry for One Left Half}
+
+Fix a pillar at point $i$, and measure horizontal distance to the right by
+\[
+t = x - x_i.
+\]
+For a ground point at height $y(x)$, define its clearance below the bridge deck by
+\[
+c(t) = h - y(x).
+\]
+
+If we grow a left half with radius $r$, then its circle center is at $(x_i + r, h)$, so the ground point lies on or outside the circle exactly when
+\[
+(t-r)^2 + c(t)^2 \ge r^2.
+\]
+If $r \ge t$, this simplifies to
+\[
+r \le \frac{t^2 + c(t)^2}{2t}.
+\]
+
+This gives two cases for one ground point:
+\begin{itemize}[leftmargin=*]
+    \item If $c(t) < t$, then when the radius reaches $t$ the midpoint level is already below the ground there, so expansion cannot pass that point.
+    \item If $c(t) \ge t$, then the first bad radius is the tangent radius
+    \[
+    \frac{t^2 + c(t)^2}{2t}.
+    \]
+\end{itemize}
+
+Now consider one terrain segment. On that segment, $y(x)$ is linear, so $c(t)$ is also linear:
+\[
+c(t) = p - at
+\]
+for constants $a, p$. On the region where $c(t) \ge t$, the tangent-radius function becomes
+\[
+f(t) = \frac{t^2 + (p-at)^2}{2t}
+= \frac{(1+a^2)t^2 - 2apt + p^2}{2t}.
+\]
+This is a convex function of $t > 0$, and its minimum is attained at
+\[
+t^\star = \frac{p}{\sqrt{1+a^2}}.
+\]
+Therefore the first radius at which a fixed segment can block the left half is computable in $O(1)$:
+\begin{itemize}[leftmargin=*]
+    \item on the part where $c(t) \ge t$, minimize $f(t)$ by clamping $t^\star$ to the segment interval;
+    \item on the part where $c(t) < t$, the first bad radius is simply the leftmost $t$ in that part.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For each key point $i$, scan all terrain segments to its right. For each segment, compute in $O(1)$ the first radius at which that segment blocks the left half grown from $i$. Let $L_i$ be the minimum of those values.
+    \item Reverse the ground profile (replace $(x_1, \dots, x_n)$ by $(-x_n, \dots, -x_1)$ and reverse the heights) and run the same routine again. Mapping the answers back gives $R_i$, the largest valid radius for a right half grown from point $i$.
+    \item Dynamic programming:
+    \[
+    dp[j] = \text{minimum cost of a valid bridge whose last pillar is } j.
+    \]
+    Initialize
+    \[
+    dp[1] = \alpha (h - y_1).
+    \]
+    For every $i < j$, let $r = (x_j - x_i)/2$. The arch $i \to j$ is valid exactly when $r \le L_i$ and $r \le R_j$. In that case,
+    \[
+    dp[j] = \min\left(dp[j],\; dp[i] + \alpha (h - y_j) + \beta (x_j - x_i)^2\right).
+    \]
+    \item Output $dp[n]$ if it is finite; otherwise output \texttt{impossible}.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs the minimum possible bridge cost whenever a valid bridge exists, and outputs \texttt{impossible} otherwise.
+
+\paragraph{Lemma 1.}
+Fix a pillar at point $i$ and a ground point at horizontal distance $t > 0$ to its right with clearance $c$. A left half of radius $r$ grown from $i$ avoids that ground point if and only if either $r < t$, or $r \ge t$ and
+\[
+r \le \frac{t^2 + c^2}{2t}.
+\]
+
+\paragraph{Proof.}
+If $r < t$, then the point lies to the right of the half-arch and is irrelevant. Otherwise the point must lie on or outside the circle centered at $(x_i + r, h)$ with radius $r$, which is exactly
+\[
+(t-r)^2 + c^2 \ge r^2.
+\]
+Rearranging gives
+\[
+r \le \frac{t^2 + c^2}{2t}.
+\]
+This is equivalent to the claim. \qed
+
+\paragraph{Lemma 2.}
+For a fixed point $i$ and a fixed terrain segment to its right, the first radius at which that segment intersects the left half grown from $i$ can be computed in $O(1)$.
+
+\paragraph{Proof.}
+On that segment we have $c(t) = p - at$. By Lemma 1, on the part where $c(t) < t$ the segment becomes impossible as soon as the half reaches the first such $t$, so the blocking radius there is just the leftmost point of that subinterval.
+
+On the remaining part, where $c(t) \ge t$, Lemma 1 says that the critical value is
+\[
+f(t) = \frac{t^2 + (p-at)^2}{2t}.
+\]
+This function is convex for $t > 0$, so its minimum on the segment interval is attained either at the stationary point $t^\star = p / \sqrt{1+a^2}$ or at an endpoint after clamping $t^\star$ to the interval. Thus the segment's first blocking radius is found in constant time. \qed
+
+\paragraph{Lemma 3.}
+For every point $i$, the value $L_i$ computed by the algorithm is exactly the largest radius for which the left half grown from $i$ is valid. Similarly, $R_i$ is exactly the largest valid radius for the right half grown from $i$.
+
+\paragraph{Proof.}
+By Lemma 2, for each segment we compute the first radius at which that segment blocks the left half. The left half is valid precisely until the earliest blocking event among all segments to the right, so taking the minimum over all segments gives exactly the largest valid radius $L_i$.
+
+The computation for right halves is the same problem after reversing the terrain horizontally, so the mapped values are exactly the desired $R_i$. \qed
+
+\paragraph{Lemma 4.}
+For $i < j$, the arch connecting pillars $i$ and $j$ is valid if and only if
+\[
+\frac{x_j - x_i}{2} \le L_i
+\quad\text{and}\quad
+\frac{x_j - x_i}{2} \le R_j.
+\]
+
+\paragraph{Proof.}
+The arch is the union of its left half grown from $i$ and its right half grown from $j$, both with the same radius $r = (x_j - x_i)/2$. The full arch is valid exactly when both halves are valid. By Lemma 3, this is equivalent to $r \le L_i$ and $r \le R_j$. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the minimum cost of any valid bridge, and outputs \texttt{impossible} if no valid bridge exists.
+
+\paragraph{Proof.}
+Every valid bridge corresponds to a sequence of chosen pillar indices
+\[
+1 = p_1 < p_2 < \dots < p_k = n,
+\]
+and its total cost is exactly
+\[
+\sum_{t=1}^{k} \alpha (h - y_{p_t})
+\;+\;
+\sum_{t=1}^{k-1} \beta (x_{p_{t+1}} - x_{p_t})^2.
+\]
+By Lemma 4, an arc $p_t \to p_{t+1}$ is valid exactly when the DP transition allows it. Therefore the DP considers exactly all valid bridges and assigns each of them its true cost. Since each state takes the minimum over all valid previous pillars, $dp[j]$ is the minimum cost of a valid bridge ending at $j$. In particular, $dp[n]$ is the minimum cost of a valid full bridge, and if no such bridge exists then $dp[n]$ remains infinite, so the algorithm correctly outputs \texttt{impossible}. \qed
+
+\section*{Complexity Analysis}
+
+Computing all $L_i$ values takes $O(n^2)$ time because for each starting point we scan all segments to its right and handle each segment in $O(1)$. The same holds for all $R_i$ values. The DP also takes $O(n^2)$ time. Therefore the total running time is $O(n^2)$, and the memory usage is $O(n)$ besides the input arrays.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The code stores, together with each geometric limit, whether touching the ground at that exact radius is allowed. Tangency is allowed, but the case $c(t) < t$ blocks the expansion strictly before the half reaches that point.
+    \item The right-half limits are computed by reversing the terrain and reusing the exact same routine as for left halves.
+    \item All final costs fit in 64-bit signed integers, but geometric computations are done in floating point.
+\end{itemize}
+
+\end{document}

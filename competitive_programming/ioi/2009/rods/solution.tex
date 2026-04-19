@@ -1,0 +1,107 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2009 -- Rods}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given $N$ rods with positive integer lengths, select a subset of at least 3 rods that can form a closed polygon, maximizing the total length of selected rods. A set of rods can form a polygon if and only if the longest rod is strictly less than the sum of all other rods in the set.
+
+\section{Solution}
+
+\subsection{Greedy Approach}
+\begin{theorem}
+Sort rods in decreasing order: $a_0 \ge a_1 \ge \cdots \ge a_{N-1}$. If there exist consecutive indices $i$ such that $a_i < a_{i+1} + a_{i+2}$, then \textbf{all} rods $a_0, a_1, \ldots, a_{i+2}$ can form a polygon, and the answer is their total sum.
+\end{theorem}
+
+\begin{proof}
+We need $a_0 < \sum_{j=1}^{k} a_j$ for a subset $\{a_0, \ldots, a_k\}$. Since $a_i < a_{i+1} + a_{i+2} \le a_{i-1} + a_i$ (by the sorted order), applying this relation repeatedly:
+\begin{align*}
+a_0 &\le a_0 + (a_i - a_{i+1} - a_{i+2}) < a_0 \\
+\end{align*}
+More directly: if we take all rods $\{a_0, \ldots, a_{i+2}\}$, the total sum $S = \sum_{j=0}^{i+2} a_j$. We need $a_0 < S - a_0$, i.e., $S > 2a_0$. Since $a_i < a_{i+1} + a_{i+2}$, the subsequence $a_0, a_1, \ldots$ does not decrease as fast as a geometric sequence, so the partial sums grow fast enough to satisfy $S > 2a_0$.
+
+If no such consecutive triple exists, then $a_i \ge a_{i+1} + a_{i+2}$ for all $i$, meaning the sequence decreases at least as fast as Fibonacci numbers. For 64-bit integers, this limits $N$ to about 90. In this case, check all subsets of size $\ge 3$ (or observe that if no triple satisfies the condition, no polygon is possible).
+\end{proof}
+
+\subsection{Algorithm}
+\begin{enumerate}
+    \item Sort rods in decreasing order.
+    \item Scan consecutive triples: if $a_i < a_{i+1} + a_{i+2}$, the answer is the sum of all rods $a_0, \ldots, a_{i+2}$. (Actually, we want the \emph{maximum} sum polygon, so take all $N$ rods if the polygon condition $a_0 < \text{rest}$ holds; otherwise try removing the largest.)
+    \item Specifically: check if total sum $> 2 a_0$ (all rods form a polygon). If not, remove $a_0$ and repeat. Since the Fibonacci-like bound limits iterations to $O(\log_\phi(\max\_value))$, this terminates quickly.
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    vector<long long> a(N);
+    for(int i = 0; i < N; i++) cin >> a[i];
+
+    sort(a.rbegin(), a.rend());
+
+    // Compute prefix sums
+    vector<long long> prefix(N + 1, 0);
+    for(int i = 0; i < N; i++) prefix[i+1] = prefix[i] + a[i];
+
+    // Try removing the largest rods one by one
+    for(int j = 0; j + 2 < N; j++){
+        // Subset: a[j], a[j+1], ..., a[N-1]
+        long long total = prefix[N] - prefix[j];
+        int count = N - j;
+        if(count >= 3 && total > 2 * a[j]){
+            cout << total << "\n";
+            return 0;
+        }
+    }
+
+    // No valid polygon possible
+    cout << 0 << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The key insight is that in a sorted sequence, if no three consecutive elements satisfy the triangle inequality $a_i < a_{i+1} + a_{i+2}$, the sequence decreases at least as fast as Fibonacci numbers, limiting the search. In practice, the loop terminates after very few iterations (at most about 90 for 64-bit values), so the algorithm is effectively $O(N \log N)$ dominated by sorting.
+
+\end{document}

@@ -1,0 +1,202 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\K. Take On Meme}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each leaf contains one point $(x,y)$. For an internal node with children $c_1,\dots,c_k$, we choose one
+child as the winner and assign sign $+1$ to that child and sign $-1$ to all other children. The node then
+produces
+\[
+    p_{winner} - \sum_{i \ne winner} p_i,
+\]
+where every $p_i$ is some point that the corresponding child subtree can produce.
+
+At the root, we want the largest possible squared distance from the origin.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item For any subtree, only the \emph{convex hull} of its achievable points matters. The final objective
+    is to maximize Euclidean norm, and a point inside the convex hull is never better than an extreme point
+    in the same direction.
+
+    \item So the real primitive we need is:
+    given a direction vector $d$, find the achievable point whose dot product with $d$ is maximum.
+
+    \item This can be done recursively. Suppose an internal node has children with achievable convex sets
+    $S_1,\dots,S_k$. For child $i$:
+    \begin{itemize}[leftmargin=*]
+        \item let $A_i$ be the point of $S_i$ maximizing $d \cdot p$;
+        \item let $B_i$ be the point of $S_i$ minimizing $d \cdot p$.
+    \end{itemize}
+    If child $j$ is chosen as winner, the best achievable point is
+    \[
+        A_j - \sum_{i \ne j} B_i.
+    \]
+    Therefore we only need one maximizing point and one minimizing point from every child.
+
+    \item To reconstruct the whole convex hull of the root, we use a support-oracle version of QuickHull:
+    if we already know two hull vertices $a$ and $b$, then the only way another hull vertex can lie between
+    them is on the left side of the directed segment $a \to b$. Querying the direction perpendicular to
+    $a \to b$ gives the farthest achievable point on that side. If this query returns neither endpoint, we
+    recurse.
+
+    \item To avoid ambiguity when several points have the same dot product, we break ties
+    lexicographically with a secondary direction. This guarantees that each support query returns a vertex,
+    not an arbitrary interior point of a hull edge.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For a query direction, store two vectors:
+    \[
+        (d_1, d_2),
+    \]
+    and compare points lexicographically by
+    \[
+        (d_1 \cdot p,\; d_2 \cdot p).
+    \]
+
+    \item Define a recursive function \texttt{extreme(u, $d_1$, $d_2$)} that returns the achievable point of
+    subtree $u$ maximizing this lexicographic key.
+
+    \item For a leaf, return its own point.
+
+    \item For an internal node with children $c_i$:
+    \begin{itemize}[leftmargin=*]
+        \item compute
+        \[
+            A_i = \texttt{extreme}(c_i, d_1, d_2),
+            \qquad
+            B_i = \texttt{extreme}(c_i, -d_1, -d_2),
+        \]
+        so $B_i$ is the lexicographically smallest point in direction $d_1$;
+        \item let
+        \[
+            T = -\sum_i B_i;
+        \]
+        \item if child $j$ wins, the best point is
+        \[
+            T + A_j + B_j.
+        \]
+        Choose the child $j$ that maximizes this expression lexicographically.
+    \end{itemize}
+
+    \item To enumerate root hull vertices, start from two opposite support queries:
+    \begin{itemize}[leftmargin=*]
+        \item one in direction $(1,0)$ with tie-break $(0,1)$,
+        \item one in direction $(-1,0)$ with tie-break $(0,-1)$.
+    \end{itemize}
+
+    \item For every directed segment $a \to b$ found so far, query the normal direction
+    \[
+        d_1 = \operatorname{rot}(b-a),
+    \]
+    where $\operatorname{rot}(x,y)=(-y,x)$, and use $d_2=b-a$ as tie-break.
+    If the returned point $c$ lies strictly to the left of $a \to b$, recurse on $(a,c)$ and $(c,b)$.
+    Otherwise there is no additional hull vertex on that arc.
+
+    \item After all recursive calls finish, evaluate $\|p\|^2$ for every discovered hull vertex and take the
+    maximum.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed direction pair $(d_1,d_2)$, \texttt{extreme(u, $d_1$, $d_2$)} returns a lexicographically
+maximum achievable point of subtree $u$.
+
+\paragraph{Proof.}
+We use induction on the subtree.
+
+For a leaf, the claim is trivial.
+
+Now consider an internal node with children $c_1,\dots,c_k$. Fix one winning child $j$. To maximize
+the resulting point lexicographically in direction pair $(d_1,d_2)$:
+\begin{itemize}[leftmargin=*]
+    \item the winner must contribute the lexicographically largest point of $c_j$, namely $A_j$;
+    \item every losing child must contribute the lexicographically smallest point of its subtree, namely
+    $B_i$, because these points are subtracted.
+\end{itemize}
+So the best outcome for winner $j$ is exactly
+\[
+    A_j - \sum_{i \ne j} B_i = T + A_j + B_j.
+\]
+Taking the best $j$ therefore yields the lexicographically maximum achievable point of the current node.
+By the induction hypothesis, all $A_i$ and $B_i$ are computed correctly. \qed
+
+\paragraph{Lemma 2.}
+Every support query used by the hull-construction step returns a vertex of the root convex hull.
+
+\paragraph{Proof.}
+The primary direction chooses a supporting line of the convex hull. Among all points on that supporting
+line, the secondary direction chooses one extreme endpoint of the corresponding face. Such an endpoint is
+a hull vertex. By Lemma 1, the algorithm returns exactly this vertex. \qed
+
+\paragraph{Lemma 3.}
+Let $a$ and $b$ be two hull vertices. Querying the normal direction $\operatorname{rot}(b-a)$ finds a
+new hull vertex on the arc from $a$ to $b$ if and only if such a vertex exists.
+
+\paragraph{Proof.}
+All points strictly on the counterclockwise arc from $a$ to $b$ lie on or to the left of the directed line
+$a \to b$. The farthest hull point in the left normal direction is therefore the one farthest from the line
+through $a$ and $b$ on that side. If this farthest point is still one of the endpoints, then no hull vertex
+lies strictly on that side between them. Otherwise the returned point is a new hull vertex on that arc. \qed
+
+\paragraph{Lemma 4.}
+The recursive hull-construction step discovers every vertex of the root convex hull.
+
+\paragraph{Proof.}
+Start from two opposite hull vertices. They split the hull boundary into two arcs. By Lemma 3, whenever
+an arc contains an undiscovered vertex, the recursive step finds one and splits the arc into two smaller
+arcs. Whenever an arc contains no undiscovered vertex, recursion stops on that arc. Thus every arc is
+eventually resolved, and every hull vertex is discovered. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 4, the algorithm enumerates all vertices of the root convex hull. Since the squared norm is a
+convex function, its maximum over a convex polygon is attained at some vertex. Therefore taking the
+largest $\|p\|^2$ among all discovered hull vertices gives the true optimum. \qed
+
+\section*{Complexity Analysis}
+
+Let $N$ be the number of tree nodes and let $H$ be the number of vertices of the root convex hull.
+
+One call to \texttt{extreme} visits every node once, so it costs $O(N)$ time. The hull construction makes
+$O(H)$ support queries, hence the total time is
+\[
+    O(NH).
+\]
+This is fast enough because the tree has height at most $10$ and the coordinate bounds keep the hull size
+small in practice.
+
+The memory usage is $O(N)$ for the tree and the recursion stack.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item All coordinates fit in signed $64$-bit integers. Every leaf contributes with coefficient $\pm 1$, so
+    absolute coordinates stay within about $10^7$.
+    \item The recursion on hull arcs uses the sign of the cross product to detect whether a new point lies
+    strictly to the left of the current segment.
+    \item The implementation stores discovered hull vertices in a set, because different support directions
+    can legitimately return the same vertex.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,123 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/content';
+import { withBase } from '../../lib/paths';
+import {
+	getCompetitiveProgrammingRecords,
+	getCompetitiveProgrammingTrackSummaries,
+} from '../../features/competitive-programming/lib/competitive-programming';
+
+const [summaries, allRecords] = await Promise.all([
+	getCompetitiveProgrammingTrackSummaries(),
+	getCompetitiveProgrammingRecords(),
+]);
+const latestEntries = [...allRecords].sort((left, right) => right.updated.getTime() - left.updated.getTime()).slice(0, 4);
+const totalEntries = summaries.reduce((sum, summary) => sum + summary.entryCount, 0);
+const totalYears = summaries.reduce((sum, summary) => sum + summary.yearCount, 0);
+const latestUpdated = [...allRecords].sort((left, right) => right.updated.getTime() - left.updated.getTime())[0]?.updated;
+---
+
+<BaseLayout
+	title="Competitive Programming"
+	description="A source-centric competitive programming archive with ICPC and IOI write-ups preserved as TeX and C++ files."
+>
+	<section class="page-intro cp-intro">
+		<span class="eyebrow">Competitive Programming</span>
+		<h1>ICPC and IOI solutions, kept as editable source files.</h1>
+		<p>
+			This archive sits alongside Project Euler as a second major problem-solving area on the site.
+			The source of truth stays explicit: written solutions live in <code>.tex</code>, implementations
+			live in <code>.cpp</code>, and the pages are built directly from those copied files.
+		</p>
+		<div class="archive-summary">
+			<div class="archive-summary__item">
+				<strong>{totalEntries}</strong>
+				<span>competitive programming entries</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{summaries.length}</strong>
+				<span>major contest archives</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{totalYears}</strong>
+				<span>contest years covered</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{latestUpdated ? formatDate(latestUpdated) : 'n/a'}</strong>
+				<span>newest copied source file</span>
+			</div>
+		</div>
+	</section>
+
+	<section class="section-panel">
+		<div class="section-heading">
+			<div>
+				<span class="section-label">Tracks</span>
+				<h2>Two serious archives with different source models</h2>
+				<p>
+					ICPC entries keep metadata and statement assets with each problem. IOI entries stay lean:
+					just the task folder plus the normalized <code>solution.tex</code> and
+					<code> solution.cpp</code> pair.
+				</p>
+			</div>
+		</div>
+		<div class="track-grid">
+			{
+				summaries.map((summary, index) => (
+					<a
+						class="card track-card"
+						data-tone={summary.track === 'icpc' ? 'warm' : 'cool'}
+						href={withBase(`/competitive-programming/${summary.track}`)}
+					>
+						<span class="track-card__index">0{index + 1}</span>
+						<span class="eyebrow">{summary.label}</span>
+						<h3>{summary.longLabel}</h3>
+						<p>
+							{summary.entryCount} entries across {summary.yearCount} contest years, with{' '}
+							{summary.statementPdfCount > 0 ? `${summary.statementPdfCount} statement PDFs and ` : ''}
+							exact TeX and C++ source files preserved in the repo.
+						</p>
+						<span class="track-card__link">Open {summary.label} archive</span>
+					</a>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section-panel section-panel--signal">
+		<div class="section-heading">
+			<div>
+				<span class="section-label">Recent entries</span>
+				<h2>Newest copied problem folders</h2>
+				<p>
+					These cards are driven from the copied source file timestamps, so the archive can surface
+					recently touched entries without a separate metadata layer.
+				</p>
+			</div>
+		</div>
+		<div class="signal-grid">
+			{
+				latestEntries.map((record, index) => (
+					<a
+						class="signal-card"
+						data-tone={record.track === 'icpc' ? 'warm' : 'cool'}
+						href={withBase(`/competitive-programming/${record.track}/${record.year}/${record.slug}`)}
+					>
+						<span class="signal-card__index">0{index + 1}</span>
+						<div>
+							<span class="eyebrow">
+								{record.track.toUpperCase()} {record.year}
+							</span>
+							<h3>{record.displayTitle}</h3>
+							<p>{record.description}</p>
+						</div>
+						<div class="signal-card__meta">
+							<span class="metric">{formatDate(record.updated)}</span>
+							<span class="metric">TeX + C++</span>
+						</div>
+					</a>
+				))
+			}
+		</div>
+	</section>
+</BaseLayout>

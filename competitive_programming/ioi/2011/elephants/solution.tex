@@ -1,0 +1,185 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2011 -- Dancing Elephants}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+$N$ elephants stand on a number line. A camera covers a contiguous interval of length~$L$. Determine the minimum number of cameras to photograph all elephants. After each update (one elephant moves), recompute the answer.
+
+\section{Solution}
+
+\subsection{Static Problem}
+Sort elephants by position. Greedily place cameras: the first camera starts at the leftmost elephant covering $[x_0, x_0 + L]$. The next camera starts at the first uncovered elephant, and so on.
+
+\subsection{Sqrt Decomposition for Dynamic Updates}
+Divide the sorted elephants into blocks of size $B \approx \sqrt{N}$.
+
+\textbf{Block jump table.} For each block $b$ and each elephant at index $j$ within the block, precompute:
+\begin{itemize}
+    \item $\text{jumps}[b][j]$: number of cameras needed to cover elephants from index $j$ to the end of block~$b$.
+    \item $\text{reach}[b][j]$: the rightmost point covered when starting from index $j$.
+\end{itemize}
+These are computed by scanning from right to left within each block using binary search.
+
+\textbf{Query.} Starting from the leftmost elephant, use the jump tables to skip through blocks. For each block, binary-search for the first uncovered elephant, then jump to the end of the block in $O(1)$. Total: $O(\sqrt{N})$.
+
+\textbf{Update.} Remove the elephant from its old block and insert into the correct new block. Rebuild the affected blocks. Every $B$ updates, rebuild all blocks from scratch to rebalance.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time per query/update:} $O(\sqrt{N})$ amortized.
+    \item \textbf{Total time:} $O((N + Q)\sqrt{N})$.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 150005;
+const int BLOCK = 400;
+
+int N, L;
+int pos[MAXN];
+int nBlocks;
+vector<int> blocks[BLOCK + 5];
+int jumps_b[BLOCK + 5][2 * BLOCK + 5];
+long long reach_b[BLOCK + 5][2 * BLOCK + 5];
+
+void rebuildBlock(int b) {
+    int sz = (int)blocks[b].size();
+    if (sz == 0) return;
+    for (int i = sz - 1; i >= 0; i--) {
+        long long cover = (long long)blocks[b][i] + L;
+        // Binary search for last covered elephant in this block
+        int lo2 = i, hi2 = sz - 1, k = i;
+        while (lo2 <= hi2) {
+            int mid = (lo2 + hi2) / 2;
+            if (blocks[b][mid] <= cover) { k = mid; lo2 = mid + 1; }
+            else hi2 = mid - 1;
+        }
+        if (k == sz - 1) {
+            jumps_b[b][i] = 1;
+            reach_b[b][i] = cover;
+        } else {
+            jumps_b[b][i] = 1 + jumps_b[b][k + 1];
+            reach_b[b][i] = reach_b[b][k + 1];
+        }
+    }
+}
+
+void buildAll() {
+    vector<pair<int,int>> sp(N);
+    for (int i = 0; i < N; i++) sp[i] = {pos[i], i};
+    sort(sp.begin(), sp.end());
+
+    nBlocks = (N + BLOCK - 1) / BLOCK;
+    for (int b = 0; b < nBlocks; b++) blocks[b].clear();
+    for (int i = 0; i < N; i++)
+        blocks[i / BLOCK].push_back(sp[i].first);
+    for (int b = 0; b < nBlocks; b++)
+        rebuildBlock(b);
+}
+
+int query() {
+    int cameras = 0;
+    long long covered = -1e18;
+    for (int b = 0; b < nBlocks; b++) {
+        if (blocks[b].empty()) continue;
+        if (blocks[b].back() <= covered) continue;
+        int idx = (int)(upper_bound(blocks[b].begin(), blocks[b].end(),
+                                     (int)covered) - blocks[b].begin());
+        if (idx >= (int)blocks[b].size()) continue;
+        cameras += jumps_b[b][idx];
+        covered = reach_b[b][idx];
+    }
+    return cameras;
+}
+
+void update(int elephantIdx, int newPos) {
+    int oldPos = pos[elephantIdx];
+    pos[elephantIdx] = newPos;
+
+    // Remove oldPos from its block
+    for (int b = 0; b < nBlocks; b++) {
+        auto it = lower_bound(blocks[b].begin(), blocks[b].end(), oldPos);
+        if (it != blocks[b].end() && *it == oldPos) {
+            blocks[b].erase(it);
+            rebuildBlock(b);
+            break;
+        }
+    }
+
+    // Insert newPos into correct block
+    bool inserted = false;
+    for (int b = 0; b < nBlocks; b++) {
+        if (blocks[b].empty()) {
+            blocks[b].push_back(newPos);
+            rebuildBlock(b);
+            inserted = true;
+            break;
+        }
+        if (b == nBlocks - 1 || newPos <= blocks[b].back()) {
+            auto it = lower_bound(blocks[b].begin(), blocks[b].end(), newPos);
+            blocks[b].insert(it, newPos);
+            rebuildBlock(b);
+            inserted = true;
+            break;
+        }
+    }
+    if (!inserted) {
+        blocks[nBlocks - 1].push_back(newPos);
+        rebuildBlock(nBlocks - 1);
+    }
+}
+
+int updateCount = 0;
+
+void init(int n, int l, int positions[]) {
+    N = n; L = l;
+    for (int i = 0; i < N; i++) pos[i] = positions[i];
+    buildAll();
+    updateCount = 0;
+}
+
+int doUpdate(int elephantIdx, int newPos) {
+    updateCount++;
+    if (updateCount % BLOCK == 0) {
+        pos[elephantIdx] = newPos;
+        buildAll();
+    } else {
+        update(elephantIdx, newPos);
+    }
+    return query();
+}
+\end{lstlisting}
+
+\end{document}

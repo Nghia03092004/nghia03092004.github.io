@@ -1,0 +1,131 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\I. Karel the Robot}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We must interpret a small Karel-like language with movement, turning, procedure calls, conditionals, and
+``until'' loops on a grid with barriers.
+For each start state and top-level program we must either output Karel's final state or determine that the
+execution never terminates.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item The robot configuration is finite: there are only $4rc \le 6400$ possible pairs
+    \[
+        (\text{position}, \text{heading}).
+    \]
+    \item The program text is also finite. If we represent every suffix of every parsed program body as a
+    node, then execution is always ``at'' one such node.
+    \item Therefore the full execution state can be represented as
+    \[
+        (\text{program node}, \text{robot configuration}),
+    \]
+    and there are at most $O(rcs)$ such states, where $s$ is the number of program nodes.
+    \item The language is deterministic. Hence if DFS evaluation ever revisits the same state while that
+    state is still on the recursion stack, the execution has entered a cycle and will never terminate.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Parse every procedure body and every query program into a linked representation of program
+    suffixes. Each node stores one command and a pointer to the suffix executed afterwards.
+    Nested programs inside \texttt{if} and \texttt{until} are parsed recursively and referenced by their root nodes.
+    \item Precompute all robot transitions for the $4rc$ configurations:
+    turning left, moving forward, and whether there is a barrier ahead.
+    \item Let \texttt{solve(node, state)} mean: execute the program suffix rooted at \texttt{node} starting
+    from robot configuration \texttt{state}.
+    \item Evaluate this function with DFS and memoization.
+    \begin{itemize}[leftmargin=*]
+        \item For \texttt{m} and \texttt{l}, apply the corresponding transition and continue with \texttt{next}.
+        \item For a procedure call, recursively evaluate the procedure body, then continue with \texttt{next}.
+        \item For \texttt{i cond (A)(B)}, choose the branch determined by the current state, execute it,
+        then continue with \texttt{next}.
+        \item For \texttt{u cond (A)}, if the condition is already true, continue with \texttt{next};
+        otherwise execute \texttt{A} and then recursively execute the same \texttt{until} node again.
+    \end{itemize}
+    \item Memoize the result of every state. A special marker \texttt{in progress} is used during DFS;
+    touching such a state again means non-termination.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct output for every query.
+
+\paragraph{Lemma 1.}
+For every parsed program suffix $P$ and robot configuration $s$, the value computed by
+\texttt{solve(P, s)} is exactly the result of executing suffix $P$ from state $s$, unless the execution is
+infinite, in which case it returns \texttt{inf}.
+
+\paragraph{Proof.}
+We inspect the first command of $P$.
+If it is \texttt{m} or \texttt{l}, the operational semantics applies one primitive robot action and then
+continues with the remaining suffix, which is exactly what the recursion does.
+If it is a procedure call, the language semantics executes the procedure body completely and then resumes
+with the caller's suffix; the recursive call followed by \texttt{next} matches this exactly.
+If it is an \texttt{if}, both the language and the algorithm choose the same branch from the current state,
+execute it, and then continue with the suffix.
+If it is an \texttt{until}, both either skip the loop when the condition is already true, or execute the body
+once and repeat the same \texttt{until} command.
+Thus every recursive case follows the language semantics exactly. \qed
+
+\paragraph{Lemma 2.}
+If the DFS re-enters a state $(P,s)$ that is already marked \texttt{in progress}, then executing $P$ from $s$
+does not terminate.
+
+\paragraph{Proof.}
+The language is deterministic, so from a fixed state $(P,s)$ the future execution is uniquely determined.
+If the recursion reaches $(P,s)$ again before finishing the first evaluation of $(P,s)$, then the execution
+path from $(P,s)$ has returned to the same state and will repeat forever.
+Hence termination is impossible. \qed
+
+\paragraph{Lemma 3.}
+If \texttt{solve(P, s)} returns a finite robot configuration $t$, then executing $P$ from $s$ terminates in
+exactly $t$.
+
+\paragraph{Proof.}
+By Lemma 1 each recursive step mirrors the true execution semantics.
+By Lemma 2 the only executions declared infinite are genuine cycles.
+Therefore any state that is memoized with a finite result must terminate, and the returned configuration is
+the actual final configuration. \qed
+
+\paragraph{Theorem.}
+For each query, the algorithm outputs \texttt{inf} iff the program never terminates; otherwise it outputs the
+correct final position and heading of Karel.
+
+\paragraph{Proof.}
+Each query is evaluated as \texttt{solve(root, start\_state)}.
+If the answer is \texttt{inf}, Lemma 2 shows the execution is non-terminating.
+Otherwise Lemma 3 shows the returned configuration is exactly the true final state.
+Thus every printed answer is correct. \qed
+
+\section*{Complexity Analysis}
+
+Let $s$ be the total number of parsed program nodes across all procedures and query programs.
+There are $4rc$ robot configurations, so at most $4rcs$ states.
+Each state is solved once and each transition does only $O(1)$ extra work.
+Therefore the running time is $O(rcs)$ and the memory usage is also $O(rcs)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The parser naturally creates one node for every non-empty program suffix, which is exactly the
+    granularity needed for memoization.
+    \item Empty programs can appear inside parentheses and are represented by a null node.
+    \item Because $4rc \le 6400$, the memo table fits comfortably in memory even when stored for all
+    parsed nodes.
+\end{itemize}
+
+\end{document}

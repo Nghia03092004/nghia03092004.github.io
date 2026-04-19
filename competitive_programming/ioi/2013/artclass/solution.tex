@@ -1,0 +1,153 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2013 -- Art Class}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given an image (2D grid of RGB pixels), classify it into one of four categories:
+\begin{enumerate}
+    \item \textbf{Class 1:} Modern/abstract art (few colors, large uniform regions)
+    \item \textbf{Class 2:} Paintings with distinct objects (moderate variation)
+    \item \textbf{Class 3:} Impressionist/textured paintings (high local variation)
+    \item \textbf{Class 4:} Landscape/nature photographs (moderate to high detail)
+\end{enumerate}
+
+This is a heuristic/machine learning problem. No exact algorithm is specified; you must achieve a reasonable classification accuracy.
+
+\section{Solution Approach}
+Use simple image features:
+
+\begin{enumerate}
+    \item \textbf{Color variance:} Compute the variance of R, G, B channels globally. Low variance suggests Class 1 (uniform colors).
+    \item \textbf{Edge density:} Compute the average absolute difference between adjacent pixels. Low edge density suggests large uniform regions (Class 1), very high suggests Class 3.
+    \item \textbf{Green ratio:} High green content suggests landscapes (Class 4).
+    \item \textbf{Saturation:} High saturation with high variance suggests impressionist (Class 3).
+\end{enumerate}
+
+\textbf{Decision rules:}
+\begin{itemize}
+    \item If edge density is very low and color variance is low: Class 1.
+    \item If green ratio is high and edge density is moderate: Class 4.
+    \item If edge density is very high: Class 3.
+    \item Otherwise: Class 2.
+\end{itemize}
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(H \times W)$ (single pass over all pixels).
+    \item \textbf{Space:} $O(H \times W)$
+\end{itemize}
+
+\section{C++ Solution}
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int style(int H, int W, int R[500][500], int G[500][500], int B[500][500]){
+    // Compute average color
+    double avgR = 0, avgG = 0, avgB = 0;
+    for(int i = 0; i < H; i++){
+        for(int j = 0; j < W; j++){
+            avgR += R[i][j];
+            avgG += G[i][j];
+            avgB += B[i][j];
+        }
+    }
+    int total = H * W;
+    avgR /= total; avgG /= total; avgB /= total;
+
+    // Compute color variance
+    double varR = 0, varG = 0, varB = 0;
+    for(int i = 0; i < H; i++){
+        for(int j = 0; j < W; j++){
+            varR += (R[i][j] - avgR) * (R[i][j] - avgR);
+            varG += (G[i][j] - avgG) * (G[i][j] - avgG);
+            varB += (B[i][j] - avgB) * (B[i][j] - avgB);
+        }
+    }
+    varR /= total; varG /= total; varB /= total;
+    double totalVar = varR + varG + varB;
+
+    // Compute edge density (average absolute difference with neighbors)
+    double edgeSum = 0;
+    int edgeCount = 0;
+    for(int i = 0; i < H; i++){
+        for(int j = 0; j < W - 1; j++){
+            edgeSum += abs(R[i][j] - R[i][j+1]) + abs(G[i][j] - G[i][j+1])
+                     + abs(B[i][j] - B[i][j+1]);
+            edgeCount++;
+        }
+    }
+    for(int i = 0; i < H - 1; i++){
+        for(int j = 0; j < W; j++){
+            edgeSum += abs(R[i][j] - R[i+1][j]) + abs(G[i][j] - G[i+1][j])
+                     + abs(B[i][j] - B[i+1][j]);
+            edgeCount++;
+        }
+    }
+    double edgeDensity = edgeSum / edgeCount;
+
+    // Green ratio
+    double greenRatio = avgG / (avgR + avgG + avgB + 1);
+
+    // Classification heuristic
+    if(totalVar < 1000 && edgeDensity < 15){
+        return 1; // Modern art: few colors, uniform regions
+    }
+    if(edgeDensity > 60){
+        return 3; // Impressionist: very textured
+    }
+    if(greenRatio > 0.38 && totalVar > 2000){
+        return 4; // Landscape: lots of green, varied
+    }
+    if(edgeDensity < 25 && totalVar < 3000){
+        return 1;
+    }
+    if(edgeDensity > 40){
+        return 3;
+    }
+    if(greenRatio > 0.35){
+        return 4;
+    }
+    return 2; // Default: standard painting
+}
+
+int main(){
+    int H, W;
+    cin >> H >> W;
+    int R[500][500], G[500][500], B[500][500];
+    for(int i = 0; i < H; i++)
+        for(int j = 0; j < W; j++)
+            cin >> R[i][j] >> G[i][j] >> B[i][j];
+    cout << style(H, W, R, G, B) << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\textbf{Note:} This is a heuristic solution. The thresholds were chosen empirically. More sophisticated approaches would use trained classifiers, but this demonstrates the feature-extraction approach suitable for a competition setting.
+
+\end{document}

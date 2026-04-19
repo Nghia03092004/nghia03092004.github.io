@@ -1,0 +1,162 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2014 -- Gondola}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+A gondola system has $n$ gondolas arranged in a circle, originally numbered $1, 2, \ldots, n$. Over time, gondolas may break and be replaced: the $k$-th replacement gondola is numbered $n + k$. The circular order is preserved. There are three subtasks:
+\begin{enumerate}
+  \item \textbf{Valid}: Determine if a given sequence is a valid gondola configuration.
+  \item \textbf{Replacement}: Given a valid sequence, find the sequence of broken gondolas.
+  \item \textbf{Count}: Count the number of valid replacement sequences yielding a given final configuration (modulo $10^9 + 9$).
+\end{enumerate}
+
+\section{Solution}
+
+\subsection{Subtask 1: Validity}
+
+A sequence $s_0, s_1, \ldots, s_{n-1}$ is valid if and only if:
+\begin{enumerate}
+  \item No value appears more than once.
+  \item All \emph{original} gondolas ($s_i \le n$) are consistent with a single rotation. If $s_i \le n$, the rotation offset is $(s_i - 1 - i) \bmod n$. All such values must agree on the same offset.
+\end{enumerate}
+
+\subsection{Subtask 2: Replacement Sequence}
+
+Determine the rotation offset from any original gondola present (default offset $0$ if none exists). Then, for each position with a replacement gondola ($s_i > n$), record $(\text{value}, \text{position})$. Sort these pairs by value. Process them in order: the first replacement at a position replaces the original gondola there; subsequent replacements at that position replace the previous replacement.
+
+\subsection{Subtask 3: Counting}
+
+Let $\text{maxVal} = \max(s_i)$. There are $\text{maxVal} - n$ total replacements. Sort the replacement positions by their final values. Let these sorted values be $v_1 < v_2 < \cdots < v_r$. Between consecutive ``pinned'' replacements, each intermediate replacement can go to any of the currently-unresolved positions. Specifically, if $c$ positions are still unresolved, and there is a gap of $g$ intermediate replacements, we multiply the answer by $c^g$. If no original gondola is present, any of $n$ rotations is valid, contributing a factor of $n$.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MOD = 1e9 + 9;
+
+long long power(long long base, long long exp, long long mod) {
+    long long result = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp & 1) result = result * base % mod;
+        base = base * base % mod;
+        exp >>= 1;
+    }
+    return result;
+}
+
+int valid(int n, int inputSeq[]) {
+    set<int> seen;
+    int offset = -1;
+    for (int i = 0; i < n; i++) {
+        if (seen.count(inputSeq[i])) return 0;
+        seen.insert(inputSeq[i]);
+        if (inputSeq[i] <= n) {
+            int off = ((inputSeq[i] - 1) - i % n + n) % n;
+            if (offset == -1) offset = off;
+            else if (offset != off) return 0;
+        }
+    }
+    return 1;
+}
+
+int replacement(int n, int inputSeq[], int replacementSeq[]) {
+    int offset = 0;
+    for (int i = 0; i < n; i++) {
+        if (inputSeq[i] <= n) {
+            offset = ((inputSeq[i] - 1) - i + n) % n;
+            break;
+        }
+    }
+    vector<pair<int,int>> reps;
+    for (int i = 0; i < n; i++)
+        if (inputSeq[i] > n)
+            reps.push_back({inputSeq[i], i});
+    sort(reps.begin(), reps.end());
+
+    int len = 0, nextId = n + 1;
+    for (auto &[val, pos] : reps) {
+        int orig = (pos + offset) % n + 1;
+        replacementSeq[len++] = orig;
+        for (int id = nextId; id < val; id++)
+            replacementSeq[len++] = id;
+        nextId = val + 1;
+    }
+    return len;
+}
+
+int countReplacement(int n, int inputSeq[]) {
+    if (!valid(n, inputSeq)) return 0;
+
+    int offset = -1;
+    for (int i = 0; i < n; i++) {
+        if (inputSeq[i] <= n) {
+            offset = ((inputSeq[i] - 1) - i + n) % n;
+            break;
+        }
+    }
+
+    vector<pair<int,int>> reps;
+    for (int i = 0; i < n; i++)
+        if (inputSeq[i] > n)
+            reps.push_back({inputSeq[i], i});
+    sort(reps.begin(), reps.end());
+
+    int cntUnknown = (int)reps.size();
+    long long ans = 1;
+    if (offset == -1 && cntUnknown > 0)
+        ans = n;  // any rotation is valid
+
+    long long prev = n;
+    for (int i = 0; i < (int)reps.size(); i++) {
+        long long cur = reps[i].first;
+        long long gap = cur - prev - 1;
+        ans = ans % MOD * power(cntUnknown, gap, MOD) % MOD;
+        cntUnknown--;
+        prev = cur;
+    }
+    return (int)(ans % MOD);
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Subtask 1}: $O(n \log n)$ (set operations).
+  \item \textbf{Subtask 2}: $O(n \log n + (\max s_i - n))$.
+  \item \textbf{Subtask 3}: $O(n \log n + n \log(\max s_i))$ (sorting + modular exponentiation).
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

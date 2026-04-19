@@ -1,0 +1,115 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\J. Miniature Golf}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+For one unknown positive integer cap $\ell$, each hole score $a$ is replaced by $\min(a,\ell)$.
+For every player we must choose the cap that gives that player the best possible rank, where rank is
+the number of players whose adjusted total score is at most theirs.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item For a fixed player $i$, minimizing their rank is the same as maximizing the number of other
+    players $j$ with adjusted total $S_i(\ell) < S_j(\ell)$.
+    \item For one player, $S(\ell)=\sum_k \min(a_k,\ell)$ is a piecewise-linear function of $\ell$.
+    Its slope only changes when $\ell$ reaches one of that player's raw hole scores.
+    \item Therefore, for a fixed pair $(i,j)$, the difference
+    $D_{ij}(\ell)=S_i(\ell)-S_j(\ell)$ is also piecewise linear, and the breakpoints are exactly the
+    scores of players $i$ and $j$.
+    \item Between two consecutive breakpoints, the inequality $D_{ij}(\ell)<0$ is just a linear
+    inequality on an interval of integers, so it becomes either empty or one integer interval.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Sort each player's $h$ scores.
+    \item Fix a player $i$. For every other player $j$, merge the sorted score lists of $i$ and $j$.
+    Sweep the distinct breakpoint values in increasing order.
+    \item During this sweep maintain, for both players, how many scores are already at most the current
+    cap and the sum of those scores. On any integer interval $[L,R]$ between consecutive breakpoints,
+    both adjusted totals have the form $A+B\ell$, so $S_i(\ell)<S_j(\ell)$ can be converted into one
+    integer interval inside $[L,R]$.
+    \item Add this interval to an event list for player $i$ using a difference sweep: $+1$ at its left
+    endpoint and $-1$ after its right endpoint.
+    \item After all opponents $j$ are processed, sweep the events in order. The maximum number of active
+    intervals is the maximum number of players that $i$ strictly beats for some cap.
+    \item Output $p-\text{best}$ for player $i$, because rank counts all players with score at most theirs.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed player $i$ and cap $\ell$, the rank of player $i$ equals
+$p - |\{j \neq i : S_i(\ell) < S_j(\ell)\}|$.
+
+\paragraph{Proof.}
+Exactly the players not counted in the set are those whose adjusted total is at most $S_i(\ell)$.
+This includes player $i$ themself. Hence the rank is the total number of players minus the number of
+players strictly beaten by $i$. \qed
+
+\paragraph{Lemma 2.}
+For any fixed pair of players $(i,j)$, the set of integer caps $\ell \ge 1$ such that
+$S_i(\ell) < S_j(\ell)$ is a union of $O(h)$ integer intervals, and the algorithm enumerates all of them.
+
+\paragraph{Proof.}
+The only values where either $S_i$ or $S_j$ can change slope are the raw scores of players $i$ and $j$,
+so there are $O(h)$ maximal integer intervals on which both functions are linear.
+On one such interval we have
+$S_i(\ell)=\alpha_i+\beta_i \ell$ and $S_j(\ell)=\alpha_j+\beta_j \ell$, hence
+$S_i(\ell)-S_j(\ell)=A+B\ell$ for constants $A,B$.
+The strict inequality $A+B\ell<0$ over integers is either false everywhere on that interval,
+true everywhere, or true on one suffix/prefix of the interval. Therefore it yields exactly one integer
+interval, which the algorithm adds. Doing this for every linear piece enumerates the full solution set.
+\qed
+
+\paragraph{Lemma 3.}
+For a fixed player $i$, after processing all other players, the maximum active event count equals the
+maximum possible number of opponents that $i$ strictly beats for some cap.
+
+\paragraph{Proof.}
+By Lemma 2, each opponent $j$ contributes exactly the caps where $S_i(\ell) < S_j(\ell)$.
+Thus, at any cap $\ell$, the active event count is precisely the number of opponents beaten by $i$.
+Taking the maximum over the sweep gives the maximum possible number of beaten opponents. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the minimum possible rank for every player.
+
+\paragraph{Proof.}
+Fix a player $i$. By Lemma 3, the event sweep finds the largest number of opponents that $i$ can
+strictly beat for some cap. By Lemma 1, subtracting this value from $p$ gives exactly the best rank
+attainable by player $i$. Since the algorithm does this independently for every player, all outputs are
+correct. \qed
+
+\section*{Complexity Analysis}
+
+For a fixed ordered pair of players, merging the two sorted score lists and generating intervals takes
+$O(h)$ time. Repeating this for all pairs takes $O(p^2 h)$ time.
+For each player we then sort $O(ph)$ sweep events, so the total sorting time is
+$O(p^2 h \log(ph))$.
+The memory usage is $O(ph)$ for the scores and one player's event list.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item It is enough to consider caps $\ell \in [1, M]$, where $M$ is the largest raw score in the input.
+    For $\ell \ge M$, no score changes any more.
+    \item The totals can be as large as $50 \cdot 10^9$, so all arithmetic for adjusted sums and linear
+    coefficients should use 64-bit integers.
+\end{itemize}
+
+\end{document}

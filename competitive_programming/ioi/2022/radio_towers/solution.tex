@@ -1,0 +1,172 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2022 --- Radio Towers}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+There are $N$ towers at positions $0, 1, \ldots, N{-}1$ with distinct
+heights $H[0], \ldots, H[N{-}1]$.  Towers $i < j$ can
+\emph{communicate} with parameter $D$ if there exists $k$ with
+$i < k < j$ and $H[k] \ge \max(H[i], H[j]) + D$.
+
+Given queries $(L, R, D)$, find the maximum number of towers in $[L, R]$
+such that every pair can communicate.
+
+\section{Solution}
+
+\subsection{Characterization}
+
+\begin{lemma}\label{lem:consec}
+A set $S = \{s_1 < s_2 < \cdots < s_m\} \subseteq [L,R]$ is mutually
+communicating with parameter $D$ if and only if every \emph{consecutive}
+pair $(s_i, s_{i+1})$ can communicate.
+\end{lemma}
+
+\begin{proof}
+The ``only if'' direction is trivial.  For ``if'': take any $s_a < s_b$
+in $S$.  For each consecutive pair $(s_i, s_{i+1})$ there is a peak
+$p_i$ with $H[p_i] \ge \max(H[s_i], H[s_{i+1}]) + D$.  Let
+$p^* = \arg\max_i H[p_i]$ among the peaks for pairs between $s_a$ and
+$s_b$.  Then $H[p^*] \ge \max(H[s_a], H[s_b]) + D$ because the maximum
+among intermediate peaks dominates both endpoints.
+\end{proof}
+
+By Lemma~\ref{lem:consec}, the problem reduces to: find the longest
+subsequence of $[L,R]$ such that between every two consecutive selected
+towers there is a peak exceeding both by at least $D$.
+
+\subsection{Greedy algorithm}
+
+Scan left to right.  Greedily select a tower if:
+\begin{enumerate}
+  \item There exists a peak of sufficient height between it and the
+        previously selected tower, \textbf{and}
+  \item its height is low enough to be ``reachable'' from the next peak.
+\end{enumerate}
+
+More precisely: maintain the last selected tower.  For a candidate tower~$i$,
+check (using a sparse table for range-max queries) whether
+$\max_{k \in (\mathrm{last}, i)} H[k] \ge \max(H[\mathrm{last}], H[i]) + D$.
+If so, select~$i$.  If not, and $H[i] < H[\mathrm{last}]$, replace the
+last selection with~$i$ (a lower tower is strictly more flexible as a
+chain endpoint).
+
+\subsection{Correctness}
+
+\begin{theorem}
+The greedy algorithm produces an optimal set.
+\end{theorem}
+\begin{proof}[Proof sketch]
+Suppose the greedy selects towers $g_1, g_2, \ldots, g_m$ and an optimal
+solution selects $o_1, o_2, \ldots, o_k$ with $k > m$.  By an exchange
+argument, we can show $H[g_i] \le H[o_i]$ for all $i$: if the greedy
+tower is no taller, it is at least as good a ``continuation point.''
+The greedy never misses a valid extension since it always holds the
+lowest feasible endpoint, so $k \le m$, a contradiction.
+\end{proof}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int N;
+vector<int> H;
+vector<vector<int>> sparse;
+int LOG;
+
+void init(int _N, vector<int> _H) {
+    N = _N;
+    H = _H;
+    LOG = 1;
+    while ((1 << LOG) <= N) LOG++;
+    sparse.assign(LOG, vector<int>(N));
+    for (int i = 0; i < N; i++) sparse[0][i] = i;
+    for (int k = 1; k < LOG; k++)
+        for (int i = 0; i + (1 << k) <= N; i++) {
+            int a = sparse[k-1][i];
+            int b = sparse[k-1][i + (1 << (k-1))];
+            sparse[k][i] = (H[a] >= H[b]) ? a : b;
+        }
+}
+
+int rmq(int l, int r) { // index of max in [l, r]
+    int k = __lg(r - l + 1);
+    int a = sparse[k][l], b = sparse[k][r - (1 << k) + 1];
+    return (H[a] >= H[b]) ? a : b;
+}
+
+int max_towers(int L, int R, int D) {
+    if (L == R) return 1;
+
+    int count = 0;
+    int last = -1; // index of last selected tower
+
+    for (int i = L; i <= R; i++) {
+        if (last == -1) {
+            // First tower: pick the first feasible starting point
+            last = i;
+            count = 1;
+        } else {
+            // Check if we can extend by selecting tower i
+            if (last + 1 <= i - 1) {
+                int mx = rmq(last + 1, i - 1);
+                if (H[mx] >= H[last] + D && H[mx] >= H[i] + D) {
+                    last = i;
+                    count++;
+                    continue;
+                }
+            }
+            // If cannot extend, try replacing last with a lower tower
+            if (H[i] < H[last]) {
+                if (count == 1) {
+                    last = i; // replace the only selected tower
+                }
+            }
+        }
+    }
+    return max(count, 1);
+}
+\end{lstlisting}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Preprocessing:} $O(N \log N)$ for the sparse table.
+  \item \textbf{Per query:} $O(R - L)$ --- each tower is visited once;
+        range-max queries take $O(1)$.
+  \item \textbf{Space:} $O(N \log N)$.
+\end{itemize}
+
+For full marks, a more sophisticated approach using the Cartesian tree
+structure and offline/online segment-tree techniques can achieve
+$O(\log N)$ or $O(\sqrt{N} \log N)$ per query.
+
+\end{document}

@@ -1,0 +1,134 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1994 -- The Circle}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given $n$ integers arranged in a circle, you can remove adjacent pairs whose sum
+is divisible by a given number $k$. When a pair is removed, the neighbors of the
+removed elements become adjacent. The goal is to remove as many elements as possible
+(or determine the order of removals).
+
+\medskip
+\noindent\textbf{Variant interpretation:} In the IOI 1994 ``Circle'' problem, $n$ numbers
+are arranged in a circle. We must find the maximum number of elements we can remove by
+repeatedly removing adjacent pairs that sum to a multiple of $k$.
+
+\medskip
+\noindent\textbf{Constraints:} $n \le 20$.
+
+\section{Solution Approach}
+
+\subsection{Bitmask DP / Greedy with Backtracking}
+
+Given the small constraint ($n \le 20$), we can use a bitmask DP or backtracking approach:
+
+\begin{enumerate}
+  \item Represent the remaining elements as a bitmask of $n$ bits.
+  \item For each state (bitmask), try all pairs of elements that are currently adjacent
+        in the circle (considering removed elements) and whose sum is divisible by $k$.
+  \item Track the maximum number of elements removed.
+\end{enumerate}
+
+\subsection{Finding Adjacency in Current State}
+Given a bitmask, two elements $i$ and $j$ are adjacent in the current circle if there is
+no active element between them (wrapping around). We can find the next active neighbor
+of each element by scanning the bitmask.
+
+\subsection{Optimization}
+We use memoization on the bitmask. The number of distinct states is $2^n$, which for
+$n = 20$ gives about $10^6$ states --- feasible.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+
+int n, k;
+int a[21];
+int memo[1 << 20];
+
+// Find next active element after pos in circular order
+int nextActive(int mask, int pos) {
+    for (int step = 1; step < n; step++) {
+        int nxt = (pos + step) % n;
+        if (mask & (1 << nxt)) return nxt;
+    }
+    return -1; // no other active element
+}
+
+// Count of removed elements = n - __builtin_popcount(mask)
+// We want to maximize removed, i.e., minimize remaining
+int solve(int mask) {
+    if (memo[mask] != -1) return memo[mask];
+
+    int best = 0; // no more removals from this state
+    int bits = __builtin_popcount(mask);
+    if (bits < 2) return memo[mask] = 0;
+
+    // Try each active element and its next neighbor
+    for (int i = 0; i < n; i++) {
+        if (!(mask & (1 << i))) continue;
+        int j = nextActive(mask, i);
+        if (j == -1 || j <= i) continue; // avoid double counting
+        if ((a[i] + a[j]) % k == 0) {
+            int newmask = mask & ~(1 << i) & ~(1 << j);
+            best = max(best, 2 + solve(newmask));
+        }
+    }
+
+    return memo[mask] = best;
+}
+
+int main() {
+    scanf("%d %d", &n, &k);
+    for (int i = 0; i < n; i++)
+        scanf("%d", &a[i]);
+
+    memset(memo, -1, sizeof(memo));
+    int full = (1 << n) - 1;
+    printf("%d\n", solve(full));
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(2^n \cdot n)$. There are $2^n$ possible bitmask states,
+        and for each state we scan $O(n)$ elements to find adjacent pairs. For $n = 20$,
+        this is about $20 \times 10^6$ operations.
+  \item \textbf{Space complexity:} $O(2^n)$ for the memoization table.
+\end{itemize}
+
+\end{document}

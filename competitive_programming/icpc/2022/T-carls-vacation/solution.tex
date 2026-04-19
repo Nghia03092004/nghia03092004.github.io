@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\T. Carl's Vacation}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We must find the shortest path from the apex of one right square pyramid to the apex of another, where
+the ant may walk only on the pyramid surfaces and on the ground plane.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Once we choose one side face on each pyramid, the path has three pieces: a segment on the first
+    triangular face from the first apex to some point on that face's base edge, a straight ground segment,
+    and a segment on the second triangular face to the second apex.
+    \item There are only $4 \cdot 4 = 16$ choices of side faces.
+    \item If $p$ and $q$ are the two ground contact points, then the total length is
+    \[
+    \sqrt{\|p-c_1\|^2+h_1^2}+\|p-q\|+\sqrt{\|q-c_2\|^2+h_2^2},
+    \]
+    where $c_i$ is the center of the $i$th base and $h_i$ its height.
+    \item Parameterizing $p$ and $q$ along their chosen edges gives a convex function on
+    $[0,1]\times[0,1]$, so nested ternary search finds the minimum for that edge pair.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Reconstruct the four base corners of each pyramid from the given directed edge. The remaining
+    two corners are obtained by moving along a left normal of the edge.
+    \item For every edge $e$ of the first base and every edge $f$ of the second base:
+    \begin{itemize}[leftmargin=*]
+        \item let $p(x)$ be the point at parameter $x \in [0,1]$ on $e$;
+        \item let $q(y)$ be the point at parameter $y \in [0,1]$ on $f$;
+        \item define
+        \[
+        L(x,y)=\sqrt{\|p(x)-c_1\|^2+h_1^2}+\|p(x)-q(y)\|+\sqrt{\|q(y)-c_2\|^2+h_2^2}.
+        \]
+    \end{itemize}
+    \item For fixed $x$, minimize $L(x,y)$ over $y$ by ternary search.
+    \item Minimize the resulting one-variable function over $x$ by another ternary search.
+    \item Take the minimum over all $16$ edge pairs.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed triangular side face and a fixed point on its base edge, the shortest path from the apex to
+that point is the straight segment inside the triangle.
+
+\paragraph{Proof.}
+The face is a planar triangle, hence convex. In a plane, the shortest path between two points is their
+Euclidean segment, and that segment stays inside the triangle. \qed
+
+\paragraph{Lemma 2.}
+For some optimal route, the path uses exactly one side face of each pyramid and one ground segment, as
+enumerated by the algorithm.
+
+\paragraph{Proof.}
+Any valid route must leave each pyramid through some point of its square base boundary and then travel
+across the ground plane. Fix those two boundary points. By Lemma 1, the best way to connect an apex to
+its chosen boundary point is a straight segment within one incident triangular face. The best ground-plane
+path between the two boundary points is the straight segment joining them. Therefore some optimal route
+has exactly the form considered by the algorithm. \qed
+
+\paragraph{Lemma 3.}
+For a fixed pair of base edges, the function $L(x,y)$ is convex on $[0,1]\times[0,1]$.
+
+\paragraph{Proof.}
+The maps $x \mapsto p(x)$ and $y \mapsto q(y)$ are affine. The Euclidean norm is convex, so each term
+\[
+\sqrt{\|p(x)-c_1\|^2+h_1^2},\quad \|p(x)-q(y)\|,\quad \sqrt{\|q(y)-c_2\|^2+h_2^2}
+\]
+is convex in its arguments, and their sum is convex as well. Hence every one-dimensional restriction used
+by the nested ternary searches is unimodal. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the minimum possible travel distance.
+
+\paragraph{Proof.}
+By Lemma 2, some optimal route is represented by one of the $16$ edge pairs checked by the algorithm.
+For that pair, Lemma 3 implies that nested ternary search finds the global minimum of $L(x,y)$. Taking
+the minimum over all edge pairs therefore yields the true optimum. \qed
+
+\section*{Complexity Analysis}
+
+The algorithm checks $16$ edge pairs, and for each it performs a constant number of ternary-search
+iterations. Therefore the running time is $O(1)$ and the memory usage is $O(1)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The implementation performs $80$ iterations in each ternary search, which is ample for the
+    required error bound.
+    \item All geometry is done in \texttt{long double}.
+\end{itemize}
+
+\end{document}

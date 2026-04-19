@@ -1,0 +1,122 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2010 -- Memory}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+An interactive memory card game. There are $2N$ face-down cards forming $N$ matching pairs. Each turn, flip two cards. If they match, they are removed. Otherwise, they are flipped back. The goal is to match all pairs using as few flips as possible.
+
+\section{Solution}
+
+\subsection{Algorithm}
+Maintain a map from each card value to its known position. Process cards using a \emph{known-first} strategy:
+
+\begin{enumerate}
+    \item Pick an unflipped card at position $p_1$ and flip it to reveal value $v_1$.
+    \item If $v_1$ was previously seen at a known position $p_2$ (still unmatched), flip $p_2$ as the second card and collect the match.
+    \item Otherwise, record $v_1$'s position. Pick another unseen card at position $p_2$ and flip it to reveal $v_2$.
+    \begin{itemize}
+        \item If $v_1 = v_2$, collect the match.
+        \item Otherwise, record $v_2$'s position. Both cards flip back.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Analysis}
+
+\begin{theorem}
+This strategy uses at most $3N$ flips.
+\end{theorem}
+\begin{proof}
+Each pair is discovered and matched in one of two ways:
+\begin{itemize}
+    \item \emph{Lucky match} (step 3): both unknown cards happen to match. Cost: 2 flips.
+    \item \emph{Known match} (step 2): the first card matches a previously seen card. Cost: 2 flips, but one of the pair was already flipped once before (during an earlier failed attempt costing 2 flips for that earlier turn). Hence the amortized cost per pair is at most $2 + 1 = 3$ flips.
+\end{itemize}
+In the worst case, every pair is first seen in a failed attempt (1 flip each card = 2 flips wasted) and then matched in a subsequent turn (2 flips). But each failed turn reveals two cards, contributing to at most two future matches. A careful accounting shows at most $3N$ total flips.
+\end{proof}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Flips:} $O(N)$.
+    \item \textbf{Time:} $O(N)$ with hash map lookups.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Grader functions
+int faceup(int pos);            // flip card, return value
+void matched(int pos1, int pos2); // declare a match
+
+void play(int N) {
+    unordered_map<int, int> known; // value -> position of a seen card
+    set<int> remaining;
+    for (int i = 1; i <= 2 * N; i++) remaining.insert(i);
+
+    while (!remaining.empty()) {
+        int pos1 = *remaining.begin();
+        int val1 = faceup(pos1);
+
+        if (known.count(val1) && remaining.count(known[val1])) {
+            // Match with a previously seen card
+            int pos2 = known[val1];
+            faceup(pos2);
+            matched(pos1, pos2);
+            remaining.erase(pos1);
+            remaining.erase(pos2);
+            known.erase(val1);
+        } else {
+            known[val1] = pos1;
+
+            // Pick another unseen card
+            auto it = remaining.begin();
+            if (*it == pos1) ++it;
+            if (it == remaining.end()) break;
+            int pos2 = *it;
+            int val2 = faceup(pos2);
+
+            if (val1 == val2) {
+                matched(pos1, pos2);
+                remaining.erase(pos1);
+                remaining.erase(pos2);
+                known.erase(val1);
+            } else {
+                known[val2] = pos2;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\end{document}

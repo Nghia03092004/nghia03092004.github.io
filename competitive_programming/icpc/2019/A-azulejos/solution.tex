@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\A. Azulejos}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We have two sets of $n$ tiles: the back row and the front row. Inside each row, tiles must appear in non-decreasing order of price. For every position, the back tile must be strictly taller than the front tile. We may permute tiles with equal price arbitrarily.
+
+We must output one valid ordering of both rows or determine that none exists.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Consider the cheapest \emph{remaining} price group in each row. Let the current front group have size $a$ and the current back group have size $b$.
+    \item If $a \le b$, then the next $a$ positions in the front row are exactly this entire front group, while the next $a$ positions in the back row must come from the current back group. So we only need to decide \emph{which} $a$ back tiles from this group to use now.
+    \item In that case, we should match each front tile with the shortest possible back tile that is still taller than it. This leaves the unused back tiles as tall as possible, which can only help later.
+    \item Symmetrically, if $b < a$, then the next $b$ positions in the back row are exactly this entire back group. We should match each back tile with the tallest possible front tile that is still shorter than it, leaving the unused front tiles as short as possible.
+    \item After fixing those next $\min(a,b)$ positions, the rest of the problem has exactly the same form on the remaining tiles.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Sort the back-row tiles by $(price, height, id)$ and do the same for the front row.
+    \item Split each sorted row into groups of equal price.
+    \item Maintain the current cheapest remaining group of each row in a multiset ordered by $(height, id)$.
+    \item Repeatedly process the two current groups:
+    \begin{itemize}[leftmargin=*]
+        \item If the current front group has size $a \le b$, iterate through its tiles from tallest to shortest. For each one, take from the back multiset the smallest height strictly greater than it.
+        \item Otherwise, iterate through the current back group from shortest to tallest. For each one, take from the front multiset the largest height strictly smaller than it.
+    \end{itemize}
+    \item Append the matched tile ids to the answer permutations in the order they were produced.
+    \item When a current group becomes empty, move to the next price group of that row.
+    \item If at some step the required multiset query fails, output \texttt{impossible}.
+\end{enumerate}
+
+The multisets support:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{upper\_bound(h)} for ``smallest remaining height $> h$'',
+    \item \texttt{lower\_bound(h)} followed by one step left for ``largest remaining height $< h$''.
+\end{itemize}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs a correct ordering whenever one exists, and outputs \texttt{impossible} otherwise.
+
+\paragraph{Lemma 1.}
+Suppose the current front group has size $a$ and the current back group has size $b$ with $a \le b$. In every valid solution for the remaining tiles, the next $a$ positions must pair the entire current front group with some $a$ tiles from the current back group.
+
+\paragraph{Proof.}
+The current front group is the cheapest remaining front price, so its $a$ tiles must occupy the next $a$ positions of the front row. The current back group is the cheapest remaining back price, and since it has at least $a$ tiles, the next $a$ positions of the back row must all come from this group as well. Therefore those next $a$ positions pair the entire current front group with some subset of size $a$ from the current back group. \qed
+
+\paragraph{Lemma 2.}
+Under the assumptions of Lemma 1, if a valid choice of $a$ back tiles exists, then the greedy rule ``process front tiles from tallest to shortest, and always use the shortest feasible back tile'' also succeeds and leaves a set of unused back tiles that is at least as good as any other valid choice.
+
+\paragraph{Proof.}
+Take the tallest remaining front tile $f$. Any valid solution must pair $f$ with some back tile taller than $f$. Let $x$ be the shortest such available back tile. If a valid solution uses some taller tile $y$ instead, we can swap: assign $x$ to $f$, and keep $y$ among the unused tiles. This cannot hurt any later pairing, because $y \ge x$ and all remaining front tiles are no taller than $f$. Repeating this argument for the front tiles from tallest to shortest shows that the greedy choice always succeeds whenever any valid choice exists, and after each step the multiset of unused back heights is pointwise no smaller than in any other valid solution. \qed
+
+\paragraph{Lemma 3.}
+If the current back group has size $b < a$, then the symmetric greedy rule ``process back tiles from shortest to tallest, and always use the tallest feasible front tile'' succeeds whenever any valid solution exists.
+
+\paragraph{Proof.}
+By symmetry with Lemma 2. Now the next $b$ positions must pair the entire current back group with some $b$ tiles from the current front group. For the shortest remaining back tile, any valid solution must choose some shorter front tile. Replacing that choice by the tallest possible shorter front tile leaves the unused front tiles as short as possible, which can only help later because future back tiles only need to be taller than them. Repeating from shortest back tile to tallest proves the claim. \qed
+
+\paragraph{Lemma 4.}
+After fixing the next $\min(a,b)$ positions by the algorithm, the remaining instance is feasible if and only if the original remaining instance was feasible.
+
+\paragraph{Proof.}
+If the algorithm fails during the multiset query, then by Lemma 2 or Lemma 3 no valid choice exists for those forced next positions, so the whole instance is impossible. Otherwise, by Lemma 2 or Lemma 3 the algorithm makes a choice that is at least as favorable as any valid choice for the future. Hence any completion that existed before still exists after removing these positions, and of course any completion of the smaller instance extends to a completion of the larger one. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs a correct pair of permutations if one exists, and outputs \texttt{impossible} otherwise.
+
+\paragraph{Proof.}
+We repeatedly apply Lemma 4 until all groups are exhausted. Each step fixes the next block of positions while preserving feasibility exactly. Therefore the algorithm succeeds if and only if the whole instance is feasible. Whenever it succeeds, every produced pair has back height strictly larger than front height, and groups are processed in non-decreasing price order in both rows, so the two output permutations satisfy all constraints. \qed
+
+\section*{Complexity Analysis}
+
+Sorting both rows costs $O(n \log n)$. Every tile is inserted into and erased from a multiset once, and every matching step performs one logarithmic query, so the total running time is $O(n \log n)$. The memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The answer can be emitted directly in matching order, because inside one price group any internal order is allowed.
+    \item Duplicate heights are handled by storing pairs $(height, id)$ in the multiset.
+    \item The code sorts by $(price, height, id)$ only to make the implementation deterministic; the greedy argument depends only on the price groups and height comparisons.
+    \item In \texttt{upper\_bound((h, INF))}, the large second component ensures that all tiles with height exactly $h$ are skipped, so the result is the smallest pair with height strictly greater than $h$.
+    \item In \texttt{lower\_bound((h, -1))}, since ids are positive, stepping one iterator left gives the largest pair with height strictly smaller than $h$.
+\end{itemize}
+
+\end{document}

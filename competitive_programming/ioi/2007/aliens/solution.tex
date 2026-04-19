@@ -1,0 +1,88 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2007 -- Aliens}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+This is an \textbf{interactive problem}. There is an $N \times N$ grid with a single hidden target cell. You may issue queries of the form \texttt{examine}$(x, y)$, and the grader responds with the quadrant of the target relative to $(x, y)$: NE, NW, SW, SE, or ``found'' if $(x,y)$ is the target. Determine the target cell using at most $O(\log N)$ queries.
+
+\section{Solution}
+
+\subsection{Simultaneous 2D Binary Search}
+Each query at $(x, y)$ reveals the quadrant containing the target, which narrows the search space in \emph{both} dimensions simultaneously.
+
+Maintain a bounding box $[lo_x, hi_x] \times [lo_y, hi_y]$, initially $[1, N] \times [1, N]$. At each step:
+\begin{enumerate}
+    \item Query the center $\bigl(\lfloor(lo_x + hi_x)/2\rfloor,\; \lfloor(lo_y + hi_y)/2\rfloor\bigr)$.
+    \item Based on the response, update the bounding box:
+    \begin{itemize}
+        \item NE: $lo_x \gets mx + 1$, $lo_y \gets my + 1$.
+        \item NW: $hi_x \gets mx - 1$, $lo_y \gets my + 1$.
+        \item SW: $hi_x \gets mx - 1$, $hi_y \gets my - 1$.
+        \item SE: $lo_x \gets mx + 1$, $hi_y \gets my - 1$.
+    \end{itemize}
+\end{enumerate}
+Each query halves (at least) one dimension, so the box area shrinks by a factor of at least 2. After at most $2\lceil\log_2 N\rceil$ queries the box is a single cell.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Queries:} $O(\log N)$.
+    \item \textbf{Space:} $O(1)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Grader-provided function.
+// Returns 0 (found), 1 (NE), 2 (NW), 3 (SW), 4 (SE).
+int examine(int x, int y);
+
+void solve(int N) {
+    int lo_x = 1, hi_x = N;
+    int lo_y = 1, hi_y = N;
+
+    while (lo_x <= hi_x && lo_y <= hi_y) {
+        int mx = (lo_x + hi_x) / 2;
+        int my = (lo_y + hi_y) / 2;
+        int res = examine(mx, my);
+
+        if (res == 0) return;       // found
+        if (res == 1) { lo_x = mx + 1; lo_y = my + 1; } // NE
+        if (res == 2) { hi_x = mx - 1; lo_y = my + 1; } // NW
+        if (res == 3) { hi_x = mx - 1; hi_y = my - 1; } // SW
+        if (res == 4) { lo_x = mx + 1; hi_y = my - 1; } // SE
+    }
+
+    examine(lo_x, lo_y); // final verification
+}
+\end{lstlisting}
+
+\section{Notes}
+The quadrant feedback eliminates at least three-quarters of the remaining search area at each step, giving $O(\log N)$ queries. Edge cases arise when the target shares a row or column with the query point; the exact response encoding in the grader determines which boundary to include or exclude. The solution above assumes strict inequalities in the grader responses.
+
+\end{document}

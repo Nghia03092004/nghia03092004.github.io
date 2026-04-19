@@ -1,0 +1,134 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2014 -- Wall}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+A wall has $n$ columns, each initially of height~0. Process $q$ operations:
+\begin{itemize}
+  \item $\textbf{Add}(l, r, h)$: for each $i \in [l, r]$, set $\text{height}[i] \gets \max(\text{height}[i],\, h)$.
+  \item $\textbf{Remove}(l, r, h)$: for each $i \in [l, r]$, set $\text{height}[i] \gets \min(\text{height}[i],\, h)$.
+\end{itemize}
+Output the final height of each column.
+
+\section{Solution}
+
+Use a segment tree with lazy propagation. Each node carries a \textbf{clamp interval} $[\mathit{lo}, \mathit{hi}]$ meaning: any value passing through this node is clamped to $[\mathit{lo}, \mathit{hi}]$, i.e., $x \mapsto \min(\max(x, \mathit{lo}),\, \mathit{hi})$.
+
+\begin{itemize}
+  \item $\textbf{Add}(h)$: raise both bounds: $\mathit{lo} \gets \max(\mathit{lo}, h)$, $\mathit{hi} \gets \max(\mathit{hi}, h)$.
+  \item $\textbf{Remove}(h)$: lower both bounds: $\mathit{hi} \gets \min(\mathit{hi}, h)$, $\mathit{lo} \gets \min(\mathit{lo}, h)$.
+\end{itemize}
+
+\textbf{Push-down} composes parent and child clamps:
+\[
+  \mathit{lo}_c' = \mathrm{clamp}(\mathit{lo}_c,\, \mathit{lo}_p,\, \mathit{hi}_p), \qquad
+  \mathit{hi}_c' = \mathrm{clamp}(\mathit{hi}_c,\, \mathit{lo}_p,\, \mathit{hi}_p),
+\]
+where $\mathrm{clamp}(x, a, b) = \min(\max(x, a), b)$.
+
+\begin{lemma}
+The composition of two clamp intervals is again a clamp interval, so lazy propagation is well-defined. The invariant $\mathit{lo} \le \mathit{hi}$ is maintained after every Add/Remove operation.
+\end{lemma}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 2000005;
+int lo[4 * MAXN], hi[4 * MAXN];
+
+void init(int node, int l, int r) {
+    lo[node] = 0;
+    hi[node] = 1 << 30;
+    if (l == r) return;
+    int mid = (l + r) / 2;
+    init(2 * node, l, mid);
+    init(2 * node + 1, mid + 1, r);
+}
+
+void pushDown(int node) {
+    for (int child : {2 * node, 2 * node + 1}) {
+        lo[child] = min(max(lo[child], lo[node]), hi[node]);
+        hi[child] = min(max(hi[child], lo[node]), hi[node]);
+    }
+    lo[node] = 0;
+    hi[node] = 1 << 30;
+}
+
+void update(int node, int l, int r, int ql, int qr, int op, int h) {
+    if (qr < l || r < ql) return;
+    if (ql <= l && r <= qr) {
+        if (op == 1) {
+            lo[node] = max(lo[node], h);
+            hi[node] = max(hi[node], h);
+        } else {
+            hi[node] = min(hi[node], h);
+            lo[node] = min(lo[node], h);
+        }
+        return;
+    }
+    pushDown(node);
+    int mid = (l + r) / 2;
+    update(2 * node, l, mid, ql, qr, op, h);
+    update(2 * node + 1, mid + 1, r, ql, qr, op, h);
+}
+
+void query(int node, int l, int r, int ans[]) {
+    if (l == r) {
+        ans[l] = min(max(0, lo[node]), hi[node]);
+        return;
+    }
+    pushDown(node);
+    int mid = (l + r) / 2;
+    query(2 * node, l, mid, ans);
+    query(2 * node + 1, mid + 1, r, ans);
+}
+
+void buildWall(int n, int k, int op[], int left[], int right[],
+               int height[], int finalHeight[]) {
+    init(1, 0, n - 1);
+    for (int i = 0; i < k; i++)
+        update(1, 0, n - 1, left[i], right[i], op[i], height[i]);
+    query(1, 0, n - 1, finalHeight);
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n + q \log n)$. Each range update is $O(\log n)$; the final traversal is $O(n)$.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

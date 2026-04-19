@@ -1146,6 +1146,60 @@ h4 {
 	margin-top: 1rem;
 }
 
+.cp-intro h1 {
+	max-width: 11ch;
+}
+
+.cp-year-groups {
+	padding: 1.35rem;
+	border-radius: var(--radius);
+	background:
+		linear-gradient(160deg, rgba(93, 114, 58, 0.08), rgba(255, 255, 255, 0.5)),
+		var(--surface);
+}
+
+.cp-year-groups__header h2,
+.cp-detail-note__header h2,
+.cp-statement__header h2 {
+	margin: 0.35rem 0 0;
+	font-size: clamp(1.7rem, 4vw, 2.4rem);
+	line-height: 1;
+	letter-spacing: -0.05em;
+}
+
+.cp-year-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 0.85rem;
+	margin-top: 1rem;
+}
+
+.cp-year-card {
+	display: grid;
+	gap: 0.75rem;
+	padding: 1rem;
+	border-radius: 22px;
+	border: 1px solid rgba(22, 20, 18, 0.08);
+	background: rgba(255, 255, 255, 0.56);
+}
+
+.cp-year-card strong,
+.cp-year-card span {
+	display: block;
+}
+
+.cp-year-card strong {
+	font-size: 1.3rem;
+	line-height: 1;
+	letter-spacing: -0.04em;
+}
+
+.cp-year-card span {
+	margin-top: 0.35rem;
+	color: var(--muted);
+	font-size: 0.92rem;
+}
+
 .article-shell {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) 300px;
@@ -1417,6 +1471,64 @@ h4 {
 	border-top: 1px solid rgba(22, 20, 18, 0.08);
 }
 
+.cp-detail-note,
+.cp-statement {
+	margin-bottom: 2rem;
+	padding: 1.35rem;
+	border-radius: 24px;
+	background:
+		linear-gradient(180deg, rgba(13, 92, 110, 0.08), rgba(255, 255, 255, 0.5)),
+		var(--surface);
+}
+
+.cp-detail-note__header,
+.cp-statement__header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: 1rem;
+}
+
+.cp-detail-note p,
+.cp-statement__header p {
+	margin: 0.45rem 0 0;
+	color: var(--muted);
+	max-width: 66ch;
+}
+
+.cp-statement__actions,
+.source-panel__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.7rem;
+}
+
+.cp-statement__text {
+	margin: 0;
+	background: rgba(255, 255, 255, 0.72);
+	color: var(--ink);
+	border: 1px solid rgba(22, 20, 18, 0.08);
+	box-shadow: none;
+}
+
+.cp-statement__text code {
+	color: inherit;
+}
+
+.source-panel__copy {
+	display: grid;
+	gap: 0.35rem;
+	min-width: 0;
+}
+
+.source-panel__copy p {
+	margin: 0;
+	color: var(--muted);
+	max-width: 60ch;
+}
+
 .project-euler-statement__links {
 	display: flex;
 	flex-wrap: wrap;
@@ -1576,6 +1688,7 @@ h4 {
 	padding: 0.25rem 0.45rem;
 	border-radius: 0.55rem;
 	font-size: 0.9rem;
+	word-break: break-all;
 }
 
 .source-panel pre {
@@ -1737,6 +1850,10 @@ h4 {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
+	.cp-year-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
 	.heatmap-grid {
 		grid-template-columns: repeat(12, minmax(0, 1fr));
 	}
@@ -1853,6 +1970,10 @@ h4 {
 
 	.brand__subtitle {
 		display: none;
+	}
+
+	.cp-year-grid {
+		grid-template-columns: 1fr;
 	}
 
 	.source-library__header,

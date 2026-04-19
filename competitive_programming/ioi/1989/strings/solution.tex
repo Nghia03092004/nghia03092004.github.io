@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1989 -- Problem 2: Strings}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Count the number of binary strings of length $n$ that contain no two
+consecutive \texttt{1}s.
+
+\section{Solution}
+
+\subsection{Deriving the Recurrence}
+
+Let $f(n)$ denote the count of valid binary strings of length~$n$. Partition
+these strings by their last character:
+\begin{itemize}
+  \item $a(n)$: valid strings of length $n$ ending in \texttt{0}.
+  \item $b(n)$: valid strings of length $n$ ending in \texttt{1}.
+\end{itemize}
+
+Then $f(n) = a(n) + b(n)$, with recurrences:
+\begin{align}
+  a(n) &= a(n-1) + b(n-1), \\
+  b(n) &= a(n-1).
+\end{align}
+The first equation holds because \texttt{0} can follow either ending. The
+second holds because \texttt{1} can only follow \texttt{0} (to avoid
+consecutive \texttt{1}s).
+
+Substituting:
+\[
+  f(n) = a(n) + b(n) = f(n-1) + a(n-1) = f(n-1) + f(n-2),
+\]
+where the last step uses $a(n-1) = a(n-2) + b(n-2) = f(n-2)$.
+
+\begin{theorem}
+$f(n) = F_{n+2}$, where $F_k$ is the $k$-th Fibonacci number with
+$F_1 = F_2 = 1$.
+\end{theorem}
+\begin{proof}
+By induction. We have $f(1) = 2 = F_3$ and $f(2) = 3 = F_4$. For $n \ge 3$,
+$f(n) = f(n-1) + f(n-2) = F_{n+1} + F_n = F_{n+2}$.
+\end{proof}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(n)$ using iterative computation.
+  \item \textbf{Space:} $O(1)$, since only the two most recent values are
+    needed.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+
+    if (n == 0) {
+        cout << 1 << endl;  // the empty string
+        return 0;
+    }
+    if (n == 1) {
+        cout << 2 << endl;
+        return 0;
+    }
+
+    long long prev2 = 2;  // f(1)
+    long long prev1 = 3;  // f(2)
+
+    for (int i = 3; i <= n; i++) {
+        long long cur = prev1 + prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+
+    cout << prev1 << endl;
+    return 0;
+}
+\end{lstlisting}
+
+\section{Verification}
+
+\begin{center}
+\begin{tabular}{|c|c|l|}
+\hline
+$n$ & $f(n)$ & Valid strings \\
+\hline
+1 & 2 & \texttt{0}, \texttt{1} \\
+2 & 3 & \texttt{00}, \texttt{01}, \texttt{10} \\
+3 & 5 & \texttt{000}, \texttt{001}, \texttt{010}, \texttt{100}, \texttt{101} \\
+4 & 8 & \texttt{0000}, \texttt{0001}, \texttt{0010}, \texttt{0100},
+        \texttt{0101}, \texttt{1000}, \texttt{1001}, \texttt{1010} \\
+5 & 13 & (Fibonacci pattern continues) \\
+\hline
+\end{tabular}
+\end{center}
+
+The sequence $2, 3, 5, 8, 13, 21, \ldots$ matches $F_3, F_4, F_5, \ldots$,
+confirming the formula.
+
+\section{Note on Overflow}
+
+For $n > 85$, the value of $f(n)$ exceeds the range of a 64-bit integer.
+If larger values of $n$ are needed, arbitrary-precision arithmetic (e.g.,
+Python integers or a big-integer library) should be used.
+
+\end{document}

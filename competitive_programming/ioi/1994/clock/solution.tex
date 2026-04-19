@@ -1,0 +1,187 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1994 -- The Clock}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+There are 9 clocks arranged in a $3 \times 3$ grid. Each clock points to 12, 3, 6, or 9
+(represented as 0, 1, 2, 3 respectively, where 0 means 12 o'clock).
+There are 9 possible moves, each of which rotates a specific subset of clocks
+by 90 degrees clockwise. The goal is to make all clocks point to 12 (all zeros)
+using the minimum number of moves.
+
+\medskip
+\noindent The 9 moves affect the following clocks (numbered 1--9 in row-major order):
+\begin{itemize}
+  \item Move 1: clocks 1, 2, 4, 5
+  \item Move 2: clocks 1, 2, 3
+  \item Move 3: clocks 2, 3, 5, 6
+  \item Move 4: clocks 1, 4, 7
+  \item Move 5: clocks 2, 4, 5, 6, 8
+  \item Move 6: clocks 3, 6, 9
+  \item Move 7: clocks 4, 5, 7, 8
+  \item Move 8: clocks 7, 8, 9
+  \item Move 9: clocks 5, 6, 8, 9
+\end{itemize}
+
+\section{Solution Approach}
+
+\subsection{Key Observation}
+Since each clock has only 4 states (mod 4), and each move applied 4 times returns
+all affected clocks to their original positions, each move needs to be applied
+at most 3 times. This means the total state space is $4^9 = 262{,}144$ states,
+which is small enough for BFS.
+
+\subsection{Algorithm: BFS}
+\begin{enumerate}
+  \item Encode the 9 clock values as a single state (e.g., treating each clock as
+        a base-4 digit).
+  \item Starting from the initial state, perform BFS.
+  \item Each state has 9 neighbors (one per move).
+  \item The target state is $0$ (all clocks at 12).
+  \item BFS guarantees the shortest sequence of moves.
+\end{enumerate}
+
+\subsection{Alternative: Brute Force with 4 Loops}
+Since each of the 9 moves is applied 0--3 times, we can enumerate all $4^9$ combinations.
+This is feasible and simpler to implement.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <queue>
+#include <map>
+using namespace std;
+
+// Clocks affected by each move (0-indexed)
+int moves[9][5] = {
+    {0, 1, 3, 4, -1},   // Move 1: clocks 1,2,4,5
+    {0, 1, 2, -1, -1},  // Move 2: clocks 1,2,3
+    {1, 2, 4, 5, -1},   // Move 3: clocks 2,3,5,6
+    {0, 3, 6, -1, -1},  // Move 4: clocks 1,4,7
+    {1, 3, 4, 5, 7},    // Move 5: clocks 2,4,5,6,8
+    {2, 5, 8, -1, -1},  // Move 6: clocks 3,6,9
+    {3, 4, 6, 7, -1},   // Move 7: clocks 4,5,7,8
+    {6, 7, 8, -1, -1},  // Move 8: clocks 7,8,9
+    {4, 5, 7, 8, -1}    // Move 9: clocks 5,6,8,9
+};
+
+int clk[9];
+
+int encode(int c[]) {
+    int s = 0;
+    for (int i = 0; i < 9; i++)
+        s = s * 4 + c[i];
+    return s;
+}
+
+void decode(int s, int c[]) {
+    for (int i = 8; i >= 0; i--) {
+        c[i] = s % 4;
+        s /= 4;
+    }
+}
+
+void applyMove(int c[], int m) {
+    for (int k = 0; k < 5 && moves[m][k] != -1; k++)
+        c[moves[m][k]] = (c[moves[m][k]] + 1) % 4;
+}
+
+int main() {
+    for (int i = 0; i < 9; i++) {
+        int x;
+        scanf("%d", &x);
+        // Convert: 12->0, 3->1, 6->2, 9->3
+        clk[i] = (x / 3) % 4;
+    }
+
+    // BFS
+    int start = encode(clk);
+    int target = 0; // all zeros
+
+    if (start == target) {
+        printf("0\n");
+        return 0;
+    }
+
+    map<int, int> dist;
+    map<int, pair<int, int>> parent; // state -> (prev_state, move)
+    queue<int> q;
+    q.push(start);
+    dist[start] = 0;
+
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        int d = dist[u];
+
+        for (int m = 0; m < 9; m++) {
+            int tmp[9];
+            decode(u, tmp);
+            applyMove(tmp, m);
+            int v = encode(tmp);
+            if (dist.find(v) == dist.end()) {
+                dist[v] = d + 1;
+                parent[v] = {u, m};
+                if (v == target) {
+                    // Reconstruct path
+                    int path[1000], plen = 0;
+                    int cur = target;
+                    while (cur != start) {
+                        path[plen++] = parent[cur].second + 1;
+                        cur = parent[cur].first;
+                    }
+                    for (int i = plen - 1; i >= 0; i--) {
+                        if (i < plen - 1) printf(" ");
+                        printf("%d", path[i]);
+                    }
+                    printf("\n");
+                    return 0;
+                }
+                q.push(v);
+            }
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(4^9 \times 9) = O(2{,}359{,}296)$.
+        There are at most $4^9 = 262{,}144$ distinct states, and from each state
+        we try 9 moves. This is very fast in practice.
+  \item \textbf{Space complexity:} $O(4^9)$ for the BFS visited set and parent map.
+\end{itemize}
+
+\end{document}

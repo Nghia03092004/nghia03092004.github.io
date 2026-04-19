@@ -1,0 +1,124 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\A. A-Skew-ed Reasoning}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a rooted heap-ordered binary tree on the keys $1,2,\dots,n$, where key $i$ is the node
+label. We must decide whether this tree can be produced by the skew-heap insertion rule from some
+permutation of the keys. If it can, we must output both the lexicographically smallest and the
+lexicographically largest such permutations.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Because the labels are exactly $1,\dots,n$ and the tree is a min-heap, every subtree root is the
+    smallest key in that subtree. So the root of a subtree is the first key of that subtree that can appear
+    in the insertion order.
+    \item Fix a node $u$. When a later insertion $x>u$ reaches $u$, the skew-heap rule swaps the two
+    children of $u$ and then continues recursively into the new left child. Therefore the recursive target
+    alternates between the two children of $u$.
+    \item Let $A$ be the child subtree that already existed when $u$ itself was inserted, and let $B$ be the
+    other child subtree. Then the insertion order inside the subtree of $u$ has only one possible shape:
+    some prefix of the order of $B$, then $u$, then the orders of $A$ and the remaining part of $B$
+    interleaved in alternating positions.
+    \item This immediately gives the feasibility conditions.
+    If $A$ is the final left child, then $1 \le |L| \le |R|+1$.
+    If $A$ is the final right child, then $|L| \ge |R|$.
+    If neither condition holds, the whole tree is impossible.
+    \item The root key $u$ is the smallest key in its subtree, so once an orientation is fixed, the
+    lexicographic order is decided first by the position of $u$ inside that subtree. Choosing the earliest
+    feasible position gives the lexicographically smallest answer; choosing the latest feasible position
+    gives the largest answer.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Compute every subtree size bottom-up. This is possible because every child label is larger than its
+    parent label.
+    \item For each node, test the two feasible interpretations described above.
+    If both are feasible, compare the resulting position of the root inside the local order and record the
+    choice for the lexicographically smallest and largest answers separately.
+    \item Reconstruct the permutation iteratively.
+    For a subtree we do not store a contiguous segment of answer positions; instead we store an arithmetic
+    progression of positions.
+    The interleaving rule says exactly which positions belong to the prefix of $B$, which single position
+    contains the root, which alternating positions belong to $A$, and which alternating positions belong
+    to the remaining part of $B$.
+    \item Applying this split recursively yields the entire minimum permutation, and repeating it with the
+    other orientation choices yields the maximum permutation.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For any valid subtree rooted at $u$, after fixing which child was the previously existing heap at the
+moment $u$ was inserted, the insertion order inside that subtree has the interleaving pattern described in
+the observations.
+
+\paragraph{Proof.}
+The key $u$ is inserted when it becomes the new minimum of its subtree, so at that moment the old heap
+becomes one child of $u$ and the other child is empty. Every later key in the same subtree is larger than
+$u$, so when it reaches $u$ the insertion rule swaps the children and then descends into the new left
+child. Therefore the recursive destination alternates between the two child subtrees. Before the two
+streams can alternate, the larger one may need an initial prefix so that both streams still have elements
+available afterwards. This is exactly the stated pattern. \qed
+
+\paragraph{Lemma 2.}
+The size inequalities used by the algorithm are necessary and sufficient for a node to be feasible.
+
+\paragraph{Proof.}
+If $A$ is the final left child and $B$ is the final right child, then after the root there must be enough
+elements of $B$ to occupy the alternating positions around the elements of $A$, so $|A|$ can exceed
+$|B|$ by at most $1$, and $A$ cannot be empty. This gives $1 \le |L| \le |R|+1$.
+The case where $A$ is the final right child is symmetric and yields $|L| \ge |R|$.
+
+Conversely, if one of these inequalities holds, the arithmetic-progression split produced by the
+algorithm assigns a valid set of answer positions to each of the two child streams and to the root.
+Recursing on the children therefore produces a valid insertion order for the whole subtree. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, the algorithm rejects exactly the impossible nodes, so it prints \texttt{impossible} exactly
+when no valid insertion order exists.
+
+Assume the tree is feasible. By Lemma 1, every valid insertion order of a subtree must use one of the
+two local orientations considered by the algorithm, and by Lemma 2 the recursive placement generated
+from that orientation is valid. Therefore both reconstructed permutations are valid.
+
+For lexicographic minimality, note that the subtree root is the smallest key in that subtree. Hence among
+all valid local orientations, the one that places the root earlier makes the whole subtree lexicographically
+smaller, regardless of what happens later. The algorithm chooses exactly that orientation for the minimum
+answer, and the symmetric later-root choice for the maximum answer. Applying this argument
+independently at every subtree proves that the produced permutations are the lexicographically smallest
+and largest valid ones. \qed
+
+\section*{Complexity Analysis}
+
+Computing subtree sizes is $O(n)$. The feasibility pass is also $O(n)$. The reconstruction touches every
+node a constant number of times, so it is $O(n)$. The memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The reconstruction is written iteratively to avoid recursion depth problems at $n=2\cdot 10^5$.
+    \item Each stack frame stores an arithmetic progression of answer indices rather than an explicit list of
+    positions, which keeps the reconstruction linear.
+\end{itemize}
+
+\end{document}

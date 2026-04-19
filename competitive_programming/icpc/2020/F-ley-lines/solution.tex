@@ -1,0 +1,174 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\F. Ley Lines}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given $n$ planar points and a pencil thickness $t$.
+A ``line'' of thickness $t$ is a strip between two parallel lines whose distance is $t$.
+We must find the maximum number of points that can lie inside one such strip.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Any optimal strip can be translated orthogonally until one of its two boundary lines passes through
+    one of the chosen points. So it is enough to consider strips whose lower boundary passes through some
+    input point $P$.
+    \item Fix such a point $P$ and let the boundary line through $P$ have direction angle $\alpha$.
+    For another point $Q$, write:
+    \begin{itemize}[leftmargin=*]
+        \item $d = |PQ|$,
+        \item $\gamma =$ the polar angle of vector $\overrightarrow{PQ}$.
+    \end{itemize}
+    Then $Q$ lies inside the strip exactly when its signed perpendicular distance from the boundary line is
+    between $0$ and $t$, i.e.
+    \[
+        0 \le d \sin(\gamma - \alpha) \le t.
+    \]
+    \item Therefore, for fixed $P$, every other point contributes one or two angle intervals of valid
+    $\alpha$ values.
+    \item If $d \le t$, then any line direction that keeps $Q$ on the chosen side of the boundary works, so the
+    valid interval has length $\pi$:
+    \[
+        \alpha \in [\gamma-\pi,\ \gamma].
+    \]
+    \item If $d > t$, let $\delta = \arcsin(t/d)$.
+    Then $Q$ is inside the strip exactly for
+    \[
+        \alpha \in [\gamma-\delta,\ \gamma]
+    \]
+    or
+    \[
+        \alpha \in [\gamma-\pi,\ \gamma-\pi+\delta].
+    \]
+    \item So for each anchor point $P$, the problem becomes: on the angle circle $[0,2\pi)$, find the maximum
+    number of these intervals that overlap at one angle.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Iterate over every point $P_i$ and force one strip boundary to pass through it.
+    \item For every other point $P_j$:
+    \begin{itemize}[leftmargin=*]
+        \item compute $d=|P_iP_j|$ and $\gamma=\operatorname{atan2}(y_j-y_i, x_j-x_i)$;
+        \item convert the valid-angle set described above into one or two intervals on the angle circle;
+        \item split wrap-around intervals at $0$ if necessary.
+    \end{itemize}
+    \item Run a sweep over the interval endpoints:
+    \begin{itemize}[leftmargin=*]
+        \item start event = $+1$,
+        \item end event = $-1$,
+        \item when two events have the same angle, process starts before ends because interval endpoints are
+        inclusive.
+    \end{itemize}
+    \item The sweep count plus the anchor point itself gives the best strip with boundary through $P_i$.
+    \item Take the maximum over all anchors.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+There exists an optimal strip whose one boundary line passes through an input point.
+
+\paragraph{Proof.}
+Take any optimal strip and project its chosen points onto the strip normal direction.
+All projected values lie inside some interval of length $t$.
+Shift that interval until its left endpoint equals the minimum projected value among those chosen points.
+This translation does not remove any chosen point, and now the left boundary passes through at least one of
+them.
+So some optimal strip has a boundary through an input point. \qed
+
+\paragraph{Lemma 2.}
+Fix an anchor point $P$ on the lower boundary of the strip, and let the boundary line have direction angle
+$\alpha$.
+For another point $Q$ at polar angle $\gamma$ and distance $d$ from $P$, the set of valid $\alpha$ is exactly:
+\[
+    [\gamma-\pi,\gamma] \quad \text{if } d \le t,
+\]
+and otherwise, with $\delta=\arcsin(t/d)$,
+\[
+    [\gamma-\delta,\gamma] \cup [\gamma-\pi,\gamma-\pi+\delta].
+\]
+
+\paragraph{Proof.}
+Point $Q$ is inside the strip exactly when its signed perpendicular distance from the boundary line is
+between $0$ and $t$:
+\[
+    0 \le d\sin(\gamma-\alpha) \le t.
+\]
+
+If $d \le t$, the upper bound is automatic, so we only need
+\[
+    \sin(\gamma-\alpha) \ge 0,
+\]
+which is equivalent to $\gamma-\alpha \in [0,\pi]$, or
+\[
+    \alpha \in [\gamma-\pi,\gamma].
+\]
+
+If $d > t$, the inequality becomes
+\[
+    0 \le \sin(\gamma-\alpha) \le t/d.
+\]
+Writing $\delta=\arcsin(t/d)$, this holds exactly when
+\[
+    \gamma-\alpha \in [0,\delta] \cup [\pi-\delta,\pi],
+\]
+which is equivalent to the two stated intervals for $\alpha$. \qed
+
+\paragraph{Lemma 3.}
+For a fixed anchor point $P$, the sweep over interval endpoints computes the maximum number of points that
+can be covered by a strip whose lower boundary passes through $P$.
+
+\paragraph{Proof.}
+By Lemma 2, each other point $Q$ contributes exactly the set of boundary angles $\alpha$ for which $Q$ lies
+inside the strip.
+Hence, for any specific angle $\alpha$, the number of points covered equals one (for the anchor $P$) plus
+the number of intervals containing $\alpha$.
+The interval-endpoint sweep computes the maximum overlap of these intervals on the angle circle, so it
+computes exactly the best strip anchored at $P$. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, some optimal strip has a boundary through an input point $P$.
+For that fixed anchor, Lemma 3 shows that the algorithm computes the best possible strip.
+Since the algorithm tries every point as anchor, it will examine the anchor from some optimal strip and
+therefore reach the global optimum.
+Thus the reported maximum is correct. \qed
+
+\section*{Complexity Analysis}
+
+For each of the $n$ anchor points we generate $O(n)$ intervals and sort $O(n)$ events.
+So the total running time is
+\[
+    O(n^2 \log n).
+\]
+
+The event list for one anchor uses $O(n)$ memory.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Wrapped intervals on the circle are split into two ordinary intervals in $[0,2\pi)$.
+    \item Endpoints are treated as inclusive, so when two events share the same angle we process start events
+    before end events.
+    \item \texttt{long double} is sufficient; the statement guarantees the answer is stable under a
+    $10^{-2}$ perturbation of $t$.
+\end{itemize}
+
+\end{document}

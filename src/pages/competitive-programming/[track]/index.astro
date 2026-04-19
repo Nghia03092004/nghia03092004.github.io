@@ -1,0 +1,265 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { formatDate } from '../../../lib/content';
+import { withBase } from '../../../lib/paths';
+import {
+	getCompetitiveProgrammingRecords,
+	getCompetitiveProgrammingTrackSummary,
+	getCompetitiveProgrammingYearGroups,
+	type CompetitiveProgrammingTrack,
+} from '../../../features/competitive-programming/lib/competitive-programming';
+
+const TRACK_COPY: Record<
+	CompetitiveProgrammingTrack,
+	{
+		title: string;
+		description: string;
+		note: string;
+	}
+> = {
+	icpc: {
+		title: 'ICPC World Finals archive',
+		description:
+			'Every entry keeps the exact TeX write-up and C++ implementation, plus the copied statement text/PDF assets when they exist.',
+		note: 'The ICPC copy preserves meta.json, statement.txt, and statement.pdf next to the source files so each problem folder stays self-contained on GitHub.',
+	},
+	ioi: {
+		title: 'IOI archive',
+		description:
+			'Each task folder keeps the copied write-up and implementation under a normalized solution.tex / solution.cpp pair for a consistent long-term archive.',
+		note: 'The IOI copy stays deliberately lean. Helper binaries, stress scripts, and ad-hoc local artefacts from the source tree are not imported into the website repo.',
+	},
+};
+
+export async function getStaticPaths() {
+	return [{ params: { track: 'icpc' } }, { params: { track: 'ioi' } }];
+}
+
+const trackParam = Astro.params.track;
+if (trackParam !== 'icpc' && trackParam !== 'ioi') {
+	throw new Error(`Unsupported competitive programming track: ${trackParam}`);
+}
+
+const track = trackParam as CompetitiveProgrammingTrack;
+const [summary, records, yearGroups] = await Promise.all([
+	getCompetitiveProgrammingTrackSummary(track),
+	getCompetitiveProgrammingRecords(track),
+	getCompetitiveProgrammingYearGroups(track),
+]);
+const latestUpdated = [...records].sort((left, right) => right.updated.getTime() - left.updated.getTime())[0]?.updated;
+const years = [...new Set(records.map((record) => record.year))].sort((left, right) => right - left);
+const copy = TRACK_COPY[track];
+---
+
+<BaseLayout title={summary.longLabel} description={copy.description}>
+	<section class="page-intro cp-intro">
+		<span class="eyebrow">Competitive Programming</span>
+		<h1>{copy.title}</h1>
+		<p>{copy.description}</p>
+		<div class="archive-summary">
+			<div class="archive-summary__item">
+				<strong>{summary.entryCount}</strong>
+				<span>entries in this archive</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{summary.yearCount}</strong>
+				<span>contest years covered</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{track === 'icpc' ? summary.statementPdfCount : 2}</strong>
+				<span>{track === 'icpc' ? 'statement PDFs copied' : 'source files per task'}</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{latestUpdated ? formatDate(latestUpdated) : 'n/a'}</strong>
+				<span>newest copied source file</span>
+			</div>
+		</div>
+	</section>
+
+	<section class="panel archive-toolbar">
+		<div class="archive-toolbar__copy">
+			<span class="section-label">Source model</span>
+			<h2>Built from copied source folders, not hand-edited HTML.</h2>
+			<p>{copy.note}</p>
+		</div>
+		<div class="chip-row">
+			<a class="button button--ghost" href={withBase('/competitive-programming')}>
+				All competitive programming
+			</a>
+			<a class="button button--ghost" href={withBase('/project-euler')}>
+				Project Euler
+			</a>
+		</div>
+	</section>
+
+	<section class="panel cp-year-groups">
+		<div class="cp-year-groups__header">
+			<div>
+				<span class="section-label">Coverage</span>
+				<h2>Contest years</h2>
+			</div>
+		</div>
+		<div class="cp-year-grid">
+			{
+				yearGroups.map((group) => (
+					<div class="cp-year-card">
+						<div>
+							<strong>{group.year}</strong>
+							<span>{group.entryCount} entries</span>
+						</div>
+						{group.packetUrl ? (
+							<a class="button button--ghost" href={withBase(group.packetUrl)}>
+								Problem packet
+							</a>
+						) : null}
+					</div>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="euler-archive" data-cp-archive>
+		<div class="panel archive-toolbar">
+			<div class="archive-toolbar__copy">
+				<span class="section-label">Browse</span>
+				<h2>Search by title, year, or problem label.</h2>
+				<p>
+					The listing is driven from copied directory structure and source timestamps. Open an entry
+					to see the exact TeX and C++ files used by the site.
+				</p>
+			</div>
+
+			<form class="filter-bar archive-toolbar__filters" aria-label={`${summary.label} filters`}>
+				<input
+					class="filter-input"
+					type="search"
+					name="query"
+					placeholder={`Search ${summary.label} by title, year, or folder`}
+				/>
+				<select class="filter-select" name="year">
+					<option value="all">All years</option>
+					{years.map((year) => <option value={String(year)}>{year}</option>)}
+				</select>
+				<select class="filter-select" name="sort">
+					<option value="year-desc">Year: newest first</option>
+					<option value="year-asc">Year: oldest first</option>
+					<option value="title-asc">Title: A to Z</option>
+					<option value="updated-desc">Updated: newest first</option>
+				</select>
+			</form>
+		</div>
+
+		<div class="panel archive-results" data-results-panel>
+			<div class="archive-results__header">
+				<div>
+					<span class="section-label">Result list</span>
+					<h2>Archive entries</h2>
+				</div>
+				<span class="metric archive-results__count" data-result-count>
+					{records.length} results
+				</span>
+			</div>
+
+			<div class="euler-list" data-result-list>
+				{
+					records.map((record) => (
+						<a
+							class="euler-row"
+							data-entry-row
+							data-search={`${record.displayTitle} ${record.title} ${record.description} ${record.year} ${record.folderName}`
+								.toLowerCase()
+								.trim()}
+							data-year={record.year}
+							data-title={record.displayTitle}
+							data-updated={record.updated.getTime()}
+							href={withBase(`/competitive-programming/${record.track}/${record.year}/${record.slug}`)}
+						>
+							<div class="euler-row__number">
+								<span class="metric">
+									{record.track.toUpperCase()} {record.year}
+								</span>
+							</div>
+							<div class="euler-row__body">
+								<h3>{record.displayTitle}</h3>
+								<p>{record.statementPreview ?? record.description}</p>
+							</div>
+							<div class="euler-row__meta">
+								<span class="metric">Updated {formatDate(record.updated)}</span>
+								<span class="chip" data-tone="cool">TeX</span>
+								<span class="chip" data-tone="cool">C++</span>
+								{record.hasStatementText ? <span class="chip" data-tone="olive">statement text</span> : null}
+								{record.hasStatementPdf ? <span class="chip" data-tone="warm">statement pdf</span> : null}
+							</div>
+						</a>
+					))
+				}
+			</div>
+		</div>
+
+		<div class="archive-empty panel" data-empty-state hidden>
+			<span class="eyebrow">No match</span>
+			<p class="lede">No {summary.label} entries fit the current search and filter combination.</p>
+		</div>
+	</section>
+
+	<script is:inline>
+		const root = document.querySelector('[data-cp-archive]');
+		const form = root?.querySelector('form');
+		const rows = Array.from(root?.querySelectorAll('[data-entry-row]') ?? []);
+		const resultList = root?.querySelector('[data-result-list]');
+		const resultCount = root?.querySelector('[data-result-count]');
+		const resultsPanel = root?.querySelector('[data-results-panel]');
+		const emptyState = root?.querySelector('[data-empty-state]');
+
+		const sorters = {
+			'year-desc': (left, right) => Number(right.dataset.year) - Number(left.dataset.year),
+			'year-asc': (left, right) => Number(left.dataset.year) - Number(right.dataset.year),
+			'title-asc': (left, right) =>
+				(left.dataset.title ?? '').localeCompare(right.dataset.title ?? ''),
+			'updated-desc': (left, right) => Number(right.dataset.updated) - Number(left.dataset.updated),
+		};
+
+		const applyFilters = () => {
+			if (!form || !resultList) {
+				return;
+			}
+
+			const query = form.elements.namedItem('query')?.value?.toLowerCase().trim() ?? '';
+			const year = form.elements.namedItem('year')?.value ?? 'all';
+			const sort = form.elements.namedItem('sort')?.value ?? 'year-desc';
+
+			const visibleRows = rows.filter((row) => {
+				const matchesQuery = !query || (row.dataset.search ?? '').includes(query);
+				const matchesYear = year === 'all' || row.dataset.year === year;
+				return matchesQuery && matchesYear;
+			});
+
+			rows.forEach((row) => {
+				row.hidden = !visibleRows.includes(row);
+			});
+
+			visibleRows
+				.slice()
+				.sort(sorters[sort] ?? sorters['year-desc'])
+				.forEach((row) => {
+					resultList.appendChild(row);
+				});
+
+			if (resultCount) {
+				resultCount.textContent = `${visibleRows.length} ${visibleRows.length === 1 ? 'result' : 'results'}`;
+			}
+
+			if (resultsPanel) {
+				resultsPanel.hidden = visibleRows.length === 0;
+			}
+
+			if (emptyState) {
+				emptyState.hidden = visibleRows.length !== 0;
+			}
+		};
+
+		form?.addEventListener('input', applyFilters);
+		form?.addEventListener('change', applyFilters);
+		applyFilters();
+	</script>
+</BaseLayout>

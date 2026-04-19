@@ -1,0 +1,150 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1999 -- Flower Shop}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+There are $F$ flowers and $V$ vases in a row ($F \le V$).
+Each flower $i$ has a preference value $\mathrm{pref}[i][j]$ for vase $j$.
+Flowers must be placed in \emph{strictly increasing} vase order:
+$v_1 < v_2 < \cdots < v_F$.
+Maximize the total preference and output the assignment.
+
+\section{Solution Approach}
+
+\subsection{DP Formulation}
+
+Define:
+\[
+  \mathrm{dp}[i][j] = \max \text{ total preference placing flowers } 1, \ldots, i
+                       \text{ with flower } i \text{ in vase } j.
+\]
+
+\textbf{Base case:} $\mathrm{dp}[1][j] = \mathrm{pref}[1][j]$ for
+$1 \le j \le V - F + 1$.
+
+\textbf{Transition:}
+\[
+  \mathrm{dp}[i][j] = \max_{k < j} \mathrm{dp}[i{-}1][k] + \mathrm{pref}[i][j],
+  \quad i \le j \le V - F + i.
+\]
+
+\subsection{Running Maximum Optimization}
+
+Rather than iterating over all $k < j$ for each $(i, j)$, we maintain a running maximum
+of $\mathrm{dp}[i{-}1][k]$ as $j$ increases. This reduces the time per flower from
+$O(V^2)$ to $O(V)$.
+
+\subsection{Reconstruction}
+
+Store the vase $k$ achieving the maximum in a parent array and trace backward from
+the optimal final assignment.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+int main() {
+    int F, V;
+    scanf("%d %d", &F, &V);
+
+    vector<vector<int>> pref(F + 1, vector<int>(V + 1));
+    for (int i = 1; i <= F; i++)
+        for (int j = 1; j <= V; j++)
+            scanf("%d", &pref[i][j]);
+
+    const int NEG_INF = -1000000000;
+    vector<vector<int>> dp(F + 1, vector<int>(V + 1, NEG_INF));
+    vector<vector<int>> par(F + 1, vector<int>(V + 1, 0));
+
+    // Base case: flower 1
+    for (int j = 1; j <= V - F + 1; j++)
+        dp[1][j] = pref[1][j];
+
+    // Fill DP with running maximum
+    for (int i = 2; i <= F; i++) {
+        int best = NEG_INF;
+        int bestk = 0;
+        for (int j = i; j <= V - F + i; j++) {
+            // Update running max from dp[i-1][j-1]
+            if (dp[i - 1][j - 1] > best) {
+                best = dp[i - 1][j - 1];
+                bestk = j - 1;
+            }
+            if (best > NEG_INF) {
+                dp[i][j] = best + pref[i][j];
+                par[i][j] = bestk;
+            }
+        }
+    }
+
+    // Find the optimal vase for the last flower
+    int ans = NEG_INF, lastVase = 0;
+    for (int j = F; j <= V; j++) {
+        if (dp[F][j] > ans) {
+            ans = dp[F][j];
+            lastVase = j;
+        }
+    }
+
+    printf("%d\n", ans);
+
+    // Reconstruct the assignment
+    vector<int> assignment(F + 1);
+    assignment[F] = lastVase;
+    for (int i = F; i >= 2; i--)
+        assignment[i - 1] = par[i][assignment[i]];
+
+    for (int i = 1; i <= F; i++)
+        printf("%d%c", assignment[i], i < F ? ' ' : '\n');
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Correctness}
+
+The DP processes flowers in order $1, 2, \ldots, F$. For each flower $i$, the running
+maximum ensures that $\mathrm{dp}[i][j]$ considers all valid predecessor vases $k < j$.
+The constraint $i \le j \le V - F + i$ ensures that enough vases remain for subsequent
+flowers.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(F \times V)$. Each flower iterates over at most $V$
+        vases, and the running maximum makes each iteration $O(1)$.
+  \item \textbf{Space complexity:} $O(F \times V)$ for the DP and parent tables.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,115 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\C. Checks Post Facto}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given only a middle segment of a checkers game: whose turn starts first, and a sequence of legal moves. We must construct \emph{some} initial board such that these moves can be played legally in order, and then output both the initial board and the final board after the sequence.
+
+The initial board does \emph{not} need to be reachable from a real game. It only needs to obey the local rules of checkers:
+\begin{itemize}[leftmargin=*]
+    \item men move forward, kings move both ways,
+    \item captures are forced,
+    \item jump moves must continue as long as that same piece can keep capturing,
+    \item promotion ends the turn immediately,
+    \item black men may not start on the last row and white men may not start on the first row.
+\end{itemize}
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Start from the empty initial board and replay the move list. Whenever the replay fails, repair the \emph{earliest} inconsistency by adding or upgrading the smallest possible initial piece, then restart from the beginning.
+    \item There are three mandatory repairs:
+    \begin{itemize}[leftmargin=*]
+        \item If the moving square is empty, we must place a piece of the current player's color there initially.
+        \item If a capture jumps over an empty square, we must place an opponent piece there initially.
+        \item If a man ever needs to move or jump backward, or continue moving after reaching the promotion row, that piece must actually have been a king from the start.
+    \end{itemize}
+    \item The crucial monotonicity is: there is never any advantage to placing a king when a man would suffice. A king only creates extra possible moves and extra possible forced captures later. So every newly added piece should be the \emph{least powerful} piece compatible with the rules: a man if that row allows it, otherwise a king.
+    \item After all mandatory repairs have converged, any remaining illegality must come from a forced capture that is \emph{not} taken in the given move list. Such a capture can be blocked by occupying its landing square. The blocking piece can be taken to be a minimal Black piece or a minimal White piece, so this is the only place where we need branching.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Represent the initial board by 32 dark squares, initially all empty.
+    \item Run a DFS on initial boards. For one fixed initial board:
+    \begin{enumerate}[leftmargin=*]
+        \item Replay the given move list from the beginning.
+        \item Each current piece remembers the square where it started, so if we later discover it must really be a king, we can upgrade that initial square.
+        \item Stop at the first inconsistency:
+        \begin{itemize}[leftmargin=*]
+            \item missing moving piece $\rightarrow$ add a minimal piece at that start square,
+            \item missing captured piece $\rightarrow$ add a minimal opponent piece at that jumped-over square,
+            \item illegal backward motion by a man, or a man that would need to continue after promotion $\rightarrow$ upgrade that piece's origin square to a king,
+            \item an available forced capture that the move list does not take $\rightarrow$ branch by placing a minimal Black blocker or a minimal White blocker on the landing square of one such unwanted jump.
+        \end{itemize}
+        \item If a mandatory repair was applied, restart replay immediately from move 1 on the modified initial board.
+        \item If all moves replay successfully, we have found a valid initial board and can output the resulting final board.
+    \end{enumerate}
+    \item Memoize visited initial boards so the DFS never explores the same state twice.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs a valid pair of boards.
+
+\paragraph{Lemma 1.}
+If, during replay, the next listed move starts from an empty square, then any valid solution must contain a piece of the current player's color on that square initially.
+
+\paragraph{Proof.}
+At that moment in the replay, the listed move needs a piece on that square. Since our replay has already followed the same earlier moves, any piece that could be there must have existed from the initial position. Therefore some initial piece of the current player's color must occupy that square. \qed
+
+\paragraph{Lemma 2.}
+If, during replay, a listed jump needs an opponent piece on the jumped-over square and that square is empty, then any valid solution must contain an initial opponent piece on that square.
+
+\paragraph{Proof.}
+For the listed jump to be legal, the jumped-over square must contain an opponent piece at that moment. Since our replay has already processed all earlier listed moves exactly as required, the only way to make that happen is that some initial opponent piece remained there until being captured. \qed
+
+\paragraph{Lemma 3.}
+If a currently replayed piece must move backward as a man, or would need to keep moving after a man-promotion, then in every valid solution that piece must have started as a king.
+
+\paragraph{Proof.}
+A man is not allowed to move or jump backward. Also, once a man reaches the promotion row, the turn ends immediately. Therefore any listed move violating one of these restrictions cannot be made by a man at all; the same physical piece must have been a king before the move sequence started. \qed
+
+\paragraph{Lemma 4.}
+Whenever Lemma 1, 2, or 3 applies, performing the corresponding repair used by the algorithm cannot destroy any valid completion.
+
+\paragraph{Proof.}
+By Lemma 1 and Lemma 2, the required piece must exist in every valid solution, so adding the least powerful compatible initial piece only makes our partial reconstruction closer to any valid solution. By Lemma 3, upgrading that origin square to a king is also necessary in every valid solution. None of these repairs removes any move that must remain legal later. \qed
+
+\paragraph{Lemma 5.}
+After all mandatory repairs have converged, if the replay is still illegal, then the first remaining illegality is an untaken forced capture; blocking one such jump by occupying its landing square is sufficient, and trying both colors covers all possibilities.
+
+\paragraph{Proof.}
+All other local failures have already been eliminated by Lemma 4. Thus the only remaining issue is that the move list wants a simple move, or wants to stop a jump sequence, while some capture is available. A capture is unavailable as soon as its landing square is occupied. Therefore placing \emph{some} piece on that landing square blocks that unwanted jump. Since the color of that blocker is irrelevant for blocking, trying both colors is exhaustive; choosing a man whenever possible is the least restrictive option. \qed
+
+\paragraph{Theorem.}
+If a valid reconstruction exists, the DFS finds one and outputs a correct initial board and final board.
+
+\paragraph{Proof.}
+By Lemma 4, every mandatory repair preserves the existence of a valid completion. Once mandatory repairs are exhausted, Lemma 5 shows that every remaining valid solution corresponds to one of the blocker branches explored by the DFS. Hence the DFS never discards all valid solutions, and eventually reaches a state where replay succeeds completely. The reported initial board is exactly the board used for that successful replay, and the reported final board is the board obtained after executing the listed moves, so both outputs are correct. \qed
+
+\section*{Complexity Analysis}
+
+For a fixed initial board, replaying all moves is $O(n)$ because the board has constant size $32$. The DFS branches only when choosing blocker colors, and each branch permanently adds a new initial piece, so the search depth is at most $32$. Thus the theoretical worst case is exponential in the number of blocker decisions, but the state space is tiny in practice and the official intended solution relies on exactly this bounded backtracking.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Each live piece stores its origin square in the initial position. That makes the ``upgrade this piece to a king from the start'' repair immediate.
+    \item When a new piece is added on a forbidden man row, the implementation inserts a king instead of a man, because that is the least powerful legal choice.
+    \item Memoizing the 32-character initial board string prevents the DFS from revisiting the same reconstruction state.
+\end{itemize}
+
+\end{document}

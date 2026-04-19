@@ -1,0 +1,156 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2004 -- Hermes}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Hermes starts at the origin and must visit $N$ events in order. Event
+$i$ is at position $p_i$ on axis $d_i \in \{X, Y\}$. He moves along
+both axes \emph{simultaneously}: the time to go from $(x_1, y_1)$ to
+$(x_2, y_2)$ is the Chebyshev distance
+$\max(|x_2 - x_1|, |y_2 - y_1|)$. Minimize total travel time.
+
+\section{Solution: Interval DP on the Free Axis}
+
+\subsection{Key Observation}
+After visiting event $i$ (which lies on axis $d_i$), the coordinate on
+axis $d_i$ is fixed at $p_i$. The coordinate on the \emph{other} axis
+is free---Hermes can choose it, subject to the time budget. The optimal
+strategy tracks an \emph{interval} of reachable positions on the free
+axis.
+
+\subsection{State}
+After processing event $i$, maintain:
+\begin{itemize}
+  \item $\mathrm{cost}$: total time spent so far (minimum possible).
+  \item $[\mathrm{lo}, \mathrm{hi}]$: the interval of positions on the
+        free axis that are achievable at cost $\mathrm{cost}$.
+\end{itemize}
+
+\subsection{Transitions}
+\paragraph{Same-axis transition} ($d_i = d_{i-1}$).
+The event axis moves from $p_{i-1}$ to $p_i$; this takes at least
+$\Delta = |p_i - p_{i-1}|$ time. During that time, the free axis can
+drift by up to $\Delta$ in either direction:
+\[
+  \mathrm{cost} \mathrel{+}= \Delta, \qquad
+  \mathrm{lo} \mathrel{-}= \Delta, \qquad
+  \mathrm{hi} \mathrel{+}= \Delta.
+\]
+
+\paragraph{Cross-axis transition} ($d_i \ne d_{i-1}$).
+The old free axis (now axis $d_i$) had position in $[\mathrm{lo}, \mathrm{hi}]$.
+We must move it to $p_i$. The minimum extra time is:
+\[
+  \delta = \max\bigl(0,\; p_i - \mathrm{hi},\; \mathrm{lo} - p_i\bigr)
+  = \operatorname{dist}(p_i, [\mathrm{lo}, \mathrm{hi}]).
+\]
+The new free axis (the old event axis $d_{i-1}$, fixed at $p_{i-1}$)
+can drift by up to $\delta$ during this extra time:
+\[
+  \mathrm{cost} \mathrel{+}= \delta, \qquad
+  \mathrm{lo} = p_{i-1} - \delta, \qquad
+  \mathrm{hi} = p_{i-1} + \delta.
+\]
+
+\begin{lemma}
+The interval representation is exact: every position in
+$[\mathrm{lo}, \mathrm{hi}]$ is achievable at the stated cost, and no
+position outside is achievable at lower cost.
+\end{lemma}
+\begin{proof}
+The Chebyshev distance is the maximum of independent movements on the
+two axes. Since only one axis is constrained per event, the other axis
+can freely absorb up to $\mathrm{cost}$ of movement. The interval
+tracks the exact range of ``slack'' on the free axis.
+\end{proof}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+
+    vector<int> d(N), p(N);
+    for (int i = 0; i < N; i++) {
+        cin >> d[i] >> p[i];
+        d[i]--; // 0 = X-axis, 1 = Y-axis
+    }
+
+    // Initial move: from (0,0) to event 0 at p[0] on axis d[0].
+    // Time = max(|p[0]|, |free|) >= |p[0]|; minimised at |p[0]|.
+    // Free axis can be anywhere in [-|p[0]|, |p[0]|].
+    long long cost = abs(p[0]);
+    long long lo = -abs(p[0]);
+    long long hi = abs(p[0]);
+
+    for (int i = 1; i < N; i++) {
+        if (d[i] == d[i - 1]) {
+            // Same axis: mandatory cost = |p[i] - p[i-1]|
+            long long dt = abs(p[i] - p[i - 1]);
+            cost += dt;
+            lo -= dt;
+            hi += dt;
+        } else {
+            // Cross axis: must reach p[i] from interval [lo, hi]
+            long long delta;
+            if (p[i] >= lo && p[i] <= hi)
+                delta = 0;
+            else if (p[i] < lo)
+                delta = lo - p[i];
+            else
+                delta = p[i] - hi;
+
+            cost += delta;
+            lo = (long long)p[i - 1] - delta;
+            hi = (long long)p[i - 1] + delta;
+        }
+    }
+
+    cout << cost << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(N)$---a single pass over the events.
+  \item \textbf{Space:} $O(N)$ for input storage (the DP uses $O(1)$
+        extra space).
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,144 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2002 -- Frog}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+$N$ stones ($N \le 10^5$) are arranged in a circle, numbered
+$1$ through $N$. A frog sits on stone 1. Each jump, the frog advances
+exactly $D$ stones clockwise. After each jump, the stone the frog
+\emph{lands on} is removed. The frog then adjusts to the nearest
+remaining stone (with specific tie-breaking rules).
+
+Simulate the process and output the order in which stones are removed.
+
+\section{Solution: Fenwick Tree for Order Statistics}
+
+\subsection{Key Idea}
+Maintain the set of remaining stones in a Fenwick tree, where
+$\text{bit}[i] = 1$ if stone $i$ is present and $0$ otherwise. This
+supports:
+\begin{itemize}
+  \item Finding the $k$-th remaining stone in $O(\log N)$ (binary
+        lifting on the BIT).
+  \item Removing a stone in $O(\log N)$.
+\end{itemize}
+
+\subsection{Circular Jump}
+If there are $R$ stones remaining and the frog is at rank $r$ (1-indexed
+among remaining stones), after removing the current stone ($R$ becomes
+$R - 1$), the stones after the removed one shift down in rank. The
+frog's new target rank is:
+\[
+  r' = \bigl((r - 1) + (D - 1)\bigr) \bmod R' + 1
+  \qquad\text{where } R' = R - 1.
+\]
+This accounts for the fact that the current stone is removed before
+jumping.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct BIT {
+    int n;
+    vector<int> tree;
+
+    BIT(int n) : n(n), tree(n + 1, 0) {}
+
+    void update(int i, int val) {
+        for (; i <= n; i += i & (-i))
+            tree[i] += val;
+    }
+
+    int query(int i) {
+        int s = 0;
+        for (; i > 0; i -= i & (-i))
+            s += tree[i];
+        return s;
+    }
+
+    // Find the k-th element (1-indexed) via binary lifting.
+    int kth(int k) {
+        int pos = 0;
+        for (int bm = 1 << __lg(n); bm > 0; bm >>= 1) {
+            int next = pos + bm;
+            if (next <= n && tree[next] < k) {
+                k -= tree[next];
+                pos = next;
+            }
+        }
+        return pos + 1;
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, D;
+    cin >> N >> D;
+
+    BIT bit(N);
+    for (int i = 1; i <= N; i++)
+        bit.update(i, 1);
+
+    int remaining = N;
+    int curRank = 1; // rank of stone 1 among remaining stones
+
+    for (int step = 0; step < N; step++) {
+        int stone = bit.kth(curRank);
+        cout << stone << "\n";
+
+        bit.update(stone, -1);
+        remaining--;
+
+        if (remaining == 0) break;
+
+        // After removing the stone at curRank, compute new rank.
+        // Ranks >= curRank shift down by 1, so the "next" stone
+        // is now at curRank (if it exists). We advance D-1 more.
+        curRank = ((curRank - 1 + D - 1) % remaining) + 1;
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(N \log N)$. Each of the $N$ steps performs
+        one $k$-th element query ($O(\log N)$) and one update
+        ($O(\log N)$).
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\end{document}

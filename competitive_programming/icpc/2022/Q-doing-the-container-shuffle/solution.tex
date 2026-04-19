@@ -1,0 +1,118 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\Q. Doing the Container Shuffle}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Containers $1,2,\dots,n$ are placed independently onto one of two stacks. They are later requested in a
+fixed order $a_1,\dots,a_n$. If the next requested container is not on top of its stack, we repeatedly move
+containers from that stack to the other stack until it is exposed. We must compute the expected total
+number of moves, including the final move from a stack to a truck.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item At any moment, the two stacks can be viewed as one \emph{joint order}:
+    first stack from bottom to top, then second stack from top to bottom.
+    Moving the top container from one stack to the other preserves this joint order; it only changes where
+    the ``cut'' between the two stacks lies.
+    \item Before unloading $a_{i+1}$, the containers that must be moved are exactly the still-present
+    containers lying in the joint-order interval between $a_i$ and $a_{i+1}$. For $a_1$, the blocking
+    containers are exactly those above $a_1$ on its stack.
+    \item A container $v$ can lie in that interval only if it was unloaded from the ship after
+    $\min(a_i,a_{i+1})$. For such a container, the random choice of stack puts it in the interval with
+    probability $1/2$.
+    \item Therefore
+    \[
+    \mathbb{E}[\text{moves before unloading } a_{i+1}]
+    = \frac{1}{2}\left|\{v : v \text{ is requested after } a_{i+1},\ v > \min(a_i,a_{i+1})\}\right|.
+    \]
+    For the first request $a_1$, the same formula holds with just $v > a_1$.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Start the answer at $n$, since every requested container must eventually be moved from a stack
+    to a truck exactly once.
+    \item Process the truck order from right to left, maintaining in a Fenwick tree the set of container
+    labels that appear later in the truck order.
+    \item For position $i$:
+    \begin{itemize}[leftmargin=*]
+        \item if $i=1$, use threshold $a_1$;
+        \item otherwise use threshold $\min(a_{i-1},a_i)$.
+    \end{itemize}
+    \item Query how many later-requested containers have label larger than that threshold, divide by $2$,
+    and add it to the answer.
+    \item Insert $a_i$ into the Fenwick tree and continue.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+After any sequence of stack-to-stack moves, the relative order of the containers in the joint order is the
+same as initially, except that some containers may already have been removed to trucks.
+
+\paragraph{Proof.}
+Moving the top container of one stack to the top of the other stack removes that container from one end of
+the joint order and inserts it at the other end. The sequence of the remaining containers is unchanged.
+Removing a requested container simply deletes it from the joint order. Repeating these operations proves
+the claim. \qed
+
+\paragraph{Lemma 2.}
+Before unloading $a_{i+1}$, the containers that must be moved are exactly the still-present containers in
+the initial joint-order interval between $a_i$ and $a_{i+1}$.
+
+\paragraph{Proof.}
+By Lemma 1, after $a_i$ has been removed, the still-present containers keep the same relative order as in
+the initial joint order with already removed containers deleted. To expose $a_{i+1}$, we must move exactly
+the containers lying between the current cut and $a_{i+1}$, which is the same as the initial interval
+between $a_i$ and $a_{i+1}$ after deleting already removed containers. \qed
+
+\paragraph{Lemma 3.}
+Fix a later-requested container $v$. It belongs to the interval of Lemma 2 with probability $1/2$ if
+$v > \min(a_i,a_{i+1})$, and with probability $0$ otherwise.
+
+\paragraph{Proof.}
+If $v < \min(a_i,a_{i+1})$, then $v$ was loaded onto a stack before both endpoints, so it lies below both
+of them on whichever stack contains it and cannot be between them in the joint order.
+
+If $v > \min(a_i,a_{i+1})$, then $v$ was loaded later than at least one endpoint. Its random stack choice is
+independent of all others, and exactly one of the two stack choices places it in the interval between the
+two endpoints in the initial joint order. Hence the probability is $1/2$. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct expected total number of moves.
+
+\paragraph{Proof.}
+By Lemma 2, the number of stack-to-stack moves before unloading $a_{i+1}$ equals the number of
+still-present containers in the corresponding interval. By Lemma 3, the expectation of that number is
+exactly one half of the number of later-requested containers whose labels exceed the threshold
+$\min(a_i,a_{i+1})$ (or just $a_1$ for the first request). Summing these expectations over all requests and
+adding the $n$ inevitable truck moves yields exactly the formula computed by the algorithm. \qed
+
+\section*{Complexity Analysis}
+
+Each of the $n$ positions performs one Fenwick query and one update. The running time is
+$O(n \log n)$ and the memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The answer is always a multiple of $0.5$, but the implementation prints it as a floating-point
+    number with three digits after the decimal point.
+\end{itemize}
+
+\end{document}

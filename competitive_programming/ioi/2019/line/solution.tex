@@ -1,0 +1,101 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{lemma}{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2019 -- Sequence (Line)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given an array of $n$ integers, find the minimum number of elements to change so the result is an arithmetic sequence $a + bi$ for positions $i = 0, 1, \ldots, n-1$.
+
+\section{Solution}
+
+\subsection{Key Observation}
+If we keep elements at positions $i$ and $j$ ($i < j$), the common difference is $d = (\text{arr}[j] - \text{arr}[i]) / (j - i)$, which must be an integer. The starting value is $a = \text{arr}[i] - d \cdot i$.
+
+\begin{lemma}
+If the optimal solution keeps $\ge 3$ elements, then at least two of the first three positions ($0, 1, 2$) are kept.
+\end{lemma}
+\begin{proof}
+If none of positions $0, 1, 2$ is kept, at most $n - 3$ elements are kept, which can only be optimal when $n \le 5$. If exactly one is kept, any single element can be paired with any other to define a candidate, but we need at least two kept elements to fix the arithmetic sequence. The lemma follows from a case analysis: among any three consecutive kept positions, at least one pair involves position $0$, $1$, or $2$.
+\end{proof}
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item For each pair $(i, j)$ where $i \in \{0, 1, 2\}$ and $j > i$: compute $d$ and $a$, then count matches in $O(n)$.
+  \item This gives $O(n)$ candidate sequences, each checked in $O(n)$ time.
+  \item Handle edge cases: $n \le 2$ always has answer $0$.
+\end{enumerate}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int minimum_changes(vector<int>& arr) {
+    int n = arr.size();
+    if (n <= 2) return 0;
+
+    int best = 2;  // can always keep at least 2 elements
+
+    auto try_seq = [&](long long a, long long d) {
+        int cnt = 0;
+        for (int i = 0; i < n; i++)
+            if ((long long)arr[i] == a + d * i) cnt++;
+        best = max(best, cnt);
+    };
+
+    for (int i = 0; i < min(n, 3); i++) {
+        for (int j = i + 1; j < n; j++) {
+            long long diff = (long long)arr[j] - arr[i];
+            long long gap = j - i;
+            if (diff % gap != 0) continue;
+            long long d = diff / gap;
+            long long a = (long long)arr[i] - d * i;
+            try_seq(a, d);
+        }
+    }
+
+    return n - best;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    vector<int> arr(n);
+    for (int i = 0; i < n; i++) scanf("%d", &arr[i]);
+    printf("%d\n", minimum_changes(arr));
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time}: $O(n^2)$ -- $O(n)$ candidate pairs, each checked in $O(n)$.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

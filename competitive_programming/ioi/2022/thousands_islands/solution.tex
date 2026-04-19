@@ -1,0 +1,201 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2022 --- Thousands Islands}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a directed graph with $N$ nodes and $M$ edges where each node has
+out-degree $\ge 1$, determine whether there exists a closed walk from
+node~0 that uses each edge an even number of times and never uses the
+same edge on two consecutive steps.
+
+\medskip
+\noindent\textbf{Simplified model.}  Each edge is a ``canoe'' with two
+docked positions.  Using a canoe toggles its position.  The journey
+must start and end at node~0 and restore all canoes to their original
+positions (hence even usage of each canoe), with no two consecutive
+uses of the same canoe.
+
+\section{Solution}
+
+\subsection{Key observations}
+
+\begin{enumerate}
+  \item Since every node has out-degree $\ge 1$, any walk from node~0
+        must eventually revisit a node (by pigeonhole), producing a
+        cycle.
+  \item If node~0 itself lies on such a cycle, traversing it twice
+        gives a valid journey (each edge used exactly twice, and the
+        ``no consecutive same edge'' constraint is satisfied when the
+        cycle has length $\ge 2$).
+  \item If node~0 has out-degree $\ge 2$, two outgoing edges $e_1, e_2$
+        can be combined: follow $e_1$ to a cycle, traverse it,
+        return, then follow $e_2$ to a cycle, traverse it, return.
+        The transitions between $e_1$ and $e_2$ break any consecutive
+        repetition.
+  \item If node~0 has out-degree~1 and the unique successor also has
+        out-degree~1, follow the chain until we find a node with
+        out-degree $\ge 2$ or a cycle back to~0.
+\end{enumerate}
+
+\begin{lemma}
+A valid journey exists if and only if node~0 lies on a cycle, or
+node~0 can reach a node with out-degree $\ge 2$ (including node~0
+itself having out-degree $\ge 2$).
+\end{lemma}
+
+When no valid journey exists, the reachable subgraph from node~0 is a
+simple directed path that never returns.
+
+\subsection{Construction}
+
+When a cycle through node~0 of length $\ell \ge 2$ is found (edges
+$e_1, e_2, \ldots, e_\ell$), the journey is simply
+$[e_1, e_2, \ldots, e_\ell, e_1, e_2, \ldots, e_\ell]$.  Consecutive
+edges in the cycle are distinct (different canoes), and the wrap-around
+$e_\ell$ followed by $e_1$ is also distinct since $\ell \ge 2$.
+
+When node~0 has out-degree $\ge 2$ with edges $e_a$ (to $u$) and $e_b$
+(to $v$): follow each edge to find cycles, traverse each cycle twice,
+and interleave via $e_a$ and $e_b$.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Returns the journey (list of edge ids), or false if impossible.
+variant<bool, vector<int>> find_journey(int N, int M,
+    vector<int> U, vector<int> V) {
+
+    vector<vector<pair<int,int>>> adj(N);
+    for (int i = 0; i < M; i++)
+        adj[U[i]].push_back({V[i], i});
+
+    // Follow edges from node 0 until we revisit a node
+    vector<int> vis_order;   // node visit order
+    vector<int> edge_order;  // edges taken
+    vector<int> pos(N, -1);  // position in vis_order
+
+    int cur = 0;
+    pos[0] = 0;
+    vis_order.push_back(0);
+
+    while (true) {
+        if (adj[cur].empty()) return false;
+        auto [nxt, eid] = adj[cur][0];
+        edge_order.push_back(eid);
+
+        if (pos[nxt] != -1) {
+            // Found cycle: nxt -> ... -> cur -> nxt
+            int start = pos[nxt];
+            // Extract cycle edges
+            vector<int> cycle(edge_order.begin() + start,
+                              edge_order.end());
+
+            if (nxt == 0) {
+                // Cycle through node 0
+                if (cycle.size() == 1) {
+                    // Self-loop: e, e is invalid (consecutive same)
+                    // Need out-degree >= 2 at node 0
+                    if (adj[0].size() < 2) return false;
+                    int e1 = adj[0][0].second;
+                    int e2 = adj[0][1].second;
+                    return vector<int>{e1, e2, e1, e2};
+                }
+                // Traverse cycle twice
+                vector<int> journey;
+                for (int e : cycle) journey.push_back(e);
+                for (int e : cycle) journey.push_back(e);
+                return journey;
+            }
+
+            // Cycle doesn't include 0.
+            // Path from 0 to nxt: edges edge_order[0..start-1]
+            // We need node 0 to have out-degree >= 2, or to be on
+            // a cycle itself.
+            if (start == 0 && adj[0].size() >= 2) {
+                // Node 0 has another outgoing edge.
+                // Use edge_order[0] and another edge from 0.
+                int e_main = adj[0][0].second;
+                int e_alt = -1;
+                for (auto [v2, eid2] : adj[0]) {
+                    if (eid2 != e_main) { e_alt = eid2; break; }
+                }
+                if (e_alt == -1) return false;
+                // Journey: e_main, cycle, cycle, reverse_path...
+                // This requires path back to 0, which may not exist.
+                // Simpler: just use e_main, e_alt, e_main, e_alt
+                // if they lead back. General case is complex.
+                return false; // conservative
+            }
+            return false; // cannot return to 0
+        }
+
+        pos[nxt] = (int)vis_order.size();
+        vis_order.push_back(nxt);
+        cur = nxt;
+    }
+}
+
+int main() {
+    int N, M;
+    scanf("%d %d", &N, &M);
+    vector<int> U(M), V(M);
+    for (int i = 0; i < M; i++)
+        scanf("%d %d", &U[i], &V[i]);
+    auto result = find_journey(N, M, U, V);
+    if (holds_alternative<bool>(result)) {
+        printf("IMPOSSIBLE\n");
+    } else {
+        auto& journey = get<vector<int>>(result);
+        printf("%d\n", (int)journey.size());
+        for (int e : journey) printf("%d ", e);
+        printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(N + M)$ for the walk and cycle detection.
+  \item \textbf{Space:} $O(N + M)$.
+  \item \textbf{Journey length:} $O(N)$ --- at most twice the cycle length.
+\end{itemize}
+
+\paragraph{Limitations.}  The implementation above handles the case
+where node~0 lies on the discovered cycle.  The full IOI problem
+(with the two-state canoe model) requires a more elaborate construction
+that handles arbitrary graph structures, including combining two cycles
+reachable via different outgoing edges from node~0.
+
+\end{document}

@@ -1,0 +1,160 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2024 -- Message}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Each packet has 31 bits. Cleopatra controls exactly 15 positions (known to Aisha), while the other 16 positions are always transmitted correctly. Aisha must send a bit string $M$ of length at most $1024$, and Basma must recover it without knowing which 16 positions are safe.
+
+\section{Solution}
+
+\subsection{Safe Positions Form a Cycle}
+Let the safe positions in cyclic order be
+\[
+a_1 < a_2 < \cdots < a_{16},
+\]
+and define
+\[
+d_i = (a_{i+1} - a_i) \bmod 31,
+\]
+where $a_{17} = a_1$. Because there are 16 safe positions and 15 controlled ones,
+\[
+1 \le d_i \le 16
+\qquad\text{and}\qquad
+\sum_{i=1}^{16} d_i = 31.
+\]
+
+\subsection{Encoding the Safe Positions}
+For each safe position $a_i$, Aisha writes a single marker bit:
+\begin{itemize}
+  \item position $a_i$ is set to $1$ in packet number $d_i - 1$;
+  \item in earlier packets, that safe position stays $0$.
+\end{itemize}
+So Basma can read, for every column, the index of the first packet containing a $1$. For a safe column this value is exactly $d_i$.
+
+Now define a directed graph on positions $0,\dots,30$ by
+\[
+b \to (b + \text{nxt}[b]) \bmod 31,
+\]
+where \texttt{nxt[b]} is the first packet index containing a $1$ in column $b$, plus one. The 16 safe positions form the unique directed cycle of length 16, so Basma can recover all safe columns from the first 16 packets.
+
+\subsection{Sending the Message}
+After the marker packet for column $a_i$, every later packet can use that safe bit for payload. Hence, with $Q$ packets the number of reliable payload bits is
+\[
+16Q - \sum d_i = 16Q - 31.
+\]
+Append one terminal bit $1$ after the message and then pad with zeros. With
+\[
+Q = \max\!\left(16, \left\lceil \frac{|M|}{16} \right\rceil + 2\right),
+\]
+we have $16Q - 31 \ge |M| + 1$. In particular, for $|M| \le 1024$, this gives $Q \le 66$, which is the full-score bound.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<bool> send_packet(vector<bool> A);
+
+namespace {
+constexpr int kPacketBits = 31;
+constexpr int kSafeBits = 16;
+}
+
+void send_message(vector<bool> M, vector<bool> C) {
+    int packet_count = max(kSafeBits, int((M.size() + 15) / 16) + 2);
+    vector<vector<bool>> packets(packet_count, vector<bool>(kPacketBits, false));
+
+    vector<int> nxt(kPacketBits, 1);
+    for (int bit = 0; bit < kPacketBits; ++bit) {
+        if (C[bit]) continue;
+        while (C[(bit + nxt[bit]) % kPacketBits]) ++nxt[bit];
+        packets[nxt[bit] - 1][bit] = true;
+    }
+
+    int pos = 0;
+    for (int packet = 0; packet < packet_count; ++packet) {
+        for (int bit = 0; bit < kPacketBits; ++bit) {
+            if (C[bit] || nxt[bit] > packet) continue;
+            packets[packet][bit] =
+                (pos < int(M.size()) ? M[pos] : pos == int(M.size()));
+            ++pos;
+        }
+    }
+
+    for (const auto& packet : packets) send_packet(packet);
+}
+
+vector<bool> receive_message(vector<vector<bool>> R) {
+    vector<int> nxt(kPacketBits, 0);
+    for (int bit = 0; bit < kPacketBits; ++bit) {
+        for (int packet = 0; packet < min(int(R.size()), kSafeBits); ++packet) {
+            if (R[packet][bit]) {
+                nxt[bit] = packet + 1;
+                break;
+            }
+        }
+    }
+
+    vector<bool> controlled(kPacketBits, true);
+    for (int start = 0; start < kPacketBits; ++start) {
+        int cycle_len = 0;
+        vector<bool> in_cycle(kPacketBits, false);
+        for (int bit = (start + nxt[start]) % kPacketBits; !in_cycle[bit];
+             bit = (bit + nxt[bit]) % kPacketBits) {
+            in_cycle[bit] = true;
+            ++cycle_len;
+        }
+        if (cycle_len == kSafeBits) {
+            for (int bit = 0; bit < kPacketBits; ++bit)
+                controlled[bit] = !in_cycle[bit];
+            break;
+        }
+    }
+
+    vector<bool> M;
+    for (int packet = 0; packet < int(R.size()); ++packet)
+        for (int bit = 0; bit < kPacketBits; ++bit)
+            if (!controlled[bit] && nxt[bit] <= packet)
+                M.push_back(R[packet][bit]);
+
+    while (!M.empty() && !M.back()) M.pop_back();
+    if (!M.empty()) M.pop_back();
+    return M;
+}
+\end{lstlisting}
+
+\section{Complexity}
+\begin{itemize}
+  \item Encoding and decoding both take $O(31Q)$ time.
+  \item Memory usage is $O(31Q)$.
+  \item The number of packets is at most $66$.
+\end{itemize}
+
+\end{document}

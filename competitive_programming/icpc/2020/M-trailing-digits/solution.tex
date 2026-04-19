@@ -1,0 +1,155 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\M. Trailing Digits}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We need the largest $t$ such that there exists a positive bundle size $k$ with
+\[
+    kb \le a
+\]
+and the decimal representation of $kb$ ends with exactly $t$ copies of the digit $d$.
+The integer $a$ may have up to $10\,000$ decimal digits, so the solution must avoid ordinary big-integer
+arithmetic except for simple string comparisons.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Let $s_t$ be the number consisting of $t$ copies of $d$. Then any valid bundle price has the form
+    \[
+        x = P \cdot 10^t + s_t
+    \]
+    for some integer prefix $P \ge 0$.
+    \item We need $x \equiv 0 \pmod b$, so
+    \[
+        P \cdot 10^t \equiv -s_t \pmod b.
+    \]
+    Let $g = \gcd(b, 10^t)$. A solution exists iff $g \mid s_t$.
+    \item After dividing by $g$, we obtain
+    \[
+        P \cdot \frac{10^t}{g} \equiv -\frac{s_t}{g} \pmod{b/g},
+    \]
+    and now $\frac{10^t}{g}$ is coprime to $b/g$, so the congruence has one residue class modulo $b/g$.
+    \item Since $b < 10^6$, all modular arithmetic is small. The only huge quantity is the upper bound on
+    $P$, namely
+    \[
+        P \le \left\lfloor \frac{a - s_t}{10^t} \right\rfloor,
+    \]
+    and this can be extracted from the decimal string of $a$ by comparing the last $t$ digits of $a$ with
+    $d^t$.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Iterate over all $t = 1, 2, \dots, |a|$.
+    \item Maintain $s_t \bmod b$ incrementally via
+    \[
+        s_t \equiv 10 s_{t-1} + d \pmod b.
+    \]
+    \item Compute $g = \gcd(b,10^t) = 2^{\min(v_2(b),t)}5^{\min(v_5(b),t)}$.
+    If $g \nmid s_t$, this $t$ is impossible.
+    \item Otherwise solve for the required prefix residue modulo $m=b/g$:
+    \[
+        P \equiv
+        -\frac{s_t}{g}\left(\frac{10^t}{g}\right)^{-1}
+        \pmod m.
+    \]
+    The smallest nonnegative valid prefix is this residue itself, except when $d=0$ and the residue is $0$:
+    then $P=0$ would give the price $0$, so the smallest positive valid prefix is $m$.
+    \item Determine the maximum allowed prefix
+    \[
+        U_t = \left\lfloor \frac{a-s_t}{10^t} \right\rfloor.
+    \]
+    If the suffix of $a$ of length $t$ is at least $d^t$, then $U_t$ is just the first $|a|-t$ digits of $a$;
+    otherwise it is that prefix minus one.
+    \item Since the needed prefix is at most $b \le 10^6$, we only need to know whether $U_t$ is at least a
+    small integer. If $U_t$ has more than $7$ digits, it is automatically large enough.
+    \item The answer is the largest feasible $t$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed $t$, there exists a bundle price ending in $t$ copies of $d$ iff there exists an integer
+$P \ge 0$ such that $P10^t + s_t$ is a positive multiple of $b$ and does not exceed $a$.
+
+\paragraph{Proof.}
+Any decimal integer ending in exactly $t$ prescribed digits can be written uniquely as $P10^t + s_t$,
+where $P$ is the remaining prefix. Conversely, every such expression ends with those $t$ digits. The
+conditions in the statement are exactly positivity, divisibility by $b$, and the upper bound $a$. \qed
+
+\paragraph{Lemma 2.}
+For a fixed $t$, the divisibility condition is solvable exactly when $g=\gcd(b,10^t)$ divides $s_t$. If it is
+solvable, all valid prefixes form one residue class modulo $m=b/g$.
+
+\paragraph{Proof.}
+The condition $P10^t + s_t \equiv 0 \pmod b$ is equivalent to
+\[
+    P10^t \equiv -s_t \pmod b.
+\]
+A linear congruence $ux \equiv v \pmod b$ is solvable exactly when $\gcd(u,b)$ divides $v$, so solvability
+is equivalent to $g \mid s_t$.
+After dividing the congruence by $g$, we obtain
+\[
+    P \cdot \frac{10^t}{g} \equiv -\frac{s_t}{g} \pmod m.
+\]
+Now $\gcd(10^t/g,m)=1$, so multiplication by $10^t/g$ is invertible modulo $m$, and therefore the
+solutions are exactly one residue class modulo $m$. \qed
+
+\paragraph{Lemma 3.}
+For a fixed $t$, the algorithm correctly computes the smallest valid prefix.
+
+\paragraph{Proof.}
+By Lemma 2, every solution is congruent to one residue $r$ modulo $m=b/g$. The smallest nonnegative
+solution is $r$ itself. The only exception is when $r=0$ and $d=0$: then $P=0$ produces the bundle
+price $0$, which is not positive, so the smallest positive prefix is the next solution, namely $m$.
+The algorithm uses exactly these values. \qed
+
+\paragraph{Lemma 4.}
+For a fixed $t$, the algorithm correctly decides whether some valid prefix is at most
+$U_t = \left\lfloor \frac{a-s_t}{10^t} \right\rfloor$.
+
+\paragraph{Proof.}
+By definition, $P10^t+s_t \le a$ iff $P \le U_t$.
+The decimal value of $U_t$ is determined solely by the first $|a|-t$ digits of $a$ and by whether the last
+$t$ digits of $a$ are at least $d^t$. If they are, subtracting $s_t$ does not borrow from the prefix; otherwise
+it borrows exactly one from the prefix. Thus the algorithm computes the correct bound.
+Since the smallest valid prefix is at most $10^6$, any bound with more than $7$ decimal digits is certainly
+large enough; otherwise direct parsing of the prefix is exact. Therefore the feasibility test is correct. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+For each $t$, Lemmas 1 through 4 show that the algorithm marks $t$ feasible exactly when there exists a
+bundle price not exceeding $a$ whose last $t$ digits are all $d$. Therefore the largest feasible $t$ is exactly
+the required answer, and the algorithm outputs it. \qed
+
+\section*{Complexity Analysis}
+
+Let $n = |a|$. For each $t$ we do only modular arithmetic with numbers at most $b < 10^6$, plus $O(1)$
+string work after a linear-time preprocessing of suffix comparisons. The total running time is
+$O(n \log b)$, and the memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Store $a$ as a string throughout; no arbitrary-precision integer library is needed.
+    \item The values $v_2(b)$ and $v_5(b)$ are tiny because $b < 10^6$, so computing $g$ directly is safe.
+    \item Maintain the comparison between the suffix of $a$ and $d^t$ incrementally from right to left.
+\end{itemize}
+
+\end{document}

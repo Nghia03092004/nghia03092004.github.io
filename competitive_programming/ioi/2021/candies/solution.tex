@@ -1,0 +1,356 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2021 -- Candies}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+There are $n$ boxes, each with capacity $c[i]$. There are $q$ operations, where operation $j$ adds $v[j]$ candies to all boxes in range $[l[j], r[j]]$. If $v[j] > 0$, candies are added (capped at capacity). If $v[j] < 0$, candies are removed (capped at 0). After all operations, find the final number of candies in each box.
+
+\section{Solution Approach}
+
+\subsection{Key Insight: Process in Reverse}
+For each box $i$, consider the sequence of operations that affect it (in order). The final value depends on the \emph{last capping event}: the last time the box either completely filled or completely emptied. After that event, the remaining operations just add/subtract without capping.
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item Process operations in reverse. Maintain the prefix sums of $v$ values.
+  \item For each box $i$ with capacity $c[i]$, find the most recent operation $j$ such that the running sum from operation $j$ onward exceeds $c[i]$ (cap at capacity) or goes below $0$ (cap at zero).
+  \item After finding this capping point, the final value is either $c[i] - (\text{excess above } c)$ or $0 + (\text{amount above } 0)$.
+\end{enumerate}
+
+\subsection{Segment Tree Approach}
+Use a segment tree over the operations (reversed). For each box $i$:
+\begin{itemize}
+  \item Find the latest operation $j$ where the prefix sum from $j$ to $q$ has maximum $> c[i]$ or minimum $< 0$.
+  \item The segment tree stores prefix sums and supports range max/min queries.
+  \item Binary search on the segment tree to find the critical operation.
+\end{itemize}
+
+Concretely:
+\begin{enumerate}
+  \item Compute suffix sums $S[j] = \sum_{k=j}^{q-1} v[k]$ for operations affecting box $i$.
+  \item Find the latest $j$ such that $\max(S[j..q]) - \min(S[j..q]) > c[i]$.
+  \item If no such $j$ exists, the box never caps: final value = $\max(0, \min(c[i], S[0]))$.
+  \item Otherwise, at operation $j$: if the extreme is a maximum, the box capped at full, and remaining value is $c[i] - (\max_{k \ge j} S[k] - S[\text{end}])$. If the extreme is a minimum, it capped at empty.
+\end{enumerate}
+
+For efficiency, we avoid processing each box independently. Instead, use a sweep:
+\begin{itemize}
+  \item Sort boxes by capacity and process using the segment tree.
+  \item Or, for each box, binary-search on the segment tree of all operations (filtering to only those affecting box $i$ is handled by building the segment tree with events at appropriate positions).
+\end{itemize}
+
+The efficient approach processes each box in $O(\log q)$ time using binary search on a global segment tree of prefix sums.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+struct SegTree {
+    int n;
+    vector<ll> mx, mn; // max and min of prefix sums in range
+
+    SegTree(int n) : n(n), mx(4 * n, LLONG_MIN), mn(4 * n, LLONG_MAX) {}
+
+    void update(int pos, ll val, int node, int lo, int hi) {
+        if (lo == hi) {
+            mx[node] = mn[node] = val;
+            return;
+        }
+        int mid = (lo + hi) / 2;
+        if (pos <= mid) update(pos, val, 2*node, lo, mid);
+        else update(pos, val, 2*node+1, mid+1, hi);
+        mx[node] = max(mx[2*node], mx[2*node+1]);
+        mn[node] = min(mn[2*node], mn[2*node+1]);
+    }
+
+    void update(int pos, ll val) { update(pos, val, 1, 0, n-1); }
+
+    // Find the latest position in [lo, hi] where max - min of suffix > cap
+    // Returns the position or -1
+    // Actually, we need a different query: find latest j such that
+    // max(S[j..q]) - min(S[j..q]) > c
+
+    // Query: max in range [l, r]
+    ll query_max(int l, int r, int node, int lo, int hi) {
+        if (l > hi || r < lo) return LLONG_MIN;
+        if (l <= lo && hi <= r) return mx[node];
+        int mid = (lo + hi) / 2;
+        return max(query_max(l, r, 2*node, lo, mid),
+                   query_max(l, r, 2*node+1, mid+1, hi));
+    }
+    ll query_max(int l, int r) { return query_max(l, r, 1, 0, n-1); }
+
+    ll query_min(int l, int r, int node, int lo, int hi) {
+        if (l > hi || r < lo) return LLONG_MAX;
+        if (l <= lo && hi <= r) return mn[node];
+        int mid = (lo + hi) / 2;
+        return min(query_min(l, r, 2*node, lo, mid),
+                   query_min(l, r, 2*node+1, mid+1, hi));
+    }
+    ll query_min(int l, int r) { return query_min(l, r, 1, 0, n-1); }
+};
+
+vector<int> distribute_candies(vector<int> c, vector<int> l,
+                                 vector<int> r, vector<int> v) {
+    int n = c.size(), q = l.size();
+    vector<int> ans(n);
+
+    // For each operation j, it affects boxes l[j]..r[j].
+    // We process boxes using sweep: for each box i, collect operations affecting it.
+    // Use event-based approach: at l[j], operation j starts; at r[j]+1, it ends.
+
+    // Build prefix sums of v values over operations applied to box i.
+    // Instead, use a segment tree over operations and process each box.
+
+    // Events: operations sorted by l and r
+    vector<vector<int>> starts(n), ends(n);
+    for (int j = 0; j < q; j++) {
+        starts[l[j]].push_back(j);
+        if (r[j] + 1 < n) ends[r[j] + 1].push_back(j);
+    }
+
+    // Segment tree over operations [0..q] where position j holds prefix sum S[j]
+    // S[j] = sum of v[0..j-1] for operations active at current box
+    // We maintain S[j] = cumulative sum up to operation j.
+
+    // Actually, let's define the prefix sum differently.
+    // For box i, let the operations affecting it be o_1, o_2, ..., o_t (in order).
+    // Prefix sum P[0] = 0, P[k] = P[k-1] + v[o_k].
+    // The final value depends on the latest k such that max(P[k..t]) - min(P[k..t]) >= c[i].
+
+    // Global approach: maintain a segment tree where position j has value S[j] if
+    // operation j is active (affects current box i), and -inf otherwise.
+    // As we sweep i from 0 to n-1, we add/remove operations.
+
+    // S[j] = running prefix sum of active operations up to j.
+    // This is complex to maintain dynamically.
+
+    // Alternative cleaner approach: segment tree with all q+1 positions.
+    // S[0] = 0. For j = 1..q: S[j] = S[j-1] + (v[j-1] if op j-1 is active else 0).
+
+    // When sweeping boxes, adding/removing an operation j changes S[j+1], S[j+2], ..., S[q]
+    // by +/- v[j]. This is a range update on the prefix sums.
+
+    // Segment tree with lazy propagation supporting:
+    //   - Range add on [j+1, q]
+    //   - Query max and min on suffix [j, q]
+    //   - Binary search for latest j where max[j..q] - min[j..q] > c[i]
+
+    // This is feasible but complex. Let me implement it.
+
+    // Segment tree with lazy add, range max/min query
+    struct LazySegTree {
+        int n;
+        vector<ll> mx, mn, lazy;
+
+        LazySegTree(int n) : n(n), mx(4*(n+1), 0), mn(4*(n+1), 0), lazy(4*(n+1), 0) {
+            // Initially all values are 0
+        }
+
+        void push_down(int node) {
+            if (lazy[node] != 0) {
+                for (int c : {2*node, 2*node+1}) {
+                    mx[c] += lazy[node];
+                    mn[c] += lazy[node];
+                    lazy[c] += lazy[node];
+                }
+                lazy[node] = 0;
+            }
+        }
+
+        void range_add(int l, int r, ll val, int node, int lo, int hi) {
+            if (l > hi || r < lo) return;
+            if (l <= lo && hi <= r) {
+                mx[node] += val;
+                mn[node] += val;
+                lazy[node] += val;
+                return;
+            }
+            push_down(node);
+            int mid = (lo + hi) / 2;
+            range_add(l, r, val, 2*node, lo, mid);
+            range_add(l, r, val, 2*node+1, mid+1, hi);
+            mx[node] = max(mx[2*node], mx[2*node+1]);
+            mn[node] = min(mn[2*node], mn[2*node+1]);
+        }
+        void range_add(int l, int r, ll val) { range_add(l, r, val, 1, 0, n); }
+
+        ll qmax(int l, int r, int node, int lo, int hi) {
+            if (l > hi || r < lo) return LLONG_MIN;
+            if (l <= lo && hi <= r) return mx[node];
+            push_down(node);
+            int mid = (lo + hi) / 2;
+            return max(qmax(l, r, 2*node, lo, mid), qmax(l, r, 2*node+1, mid+1, hi));
+        }
+        ll qmax(int l, int r) { return qmax(l, r, 1, 0, n); }
+
+        ll qmin(int l, int r, int node, int lo, int hi) {
+            if (l > hi || r < lo) return LLONG_MAX;
+            if (l <= lo && hi <= r) return mn[node];
+            push_down(node);
+            int mid = (lo + hi) / 2;
+            return min(qmin(l, r, 2*node, lo, mid), qmin(l, r, 2*node+1, mid+1, hi));
+        }
+        ll qmin(int l, int r) { return qmin(l, r, 1, 0, n); }
+
+        // Find the latest position j in [0, q] such that
+        // max(S[j..q]) - min(S[j..q]) > cap
+        // Binary search: start from q, expand left
+        int find_latest(ll cap) {
+            // Binary search on j from q down to 0
+            ll cur_max = LLONG_MIN, cur_min = LLONG_MAX;
+            // Start from j = q (rightmost), check j = q, q-1, ...
+            // When max - min > cap, return j.
+            // Use segment tree descent for efficiency.
+
+            // Simple approach: binary search on j
+            int lo = 0, hi = n, result = -1;
+            while (lo <= hi) {
+                int mid = (lo + hi) / 2;
+                ll mx_val = qmax(mid, n);
+                ll mn_val = qmin(mid, n);
+                if (mx_val - mn_val > cap) {
+                    result = mid;
+                    lo = mid + 1; // try later (larger j)
+                } else {
+                    hi = mid - 1;
+                }
+            }
+            return result;
+        }
+
+        ll point_query(int pos, int node, int lo, int hi) {
+            if (lo == hi) return mx[node];
+            push_down(node);
+            int mid = (lo + hi) / 2;
+            if (pos <= mid) return point_query(pos, 2*node, lo, mid);
+            else return point_query(pos, 2*node+1, mid+1, hi);
+        }
+        ll point_query(int pos) { return point_query(pos, 1, 0, n); }
+    };
+
+    LazySegTree seg(q);
+    // seg represents S[0..q] where S[0] = 0 initially.
+    // S[j] = prefix sum of v values for operations 0..j-1 that affect current box.
+
+    for (int i = 0; i < n; i++) {
+        // Add operations starting at i
+        for (int j : starts[i]) {
+            seg.range_add(j + 1, q, v[j]);
+        }
+        // Remove operations ending before i
+        for (int j : ends[i]) {
+            seg.range_add(j + 1, q, -v[j]);
+        }
+
+        ll cap = c[i];
+        int j = seg.find_latest(cap);
+
+        ll S_end = seg.point_query(q); // S[q] = total sum
+
+        if (j == -1) {
+            // No capping event
+            ans[i] = (int)max(0LL, min((ll)cap, S_end));
+        } else {
+            // Capping happened at operation j
+            // Check if it was a max or min event
+            ll mx_from_j = seg.qmax(j, q);
+            ll mn_from_j = seg.qmin(j, q);
+
+            // The latest j where the range exceeds cap.
+            // At j, either the max caused overflow (cap at full) or min caused underflow (cap at 0)
+            // Need to check which extreme at j+1 triggers:
+            // If max(S[j..q]) - S[q] part... let me think.
+            // After operation j, if max was reached: box was full, final = cap - (max - S_end)
+            // If min was reached: box was empty, final = 0 + (S_end - min)
+
+            // The capping event at j:
+            // S[j] is the prefix sum just before operation j.
+            // From j onward, the range of S values is [mn_from_j, mx_from_j].
+            // If the max of S[j..q] - mn of S[j..q] > cap, one of the extremes causes capping.
+
+            // After the last capping: if max was hit last (later than min), final = cap - (mx - S_end)
+            // If min was hit last, final = S_end - mn.
+            // But we need to know which extreme was reached later.
+
+            // Find within [j, q]: position of max and position of min.
+            // The one later determines the capping direction.
+
+            // For simplicity: check S[j] value.
+            // If S[j] is closer to the max: the step from j-1 to j pushed upward -> max event
+            // Actually, more precisely: we need to check from j+1:
+            // max(S[j+1..q]) - min(S[j+1..q]) <= cap (by definition of j being latest)
+            // So the capping is at operation j exactly.
+
+            // S[j] is either the new max or new min.
+            ll S_j = seg.point_query(j);
+            ll mx_after = seg.qmax(j+1, q);
+            ll mn_after = seg.qmin(j+1, q);
+
+            // Adding S[j] to the range [mn_after, mx_after] creates overflow.
+            if (S_j >= mx_after) {
+                // S[j] is the max, causing cap at full
+                // After cap: box = cap, then operations j+1..q bring it to:
+                // final = cap + (S_end - S_j)... but capping at cap means
+                // the box is at cap after operation j.
+                // Then subsequent operations: box = cap + (S_end - S_j)
+                // but clamped... since j is the LATEST capping, no more clamping after.
+                ans[i] = (int)(cap - (S_j - S_end));
+            } else {
+                // S[j] is the min, causing cap at 0
+                ans[i] = (int)(S_end - S_j);
+            }
+            ans[i] = max(0, min((int)cap, ans[i]));
+        }
+    }
+
+    return ans;
+}
+
+int main() {
+    int n, q;
+    scanf("%d %d", &n, &q);
+    vector<int> c(n);
+    for (int i = 0; i < n; i++) scanf("%d", &c[i]);
+    vector<int> l(q), r(q), v(q);
+    for (int j = 0; j < q; j++) scanf("%d %d %d", &l[j], &r[j], &v[j]);
+    auto ans = distribute_candies(c, l, r, v);
+    for (int i = 0; i < n; i++)
+        printf("%d%c", ans[i], " \n"[i == n-1]);
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time complexity:} $O((n + q) \log q)$ -- each box requires $O(\log q)$ for the binary search on the segment tree, and maintaining the segment tree as we sweep takes $O(\log q)$ per operation add/remove.
+  \item \textbf{Space complexity:} $O(n + q)$.
+\end{itemize}
+
+\end{document}

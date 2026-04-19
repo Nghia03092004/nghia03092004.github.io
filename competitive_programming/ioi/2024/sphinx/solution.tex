@@ -1,0 +1,267 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2024 -- Sphinx's Riddle}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+We are given a connected graph with hidden vertex colours from $\{0,\dots,N-1\}$ and one extra colour $N$ that never appears initially. A query recolours some vertices and returns the number of monochromatic connected components. The goal is to recover the original colour of every vertex using at most $2750$ queries.
+
+\section{Solution}
+
+\subsection{Phase 1: Recover Monochromatic Components}
+Process the vertices in order. Suppose we have already partitioned the processed vertices into their true monochromatic components. For the next vertex $u$:
+\begin{itemize}
+  \item keep $u$ and all processed vertices in their original colours;
+  \item recolour every unprocessed vertex to the special colour $N$.
+\end{itemize}
+
+In parallel, we simulate the same situation locally, but assign each known component a distinct artificial colour. This simulated graph has a known number of monochromatic components. If the real experiment returns a smaller number, then $u$ must share its colour with some known component.
+
+The number of components merged with $u$ can be read from the difference between the simulated count and the real answer. We then binary-search over the current list of components to find exactly which ones must be merged with $u$. Since each successful search discovers one edge of the monochromatic spanning forest, the total number of binary-search steps is $O((N-1)\log N)$.
+
+\subsection{Phase 2: Recover the Actual Colour Labels}
+Collapse every monochromatic component into a single vertex. On the collapsed graph, take a spanning forest and bipartition every tree by depth parity; call the two sides $A$ and $B$.
+
+Fix a real colour $f$. To detect which components in one side have colour $f$, recolour every vertex outside a chosen search range to $f$, while the components inside the range keep their original colours. Whenever a kept component really has colour $f$, it merges with its recoloured neighbours and decreases the number of monochromatic components by one.
+
+Thus a single query tells us how many target components lie inside the current range. We can binary-search to find them one by one. Running this for every colour and for both bipartition sides recovers every collapsed component's true colour.
+
+\subsection{Query Bound}
+The official analysis gives at most
+\[
+3N + N \log_2 N
+\]
+queries, which is below $2750$ for $N \le 250$.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <algorithm>
+#include <numeric>
+#include <queue>
+#include <vector>
+using namespace std;
+
+int perform_experiment(vector<int> E);
+
+namespace {
+int count_components(int N, const vector<vector<int>>& graph,
+                     const vector<int>& color) {
+    int components = 0;
+    vector<bool> visited(N, false);
+    queue<int> q;
+    for (int start = 0; start < N; ++start) {
+        if (visited[start]) continue;
+        ++components;
+        visited[start] = true;
+        q.push(start);
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+            for (int v : graph[u]) {
+                if (!visited[v] && color[v] == color[u]) {
+                    visited[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+    }
+    return components;
+}
+
+vector<vector<int>> find_monochromatic_components(
+        int N, const vector<vector<int>>& graph) {
+    vector<vector<int>> components = {{0}};
+    vector<int> order(N), color(N);
+
+    for (int u = 1; u < N; ++u) {
+        order.assign(N, N);
+        color.assign(N, N);
+        order[u] = color[u] = -1;
+
+        int cur = components.size();
+        for (int i = 0; i < cur; ++i)
+            for (int v : components[i]) {
+                order[v] = -1;
+                color[v] = i;
+            }
+
+        int expected = count_components(N, graph, color);
+        int merges = expected - perform_experiment(order);
+        if (merges == 0) {
+            components.push_back({u});
+            continue;
+        }
+
+        int lo = 0, hi = cur;
+        vector<int> to_merge;
+        while (merges > 0) {
+            while (lo + 1 < hi) {
+                int mid = (lo + hi) / 2;
+                order.assign(N, N);
+                color.assign(N, N);
+                order[u] = color[u] = -1;
+                for (int i = mid; i < hi; ++i)
+                    for (int v : components[i]) {
+                        order[v] = -1;
+                        color[v] = i;
+                    }
+                if (perform_experiment(order) <
+                    count_components(N, graph, color)) {
+                    lo = mid;
+                } else {
+                    hi = mid;
+                }
+            }
+            to_merge.push_back(lo);
+            lo = 0;
+            --hi;
+            --merges;
+        }
+
+        int keep = to_merge.back();
+        to_merge.pop_back();
+        for (int idx : to_merge) {
+            for (int v : components[idx]) components[keep].push_back(v);
+            components.erase(components.begin() + idx);
+        }
+        components[keep].push_back(u);
+    }
+    return components;
+}
+
+void assign_colours(const vector<int>& side, vector<int>& component_colour,
+                    int N, const vector<vector<int>>& graph,
+                    const vector<vector<int>>& components) {
+    vector<int> order(N), color(N);
+    for (int real_colour = 0; real_colour < N; ++real_colour) {
+        int lo = 0, hi = side.size();
+        while (true) {
+            order.assign(N, real_colour);
+            color.assign(N, N);
+            for (int i = lo; i < hi; ++i)
+                for (int u : components[side[i]]) {
+                    order[u] = -1;
+                    color[u] = i;
+                }
+            int matches =
+                count_components(N, graph, color) - perform_experiment(order);
+            if (matches == 0) break;
+
+            while (lo + 1 < hi) {
+                int mid = (lo + hi) / 2;
+                order.assign(N, real_colour);
+                color.assign(N, N);
+                for (int i = mid; i < hi; ++i)
+                    for (int u : components[side[i]]) {
+                        order[u] = -1;
+                        color[u] = i;
+                    }
+                if (perform_experiment(order) <
+                    count_components(N, graph, color)) {
+                    lo = mid;
+                } else {
+                    hi = mid;
+                }
+            }
+
+            component_colour[side[lo]] = real_colour;
+            lo = 0;
+            --hi;
+            if (matches == 1) break;
+        }
+    }
+}
+}  // namespace
+
+vector<int> find_colours(int N, vector<int> X, vector<int> Y) {
+    vector<vector<int>> graph(N);
+    for (int i = 0; i < (int)X.size(); ++i) {
+        graph[X[i]].push_back(Y[i]);
+        graph[Y[i]].push_back(X[i]);
+    }
+
+    auto components = find_monochromatic_components(N, graph);
+    int component_count = components.size();
+
+    if (component_count == 1) {
+        for (int c = 0; c < N; ++c) {
+            vector<int> order(N, c);
+            order[0] = -1;
+            if (perform_experiment(order) == 1) return vector<int>(N, c);
+        }
+    }
+
+    vector<int> component_id(N, -1);
+    for (int c = 0; c < component_count; ++c)
+        for (int u : components[c]) component_id[u] = c;
+
+    vector<vector<int>> collapsed(component_count, vector<int>(component_count, 0));
+    for (int i = 0; i < (int)X.size(); ++i) {
+        int a = component_id[X[i]], b = component_id[Y[i]];
+        if (a != b) collapsed[a][b] = collapsed[b][a] = 1;
+    }
+
+    vector<int> side(component_count, 0);
+    queue<int> q;
+    for (int start = 0; start < component_count; ++start) {
+        if (side[start] != 0) continue;
+        side[start] = 1;
+        q.push(start);
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            for (int v = 0; v < component_count; ++v)
+                if (collapsed[u][v] && side[v] == 0) {
+                    side[v] = (side[u] == 1 ? 2 : 1);
+                    q.push(v);
+                }
+        }
+    }
+
+    vector<int> left, right;
+    for (int c = 0; c < component_count; ++c)
+        (side[c] == 1 ? left : right).push_back(c);
+
+    vector<int> component_colour(component_count, -1);
+    assign_colours(left, component_colour, N, graph, components);
+    assign_colours(right, component_colour, N, graph, components);
+
+    vector<int> answer(N);
+    for (int u = 0; u < N; ++u)
+        answer[u] = component_colour[component_id[u]];
+    return answer;
+}
+\end{lstlisting}
+
+\section{Complexity}
+\begin{itemize}
+  \item Query complexity: at most $3N + N \log N$.
+  \item Local work per query is polynomial in $N$ and easily fits the constraints $N \le 250$.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,194 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2003 -- Boundary (Convex Hull)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given $N$ points ($N \le 10^5$) in the plane, compute the convex hull.
+Output the hull vertices in order, together with the perimeter, area,
+and the number of input points lying on the hull boundary.
+
+\section{Solution: Andrew's Monotone Chain}
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item Sort points lexicographically by $(x, y)$.
+  \item \textbf{Lower hull:} Scan left to right, maintaining a stack.
+        Pop the top while the last two stack points and the new point
+        make a clockwise (or collinear) turn.
+  \item \textbf{Upper hull:} Scan right to left with the same logic.
+  \item Concatenate the two hulls (removing duplicated endpoints).
+\end{enumerate}
+
+\subsection{Cross Product Test}
+For points $A, B, C$, the cross product
+$(B - A) \times (C - A) = (B_x - A_x)(C_y - A_y) - (B_y - A_y)(C_x - A_x)$
+is positive for a counter-clockwise turn, zero for collinear, and
+negative for clockwise.
+
+For a \emph{strict} convex hull (no collinear points on edges), pop
+when the cross product is $\le 0$. To include collinear boundary
+points, pop only when strictly $< 0$.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+struct Point {
+    ll x, y;
+    Point(ll x = 0, ll y = 0) : x(x), y(y) {}
+    Point operator-(const Point& o) const { return {x - o.x, y - o.y}; }
+    ll cross(const Point& o) const { return x * o.y - y * o.x; }
+    bool operator<(const Point& o) const {
+        return x < o.x || (x == o.x && y < o.y);
+    }
+    bool operator==(const Point& o) const {
+        return x == o.x && y == o.y;
+    }
+};
+
+// Returns convex hull in CCW order.
+// If includeBoundary is true, collinear points on edges are kept.
+vector<Point> convexHull(vector<Point> pts, bool includeBoundary = false) {
+    int n = pts.size();
+    if (n < 2) return pts;
+    sort(pts.begin(), pts.end());
+    pts.erase(unique(pts.begin(), pts.end()), pts.end());
+    n = pts.size();
+    if (n < 2) return pts;
+
+    auto bad = [&](ll v) -> bool {
+        return includeBoundary ? (v < 0) : (v <= 0);
+    };
+
+    vector<Point> hull;
+
+    // Lower hull
+    for (int i = 0; i < n; i++) {
+        while (hull.size() >= 2) {
+            Point a = hull[hull.size() - 2], b = hull.back();
+            if (bad((b - a).cross(pts[i] - a)))
+                hull.pop_back();
+            else break;
+        }
+        hull.push_back(pts[i]);
+    }
+
+    // Upper hull
+    int lower_size = hull.size();
+    for (int i = n - 2; i >= 0; i--) {
+        while ((int)hull.size() > lower_size) {
+            Point a = hull[hull.size() - 2], b = hull.back();
+            if (bad((b - a).cross(pts[i] - a)))
+                hull.pop_back();
+            else break;
+        }
+        hull.push_back(pts[i]);
+    }
+    hull.pop_back(); // remove duplicate of first point
+    return hull;
+}
+
+double perimeter(const vector<Point>& hull) {
+    double peri = 0;
+    int n = hull.size();
+    for (int i = 0; i < n; i++) {
+        Point d = hull[(i + 1) % n] - hull[i];
+        peri += sqrt((double)(d.x * d.x + d.y * d.y));
+    }
+    return peri;
+}
+
+double area(const vector<Point>& hull) {
+    ll a = 0;
+    int n = hull.size();
+    for (int i = 0; i < n; i++)
+        a += hull[i].cross(hull[(i + 1) % n]);
+    return abs(a) / 2.0;
+}
+
+// Count input points on the hull boundary.
+int countOnBoundary(const vector<Point>& hull,
+                    const vector<Point>& allPts) {
+    int cnt = 0;
+    int h = hull.size();
+    for (auto& p : allPts) {
+        for (int i = 0; i < h; i++) {
+            Point a = hull[i], b = hull[(i + 1) % h];
+            Point ab = b - a, ap = p - a;
+            if (ab.cross(ap) == 0 &&
+                min(a.x, b.x) <= p.x && p.x <= max(a.x, b.x) &&
+                min(a.y, b.y) <= p.y && p.y <= max(a.y, b.y)) {
+                cnt++;
+                break;
+            }
+        }
+    }
+    return cnt;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+    vector<Point> pts(N);
+    for (int i = 0; i < N; i++)
+        cin >> pts[i].x >> pts[i].y;
+
+    vector<Point> hull = convexHull(pts, false);
+
+    cout << hull.size() << "\n";
+    for (auto& p : hull)
+        cout << p.x << " " << p.y << "\n";
+
+    cout << fixed << setprecision(2) << perimeter(hull) << "\n";
+    cout << fixed << setprecision(1) << area(hull) << "\n";
+    cout << countOnBoundary(hull, pts) << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Convex hull:} $O(N \log N)$ (sorting dominates; the
+        scan itself is $O(N)$ since each point is pushed and popped at
+        most once).
+  \item \textbf{Boundary count:} $O(N \cdot H)$ where $H$ is the hull
+        size. For large inputs, this can be improved to $O(N \log H)$
+        by binary-searching the hull edge for each point.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\end{document}

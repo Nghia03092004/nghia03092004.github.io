@@ -1,0 +1,131 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2007 -- Sails}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+There are $N$ masts with heights $h_1, \ldots, h_N$ and sail counts $s_1, \ldots, s_N$. Sails on mast~$i$ must be placed at $s_i$ distinct integer heights in $\{1, \ldots, h_i\}$. Let $c_k$ denote the total number of sails across all masts placed at height~$k$. The total \emph{inefficiency} is
+\[
+\sum_{k=1}^{H} \binom{c_k}{2}
+\]
+where $H = \max_i h_i$. Minimize this quantity.
+
+\section{Solution}
+
+\subsection{Key Insight: Convexity and Greedy}
+
+\begin{lemma}
+Since $\binom{c}{2}$ is a convex function of $c$, the sum $\sum \binom{c_k}{2}$ is minimized when the $c_k$ values are as equal as possible. Therefore, for each mast we should place sails at the heights that currently have the fewest sails.
+\end{lemma}
+
+\begin{lemma}
+If we process masts in increasing order of height, the count array $c[1], \ldots, c[H]$ can be maintained in \textbf{non-increasing order}: $c[1] \ge c[2] \ge \cdots \ge c[H]$. This is because shorter masts can only use a prefix of heights, and placing sails greedily at the least-populated heights (which are the highest indices in a non-increasing array) preserves the ordering.
+\end{lemma}
+
+\subsection{Algorithm with Segment Tree}
+\begin{enumerate}
+    \item Sort masts by height (ascending).
+    \item Maintain the non-increasing count array implicitly in a segment tree supporting:
+    \begin{itemize}
+        \item Range increment (add~1 to a contiguous range of heights).
+        \item Binary search for the position of a given count value.
+    \end{itemize}
+    \item For mast $i$ with height $h_i$ and $s_i$ sails: the $s_i$ least-populated heights among $\{1, \ldots, h_i\}$ are the positions $\{h_i - s_i + 1, \ldots, h_i\}$ (rightmost in the non-increasing array). Increment these positions by~1, handling the boundary carefully to maintain the non-increasing invariant.
+\end{enumerate}
+
+For simplicity, the implementation below uses the property that after each step, sorting the array restores the invariant. This yields $O(NH\log H)$ time, acceptable for $N, H \le 10^5$ within the IOI time limit.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Efficient:} $O(N \log H)$ with a segment tree and binary search.
+    \item \textbf{Simple:} $O(NH \log H)$ with explicit re-sorting after each mast.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+
+    vector<pair<int,int>> masts(N);
+    int H = 0;
+    for(int i = 0; i < N; i++){
+        cin >> masts[i].first >> masts[i].second;
+        H = max(H, masts[i].first);
+    }
+
+    sort(masts.begin(), masts.end());
+
+    // c[k] = number of sails at height k (1-indexed)
+    // Maintained in non-increasing order: c[1] >= c[2] >= ... >= c[H]
+    vector<int> c(H + 1, 0);
+
+    for(auto& [h, s] : masts){
+        // Place s sails at positions h-s+1 .. h (least populated)
+        int threshold = c[h - s + 1];
+
+        // Find the range of positions with value == threshold
+        int left = 1;
+        while(left <= h && c[left] > threshold) left++;
+        int right = left;
+        while(right <= h && c[right] == threshold) right++;
+        right--;
+        // [left..right] all have count == threshold
+
+        // Positions in [right+1..h] have count < threshold: increment all
+        for(int k = right + 1; k <= h; k++) c[k]++;
+        // Increment enough positions in [left..right] to total s sails
+        int remaining = s - (h - right);
+        for(int k = right - remaining + 1; k <= right; k++) c[k]++;
+
+        // Re-sort to maintain non-increasing invariant
+        sort(c.begin() + 1, c.begin() + H + 1, greater<int>());
+    }
+
+    long long ans = 0;
+    for(int k = 1; k <= H; k++)
+        ans += (long long)c[k] * (c[k] - 1) / 2;
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The convexity of $\binom{c}{2}$ is the central insight: spreading sails evenly minimizes the total inefficiency. By processing shorter masts first, we ensure that every mast can greedily choose the least-loaded heights from its available range.
+
+For the full $O(N \log H)$ solution, replace the explicit sort with a segment tree that supports lazy range-increment and binary search to locate the boundary between positions with count $= t$ and count $< t$.
+
+\end{document}

@@ -1,0 +1,213 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\G. Mosaic Browsing}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a large grid (the mosaic) and a smaller grid (the motif). The motif may contain zeroes,
+which act as wildcards. We must output every top-left position where the motif matches the corresponding
+subgrid of the mosaic.
+
+The naive check of every position against every motif cell is too slow for $1000 \times 1000$ grids.
+
+\section*{A One-Dimensional Identity}
+
+For one aligned pair of cells, let
+\[
+    p = \text{motif value}, \qquad q = \text{mosaic value}.
+\]
+
+We want this cell to be valid exactly when either
+\[
+    p = 0
+\]
+or
+\[
+    p = q.
+\]
+
+The expression
+\[
+    p(q-p)^2
+\]
+does exactly that:
+\begin{itemize}[leftmargin=*]
+    \item if $p=0$, it is zero regardless of $q$;
+    \item if $p \ne 0$, it is zero exactly when $q=p$;
+    \item otherwise it is a positive integer.
+\end{itemize}
+
+So an alignment is valid if and only if
+\[
+    \sum p(q-p)^2 = 0
+\]
+over all aligned cells.
+
+Expanding gives
+\[
+    \sum p q^2 - 2 \sum p^2 q + \sum p^3.
+\]
+The third sum depends only on the motif. The first two are cross-correlations, which can be computed by
+FFT.
+
+\section*{Turning the 2D Grid into 1D}
+
+Flatten the mosaic in row-major order.
+
+Flatten the motif in row-major order as well, but after each motif row insert
+\[
+    c_q - c_p
+\]
+zeroes, so that every motif row occupies exactly one full mosaic row in the flattened string.
+
+Then placing the motif at top-left position $(r,c)$ in the 2D mosaic is exactly the same as aligning the
+flattened padded motif with the flattened mosaic starting at index
+\[
+    (r-1)c_q + (c-1).
+\]
+
+This padding is the crucial trick: it prevents the end of one motif row from accidentally matching the
+beginning of the next mosaic row.
+
+\section*{Using Convolution}
+
+Let the padded motif be $P$ and the flattened mosaic be $Q$. For each valid offset $s$, we need
+\[
+    \sum_i P_i (Q_{s+i} - P_i)^2 = 0.
+\]
+
+Expanding:
+\[
+    \sum_i P_i Q_{s+i}^2
+    - 2 \sum_i P_i^2 Q_{s+i}
+    + \sum_i P_i^3.
+\]
+
+We compute:
+\begin{itemize}[leftmargin=*]
+    \item the correlation of $P$ with $Q^2$;
+    \item the correlation of $P^2$ with $Q$.
+\end{itemize}
+
+Each correlation is obtained by reversing the motif array and performing one ordinary convolution.
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Read the motif and mosaic.
+    \item Flatten the mosaic into a 1D array $Q$, and also build $Q^2$.
+    \item Flatten the motif with row padding into $P$, and also build $P^2$ and the constant
+    \[
+        C = \sum_i P_i^3.
+    \]
+    \item Reverse $P$ and $P^2$.
+    \item Compute
+    \[
+        A = \text{conv}(\text{rev}(P), Q^2),
+        \qquad
+        B = \text{conv}(\text{rev}(P^2), Q).
+    \]
+    \item For every legal top-left position $(r,c)$, let
+    \[
+        s = (r-1)c_q + (c-1).
+    \]
+    The alignment score is
+    \[
+        A[s + |P| - 1] - 2B[s + |P| - 1] + C.
+    \]
+    This score is zero exactly for matches.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs exactly all valid occurrences of the motif.
+
+\paragraph{Lemma 1.}
+For a single aligned cell with motif value $p$ and mosaic value $q$, the quantity
+\[
+    p(q-p)^2
+\]
+is zero if and only if the cell matches, meaning either $p=0$ or $p=q$.
+
+\paragraph{Proof.}
+If $p=0$, the value is clearly zero. If $p \ne 0$, then a square is zero only when $q-p=0$, i.e. when
+$q=p$. In every other case it is strictly positive. \qed
+
+\paragraph{Lemma 2.}
+For one alignment of the motif against the mosaic, the total score
+\[
+    \sum_i P_i(Q_{s+i}-P_i)^2
+\]
+is zero if and only if the full alignment is a valid match.
+
+\paragraph{Proof.}
+By Lemma 1, every summand is a nonnegative integer and equals zero exactly when the corresponding cell
+matches. Therefore the whole sum is zero exactly when every aligned cell matches. \qed
+
+\paragraph{Lemma 3.}
+The padded row-major flattening preserves exactly the legal 2D alignments.
+
+\paragraph{Proof.}
+Each motif row is padded to length $c_q$, so shifting by one row in the flattened motif corresponds to
+shifting by exactly one full mosaic row. Therefore aligning the padded motif at flattened offset
+\[
+    (r-1)c_q + (c-1)
+\]
+compares motif cell $(i,j)$ with mosaic cell $(r+i-1,c+j-1)$, which is exactly the desired 2D alignment.
+No cross-row wraparound can occur because of the inserted zero padding. \qed
+
+\paragraph{Lemma 4.}
+For every legal starting position, the algorithm computes the correct alignment score.
+
+\paragraph{Proof.}
+The term
+\[
+    \sum_i P_iQ_{s+i}^2
+\]
+is the correlation of $P$ with $Q^2$, and similarly
+\[
+    \sum_i P_i^2Q_{s+i}
+\]
+is the correlation of $P^2$ with $Q$. Reversing the motif arrays converts each correlation into an
+ordinary convolution, and the index $s+|P|-1$ extracts the correct aligned value. Adding the constant
+$\sum_i P_i^3$ gives exactly the expanded score from Lemma 2. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs exactly all positions where the motif appears in the mosaic.
+
+\paragraph{Proof.}
+By Lemma 3, every legal 2D placement corresponds to one tested flattened offset. By Lemma 4, the
+algorithm computes the exact score for that placement, and by Lemma 2 the score is zero exactly when the
+placement is a valid match. Therefore the reported positions are exactly the motif occurrences. \qed
+
+\section*{Complexity Analysis}
+
+Let
+\[
+    N = r_q c_q, \qquad M = (r_p-1)c_q + c_p.
+\]
+We perform two FFT-based convolutions of size $O(N+M)$, so the total running time is
+\[
+    O((N+M)\log(N+M)).
+\]
+The memory usage is linear in the FFT size.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The score is always a nonnegative integer, so after FFT rounding errors it is safe to accept a
+    match when the computed value is very close to zero.
+    \item If $r_p > r_q$ or $c_p > c_q$, there are no legal placements at all.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,230 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2016 -- Railroad}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+A roller coaster has $n$ sections. Section $i$ has a starting speed $s_i$ and an ending speed $t_i$. To connect section $i$ to section $j$:
+\begin{itemize}
+  \item If $t_i \ge s_j$: free (braking is free).
+  \item If $t_i < s_j$: costs $s_j - t_i$ (need to accelerate).
+\end{itemize}
+
+Find the minimum cost to arrange all sections into a single circuit (Eulerian circuit), visiting each section exactly once.
+
+\section{Solution Approach}
+
+\textbf{Model as a graph problem}. Create a directed graph where speeds are nodes. For each section $i$, add an edge from $s_i$ to $t_i$ (this edge is ``free'' -- it represents riding section $i$). We need to add additional edges to make the graph have an Eulerian circuit.
+
+\textbf{Step 1: Degree balancing.} For an Eulerian circuit, each node must have equal in-degree and out-degree. For each node $v$:
+\begin{itemize}
+  \item If $\text{in}(v) > \text{out}(v)$: need $\text{in}(v) - \text{out}(v)$ outgoing edges from $v$.
+  \item If $\text{out}(v) > \text{in}(v)$: need $\text{out}(v) - \text{in}(v)$ incoming edges to $v$.
+\end{itemize}
+
+Going from speed $a$ to speed $b$:
+\begin{itemize}
+  \item $a \ge b$: cost 0 (braking).
+  \item $a < b$: cost $b - a$.
+\end{itemize}
+
+So the cost of an added edge from $a$ to $b$ is $\max(0, b - a)$.
+
+\textbf{Step 2: Match excess outgoing with excess incoming.} Sort all speeds. Excess outgoing at speed $a$ should go to excess incoming at the nearest speed $b \ge a$ (for free if $b \ge a$, but going down costs nothing too). Actually, going from higher to lower is free.
+
+Use a sweep from right to left on sorted speeds. Accumulate excess degrees. The cost is incurred when we need to ``go up'' in speed.
+
+\textbf{Step 3: Connectivity.} After degree balancing, the graph might not be connected. We need to add edges to connect components. Use a Union-Find on the speed nodes that have edges, and add minimum-cost edges between components.
+
+The cost to connect two adjacent speed values $v_1 < v_2$ is $v_2 - v_1$ (or 0 if going down, but we need bidirectional connectivity, so we need at least one up-edge).
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+struct DSU {
+    vector<int> p, rank_;
+    void init(int n) {
+        p.resize(n); rank_.resize(n, 0);
+        iota(p.begin(), p.end(), 0);
+    }
+    int find(int x) { return p[x] == x ? x : p[x] = find(p[x]); }
+    bool unite(int a, int b) {
+        a = find(a); b = find(b);
+        if (a == b) return false;
+        if (rank_[a] < rank_[b]) swap(a, b);
+        p[b] = a;
+        if (rank_[a] == rank_[b]) rank_[a]++;
+        return true;
+    }
+};
+
+long long plan_roller_coaster(int n, int s[], int t[]) {
+    // Coordinate compress all speeds
+    vector<int> vals;
+    for (int i = 0; i < n; i++) {
+        vals.push_back(s[i]);
+        vals.push_back(t[i]);
+    }
+    // Add a "zero" node for the circuit starting point
+    vals.push_back(0);
+    sort(vals.begin(), vals.end());
+    vals.erase(unique(vals.begin(), vals.end()), vals.end());
+    int V = vals.size();
+
+    auto compress = [&](int x) {
+        return lower_bound(vals.begin(), vals.end(), x) - vals.begin();
+    };
+
+    // Compute degree balance at each speed node
+    // Each section i: edge from s[i] to t[i]
+    // in-degree of t[i] += 1, out-degree of s[i] += 1
+    vector<int> balance(V, 0); // balance = out - in
+    DSU dsu;
+    dsu.init(V);
+
+    for (int i = 0; i < n; i++) {
+        int u = compress(s[i]), v = compress(t[i]);
+        balance[u]++; // out-degree
+        balance[v]--; // in-degree
+        dsu.unite(u, v);
+    }
+
+    // The circuit needs to return to start.
+    // Add a "base" node at speed 0. The circuit starts and ends here.
+    // Actually, for the Eulerian circuit, we need the total system to be balanced.
+    // Add one edge from node 0 to some node, and back.
+    // The circuit: start at speed 0, ride sections, return to speed 0.
+    // So we need an edge from 0 -> s[first] and t[last] -> 0.
+    // For Eulerian: just ensure balance at each node and connectivity.
+
+    // For the circuit: add one outgoing from node 0 and one incoming to node 0
+    // But this is implicit in the circuit structure. Actually the problem says
+    // arrange sections into a circuit, so we need an Eulerian circuit on the
+    // section edges plus any added "transition" edges.
+
+    // The trick: we need to add edges to balance degrees and connect components.
+    // Sweep from highest speed to lowest:
+    // - Accumulate excess = sum of balance[v] for v >= current
+    // - If excess < 0 at some point: we need |excess| edges going "up" from
+    //   current speed to the next higher speed, costing (next - current) each.
+    // - Also need connectivity.
+
+    // First, connect components for connectivity
+    // All nodes with edges are in the DSU. Also include node 0.
+    // Connect all components: sort by value, connect adjacent with cost diff.
+
+    // Which nodes are "active"? Those with edges or non-zero balance.
+    vector<bool> active(V, false);
+    active[compress(0)] = true; // base node
+    for (int i = 0; i < n; i++) {
+        active[compress(s[i])] = true;
+        active[compress(t[i])] = true;
+    }
+
+    // For connectivity: connect adjacent active nodes
+    // Cost of connecting nodes at speeds a < b: b - a (need an up-edge)
+    // But actually, connecting down is free.
+    // For Eulerian circuit on an undirected-like structure, we just need connectivity.
+    // The cost to connect two components at speeds a and b (a < b) is b - a.
+
+    // Collect active node indices sorted by value
+    vector<int> activeNodes;
+    for (int i = 0; i < V; i++) {
+        if (active[i]) activeNodes.push_back(i);
+    }
+
+    ll cost = 0;
+
+    // Connect components using edges between adjacent active nodes
+    for (int i = 0; i + 1 < (int)activeNodes.size(); i++) {
+        int u = activeNodes[i], v = activeNodes[i+1];
+        if (dsu.unite(u, v)) {
+            // Must add an edge from u to v (cost = vals[v] - vals[u])
+            // and an edge from v to u (cost = 0, since going down is free)
+            cost += vals[v] - vals[u];
+            balance[u]++; // outgoing from u
+            balance[v]--; // incoming to v
+            // Also add return edge (free)
+            balance[v]++; // outgoing from v
+            balance[u]--; // incoming to u
+        }
+    }
+
+    // Now balance degrees using sweep from right to left
+    // At each active node, accumulate excess. If excess > 0, we have more
+    // outgoing than incoming, need to send excess to the right (but that costs
+    // money going up). If excess < 0, we have more incoming, need to send
+    // excess to the left (free going down).
+    // Sweep from right to left, carry excess.
+    // Cost is incurred when excess > 0 at a transition going right.
+
+    // Actually, sweep from left to right:
+    // carry = running sum of balance
+    // At each step, if carry > 0: we need 'carry' transitions going left (free)
+    // If carry < 0: we need |carry| transitions going right (cost per unit = gap)
+    // Wait, this needs more care.
+
+    // Correct approach: sweep left to right on active nodes.
+    // carry tracks the net flow that needs to go right.
+    // carry = sum of balance[0..i]. If carry > 0, we have carry units of flow
+    // going right from node i to node i+1, cost = carry * (vals[i+1] - vals[i]).
+    // If carry < 0, the flow goes left (free).
+
+    ll carry = 0;
+    for (int i = 0; i + 1 < (int)activeNodes.size(); i++) {
+        carry += balance[activeNodes[i]];
+        if (carry > 0) {
+            cost += carry * (ll)(vals[activeNodes[i+1]] - vals[activeNodes[i]]);
+        }
+    }
+
+    return cost;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    int s[n], t[n];
+    for (int i = 0; i < n; i++) scanf("%d %d", &s[i], &t[i]);
+    printf("%lld\n", plan_roller_coaster(n, s, t));
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time}: $O(n \log n)$ for sorting and coordinate compression, $O(n \alpha(n))$ for DSU operations.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

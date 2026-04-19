@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\A. Crystal Crosswind}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each cell of the grid either contains a molecule or is empty. For every wind vector $(w_x, w_y)$ we are
+given exactly the cells that are seen as boundaries, meaning the cell itself contains a molecule while the
+cell one step earlier in the wind direction does not.
+
+We must reconstruct two grids consistent with all observations: one with the fewest molecules and one
+with the most molecules.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Fix one wind and one cell $p$. Let $\mathrm{prev}(p)$ be the cell at $p-(w_x, w_y)$.
+    \item If $p$ is listed as a boundary for that wind, then we know two facts exactly:
+    \[
+        p = 1,\qquad \mathrm{prev}(p) = 0
+    \]
+    whenever $\mathrm{prev}(p)$ lies inside the grid.
+    \item If $p$ is \emph{not} listed as a boundary, then the forbidden situation is ``$p$ contains a molecule
+    and $\mathrm{prev}(p)$ does not''. Therefore we get the implication
+    \[
+        p = 1 \Longrightarrow \mathrm{prev}(p) = 1.
+    \]
+    \item This is a Horn-style system: some cells are forced to be present, some are forced to be absent,
+    and every remaining rule is a one-way implication between cells.
+    \item In such a system:
+    \begin{itemize}[leftmargin=*]
+        \item the minimal solution is obtained by starting from all forced-present cells and repeatedly applying
+        implications;
+        \item the maximal solution is obtained by starting from all forced-absent cells and repeatedly applying
+        the reverse rule ``if the predecessor is absent, then the current cell must also be absent''.
+    \end{itemize}
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Store, for every wind, a boolean table telling whether each cell is listed as a boundary.
+    \item Build the set of forced-present cells: every observed boundary cell must contain a molecule.
+    \item Build the set of forced-absent cells from two sources:
+    \begin{itemize}[leftmargin=*]
+        \item the predecessor of every boundary cell;
+        \item any cell whose predecessor lies outside the grid and which is \emph{not} listed as a boundary,
+        because such a cell cannot contain a molecule.
+    \end{itemize}
+    \item To obtain the minimal structure, run a BFS/queue over forced-present cells. When a cell $p$ is known
+    to be present and $p$ is not a boundary for some wind, mark $\mathrm{prev}(p)$ present as well.
+    \item To obtain the maximal structure, run a BFS/queue over forced-absent cells. When a cell $q$ is known
+    to be absent and another cell $p=q+(w_x,w_y)$ is inside the grid and is not a boundary for that wind,
+    then $p$ must also be absent.
+    \item Output the cells marked present in each construction.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs exactly the minimal and maximal valid crystal structures.
+
+\paragraph{Lemma 1.}
+Every cell marked present by the minimal-construction BFS must be present in every valid solution.
+
+\paragraph{Proof.}
+Initially, every queue element is an observed boundary cell, so it is forced to be present by definition.
+
+Whenever the BFS processes a present cell $p$ and, for some wind, $p$ is not a boundary, the observation
+rules imply $p = 1 \Rightarrow \mathrm{prev}(p) = 1$. Therefore the predecessor is also present in every
+valid solution. By induction over the BFS order, every marked cell is mandatory. \qed
+
+\paragraph{Lemma 2.}
+The grid produced by the minimal-construction BFS is itself valid.
+
+\paragraph{Proof.}
+All observed boundary cells are marked present, so the positive part of every boundary constraint is
+satisfied.
+
+All predecessors of observed boundary cells were put into the forced-absent set, and the input is
+guaranteed consistent, so none of them is marked present by the BFS. Thus the negative part of every
+boundary constraint is also satisfied.
+
+Finally, whenever a marked-present cell $p$ is not a boundary for some wind, the BFS explicitly enforces
+that its predecessor is also marked present. Hence every non-boundary implication is satisfied. Therefore
+the produced grid is valid. \qed
+
+\paragraph{Lemma 3.}
+Every cell marked absent by the maximal-construction BFS must be absent in every valid solution.
+
+\paragraph{Proof.}
+Initially, every queue element is forced absent either because it is the predecessor of an observed
+boundary or because it would otherwise create an unobserved boundary at the edge of the grid.
+
+Whenever the BFS processes an absent cell $q$, consider a wind and the cell $p=q+(w_x,w_y)$. If $p$ is
+not a boundary for that wind, then the constraint is $p = 1 \Rightarrow q = 1$. Since $q$ is absent, $p$
+cannot be present, so $p$ is also forced absent. Induction on the BFS order proves the claim. \qed
+
+\paragraph{Lemma 4.}
+Setting every cell not marked absent by the maximal-construction BFS to present yields a valid solution.
+
+\paragraph{Proof.}
+All forced-absent cells are kept absent, so every boundary predecessor is absent as required.
+Also, boundary cells themselves are never marked absent in a consistent instance, so they remain present.
+
+Now consider any non-boundary implication $p = 1 \Rightarrow \mathrm{prev}(p) = 1$. If $p$ were present
+while $\mathrm{prev}(p)$ were absent, then during the maximal-construction BFS the absence of
+$\mathrm{prev}(p)$ would have propagated to $p$. That did not happen, so this violating configuration is
+impossible. Hence all implications hold, and the constructed grid is valid. \qed
+
+\paragraph{Theorem.}
+The first output grid is the unique valid structure with the minimum number of molecules, and the second
+output grid is the unique valid structure with the maximum number of molecules.
+
+\paragraph{Proof.}
+By Lemma 1, every cell placed in the minimal grid is mandatory in every valid solution; by Lemma 2, that
+grid is valid. Therefore no valid solution can use fewer molecules.
+
+By Lemma 3, every cell removed from the maximal grid must be absent in every valid solution; by
+Lemma 4, the resulting grid is valid. Therefore no valid solution can use more molecules.
+
+Because the set of mandatory-present cells and the set of mandatory-absent cells are uniquely determined
+by the constraints, both extremal grids are unique. \qed
+
+\section*{Complexity Analysis}
+
+Let $N = dx \cdot dy$ and let $k$ be the number of winds.
+
+\begin{itemize}[leftmargin=*]
+    \item Building the forced sets takes $O(kN)$ time.
+    \item Each BFS marks every cell at most once and inspects all $k$ winds, so each BFS also takes $O(kN)$ time.
+    \item The total memory usage is $O(kN)$ for the boundary tables and $O(N)$ for the work arrays.
+\end{itemize}
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The output order is row-major from $(1,1)$ in the top-left corner, exactly as requested in the
+    statement.
+    \item The same per-wind boundary table is used both to propagate mandatory presence and to block
+    reverse absence propagation through actual boundaries.
+\end{itemize}
+
+\end{document}

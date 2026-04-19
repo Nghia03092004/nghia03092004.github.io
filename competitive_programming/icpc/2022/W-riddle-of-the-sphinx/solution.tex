@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\W. Riddle of the Sphinx}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+There are three unknown nonnegative integers: the numbers of legs of an axex, a basilisk, and a
+centaur. We may ask exactly five linear questions of the form
+\[
+ax + by + cz = r,
+\]
+but one of the five answers may be a lie. We must still determine the unique triple $(x,y,z)$.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Each question gives one linear equation in the three unknowns.
+    \item If we choose five query vectors such that \emph{any} three of them are linearly independent, then
+    after discarding the one lie the remaining truthful answers determine a unique solution.
+    \item A convenient fixed choice is
+    \[
+    (1,0,0),\ (0,1,0),\ (0,0,1),\ (1,1,1),\ (1,2,3).
+    \]
+    Any three of these rows have nonzero determinant.
+    \item Therefore, for each candidate lie position we can solve a $3 \times 3$ system and then verify the
+    resulting triple against the four answers assumed to be truthful.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Ask the five fixed questions above and read the five answers.
+    \item For each index $i$, pretend the $i$th answer is the lie.
+    \item Solve the linear system from any three of the other four equations with Cramer's rule.
+    \item Reject the candidate if the system is singular, if any coordinate is negative, or if any of the four
+    supposedly truthful equations is violated.
+    \item Output the unique candidate that survives.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For the chosen five query vectors, any three are linearly independent.
+
+\paragraph{Proof.}
+This is a direct determinant check. The first three rows are the identity matrix. Any triple containing at
+least two of them is obviously independent, and the remaining mixed triples with $(1,1,1)$ and
+$(1,2,3)$ also have nonzero determinant. Hence every triple is independent. \qed
+
+\paragraph{Lemma 2.}
+If we discard the actual lie, the algorithm reconstructs the true values $(x,y,z)$.
+
+\paragraph{Proof.}
+After removing the lie, the remaining four equations are all truthful. By Lemma 1, any three of their row
+vectors are independent, so the corresponding $3 \times 3$ system has a unique solution. The true triple
+satisfies those equations, so uniqueness implies that the solved triple is exactly the true one. It also
+passes the verification against all four truthful equations. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, when the algorithm guesses the actual lie position, it keeps the true triple. Now consider any
+wrong lie position. Then at least one lie remains among the four equations checked during verification, so
+the candidate cannot satisfy all four unless that ``lie'' happens to match the truthful value, which would
+mean it was not a lie at all. Therefore every wrong guess is rejected, and the only surviving output is the
+true triple. \qed
+
+\section*{Complexity Analysis}
+
+The number of questions and candidate lie positions is constant. The running time is $O(1)$ and the
+memory usage is $O(1)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Because this is interactive, each question must be flushed immediately after printing. The
+    implementation uses \texttt{endl}.
+    \item All arithmetic easily fits in 64-bit signed integers.
+\end{itemize}
+
+\end{document}

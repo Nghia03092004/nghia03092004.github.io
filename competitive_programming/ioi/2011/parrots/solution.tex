@@ -1,0 +1,249 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2011 -- Parrots}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Encode a message of $N \le 64$ bytes into a multiset of integers in $[0,255]$. The decoder receives the integers in arbitrary order and must reconstruct the original message exactly.
+
+\section{Solution}
+
+\subsection{Messages as Ranks}
+Interpret the byte array as a base-$256$ integer
+\[
+V = \sum_{i=0}^{N-1} M_i \cdot 256^i .
+\]
+There are exactly $256^N$ possible messages.
+
+\subsection{Encoded Multisets as Weak Compositions}
+Fix a length bound $T$. Any encoded multiset of length at most $T$ can be written as counts
+\[
+c_0, c_1, \ldots, c_{255}, c_{256},
+\]
+where $c_x$ is the number of occurrences of value $x$, and $c_{256}$ is a ``blank'' count so that
+\[
+\sum_{x=0}^{256} c_x = T.
+\]
+Thus the number of possible encodings is the number of weak compositions of $T$ into $257$ parts:
+\[
+\binom{T + 256}{256}.
+\]
+Choose the smallest $T$ such that $\binom{T + 256}{256} \ge 256^N$. For $N = 64$, this gives $T = 261$, which is the optimal full-score bound.
+
+\subsection{Ranking and Unranking}
+We map each message rank $V$ to the $V$-th weak composition in lexicographic order.
+
+Suppose we still have $R$ slots to distribute and we are deciding the count of the current value. If we set it to $t$, then the number of completions is
+\[
+\binom{(R - t) + K - 2}{K - 2},
+\]
+where $K$ is the number of categories still available (current value, larger values, and blanks).
+
+This gives:
+\begin{itemize}
+  \item an \emph{unranking} procedure for the encoder, which converts $V$ into counts $c_x$;
+  \item a \emph{ranking} procedure for the decoder, which reconstructs $V$ from the received counts.
+\end{itemize}
+
+\subsection{Why the Order Does Not Matter}
+The sent data is only the multiset: value $x$ is transmitted exactly $c_x$ times. Since the decoder only needs the multiplicities, permutation of the transmitted numbers is harmless.
+
+\section{Implementation}
+
+The code uses a tiny fixed-size big integer (10 limbs of 64 bits), which is enough because all values fit comfortably below $2^{640}$.
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+void send(int value);
+void output(int value);
+
+namespace {
+constexpr int K = 257;
+constexpr int MAX_N = 64;
+constexpr int MAX_T = 261;
+constexpr int MAX_C = 256 + MAX_T;
+constexpr int LIMBS = 10;
+
+struct BigInt {
+    array<uint64_t, LIMBS> limb{};
+    BigInt(uint64_t value = 0) {
+        limb.fill(0);
+        limb[0] = value;
+    }
+    bool operator<(const BigInt& other) const {
+        for (int i = LIMBS - 1; i >= 0; --i)
+            if (limb[i] != other.limb[i])
+                return limb[i] < other.limb[i];
+        return false;
+    }
+    BigInt& operator+=(const BigInt& other) {
+        unsigned __int128 carry = 0;
+        for (int i = 0; i < LIMBS; ++i) {
+            unsigned __int128 sum =
+                (unsigned __int128)limb[i] + other.limb[i] + carry;
+            limb[i] = (uint64_t)sum;
+            carry = sum >> 64;
+        }
+        return *this;
+    }
+    BigInt& operator-=(const BigInt& other) {
+        uint64_t borrow = 0;
+        for (int i = 0; i < LIMBS; ++i) {
+            uint64_t old = limb[i];
+            uint64_t sub = other.limb[i] + borrow;
+            limb[i] = old - sub;
+            borrow = (old < sub) || (borrow && sub == 0);
+        }
+        return *this;
+    }
+    void add_small(uint64_t value) {
+        unsigned __int128 carry = value;
+        for (int i = 0; i < LIMBS && carry > 0; ++i) {
+            unsigned __int128 sum = (unsigned __int128)limb[i] + carry;
+            limb[i] = (uint64_t)sum;
+            carry = sum >> 64;
+        }
+    }
+    void shift_left_8() {
+        uint64_t carry = 0;
+        for (int i = 0; i < LIMBS; ++i) {
+            uint64_t next = limb[i] >> 56;
+            limb[i] = (limb[i] << 8) | carry;
+            carry = next;
+        }
+    }
+    void shift_right_8() {
+        uint64_t carry = 0;
+        for (int i = LIMBS - 1; i >= 0; --i) {
+            uint64_t next = limb[i] << 56;
+            limb[i] = (limb[i] >> 8) | carry;
+            carry = next;
+        }
+    }
+    int low_byte() const { return limb[0] & 255; }
+};
+
+vector<vector<BigInt>> binom;
+array<int, MAX_N + 1> best_len{};
+bool ready = false;
+
+void init_tables() {
+    if (ready) return;
+    ready = true;
+
+    binom.assign(MAX_C + 1, vector<BigInt>(257, BigInt(0)));
+    binom[0][0] = 1;
+    for (int n = 1; n <= MAX_C; ++n) {
+        binom[n][0] = 1;
+        for (int k = 1; k <= min(n, 256); ++k)
+            binom[n][k] = binom[n - 1][k - 1];
+            binom[n][k] += binom[n - 1][k];
+    }
+
+    BigInt states = 1;
+    int t = 0;
+    for (int n = 1; n <= MAX_N; ++n) {
+        states.shift_left_8();
+        while (binom[t + 256][256] < states) ++t;
+        best_len[n] = t;
+    }
+}
+
+BigInt message_to_rank(int N, int M[]) {
+    BigInt value = 0;
+    for (int i = N - 1; i >= 0; --i) {
+        value.shift_left_8();
+        value.add_small(M[i]);
+    }
+    return value;
+}
+
+vector<int> unrank_counts(int total, BigInt rank) {
+    vector<int> cnt(K, 0);
+    int rem = total;
+    for (int x = 0; x + 1 < K; ++x) {
+        int tail = K - x - 2;
+        for (int take = 0; take <= rem; ++take) {
+            const BigInt& ways = binom[rem - take + tail][tail];
+            if (rank < ways) {
+                cnt[x] = take;
+                rem -= take;
+                break;
+            }
+            rank -= ways;
+        }
+    }
+    cnt.back() = rem;
+    return cnt;
+}
+
+BigInt rank_counts(const vector<int>& cnt) {
+    BigInt rank = 0;
+    int rem = accumulate(cnt.begin(), cnt.end(), 0);
+    for (int x = 0; x + 1 < K; ++x) {
+        int tail = K - x - 2;
+        for (int take = 0; take < cnt[x]; ++take)
+            rank += binom[rem - take + tail][tail];
+        rem -= cnt[x];
+    }
+    return rank;
+}
+}  // namespace
+
+void encode(int N, int M[]) {
+    init_tables();
+    vector<int> cnt = unrank_counts(best_len[N], message_to_rank(N, M));
+    for (int x = 0; x < 256; ++x)
+        for (int rep = 0; rep < cnt[x]; ++rep)
+            send(x);
+}
+
+void decode(int N, int L, int X[]) {
+    init_tables();
+    vector<int> cnt(K, 0);
+    for (int i = 0; i < L; ++i) ++cnt[X[i]];
+    cnt.back() = best_len[N] - L;
+
+    BigInt rank = rank_counts(cnt);
+    for (int i = 0; i < N; ++i) {
+        output(rank.low_byte());
+        rank.shift_right_8();
+    }
+}
+\end{lstlisting}
+
+\section{Complexity}
+\begin{itemize}
+  \item Precomputation of binomial coefficients: $O(256 \cdot T)$ states.
+  \item Encoding and decoding: $O(256 \cdot T)$ big-integer operations.
+  \item Memory: $O(256 \cdot T)$.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,159 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{lemma}{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2018 -- Mechanical Doll}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+Build a switching network of binary switches (Y-shaped connectors called ``switches'') to route a ball through a sequence of triggers $A_1, A_2, \ldots, A_m$ in order. Each switch has two outputs ($X$ and $Y$) and alternates between them each time the ball passes. All triggers route back to the root switch. Minimize the number of switches.
+
+\section{Solution}
+
+\subsection{Key Idea: Complete Binary Tree}
+
+A complete binary tree with $2^k \ge m$ leaves can sequence $m$ triggers. Each traversal from root to leaf visits a unique leaf due to alternating switches. The $2^k$ leaves are visited in \emph{bit-reversal order}: the $i$-th traversal (0-indexed) reaches leaf $\text{bitrev}(i, k)$.
+
+\subsection{Construction}
+
+\begin{enumerate}
+  \item Find the smallest $k$ with $2^k \ge m$. Set $L = 2^k$.
+  \item The first $L - m$ visits hit \emph{dummy} leaves (routed back to the root switch). The remaining $m$ visits hit $A_1, \ldots, A_m$ in order.
+  \item For leaf at tree position $p$ (0-indexed): it is visited at time $t = \text{bitrev}(p, k)$. If $t < L - m$, the leaf is dummy (output $= -1$, i.e., root switch). Otherwise, the leaf outputs trigger $A_{t - (L-m)+1}$.
+  \item Build the tree bottom-up. If both children of an internal node are dummy, eliminate that node (replace with $-1$). This reduces the switch count.
+  \item Assign switch numbers so the root is switch $-1$ (as required by the grader), with switches numbered $-1, -2, \ldots$
+\end{enumerate}
+
+\begin{lemma}
+A complete binary tree of depth $k$ with alternating switches visits its $2^k$ leaves in bit-reversal order.
+\end{lemma}
+\begin{proof}
+At depth $d$, a switch sends the ball left on odd passes and right on even passes (or vice versa, depending on initial state). The $i$-th traversal follows the path determined by the bits of $i$ read in reverse, landing at leaf $\text{bitrev}(i, k)$.
+\end{proof}
+
+\subsection{Optimization}
+
+Eliminating switches where both children are dummy can reduce the count from $2^k - 1$ to as few as $m - 1$ for favorable $m$.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+void create_circuit(int M, vector<int> A) {
+    int m = A.size();
+    if (m == 0) {
+        // No triggers, no switches needed
+        vector<int> C(M + 1, 0);
+        answer(C, {}, {});
+        return;
+    }
+
+    int k = 0;
+    while ((1 << k) < m) k++;
+    int leaves = 1 << k;
+
+    // Bit-reverse function
+    auto bitrev = [&](int x, int bits) -> int {
+        int r = 0;
+        for (int i = 0; i < bits; i++) {
+            r = (r << 1) | (x & 1);
+            x >>= 1;
+        }
+        return r;
+    };
+
+    // Compute leaf targets: leafTarget[visit_time] = output
+    int numDummy = leaves - m;
+    vector<int> leafTarget(leaves);
+    for (int t = 0; t < leaves; t++) {
+        leafTarget[t] = (t < numDummy) ? -1 : A[t - numDummy];
+    }
+
+    // leafOutput[tree_position] = output for leaf at position p
+    vector<int> leafOutput(leaves);
+    for (int p = 0; p < leaves; p++) {
+        leafOutput[p] = leafTarget[bitrev(p, k)];
+    }
+
+    // Build tree bottom-up, eliminating dummy-only subtrees
+    // Nodes use 1-indexed complete binary tree layout
+    // Leaves at positions [leaves, 2*leaves-1]
+    vector<int> nodeOut(2 * leaves);
+    for (int p = 0; p < leaves; p++)
+        nodeOut[leaves + p] = leafOutput[p];
+
+    int switchCount = 0;
+    vector<int> X_out, Y_out;
+
+    for (int node = leaves - 1; node >= 1; node--) {
+        int leftOut = nodeOut[2 * node];
+        int rightOut = nodeOut[2 * node + 1];
+
+        if (leftOut == -1 && rightOut == -1 && node != 1) {
+            nodeOut[node] = -1;  // eliminate this switch
+        } else {
+            switchCount++;
+            nodeOut[node] = -switchCount;
+            // X = left child (first visit), Y = right child (second visit)
+            X_out.push_back(leftOut == -1 ? -switchCount : leftOut);
+            Y_out.push_back(rightOut == -1 ? -switchCount : rightOut);
+        }
+    }
+
+    // Renumber so root = -1 (currently root = -switchCount)
+    auto remap = [&](int x) -> int {
+        if (x >= 0 || x < -switchCount) return x;
+        return -(switchCount - (-x) + 1);
+    };
+
+    for (int i = 0; i < switchCount; i++) {
+        X_out[i] = remap(X_out[i]);
+        Y_out[i] = remap(Y_out[i]);
+    }
+    reverse(X_out.begin(), X_out.end());
+    reverse(Y_out.begin(), Y_out.end());
+
+    // C[0] = entry point = root switch = -1
+    // C[i] for i >= 1: all triggers route back to root
+    vector<int> C(M + 1, -1);
+
+    answer(C, X_out, Y_out);
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Switches}: At most $2m - 1$ (since $2^k < 2m$). With dummy elimination, often fewer.
+  \item \textbf{Time}: $O(m)$.
+  \item \textbf{Space}: $O(m)$.
+\end{itemize}
+
+\end{document}

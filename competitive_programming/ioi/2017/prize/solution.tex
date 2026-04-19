@@ -1,0 +1,102 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{lemma}{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2017 -- Prize}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+There are several prize types, numbered by value. Type~1 is the unique
+diamond. If there are $k$ prizes of type $t-1$, then there are strictly more
+than $k^2$ prizes of type $t$.
+
+For a query on position $i$, the grader returns two numbers:
+\begin{itemize}
+  \item $L_i$: how many boxes to the left contain a more expensive prize,
+  \item $R_i$: how many boxes to the right contain a more expensive prize.
+\end{itemize}
+
+We must find the unique position whose prize is the diamond.
+
+\section{Main Observation}
+
+Define
+\[
+  S_i = L_i + R_i.
+\]
+Then $S_i$ is exactly the number of prizes in the whole array that are more
+expensive than the prize in box $i$.
+
+Therefore:
+\begin{itemize}
+  \item $S_i = 0$ if and only if box $i$ contains the diamond,
+  \item two boxes contain the same prize type if and only if they have the same
+        value of $S$.
+\end{itemize}
+
+\begin{lemma}
+Let $i < j$ be two queried boxes with $S_i = S_j$. Then the number of boxes in
+the interval $(i, j)$ whose prizes are more expensive than the prizes in boxes
+$i$ and $j$ is exactly $L_j - L_i$.
+\end{lemma}
+
+\begin{proof}
+Both queries count prizes of the same set of more expensive types. The only
+difference between $L_j$ and $L_i$ comes from boxes between $i$ and $j$.
+\end{proof}
+
+\section{Binary-Search Style Exploration}
+
+We recursively split unresolved segments exactly as in ordinary binary search:
+query the midpoint, then continue on the left and right halves.
+
+The key pruning rule is the following. Suppose a segment lies strictly between
+two already queried boxes $i < j$ with the same value $S_i = S_j = s$. If we
+have already queried exactly $L_j - L_i$ boxes between them whose $S$-value is
+smaller than $s$, then every box between $i$ and $j$ that is more expensive
+than type $s$ has already been identified. Hence any still-unqueried segment
+inside $(i, j)$ cannot contain the diamond and may be discarded.
+
+So for each pending segment we first check whether some same-value pair around it
+already certifies that the segment is empty. If not, we query its midpoint.
+Whenever we see $S=0$, we have found the answer.
+
+\section{Why This Works Well}
+
+Because prize multiplicities grow quadratically from one type to the next, the
+number of distinct prize types is tiny. This means equal-$S$ boxes appear very
+quickly, and the pruning rule becomes effective after relatively few queries.
+This is the same idea as the official editorial's optimized solution.
+
+\section{Complexity}
+
+The official editorial states that this strategy can be implemented within the
+query limit, with at most 4759 queries. The local work per query is small
+because we only maintain queried positions grouped by their value $S$.
+
+\end{document}

@@ -1,0 +1,118 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2023\\B. Schedule}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each team contributes exactly one of its two members every week. For every pair of people from different
+teams, we care about the largest gap between consecutive weeks when they meet, also counting the gaps
+before the first meeting and after the last one. We must minimize the maximum such gap over $w$ weeks.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item If a schedule has isolation $k$, then during every block of $k$ consecutive weeks each pair of
+    people from different teams meets at least once.
+    \item So it is enough to build a schedule of length $k$ where every such pair meets at least once. By
+    repeating those $k$ weeks forever, we get the same isolation for any larger horizon.
+    \item A team's schedule over $k$ weeks is a binary string of length $k$: bit $0$ means member $1$
+    comes in, bit $1$ means member $2$ comes in.
+    \item Two teams are compatible exactly when the four bit pairs $00,01,10,11$ all occur somewhere.
+    Then every cross-team pair of employees meets at least once.
+    \item If we take strings of length $k$ that start with $0$ and contain exactly $\lceil k/2\rceil$ ones,
+    then any two distinct such strings are compatible. There are
+    \[
+    \binom{k-1}{\lceil k/2\rceil}
+    \]
+    such strings, and this is also the maximum possible number of pairwise compatible team strings.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For $k=1,2,\dots,w$, find the first $k$ such that
+    $\binom{k-1}{\lceil k/2\rceil} \ge n$.
+    \item If no such $k$ exists, output \texttt{infinity}.
+    \item Otherwise enumerate any $n$ distinct binary strings of length $k$ that start with $0$ and have
+    exactly $\lceil k/2\rceil$ ones.
+    \item Assign one string to each team.
+    \item Output the first $w$ weeks by repeating these strings periodically with period $k$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+If a schedule has isolation $k$, then the first $k$ weeks already contain at least one meeting for every
+pair of people from different teams.
+
+\paragraph{Proof.}
+If some pair did not meet in the first $k$ weeks, then the initial gap before their first meeting would be at
+least $k+1$, contradicting isolation $k$. \qed
+
+\paragraph{Lemma 2.}
+Any two distinct binary strings of length $k$ that start with $0$ and contain exactly $\lceil k/2\rceil$
+ones are compatible.
+
+\paragraph{Proof.}
+Both strings start with $0$, so $00$ occurs in the first position. Since the strings are distinct but have the
+same number of ones, there must be one position where they differ as $01$ and another where they differ
+as $10$.
+
+Among the last $k-1$ positions, each string has $\lceil k/2\rceil$ ones. Because
+$2\lceil k/2\rceil > k-1$, the two sets of one-positions must intersect, so $11$ also occurs. Therefore all
+four bit pairs occur, and the two teams are compatible. \qed
+
+\paragraph{Lemma 3.}
+No schedule block of length $k$ can contain more than $\binom{k-1}{\lceil k/2\rceil}$ pairwise compatible
+team strings.
+
+\paragraph{Proof.}
+By flipping all bits of a team string if necessary, we may assume every string starts with $0$ without
+changing compatibility.
+
+Now remove the first bit. If one suffix were contained in another, then one of the pairs $01$ or $10$
+would never occur, so the family of suffixes is an antichain in the Boolean lattice on $k-1$ elements.
+Sperner's theorem gives the extremal size, and the standard complement-pair refinement in the odd case
+reduces the bound exactly to $\binom{k-1}{\lceil k/2\rceil}$. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs an optimal schedule whenever the answer is finite, and outputs
+\texttt{infinity} otherwise.
+
+\paragraph{Proof.}
+Let $k$ be the first value found by the algorithm. By Lemma 2, the constructed $k$-week pattern makes
+every pair of teams compatible, so every pair of employees from different teams meets at least once in
+that block. Repeating the block makes each such pair meet at least once in every consecutive block of
+$k$ weeks, so the isolation is at most $k$.
+
+Conversely, if some schedule achieved smaller isolation, then by Lemma 1 its first block of that smaller
+length would already contain $n$ pairwise compatible team strings, contradicting Lemma 3 and the
+minimality of $k$. If no $k \le w$ satisfies the binomial bound, then no finite-isolation schedule exists.
+\qed
+
+\section*{Complexity Analysis}
+
+Trying all $k \le w$ is $O(w)$. Generating the first $n$ valid patterns takes $O(nk)$ time, and printing
+the repeated schedule takes $O(nw)$ time. The memory usage is $O(nk)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Binomial coefficients are computed with 64-bit arithmetic and capped at $n$, because larger
+    values are irrelevant.
+    \item Enumeration is done by backtracking with the first bit fixed to $0$.
+\end{itemize}
+
+\end{document}

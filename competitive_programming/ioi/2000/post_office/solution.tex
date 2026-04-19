@@ -1,0 +1,168 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2000 -- Post Office}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+There are $V$ villages on a line at sorted positions $x_1 < x_2 < \cdots < x_V$.
+Place $P$ post offices at village locations to minimize the total distance from
+each village to its nearest post office:
+\[
+  \min \sum_{i=1}^{V} \min_{j \in \text{post offices}} |x_i - x_j|.
+\]
+
+\noindent\textbf{Constraints:} $1 \le P \le V \le 300$.
+
+\section{Solution Approach}
+
+\subsection{Precomputation: Cost of Serving a Range}
+
+For a contiguous group of villages $[i, j]$ served by a single optimally-placed post
+office, the optimal location is the \textbf{median} village $m = \lfloor(i+j)/2\rfloor$.
+
+Define:
+\[
+  w[i][j] = \sum_{k=i}^{j} |x_k - x_m|, \quad m = \lfloor(i+j)/2\rfloor.
+\]
+
+\begin{proof}[Proof of the recurrence $w[i][j] = w[i][j{-}1] + x_j - x_m$]
+When extending from $[i, j{-}1]$ to $[i, j]$, the new median is
+$m' = \lfloor(i+j)/2\rfloor$. If $j - i$ is even, then $m' = m + 1$ where
+$m = \lfloor(i+j-1)/2\rfloor$ was the previous median. If $j - i$ is odd,
+then $m' = m$. In either case, the incremental cost formula
+$w[i][j] = w[i][j{-}1] + x_j - x_{m'}$ holds. This can be verified by
+noting that moving the median from $m$ to $m'$ changes costs symmetrically for the
+elements that switch sides, and $x_j - x_{m'}$ is the cost for the new village.
+\end{proof}
+
+We compute $w[i][j]$ incrementally in $O(V^2)$ total time.
+
+\subsection{DP Formulation}
+
+Let $\mathrm{dp}[i][j]$ = minimum total distance for villages $1, \ldots, i$ using
+$j$ post offices.
+
+\textbf{Base case:} $\mathrm{dp}[i][1] = w[1][i]$.
+
+\textbf{Transition:}
+\[
+  \mathrm{dp}[i][j] = \min_{k = j-1}^{i-1} \bigl(\mathrm{dp}[k][j{-}1] + w[k{+}1][i]\bigr).
+\]
+
+\textbf{Answer:} $\mathrm{dp}[V][P]$.
+
+\subsection{Reconstruction}
+
+Store the optimal split point $k$ in an auxiliary array $\mathrm{opt}[i][j]$. Trace
+backward to identify which group of villages each post office serves, placing each
+post office at the median of its group.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+int main() {
+    int V, P;
+    scanf("%d %d", &V, &P);
+
+    vector<int> x(V + 1);
+    for (int i = 1; i <= V; i++)
+        scanf("%d", &x[i]);
+
+    // Precompute w[i][j] = cost of one post office serving villages i..j
+    vector<vector<int>> w(V + 1, vector<int>(V + 1, 0));
+    for (int i = 1; i <= V; i++) {
+        for (int j = i + 1; j <= V; j++) {
+            int med = (i + j) / 2;
+            w[i][j] = w[i][j - 1] + x[j] - x[med];
+        }
+    }
+
+    // DP
+    const int INF = 1000000000;
+    vector<vector<int>> dp(V + 1, vector<int>(P + 1, INF));
+    vector<vector<int>> opt(V + 1, vector<int>(P + 1, 0));
+
+    for (int i = 1; i <= V; i++)
+        dp[i][1] = w[1][i];
+
+    for (int j = 2; j <= P; j++) {
+        for (int i = j; i <= V; i++) {
+            for (int k = j - 1; k <= i - 1; k++) {
+                int cost = dp[k][j - 1] + w[k + 1][i];
+                if (cost < dp[i][j]) {
+                    dp[i][j] = cost;
+                    opt[i][j] = k;
+                }
+            }
+        }
+    }
+
+    printf("%d\n", dp[V][P]);
+
+    // Reconstruct post office positions
+    vector<int> postOffices;
+    int curV = V, curP = P;
+    while (curP > 1) {
+        int k = opt[curV][curP];
+        int med = (k + 1 + curV) / 2;
+        postOffices.push_back(x[med]);
+        curV = k;
+        curP--;
+    }
+    int med = (1 + curV) / 2;
+    postOffices.push_back(x[med]);
+
+    reverse(postOffices.begin(), postOffices.end());
+    for (int i = 0; i < (int)postOffices.size(); i++)
+        printf("%d%c", postOffices[i], i + 1 < (int)postOffices.size() ? ' ' : '\n');
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(V^2 \cdot P)$ for the DP, plus $O(V^2)$ for
+        precomputing $w$. With $V, P \le 300$: at most $300^2 \times 300 = 27{,}000{,}000$
+        operations.
+  \item \textbf{Space complexity:} $O(V^2 + V \cdot P)$.
+\end{itemize}
+
+\subsection{Possible Optimization}
+
+The optimal split point $\mathrm{opt}[i][j]$ is non-decreasing in $i$ for fixed $j$
+(the ``divide and conquer'' or ``Knuth'' optimization). This reduces the DP to
+$O(V \cdot P)$ amortized. However, $O(V^2 P)$ is sufficient for $V \le 300$.
+
+\end{document}

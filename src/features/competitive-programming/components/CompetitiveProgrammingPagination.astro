@@ -1,0 +1,46 @@
+---
+import { withBase } from '../../../lib/paths';
+
+interface LinkItem {
+	track: 'icpc' | 'ioi';
+	year: number;
+	slug: string;
+	displayTitle: string;
+}
+
+interface Props {
+	previous?: LinkItem;
+	next?: LinkItem;
+}
+
+const { previous, next } = Astro.props;
+
+const getHref = (item: LinkItem) =>
+	withBase(`/competitive-programming/${item.track}/${item.year}/${item.slug}`);
+---
+
+{
+	previous || next ? (
+		<nav class="problem-pagination panel" aria-label="Archive navigation">
+			{previous ? (
+				<a class="problem-pagination__link" href={getHref(previous)} rel="prev">
+					<span class="problem-pagination__label">Previous Entry</span>
+					<strong>{previous.track.toUpperCase()} {previous.year}</strong>
+					<span>{previous.displayTitle}</span>
+				</a>
+			) : (
+				<div class="problem-pagination__link problem-pagination__link--empty" aria-hidden="true"></div>
+			)}
+
+			{next ? (
+				<a class="problem-pagination__link problem-pagination__link--next" href={getHref(next)} rel="next">
+					<span class="problem-pagination__label">Next Entry</span>
+					<strong>{next.track.toUpperCase()} {next.year}</strong>
+					<span>{next.displayTitle}</span>
+				</a>
+			) : (
+				<div class="problem-pagination__link problem-pagination__link--empty" aria-hidden="true"></div>
+			)}
+		</nav>
+	) : null
+}

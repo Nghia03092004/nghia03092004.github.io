@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\E. Dead-End Detector}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+For each street entrance $u \to v$, we ask whether, after entering the street from $u$ to $v$, it is possible to come back to $u$ without making an immediate U-turn. These are the dead-end signs that would be installed by the full rule.
+
+We do \emph{not} want all of them. A dead-end sign is redundant if, after entering some other dead-end street, we can eventually reach this entrance and enter it without making a U-turn. We must output exactly the non-redundant dead-end signs.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Connected components are independent, so we can reason about one component at a time.
+    \item If a component is a tree, then every edge direction pointing \emph{away from a leaf} is a dead end. Among these, only the signs placed at leaf entrances are non-redundant, because every other dead-end entrance can be reached from one of those leaf signs.
+    \item If a component contains a cycle, then the non-dead-end part is exactly its $2$-core: repeatedly remove leaves until no degree-$1$ vertices remain. The removed vertices form trees hanging off the core.
+    \item In such a component, the only non-redundant signs are the street entrances from the core into those hanging trees. Once you move from the core into such a tree, you can never come back to the core without a U-turn. Any deeper dead-end sign inside that tree is redundant, because it is reachable after first entering the core-to-tree street.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Build the undirected graph and compute connected components.
+    \item Repeatedly peel leaves with a queue:
+    \begin{itemize}[leftmargin=*]
+        \item start with every vertex of degree at most $1$,
+        \item remove it,
+        \item decrease the degrees of its remaining neighbors,
+        \item if one of them becomes degree $1$, push it too.
+    \end{itemize}
+    \item After this process, the unremoved vertices are exactly the $2$-core.
+    \item For every edge with exactly one endpoint in the core, output the sign directed from the core endpoint to the removed endpoint.
+    \item For every connected component whose core is empty, the component is a tree (or an isolated vertex). In that case, output the sign from each original leaf to its only neighbor.
+    \item Sort all output pairs lexicographically.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs exactly the non-redundant dead-end signs.
+
+\paragraph{Lemma 1.}
+In a tree component, the non-redundant dead-end signs are exactly the signs from leaves to their unique neighbors.
+
+\paragraph{Proof.}
+If we enter a tree edge from a leaf into the tree, then at the next vertex we are not allowed to reverse immediately, and every further move only goes deeper into some subtree. Therefore we can never return to that leaf, so the sign is a dead end.
+
+Now consider any dead-end sign $u \to v$ where $u$ is not a leaf. Since the component is a tree, some leaf $w$ exists in the subtree reached from $u \to v$. After entering the street from $w$ toward the tree, we can follow the unique path to $u$ and then enter $u \to v$ without making a U-turn. Hence the sign at $u \to v$ is redundant. So only leaf-to-neighbor signs remain. \qed
+
+\paragraph{Lemma 2.}
+In a component with non-empty $2$-core, every removed vertex lies in a tree attached to the core, and every edge from the core to such a tree is a dead-end entrance.
+
+\paragraph{Proof.}
+Repeated leaf removal deletes exactly the vertices that are not part of any cycle, leaving the $2$-core. The removed vertices therefore form disjoint trees attached to core vertices.
+
+Take an edge from a core vertex $u$ to a removed vertex $v$. After traversing $u \to v$, we are inside one of those attached trees. To get back to $u$, we would need to reverse along the unique path to the core, but that would eventually require an immediate reversal on the first edge of that path. Thus returning to $u$ without a U-turn is impossible, so $u \to v$ is a dead-end entrance. \qed
+
+\paragraph{Lemma 3.}
+In a component with non-empty $2$-core, every dead-end sign strictly inside one of the removed trees is redundant.
+
+\paragraph{Proof.}
+Let $x \to y$ be a dead-end sign inside an attached tree. Consider the unique edge from the core into that tree, say $u \to v$. After entering $u \to v$, we can continue along the unique path inside the tree until we reach $x$, and then enter $x \to y$ without making a U-turn. Therefore $x \to y$ is redundant. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs exactly the non-redundant dead-end signs.
+
+\paragraph{Proof.}
+By Lemma 1, tree components contribute exactly the leaf-to-neighbor signs. By Lemma 2, every edge from the core to a removed tree is a dead-end entrance. By Lemma 3, these are the only non-redundant ones in components with non-empty core. Since components are independent, taking the union over all components gives exactly the required set of signs. \qed
+
+\section*{Complexity Analysis}
+
+The leaf-peeling process touches every vertex and edge $O(1)$ times, and the final scan over edges is linear as well. Therefore the running time is $O(n + m)$ and the memory usage is $O(n + m)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The algorithm needs the \emph{original} degrees to detect leaves in a tree component after peeling. The code therefore uses the adjacency list size for that special case and a separate mutable degree array for the queue process.
+    \item Isolated vertices contribute no signs.
+    \item Sorting the final list of directed edge pairs directly gives the output order required by the statement.
+\end{itemize}
+
+\end{document}

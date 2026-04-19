@@ -1,0 +1,115 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{lemma}{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2019 -- Arranging Shoes}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+There are $2n$ shoes: $n$ left shoes (represented by $-i$) and $n$ right shoes ($+i$) for sizes $i = 1, \ldots, n$. Rearrange using the minimum number of adjacent swaps so that each pair is adjacent with the left shoe on the left.
+
+\section{Solution}
+
+\subsection{Greedy Strategy}
+Process positions left to right. For each even position $i$ (start of a pair slot):
+\begin{enumerate}
+  \item Let shoe $s$ be at position $i$. If $s > 0$ (right shoe), its matching left shoe $-s$ is somewhere to the right; conceptually swap them (costs 1 extra swap) so the left shoe is at position $i$.
+  \item Find the matching shoe and bring it to position $i+1$ by counting the number of \emph{active} (not yet matched) positions between them.
+  \item Mark both positions as used.
+\end{enumerate}
+
+\subsection{Counting with a Fenwick Tree}
+A Fenwick tree tracks active positions. The cost to bring the match from position $j$ to the slot adjacent to position $i$ is the number of active positions strictly between $i$ and $j$.
+
+\begin{lemma}
+This greedy produces the minimum number of swaps.
+\end{lemma}
+\begin{proof}[Proof sketch]
+At each step, the pair occupying the leftmost unfilled slot is fixed. The greedy matches each pair optimally: bringing the partner with the minimum number of intermediate active elements. Since completed pairs never need to be disturbed again, this is optimal.
+\end{proof}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct BIT {
+    int n;
+    vector<int> tree;
+    BIT(int n) : n(n), tree(n + 1, 0) {}
+    void update(int i, int v) { for (i++; i <= n; i += i & -i) tree[i] += v; }
+    int query(int i) { int s = 0; for (i++; i > 0; i -= i & -i) s += tree[i]; return s; }
+    int query(int l, int r) { return query(r) - (l > 0 ? query(l - 1) : 0); }
+};
+
+long long count_swaps(vector<int> S) {
+    int n2 = S.size(), n = n2 / 2;
+    map<int, queue<int>> pos;  // shoe value -> queue of positions
+    for (int i = 0; i < n2; i++) pos[S[i]].push(i);
+
+    BIT bit(n2);
+    for (int i = 0; i < n2; i++) bit.update(i, 1);
+
+    vector<bool> used(n2, false);
+    long long ans = 0;
+
+    for (int i = 0; i < n2; i++) {
+        if (used[i]) continue;
+
+        int shoe = S[i];
+        int matchPos;
+
+        if (shoe < 0) {
+            // Left shoe: find matching right shoe
+            pos[-shoe].pop();  // consume position i from right queue? No, consume from left.
+            pos[shoe].pop();   // consume position i from left queue
+            matchPos = pos[-shoe].front(); pos[-shoe].pop();
+        } else {
+            // Right shoe at left slot: extra swap needed
+            pos[shoe].pop();   // consume position i
+            matchPos = pos[-shoe].front(); pos[-shoe].pop();
+            ans++;  // one swap to put left before right
+        }
+
+        // Cost = number of active positions strictly between i and matchPos
+        int lo = min(i, matchPos), hi = max(i, matchPos);
+        ans += bit.query(lo + 1, hi - 1);
+
+        used[i] = true; used[matchPos] = true;
+        bit.update(i, -1); bit.update(matchPos, -1);
+    }
+
+    return ans;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time}: $O(n \log n)$ -- each shoe processed once with $O(\log n)$ Fenwick tree operations.
+  \item \textbf{Space}: $O(n)$.
+\end{itemize}
+
+\end{document}

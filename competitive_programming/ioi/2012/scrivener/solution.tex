@@ -1,0 +1,131 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2012 -- Crayfish Scrivener}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Implement a text editor with three operations:
+\begin{enumerate}
+    \item \textbf{TypeLetter(c)}: Append character $c$ to the current text.
+    \item \textbf{UndoCommands(u)}: Undo the last $u$ commands, restoring the text to its state $u$ operations ago. Undo can undo other undos.
+    \item \textbf{GetLetter(p)}: Return the $p$-th character (0-indexed) of the current text.
+\end{enumerate}
+All operations must be efficient ($O(\log N)$ per operation).
+
+\section{Solution}
+
+\subsection{Persistent Linked List with Binary Lifting}
+Rather than storing the full string for each version, represent the text as a linked list of character nodes with parent pointers.
+
+\textbf{Version tracking.} Each operation creates a new version. A version stores:
+\begin{itemize}
+    \item The tail node (last character) of the string, or $-1$ if empty.
+    \item The string length.
+\end{itemize}
+
+\textbf{TypeLetter(c).} Create a new node with character $c$ and parent = current tail. Set up binary-lifting jump pointers ($\text{jump}[k] = $ ancestor $2^k$ steps back). New version points to this node with length incremented.
+
+\textbf{UndoCommands(u).} The new version copies the version from $u$ steps ago (version index $\text{current} - u$).
+
+\textbf{GetLetter(p).} From the tail, walk back $(\text{len} - 1 - p)$ steps using binary lifting in $O(\log N)$ time. This operation also creates a new version (identical to the current one) since it counts as an operation for undo purposes.
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{TypeLetter:} $O(\log N)$ for jump pointers.
+    \item \textbf{UndoCommands:} $O(1)$.
+    \item \textbf{GetLetter:} $O(\log N)$.
+    \item \textbf{Space:} $O(N \log N)$ for jump pointers.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 1000005;
+const int LOG = 20;
+
+struct Node {
+    char ch;
+    int jump[LOG];
+};
+
+Node nodes[MAXN];
+int nodeCount = 0;
+
+struct Version {
+    int tail, len;
+};
+
+Version versions[MAXN];
+int verCount = 0;
+
+void Init() {
+    versions[0] = {-1, 0};
+    verCount = 1;
+}
+
+void TypeLetter(char c) {
+    int id = nodeCount++;
+    nodes[id].ch = c;
+    nodes[id].jump[0] = versions[verCount - 1].tail;
+    for (int k = 1; k < LOG; k++) {
+        int prev = nodes[id].jump[k - 1];
+        nodes[id].jump[k] = (prev == -1) ? -1 : nodes[prev].jump[k - 1];
+    }
+    versions[verCount] = {id, versions[verCount - 1].len + 1};
+    verCount++;
+}
+
+void UndoCommands(int u) {
+    versions[verCount] = versions[verCount - 1 - u];
+    verCount++;
+}
+
+char GetLetter(int p) {
+    int tail = versions[verCount - 1].tail;
+    int len  = versions[verCount - 1].len;
+    int steps = len - 1 - p;
+    int node = tail;
+    for (int k = LOG - 1; k >= 0; k--)
+        if (steps >= (1 << k)) {
+            node = nodes[node].jump[k];
+            steps -= (1 << k);
+        }
+
+    // GetLetter counts as an operation for undo
+    versions[verCount] = versions[verCount - 1];
+    verCount++;
+
+    return nodes[node].ch;
+}
+\end{lstlisting}
+
+\end{document}

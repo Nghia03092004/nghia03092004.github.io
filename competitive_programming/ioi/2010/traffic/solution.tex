@@ -1,0 +1,145 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2010 -- Traffic}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given a tree of $N$ cities where city~$i$ has population $p_i$, find a city $r$ such that when the tree is rooted at $r$, the maximum subtree population among $r$'s children is minimized. This node is called the \emph{traffic center}.
+
+\section{Solution}
+
+\subsection{Key Observation}
+Root the tree at node~$0$. Let $\mathrm{sub}(u)$ denote the total population in $u$'s subtree, and let $T = \sum_i p_i$ be the total population.
+
+If the tree is re-rooted at node $v$, the ``directions'' from $v$ are:
+\begin{itemize}
+    \item Each child $c$ of $v$ (in the original rooting) contributes $\mathrm{sub}(c)$ population.
+    \item The ``parent direction'' contributes $T - \mathrm{sub}(v)$ population.
+\end{itemize}
+
+The maximum directional load at $v$ is therefore:
+\[
+f(v) = \max\!\bigl(T - \mathrm{sub}(v),\; \max_{c \in \mathrm{children}(v)} \mathrm{sub}(c)\bigr).
+\]
+
+The traffic center is $\arg\min_v f(v)$.
+
+\subsection{Algorithm}
+\begin{enumerate}
+    \item Root at node~$0$. Compute $\mathrm{sub}(u)$ for all $u$ via reverse BFS.
+    \item For each node $u$, compute $\max_{c} \mathrm{sub}(c)$ (the maximum child subtree population).
+    \item For each node $v$, compute $f(v)$ and track the minimizer.
+\end{enumerate}
+
+\begin{theorem}
+This computes the traffic center in $O(N)$ time and space.
+\end{theorem}
+\begin{proof}
+Steps 1--3 each take a single pass over the tree. The formula for $f(v)$ correctly captures the maximum directional load at $v$ because, in the re-rooted tree, every direction from $v$ either corresponds to a child subtree or the complementary set $T - \mathrm{sub}(v)$.
+\end{proof}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+
+    vector<long long> pop(N);
+    for (int i = 0; i < N; i++) cin >> pop[i];
+
+    vector<vector<int>> adj(N);
+    for (int i = 0; i < N - 1; i++) {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    // Root at 0, BFS to get order and parents
+    vector<long long> sub(N, 0);
+    vector<int> parent(N, -1), order;
+    vector<bool> visited(N, false);
+    queue<int> q;
+    q.push(0);
+    visited[0] = true;
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        order.push_back(u);
+        for (int v : adj[u])
+            if (!visited[v]) {
+                visited[v] = true;
+                parent[v] = u;
+                q.push(v);
+            }
+    }
+
+    // Compute subtree populations in reverse BFS order
+    for (int i = 0; i < N; i++) sub[i] = pop[i];
+    for (int i = N - 1; i >= 1; i--)
+        sub[parent[order[i]]] += sub[order[i]];
+
+    long long total = sub[0];
+
+    // Compute max child subtree population for each node
+    vector<long long> maxChild(N, 0);
+    for (int i = 1; i < N; i++)
+        maxChild[parent[order[i]]] = max(maxChild[parent[order[i]]],
+                                         sub[order[i]]);
+
+    // Find traffic center
+    long long bestLoad = LLONG_MAX;
+    int bestNode = 0;
+    for (int u = 0; u < N; u++) {
+        long long load = max(total - sub[u], maxChild[u]);
+        if (load < bestLoad) {
+            bestLoad = load;
+            bestNode = u;
+        }
+    }
+
+    cout << bestNode << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

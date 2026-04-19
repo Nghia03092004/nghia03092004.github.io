@@ -1,0 +1,138 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2023\\F. Tilting Tiles}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We are given a starting board and a target board. A tilt moves every tile as far as possible in one of the
+four cardinal directions. Tiles with the same letter are indistinguishable. We must decide whether some
+sequence of tilts transforms the start into the target.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item After we have made at least one horizontal and at least one vertical tilt, every tile is flush in a
+    corner. From then on, the occupied shape never changes; only the corner anchor and the order of the
+    tiles inside that shape can change.
+    \item Therefore every reachable configuration is of one of two types:
+    \begin{itemize}[leftmargin=*]
+        \item the start itself or a state reachable in one move;
+        \item a corner-anchored state obtained after one horizontal and one vertical move, followed by
+        repeated cycling through the four corners.
+    \end{itemize}
+    \item For a fixed corner-anchored base state, one full 4-move cycle induces a permutation $p$ on the
+    tile positions. Reachability becomes: does some power $p^n$ produce the target labeling?
+    \item On each cycle of $p$, this is a string-rotation problem. Either there is no valid rotation, or the
+    valid exponents satisfy one congruence
+    \[
+    n \equiv a \pmod m.
+    \]
+    \item The whole board is reachable iff the congruences from all permutation cycles are mutually
+    consistent.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Compare the multisets of letters in the two boards. If they differ, output \texttt{no}.
+    \item Check the trivial cases: the start itself and the four boards reachable in one tilt.
+    \item If the board has height $1$ or width $1$, no longer sequence can change anything beyond those
+    cases, so we stop.
+    \item Otherwise try the eight two-move seeds consisting of one horizontal and one vertical move. Each
+    seed produces a corner-anchored base state.
+    \item For that base state:
+    \begin{itemize}[leftmargin=*]
+        \item label the tiles distinctly and simulate one full 4-move corner cycle to obtain the permutation
+        $p$ of positions;
+        \item for each of the four corner anchors along this cycle, check whether the target has the same
+        occupied shape;
+        \item if so, read the target letters in the order of the current labels and test whether some power of
+        $p$ maps the base letter sequence to that target sequence.
+    \end{itemize}
+    \item To test a power of $p$, decompose $p$ into cycles. For each cycle:
+    \begin{itemize}[leftmargin=*]
+        \item extract the source and target strings on that cycle;
+        \item find a matching rotation by string matching on the doubled source string;
+        \item reduce all valid shifts modulo the minimal period of that cycle string.
+    \end{itemize}
+    \item If the resulting congruences are pairwise consistent, output \texttt{yes}. If all seeds fail, output
+    \texttt{no}.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+After at least one horizontal and at least one vertical tilt, the occupied shape is fixed up to which corner
+it is anchored in.
+
+\paragraph{Proof.}
+A horizontal tilt compresses each row against one side, and a vertical tilt compresses each column against
+one side. After both directions have been used, every row and every column is already maximally
+compressed, so later tilts can only move the compressed shape between corners. The set of occupied cells
+inside that shape cannot change anymore. \qed
+
+\paragraph{Lemma 2.}
+For a fixed corner-anchored base state, the reachable labelings are exactly the boards obtained by
+applying some power of the induced permutation $p$ and then possibly stopping at one of the four corner
+anchors on that cycle.
+
+\paragraph{Proof.}
+By Lemma 1, once the shape is corner-anchored, every later move only changes the corner and the order
+of the labeled tiles within the fixed shape. One full round through the four corners applies a fixed
+permutation $p$ to the labels. Therefore every later state is described by a power of $p$ together with one
+of the four anchors where we stop, and every such state is realized by following that many full rounds and
+then the corresponding prefix of the 4-cycle. \qed
+
+\paragraph{Lemma 3.}
+For one cycle of the permutation $p$, the set of valid exponents is either empty or one congruence class
+$n \equiv a \pmod m$, where $m$ is the minimal period of the source string on that cycle.
+
+\paragraph{Proof.}
+Along one cycle of length $L$, applying $p$ repeatedly rotates the letters cyclically. A target labeling is
+reachable on that cycle exactly when it is some rotation of the source string. String matching on the
+doubled source string finds one such rotation, if it exists.
+
+If the source string has minimal period $m$, then two rotations produce the same string exactly when
+their offsets are congruent modulo $m$. Hence all valid exponents form one residue class modulo $m$.
+\qed
+
+\paragraph{Theorem.}
+The algorithm outputs \texttt{yes} exactly when the target board is reachable.
+
+\paragraph{Proof.}
+By Lemma 1, every nontrivial reachable board is covered by one of the eight two-move seeds and one of
+the four anchors examined by the algorithm. By Lemma 2, after fixing such a seed and anchor, reachability
+reduces exactly to whether some power of the associated permutation $p$ produces the target labeling.
+
+By Lemma 3, each cycle of $p$ contributes either impossibility or one congruence on the exponent. A
+single exponent exists exactly when all these congruences are mutually consistent. Therefore the algorithm
+accepts exactly the reachable targets. \qed
+
+\section*{Complexity Analysis}
+
+Let $N=hw$ be the number of cells and let $T$ be the number of tiles. Each tilt simulation is $O(N)$. We
+try only a constant number of seeds and anchors, so the board-processing cost is $O(N)$. For each
+candidate we also process the permutation cycles and run linear-time string matching on the cycle
+strings, which is $O(T)$. Thus the total running time is $O(N)$ and the memory usage is $O(N)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Equal-colored tiles are handled by comparing label sequences only after the occupied shape is
+    matched.
+    \item Congruences are checked by grouping equal moduli and then applying the gcd consistency test.
+\end{itemize}
+
+\end{document}

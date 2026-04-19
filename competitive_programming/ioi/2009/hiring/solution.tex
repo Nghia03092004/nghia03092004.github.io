@@ -1,0 +1,138 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2009 -- Hiring}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+There are $N$ candidates, each with minimum salary $S_i$ and qualification $Q_i$. The \emph{fairness} constraint requires a constant $c$ such that every hired worker~$i$ receives salary $c \cdot Q_i \ge S_i$. Given budget $W$, maximize the number of hired workers. Among solutions with the same count, minimize total cost.
+
+\section{Solution}
+
+\subsection{Key Observation}
+Define the \emph{ratio} $r_i = S_i / Q_i$. Worker~$i$ is eligible when $c \ge r_i$. If we fix $c = r_k$ for some worker~$k$, all workers with $r_i \le r_k$ are eligible, and the total cost is $c \cdot \sum Q_i = r_k \cdot \sum Q_i$. To minimize cost (and thus hire more workers), we should select the eligible workers with the smallest $Q_i$ values.
+
+\subsection{Algorithm}
+\begin{enumerate}
+    \item Sort workers by ratio $r_i$ in increasing order.
+    \item Process workers in sorted order. For worker~$k$, set $c = r_k$.
+    \item Maintain a max-heap of $Q$ values and a running sum of selected $Q$'s.
+    \item Insert $Q_k$. While $c \cdot \text{sumQ} > W$ (equivalently $S_k \cdot \text{sumQ} > W \cdot Q_k$), remove the largest $Q$ from the heap.
+    \item Update the best answer.
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N \log N)$.
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    long long W;
+    cin >> N >> W;
+
+    vector<long long> S(N), Q(N);
+    vector<int> idx(N);
+    for(int i = 0; i < N; i++){
+        cin >> S[i] >> Q[i];
+        idx[i] = i;
+    }
+
+    // Sort by ratio S[i]/Q[i] increasing (cross-multiply to avoid floats)
+    sort(idx.begin(), idx.end(), [&](int a, int b){
+        return S[a] * Q[b] < S[b] * Q[a];
+    });
+
+    priority_queue<long long> pq;
+    long long sumQ = 0;
+    int bestCount = 0;
+    double bestCost = 1e18;
+    int bestIdx = -1;
+
+    for(int k = 0; k < N; k++){
+        int i = idx[k];
+        pq.push(Q[i]);
+        sumQ += Q[i];
+
+        // Budget check: S[i] * sumQ <= W * Q[i]
+        while(!pq.empty() && (__int128)S[i] * sumQ > (__int128)W * Q[i]){
+            sumQ -= pq.top();
+            pq.pop();
+        }
+
+        int cnt = (int)pq.size();
+        double cost = (double)S[i] / Q[i] * sumQ;
+        if(cnt > bestCount || (cnt == bestCount && cost < bestCost)){
+            bestCount = cnt;
+            bestCost = cost;
+            bestIdx = k;
+        }
+    }
+
+    cout << bestCount << "\n";
+
+    // Reconstruct the selected workers
+    priority_queue<pair<long long,int>> pq2;
+    sumQ = 0;
+    for(int k = 0; k <= bestIdx; k++){
+        int i = idx[k];
+        pq2.push({Q[i], i});
+        sumQ += Q[i];
+        while(!pq2.empty() && (__int128)S[idx[bestIdx]] * sumQ > (__int128)W * Q[idx[bestIdx]]){
+            sumQ -= pq2.top().first;
+            pq2.pop();
+        }
+    }
+
+    vector<int> selected;
+    while(!pq2.empty()){
+        selected.push_back(pq2.top().second + 1);
+        pq2.pop();
+    }
+    sort(selected.begin(), selected.end());
+    for(int x : selected) cout << x << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The greedy approach works because sorting by ratio $r_i$ ensures that as $c$ increases, new workers become eligible but the per-unit cost also increases. The max-heap efficiently evicts the most expensive workers (largest $Q$) to stay within budget. The use of \texttt{\_\_int128} avoids overflow when comparing $S_i \cdot \text{sumQ}$ against $W \cdot Q_i$.
+
+\end{document}

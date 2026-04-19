@@ -1,0 +1,222 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2011 -- Garden}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+A garden has $N$ nodes and $M$ edges (trails), each with a beauty value (lower index = more beautiful). From each node, you always take the most beautiful available trail. Because you cannot immediately backtrack, each node effectively has a unique successor. Given a target node~$P$ and a step count~$K$ (up to $10^{18}$), count how many starting nodes reach $P$ after exactly $K$ steps.
+
+\section{Solution}
+
+\subsection{Functional Graph Construction}
+Since there is no immediate backtracking, split each node $v$ into two states:
+\begin{itemize}
+    \item State $(v, 0)$: arrived via a non-best edge (or starting). Leave via the best edge.
+    \item State $(v, 1)$: arrived via the best edge. Leave via the second-best edge (or the best edge if no second-best exists).
+\end{itemize}
+This gives a functional graph on $2N$ states, each with exactly one successor.
+
+\subsection{Cycle Detection and Counting}
+In a functional graph, every state eventually enters a unique cycle. For a target state $t$, we need to count starting states $s$ (of the form $(v, 0)$) such that $f^K(s) = t$, where $f$ is the successor function.
+
+\textbf{Approach:}
+\begin{enumerate}
+    \item For each of the two target states $t \in \{(P,0), (P,1)\}$:
+    \begin{enumerate}
+        \item Detect the cycle containing $t$ (or the cycle $t$'s rho-path leads into).
+        \item Build the reverse graph. Identify which states lie on the cycle and which are on ``tails.''
+        \item For tail states: the distance to $t$ is unique and finite. Check if it equals $K$.
+        \item For cycle states at distance $d$ from $t$: the state reaches $t$ after $d + k \cdot C$ steps for any $k \ge 0$, where $C$ is the cycle length. Check if $K \equiv d \pmod{C}$ and $K \ge d$. Then BFS backward through non-cycle predecessors.
+    \end{enumerate}
+    \item Sum the counts from both target states (no double-counting occurs since each starting state follows a unique path).
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(N)$ per query (amortized over the BFS).
+    \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, M, P, Q;
+    cin >> N >> M >> P >> Q;
+
+    vector<vector<pair<int,int>>> adj(N); // (edge_idx, neighbor)
+    for (int i = 0; i < M; i++) {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back({i, v});
+        adj[v].push_back({i, u});
+    }
+    for (int v = 0; v < N; v++)
+        sort(adj[v].begin(), adj[v].end());
+
+    // Build functional graph on 2N states
+    // State v*2+0: go via best edge; state v*2+1: go via second-best
+    int S = 2 * N;
+    vector<int> nxt(S, -1);
+
+    for (int v = 0; v < N; v++) {
+        if (adj[v].empty()) continue;
+        int bestEdge = adj[v][0].first;
+        int bestNeigh = adj[v][0].second;
+        int secNeigh = (adj[v].size() >= 2) ? adj[v][1].second : -1;
+        int secEdge = (adj[v].size() >= 2) ? adj[v][1].first : -1;
+
+        // State v*2+0: leave via best edge
+        {
+            int arrived = (adj[bestNeigh][0].first == bestEdge) ? 1 : 0;
+            nxt[v*2+0] = bestNeigh * 2 + arrived;
+        }
+
+        // State v*2+1: leave via second-best (or best if none)
+        if (secNeigh >= 0) {
+            int arrived = (adj[secNeigh][0].first == secEdge) ? 1 : 0;
+            nxt[v*2+1] = secNeigh * 2 + arrived;
+        } else {
+            int arrived = (adj[bestNeigh][0].first == bestEdge) ? 1 : 0;
+            nxt[v*2+1] = bestNeigh * 2 + arrived;
+        }
+    }
+
+    // Build reverse graph
+    vector<vector<int>> rev(S);
+    for (int s = 0; s < S; s++)
+        if (nxt[s] >= 0 && nxt[s] < S)
+            rev[nxt[s]].push_back(s);
+
+    // Solve for a target state and step count K
+    auto solve = [&](int target, long long K) -> int {
+        if (target < 0 || target >= S || nxt[target] < 0) return 0;
+
+        // Walk forward from target to find cycle
+        vector<int> path;
+        set<int> vis;
+        int cur = target;
+        while (!vis.count(cur)) {
+            vis.insert(cur);
+            path.push_back(cur);
+            if (nxt[cur] < 0) break;
+            cur = nxt[cur];
+        }
+        int cycleEntry = cur;
+
+        // Find cycle length
+        int cycleLen = 1;
+        int c = nxt[cycleEntry];
+        while (c != cycleEntry) { c = nxt[c]; cycleLen++; }
+
+        // Identify cycle nodes
+        set<int> onCycle;
+        onCycle.insert(cycleEntry);
+        c = nxt[cycleEntry];
+        while (c != cycleEntry) { onCycle.insert(c); c = nxt[c]; }
+
+        int count = 0;
+        bool targetOnCycle = onCycle.count(target);
+
+        if (targetOnCycle) {
+            // Compute cycle-distance from each cycle node to target
+            map<int, long long> cycleDist;
+            cycleDist[target] = 0;
+            int prev = -1;
+            for (int r : rev[target])
+                if (onCycle.count(r)) { prev = r; break; }
+            long long d = 1;
+            int node = prev;
+            while (node != target && node >= 0) {
+                cycleDist[node] = d++;
+                int np = -1;
+                for (int r : rev[node])
+                    if (onCycle.count(r) && !cycleDist.count(r))
+                        { np = r; break; }
+                node = np;
+            }
+
+            // BFS backward from each cycle node through tails
+            for (auto &[cn, cdist] : cycleDist) {
+                if (cdist > K) continue;
+                long long need = ((K - cdist) % cycleLen + cycleLen) % cycleLen;
+
+                queue<pair<int, long long>> bfs;
+                bfs.push({cn, 0});
+                while (!bfs.empty()) {
+                    auto [u, dd] = bfs.front(); bfs.pop();
+                    long long totalDist = dd + cdist;
+                    if (totalDist > K) continue;
+                    if ((K - totalDist) % cycleLen == 0) {
+                        if (u % 2 == 0) count++;
+                    }
+                    for (int r : rev[u]) {
+                        if (!onCycle.count(r))
+                            bfs.push({r, dd + 1});
+                    }
+                }
+            }
+        } else {
+            // Target on tail: only direct predecessors at distance K
+            queue<pair<int, long long>> bfs;
+            bfs.push({target, 0});
+            while (!bfs.empty()) {
+                auto [u, dd] = bfs.front(); bfs.pop();
+                if (dd == K) {
+                    if (u % 2 == 0) count++;
+                    continue;
+                }
+                if (dd > K) continue;
+                for (int r : rev[u])
+                    bfs.push({r, dd + 1});
+            }
+        }
+
+        return count;
+    };
+
+    while (Q--) {
+        long long K;
+        cin >> K;
+        int ans = solve(P * 2 + 0, K) + solve(P * 2 + 1, K);
+        cout << ans << "\n";
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

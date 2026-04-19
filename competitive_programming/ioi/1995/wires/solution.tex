@@ -1,0 +1,150 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1995 -- Wires}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given $n$ points (terminals) in the plane, connect them all with wires of minimum total
+length. Each wire connects exactly two terminals, and all terminals must be connected
+(directly or indirectly).
+
+This is the \textbf{Minimum Spanning Tree (MST)} problem on a complete graph where
+edge weights are Euclidean distances.
+
+\medskip
+\noindent\textbf{Constraints:} $n \le 50$.
+
+\section{Solution Approach}
+
+\subsection{Minimum Spanning Tree}
+
+Since we need to connect all points with minimum total wire length and any two points
+can be directly connected, this is a standard MST problem.
+
+\begin{enumerate}
+  \item Compute all $\binom{n}{2}$ pairwise Euclidean distances.
+  \item Apply Kruskal's algorithm: sort edges by weight and greedily add the shortest
+        edge that does not create a cycle, using a Union-Find data structure.
+  \item The MST gives the minimum total wiring length.
+\end{enumerate}
+
+\subsection{Why MST Is Optimal}
+
+Among all spanning trees of the complete graph, the MST minimizes the total edge weight.
+Since every spanning tree uses exactly $n-1$ edges and connects all nodes, the MST
+achieves the minimum total wire length.
+
+\textbf{Note:} A Steiner tree (which may introduce additional intermediate points) could
+yield shorter total length, but the problem requires direct terminal-to-terminal connections.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cmath>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+struct Edge {
+    double w;
+    int u, v;
+    bool operator<(const Edge& o) const { return w < o.w; }
+};
+
+int par[55], rnk[55];
+
+int find(int x) {
+    while (par[x] != x) x = par[x] = par[par[x]];
+    return x;
+}
+
+bool unite(int a, int b) {
+    a = find(a); b = find(b);
+    if (a == b) return false;
+    if (rnk[a] < rnk[b]) swap(a, b);
+    par[b] = a;
+    if (rnk[a] == rnk[b]) rnk[a]++;
+    return true;
+}
+
+double px[55], py[55];
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++)
+        scanf("%lf %lf", &px[i], &py[i]);
+
+    // Build all edges
+    vector<Edge> edges;
+    for (int i = 0; i < n; i++)
+        for (int j = i + 1; j < n; j++) {
+            double dx = px[i] - px[j], dy = py[i] - py[j];
+            edges.push_back({sqrt(dx*dx + dy*dy), i, j});
+        }
+
+    sort(edges.begin(), edges.end());
+
+    // Kruskal's MST
+    for (int i = 0; i < n; i++) { par[i] = i; rnk[i] = 0; }
+
+    double totalLen = 0;
+    int edgesUsed = 0;
+    vector<pair<int,int>> mstEdges;
+
+    for (auto& e : edges) {
+        if (unite(e.u, e.v)) {
+            totalLen += e.w;
+            mstEdges.push_back({e.u, e.v});
+            if (++edgesUsed == n - 1) break;
+        }
+    }
+
+    // Output MST edges and total length
+    for (auto& [u, v] : mstEdges)
+        printf("%d %d\n", u + 1, v + 1);
+    printf("Total length: %.2f\n", totalLen);
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n^2 \log n)$. We generate $\binom{n}{2} = O(n^2)$
+        edges and sort them. Kruskal's algorithm with union-by-rank and path compression
+        processes each edge in amortized $O(\alpha(n))$ time, where $\alpha$ is the inverse
+        Ackermann function. The sorting step dominates.
+  \item \textbf{Space complexity:} $O(n^2)$ for storing all edges.
+\end{itemize}
+
+\end{document}

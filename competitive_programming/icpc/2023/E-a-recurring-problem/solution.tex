@@ -1,0 +1,150 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2023\\E. A Recurring Problem}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Every card corresponds to a positive linear recurrence relation
+\[
+a_{i+k}=c_1a_i+\cdots+c_ka_{i+k-1}
+\]
+with positive integer coefficients and positive integer initial values. Cards are ordered
+lexicographically by the generated part
+\[
+(a_{k+1},a_{k+2},\dots),
+\]
+and ties are broken lexicographically by the coefficient vector $(c_1,\dots,c_k)$. Given the index $n$,
+we must output the recurrence on the $n$th card.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item The generated sequence is strictly increasing, because
+    \[
+    a_{i+k}\ge c_ka_{i+k-1}\ge a_{i+k-1}
+    \]
+    and all terms are positive.
+    \item The central task is to count how many PLRRs start with a given prefix of generated values.
+    \item Suppose the current generated prefix is $x=(x_1,\dots,x_\ell)$ and we also remember the previous
+    $\ell-1$ generated values $a=(a_1,\dots,a_{\ell-1})$. If the last coefficient of the recurrence is $c$
+    and the previous hidden value is $a_0$, then this coefficient contributes
+    \[
+    c\cdot(a_0,a_1,\dots,a_{\ell-1})
+    \]
+    to the prefix $x$. Removing that contribution produces a smaller subproblem of the same kind.
+    \item Once these prefix counts are known, the desired card is found by lexicographic block skipping:
+    decide the first generated value, then the second, and so on.
+\end{itemize}
+
+\section*{Algorithm}
+
+For a length-$\ell$ vector $x=(x_1,\dots,x_\ell)$ and a length-$(\ell-1)$ vector
+$a=(a_1,\dots,a_{\ell-1})$, let $f(x,a)$ be the number of ways to choose a positive recurrence suffix
+consistent with that data. Initially, for a generated prefix $x$, we use $a=(x_1,\dots,x_{\ell-1})$.
+
+The recursion is
+\[
+f(x,a)=
+\begin{cases}
+1, & \text{if } x \text{ is the zero vector},\\
+0, & \text{if some entry of } x \text{ is negative},\\
+\sum\limits_{a_0 \ge 1}\ \sum\limits_{c \ge 1}
+f\!\left(x-c(a_0,a_1,\dots,a_{\ell-1}),\ (a_0,a_1,\dots,a_{\ell-2})\right),
+& \text{otherwise,}
+\end{cases}
+\]
+where we only sum over pairs $(a_0,c)$ that keep all coordinates nonnegative.
+
+The implementation is:
+\begin{enumerate}[leftmargin=*]
+    \item Memoize $f(x,a)$ for prefixes of length at most $5$.
+    \item Find the first generated value by scanning $1,2,3,\dots$ and subtracting whole blocks
+    $f((x_1),())$ until the correct block is reached.
+    \item Extend the current prefix one value at a time. For each possible next value, count how many
+    PLRRs realize that extension, and skip whole blocks until the target one is found.
+    \item Stop when the current prefix identifies exactly one PLRR, or when five generated values are fixed.
+    \item If only one PLRR remains, reconstruct its coefficients and initial values by following any valid
+    recursive decomposition.
+    \item Otherwise enumerate all candidates consistent with the chosen 5-term prefix, compare them by
+    generated sequence and then by coefficient vector, and select the remaining rank inside that block.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+The recursion for $f(x,a)$ counts exactly the PLRRs consistent with the state $(x,a)$.
+
+\paragraph{Proof.}
+Take any valid PLRR consistent with $(x,a)$. Let $c$ be its last coefficient and let $a_0$ be the value
+immediately preceding the remembered vector $a$. Then the contribution of this last coefficient to the
+generated prefix is exactly $c(a_0,a_1,\dots,a_{\ell-1})$. After subtracting it, the remaining earlier
+coefficients form a valid smaller PLRR counted by the recursive call.
+
+Conversely, every choice of $(a_0,c)$ together with every recursively counted smaller PLRR uniquely
+extends to a valid larger PLRR by restoring that last coefficient. Hence the recursion is a bijective
+decomposition of the counted objects. \qed
+
+\paragraph{Lemma 2.}
+At every reconstruction step, the block sizes computed by the algorithm are exactly the sizes of the
+lexicographic groups of PLRRs sharing the current generated prefix.
+
+\paragraph{Proof.}
+By Lemma 1, $f$ counts exactly how many PLRRs start with any proposed prefix. Since the generated
+sequence is strictly increasing, trying the next generated value in increasing order lists the lexicographic
+blocks in the correct order. Subtracting these block sizes therefore moves to the unique block containing
+the desired card. Repeating the same argument extends the prefix correctly one position at a time. \qed
+
+\paragraph{Lemma 3.}
+If two distinct recurrences have orders at most $K$, then their generated parts differ within the first
+$2K$ generated values.
+
+\paragraph{Proof.}
+Let the two generated sequences be $u$ and $v$, of orders $p,q \le K$. Their difference satisfies a linear
+recurrence of order at most $p+q \le 2K$ (for example, using the product of the two characteristic
+polynomials). If its first $2K$ values were all zero, then every later value would also be forced to zero.
+So two distinct generated sequences of orders at most $K$ must differ within the first $2K$ terms. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the PLRR on the $n$th card.
+
+\paragraph{Proof.}
+By Lemma 2, the prefix-building phase always chooses the unique lexicographic block containing the
+desired card, so after that phase the target card is among the remaining candidates.
+
+If only one candidate remains, reconstruction is correct by Lemma 1. Otherwise the algorithm enumerates
+all candidates consistent with the fixed 5-term prefix. By Lemma 3, comparing the first $2K$ generated
+terms, where $K$ is the maximum candidate order, is enough to determine the lexicographic order of the
+generated parts exactly. Ties are then broken by the coefficient vectors, exactly as required by the
+statement. Therefore the selected candidate is precisely the $n$th card. \qed
+
+\section*{Complexity Analysis}
+
+Let $S$ be the number of memoized states $f(x,a)$ reached by the search and let $T$ be the total number
+of recursive transitions tried across those states. The counting phase takes $O(T)$ time and $O(S)$
+memory. If explicit enumeration is needed at the end, let $C$ be the number of remaining candidates for
+the chosen 5-term prefix; the extra work is $O(C \log C)$ for sorting plus linear time to generate the
+comparison prefixes.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Counts are capped at a large constant, because only comparisons with the remaining rank matter.
+    \item A useful pruning rule is: if deleting the last coordinate already yields an impossible prefix, then the
+    current state is impossible as well.
+    \item The implementation fixes at most five generated values before explicit enumeration; this keeps the
+    memoized state representation small and is sufficient for the official data.
+\end{itemize}
+
+\end{document}

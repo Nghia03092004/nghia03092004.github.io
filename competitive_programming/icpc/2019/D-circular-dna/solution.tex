@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\D. Circular DNA}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+For each gene type $i$, ignore all markers except $s_i$ and $e_i$. After choosing a cut position on the circle, we obtain a linear sequence of those markers. Gene type $i$ counts as \emph{good} if that linear subsequence is a properly nested parenthesis sequence, with $s_i$ as ``open'' and $e_i$ as ``close''.
+
+We must choose the cut position that maximizes the number of good gene types, breaking ties by the smallest cut position.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item For one fixed gene type $i$, replace every $s_i$ by $+1$ and every $e_i$ by $-1$. All other markers are irrelevant.
+    \item A linear sequence is properly nested if and only if:
+    \begin{itemize}[leftmargin=*]
+        \item the total sum is $0$, and
+        \item every prefix sum is non-negative.
+    \end{itemize}
+    \item Therefore, if the counts of $s_i$ and $e_i$ differ, gene type $i$ can never be good for any cut and may be ignored completely.
+    \item Assume the total sum for type $i$ is $0$. Let $P_i(k)$ be the prefix sum after the first $k$ markers of the \emph{original} input sequence, considering only type $i$. If we cut before position $p$, then the rotated prefix sums are exactly $P_i(k) - P_i(p-1)$. These are all non-negative if and only if $P_i(p-1)$ is a global minimum of the prefix sum array.
+    \item So a cut position $p$ is good for type $i$ exactly when the prefix sum value \emph{just before} marker $p$ is a minimum value for that type.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For each gene type, store its occurrences in original order as positions together with $+1/-1$ depending on whether the marker is $s_i$ or $e_i$.
+    \item Ignore every type whose numbers of starts and ends differ.
+    \item For one remaining type, scan its occurrences once to compute the minimum prefix sum value.
+    \item Scan its occurrences a second time. Between two consecutive occurrences, the prefix sum before the cut is constant, so this type contributes $+1$ to an entire interval of cut positions whenever that constant value equals the minimum.
+    \item Use one global difference array over cut positions $1 \dots n$ to add those interval contributions for every valid type.
+    \item Prefix-sum the difference array to obtain, for every cut position, how many gene types are good there. Output the smallest position with maximum value.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs the smallest cut position with the maximum possible number of properly nested gene types.
+
+\paragraph{Lemma 1.}
+For a fixed gene type $i$, if the numbers of $s_i$ and $e_i$ in the whole circle differ, then $i$ is not good for any cut.
+
+\paragraph{Proof.}
+Any properly nested parenthesis sequence has the same number of opening and closing symbols. Rotating the circle does not change the multiset of markers of type $i$, so unequal counts make a valid nesting impossible for every cut. \qed
+
+\paragraph{Lemma 2.}
+Assume gene type $i$ has equal counts of $s_i$ and $e_i$. Let $P_i(k)$ be its prefix sum in the original sequence. Then cutting before position $p$ makes type $i$ good if and only if $P_i(p-1)$ is a minimum value among all $P_i(k)$.
+
+\paragraph{Proof.}
+After cutting before position $p$, the rotated sequence starts at marker $p$. The prefix sum after reading the first part of this rotated sequence is exactly the original prefix sum minus the value at the cut:
+\[
+P_i(k) - P_i(p-1).
+\]
+Because the total sum of type $i$ is $0$, the rotated sequence is properly nested exactly when all these values are non-negative. That is equivalent to
+\[
+P_i(k) \ge P_i(p-1)
+\quad \text{for all } k,
+\]
+which says precisely that $P_i(p-1)$ is a global minimum. \qed
+
+\paragraph{Lemma 3.}
+For a fixed valid type $i$, the algorithm adds $+1$ exactly to those cut positions where type $i$ is good.
+
+\paragraph{Proof.}
+Between consecutive occurrences of type $i$, the prefix sum for that type does not change, so every cut position in that interval sees the same value $P_i(p-1)$. By Lemma 2, the type is good exactly on the intervals where this constant value equals the global minimum. The algorithm adds $+1$ to exactly those intervals in the difference array. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the smallest cut position that maximizes the number of good gene types.
+
+\paragraph{Proof.}
+By Lemma 1, every ignored type is never good and contributes nothing anywhere. By Lemma 3, every remaining type contributes $1$ exactly at the cut positions where it is good. Therefore, after prefix-summing the global difference array, the value at each cut position is exactly the number of good gene types for that cut. Choosing the largest such value, and the smallest position among ties, produces the required answer. \qed
+
+\section*{Complexity Analysis}
+
+Each marker is stored once and each valid type is scanned a constant number of times through its own occurrence list. Thus the running time is $O(n + d)$, where $d$ is the number of distinct gene types appearing in the input. The memory usage is $O(n + d)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The implementation stores occurrences of each gene type as a linked list inside flat arrays, so the total memory stays linear in $n$.
+    \item The interval for one prefix value is ``from the previous occurrence $+1$ up to the current occurrence'', because cutting before position $p$ uses the prefix sum after the first $p-1$ markers.
+    \item Cut position $1$ corresponds to the original input order, so its prefix value is always the empty-prefix value $0$.
+\end{itemize}
+
+\end{document}

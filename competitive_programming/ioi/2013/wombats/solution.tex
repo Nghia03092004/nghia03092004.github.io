@@ -1,0 +1,252 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2013 -- Wombats}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given a grid of $R$ rows and $C$ columns ($R \leq 5000$, $C \leq 200$), with horizontal edges (within each row) and vertical edges (between consecutive rows), each having a non-negative weight. Support two operations:
+\begin{enumerate}
+    \item \textbf{changeH}$(r, c, w)$: Change the weight of horizontal edge at row $r$, column $c$ to $w$.
+    \item \textbf{changeV}$(r, c, w)$: Change the weight of vertical edge at row $r$, column $c$ to $w$.
+    \item \textbf{escape}$(V_1, V_2)$: Find the shortest path from entry $V_1$ (top row, column $V_1$) to exit $V_2$ (bottom row, column $V_2$).
+\end{enumerate}
+
+\section{Solution Approach}
+Use a \textbf{segment tree on rows}, where each segment tree node stores a ``shortcut matrix'' $D$ of size $C \times C$: $D[i][j]$ = shortest path from column $i$ of the top row of this segment to column $j$ of the bottom row.
+
+\textbf{Building a leaf (single row to next row):}
+For a single row $r$, the shortcut matrix $D[i][j]$ represents the shortest path from $(r, i)$ to $(r+1, j)$, using the horizontal edges in row $r$ and the vertical edges from row $r$ to $r+1$. This can be computed in $O(C^2)$ using DP.
+
+\textbf{Merging two segments:}
+Given two shortcut matrices $A$ (top half) and $B$ (bottom half), the combined matrix $C$ is:
+\[
+C[i][j] = \min_{k=0}^{C-1} A[i][k] + B[k][j]
+\]
+This is matrix multiplication under the $(\min, +)$ semiring. Naively $O(C^3)$.
+
+\textbf{Optimization:} Since $C \leq 200$, and the matrices satisfy the SMAWK property (due to the grid structure), we can use the ``Knuth optimization'' or ``SMAWK'' to compute each merge in $O(C^2)$ instead of $O(C^3)$.
+
+\textbf{Segment tree:}
+\begin{itemize}
+    \item The segment tree has $O(R / B)$ leaves, where $B$ is a blocking factor (group $B$ rows per leaf).
+    \item Each leaf's shortcut matrix is precomputed.
+    \item Internal nodes combine children's matrices.
+    \item Updates rebuild the affected leaf and propagate up.
+    \item Queries read the root's matrix.
+\end{itemize}
+
+With blocking factor $B \approx \sqrt{R}$ and $C = 200$: leaf rebuild is $O(B \cdot C^2)$, merge is $O(C^2)$ with optimization (or $O(C^3)$ naive), tree has $O(R/B)$ nodes.
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Update:} $O(B \cdot C^2 + (R/B) \cdot C^2)$ (rebuild leaf + propagate).
+    \item \textbf{Query:} $O(1)$ (read from root matrix).
+    \item \textbf{Space:} $O((R/B) \cdot C^2)$
+\end{itemize}
+
+\section{C++ Solution}
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXC = 200;
+const int INF = 1e9;
+
+int R, C;
+int H[5001][MAXC]; // H[r][c] = horizontal edge weight in row r, col c to c+1
+int V[5001][MAXC]; // V[r][c] = vertical edge weight from (r,c) to (r+1,c)
+
+typedef array<array<int, MAXC>, MAXC> Matrix;
+
+// Compute shortcut matrix for rows [r1, r2)
+// D[i][j] = shortest path from (r1, i) to (r2, j)
+void computeBlock(int r1, int r2, Matrix &D){
+    // Initialize: single row r1
+    for(int i = 0; i < C; i++){
+        // Start at (r1, i), move horizontally within row r1
+        // dist[j] = shortest path from (r1, i) to (r1, j) using row r1 horizontals
+        vector<int> dist(C, INF);
+        dist[i] = 0;
+        for(int j = i + 1; j < C; j++) dist[j] = dist[j-1] + H[r1][j-1];
+        for(int j = i - 1; j >= 0; j--) dist[j] = dist[j+1] + H[r1][j];
+        for(int j = 0; j < C; j++) D[i][j] = dist[j];
+    }
+
+    // Extend row by row
+    for(int r = r1; r < r2; r++){
+        // Add vertical edges from r to r+1, then horizontal edges in row r+1
+        Matrix D2;
+        for(int i = 0; i < C; i++){
+            // From column i of the top, reaching row r at various columns
+            // Now add vertical edge to row r+1
+            vector<int> cur(C, INF);
+            for(int k = 0; k < C; k++){
+                cur[k] = D[i][k] + V[r][k]; // go down from (r, k) to (r+1, k)
+            }
+            // Now spread horizontally in row r+1
+            for(int j = 1; j < C; j++){
+                cur[j] = min(cur[j], cur[j-1] + H[r+1][j-1]);
+            }
+            for(int j = C - 2; j >= 0; j--){
+                cur[j] = min(cur[j], cur[j+1] + H[r+1][j]);
+            }
+            for(int j = 0; j < C; j++) D2[i][j] = cur[j];
+        }
+        D = D2;
+    }
+}
+
+// Merge two matrices (min-plus multiplication)
+void mergeMatrices(const Matrix &A, const Matrix &B, Matrix &C_out){
+    for(int i = 0; i < ::C; i++){
+        for(int j = 0; j < ::C; j++){
+            C_out[i][j] = INF;
+            for(int k = 0; k < ::C; k++){
+                C_out[i][j] = min(C_out[i][j], A[i][k] + B[k][j]);
+            }
+        }
+    }
+}
+
+// Segment tree on blocks of rows
+const int BLOCK_SIZE = 20; // group 20 rows per leaf
+const int MAX_LEAVES = 260;
+const int MAX_TREE = 1060;
+
+Matrix tree[MAX_TREE];
+int nLeaves;
+
+void buildLeaf(int leafIdx){
+    int r1 = leafIdx * BLOCK_SIZE;
+    int r2 = min(r1 + BLOCK_SIZE, R - 1);
+    if(r1 >= R - 1){
+        // Identity matrix for empty leaves
+        for(int i = 0; i < C; i++)
+            for(int j = 0; j < C; j++)
+                tree[nLeaves + leafIdx][i][j] = (i == j) ? 0 : INF;
+        return;
+    }
+    computeBlock(r1, r2, tree[nLeaves + leafIdx]);
+}
+
+void buildTree(){
+    nLeaves = (R - 1 + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    // Round up to power of 2
+    int sz = 1;
+    while(sz < nLeaves) sz *= 2;
+    nLeaves = sz;
+
+    // Initialize all leaves
+    for(int i = 0; i < nLeaves; i++){
+        buildLeaf(i);
+    }
+
+    // Build internal nodes
+    for(int i = nLeaves - 1; i >= 1; i--){
+        mergeMatrices(tree[2*i], tree[2*i+1], tree[i]);
+    }
+}
+
+void updateLeaf(int leafIdx){
+    buildLeaf(leafIdx);
+    int idx = nLeaves + leafIdx;
+    idx /= 2;
+    while(idx >= 1){
+        mergeMatrices(tree[2*idx], tree[2*idx+1], tree[idx]);
+        idx /= 2;
+    }
+}
+
+void init(int r, int c, int h[5000][200], int v[5000][200]){
+    R = r; C = c;
+    for(int i = 0; i < R; i++)
+        for(int j = 0; j < C - 1; j++)
+            H[i][j] = h[i][j];
+    for(int i = 0; i < R - 1; i++)
+        for(int j = 0; j < C; j++)
+            V[i][j] = v[i][j];
+    buildTree();
+}
+
+void changeH(int P, int Q, int W){
+    H[P][Q] = W;
+    int leafIdx = P / BLOCK_SIZE;
+    updateLeaf(leafIdx);
+}
+
+void changeV(int P, int Q, int W){
+    V[P][Q] = W;
+    int leafIdx = P / BLOCK_SIZE;
+    updateLeaf(leafIdx);
+    // Also might affect the next leaf if P is at a block boundary
+    if((P + 1) % BLOCK_SIZE == 0 && P + 1 < R - 1){
+        updateLeaf(leafIdx + 1);
+    }
+}
+
+int escape(int V1, int V2){
+    return tree[1][V1][V2]; // root of segment tree
+}
+
+int main(){
+    int r, c;
+    cin >> r >> c;
+    int h[5000][200], v[5000][200];
+    for(int i = 0; i < r; i++)
+        for(int j = 0; j < c - 1; j++)
+            cin >> h[i][j];
+    for(int i = 0; i < r - 1; i++)
+        for(int j = 0; j < c; j++)
+            cin >> v[i][j];
+    init(r, c, h, v);
+
+    int Q;
+    cin >> Q;
+    while(Q--){
+        int type;
+        cin >> type;
+        if(type == 1){
+            int p, q, w;
+            cin >> p >> q >> w;
+            changeH(p, q, w);
+        } else if(type == 2){
+            int p, q, w;
+            cin >> p >> q >> w;
+            changeV(p, q, w);
+        } else {
+            int v1, v2;
+            cin >> v1 >> v2;
+            cout << escape(v1, v2) << "\n";
+        }
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\textbf{Note:} The matrix merge is $O(C^3)$ in this implementation. For full score with $C = 200$, the SMAWK algorithm or divide-and-conquer optimization reduces this to $O(C^2)$ by exploiting the Monge property of the distance matrices. The block size should be tuned (around $\sqrt{R}$) to balance leaf rebuild cost and tree depth.
+
+\end{document}

@@ -1,0 +1,150 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2020 -- Biscuits}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+There are $x$ bags to fill with biscuits. Biscuit type $i$ has tastiness $2^i$, and there are $a[i]$ biscuits of type $i$ available. Each bag must have the same total tastiness $y$. Count the number of distinct values of $y$ that are achievable.
+
+\section{Solution Approach}
+
+\subsection{DP on Bits}
+Process bits from the least significant to the most significant (or high to low). At each bit position $i$, decide how many type-$i$ biscuits to put in each bag (0 or more), contributing $2^i$ per biscuit to the tastiness.
+
+\subsubsection{Key Insight}
+Let $y$ be the common tastiness. The $i$-th bit of $y$ is 1 iff each bag contains an odd number (modulo 2) of type-$i$ biscuits (considering carry from lower bits).
+
+More precisely, process from bit 0 upward. At bit $i$:
+\begin{itemize}
+  \item Available biscuits of type $i$: $a[i]$.
+  \item Each bag gets $b_i$ biscuits of type $i$. Total used: $x \cdot b_i \le a[i] + \text{carry}$ where carry comes from unused biscuits at lower bits being ``promoted.''
+  \item Actually, the carry works differently. If we have $a[i]$ biscuits of type $i$, we can distribute $\lfloor a[i] / x \rfloor$ per bag and have $a[i] \bmod x$ leftover. These leftover biscuits of type $i$ are equivalent to $2 \cdot (a[i] \bmod x)$ biscuits of type $i-1$... No, they carry UP: each type-$i$ biscuit = 2 type-$(i-1)$... No, $2^i = 2 \cdot 2^{i-1}$, so leftover type-$i$ biscuits carry UP, not down.
+
+  Actually, the correct direction: process from high to low. At bit $i$, we can give each bag $b_i$ biscuits of type $i$ where $b_i \in \{0, 1, \ldots, \lfloor(\text{available}_i) / x\rfloor\}$. The remainder $\text{available}_i - x \cdot b_i$ carries down as $2(\text{available}_i - x \cdot b_i)$ biscuits of type $i-1$.
+\end{itemize}
+
+\subsection{DP Formulation (High to Low)}
+Let the bits be $0, 1, \ldots, K-1$ where $K = 60$ (since values up to $2^{60}$).
+
+Process from bit $K-1$ down to bit 0. Define $\text{dp}[\text{carry}]$ = set of achievable partial tastiness values (for bits $K-1$ down to current bit $i$).
+
+At bit $i$, with carry $c$ from bit $i+1$ (extra biscuits of type $i$ from unconverted higher bits): total available = $a[i] + c$. We can give each bag $b_i \in \{0, 1, \ldots, \lfloor(a[i] + c) / x\rfloor\}$ biscuits. Bit $i$ of $y$ is $b_i \bmod 2$ (or more precisely, the $i$-th bit of the tastiness). Remainder: $(a[i] + c - x \cdot b_i)$ biscuits of type $i$ left, which become $2(a[i] + c - x \cdot b_i)$ biscuits of type $i-1$.
+
+Wait, the carry propagates downward: leftover type-$i$ biscuits are equivalent to 2x type-$(i-1)$ biscuits. So we add them to $a[i-1]$.
+
+The key DP state is the carry, and since the carry can grow, we need to bound it. The carry at bit $i$ is at most $a[i] + c$ where $c$ is the carry from above. In the worst case, carry doubles at each step. But since $y$ has at most 60 bits and we're counting distinct $y$ values, we can use a different formulation.
+
+\subsection{Efficient DP}
+Define $f(i, \text{carry})$ = number of distinct values for bits $0, 1, \ldots, i$ achievable with extra carry $c$ of type-$i$ biscuits propagated upward.
+
+Process from bit 0 to bit $K-1$:
+\begin{itemize}
+  \item At bit $i$: total available = $a[i] + \text{carry\_from\_below}$...
+
+  Actually it's cleaner to process from low to high. Total available at bit $i$: $a[i]$. Each bag gets $b_i$ biscuits. The bit $i$ of $y$ is $b_i$ (if $b_i \in \{0, 1\}$). But $b_i$ can be larger than 1, in which case extra $b_i$ biscuits of type $i$ contribute $b_i \cdot 2^i = (b_i / 2) \cdot 2^{i+1}$, carrying $\lfloor b_i / 2 \rfloor$ to bit $i+1$ and bit $i$ of $y$ is $b_i \bmod 2$.
+\end{itemize}
+
+OK let me just present the clean DP:
+
+State: at bit $i$, carry $c$ = excess biscuits of type $i$ available from lower bits. Available at bit $i$: $a[i] + c$. Each bag gets $b_i$ biscuits, so total used = $x \cdot b_i$, carry to next = $\lfloor (a[i] + c - x \cdot b_i) / 2 \rfloor$... No.
+
+Actually, the correct carry: if total available at bit $i$ is $\text{tot} = a[i] + c$, and we assign $b_i$ per bag ($b_i = $ bit $i$ of $y$, so $b_i \in \{0, 1\}$), then remaining = $\text{tot} - x \cdot b_i$, which must be $\ge 0$. These remaining type-$i$ biscuits = $(\text{tot} - x \cdot b_i) / 2$ rounded down as type-$(i+1)$ biscuits. But they are actually each worth $2^i$, so two of them make one type-$(i+1)$.
+
+So carry to bit $i+1$ = $\lfloor(\text{tot} - x \cdot b_i) / 2\rfloor$.
+
+DP: $dp[c]$ = number of distinct tastiness values achievable for bits 0..i with carry $c$ going into bit $i+1$. But the number of distinct carry values can be large.
+
+The key bound: carry $c$ at bit $i$ satisfies $c \le \max(a[j]) \cdot 2^{i-j}$... bounded by $O(\sum a[j])$. Actually, $c$ is bounded by $\sum_{j \le i} a[j]$ roughly.
+
+For practical purposes, $c$ is bounded because: at each step, carry = $\lfloor(\text{available} - x \cdot b) / 2\rfloor \le \lfloor \text{available} / 2 \rfloor$. So carry decreases (halves) if $a[i]$ is small. The carry is bounded by $O(\max_i a[i] / x)$ roughly.
+
+In practice, $c \le 10^{18}$ but the number of distinct possible carry values is small. We use a map.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+ll count_tastiness(ll x, vector<ll> a) {
+    int K = a.size();
+    // Extend to 60 bits
+    while ((int)a.size() < 61) a.push_back(0);
+    K = a.size();
+
+    // DP: process from bit 0 to bit K-1
+    // State: carry going into current bit
+    // dp[carry] = number of distinct y suffixes achievable
+    map<ll, ll> dp;
+    dp[0] = 1;
+
+    for (int i = 0; i < K; i++) {
+        map<ll, ll> ndp;
+        for (auto& [carry, ways] : dp) {
+            ll total = a[i] + carry;
+            // Bit i of y can be 0 or 1
+            for (int b = 0; b <= 1; b++) {
+                if (total < (ll)b * x) continue;
+                ll remaining = total - (ll)b * x;
+                ll new_carry = remaining / 2;
+                // Clamp carry to avoid explosion
+                // The carry represents available biscuits of type i+1 from leftover
+                // It can't be more than what's useful
+                new_carry = min(new_carry, (ll)2e18); // safety bound
+                ndp[new_carry] += ways;
+            }
+        }
+        dp = ndp;
+    }
+
+    ll ans = 0;
+    for (auto& [carry, ways] : dp)
+        ans += ways;
+    return ans;
+}
+
+int main() {
+    int q;
+    scanf("%d", &q);
+    while (q--) {
+        ll x;
+        int k;
+        scanf("%lld %d", &x, &k);
+        vector<ll> a(k);
+        for (int i = 0; i < k; i++) scanf("%lld", &a[i]);
+        printf("%lld\n", count_tastiness(x, a));
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(K \cdot S)$ where $K \approx 60$ is the number of bit positions and $S$ is the number of distinct carry values in the DP map. In practice, $S$ is bounded and small (often polynomial in $K$), though the worst case is harder to bound tightly.
+  \item \textbf{Space complexity:} $O(S)$ for the DP map.
+\end{itemize}
+
+\end{document}

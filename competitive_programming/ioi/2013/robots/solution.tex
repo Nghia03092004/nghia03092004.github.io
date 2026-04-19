@@ -1,0 +1,181 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2013 -- Robots}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+There are $A$ ``weak'' robots (each with a weight limit $X_i$) and $B$ ``small'' robots (each with a size limit $Y_j$). There are $T$ toys, each with weight $W_k$ and size $S_k$. A weak robot $i$ can pick up toy $k$ if $W_k < X_i$. A small robot $j$ can pick up toy $k$ if $S_k < Y_j$. Each robot can carry one toy per trip. Find the minimum number of trips so that all toys are picked up, or determine it's impossible.
+
+\section{Solution Approach}
+Binary search on the number of trips $t$. For a given $t$:
+\begin{itemize}
+    \item Each weak robot can handle $t$ toys (one per trip).
+    \item Each small robot can handle $t$ toys.
+    \item We need to check if all toys can be assigned to robots with at most $t$ toys per robot.
+\end{itemize}
+
+\textbf{Greedy check for a given $t$:}
+\begin{enumerate}
+    \item Sort weak robots by capacity $X_i$ in decreasing order.
+    \item Sort toys by weight $W_k$ in decreasing order.
+    \item Greedily assign toys to weak robots: the strongest weak robot takes the $t$ heaviest toys it can handle, and so on.
+    \item Toys not assigned to any weak robot must be handled by small robots.
+    \item Sort remaining toys by size $S_k$ in decreasing order.
+    \item Sort small robots by capacity $Y_j$ in decreasing order.
+    \item Greedily assign remaining toys to small robots similarly.
+    \item If all toys are assigned, $t$ is feasible.
+\end{enumerate}
+
+A toy is impossible to pick up if no weak robot and no small robot can handle it ($W_k \geq \max(X_i)$ AND $S_k \geq \max(Y_j)$).
+
+\section{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(T \log T \cdot \log T)$ --- sorting is $O(T \log T)$, binary search has $O(\log T)$ iterations, each check is $O(T)$.
+    \item \textbf{Space:} $O(T + A + B)$
+\end{itemize}
+
+\section{C++ Solution}
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int putaway(int A, int B, int T, int X[], int Y[], int W[], int S[]){
+    // Sort robot capacities
+    sort(X, X + A);
+    sort(Y, Y + B);
+
+    // Check if any toy is impossible
+    for(int k = 0; k < T; k++){
+        bool canWeak = false, canSmall = false;
+        if(A > 0 && W[k] < X[A-1]) canWeak = true;
+        if(B > 0 && S[k] < Y[B-1]) canSmall = true;
+        if(!canWeak && !canSmall) return -1;
+    }
+
+    // Sort toys by weight descending (for weak robot assignment)
+    vector<int> toyIdx(T);
+    iota(toyIdx.begin(), toyIdx.end(), 0);
+
+    // Binary search on number of trips
+    auto check = [&](int trips) -> bool {
+        // Assign toys to weak robots first (greedily by weight)
+        // Sort toys by weight descending
+        vector<pair<int,int>> toys(T); // (weight, size) with original index
+        for(int i = 0; i < T; i++) toys[i] = {W[i], S[i]};
+        sort(toys.begin(), toys.end(), [](auto &a, auto &b){
+            return a.first > b.first;
+        });
+
+        // Assign to weak robots (sorted by capacity descending)
+        vector<bool> assigned(T, false);
+        int toyPtr = 0;
+        for(int r = A - 1; r >= 0; r--){
+            // Robot r has capacity X[r], can take 'trips' toys with weight < X[r]
+            int count = 0;
+            while(toyPtr < T && count < trips){
+                if(!assigned[toyPtr] && toys[toyPtr].first < X[r]){
+                    assigned[toyPtr] = true;
+                    count++;
+                }
+                toyPtr++;
+            }
+            // Reset toyPtr for next robot? No -- we process toys greedily.
+            // Actually, the greedy is: robot with largest capacity takes heaviest toys.
+            // So we should process from strongest robot.
+        }
+
+        // Hmm, let me redo this more carefully.
+        // Sort robots descending: X[A-1] >= X[A-2] >= ...
+        // Sort toys by weight descending.
+        // Robot A-1 (strongest) takes the first 'trips' toys it can handle.
+        // Robot A-2 takes the next 'trips' toys, etc.
+
+        fill(assigned.begin(), assigned.end(), false);
+        toyPtr = 0;
+        for(int r = A - 1; r >= 0; r--){
+            int count = 0;
+            while(toyPtr < T && count < trips){
+                if(toys[toyPtr].first < X[r]){
+                    assigned[toyPtr] = true;
+                    count++;
+                }
+                toyPtr++;
+            }
+        }
+
+        // Collect unassigned toys, sort by size descending
+        vector<int> remaining; // indices into toys[]
+        for(int i = 0; i < T; i++){
+            if(!assigned[i]) remaining.push_back(i);
+        }
+        sort(remaining.begin(), remaining.end(), [&](int a, int b){
+            return toys[a].second > toys[b].second;
+        });
+
+        // Assign to small robots
+        int remPtr = 0;
+        for(int r = B - 1; r >= 0; r--){
+            int count = 0;
+            while(remPtr < (int)remaining.size() && count < trips){
+                if(toys[remaining[remPtr]].second < Y[r]){
+                    count++;
+                }
+                remPtr++;
+            }
+        }
+
+        return remPtr >= (int)remaining.size();
+    };
+
+    int lo = 1, hi = T, ans = T;
+    while(lo <= hi){
+        int mid = (lo + hi) / 2;
+        if(check(mid)){
+            ans = mid;
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+
+    return ans;
+}
+
+int main(){
+    int A, B, T;
+    cin >> A >> B >> T;
+    int *X = new int[A], *Y = new int[B], *W = new int[T], *S = new int[T];
+    for(int i = 0; i < A; i++) cin >> X[i];
+    for(int i = 0; i < B; i++) cin >> Y[i];
+    for(int i = 0; i < T; i++) cin >> W[i] >> S[i];
+    cout << putaway(A, B, T, X, Y, W, S) << "\n";
+    delete[] X; delete[] Y; delete[] W; delete[] S;
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

@@ -1,0 +1,288 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2020 -- Connecting Supertrees}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given an $n \times n$ matrix $p$ where $p[i][j] \in \{0, 1, 2, 3\}$, construct a simple undirected graph on $n$ nodes such that the number of distinct simple paths between nodes $i$ and $j$ equals $p[i][j]$. If no such graph exists, report it.
+
+Key properties:
+\begin{itemize}
+  \item $p[i][j] = 0$: $i$ and $j$ are in different connected components.
+  \item $p[i][j] = 1$: exactly one simple path (tree edge structure).
+  \item $p[i][j] = 2$: exactly two simple paths (nodes lie on a simple cycle).
+  \item $p[i][j] = 3$: exactly three simple paths.
+\end{itemize}
+
+\section{Solution Approach}
+
+\subsection{Structure Analysis}
+\begin{itemize}
+  \item $p[i][j] = 1$ for all pairs in a group implies the group forms a tree.
+  \item $p[i][j] = 2$ implies the group contains a cycle connecting $i$ and $j$.
+  \item $p[i][j] = 3$ implies more complex cycle structure (a cycle of cycles or ``bamboo with extra edges'').
+\end{itemize}
+
+\subsection{Algorithm}
+\begin{enumerate}
+  \item \textbf{Partition into components:} Group nodes by $p[i][j] > 0$ using Union-Find. Verify consistency: within a component, all pairs have $p > 0$; between components, all pairs have $p = 0$.
+  \item \textbf{Within each component:} Partition further by $p[i][j] = 1$ (must form trees) and $p[i][j] = 2$ (must form cycles).
+    \begin{itemize}
+      \item Group nodes where $p[i][j] = 1$ into sub-groups. Within each sub-group, connect them as a tree (path).
+      \item If there are sub-groups with $p[i][j] = 2$ between them, connect the sub-groups in a cycle by adding one edge from each sub-group to the next.
+      \item $p[i][j] = 3$ is only possible with at least 3 sub-groups in a meta-cycle, where each meta-node is itself a path of nodes with $p = 1$.
+    \end{itemize}
+  \item \textbf{Validity checks:}
+    \begin{itemize}
+      \item $p[i][i]$ must be 1.
+      \item $p$ must be symmetric.
+      \item Within a tree group, all pairs must have $p = 1$.
+      \item A single cycle needs $\ge 3$ nodes.
+      \item $p[i][j] = 3$ requires $\ge 3$ sub-groups in the cycle.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Recursive Construction}
+\begin{enumerate}
+  \item For the full component, partition nodes into ``1-groups'' (nodes with $p = 1$ between them) using Union-Find on edges with $p = 1$.
+  \item Between different 1-groups in the same component, $p$ must be 2 or 3 (and consistent).
+  \item If all inter-group pairs have $p = 2$: connect the 1-groups in a single cycle. Each 1-group internally is a tree (chain). Connect adjacent groups in the cycle with a single edge.
+  \item If some pairs have $p = 3$: recursively apply the same logic. Group the 1-groups into ``2-groups'' (groups with $p = 2$ between them), then connect 2-groups in a cycle for $p = 3$.
+\end{enumerate}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct DSU {
+    vector<int> par, rnk;
+    DSU(int n) : par(n), rnk(n, 0) { iota(par.begin(), par.end(), 0); }
+    int find(int x) { return par[x] == x ? x : par[x] = find(par[x]); }
+    bool unite(int a, int b) {
+        a = find(a); b = find(b);
+        if (a == b) return false;
+        if (rnk[a] < rnk[b]) swap(a, b);
+        par[b] = a;
+        if (rnk[a] == rnk[b]) rnk[a]++;
+        return true;
+    }
+};
+
+int construct(vector<vector<int>> p) {
+    int n = p.size();
+    vector<vector<int>> answer(n, vector<int>(n, 0));
+
+    // Validate diagonal and symmetry
+    for (int i = 0; i < n; i++) {
+        if (p[i][i] != 1) return 0;
+        for (int j = 0; j < n; j++)
+            if (p[i][j] != p[j][i]) return 0;
+    }
+
+    // Step 1: Group by p > 0 (connected components)
+    DSU comp(n);
+    for (int i = 0; i < n; i++)
+        for (int j = i + 1; j < n; j++)
+            if (p[i][j] > 0) comp.unite(i, j);
+
+    // Verify: within component all p > 0, between components all p = 0
+    for (int i = 0; i < n; i++)
+        for (int j = i + 1; j < n; j++) {
+            if (comp.find(i) == comp.find(j) && p[i][j] == 0) return 0;
+            if (comp.find(i) != comp.find(j) && p[i][j] != 0) return 0;
+        }
+
+    // Collect components
+    map<int, vector<int>> components;
+    for (int i = 0; i < n; i++)
+        components[comp.find(i)].push_back(i);
+
+    for (auto& [root, nodes] : components) {
+        int sz = nodes.size();
+        if (sz == 1) continue;
+
+        // Step 2: Within component, group by p = 1
+        DSU tree_group(n);
+        for (int a : nodes)
+            for (int b : nodes)
+                if (p[a][b] == 1) tree_group.unite(a, b);
+
+        // Verify within tree groups
+        for (int a : nodes)
+            for (int b : nodes)
+                if (tree_group.find(a) == tree_group.find(b) && p[a][b] != 1)
+                    return 0;
+
+        // Collect tree groups
+        map<int, vector<int>> tgroups;
+        for (int a : nodes)
+            tgroups[tree_group.find(a)].push_back(a);
+
+        // Connect within each tree group as a chain
+        for (auto& [tr, tnodes] : tgroups) {
+            for (int i = 0; i + 1 < (int)tnodes.size(); i++) {
+                answer[tnodes[i]][tnodes[i+1]] = 1;
+                answer[tnodes[i+1]][tnodes[i]] = 1;
+            }
+        }
+
+        // Step 3: Check inter-group p values
+        vector<vector<int>> group_list;
+        map<int, int> group_id;
+        for (auto& [tr, tnodes] : tgroups) {
+            group_id[tr] = group_list.size();
+            group_list.push_back(tnodes);
+        }
+        int ng = group_list.size();
+
+        if (ng == 1) continue; // all p=1, already handled
+
+        // Check consistency: between two tree groups, all pairs must have same p value
+        vector<vector<int>> inter_p(ng, vector<int>(ng, 0));
+        for (int gi = 0; gi < ng; gi++)
+            for (int gj = gi + 1; gj < ng; gj++) {
+                int val = p[group_list[gi][0]][group_list[gj][0]];
+                for (int a : group_list[gi])
+                    for (int b : group_list[gj])
+                        if (p[a][b] != val) return 0;
+                inter_p[gi][gj] = inter_p[gj][gi] = val;
+            }
+
+        // If all inter-group p = 2: connect groups in a single cycle
+        bool all_two = true, has_three = false;
+        for (int gi = 0; gi < ng; gi++)
+            for (int gj = gi + 1; gj < ng; gj++) {
+                if (inter_p[gi][gj] != 2) all_two = false;
+                if (inter_p[gi][gj] == 3) has_three = true;
+            }
+
+        if (all_two) {
+            if (ng < 3) return 0; // cycle needs >= 3 groups (or 2 with multi-edges, not allowed)
+            // Actually, 2 groups can form a cycle if each has >= 1 node
+            // With 2 groups: connect with 2 edges -> but simple graph means at most 1 edge per pair
+            // Need cycle of length >= 3. With 2 groups of size 1 each: 2 nodes, need 2 paths
+            // -> need 2 edges -> multi-edge -> invalid for simple graph
+            // Actually with 2 groups: if group sizes allow, we can form a cycle
+            // of total >= 3 nodes using the chain nodes.
+
+            // Connect groups in a cycle
+            // For each pair of adjacent groups in cycle, add edge from one node in each
+            for (int gi = 0; gi < ng; gi++) {
+                int gj = (gi + 1) % ng;
+                int a = group_list[gi][0];
+                int b = group_list[gj][0];
+                answer[a][b] = answer[b][a] = 1;
+            }
+        } else if (has_three) {
+            // Group the tree-groups into "2-groups" by p=2
+            DSU cycle_group(ng);
+            for (int gi = 0; gi < ng; gi++)
+                for (int gj = gi + 1; gj < ng; gj++)
+                    if (inter_p[gi][gj] == 2) cycle_group.unite(gi, gj);
+
+            // Verify within 2-group consistency
+            for (int gi = 0; gi < ng; gi++)
+                for (int gj = gi + 1; gj < ng; gj++) {
+                    if (cycle_group.find(gi) == cycle_group.find(gj)
+                        && inter_p[gi][gj] != 2) return 0;
+                    if (cycle_group.find(gi) != cycle_group.find(gj)
+                        && inter_p[gi][gj] != 3) return 0;
+                }
+
+            // Collect 2-groups
+            map<int, vector<int>> cgroups;
+            for (int gi = 0; gi < ng; gi++)
+                cgroups[cycle_group.find(gi)].push_back(gi);
+
+            // Within each 2-group: connect tree-groups in a cycle (p=2)
+            for (auto& [cr, gis] : cgroups) {
+                if (gis.size() >= 3) {
+                    for (int i = 0; i < (int)gis.size(); i++) {
+                        int ni = (i + 1) % gis.size();
+                        int a = group_list[gis[i]][0];
+                        int b = group_list[gis[ni]][0];
+                        answer[a][b] = answer[b][a] = 1;
+                    }
+                } else if (gis.size() == 1) {
+                    // Single tree group, no cycle needed
+                } else {
+                    return 0; // 2 tree groups can't form proper cycle in simple graph generally
+                }
+            }
+
+            // Between 2-groups: connect in a cycle (p=3)
+            vector<int> cgroup_list;
+            for (auto& [cr, gis] : cgroups)
+                cgroup_list.push_back(cr);
+
+            int ncg = cgroup_list.size();
+            if (ncg < 3) return 0;
+
+            for (int i = 0; i < ncg; i++) {
+                int ni = (i + 1) % ncg;
+                auto& g1 = cgroups[cgroup_list[i]];
+                auto& g2 = cgroups[cgroup_list[ni]];
+                int a = group_list[g1[0]][0];
+                int b = group_list[g2[0]][0];
+                answer[a][b] = answer[b][a] = 1;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    // Call build (IOI grader function)
+    // build(answer);
+    // For local testing, just print
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++)
+            printf("%d ", answer[i][j]);
+        printf("\n");
+    }
+    return 1;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    vector<vector<int>> p(n, vector<int>(n));
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &p[i][j]);
+    int res = construct(p);
+    if (!res) printf("Impossible\n");
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n^2)$ for partitioning and validation, $O(n)$ for construction.
+  \item \textbf{Space complexity:} $O(n^2)$ for the adjacency matrix.
+\end{itemize}
+
+\end{document}

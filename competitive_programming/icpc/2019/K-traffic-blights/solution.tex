@@ -1,0 +1,129 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2019\\K. Traffic Blights}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+An ideal car appears at a uniformly random time, drives east at speed $1$, and stops forever at the
+first red light it reaches. For each light we must compute the probability that it is the first red light hit,
+and also the probability that the car never stops.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item If light $i$ has period $p_i=r_i+g_i$, then the whole system is periodic in the start time with
+    period $\operatorname{lcm}(p_1,\dots,p_n)$.
+    \item Instead of working modulo that enormous period, fix
+    $X = 2^3 \cdot 3^2 \cdot 5 \cdot 7 = 2520$ and split all start times by their residue modulo $X$.
+    \item For a fixed residue class $t \bmod X$, light $i$ is then observed only at times
+    $t + x_i + kX$. This sequence is periodic with reduced period
+    $q_i = p_i / \gcd(p_i, X)$.
+    \item By the choice of $X$, every $q_i \le 100$ is a prime power.
+    For different primes these reduced periods are coprime; for the same prime they divide one another.
+    Therefore the Chinese Remainder Theorem makes the different prime blocks independent.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For every light compute its original period $p_i$ and reduced period
+    $q_i = p_i / \gcd(p_i, X)$.
+    Group all lights with $q_i > 1$ by the prime base of $q_i$.
+    For one prime $p$, let $M_p$ be the largest reduced period among those lights.
+    \item Fix one residue class $t_0 \in \{0,\dots,X-1\}$.
+    For every prime block $p$, maintain which residues modulo $M_p$ are still able to pass all lights
+    seen so far. Initially all residues are alive.
+    \item Process the lights from west to east.
+    \begin{itemize}[leftmargin=*]
+        \item If $q_i = 1$, then within this residue class the light has a fixed color.
+        It is either always green or always red.
+        \item Otherwise, compute for each residue $k \bmod q_i$ whether the car reaches this light at
+        a green or red moment.
+        Inside the corresponding prime block, count how many currently alive residues modulo $M_p$
+        project to a red residue modulo $q_i$.
+    \end{itemize}
+    \item The product structure implies that, conditioned on passing all previous lights, the residue in
+    this prime block is uniformly distributed among the alive residues. Hence the fraction
+    $\text{red\_count}/\text{alive\_count}$ is exactly the probability that this light is the first red light
+    within the current class $t_0 \bmod X$.
+    \item Remove those red residues from the block and continue. The probability mass that survives all
+    lights contributes to the final ``passes all lights'' answer.
+    \item Average the results over all $X=2520$ residue classes.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct probabilities.
+
+\paragraph{Lemma 1.}
+Fix a start-time residue class $t_0 \bmod X$.
+For light $i$, the color pattern seen at arrival times $t_0 + x_i + kX$ is periodic in $k$ with period
+$q_i = p_i / \gcd(p_i, X)$.
+
+\paragraph{Proof.}
+Let $d=\gcd(p_i, X)$. Then increasing $k$ by $q_i = p_i/d$ changes the arrival time by
+$q_i X = (p_i/d)X$, which is a multiple of $p_i$, so the color repeats.
+No smaller period is needed for the algorithm; only periodicity matters here. \qed
+
+\paragraph{Lemma 2.}
+Fix $t_0 \bmod X$.
+For any set of already processed lights, the set of $k$ values that pass all of them factors as an
+independent product over prime blocks of the reduced periods.
+
+\paragraph{Proof.}
+Each processed light imposes a condition only on $k \bmod q_i$, and every $q_i$ is a prime power.
+Conditions coming from different primes involve coprime moduli, so the Chinese Remainder Theorem
+shows they are independent.
+Conditions from the same prime all live modulo powers of that prime and therefore can be represented
+simultaneously modulo the largest such power in that block. Hence the full feasible set is exactly a
+Cartesian product of per-prime feasible residue sets. \qed
+
+\paragraph{Lemma 3.}
+While processing a fixed residue class $t_0 \bmod X$, the probability assigned by the algorithm to light
+$i$ is exactly the probability that light $i$ is the first red light hit within that residue class.
+
+\paragraph{Proof.}
+By Lemma 2, conditioned on having passed all previous lights, each alive residue in the current prime
+block is equally likely.
+The algorithm counts exactly those alive residues that make light $i$ red, so the ratio
+$\text{red\_count}/\text{alive\_count}$ is the conditional probability that light $i$ is red next.
+Multiplying by the probability mass that has survived the previous lights gives exactly the probability
+that light $i$ is the first red light hit. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct probability for every light and for passing all lights.
+
+\paragraph{Proof.}
+For each fixed residue class $t_0 \bmod X$, Lemma 3 shows that the algorithm computes the exact
+probabilities of first stopping at each light and of surviving all lights.
+These residue classes partition all start times into $X$ equally likely classes, so averaging over all
+$t_0 \in \{0,\dots,X-1\}$ gives the true overall probabilities. \qed
+
+\section*{Complexity Analysis}
+
+For one residue class $t_0$, each light is processed in $O(q_i + M_p)$ time, where both quantities are
+at most $100$.
+Thus the total running time is $O(X \cdot n \cdot 100)$, i.e.\ $O(2520 \cdot n \cdot 100)$, which is easily
+fast enough for $n \le 500$.
+The memory usage is $O(\sum_p M_p)$, at most a few hundred booleans.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item A light is treated as red exactly when the phase is in $[0, r_i)$ and green in $[r_i, p_i)$.
+    The boundary has measure zero, so any consistent convention there gives the same probability.
+    \item If $q_i = 1$, then within the current class $t_0 \bmod X$ the light's color never changes,
+    so it can be handled as a constant-color special case.
+\end{itemize}
+
+\end{document}

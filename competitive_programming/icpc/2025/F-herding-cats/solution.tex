@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2025\\F. Herding Cats}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We must permute the $m$ plants so that each cat stops at its prescribed pot. A cat stops at the first
+position whose plant belongs to its liked set.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item For a plant variety $v$, define
+    \[
+    LB[v] = \max \{p_i : \text{cat } i \text{ likes } v\}.
+    \]
+    If we placed $v$ before $LB[v]$, then some cat that likes $v$ would stop too early. So $v$ may only
+    appear at position $LB[v]$ or later.
+    \item Therefore a necessary prefix condition is:
+    among the first $j$ pots, we must have at least $j$ plant varieties with $LB[v] \le j$.
+    \item Now look at a fixed position $j$ with one or more cats assigned to stop there.
+    The plant placed at pot $j$ must be liked by \emph{all} of those cats, and it must satisfy $LB[v]=j$.
+    If $LB[v] < j$, then some cat that likes $v$ would have been able to stop earlier than $j$.
+    If $LB[v] > j$, then that plant cannot legally be placed at $j$ at all.
+    \item These two conditions are also sufficient:
+    choose one common plant with $LB=j$ for every occupied position $j$, then place all remaining plants
+    in the still-empty positions in nondecreasing order of $LB$.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Read all cats and compute $LB[v]$ for every plant $v$.
+    \item Check the prefix condition by counting how many plants have each lower bound and accumulating
+    these counts from left to right.
+    \item Group cats by their target position.
+    For each occupied position $j$, count how many cats at $j$ like each plant.
+    We need at least one plant that is liked by all cats of that group and also satisfies $LB[v]=j$.
+    \item If both checks pass, output \texttt{yes}; otherwise output \texttt{no}.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+In any valid arrangement, every plant $v$ must be placed at a position at least $LB[v]$.
+
+\paragraph{Proof.}
+By definition of $LB[v]$, there exists a cat that likes $v$ and is supposed to stop at position $LB[v]$.
+If $v$ were placed earlier, that cat would encounter a liked plant before its designated stop and would
+stop too soon. \qed
+
+\paragraph{Lemma 2.}
+For every occupied position $j$, the plant placed at $j$ must be liked by all cats assigned to $j$ and must
+satisfy $LB[v]=j$.
+
+\paragraph{Proof.}
+If the plant at $j$ were not liked by some cat assigned to $j$, that cat would continue past pot $j$.
+If $LB[v] < j$, then some cat that likes $v$ is supposed to stop earlier, so placing $v$ at $j$ would not be
+the first liked plant for all cats that need to stop at $j$.
+If $LB[v] > j$, Lemma 1 forbids putting $v$ at $j$. Thus the condition is necessary. \qed
+
+\paragraph{Lemma 3.}
+If the prefix condition and the position-wise common-plant condition both hold, then a valid arrangement
+exists.
+
+\paragraph{Proof.}
+Fix one valid common plant with $LB=j$ for every occupied position $j$.
+These choices already guarantee that every such position stops exactly the cats assigned to it.
+Now consider the remaining plants and the still-empty positions.
+By the prefix condition, for every prefix of length $j$ there are at least $j$ plants with $LB \le j$.
+Since we already used exactly one plant with $LB=j$ for each occupied position $j$, the same prefix
+condition still holds for the leftovers.
+Therefore placing the remaining plants in nondecreasing order of $LB$ fills all empty positions without
+ever violating a lower bound. By Lemma 1 no cat stops too early, and the chosen special plants make the
+cats at occupied positions stop exactly where required. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+If the program answers \texttt{yes}, then both checks pass, and Lemma 3 gives a valid arrangement.
+If the program answers \texttt{no}, then either the prefix condition fails, contradicting Lemma 1, or some
+occupied position has no valid common plant, contradicting Lemma 2. Hence no valid arrangement
+exists. \qed
+
+\section*{Complexity Analysis}
+
+Let $K$ be the total number of liked-plant entries in the test case. The algorithm runs in $O(m+n+K)$
+time and uses $O(m+n+K)$ memory. Over all test cases this matches the input bounds.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The frequency array for the intersection test is reset only on the plants touched by the current
+    group of cats, which keeps the total work linear in the input size.
+    \item A plant with $LB[v]=0$ is liked by no cat, so it can be used in any still-empty position.
+\end{itemize}
+
+\end{document}

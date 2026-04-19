@@ -1,0 +1,232 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2018 -- Werewolf}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+For each query $(S,E,L,R)$, determine whether there exists a vertex $T$ such that:
+\begin{itemize}
+  \item $S$ can reach $T$ using only vertices with index at least $L$;
+  \item $E$ can reach $T$ using only vertices with index at most $R$.
+\end{itemize}
+This is exactly the condition for travelling from $S$ in human form and finishing at $E$ in wolf form.
+
+\section{Solution}
+
+\subsection{Two Kruskal Reconstruction Trees}
+Define:
+\begin{itemize}
+  \item the \emph{human tree}: sort edges by $\min(u,v)$ in decreasing order;
+  \item the \emph{wolf tree}: sort edges by $\max(u,v)$ in increasing order.
+\end{itemize}
+
+Whenever an edge connects two DSU components, create a new internal node whose value is that threshold and make the two component roots its children.
+
+Then:
+\begin{itemize}
+  \item in the human tree, the highest ancestor of $S$ with value at least $L$ represents exactly the vertices reachable from $S$ while staying in indices $\ge L$;
+  \item in the wolf tree, the highest ancestor of $E$ with value at most $R$ represents exactly the vertices reachable from $E$ while staying in indices $\le R$.
+\end{itemize}
+
+\subsection{From Reachability to Rectangle Emptiness}
+Take an Euler tour in both trees. For every original vertex $v$, record the point
+\[
+(\mathrm{tin}_H[v], \mathrm{tin}_W[v]).
+\]
+Every subtree becomes a contiguous Euler interval. So each query becomes:
+
+\begin{quote}
+Does there exist an original vertex whose point lies in the rectangle
+$[\mathrm{tin}_H[a], \mathrm{tout}_H[a]] \times [\mathrm{tin}_W[b], \mathrm{tout}_W[b]]$?
+\end{quote}
+
+This is a 2D range-emptiness query. Build a merge sort tree over the human Euler axis, storing sorted wolf Euler values. Each query is answered in $O(\log^2 N)$.
+
+\subsection{Ancestor Queries}
+Binary lifting on both reconstruction trees gives the highest valid ancestor in $O(\log N)$. Also note the immediate impossible cases:
+\[
+S < L \quad \text{or} \quad E > R.
+\]
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct DSU {
+    vector<int> parent;
+    void init(int n) {
+        parent.resize(n);
+        iota(parent.begin(), parent.end(), 0);
+    }
+    int find(int x) {
+        return parent[x] == x ? x : parent[x] = find(parent[x]);
+    }
+};
+
+struct KruskalTree {
+    int total = 0, root = -1, logn = 0, timer = 0;
+    vector<int> value, parent, tin, tout;
+    vector<array<int, 2>> child;
+    vector<vector<int>> up;
+
+    void dfs(int u) {
+        tin[u] = timer++;
+        for (int v : child[u]) if (v != -1) dfs(v);
+        tout[u] = timer - 1;
+    }
+
+    void build(int n, vector<pair<int, int>> edges, bool human) {
+        total = n;
+        value.assign(2 * n, -1);
+        parent.assign(2 * n, -1);
+        child.assign(2 * n, {-1, -1});
+        for (int i = 0; i < n; ++i) value[i] = i;
+
+        sort(edges.begin(), edges.end(), [&](const auto& a, const auto& b) {
+            int va = human ? min(a.first, a.second) : max(a.first, a.second);
+            int vb = human ? min(b.first, b.second) : max(b.first, b.second);
+            return human ? (va > vb) : (va < vb);
+        });
+
+        DSU dsu;
+        dsu.init(2 * n);
+        for (auto [u, v] : edges) {
+            int a = dsu.find(u), b = dsu.find(v);
+            if (a == b) continue;
+            int node = total++;
+            value[node] = human ? min(u, v) : max(u, v);
+            child[node] = {a, b};
+            parent[a] = node;
+            parent[b] = node;
+            dsu.parent[a] = node;
+            dsu.parent[b] = node;
+            dsu.parent[node] = node;
+        }
+
+        root = dsu.find(0);
+        tin.assign(total, 0);
+        tout.assign(total, 0);
+        timer = 0;
+        dfs(root);
+
+        logn = 1;
+        while ((1 << logn) <= total) ++logn;
+        up.assign(logn, vector<int>(total));
+        for (int i = 0; i < total; ++i)
+            up[0][i] = (parent[i] == -1 ? i : parent[i]);
+        for (int j = 1; j < logn; ++j)
+            for (int i = 0; i < total; ++i)
+                up[j][i] = up[j - 1][up[j - 1][i]];
+    }
+
+    int highest_human(int x, int limit) const {
+        if (value[x] < limit) return -1;
+        for (int j = logn - 1; j >= 0; --j) {
+            int anc = up[j][x];
+            if (value[anc] >= limit) x = anc;
+        }
+        return x;
+    }
+
+    int highest_wolf(int x, int limit) const {
+        if (value[x] > limit) return -1;
+        for (int j = logn - 1; j >= 0; --j) {
+            int anc = up[j][x];
+            if (value[anc] <= limit) x = anc;
+        }
+        return x;
+    }
+};
+
+vector<int> check_validity(int N, vector<int> X, vector<int> Y,
+                           vector<int> S, vector<int> E,
+                           vector<int> L, vector<int> R) {
+    vector<pair<int, int>> edges(X.size());
+    for (int i = 0; i < (int)X.size(); ++i) edges[i] = {X[i], Y[i]};
+
+    KruskalTree human, wolf;
+    human.build(N, edges, true);
+    wolf.build(N, edges, false);
+
+    int size = human.total;
+    vector<int> arr(size, -1);
+    for (int v = 0; v < N; ++v) arr[human.tin[v]] = wolf.tin[v];
+
+    vector<vector<int>> seg(4 * size);
+    function<void(int, int, int)> build = [&](int node, int l, int r) {
+        if (l == r) {
+            if (arr[l] != -1) seg[node].push_back(arr[l]);
+            return;
+        }
+        int mid = (l + r) / 2;
+        build(node * 2, l, mid);
+        build(node * 2 + 1, mid + 1, r);
+        merge(seg[node * 2].begin(), seg[node * 2].end(),
+              seg[node * 2 + 1].begin(), seg[node * 2 + 1].end(),
+              back_inserter(seg[node]));
+    };
+    build(1, 0, size - 1);
+
+    function<bool(int, int, int, int, int, int, int)> query =
+        [&](int node, int l, int r, int ql, int qr, int vl, int vr) {
+            if (qr < l || r < ql) return false;
+            if (ql <= l && r <= qr) {
+                auto it = lower_bound(seg[node].begin(), seg[node].end(), vl);
+                return it != seg[node].end() && *it <= vr;
+            }
+            int mid = (l + r) / 2;
+            return query(node * 2, l, mid, ql, qr, vl, vr) ||
+                   query(node * 2 + 1, mid + 1, r, ql, qr, vl, vr);
+        };
+
+    vector<int> ans(S.size(), 0);
+    for (int i = 0; i < (int)S.size(); ++i) {
+        if (S[i] < L[i] || E[i] > R[i]) continue;
+        int a = human.highest_human(S[i], L[i]);
+        int b = wolf.highest_wolf(E[i], R[i]);
+        if (a == -1 || b == -1) continue;
+        ans[i] = query(1, 0, size - 1,
+                       human.tin[a], human.tout[a],
+                       wolf.tin[b], wolf.tout[b]) ? 1 : 0;
+    }
+    return ans;
+}
+\end{lstlisting}
+
+\section{Complexity}
+\begin{itemize}
+  \item Building the two reconstruction trees: $O(M \log M)$.
+  \item Binary lifting preprocessing: $O(N \log N)$.
+  \item Merge sort tree build: $O(N \log N)$.
+  \item Each query: $O(\log N + \log^2 N)$.
+  \item Total: $O((N + M)\log N + Q\log^2 N)$.
+\end{itemize}
+
+\end{document}

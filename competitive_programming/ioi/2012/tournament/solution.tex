@@ -1,0 +1,105 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2012 -- Jousting Tournament}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+There are $N$ final positions, one of which will be occupied by the late knight of rank $R$.
+The other $N-1$ positions contain the ranks in array $K$ in their original order.
+For each round $i$, the master removes the consecutive range of current positions
+$[S_i, E_i]$, keeps only the strongest knight in that range, and packs the remaining
+knights to the left.
+We must choose the insertion position of the late knight so that the number of rounds he
+personally wins is maximized.
+
+\section{Key Observation}
+The sequence of rounds defines an ordered tree on the \emph{final} $N$ positions:
+each leaf is one initial position, and each round creates one internal node whose children
+are the consecutive survivors currently inside the announced interval.
+This tree depends only on $(S_i, E_i)$, not on the ranks.
+
+Consider an internal node whose leaf interval is $[l, r]$.
+If the late knight is inserted anywhere inside this interval, then the other knights
+participating in that node are exactly the original knights
+$K_l, K_{l+1}, \dots, K_{r-1}$.
+Hence the late knight wins this round if and only if
+\[
+\max(K_l, K_{l+1}, \dots, K_{r-1}) < R.
+\]
+So every internal node is either:
+\begin{itemize}
+  \item \textbf{good}: every original knight in $K_l \dots K_{r-1}$ is weaker than $R$;
+  \item \textbf{bad}: otherwise.
+\end{itemize}
+For a leaf position $p$, the number of rounds won by the late knight is exactly the number
+of consecutive good ancestors of leaf $p$.
+
+\section{Building the Tree}
+We maintain the current survivors as a linked list of active slots and a Fenwick tree over
+the slots. For round $[S,E]$:
+\begin{enumerate}
+  \item Use the Fenwick tree to find the active slots currently at positions $S$ and $E$.
+  \item Traverse that linked-list segment; those nodes become the children of a new internal node.
+  \item Replace the whole segment by the new node at its leftmost slot, and deactivate the
+        remaining slots.
+\end{enumerate}
+Each node becomes a child exactly once, so the total linked-list traversal is linear.
+The Fenwick operations contribute the $\log N$ factor.
+
+\section{Checking Good Nodes}
+Define
+\[
+\text{strongPrefix}[i] = \#\{\,0 \le j < i : K_j > R\,\}.
+\]
+Then an internal node with leaf interval $[l,r]$ is good iff
+\[
+\text{strongPrefix}[r] - \text{strongPrefix}[l] = 0.
+\]
+After building the tournament tree, we do one DFS from the root.
+If an internal node is good, its ``good-chain length'' is
+\[
+1 + \text{good-chain(parent)};
+\]
+otherwise it is $0$.
+For each leaf, the answer is the good-chain length of its parent.
+
+\section{Complexity}
+\begin{itemize}
+  \item \textbf{Time:} $O(N \log N)$.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+\begin{lstlisting}
+int GetBestPosition(int N, int C, int R, int *K, int *S, int *E) {
+    // 1. Build the tournament tree from the rounds.
+    // 2. Mark each internal node as good/bad using the prefix count of ranks > R.
+    // 3. DFS once to compute the good-chain length of every node.
+    // 4. For each leaf position, the answer is the chain length of its parent.
+}
+\end{lstlisting}
+
+\end{document}

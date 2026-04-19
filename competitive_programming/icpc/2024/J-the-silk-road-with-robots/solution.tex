@@ -1,0 +1,123 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\J. The Silk Road . . . with Robots!}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Robots and stores appear over time on a line. On each day, all stores are refilled and every robot is reset to its original position. A robot may move along the line and collect each visited store once, paying one tenge per unit distance traveled. We must output, after each insertion, the maximum total profit.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item In an optimal solution, the sets of stores collected by different robots form disjoint segments on the line.
+    \item For one robot covering one segment, the robot starts somewhere inside that segment. Therefore one side of the robot is traversed once and the other side is traversed twice.
+    \item Sweep the line from left to right. For the cut between two consecutive coordinates, only five states are possible:
+    \begin{itemize}[leftmargin=*]
+        \item no active segment crosses the cut;
+        \item the cut lies to the left of the responsible robot, and that part is traversed once;
+        \item the cut lies to the left of the responsible robot, and that part is traversed twice;
+        \item the cut lies to the right of the responsible robot, and that part is traversed once;
+        \item the cut lies to the right of the responsible robot, and that part is traversed twice.
+    \end{itemize}
+    \item Every coordinate acts as a local transition on these five states:
+    \begin{itemize}[leftmargin=*]
+        \item a road interval between two consecutive coordinates only subtracts travel cost depending on whether the cut is crossed $0$, $1$, or $2$ times;
+        \item a store gives its coins to every state in which the current point is covered, and it may also start or end a segment;
+        \item a robot may be ignored, may be the robot of an already-open segment, or may start a new segment extending to the right.
+    \end{itemize}
+    \item These local transitions are max-plus matrices. Their composition is associative, so a segment tree supports online insertions.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Collect all coordinates from the input and sort them once for coordinate compression.
+
+    \item Use the five sweep states listed above. For each coordinate, store a $5 \times 5$ max-plus transition matrix.
+
+    \item Road matrix for distance $\Delta$:
+    \begin{itemize}[leftmargin=*]
+        \item state $0$ keeps value unchanged;
+        \item the once-covered states subtract $\Delta$;
+        \item the twice-covered states subtract $2\Delta$.
+    \end{itemize}
+
+    \item Robot matrix:
+    \begin{itemize}[leftmargin=*]
+        \item every state may ignore the robot and stay unchanged;
+        \item state $0$ may start a new segment to the right;
+        \item a left-side state may use this robot as the responsible robot and either stop here or continue to the right with the complementary multiplicity.
+    \end{itemize}
+
+    \item Store matrix with value $c$:
+    \begin{itemize}[leftmargin=*]
+        \item if the current point is covered, add $c$ and keep the state;
+        \item a right-side state may also end the current segment here, adding $c$;
+        \item state $0$ may ignore the store, or may start a new segment here and add $c$.
+    \end{itemize}
+
+    \item Build a segment tree over the compressed coordinates. A leaf stores the event matrix at that coordinate. When combining two neighboring intervals, insert the road matrix for the gap between them:
+    \[
+    M_{[l,r]} = M_{[l,mid]} \cdot R(\Delta) \cdot M_{[mid+1,r]}.
+    \]
+
+    \item Initially every leaf is the identity event matrix, meaning that coordinate has not appeared yet. After each day, update one leaf to the corresponding robot/store matrix and output the value of state $0 \to 0$ in the root matrix.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+In an optimal solution, every point on the line is traversed by at most one robot.
+
+\paragraph{Proof.}
+If two robots both traverse the same point, then their covered segments overlap. Since stores can be collected only once, splitting the overlap between the two robots does not decrease collected money and cannot increase total travel cost. Therefore an optimal solution can always be transformed into one whose robot segments are pairwise disjoint. \qed
+
+\paragraph{Lemma 2.}
+For a sweep cut between consecutive coordinates, the five states listed above contain all information needed to optimize the prefix independently of the suffix.
+
+\paragraph{Proof.}
+By Lemma 1 at most one robot segment crosses the cut. If none crosses, we are in state $0$. Otherwise the cut lies either to the left or to the right of the responsible robot, and this portion of the route is traversed either once or twice. No other information from the prefix affects how the suffix may be completed. Hence the five states form a sufficient DP interface. \qed
+
+\paragraph{Lemma 3.}
+The robot, store, and road matrices exactly describe all valid transitions between sweep states.
+
+\paragraph{Proof.}
+For a road interval, the cut-crossing multiplicity does not change, and the only effect is subtracting travel cost once or twice.
+
+For a store, every active segment covering that point collects its value. Additionally, state $0$ may start a new segment there, while a right-side state may finish there.
+
+For a robot, we may always ignore it. If a segment already started to the left, this robot may become its responsible robot: either the segment ends here, or it continues to the right and the multiplicities on the two sides must complement each other (one side once, the other side twice). Also, a new segment may start at the robot and extend to the right. These are exactly the possibilities encoded in the matrix. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2, the optimum over any interval is fully described by a max-plus transition matrix on the five sweep states. By Lemma 3, the local matrices are correct. Because matrix composition corresponds exactly to concatenating neighboring parts of the line, the segment tree root stores the transition matrix for the entire current instance.
+
+We start with no active segment to the left of the whole line and must also end with no active segment to the right, so the answer is the root entry for state $0 \to 0$. Therefore the reported value is exactly the maximum obtainable profit. \qed
+
+\section*{Complexity Analysis}
+
+Each matrix multiplication is on constant size $5 \times 5$, so it is $O(1)$. Each day performs one segment tree update, hence $O(\log n)$ time. The total memory usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The segment tree is built on all coordinates seen in the input, with inactive coordinates represented by the identity event matrix.
+    \item Use a sufficiently small negative infinity value for impossible transitions in max-plus multiplication.
+    \item All profits fit in \texttt{long long}.
+\end{itemize}
+
+\end{document}

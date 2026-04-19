@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\P. Turning Red}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each button press increases the color of every controlled light by $1$ modulo $3$, using the encoding
+red $=0$, green $=1$, blue $=2$. Each light is controlled by at most two buttons. We must turn every
+light red while minimizing the total number of button presses.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Let $x_i \in \{0,1,2\}$ be the number of times button $i$ is pressed, modulo $3$.
+    \item For a light controlled by buttons $u$ and $v$, the requirement that it becomes red is one linear
+    equation
+    \[
+    x_u+x_v \equiv \text{need} \pmod 3.
+    \]
+    If a light is controlled by only one button $u$, we simply get $x_u \equiv \text{need} \pmod 3$.
+    \item Therefore each connected component of the graph on buttons, where two buttons are adjacent if
+    they control the same 2-button light, can be solved independently.
+    \item Inside one component, once the value of one button is fixed, every other button value is forced by
+    BFS propagation through the equations.
+    \item There are only three possible values for the root button, so we can try all three and keep the valid
+    one with minimum total presses.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Convert every initial light color into the residue \texttt{need} required to reach red modulo $3$.
+    \item Build the incidence structure between buttons and lights.
+    \item Traverse the connected components of the button graph.
+    \item For each component, try root values $0,1,2$:
+    \begin{itemize}[leftmargin=*]
+        \item propagate all forced values with BFS;
+        \item reject the choice if some equation becomes inconsistent;
+        \item otherwise compute the sum of button values in that component.
+    \end{itemize}
+    \item If no root value works for some component, output \texttt{impossible}. Otherwise sum the best
+    component costs.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Within one connected component of the button graph, fixing the value of one button determines every
+other button value uniquely.
+
+\paragraph{Proof.}
+Whenever a light is controlled by buttons $u$ and $v$, the equation
+\[
+x_u+x_v \equiv \text{need} \pmod 3
+\]
+implies
+\[
+x_v \equiv \text{need}-x_u \pmod 3.
+\]
+So knowing one endpoint forces the other. Repeating this along paths determines every button in the
+component uniquely. \qed
+
+\paragraph{Lemma 2.}
+For a fixed root value in one component, the BFS propagation finds a valid assignment if and only if such
+an assignment exists with that root value.
+
+\paragraph{Proof.}
+By Lemma 1, every button value is uniquely forced once the root value is fixed. The BFS computes exactly
+those forced values. If a contradiction appears, then some light imposes two different values on the same
+button, so no valid assignment with this root value exists. If no contradiction appears, all encountered
+equations are satisfied, so the computed assignment is valid. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the minimum total number of button presses, or \texttt{impossible} if no solution
+exists.
+
+\paragraph{Proof.}
+Different connected components share no variables, so the total cost is the sum of independent component
+costs. For one component, every feasible solution corresponds to exactly one of the three root values
+modulo $3$. By Lemma 2, for each root value the algorithm either proves infeasibility or constructs the
+unique valid assignment. Taking the minimum valid cost in each component is therefore optimal, and if
+some component has no valid root value then no global solution exists. \qed
+
+\section*{Complexity Analysis}
+
+Each light-button incidence is processed only a constant number of times across all traversals. Therefore
+the running time is linear in the input size, namely $O(l+b+\text{total incidences})$, and the memory
+usage is the same order.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item A light controlled by zero buttons is immediately fatal unless it is already red.
+    \item The optimal number of presses for one button is always one of $0,1,2$, because three extra
+    presses have no effect.
+\end{itemize}
+
+\end{document}

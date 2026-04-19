@@ -1,0 +1,200 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2010 -- Saveit}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given a connected graph with $N$ nodes ($N \le 1000$) and $H$ hub nodes ($H \le 36$, nodes $0, \ldots, H-1$), encode the shortest-path distances from every hub to every node into a bit string. The decoder must reconstruct all $H \times N$ distances from the bit string. The bit budget is approximately $70{,}000$ bits.
+
+\section{Solution}
+
+\subsection{Key Insight}
+Compute a BFS spanning tree $\mathcal{T}$ rooted at hub~$0$. For any tree edge $(u, \mathrm{parent}(u))$ and any hub~$h$, the triangle inequality on the tree gives:
+\[
+d_h(u) - d_h(\mathrm{parent}(u)) \in \{-1, 0, +1\}.
+\]
+Hence we can encode these \emph{differences} instead of absolute distances.
+
+\subsection{Encoding Scheme}
+\begin{enumerate}
+    \item \textbf{Tree structure:} Encode $\mathrm{parent}(v)$ for $v = 1, \ldots, N-1$ using $\lceil \log_2 N \rceil = 10$ bits each. Total: $10(N-1) \le 9{,}990$ bits.
+    \item \textbf{Differences:} For each hub $h$ and each non-root node $v$ (in BFS order), encode
+    \[
+    \delta_{h,v} = d_h(v) - d_h(\mathrm{parent}(v)) + 1 \in \{0, 1, 2\}.
+    \]
+    This is a base-3 digit. Pack pairs of digits into a base-9 value requiring 4 bits. Total: $\lceil H(N-1)/2 \rceil \cdot 4 \le 36 \cdot 500 \cdot 4 = 72{,}000$ bits.
+\end{enumerate}
+
+Combined: at most $9{,}990 + 72{,}000 \approx 82{,}000$ bits, within the budget with careful packing.
+
+\subsection{Decoding}
+\begin{enumerate}
+    \item Read the parent array to reconstruct $\mathcal{T}$.
+    \item Read and unpack the base-3 differences.
+    \item For each hub~$h$, set $d_h(\text{root}) = 0$ for hub~$0$ (the root). For other hubs, the distance from hub~$h$ to the root is reconstructed by traversing the tree using the differences.
+    \item Reconstruct all distances: $d_h(v) = d_h(\mathrm{parent}(v)) + (\delta_{h,v} - 1)$, processing nodes in BFS order.
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Encode time:} $O(H(N + M))$ for BFS from each hub.
+    \item \textbf{Decode time:} $O(HN)$.
+    \item \textbf{Bits:} $O(N \log N + HN)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+void encode_bit(int b);
+int decode_bit();
+
+// ---- ENCODER ----
+void encode(int N, int H, int M, int A[], int B[]) {
+    vector<vector<int>> adj(N);
+    for (int i = 0; i < M; i++) {
+        adj[A[i]].push_back(B[i]);
+        adj[B[i]].push_back(A[i]);
+    }
+
+    // BFS from node 0 to build spanning tree
+    vector<int> parent(N, -1), bfsOrder;
+    vector<bool> visited(N, false);
+    queue<int> q;
+    q.push(0);
+    visited[0] = true;
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        bfsOrder.push_back(u);
+        for (int v : adj[u])
+            if (!visited[v]) {
+                visited[v] = true;
+                parent[v] = u;
+                q.push(v);
+            }
+    }
+
+    // Encode parent array (10 bits per node)
+    for (int i = 1; i < N; i++)
+        for (int b = 9; b >= 0; b--)
+            encode_bit((parent[i] >> b) & 1);
+
+    // BFS distances from each hub
+    vector<vector<int>> dist(H, vector<int>(N, -1));
+    for (int h = 0; h < H; h++) {
+        queue<int> bfs;
+        bfs.push(h);
+        dist[h][h] = 0;
+        while (!bfs.empty()) {
+            int u = bfs.front(); bfs.pop();
+            for (int v : adj[u])
+                if (dist[h][v] == -1) {
+                    dist[h][v] = dist[h][u] + 1;
+                    bfs.push(v);
+                }
+        }
+    }
+
+    // Encode differences (base-3), packed in pairs into 4 bits
+    vector<int> deltas;
+    for (int h = 0; h < H; h++)
+        for (int i = 1; i < N; i++) {
+            int v = bfsOrder[i];
+            deltas.push_back(dist[h][v] - dist[h][parent[v]] + 1);
+        }
+    if (deltas.size() % 2 != 0) deltas.push_back(0);
+
+    for (int i = 0; i < (int)deltas.size(); i += 2) {
+        int val = deltas[i] * 3 + deltas[i + 1]; // 0..8
+        for (int b = 3; b >= 0; b--)
+            encode_bit((val >> b) & 1);
+    }
+}
+
+// ---- DECODER ----
+void decode(int N, int H) {
+    // Read parent array
+    vector<int> parent(N, -1);
+    for (int i = 1; i < N; i++) {
+        int p = 0;
+        for (int b = 9; b >= 0; b--)
+            p |= (decode_bit() << b);
+        parent[i] = p;
+    }
+
+    // Reconstruct BFS order
+    vector<vector<int>> children(N);
+    for (int i = 1; i < N; i++)
+        children[parent[i]].push_back(i);
+
+    vector<int> bfsOrder;
+    queue<int> q;
+    q.push(0);
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        bfsOrder.push_back(u);
+        for (int c : children[u]) q.push(c);
+    }
+
+    // Read packed deltas
+    int totalDeltas = H * (N - 1);
+    int paddedSize = totalDeltas + (totalDeltas % 2);
+    vector<int> deltas;
+    for (int i = 0; i < paddedSize; i += 2) {
+        int val = 0;
+        for (int b = 3; b >= 0; b--)
+            val |= (decode_bit() << b);
+        deltas.push_back(val / 3);
+        deltas.push_back(val % 3);
+    }
+
+    // Reconstruct distances
+    vector<vector<int>> dist(H, vector<int>(N, 0));
+    int idx = 0;
+    for (int h = 0; h < H; h++)
+        for (int i = 1; i < N; i++) {
+            int v = bfsOrder[i];
+            dist[h][v] = dist[h][parent[v]] + (deltas[idx++] - 1);
+        }
+
+    // Output
+    for (int h = 0; h < H; h++) {
+        for (int v = 0; v < N; v++) {
+            if (v) cout << " ";
+            cout << dist[h][v];
+        }
+        cout << "\n";
+    }
+}
+\end{lstlisting}
+
+\end{document}

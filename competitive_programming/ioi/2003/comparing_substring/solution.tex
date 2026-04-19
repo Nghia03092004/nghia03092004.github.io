@@ -1,0 +1,187 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2003 -- Comparing Substrings}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given a string $S$ of length $N$ ($N \le 10^5$) and $Q$ queries
+($Q \le 10^5$), each query specifies two substrings
+$S[a \ldots a{+}\ell{-}1]$ and $S[b \ldots b{+}\ell{-}1]$ and asks
+for their lexicographic ordering (equal, less than, or greater than).
+
+\section{Solution: Suffix Array + LCP + Sparse Table}
+
+\subsection{Suffix Array}
+Build the suffix array $\mathit{sa}$ using the $O(N \log^2 N)$
+prefix-doubling algorithm. The rank array
+$\mathit{rank}[i]$ gives the position of suffix $i$ in the sorted
+order.
+
+\subsection{LCP Array (Kasai's Algorithm)}
+The LCP (longest common prefix) array $\mathit{lcp}[i]$ stores the
+length of the longest common prefix between $\mathit{sa}[i-1]$ and
+$\mathit{sa}[i]$ in the sorted order. Kasai's algorithm computes this
+in $O(N)$.
+
+\subsection{Sparse Table for RMQ}
+The LCP of two arbitrary suffixes starting at positions $a$ and $b$
+equals the minimum value in $\mathit{lcp}[\mathit{rank}[a]+1 \ldots
+\mathit{rank}[b]]$ (assuming $\mathit{rank}[a] < \mathit{rank}[b]$).
+A sparse table provides $O(1)$ range-minimum queries after $O(N \log N)$
+preprocessing.
+
+\subsection{Answering Queries}
+For substrings $S[a \ldots a{+}\ell{-}1]$ and $S[b \ldots b{+}\ell{-}1]$:
+\begin{enumerate}
+  \item Compute $L = \mathrm{LCP}(a, b)$ via the sparse table.
+  \item If $L \ge \ell$: the substrings are equal.
+  \item Otherwise: compare $S[a + L]$ and $S[b + L]$.
+\end{enumerate}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct SuffixArray {
+    int n;
+    string s;
+    vector<int> sa, inv, lcp;
+    vector<vector<int>> sparse;
+
+    SuffixArray(const string& str) : s(str), n(str.size()) {
+        buildSA();
+        buildLCP();
+        buildSparse();
+    }
+
+    void buildSA() {
+        sa.resize(n);
+        inv.resize(n);
+        vector<int> tmp(n);
+        iota(sa.begin(), sa.end(), 0);
+        for (int i = 0; i < n; i++) inv[i] = s[i];
+
+        for (int gap = 1; gap < n; gap <<= 1) {
+            auto cmp = [&](int a, int b) -> bool {
+                if (inv[a] != inv[b]) return inv[a] < inv[b];
+                int ra = (a + gap < n) ? inv[a + gap] : -1;
+                int rb = (b + gap < n) ? inv[b + gap] : -1;
+                return ra < rb;
+            };
+            sort(sa.begin(), sa.end(), cmp);
+            tmp[sa[0]] = 0;
+            for (int i = 1; i < n; i++)
+                tmp[sa[i]] = tmp[sa[i - 1]] + (cmp(sa[i - 1], sa[i]) ? 1 : 0);
+            inv = tmp;
+            if (inv[sa[n - 1]] == n - 1) break;
+        }
+    }
+
+    void buildLCP() {
+        lcp.assign(n, 0);
+        // inv already stores the inverse suffix array
+        int k = 0;
+        for (int i = 0; i < n; i++) {
+            if (inv[i] == 0) { k = 0; continue; }
+            int j = sa[inv[i] - 1];
+            while (i + k < n && j + k < n && s[i + k] == s[j + k]) k++;
+            lcp[inv[i]] = k;
+            if (k > 0) k--;
+        }
+    }
+
+    void buildSparse() {
+        int LOG = 1;
+        while ((1 << LOG) <= n) LOG++;
+        sparse.assign(LOG, vector<int>(n, 0));
+        for (int i = 0; i < n; i++) sparse[0][i] = lcp[i];
+        for (int j = 1; j < LOG; j++)
+            for (int i = 0; i + (1 << j) <= n; i++)
+                sparse[j][i] = min(sparse[j - 1][i],
+                                   sparse[j - 1][i + (1 << (j - 1))]);
+    }
+
+    int rmq(int l, int r) {
+        if (l > r) return 0;
+        int k = __lg(r - l + 1);
+        return min(sparse[k][l], sparse[k][r - (1 << k) + 1]);
+    }
+
+    // LCP of suffixes starting at positions a and b.
+    int lcpQuery(int a, int b) {
+        if (a == b) return n - a;
+        int ra = inv[a], rb = inv[b];
+        if (ra > rb) swap(ra, rb);
+        return rmq(ra + 1, rb);
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    string S;
+    cin >> S;
+
+    SuffixArray sa(S);
+
+    int Q;
+    cin >> Q;
+    while (Q--) {
+        int a, b, len;
+        cin >> a >> b >> len;
+        a--; b--; // convert to 0-indexed
+
+        int commonLen = sa.lcpQuery(a, b);
+        if (commonLen >= len) {
+            cout << "=\n";
+        } else if (S[a + commonLen] < S[b + commonLen]) {
+            cout << "<\n";
+        } else {
+            cout << ">\n";
+        }
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Suffix array construction:} $O(N \log^2 N)$.
+  \item \textbf{LCP array (Kasai):} $O(N)$.
+  \item \textbf{Sparse table:} $O(N \log N)$ build, $O(1)$ per query.
+  \item \textbf{Per query:} $O(1)$.
+  \item \textbf{Total:} $O(N \log^2 N + Q)$.
+  \item \textbf{Space:} $O(N \log N)$.
+\end{itemize}
+
+\end{document}

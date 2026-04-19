@@ -1,0 +1,174 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\I. Spider Walk}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Charlotte starts on one strand, walks outward, and is forced to cross every existing bridge she meets.
+For each starting strand, we must compute the minimum number of \emph{new} bridges needed so that she
+eventually ends on strand $s$.
+
+The key point is that a new bridge can be placed anywhere between two consecutive existing bridge
+distances, so within one such annulus Charlotte may switch to a neighboring strand whenever she wants,
+paying cost $1$ each time.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Instead of thinking about geometric strands, think about the \emph{autopilot trajectories} of all
+    $n$ starting strands. As radius increases, these trajectories cross whenever an existing bridge swaps
+    two adjacent strands.
+
+    \item Each trajectory is a polyline from an inner endpoint to an outer endpoint. Moving along a
+    trajectory costs $0$.
+
+    \item Between two consecutive bridge distances, the order of trajectories is fixed. In that annulus,
+    Charlotte may add a new bridge between any two adjacent geometric strands, which is exactly the same
+    as switching between two adjacent trajectories. Each such switch costs $1$.
+
+    \item Therefore the whole problem becomes a shortest-path problem in a graph:
+    \begin{itemize}[leftmargin=*]
+        \item vertices represent trajectory segments between consecutive crossings,
+        \item directed edges of cost $0$ connect consecutive segments of the same trajectory from inner to
+        outer radius,
+        \item bidirectional edges of cost $1$ connect adjacent trajectory segments within one annulus.
+    \end{itemize}
+
+    \item We never need one vertex per strand per annulus. A new vertex is created only when a trajectory
+    itself crosses a bridge or one of its adjacent trajectories changes, so each bridge causes only $O(1)$
+    fresh vertices.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Sort all existing bridges by increasing distance from the center.
+
+    \item Sweep outward and maintain:
+    \begin{itemize}[leftmargin=*]
+        \item \texttt{order[pos]}: which starting trajectory currently occupies geometric position
+        \texttt{pos},
+        \item \texttt{active[label]}: the current graph vertex for the still-open segment of that trajectory.
+    \end{itemize}
+
+    \item Initially, each starting strand contributes one graph vertex. Since all trajectories are adjacent in
+    the initial annulus, add cost-$1$ edges between consecutive positions on the cycle.
+
+    \item When processing a bridge on strands $t$ and $t+1$ (cyclically):
+    \begin{itemize}[leftmargin=*]
+        \item first swap the two trajectories in \texttt{order}, because this describes the new annulus just
+        outside the bridge;
+        \item the only trajectories whose set of adjacent trajectories may have changed are those currently
+        occupying positions
+        \[
+            \text{prev}(t),\ t,\ t+1,\ \text{next}(t+1).
+        \]
+        For each distinct such position, create a new graph vertex for the trajectory now occupying it and
+        connect its previous vertex to this new vertex by a directed cost-$0$ edge;
+        \item in the new annulus, every adjacency involving one of these refreshed positions starts a new
+        interval, so add cost-$1$ edges for all cyclic adjacent pairs touching them.
+    \end{itemize}
+
+    \item After the sweep, the trajectory currently occupying outer strand $s$ is the target. Run $0$-$1$
+    BFS on the \emph{reversed} graph from its final graph vertex.
+
+    \item The answer for starting strand $i$ is the distance from this target to the initial graph vertex of
+    trajectory $i$.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+Every valid movement of Charlotte corresponds to a path in the constructed graph with the same cost.
+
+\paragraph{Proof.}
+Whenever Charlotte follows the web without adding a bridge, she stays on one autopilot trajectory. In
+the graph this is exactly moving along cost-$0$ edges between consecutive segments of that trajectory.
+
+If Charlotte adds a bridge in some annulus, she switches between two adjacent geometric strands. Since
+the order of trajectories in that annulus is fixed, this is precisely a switch between two adjacent
+trajectory segments, represented by one cost-$1$ edge.
+
+Thus every physical walk maps to a graph path whose total cost equals the number of added bridges. \qed
+
+\paragraph{Lemma 2.}
+Every path in the constructed graph corresponds to a valid strategy for Charlotte with the same cost.
+
+\paragraph{Proof.}
+Cost-$0$ edges connect consecutive pieces of the same trajectory across a crossing, so traversing them
+means simply continuing outward and taking the required existing bridge.
+
+Cost-$1$ edges connect two adjacent trajectory segments that coexist in one annulus. Charlotte can place a
+new bridge anywhere inside that annulus and switch exactly once between those two trajectories. Therefore
+every graph path can be realized physically, with one added bridge for each cost-$1$ edge. \qed
+
+\paragraph{Lemma 3.}
+The graph has exactly the transitions needed to describe all possible strategies.
+
+\paragraph{Proof.}
+Initially each trajectory has one segment. Every existing bridge splits exactly the two trajectories that
+cross there, and may also change the local neighbors of the two immediately adjacent trajectories. Hence
+after one bridge, only the four cyclic positions
+\[
+    \text{prev}(t),\ t,\ t+1,\ \text{next}(t+1)
+\]
+need fresh segment vertices. So the sweep creates only $O(1)$ new vertices per bridge.
+
+Within a fixed annulus, only adjacent trajectories can be connected by a newly added bridge, so the
+graph contains exactly those cost-$1$ edges. A bridge crossing changes only local adjacency, hence only
+a constant number of adjacency pairs need to be updated after each event. No other transitions are
+created or lost. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemmas 1 and 2, minimum added bridges from a starting strand to outer strand $s$ are exactly equal
+to shortest-path distance in the directed constructed graph from the initial segment of that trajectory to
+the final segment that exits at strand $s$. By Lemma 3, the graph contains all and only valid transitions.
+Running $0$-$1$ BFS on the reversed graph from the target computes these same shortest-path distances to
+all starting vertices at once. Therefore each printed distance is correct. \qed
+
+\section*{Complexity Analysis}
+
+Sorting the bridges takes $O(m \log m)$ time.
+
+The graph has $O(n+m)$ vertices and edges:
+\begin{itemize}[leftmargin=*]
+    \item $O(n+4m)$ trajectory-segment vertices,
+    \item $O(n+m)$ zero-cost and unit-cost edges.
+\end{itemize}
+
+The sweep is linear after sorting, and $0$-$1$ BFS is also linear in the graph size. Therefore the total
+time complexity is
+\[
+    O(m \log m + n + m),
+\]
+and memory usage is
+\[
+    O(n+m).
+\]
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Strand $n$ is adjacent to strand $1$, so all position updates are cyclic.
+    \item Multiple cost-$1$ edges between the same pair of vertices are harmless; $0$-$1$ BFS handles
+    them naturally.
+    \item The target is the \emph{trajectory} that ends at strand $s$, not necessarily the trajectory that
+    started at strand $s$.
+\end{itemize}
+
+\end{document}

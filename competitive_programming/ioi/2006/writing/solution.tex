@@ -1,0 +1,163 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2006 -- Deciphering the Mayan Writing}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+Given a text string $T$ and $K$ pattern strings $P_1, \ldots, P_K$, count how many times each pattern occurs as a substring of $T$. Patterns may overlap in the text.
+
+\section{Solution}
+
+\subsection{Aho-Corasick Multi-Pattern Matching}
+\begin{enumerate}
+    \item \textbf{Build a trie} from all patterns, recording which pattern ends at each terminal node.
+    \item \textbf{Compute failure links} via BFS from the root: for each node $u$ with child $v$ on character $c$, the failure link of $v$ points to $\delta(\text{fail}(u), c)$.
+    \item \textbf{Compute dictionary suffix links}: for each node $u$, the dictionary suffix link points to the nearest ancestor (via the failure chain) that is a pattern endpoint. This allows efficient enumeration of all patterns ending at a given position.
+    \item \textbf{Search}: Scan the text character by character, advancing through the automaton. At each position, follow dictionary suffix links to report all matching patterns.
+\end{enumerate}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(|T| + \sum |P_i| + Z)$ where $Z$ is the total number of matches reported.
+    \item \textbf{Space:} $O(\sum |P_i| \cdot |\Sigma|)$ for the automaton.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct AhoCorasick {
+    static const int ALPHA = 26;
+    struct Node {
+        int ch[26];
+        int fail;
+        int dictSuffix;
+        int patternId;
+        Node() {
+            memset(ch, -1, sizeof(ch));
+            fail = 0;
+            dictSuffix = -1;
+            patternId = -1;
+        }
+    };
+
+    vector<Node> trie;
+
+    AhoCorasick() {
+        trie.emplace_back();
+    }
+
+    void insert(const string& s, int id) {
+        int cur = 0;
+        for (char c : s) {
+            int ci = c - 'a';
+            if (trie[cur].ch[ci] == -1) {
+                trie[cur].ch[ci] = trie.size();
+                trie.emplace_back();
+            }
+            cur = trie[cur].ch[ci];
+        }
+        trie[cur].patternId = id;
+    }
+
+    void build() {
+        queue<int> q;
+        for (int c = 0; c < ALPHA; c++) {
+            if (trie[0].ch[c] == -1) {
+                trie[0].ch[c] = 0;
+            } else {
+                trie[trie[0].ch[c]].fail = 0;
+                q.push(trie[0].ch[c]);
+            }
+        }
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            trie[u].dictSuffix =
+                (trie[trie[u].fail].patternId != -1)
+                    ? trie[u].fail
+                    : trie[trie[u].fail].dictSuffix;
+            for (int c = 0; c < ALPHA; c++) {
+                if (trie[u].ch[c] == -1) {
+                    trie[u].ch[c] = trie[trie[u].fail].ch[c];
+                } else {
+                    trie[trie[u].ch[c]].fail = trie[trie[u].fail].ch[c];
+                    q.push(trie[u].ch[c]);
+                }
+            }
+        }
+    }
+
+    vector<int> search(const string& text, int numPatterns) {
+        vector<int> count(numPatterns, 0);
+        int cur = 0;
+        for (char c : text) {
+            cur = trie[cur].ch[c - 'a'];
+            // Report all patterns ending at this position
+            if (trie[cur].patternId != -1)
+                count[trie[cur].patternId]++;
+            int tmp = trie[cur].dictSuffix;
+            while (tmp != -1) {
+                count[trie[tmp].patternId]++;
+                tmp = trie[tmp].dictSuffix;
+            }
+        }
+        return count;
+    }
+};
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int K;
+    cin >> K;
+
+    AhoCorasick ac;
+    for (int i = 0; i < K; i++) {
+        string p;
+        cin >> p;
+        ac.insert(p, i);
+    }
+    ac.build();
+
+    string text;
+    cin >> text;
+
+    vector<int> counts = ac.search(text, K);
+    for (int i = 0; i < K; i++)
+        cout << counts[i] << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+The dictionary suffix link is the key to efficient multi-pattern reporting. Without it, following the full failure chain at every text position would degrade to $O(|T| \cdot \max|P_i|)$ in the worst case. The dictionary suffix link skips directly to the next pattern-ending node, so the total work for reporting is proportional to the number of matches.
+
+The alphabet size should be adjusted to match the problem's character set. For Mayan hieroglyphics, the alphabet may be larger than 26; replace the \texttt{ALPHA} constant and the index mapping accordingly.
+
+\end{document}

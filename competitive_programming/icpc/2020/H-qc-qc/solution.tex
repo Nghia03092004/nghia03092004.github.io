@@ -1,0 +1,241 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\H. QC QC}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+There are $n \le 100$ machines, strictly more than half of them are good, and in one round every machine may test at most one other machine while every machine is tested by at most one other machine.
+
+If the tester is good, the answer is correct. If the tester is bad, the answer is arbitrary but fixed for that ordered pair.
+
+We must determine the status of every machine in at most $12$ rounds.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item If two machines test each other and the result is \texttt{11}, then they are in the same state: either both are good or both are bad. A mixed pair can never produce \texttt{11}.
+    \item Therefore we can repeatedly merge \emph{homogeneous groups}: groups whose machines are known to all have the same state, although we do not yet know whether that common state is good or bad.
+    \item If two homogeneous groups of the same size are compared through one representative from each side:
+    \begin{itemize}[leftmargin=*]
+        \item \texttt{11} means the two groups have the same state and can be merged.
+        \item \texttt{10} or \texttt{01} already certifies one entire side as bad.
+        \item \texttt{00} only tells us that the two groups are not both good.
+    \end{itemize}
+    \item After this repeated pairing process, the unresolved part has a very rigid form:
+    \begin{itemize}[leftmargin=*]
+        \item leftover homogeneous groups of pairwise different sizes $1,2,4,\dots$,
+        \item plus pairs of equal-sized homogeneous groups with at most one good side.
+    \end{itemize}
+    \item Let $L$ be the largest leftover group. Since the sum of all smaller leftover sizes is $< |L|$, if $L$ were bad then the total number of bad machines would already be at least the number of good machines. Hence $L$ must be good.
+    \item Once every leftover group is classified using $L$, let
+    \[
+        G = \text{total size of good leftovers}, \qquad
+        B = \text{total size of bad leftovers}.
+    \]
+    Every unresolved pair contributes either $0$ surplus (one good, one bad) or $-2w$ surplus (both bad, size $w$). Since the global surplus is positive,
+    \[
+        G - B - 2Y > 0,
+    \]
+    where $Y$ is the total size of still-unresolved pairs that are actually ``both bad''. So
+    \[
+        Y \le \left\lfloor \frac{G-B-1}{2} \right\rfloor .
+    \]
+    This number is the only global uncertainty we still need.
+\end{itemize}
+
+\section*{Phase 1: Build The Structured State}
+
+Start from singleton homogeneous groups.
+
+In one round, pair the current active groups arbitrarily. If one group is left unpaired, it becomes a leftover. For every paired active groups $A,B$:
+
+\begin{itemize}[leftmargin=*]
+    \item ask one representative of $A$ to test one representative of $B$ and vice versa,
+    \item if the answer is \texttt{11}, merge $A$ and $B$ into one active homogeneous group of doubled size,
+    \item otherwise remove this comparison from the active process and store it as an unresolved pair:
+    \begin{itemize}[leftmargin=*]
+        \item type $O$: one side is already known bad (\texttt{10} or \texttt{01}),
+        \item type $U$: neither side is oriented yet (\texttt{00}).
+    \end{itemize}
+\end{itemize}
+
+The number of active groups at least halves every round, so this phase uses at most $6$ rounds for $n \le 100$.
+
+\section*{Phase 2: Classify Leftovers}
+
+Take the largest leftover group $L$; by the observation above it is good.
+
+Because the leftover sizes are distinct powers of two, if $|L| = 2^k$ then there are at most $k$ other leftover groups, hence fewer than $|L|$ of them. We use distinct machines from $L$ to test one representative of every other leftover group in one additional round, so all leftover groups become fully known.
+
+After this round we know $G$ and $B$, and we obtain the valid upper bound
+\[
+    Y_{\max} = \left\lfloor \frac{G-B-1}{2} \right\rfloor
+\]
+for the remaining ``both bad'' pairs.
+
+\section*{Phase 3: Exact Minimax On The Pair Game}
+
+\subsection*{Compressed State}
+
+All machines outside the unresolved pairs are already known. For the remaining pairs, only the following information matters:
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{good}: how many known-good machines we currently have available as truthful testers,
+    \item \texttt{budget}: the current upper bound on the total size of unresolved pairs that may still be ``both bad'',
+    \item for every size $w \in \{1,2,4,8,16,32,64\}$:
+    \begin{itemize}[leftmargin=*]
+        \item $U_w$: number of unresolved unoriented pairs of size $w$,
+        \item $O_w$: number of unresolved oriented pairs of size $w$.
+    \end{itemize}
+\end{itemize}
+
+This compressed state is enough because every same-sized pair is symmetric: once only the common size is known, the future interaction depends only on how many pairs of that size we act on, not on their identities.
+
+\subsection*{Easy Inference}
+
+If $w > \texttt{budget}$, then a size-$w$ oriented pair cannot be ``both bad'', so its unknown side must already be good. We may therefore mark all such $O_w$ pairs as solved immediately, adding $w$ good machines for each of them.
+
+\subsection*{Allowed Actions}
+
+In one round, using only known-good testers, for every size $w$ we may choose:
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{prep} on some $U_w$ pairs: test one chosen side,
+    \item \texttt{finishU} on some $U_w$ pairs: test both sides,
+    \item \texttt{finishO} on some $O_w$ pairs: test the unknown side.
+\end{itemize}
+
+The total tester cost is
+\[
+    \sum_w (\texttt{prep}_w + 2\cdot \texttt{finishU}_w + \texttt{finishO}_w)
+\]
+and must not exceed \texttt{good}.
+
+\subsection*{Worst-Case Transition}
+
+For the minimax search we intentionally use a \emph{pessimistic} transition:
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{prep} on a $U_w$ pair is treated as only converting that pair into an oriented $O_w$ pair. In reality it can be strictly better, because a good answer may solve the pair immediately.
+    \item \texttt{finishU} and \texttt{finishO} each solve one pair unless that pair spends $w$ units of the remaining bad-budget.
+\end{itemize}
+
+So after choosing an action, an adversary may distribute the current budget over the tested \texttt{finishU}/\texttt{finishO} pairs. If the adversary spends total weight $D$, then:
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{good} increases by the total size of all finished pairs minus $D$,
+    \item \texttt{budget} decreases by $D$,
+    \item every prepared $U_w$ becomes one more $O_w$.
+\end{itemize}
+
+This adversary is \emph{stronger} than the real judge because it is allowed to place the remaining bad budget on any tested finishing actions of matching total weight. Therefore, if our search wins against this stronger adversary, it also wins in the real problem.
+
+\subsection*{Memoized Search}
+
+We run an exact memoized minimax on states
+\[
+    (\texttt{rounds\_left}, \texttt{good}, \texttt{budget}, (U_w), (O_w)).
+\]
+
+For a state, we enumerate all legal actions in the compressed game and check whether \emph{every} legal adversarial budget-distribution leads to another winning state. The first such action is stored and replayed online.
+
+Because:
+
+\begin{itemize}[leftmargin=*]
+    \item there are only $7$ possible sizes,
+    \item $n \le 100$,
+    \item $\texttt{budget} \le 49$,
+    \item $\texttt{rounds\_left} \le 12$,
+\end{itemize}
+
+the reachable compressed game graph is tiny, and the memoized search is easily fast enough.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm always outputs the correct classification within $12$ rounds.
+
+\paragraph{Lemma 1.}
+Whenever two machines mutually return \texttt{11}, they are in the same state.
+
+\paragraph{Proof.}
+If one of them were good and the other bad, then the good machine would necessarily answer \texttt{0} when asked about the bad one. Hence a mixed pair cannot produce \texttt{11}. So \texttt{11} implies either both are good or both are bad. \qed
+
+\paragraph{Lemma 2.}
+After Phase 1, every active/leftover group is homogeneous, and every removed comparison is represented by either a $U$-pair or an $O$-pair of equal-sized homogeneous groups.
+
+\paragraph{Proof.}
+Initially every singleton is homogeneous. By Lemma 1, a \texttt{11} comparison merges two homogeneous groups into a larger homogeneous group. Any non-\texttt{11} comparison is removed from the active process and stored as a pair of the same size. The answers \texttt{10}, \texttt{01}, \texttt{00} mean respectively ``left side bad'', ``right side bad'', and ``not both good'', exactly matching the meanings of $O$ and $U$. \qed
+
+\paragraph{Lemma 3.}
+The largest leftover group is good.
+
+\paragraph{Proof.}
+Let its size be $W$. All other leftover groups have distinct smaller powers of two, so their total size is $< W$. Every unresolved pair contains at most half good machines. Therefore, if the largest leftover were bad, then outside that group we would have at most as many good machines as bad machines coming from pairs, and fewer than $W$ extra machines from the other leftovers. That would make the total number of bad machines at least the total number of good machines, contradicting the promise that strictly more than half are good. \qed
+
+\paragraph{Lemma 4.}
+After classifying all leftovers, the total size $Y$ of unresolved pairs that are actually ``both bad'' satisfies
+\[
+Y \le \left\lfloor \frac{G-B-1}{2} \right\rfloor .
+\]
+
+\paragraph{Proof.}
+Every unresolved pair contributes either $0$ surplus (one good, one bad) or $-2w$ surplus (both bad, size $w$). The leftovers contribute surplus $G-B$. Since the total surplus is strictly positive,
+\[
+G-B-2Y > 0.
+\]
+Rearranging gives the claimed bound. \qed
+
+\paragraph{Lemma 5.}
+The compressed state used in Phase 3 contains all information needed for future worst-case play.
+
+\paragraph{Proof.}
+Inside a homogeneous group, every member has the same hidden state. Hence when a truthful tester probes one representative, the answer determines the whole group. For future decisions, the identity of a pair matters only through:
+\begin{itemize}[leftmargin=*]
+    \item its size,
+    \item whether it is oriented or not,
+    \item whether it may still belong to the remaining bad-budget.
+\end{itemize}
+The exact placement of that hidden bad-budget among equal-sized unresolved pairs is irrelevant once we quantify over \emph{all} such placements in the minimax step. \qed
+
+\paragraph{Lemma 6.}
+If the minimax search declares a compressed state winning, then the real interactive position represented by that state is also winning.
+
+\paragraph{Proof.}
+The search uses a stronger adversary than the real judge:
+\begin{itemize}[leftmargin=*]
+    \item every \texttt{prep} is pessimistically treated as never giving an immediate extra good machine,
+    \item the remaining bad-budget may be placed on any tested finishing actions of matching total weight.
+\end{itemize}
+Any real continuation is therefore one of the branches covered by the minimax search, or a strictly easier one. So an action that wins against the search adversary also wins in the real game. \qed
+
+\paragraph{Theorem.}
+The algorithm always classifies every machine correctly within at most $12$ rounds.
+
+\paragraph{Proof.}
+By Lemmas 1 and 2, Phase 1 constructs the stated structured decomposition in at most $6$ rounds. By Lemma 3, the largest leftover group is good, so one additional round classifies all other leftovers. By Lemma 4, this yields a valid initial bad-budget for the remaining pair game. By Lemmas 5 and 6, the memoized minimax in Phase 3 computes only winning actions and therefore resolves all remaining pairs within the remaining rounds. At that point every group status is known, so the final answer string is correct. \qed
+
+\section*{Complexity Analysis}
+
+Phase 1 uses $O(n)$ queries per round and at most $6$ rounds. The pair endgame works on a compressed state with only $7$ sizes and performs a memoized minimax over the reachable compressed game graph. Since all parameters are bounded by small constants ($n \le 100$, at most $12$ rounds), this is effectively constant-time per batch, and easily within the limit in practice.
+
+Memory usage is $O(n)$ for storing groups plus the memoized compressed states.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The code keeps the minimax intentionally pessimistic: \texttt{prep} on a $U$-pair is always modeled as only turning it into an $O$-pair, even though the real answer can immediately solve the pair.
+    \item Whenever the current bad-budget becomes smaller than a pair size $w$, every oriented pair of size $w$ is immediately certified good on the unknown side and removed without spending a round.
+    \item The local version in \texttt{solution.cpp} includes a simulator and random stress-checks; those were used to validate the compressed game model.
+\end{itemize}
+
+\end{document}

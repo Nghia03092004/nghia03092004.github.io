@@ -1,0 +1,127 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
+  tabsize=2
+}
+
+\title{IOI 2024 -- Mosaic}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+Given two arrays $X[0..N-1]$ and $Y[0..N-1]$ (with $X[0] = Y[0]$), define an $N \times N$ grid where:
+\begin{itemize}
+  \item Row 0: $\text{grid}[0][j] = X[j]$
+  \item Column 0: $\text{grid}[i][0] = Y[i]$
+  \item Otherwise: $\text{grid}[i][j] = 1$ if both $\text{grid}[i-1][j] = 0$ and $\text{grid}[i][j-1] = 0$; else $\text{grid}[i][j] = 0$.
+\end{itemize}
+
+Equivalently, $\text{grid}[i][j] = 1 - (\text{grid}[i-1][j] \text{ OR } \text{grid}[i][j-1]) = (1 - \text{grid}[i-1][j]) \text{ AND } (1 - \text{grid}[i][j-1])$.
+
+Or: $\text{grid}[i][j] = \text{grid}[i-1][j] \text{ XOR } \text{grid}[i][j-1] \text{ XOR } (\text{grid}[i-1][j] \text{ AND } \text{grid}[i][j-1])$... Actually it's simpler: $\text{grid}[i][j] = 1 \iff \text{grid}[i-1][j] = 0$ and $\text{grid}[i][j-1] = 0$. This is equivalent to NOR.
+
+After computing the grid, answer $Q$ queries: each query asks for the number of 1-cells in a subrectangle $[T, B] \times [L, R]$.
+
+\section{Solution Approach}
+
+\subsection{Grid Computation}
+The recurrence $\text{grid}[i][j] = (1 - \text{grid}[i-1][j]) \cdot (1 - \text{grid}[i][j-1])$ can be shown to be equivalent to XOR in many cases. Specifically:
+
+\textbf{Claim:} $\text{grid}[i][j] = X[j] \text{ XOR } Y[i]$ if... no, this doesn't hold in general.
+
+Actually, observe:
+\begin{itemize}
+  \item If we define $G[i][j] = \text{grid}[i][j]$, then $G[i][j] = 1$ iff both $G[i-1][j] = 0$ and $G[i][j-1] = 0$.
+  \item Equivalently, $G[i][j] = 0$ iff $G[i-1][j] = 1$ or $G[i][j-1] = 1$.
+  \item So $G[i][j] = 0$ means there exists a 1 on the ``staircase path'' from $(0,j)$ and $(i,0)$ to $(i,j)$.
+\end{itemize}
+
+In fact, $G[i][j] = 1$ iff $G[i-1][j] = 0$ and $G[i][j-1] = 0$, which iff there's no 1 in the top-left ``staircase'' from $(i,j)$. More precisely:
+
+$G[i][j] = 1$ iff $X[j'] = 0$ for all $j' \le j$ and $Y[i'] = 0$ for all $i' \le i$... No, that's also not right.
+
+Let me just compute it directly: $G[i][j]$ is 1 iff both neighbors (above and left) are 0. We can compute the entire grid in $O(N^2)$.
+
+\subsection{2D Prefix Sums for Queries}
+Precompute a 2D prefix sum array $P$ where $P[i][j] = \sum_{r \le i, c \le j} G[r][c]$. Then each query is answered in $O(1)$.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+
+vector<ll> mosaic(vector<int> X, vector<int> Y,
+                   vector<int> T, vector<int> B,
+                   vector<int> L, vector<int> R) {
+    int N = X.size();
+    int Q = T.size();
+
+    // Compute grid
+    vector<vector<int>> G(N, vector<int>(N));
+    for (int j = 0; j < N; j++) G[0][j] = X[j];
+    for (int i = 0; i < N; i++) G[i][0] = Y[i];
+    for (int i = 1; i < N; i++)
+        for (int j = 1; j < N; j++)
+            G[i][j] = (G[i-1][j] == 0 && G[i][j-1] == 0) ? 1 : 0;
+
+    // 2D prefix sums
+    vector<vector<ll>> P(N + 1, vector<ll>(N + 1, 0));
+    for (int i = 1; i <= N; i++)
+        for (int j = 1; j <= N; j++)
+            P[i][j] = G[i-1][j-1] + P[i-1][j] + P[i][j-1] - P[i-1][j-1];
+
+    // Answer queries
+    vector<ll> ans(Q);
+    for (int q = 0; q < Q; q++) {
+        int t = T[q], b = B[q], l = L[q], r = R[q];
+        ans[q] = P[b+1][r+1] - P[t][r+1] - P[b+1][l] + P[t][l];
+    }
+
+    return ans;
+}
+
+int main() {
+    int N, Q;
+    scanf("%d", &N);
+    vector<int> X(N), Y(N);
+    for (int i = 0; i < N; i++) scanf("%d", &X[i]);
+    for (int i = 0; i < N; i++) scanf("%d", &Y[i]);
+    scanf("%d", &Q);
+    vector<int> T(Q), B(Q), L(Q), R(Q);
+    for (int q = 0; q < Q; q++)
+        scanf("%d %d %d %d", &T[q], &B[q], &L[q], &R[q]);
+    auto ans = mosaic(X, Y, T, B, L, R);
+    for (int q = 0; q < Q; q++)
+        printf("%lld\n", ans[q]);
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(N^2 + Q)$ -- $O(N^2)$ to compute the grid and prefix sums, $O(1)$ per query.
+  \item \textbf{Space complexity:} $O(N^2)$ for the grid and prefix sums.
+\end{itemize}
+
+\textbf{Note:} For very large $N$ (up to $10^6$ or more), the $O(N^2)$ approach is too slow. In that case, we can observe that the grid values depend on the positions of 1s in $X$ and $Y$. Specifically, $G[i][j] = 1$ iff $X[1..j]$ and $Y[1..i]$ are all 0 and $X[0] = Y[0] = 0$. For the constrained subtask where queries are on single rows or have special structure, row-based formulas with binary search can be used.
+
+\end{document}

@@ -1,0 +1,125 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2008 -- Linear Garden}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+A garden path of length $N$ consists of segments, each either \texttt{L} (left, $+1$) or \texttt{R} (right, $-1$). A sequence is \textbf{valid} if the running balance (cumulative sum) stays within $[-K, K]$ at every prefix. Given a valid sequence $S$, count the number of valid sequences lexicographically $\le S$, modulo $M$.
+
+\section{Solution}
+
+\subsection{Precompute Valid Completions}
+Define $F[\ell][b]$ = number of valid binary sequences of length $\ell$ starting from balance $b$, such that the balance stays within $[-K, K]$ at every step. Recurrence:
+\[
+F[\ell][b] = F[\ell-1][b+1] + F[\ell-1][b-1],
+\]
+where $F[\ell][b] = 0$ if $|b| > K$, and $F[0][b] = 1$ for $|b| \le K$.
+
+Since $b \in [-K, K]$, we shift indices: let $b' = b + K \in [0, 2K]$.
+
+\subsection{Lexicographic Counting}
+Process $S$ from left to right, maintaining the current balance $b = 0$.
+\begin{enumerate}
+    \item At position $i$, if $S[i] = \texttt{R}$: the smaller choice \texttt{L} (balance $b+1$) is lexicographically smaller. If $|b+1| \le K$, add $F[N-i-1][b+1]$ to the answer (the number of valid completions of length $N-i-1$ from balance $b+1$).
+    \item Update balance: $b \gets b + 1$ if $S[i] = \texttt{L}$, or $b \gets b - 1$ if $S[i] = \texttt{R}$.
+    \item If $|b| > K$, the prefix is invalid; stop.
+\end{enumerate}
+Finally, add 1 for $S$ itself (if valid).
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O(NK)$ for precomputing $F$, $O(N)$ for the counting sweep. With $K$ constant, total is $O(N)$.
+    \item \textbf{Space:} $O(NK)$, or $O(K)$ with rolling arrays.
+\end{itemize}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, M, K;
+    cin >> N >> M >> K;
+
+    string S;
+    cin >> S;
+
+    // F[len][b+K] = valid sequences of length len from balance b
+    int states = 2 * K + 1;
+    vector<vector<long long>> F(N + 1, vector<long long>(states, 0));
+    for (int b = 0; b < states; b++) F[0][b] = 1;
+
+    for (int len = 1; len <= N; len++) {
+        for (int b = 0; b < states; b++) {
+            F[len][b] = 0;
+            if (b + 1 < states) F[len][b] = (F[len][b] + F[len-1][b+1]) % M;
+            if (b - 1 >= 0)     F[len][b] = (F[len][b] + F[len-1][b-1]) % M;
+        }
+    }
+
+    long long ans = 0;
+    int balance = 0;
+    bool valid = true;
+
+    for (int i = 0; i < N && valid; i++) {
+        if (S[i] == 'R') {
+            // Smaller choice: L (balance + 1)
+            int newBal = balance + 1;
+            if (abs(newBal) <= K) {
+                int remaining = N - i - 1;
+                ans = (ans + F[remaining][newBal + K]) % M;
+            }
+            balance--; // take the R
+        } else {
+            // S[i] = 'L', no smaller option
+            balance++;
+        }
+        if (abs(balance) > K) valid = false;
+    }
+
+    if (valid) ans = (ans + 1) % M; // count S itself
+
+    cout << ans << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+This solution combines two standard techniques:
+\begin{enumerate}
+    \item \textbf{Constrained-path counting DP}: equivalent to counting lattice paths that stay within horizontal barriers.
+    \item \textbf{Lexicographic rank computation}: at each position, count valid completions of the ``smaller'' choice and accumulate.
+\end{enumerate}
+
+The DP $F[\ell][b]$ correctly enforces the balance constraint at every intermediate step (not just the endpoints), because the recurrence only allows transitions to adjacent balance values within $[-K, K]$.
+
+\end{document}

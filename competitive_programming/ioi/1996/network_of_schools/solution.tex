@@ -1,0 +1,174 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1996 -- Network of Schools}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+A network of $n$ schools is connected by one-way links. Software distributed to a school
+propagates transitively along outgoing links.
+
+\begin{itemize}
+  \item \textbf{Task A:} Find the minimum number of schools that must receive the software
+    initially so that all schools eventually receive it.
+  \item \textbf{Task B:} Find the minimum number of one-way links to add so that
+    distributing software to \emph{any single} school causes all schools to receive it
+    (i.e., make the graph strongly connected).
+\end{itemize}
+
+\noindent\textbf{Constraints:} $2 \le n \le 100$.
+
+\section{Solution Approach}
+
+\subsection{Step 1: Strongly Connected Components}
+
+Use Kosaraju's algorithm (or Tarjan's) to compute the SCCs. Condense the graph into a
+DAG where each node represents an SCC.
+
+\subsection{Step 2: Analyze the Condensed DAG}
+
+Let $S$ denote the number of SCCs.
+
+\begin{itemize}
+  \item \textbf{Task A:} The answer is the number of \emph{source nodes}
+    (in-degree 0) in the condensed DAG. These SCCs cannot be reached from any
+    other SCC, so each must receive software directly:
+    \[
+      \text{Answer A} = |\{v : \deg^-(v) = 0\}|.
+    \]
+
+  \item \textbf{Task B:} To make the condensed DAG strongly connected, we must
+    eliminate all sources and sinks. The minimum number of edges required is:
+    \[
+      \text{Answer B} = \max(\text{sources}, \text{sinks}),
+    \]
+    where sources and sinks refer to nodes with in-degree 0 and out-degree 0
+    in the condensed DAG, respectively.
+\end{itemize}
+
+\begin{proof}[Justification for Task B]
+Each added edge can eliminate at most one source and one sink. Therefore
+$\max(\text{sources}, \text{sinks})$ is a lower bound. A matching construction
+(pairing sources with sinks and connecting them cyclically) achieves this bound.
+\end{proof}
+
+\noindent\textbf{Special case:} If $S = 1$ (the graph is already strongly connected),
+then Answer A = 1 and Answer B = 0.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+const int MAXN = 105;
+int n;
+vector<int> adj[MAXN], radj[MAXN];
+int comp[MAXN];
+bool visited[MAXN];
+int order_arr[MAXN], order_cnt;
+
+// Kosaraju's Algorithm -- Pass 1: forward DFS, record finish order
+void dfs1(int u) {
+    visited[u] = true;
+    for (int v : adj[u])
+        if (!visited[v]) dfs1(v);
+    order_arr[order_cnt++] = u;
+}
+
+// Kosaraju's Algorithm -- Pass 2: reverse DFS, assign component IDs
+void dfs2(int u, int c) {
+    comp[u] = c;
+    for (int v : radj[u])
+        if (comp[v] == -1) dfs2(v, c);
+}
+
+int main() {
+    scanf("%d", &n);
+    for (int i = 1; i <= n; i++) {
+        int v;
+        while (scanf("%d", &v) == 1 && v != 0) {
+            adj[i].push_back(v);
+            radj[v].push_back(i);
+        }
+    }
+
+    // Pass 1
+    memset(visited, false, sizeof(visited));
+    order_cnt = 0;
+    for (int i = 1; i <= n; i++)
+        if (!visited[i]) dfs1(i);
+
+    // Pass 2
+    memset(comp, -1, sizeof(comp));
+    int numSCC = 0;
+    for (int i = order_cnt - 1; i >= 0; i--)
+        if (comp[order_arr[i]] == -1)
+            dfs2(order_arr[i], numSCC++);
+
+    if (numSCC == 1) {
+        printf("1\n0\n");
+        return 0;
+    }
+
+    // Build condensed DAG: determine which SCCs have incoming/outgoing edges
+    // We only need to know whether in-degree and out-degree are zero,
+    // so duplicate edges between the same pair of SCCs do not affect the result.
+    bool hasIn[MAXN] = {}, hasOut[MAXN] = {};
+    for (int u = 1; u <= n; u++)
+        for (int v : adj[u])
+            if (comp[u] != comp[v]) {
+                hasIn[comp[v]] = true;
+                hasOut[comp[u]] = true;
+            }
+
+    int sources = 0, sinks = 0;
+    for (int i = 0; i < numSCC; i++) {
+        if (!hasIn[i]) sources++;
+        if (!hasOut[i]) sinks++;
+    }
+
+    printf("%d\n%d\n", sources, max(sources, sinks));
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n + m)$ where $m$ is the number of edges.
+        Kosaraju's algorithm runs two DFS passes, each $O(n + m)$. Computing
+        sources and sinks in the condensed DAG is $O(n + m)$.
+  \item \textbf{Space complexity:} $O(n + m)$ for the adjacency lists and reverse graph.
+\end{itemize}
+
+\end{document}

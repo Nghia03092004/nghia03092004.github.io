@@ -1,0 +1,167 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2022\\Z. Archaeological Recovery}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Encode each pyramid configuration as a vector in $\mathbb{Z}_3^k$. Then each lever is also a vector
+$u_j \in \mathbb{Z}_3^k$, and pulling a set of levers adds their vectors. The input gives, for each final
+configuration, how many subsets of the unknown levers produce it. We must reconstruct one valid
+multiset of $n$ lever vectors.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item For any fixed $x \in \mathbb{Z}_3^k$, taking dot products with $x$ turns the whole problem
+    into a one-dimensional problem over $\mathbb{Z}_3$.
+    \item In dimension $1$, the number of zero levers is exactly the exponent of the largest power of
+    $2$ dividing all three residue counts. This lets us recover
+    \[
+    f(x) = |\{j : u_j \cdot x = 0\}|
+    \]
+    for every $x$.
+    \item Averaging $f$ over an orthogonal complement tells us how many levers lie in a given linear
+    subspace. In particular, for each line $\{0,x,-x\}$ we can recover how many levers belong to the
+    pair $\{x,-x\}$.
+    \item After that, only the signs are unknown: for every pair $\{x,-x\}$ we know how many copies
+    exist, but not which copies are $x$ and which are $-x$.
+    \item Flipping the sign of a subset of levers translates the entire subset-sum multiset by one vector
+    of $\mathbb{Z}_3^k$. So after choosing arbitrary signs, the real answer differs only by a shift of
+    the generated multiset.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Enumerate all $3^k$ vectors of $\mathbb{Z}_3^k$ and precompute:
+    \begin{itemize}[leftmargin=*]
+        \item vector addition modulo $3$,
+        \item vector negation,
+        \item dot products modulo $3$.
+    \end{itemize}
+    \item For each $x \in \mathbb{Z}_3^k$, project the observed subset-sum multiset onto the three
+    residues of $s \cdot x$. Let those counts be $c_0,c_1,c_2$. From the one-dimensional fact above,
+    set
+    \[
+    f(x) = \nu_2(\gcd(c_0,c_1,c_2)),
+    \]
+    where $\nu_2$ is the exponent of the largest power of $2$ dividing its argument.
+    \item Recover the multiplicity of the zero vector by averaging $f$ over all $x$:
+    \[
+    m_{\{0\}} =
+    \frac{1}{2}\left(\frac{3}{3^k}\sum_x f(x) - n\right).
+    \]
+    \item For each nonzero line $G = \{0,x,-x\}$, let $H = G^\perp$. Then recover the number of
+    levers in that line by
+    \[
+    m_G =
+    \frac{1}{2}\left(\frac{3}{|H|}\sum_{y \in H} f(y) - n\right).
+    \]
+    Subtract the zero-vector multiplicity to obtain the number of copies of $\{x,-x\}$.
+    \item Choose one canonical representative from each pair $\{x,-x\}$ and create that many copies
+    of it. Together with the zero vectors this gives an arbitrary-sign lever multiset.
+    \item Compute the subset-sum multiset of this arbitrary-sign multiset by DP over all $3^k$ states.
+    At the same time, store one witness subset for every reachable sum.
+    \item Try every shift vector $v \in \mathbb{Z}_3^k$. If shifting the DP multiset by $v$ matches the
+    target multiset, and $v$ is reachable as a subset sum of the arbitrary-sign levers, flip the signs of
+    exactly the witness subset for $v$ and output the resulting levers.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For every $x \in \mathbb{Z}_3^k$, the value $f(x) = |\{j : u_j \cdot x = 0\}|$ is determined by the
+projected subset-sum counts onto the residues of $s \cdot x$.
+
+\paragraph{Proof.}
+Fix $x$ and replace every lever vector $u_j$ by the scalar $u_j \cdot x \in \mathbb{Z}_3$. The observed
+subset sums project to the subset sums of these scalars, so we obtain a one-dimensional instance.
+
+In that one-dimensional instance, every zero lever doubles all three counts, so each zero lever
+contributes one factor of $2$ to their common gcd. If we remove all zero levers and only keep
+nonzero scalars, the three counts are never all even; equivalently, the common gcd is odd. Hence
+the exact number of zero scalars is the largest power of $2$ dividing all three counts, which is
+precisely $\nu_2(\gcd(c_0,c_1,c_2))$. \qed
+
+\paragraph{Lemma 2.}
+For any linear subspace $G \subseteq \mathbb{Z}_3^k$, the values $f(x)$ determine how many levers
+lie in $G$.
+
+\paragraph{Proof.}
+Let $H = G^\perp$. Consider
+\[
+\sum_{y \in H} f(y).
+\]
+Each lever inside $G$ is orthogonal to every $y \in H$, so it contributes $|H|$ to this sum. A lever
+outside $G$ is orthogonal to exactly one third of the vectors in $H$, so it contributes $|H|/3$.
+
+If $m_G$ levers lie in $G$, then
+\[
+\sum_{y \in H} f(y) = m_G |H| + (n-m_G)\frac{|H|}{3}.
+\]
+Solving for $m_G$ gives
+\[
+m_G =
+\frac{1}{2}\left(\frac{3}{|H|}\sum_{y \in H} f(y) - n\right),
+\]
+which is exactly the formula used by the algorithm. \qed
+
+\paragraph{Lemma 3.}
+Once the multiplicity of each pair $\{x,-x\}$ is known, any valid lever multiset differs from an
+arbitrary sign choice only by flipping the signs of some subset of the chosen levers. Such a sign flip
+translates the whole subset-sum multiset by a reachable vector.
+
+\paragraph{Proof.}
+Knowing the multiplicity of each pair $\{x,-x\}$ means that only the sign of each nonzero copy is
+still undetermined. Therefore any valid solution can be obtained from the arbitrary-sign choice by
+negating some subset of those copies.
+
+Negating one lever $u$ changes every subset sum by the same translation: the multiset generated by
+$-u$ is the old multiset shifted by $-u$. Repeating this for several levers shows that negating a
+subset translates the entire multiset by the sum of the originally chosen vectors in that subset.
+That translation vector is reachable as a subset sum, and the stored witness subset reconstructs
+exactly which signs to flip. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs a valid multiset of lever vectors.
+
+\paragraph{Proof.}
+By Lemma 1, the algorithm computes the exact values $f(x)$ for all $x$. By Lemma 2, these values
+recover the multiplicity of the zero vector and of every pair $\{x,-x\}$, so the only remaining
+freedom is the choice of signs.
+
+By Lemma 3, every valid sign choice corresponds to a translation of the subset-sum multiset of the
+arbitrary-sign construction by some reachable vector. The algorithm tests all shifts and, once it finds
+the matching one, flips exactly the witness subset that realizes that shift. The resulting lever multiset
+therefore generates exactly the target subset-sum multiset. \qed
+
+\section*{Complexity Analysis}
+
+Let $M = 3^k$. Precomputing addition and dot products takes $O(kM^2)$ time and $O(M^2)$ memory.
+Computing all values $f(x)$ and all line multiplicities takes another $O(M^2)$ time. The subset-sum
+DP over the reconstructed levers takes $O(nM)$ time and $O(M)$ extra memory. Thus the total
+running time is $O(kM^2 + nM)$, which is $O(3^{2k} + n3^k)$ up to constant factors, and the memory
+usage is $O(M^2)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The states are encoded as base-$3$ integers, but vector addition must still be done
+    coordinate-wise modulo $3$; it is not the same as ordinary integer addition modulo $3^k$.
+    \item The DP stores one witness subset for every reachable sum so that the final sign flips can be
+    reconstructed directly.
+\end{itemize}
+
+\end{document}

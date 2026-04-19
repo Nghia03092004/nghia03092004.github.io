@@ -1,0 +1,106 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2004 -- Polygon Triangulation}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given a convex polygon with $N$ vertices, each having a weight $w_i$,
+triangulate it (divide into $N - 2$ triangles using non-crossing
+diagonals) to maximize the total score. The score of triangle
+$(i, k, j)$ is $w_i \cdot w_k \cdot w_j$.
+
+\section{Solution: Interval DP}
+
+This is structurally identical to optimal matrix-chain multiplication.
+
+\subsection{Recurrence}
+Fix edge $(i, j)$. Any triangulation of the sub-polygon
+$i, i{+}1, \ldots, j$ includes exactly one triangle containing edge
+$(i, j)$, with some third vertex $k$ ($i < k < j$). This gives:
+\[
+  \mathrm{dp}[i][j] = \max_{i < k < j}
+  \bigl(\mathrm{dp}[i][k] + \mathrm{dp}[k][j] + w_i \cdot w_k \cdot w_j\bigr).
+\]
+Base case: $\mathrm{dp}[i][i{+}1] = 0$ (an edge, no triangle).
+Answer: $\mathrm{dp}[0][N{-}1]$.
+
+\begin{theorem}
+The interval DP correctly computes the optimal triangulation because
+every triangulation of a convex polygon is uniquely determined by the
+choice of third vertex for each edge's triangle, and the subproblems
+are independent.
+\end{theorem}
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N;
+    cin >> N;
+
+    vector<long long> w(N);
+    for (int i = 0; i < N; i++) cin >> w[i];
+
+    // dp[i][j] = max score of triangulating sub-polygon i..j
+    vector<vector<long long>> dp(N, vector<long long>(N, 0));
+
+    for (int len = 3; len <= N; len++) {
+        for (int i = 0; i + len - 1 < N; i++) {
+            int j = i + len - 1;
+            dp[i][j] = LLONG_MIN;
+            for (int k = i + 1; k < j; k++) {
+                long long val = dp[i][k] + dp[k][j] + w[i] * w[k] * w[j];
+                dp[i][j] = max(dp[i][j], val);
+            }
+        }
+    }
+
+    cout << dp[0][N - 1] << "\n";
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(N^3)$. Three nested loops: interval length,
+        start position, and split point.
+  \item \textbf{Space:} $O(N^2)$.
+\end{itemize}
+
+For $N \le 500$ this runs comfortably. If the polygon is given as a
+ring (any edge can be the base), ``break the ring'' by fixing one edge
+or by considering all $N$ rotations.
+
+\end{document}

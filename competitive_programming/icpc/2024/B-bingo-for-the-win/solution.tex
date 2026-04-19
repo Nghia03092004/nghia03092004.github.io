@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\B. Bingo for the Win!}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each called number can only be claimed by the fastest player who still has an uncrossed copy of that
+number. After all $n \cdot k$ copies from all sheets have been called in a uniformly random order, we must
+compute the probability that each player is the one who finishes last.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item For one fixed value $x$, only the players containing $x$ matter. If the total multiplicity of $x$
+    over all sheets is $c_x$, then the $c_x$ calls of $x$ appear in a uniformly random order among all calls.
+    \item Let the slowest player containing $x$ be its \emph{owner}. Every earlier copy of $x$ is eventually
+    claimed by faster players, while the owner claims the final copies of $x$.
+    \item Therefore the owner finishes the number $x$ exactly at the \emph{last} occurrence of $x$ in the
+    global call order. Any faster player containing $x$ finishes their own copies of $x$ strictly before that.
+    \item So the whole game is decided by whichever distinct value appears for the last time latest. The
+    player who owns that value is exactly the player who finishes last.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Scan all $n \cdot k$ sheet entries.
+    \item For every distinct value $x$, store:
+    \begin{itemize}[leftmargin=*]
+        \item its total multiplicity $c_x$ across all sheets,
+        \item the largest player index containing it, i.e. the owner of $x$.
+    \end{itemize}
+    \item Add $c_x$ to the owner's score.
+    \item Output, for player $i$,
+    \[
+        \frac{\text{score}_i}{n \cdot k}.
+    \]
+\end{enumerate}
+
+\section*{Why The Formula Is So Simple}
+
+Fix a distinct value $x$ with total multiplicity $c_x$. Give every copy of every number an independent
+continuous random priority in $[0,1]$, and order calls by increasing priority. This is equivalent to a
+uniformly random permutation of all copies.
+
+The last occurrence time of $x$ is then the maximum of $c_x$ independent uniform random variables, so
+its cumulative distribution function is
+\[
+    \Pr[L_x \le t] = t^{c_x}.
+\]
+
+If a player owns several values, their finishing time is the maximum of the last-occurrence times of the
+values they own. Since different values use disjoint sets of copies, these maxima are independent across
+players. If player $i$ owns values with multiplicities summing to $s_i$, then
+\[
+    \Pr[F_i \le t] = t^{s_i},
+\]
+so $F_i$ has density $s_i t^{s_i - 1}$.
+
+Hence
+\[
+    \Pr[\text{player } i \text{ finishes last}]
+    = \int_0^1 s_i t^{s_i - 1} \prod_{j \ne i} t^{s_j} \, dt
+    = s_i \int_0^1 t^{\sum_j s_j - 1} \, dt
+    = \frac{s_i}{\sum_j s_j}.
+\]
+But $\sum_j s_j = n \cdot k$, because every sheet entry belongs to exactly one owner's pile. Therefore
+the answer is simply $s_i / (n \cdot k)$.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm outputs the correct probability for every player.
+
+\paragraph{Lemma 1.}
+For a fixed value $x$, the player who owns $x$ finishes their copies of $x$ at the last occurrence of $x$
+in the global call order, and every other player containing $x$ finishes earlier.
+
+\paragraph{Proof.}
+Whenever $x$ is called, the fastest player still needing $x$ claims that copy. Thus the copies of $x$ are
+claimed in increasing player-speed order. The slowest player containing $x$ is the last one who can still
+need $x$, so they receive the final copy of $x$, which happens exactly at the last occurrence of $x$.
+Every faster player containing $x$ must already have received all their copies before that final occurrence.
+\qed
+
+\paragraph{Lemma 2.}
+The player who finishes last is exactly the owner of the value whose last occurrence is latest among all
+distinct values.
+
+\paragraph{Proof.}
+By Lemma 1, for every value $x$, its owner finishes no earlier than the last occurrence of $x$, and any
+other player containing $x$ finishes strictly earlier than that last occurrence. Therefore if value $x$ has the
+latest last occurrence overall, its owner cannot finish before any other player. Conversely, if player $i$
+finishes last, then one of the numbers on their sheet attains their finishing time; by Lemma 1, player $i$
+must own that number, and its last occurrence is latest overall. \qed
+
+\paragraph{Lemma 3.}
+If player $i$ owns entries whose total multiplicity is $s_i$, then the probability that player $i$ finishes last
+is $s_i / (n \cdot k)$.
+
+\paragraph{Proof.}
+As shown above, the owner's finishing-time maximum has density $s_i t^{s_i-1}$, while the maxima for
+other players contribute a factor of $t^{s_j}$. Integrating gives
+\[
+    \Pr[i \text{ last}] = \frac{s_i}{\sum_j s_j} = \frac{s_i}{n \cdot k}.
+\]
+\qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct probability for every player.
+
+\paragraph{Proof.}
+The algorithm computes exactly $s_i$, the total multiplicity of values owned by player $i$, by summing the
+total multiplicity of each distinct value into its slowest owner. By Lemma 3, the correct answer is then
+$s_i / (n \cdot k)$, which is exactly what the algorithm prints. \qed
+
+\section*{Complexity Analysis}
+
+We process each of the $n \cdot k$ sheet entries once and perform only hash-table updates. The running
+time is $O(nk)$ expected, and the memory usage is $O(D)$ where $D$ is the number of distinct values.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item While scanning the sheets, the current player index is increasing, so the last player seen for a
+    value is automatically its owner.
+    \item A value may appear multiple times on one sheet; all such copies count toward the same owner's
+    total.
+    \item Printing with nine digits after the decimal point easily satisfies the required absolute error.
+\end{itemize}
+
+\end{document}

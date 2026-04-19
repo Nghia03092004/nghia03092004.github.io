@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\G. Opportunity Cost}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each phone has three scores $(x,y,z)$.
+If we buy phone $(x,y,z)$, then another phone $(x_i,y_i,z_i)$ can dominate it by
+\[
+    \max(x_i-x,0)+\max(y_i-y,0)+\max(z_i-z,0).
+\]
+The opportunity cost of our phone is the maximum of this quantity over all phones.
+
+We must find the phone with minimum opportunity cost, breaking ties by smallest index.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item For a fixed phone $(x,y,z)$ and a fixed competitor $(x_i,y_i,z_i)$,
+    \[
+        \max(x_i-x,0)+\max(y_i-y,0)+\max(z_i-z,0)
+    \]
+    is the sum of the positive coordinate differences.
+    \item That is exactly
+    \[
+        \max_{S \subseteq \{x,y,z\}}
+        \left( \sum_{d \in S} d_i - \sum_{d \in S} d \right),
+    \]
+    because for each coordinate we either include its difference (if positive) or exclude it (if negative).
+    \item Therefore the opportunity cost of phone $(x,y,z)$ is
+    \[
+        \max_{\emptyset \ne S \subseteq \{x,y,z\}}
+        \left( M_S - \sum_{d \in S} d \right),
+    \]
+    where
+    \[
+        M_S = \max_i \sum_{d \in S} d_i.
+    \]
+    \item There are only $2^3-1=7$ nonempty subsets, so we can precompute all values $M_S$ in one pass and
+    then evaluate every phone in constant time.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Number the three dimensions by bits $0,1,2$.
+    For every nonempty mask \texttt{mask} from $1$ to $7$, let
+    \[
+        M_{\texttt{mask}} = \max_i \sum_{\texttt{bit} \in \texttt{mask}} \text{value}_{i,\texttt{bit}}.
+    \]
+    \item Read all phones and update these $7$ maxima.
+    \item For each phone $p$, compute
+    \[
+        \max_{\texttt{mask}=1}^{7}
+        \left( M_{\texttt{mask}} - \sum_{\texttt{bit} \in \texttt{mask}} p_{\texttt{bit}} \right).
+    \]
+    This is exactly its opportunity cost.
+    \item Keep the minimum pair
+    \[
+        (\text{cost}, \text{index})
+    \]
+    lexicographically, so ties are broken by the smallest index automatically.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For any real numbers $a,b,c$,
+\[
+    \max(a,0)+\max(b,0)+\max(c,0)
+    =
+    \max_{S \subseteq \{1,2,3\}} \sum_{j \in S} v_j,
+\]
+where $(v_1,v_2,v_3)=(a,b,c)$.
+
+\paragraph{Proof.}
+For each coordinate $v_j$, adding it helps exactly when $v_j > 0$ and hurts when $v_j < 0$.
+So the maximum subset sum is obtained by taking precisely the positive coordinates, and its value is
+$\max(a,0)+\max(b,0)+\max(c,0)$. \qed
+
+\paragraph{Lemma 2.}
+For a fixed phone $p=(x,y,z)$, its opportunity cost equals
+\[
+    \max_{\emptyset \ne S \subseteq \{x,y,z\}}
+    \left( M_S - \sum_{d \in S} d \right).
+\]
+
+\paragraph{Proof.}
+For any competitor phone $i$, apply Lemma 1 to
+\[
+    a = x_i-x,\qquad b = y_i-y,\qquad c = z_i-z.
+\]
+Then
+\[
+    \max(x_i-x,0)+\max(y_i-y,0)+\max(z_i-z,0)
+    =
+    \max_S \left( \sum_{d \in S} d_i - \sum_{d \in S} d \right).
+\]
+Now maximize over all competitors $i$:
+\[
+    \max_i \max_S (\cdots)
+    =
+    \max_S \max_i (\cdots)
+    =
+    \max_S \left( M_S - \sum_{d \in S} d \right).
+\]
+The empty subset contributes $0$, so restricting to nonempty subsets does not change the maximum. \qed
+
+\paragraph{Lemma 3.}
+For every phone $p$, the algorithm computes its exact opportunity cost.
+
+\paragraph{Proof.}
+The preprocessing step computes every value $M_S$ exactly by definition.
+Then for phone $p$ the algorithm evaluates the expression from Lemma 2 over all seven nonempty subsets.
+Hence the maximum it obtains is exactly the opportunity cost of $p$. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 3, the algorithm computes the exact opportunity cost of every phone.
+It then chooses the minimum pair $(\text{cost}, \text{index})$, so it returns the smallest possible
+opportunity cost and, among all phones achieving it, the smallest index.
+Therefore the output is correct. \qed
+
+\section*{Complexity Analysis}
+
+There are only $7$ nonempty subsets.
+So both the preprocessing pass and the evaluation pass take $O(7n)=O(n)$ time.
+
+The stored phone list uses $O(n)$ memory.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Using bitmasks $1 \dots 7$ is a convenient way to enumerate the seven nonempty subsets.
+    \item All sums fit safely in 64-bit integers.
+    \item The lexicographic minimum of \texttt{(cost, index)} handles the required tie-break automatically.
+\end{itemize}
+
+\end{document}

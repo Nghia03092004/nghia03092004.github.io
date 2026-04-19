@@ -1,0 +1,161 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1998 -- Contact}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Given a binary string $S$ of length $n$ and integers $a$, $b$, $k$
+($1 \le a \le b \le 12$, $k \le 50$), find the most frequently occurring bit
+patterns of length between $a$ and $b$ inclusive.
+
+Output the top $k$ frequency groups (in decreasing order of frequency).
+Within each group, patterns are sorted by length (shorter first), then by
+numeric value (smaller first). Each pattern is printed in binary.
+
+\medskip
+\noindent\textbf{Constraints:} $|S| \le 200{,}000$.
+
+\section{Solution Approach}
+
+\subsection{Counting All Substrings}
+
+Since pattern lengths are at most 12, each pattern fits in a 12-bit integer
+(values 0 to $2^{12} - 1 = 4095$). We maintain a 2D frequency table
+$\mathtt{cnt}[\ell][v]$ for length $\ell$ and value $v$.
+
+For each starting position $i$, build the pattern incrementally:
+\begin{verbatim}
+  val = 0
+  for len = 1 to min(b, n - i):
+      val = val * 2 + S[i + len - 1]
+      if len >= a:
+          cnt[len][val]++
+\end{verbatim}
+
+\subsection{Sorting and Output}
+
+Collect all (frequency, length, value) triples with positive frequency.
+Sort by frequency descending, then length ascending, then value ascending.
+Output the top $k$ frequency groups.
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+#include <cstring>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+char buf[200005];
+int cnt[13][4096]; // cnt[len][val]
+
+int main() {
+    int a, b, k;
+    scanf("%d %d %d", &a, &b, &k);
+
+    // Read binary string (may span multiple lines)
+    int n = 0;
+    char line[100];
+    while (scanf("%s", line) == 1) {
+        for (int i = 0; line[i]; i++)
+            buf[n++] = line[i] - '0';
+    }
+
+    memset(cnt, 0, sizeof(cnt));
+
+    // Count all patterns of length a..b
+    for (int i = 0; i < n; i++) {
+        int val = 0;
+        for (int len = 1; len <= b && i + len <= n; len++) {
+            val = val * 2 + buf[i + len - 1];
+            if (len >= a)
+                cnt[len][val]++;
+        }
+    }
+
+    // Collect patterns with positive frequency
+    struct Pattern {
+        int freq, len, val;
+    };
+    vector<Pattern> patterns;
+    for (int len = a; len <= b; len++)
+        for (int v = 0; v < (1 << len); v++)
+            if (cnt[len][v] > 0)
+                patterns.push_back({cnt[len][v], len, v});
+
+    // Sort: frequency descending, then length ascending, then value ascending
+    sort(patterns.begin(), patterns.end(), [](const Pattern& x, const Pattern& y) {
+        if (x.freq != y.freq) return x.freq > y.freq;
+        if (x.len != y.len) return x.len < y.len;
+        return x.val < y.val;
+    });
+
+    // Output top k frequency groups
+    int groups = 0, i = 0;
+    while (i < (int)patterns.size() && groups < k) {
+        int curFreq = patterns[i].freq;
+        printf("%d\n", curFreq);
+
+        int lineCount = 0;
+        while (i < (int)patterns.size() && patterns[i].freq == curFreq) {
+            if (lineCount > 0) printf(" ");
+            // Print binary representation with correct number of digits
+            int len = patterns[i].len;
+            int val = patterns[i].val;
+            char bits[13];
+            for (int j = len - 1; j >= 0; j--) {
+                bits[j] = '0' + (val & 1);
+                val >>= 1;
+            }
+            bits[len] = '\0';
+            printf("%s", bits);
+            lineCount++;
+            i++;
+        }
+        printf("\n");
+        groups++;
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(n \cdot b)$ for counting, where $b \le 12$.
+        Effectively $O(n)$. Sorting the patterns takes $O(P \log P)$ where
+        $P \le (b - a + 1) \cdot 2^b \le 12 \cdot 4096 = 49{,}152$, which is negligible.
+  \item \textbf{Space complexity:} $O(b \cdot 2^b + n)$: the frequency table plus the
+        input string.
+\end{itemize}
+
+\end{document}

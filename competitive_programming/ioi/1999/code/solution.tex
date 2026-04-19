@@ -1,0 +1,99 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1999 -- Code (Gray Codes)}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Generate a Gray code of $N$ bits: a cyclic sequence of all $2^N$ binary strings of
+length $N$ such that consecutive strings (including the last and first) differ in
+exactly one bit.
+
+\section{Solution Approach}
+
+\subsection{Reflected Gray Code}
+
+The \emph{reflected} Gray code is constructed recursively:
+\begin{itemize}
+  \item \textbf{Base:} For $N = 1$, the code is $(0, 1)$.
+  \item \textbf{Step:} Given the $(N{-}1)$-bit Gray code $G_{N-1} = (g_0, g_1, \ldots, g_{2^{N-1}-1})$,
+        the $N$-bit code is:
+        \[
+          (0g_0,\; 0g_1,\; \ldots,\; 0g_{2^{N-1}-1},\;
+           1g_{2^{N-1}-1},\; \ldots,\; 1g_1,\; 1g_0).
+        \]
+\end{itemize}
+
+\subsection{Direct Formula}
+
+The $i$-th Gray code word (0-indexed) is:
+\[
+  g(i) = i \oplus \lfloor i/2 \rfloor,
+\]
+where $\oplus$ is bitwise XOR. This yields an $O(1)$-per-word method.
+
+\begin{proof}[Proof that consecutive words differ in exactly one bit]
+Consider $g(i) = i \oplus (i \gg 1)$ and $g(i{+}1) = (i{+}1) \oplus ((i{+}1) \gg 1)$.
+Let $i$ have trailing bits $0\underbrace{1\cdots1}_k$. Then $i+1$ flips these $k{+}1$ bits.
+We have $i \oplus (i{+}1) = 2^{k+1} - 1$ (a mask of $k{+}1$ ones) and
+$(i \gg 1) \oplus ((i{+}1) \gg 1) = 2^k - 1$ (a mask of $k$ ones).
+Their XOR is $g(i) \oplus g(i{+}1) = 2^k$, which has exactly one bit set.
+\end{proof}
+
+\section{C++ Solution}
+
+\begin{lstlisting}
+#include <cstdio>
+using namespace std;
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    long long total = 1LL << N;
+
+    for (long long i = 0; i < total; i++) {
+        long long gray = i ^ (i >> 1);
+        for (int bit = N - 1; bit >= 0; bit--)
+            putchar('0' + ((gray >> bit) & 1));
+        putchar('\n');
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time complexity:} $O(2^N \cdot N)$. Each of the $2^N$ code words
+        requires $O(N)$ time to print.
+  \item \textbf{Space complexity:} $O(1)$ beyond the output (each word is computed
+        and printed on the fly).
+\end{itemize}
+
+\end{document}

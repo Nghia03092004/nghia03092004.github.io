@@ -1,0 +1,176 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 1991 -- Problem 3: Matrix Game}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement}
+
+Two players play on an $m \times n$ matrix of integers. They alternate turns.
+On each turn, a player selects an entire remaining row or column, receives
+the sum of its entries, and removes it from the matrix. The game ends when no
+rows or columns remain. Player~1 maximizes their total score; Player~2
+minimizes Player~1's total (equivalently, maximizes their own).
+
+Determine Player~1's optimal score under perfect play.
+
+\section{Solution}
+
+\subsection{Minimax with Bitmask Memoization}
+
+This is a two-player zero-sum game solved by minimax:
+
+\begin{itemize}
+  \item \textbf{State:} A pair of bitmasks $(\textit{rowMask},
+    \textit{colMask})$ indicating which rows and columns remain, plus a
+    boolean for whose turn it is.
+  \item \textbf{Transitions:} Remove one remaining row or column.
+  \item \textbf{Value:} Player~1 maximizes accumulated score; Player~2
+    minimizes it.
+\end{itemize}
+
+The whose-turn information is determined by the parity of the number of
+removed rows/columns, so it need not be stored separately (though we include
+it for clarity).
+
+\subsection{State Space}
+
+With bitmasks for rows ($2^m$ states) and columns ($2^n$ states), plus the
+turn bit, the total number of states is $2 \times 2^m \times 2^n$. For
+$m, n \le 10$, this is $2^{21} \approx 2 \times 10^6$, which is feasible.
+
+\subsection{Bug Fix: Hash Key Encoding}
+
+The original code used the encoding
+$\textit{key} = (\textit{rowMask} \ll 20) \mid (\textit{colMask} \ll 8)
+\mid \textit{isMax}$, which causes collisions when $n > 8$ (since
+$\textit{colMask}$ can exceed 8 bits). The corrected version below uses a
+collision-free encoding.
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Time:} $O(2^{m+n} \cdot (m+n) \cdot \max(m,n))$. Each of
+    the $O(2^{m+n})$ states has $O(m+n)$ transitions, each requiring
+    $O(\max(m,n))$ to compute the row/column sum.
+  \item \textbf{Space:} $O(2^{m+n})$ for memoization.
+\end{itemize}
+
+For $m, n \le 10$, this is comfortably within time limits.
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <iostream>
+#include <unordered_map>
+#include <climits>
+#include <algorithm>
+using namespace std;
+
+int m, n;
+int A[12][12];
+unordered_map<long long, int> memo;
+
+int rowSum(int r, int colMask) {
+    int s = 0;
+    for (int c = 0; c < n; c++)
+        if (colMask & (1 << c))
+            s += A[r][c];
+    return s;
+}
+
+int colSum(int c, int rowMask) {
+    int s = 0;
+    for (int r = 0; r < m; r++)
+        if (rowMask & (1 << r))
+            s += A[r][c];
+    return s;
+}
+
+// Returns Player 1's optimal score from this state onward.
+int solve(int rowMask, int colMask, bool isMax) {
+    if (rowMask == 0 || colMask == 0) return 0;
+
+    // Collision-free key: rowMask needs m bits, colMask needs n bits
+    long long key = ((long long)isMax << 30) |
+                    ((long long)rowMask << 15) |
+                    (long long)colMask;
+    auto it = memo.find(key);
+    if (it != memo.end()) return it->second;
+
+    int best = isMax ? INT_MIN : INT_MAX;
+
+    // Try removing each remaining row
+    for (int r = 0; r < m; r++) {
+        if (!(rowMask & (1 << r))) continue;
+        int s = rowSum(r, colMask);
+        int future = solve(rowMask ^ (1 << r), colMask, !isMax);
+        if (isMax)
+            best = max(best, s + future);
+        else
+            best = min(best, future);
+    }
+
+    // Try removing each remaining column
+    for (int c = 0; c < n; c++) {
+        if (!(colMask & (1 << c))) continue;
+        int s = colSum(c, rowMask);
+        int future = solve(rowMask, colMask ^ (1 << c), !isMax);
+        if (isMax)
+            best = max(best, s + future);
+        else
+            best = min(best, future);
+    }
+
+    memo[key] = best;
+    return best;
+}
+
+int main() {
+    cin >> m >> n;
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < n; j++)
+            cin >> A[i][j];
+
+    int result = solve((1 << m) - 1, (1 << n) - 1, true);
+    cout << result << endl;
+    return 0;
+}
+\end{lstlisting}
+
+\section{Notes}
+
+\begin{itemize}
+  \item The minimax approach gives the exact optimal result under perfect
+    play from both players.
+  \item Alpha-beta pruning can speed up the search in practice but does not
+    improve worst-case complexity.
+  \item The memoization key must encode \textit{rowMask}, \textit{colMask},
+    and the turn bit without collisions. With $m, n \le 12$, using 15 bits
+    each for the masks and 1 bit for the turn suffices within a
+    \texttt{long long}.
+\end{itemize}
+
+\end{document}

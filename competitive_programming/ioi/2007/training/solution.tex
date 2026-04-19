@@ -1,0 +1,117 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2007 -- Training}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+The graph consists of a tree plus additional non-tree edges, each with a removal cost.
+We want to delete a minimum-cost set of non-tree edges so that the remaining graph
+contains \emph{no even cycle}.
+
+\section{Structural Reduction}
+For a non-tree edge $e=(u,v)$, let $TP(e)$ be the unique tree path between $u$ and $v$.
+
+\begin{itemize}
+  \item If $|TP(e)|$ is odd, then $e \cup TP(e)$ is an even cycle, so $e$ can never be kept.
+  \item If $|TP(e)|$ is even, then $e \cup TP(e)$ is an odd cycle. Such an edge may be kept.
+\end{itemize}
+
+The key fact from the official solution is:
+\begin{quote}
+Two keepable edges can be chosen together if and only if their tree paths are edge-disjoint.
+\end{quote}
+
+So the task becomes:
+\begin{center}
+\emph{choose a maximum-weight subset of keepable non-tree edges whose tree paths are pairwise edge-disjoint.}
+\end{center}
+
+\section{DP State}
+Root the tree.
+For each node $v$, let its children be indexed from $0$ to $d-1$.
+Because the maximum degree is at most $10$, we can use bitmasks on the children of $v$.
+
+Define
+\[
+dp[v][mask]
+\]
+as the maximum total kept weight inside the component rooted at $v$ after removing the
+child-edges whose bits are set in $mask$.
+
+The base value is:
+\[
+dp[v][mask] = \sum_{\text{child } c_i \notin mask} dp[c_i][0],
+\]
+which corresponds to choosing no path that passes through $v$.
+
+\section{Transition}
+Group every keepable non-tree edge by its LCA.
+Consider one such edge $e=(a,b)$ with $\mathrm{LCA}(a,b)=v$.
+Its tree path uses one or two child-edges of $v$; let the corresponding bitmask be
+$rootMask(e)$.
+
+If we keep $e$, then:
+\begin{itemize}
+  \item the child-edges in $rootMask(e)$ become unavailable at $v$;
+  \item every node strictly below $v$ on the two root-to-endpoint branches becomes the root of
+        an independent subproblem where exactly one child-edge (the one continuing along the path)
+        is removed;
+  \item each endpoint contributes a full subtree state $dp[x][0]$.
+\end{itemize}
+
+All branch contributions are independent of the current $mask$, so for every edge $e$ we can
+precompute a constant
+\[
+extra(e).
+\]
+Then the transition is simply
+\[
+dp[v][mask] = \max\bigl(dp[v][mask],\ extra(e) + dp[v][mask \cup rootMask(e)]\bigr).
+\]
+
+Since the right-hand side uses a strict superset of $mask$, we evaluate masks in decreasing order.
+
+\section{Complexity}
+Let $K \le 10$ be the maximum degree.
+\begin{itemize}
+  \item \textbf{States:} $O\!\left(\sum_v 2^{\deg(v)}\right)$.
+  \item \textbf{Transitions:} $O(MN + M2^K)$, matching the official bound.
+  \item \textbf{Space:} $O\!\left(\sum_v 2^{\deg(v)}\right)$.
+\end{itemize}
+
+Finally, if $W$ is the sum of all non-tree edge weights and $best = dp[root][0]$ is the
+maximum keepable weight, the minimum removed cost is $W - best$.
+
+\section{Implementation}
+\begin{lstlisting}
+// 1. Root the tree and compute LCA.
+// 2. Ignore all non-tree edges whose tree path has odd length.
+// 3. Group the remaining edges by LCA.
+// 4. Process nodes bottom-up and fill dp[v][mask].
+// 5. Answer = total_non_tree_weight - dp[root][0].
+\end{lstlisting}
+
+\end{document}

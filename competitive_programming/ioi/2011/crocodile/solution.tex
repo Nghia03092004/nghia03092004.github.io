@@ -1,0 +1,123 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2011 -- Crocodile}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+A network of $N$ chambers connected by $M$ bidirectional corridors with travel times. Some $K$ chambers are exits. A person starts at chamber~$0$. After choosing which corridor to take, a crocodile may block it, forcing the person to take the second-best option. Find the minimum guaranteed escape time from chamber~$0$ under optimal adversarial play by the crocodile.
+
+\section{Solution}
+
+\subsection{Key Insight}
+Since the crocodile always blocks the best option, the guaranteed escape cost from any node equals the \emph{second-shortest} distance to an exit. We track the two shortest distances to any exit for each node.
+
+\subsection{Algorithm: Modified Multi-Source Dijkstra}
+\begin{enumerate}
+    \item Initialize all exits with $d_1 = d_2 = 0$.
+    \item Use a min-heap keyed on $d_2$. A node is ``finalized'' when its $d_2$ is determined.
+    \item When finalizing node~$u$ (with second-best distance $d_2[u]$), for each neighbor~$v$ via edge of weight~$w$: the candidate distance is $d_2[u] + w$. Update $d_1[v]$ and $d_2[v]$ accordingly:
+    \begin{itemize}
+        \item If $d_2[u] + w < d_1[v]$: shift $d_1[v]$ to $d_2[v]$ and set $d_1[v] = d_2[u] + w$.
+        \item Else if $d_2[u] + w < d_2[v]$: set $d_2[v] = d_2[u] + w$.
+    \end{itemize}
+    \item When $d_2[v]$ improves, push $(d_2[v], v)$ into the heap.
+\end{enumerate}
+
+The answer is $d_2[0]$.
+
+\subsection{Correctness}
+
+\begin{theorem}
+Using $d_2[u]$ (the second-best distance) for relaxation correctly computes the guaranteed escape cost.
+\end{theorem}
+\begin{proof}
+From node~$u$, the person's optimal strategy is to always head toward the best available corridor leading to an exit. The crocodile blocks the best choice, forcing the person to use the second-best option. Hence the guaranteed cost from $u$ is $d_2[u]$.
+
+When relaxing from $u$ to $v$, arriving at $u$ costs at least $d_2[u]$ (guaranteed), plus $w$ to traverse the edge. This candidate replaces $d_1[v]$ or $d_2[v]$ if it improves either. Dijkstra's monotonicity ensures that when $d_2[u]$ is finalized, no shorter path to $u$ via two distinct routes exists.
+\end{proof}
+
+\subsection{Complexity}
+\begin{itemize}
+    \item \textbf{Time:} $O((N + M) \log N)$.
+    \item \textbf{Space:} $O(N + M)$.
+\end{itemize}
+
+\section{Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+int travel_plan(int N, int M, int R[][2], int L[], int K, int P[]) {
+    vector<vector<pair<int,int>>> adj(N);
+    for (int i = 0; i < M; i++) {
+        adj[R[i][0]].push_back({R[i][1], L[i]});
+        adj[R[i][1]].push_back({R[i][0], L[i]});
+    }
+
+    const long long INF = 1e18;
+    vector<array<long long, 2>> d(N, {INF, INF});
+
+    priority_queue<pair<long long,int>, vector<pair<long long,int>>,
+                   greater<>> pq;
+
+    for (int i = 0; i < K; i++) {
+        d[P[i]] = {0, 0};
+        pq.push({0, P[i]});
+    }
+
+    vector<bool> done(N, false);
+
+    while (!pq.empty()) {
+        auto [dist, u] = pq.top(); pq.pop();
+        if (done[u]) continue;
+        if (dist > d[u][1]) continue;
+        done[u] = true;
+
+        for (auto [v, w] : adj[u]) {
+            long long nd = d[u][1] + w;
+            if (nd < d[v][0]) {
+                d[v][1] = d[v][0];
+                d[v][0] = nd;
+            } else if (nd < d[v][1]) {
+                d[v][1] = nd;
+            } else {
+                continue;
+            }
+            if (d[v][1] < INF)
+                pq.push({d[v][1], v});
+        }
+    }
+
+    return (int)d[0][1];
+}
+\end{lstlisting}
+
+\end{document}

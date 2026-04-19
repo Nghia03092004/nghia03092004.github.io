@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\H. Maxwell’s Demon}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Particles move inside two mirrored chambers. Whenever one or more particles hit the demon's position on the center wall, the demon may either let all of them pass or reflect all of them. Passing flips the side of every particle in that simultaneous hit set. We must find the earliest time when the demon can make all red particles end up on the left and all blue particles on the right.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Whether a particle reflects at the center wall or passes through it does not change \emph{when} it returns to the demon. It only flips which chamber the particle is in.
+    \item Therefore each time instant when some particles are at the demon gives one XOR operation on the side vector: for every particle present at that time, its left/right bit is toggled.
+    \item The whole problem becomes linear algebra over $\mathbb{F}_2$:
+    \begin{itemize}[leftmargin=*]
+        \item the initial state is the current side of every particle;
+        \item the target state is ``red = left, blue = right'';
+        \item each usable demon time contributes one bit vector whose $i$th bit is $1$ iff particle $i$ is at the demon at that time.
+    \end{itemize}
+    \item Because all positions and velocities are integers, every particle state repeats after time $2wh$: both unfolded coordinates advance by multiples of the chamber periods. So it is enough to examine hit times in $[0,2wh)$.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For each particle, replace the chamber side by its distance to the center wall. This gives a 1D reflected motion on $[0,w]$ that is independent of the demon's previous choices.
+
+    \item Let $q_0$ be the initial distance to the center wall and let $u$ be the signed velocity in this 1D model. The particle hits the center wall at times
+    \[
+    t = t_0 + k \cdot \frac{2w}{|u|},
+    \]
+    where $t_0 = \frac{q_0}{|u|}$ if it is moving toward the center and
+    \[
+    t_0 = \frac{2w-q_0}{|u|}
+    \]
+    otherwise.
+
+    \item For the vertical coordinate, use the standard unfolded reflection model on period $2h$. A particle is at height $d$ exactly when the unfolded coordinate is congruent to $d$ or $2h-d$ modulo $2h$.
+
+    \item Combining the horizontal hit progression with the vertical congruence gives a linear congruence in the hit index $k$. Solve it with extended Euclid. This yields at most two arithmetic progressions of valid demon-hit times for each particle. Generate all such times in $[0,2wh)$.
+
+    \item Merge the per-particle time lists in increasing order. For each distinct time, build one bit vector describing the set of particles present at the demon.
+
+    \item Maintain a Gaussian-elimination basis over $\mathbb{F}_2$ for all event vectors seen so far. After each new independent event vector is inserted, test whether the target side-change vector lies in the current span. The first time this happens is the answer.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For every particle, the set of times at which it is located at the demon is independent of all previous pass/reflect choices made by the demon.
+
+\paragraph{Proof.}
+Passing through the center wall and reflecting at the center wall only change which chamber the particle occupies; they do not change its absolute distance from the center wall or its vertical motion. Hence the future times at which it returns to the point $(0,d)$ are fixed in advance. \qed
+
+\paragraph{Lemma 2.}
+At any fixed time $t$, allowing particles through the demon toggles exactly the side bits of the particles present at time $t$, and leaves all other bits unchanged.
+
+\paragraph{Proof.}
+By the problem statement, at time $t$ either all particles at the demon pass through or all reflect. Passing switches a particle from one chamber to the other, i.e. toggles its side bit. Particles not at the demon are unaffected. \qed
+
+\paragraph{Lemma 3.}
+After processing all demon times up to time $T$, the set of reachable side vectors is exactly the affine space obtained from the initial side vector by adding the span of all event vectors up to time $T$.
+
+\paragraph{Proof.}
+By Lemma 2, each demon action adds one event vector over $\mathbb{F}_2$, and actions at different times commute because XOR is commutative. Therefore the reachable side changes are exactly all XOR sums of available event vectors, i.e. their span. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 1, the algorithm enumerates the correct event vectors. By Lemma 3, the target arrangement is reachable by time $T$ if and only if the target difference vector is in the span of event vectors up to $T$. The algorithm processes times in increasing order and stops at the first time this condition becomes true, so the reported time is exactly the earliest feasible one. If it never becomes true during one full period $2wh$, then no new event vectors will ever appear later, so the arrangement is impossible. \qed
+
+\section*{Complexity Analysis}
+
+Let $n=r+b \le 200$. Each particle has $O(wh)$ hits in one period in the worst case, and we only examine one full period. The total number of generated events is therefore manageable. Gaussian elimination uses dimension at most $200$, while the basis rank is also at most $200$. The memory usage is dominated by the per-particle hit lists.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The code stores times as exact fractions using a particle-specific denominator, and compares them by cross multiplication to avoid floating-point ordering errors.
+    \item The answer is printed as a floating-point number only after the exact earliest rational time has been found.
+    \item If the initial side vector already equals the target vector, the answer is immediately $0$.
+\end{itemize}
+
+\end{document}

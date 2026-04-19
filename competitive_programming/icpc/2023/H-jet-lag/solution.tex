@@ -1,0 +1,134 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2023\\H. Jet Lag}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We must choose sleep intervals so that no activity is missed. Sleeping for $k$ minutes gives $k$ more
+minutes during which we are \emph{rested} and cannot fall asleep again, followed by another $k$ minutes
+during which we may stay awake or fall asleep. We must start sleeping immediately at time $0$.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Ignoring the ``cannot sleep while rested'' restriction for a moment, the only useful sleep intervals
+    are the free gaps
+    \[
+    [e_{i-1}, b_i], \qquad e_0 = 0.
+    \]
+    Sleeping any shorter interval inside the same gap can only decrease how far we can stay functional.
+    \item If we sleep through a whole gap $[l,r]$, then the sleep lasts $r-l$ minutes, so afterwards we can
+    stay functional until
+    \[
+    r + 2(r-l) = 3r - 2l.
+    \]
+    \item Thus, in the relaxed model, each gap acts like a transition $l \mapsto 3r-2l$. Scanning the gaps
+    in time order and keeping every gap that increases the current reachable time computes the farthest
+    reachable time.
+    \item After this greedy selection, consecutive chosen sleeps can be shortened slightly so that the next
+    sleep starts after the previous rested phase ends, while still keeping the next chosen start reachable.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item If the first activity starts at time $0$, output \texttt{impossible}, because we are required to sleep
+    immediately.
+    \item Let the free gaps be $[l_i,r_i]=[e_{i-1},b_i]$.
+    \item Scan them from left to right, maintaining the farthest reachable time \texttt{reach} in the relaxed
+    model:
+    \begin{itemize}[leftmargin=*]
+        \item if $l_i > \texttt{reach}$, the gap is unreachable;
+        \item otherwise sleeping through it would extend reach to $3r_i-2l_i$;
+        \item if this extension is larger than the current \texttt{reach}, keep the gap and update
+        \texttt{reach}.
+    \end{itemize}
+    \item If the final \texttt{reach} is smaller than the end of the last activity, output \texttt{impossible}.
+    \item Otherwise let the chosen relaxed sleeps be $[s_i,t_i]$. For each consecutive pair, shorten the
+    earlier interval to
+    \[
+    t_i \leftarrow \min\!\left(t_i,\ \left\lfloor\frac{s_i+s_{i+1}}{2}\right\rfloor\right).
+    \]
+    Keep the last chosen interval unchanged.
+    \item Output the shortened intervals.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+After processing the first $i$ gaps, the variable \texttt{reach} equals the farthest time reachable in the
+relaxed model using only those gaps.
+
+\paragraph{Proof.}
+We use induction on $i$. Initially \texttt{reach}$=0$, which is optimal before using any gap.
+
+Consider gap $[l_i,r_i]$. If $l_i > \texttt{reach}$, then this gap cannot be used by any schedule based on
+the first $i$ gaps, so the optimum does not change. Otherwise the gap is reachable, and using it
+completely extends the reachable time to $3r_i-2l_i$. Any relaxed schedule using only the first $i$ gaps
+either skips this gap or uses it that way, so the new optimum is exactly
+\[
+\max(\texttt{reach},\, 3r_i-2l_i),
+\]
+which is the algorithm's update. \qed
+
+\paragraph{Lemma 2.}
+If the relaxed greedy phase reaches the end of the last activity, then the shortening step produces a valid
+sleep schedule for the original problem.
+
+\paragraph{Proof.}
+Consider two consecutive chosen starts $s_i < s_{i+1}$. After shortening, we have
+\[
+t_i \le \frac{s_i+s_{i+1}}{2},
+\]
+so
+\[
+2t_i-s_i \le s_{i+1}.
+\]
+Thus the next sleep begins no earlier than the end of the previous rested phase.
+
+At the same time, the original relaxed choice guaranteed that the next chosen start was reachable. Since
+\[
+\frac{s_i+s_{i+1}}{2} \ge \frac{2s_i+s_{i+1}}{3},
+\]
+the shortened endpoint still satisfies
+\[
+3t_i-2s_i \ge s_{i+1},
+\]
+so we can remain awake until the next chosen sleep begins. Therefore every shortened interval is valid,
+and the last one still reaches far enough. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs a valid schedule whenever one exists, and outputs \texttt{impossible} otherwise.
+
+\paragraph{Proof.}
+By Lemma 1, the greedy scan computes the maximum reachable time in the relaxed model. If even that
+does not reach the end of the last activity, then no valid schedule exists in the original problem either.
+If it does reach far enough, Lemma 2 converts the relaxed schedule into a valid original schedule.
+Therefore the algorithm is correct. \qed
+
+\section*{Complexity Analysis}
+
+We scan the activities once and store the chosen intervals. The running time is $O(n)$ and the memory
+usage is $O(n)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item All times fit in 64-bit signed integers.
+    \item The implementation verifies after shortening that each interval still has positive length and still
+    reaches the next chosen start.
+\end{itemize}
+
+\end{document}

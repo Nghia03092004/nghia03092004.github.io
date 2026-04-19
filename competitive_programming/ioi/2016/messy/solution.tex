@@ -1,0 +1,140 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2016 -- Messy}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+
+Given $n$ (a power of 2), determine an unknown permutation $P$ of $\{0, 1, \ldots, n-1\}$ in two phases:
+\begin{itemize}
+  \item \textbf{Phase 1 (Add)}: Insert binary strings of length $n$ into a set $S$.
+  \item \textbf{Shuffle}: $P$ is applied to every string in $S$ (bit $i$ moves to position $P(i)$).
+  \item \textbf{Phase 2 (Check)}: Query whether a binary string belongs to the shuffled set.
+\end{itemize}
+Both phases allow at most $O(n \log n)$ operations.
+
+\section{Solution}
+
+Use \textbf{divide and conquer on bit positions}.
+
+\subsection{Phase 1: Adding Strings}
+
+For D\&C on range $[l, r)$ with a ``context'' set $C$ (bit positions outside $[l, r)$ that are always set to~1):
+\begin{enumerate}
+  \item Let $\text{mid} = (l + r) / 2$.
+  \item For each $i \in [l, \text{mid})$: add a string with bit $i$ set to~1 and all bits in $C$ set to~1 (all others~0).
+  \item Recurse on $[l, \text{mid})$ with $C' = C \cup [\text{mid}, r)$, and on $[\text{mid}, r)$ with $C' = C \cup [l, \text{mid})$.
+\end{enumerate}
+
+Each level adds $n/2$ strings across all recursive calls, totalling $O(n \log n)$ strings over $\log n$ levels.
+
+\subsection{Phase 2: Checking Membership}
+
+After the shuffle, for D\&C on range $[l, r)$ with a known set of candidate output positions and shuffled context bits:
+\begin{enumerate}
+  \item For each candidate position $p$, check the string with bit $p$ and context bits set. If present, $p$ maps to the left half $[l, \text{mid})$; otherwise, to the right half.
+  \item Recurse, using the classified positions as context for sub-problems.
+\end{enumerate}
+
+Each level performs $n$ checks, totalling $O(n \log n)$.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+// Grader: void add_element(string), bool check_element(string),
+//         void compile_set(), void answer(int[])
+
+int n;
+int P[1024];
+
+void addStrings(int l, int r, vector<int> &ctx) {
+    if (r - l <= 1) return;
+    int mid = (l + r) / 2;
+    for (int i = l; i < mid; i++) {
+        string s(n, '0');
+        s[i] = '1';
+        for (int c : ctx) s[c] = '1';
+        add_element(s);
+    }
+    vector<int> leftCtx = ctx;
+    for (int i = mid; i < r; i++) leftCtx.push_back(i);
+    addStrings(l, mid, leftCtx);
+
+    vector<int> rightCtx = ctx;
+    for (int i = l; i < mid; i++) rightCtx.push_back(i);
+    addStrings(mid, r, rightCtx);
+}
+
+void findPerm(int l, int r, vector<int> &positions, vector<int> &ctx) {
+    if (r - l == 1) { P[l] = positions[0]; return; }
+    int mid = (l + r) / 2;
+    vector<int> leftPos, rightPos;
+    for (int p : positions) {
+        string s(n, '0');
+        s[p] = '1';
+        for (int c : ctx) s[c] = '1';
+        if (check_element(s)) leftPos.push_back(p);
+        else rightPos.push_back(p);
+    }
+    vector<int> leftCtx = ctx;
+    for (int p : rightPos) leftCtx.push_back(p);
+    findPerm(l, mid, leftPos, leftCtx);
+
+    vector<int> rightCtx = ctx;
+    for (int p : leftPos) rightCtx.push_back(p);
+    findPerm(mid, r, rightPos, rightCtx);
+}
+
+void restore_permutation(int N, int w, int r) {
+    n = N;
+    vector<int> emptyCtx;
+    addStrings(0, n, emptyCtx);
+    compile_set();
+    vector<int> allPos(n);
+    iota(allPos.begin(), allPos.end(), 0);
+    vector<int> emptyCtx2;
+    findPerm(0, n, allPos, emptyCtx2);
+    answer(P);
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{Add operations}: $O(n \log n)$.
+  \item \textbf{Check operations}: $O(n \log n)$.
+  \item \textbf{Time}: $O(n^2 \log n)$ total work (each string operation touches $O(n)$ bits).
+  \item \textbf{Space}: $O(n \log n)$ for the set of strings.
+\end{itemize}
+
+\end{document}

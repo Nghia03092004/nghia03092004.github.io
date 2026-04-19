@@ -1,0 +1,190 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2021\\F. Islands from the Sky}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+Each flight travels along a straight segment in 3D. The camera always points vertically downward and has
+aperture angle $\theta$. On the ground, that flight sees a strip around its projected path. An island is
+successfully surveyed if \emph{one single flight} covers the whole polygon of that island.
+
+We need the smallest possible angle $\theta$ for which every island is fully covered by at least one
+flight, or report that this is impossible.
+
+\section*{Shape Covered by One Flight}
+
+Project a flight to the ground plane. Let its projected segment go from $A$ to $B$, and let the altitudes
+at those endpoints be $z_A$ and $z_B$.
+
+At any point along the flight, the camera sees points on the ground up to distance
+\[
+    z \tan \theta
+\]
+to each side of the projected path, measured perpendicularly. Because altitude changes linearly along the
+flight segment, this half-width also changes linearly.
+
+Therefore the visible ground region is a convex quadrilateral: a strip around $AB$ whose half-width is
+$z_A \tan \theta$ at $A$ and $z_B \tan \theta$ at $B$.
+
+\section*{A Vertex Formula}
+
+Fix one flight and one island. Let
+\begin{itemize}[leftmargin=*]
+    \item $d$ be the unit direction vector of the projected flight;
+    \item $n$ be a unit vector perpendicular to $d$.
+\end{itemize}
+
+For an island vertex $P$, write its coordinates relative to the flight start as
+\[
+    P-A.
+\]
+Then
+\begin{itemize}[leftmargin=*]
+    \item its coordinate \emph{along} the flight is
+    \[
+        s = (P-A)\cdot d;
+    \]
+    \item its perpendicular offset from the flight line is
+    \[
+        r = |(P-A)\cdot n|.
+    \]
+\end{itemize}
+
+The point projects onto the flight segment if and only if
+\[
+    0 \le s \le |AB|.
+\]
+At that projected location, the altitude equals
+\[
+    z(s) = z_A + (z_B-z_A)\frac{s}{|AB|}.
+\]
+So this vertex is covered exactly when
+\[
+    r \le z(s)\tan\theta.
+\]
+Equivalently, this vertex requires
+\[
+    \tan\theta \ge \frac{r}{z(s)}.
+\]
+
+\section*{Why Checking Only Vertices Is Enough}
+
+The visible region of one flight is convex. If every vertex of the island polygon lies inside that convex
+region, then every island edge lies inside it as well, because each edge is a segment between two inside
+points. Hence the whole island is covered.
+
+So for a fixed island and flight, the minimum required value of $\tan\theta$ is just the maximum of
+\[
+    \frac{r}{z(s)}
+\]
+over all island vertices, provided every vertex projects onto the flight segment.
+
+If even one vertex projects before $A$ or after $B$, then this flight can never cover the whole island,
+regardless of the angle.
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item For every island and every flight:
+    \begin{itemize}[leftmargin=*]
+        \item compute the projected flight direction and length;
+        \item for each island vertex, compute its along-coordinate $s$ and perpendicular offset $r$;
+        \item if some vertex has $s \notin [0,|AB|]$, mark this flight as impossible for that island;
+        \item otherwise take the maximum required value
+        \[
+            \frac{r}{z(s)}.
+        \]
+    \end{itemize}
+    \item For each island, keep the best flight, i.e. the minimum required $\tan\theta$.
+    \item If some island has no feasible flight, output \texttt{impossible}.
+    \item Otherwise the answer is
+    \[
+        \theta = \arctan\!\Bigl(\max_i \text{bestNeeded}_i\Bigr),
+    \]
+    converted to degrees.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+For a fixed flight, a ground point $P$ is covered if and only if its orthogonal projection onto the flight
+path lies on the projected segment and its perpendicular distance from that segment is at most
+$z(s)\tan\theta$, where $z(s)$ is the flight altitude above the projected point.
+
+\paragraph{Proof.}
+At every position along the flight, the camera covers exactly the interval of ground points perpendicular
+to the flight path whose half-width is the current altitude times $\tan\theta$. Since altitude varies
+linearly along the straight flight segment, the allowed perpendicular distance at projected position $s$ is
+exactly $z(s)\tan\theta$. A point outside the endpoint slab cannot be seen because photographs are taken
+only while the plane moves along the segment. \qed
+
+\paragraph{Lemma 2.}
+For a fixed island and flight, if every island vertex is covered, then the whole island is covered.
+
+\paragraph{Proof.}
+By Lemma 1 the visible region of one flight is a convex quadrilateral. Every edge of the island polygon is
+a segment between two covered vertices, so the whole edge lies inside this convex region. Since the island
+polygon is exactly the union of its edges and interior, the full island is covered. \qed
+
+\paragraph{Lemma 3.}
+For a fixed island and flight, if all island vertices project onto the flight segment, then the minimum
+possible value of $\tan\theta$ that covers the island equals
+\[
+    \max_{\text{vertex }P}\frac{r(P)}{z(s(P))}.
+\]
+
+\paragraph{Proof.}
+By Lemma 1, each vertex $P$ is covered exactly when
+\[
+    \tan\theta \ge \frac{r(P)}{z(s(P))}.
+\]
+All vertices are covered simultaneously exactly when $\tan\theta$ is at least the maximum of these lower
+bounds. By Lemma 2 this is also sufficient for the entire island. \qed
+
+\paragraph{Lemma 4.}
+If some island vertex projects outside the flight segment, then that flight can never cover the whole
+island.
+
+\paragraph{Proof.}
+By Lemma 1, any covered point must project onto the flight segment itself. A vertex projecting outside the
+segment is therefore uncovered for every angle, so the whole island cannot be covered by that flight. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs \texttt{impossible} exactly when no valid survey exists; otherwise it outputs the
+smallest aperture angle that allows a complete survey.
+
+\paragraph{Proof.}
+By Lemmas 3 and 4, for each island-flight pair the algorithm computes exactly the minimum feasible
+$\tan\theta$, or correctly marks the pair impossible. Choosing the minimum over flights gives the best way
+to cover that island. Then the overall angle must be large enough to satisfy every island, so it is
+determined by the maximum of these per-island requirements. Since $\arctan$ is strictly increasing, taking
+the arctangent at the end gives exactly the smallest feasible angle. \qed
+
+\section*{Complexity Analysis}
+
+Let $V$ be the total number of island vertices. For each of the $m$ flights we inspect every island vertex
+once, so the running time is $O(mV)$. With the given limits this is easily fast enough. The memory usage
+is $O(V + m)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item It is simpler to work with $\tan\theta$ during the whole computation and convert to degrees only
+    once at the end.
+    \item All geometry here is just dot products with one unit direction vector and one unit normal vector
+    per flight.
+\end{itemize}
+
+\end{document}

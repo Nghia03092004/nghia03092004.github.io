@@ -1,0 +1,135 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2001 -- Score}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Statement Summary}
+Given a decimal number as a string of $N$ digits and a budget of $K$
+adjacent swaps, find the maximum and minimum numbers obtainable.
+Leading zeros are not permitted (except for the number 0 itself).
+
+\section{Solution: Greedy Selection Sort}
+
+\subsection{Maximizing}
+Process positions left to right. At position $i$, locate the largest
+digit in the range $[i, \min(i+K, N-1)]$ (breaking ties by choosing
+the leftmost occurrence to minimize swaps). Bubble it to position $i$
+by swapping with its left neighbor repeatedly, deducting the number of
+swaps used from $K$.
+
+\begin{lemma}
+The greedy strategy is optimal for maximization.
+\end{lemma}
+\begin{proof}
+At each step we place the largest reachable digit into the
+leftmost unfilled position. Any other choice yields a lexicographically
+smaller result, because the first position where the two results differ
+will have a smaller digit in the non-greedy solution.
+\end{proof}
+
+\subsection{Minimizing}
+The same strategy applies, but we select the \emph{smallest} digit.
+For position 0, we skip digit `0' to avoid leading zeros---we select
+the smallest \emph{non-zero} digit reachable within $K$ swaps.
+
+\subsection{Edge Case}
+If the string is all zeros (representing the number 0), no leading-zero
+avoidance is needed.
+
+\section{C++ Implementation}
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+string maximize(string s, int K) {
+    int n = s.size();
+    for (int i = 0; i < n - 1 && K > 0; i++) {
+        int bestPos = i;
+        for (int j = i + 1; j < n && j - i <= K; j++)
+            if (s[j] > s[bestPos])
+                bestPos = j;
+        for (int j = bestPos; j > i; j--) {
+            swap(s[j], s[j - 1]);
+            K--;
+        }
+    }
+    return s;
+}
+
+string minimize(string s, int K) {
+    int n = s.size();
+    for (int i = 0; i < n - 1 && K > 0; i++) {
+        int bestPos = i;
+        for (int j = i + 1; j < n && j - i <= K; j++) {
+            if (i == 0) {
+                // Avoid leading zero
+                if (s[j] == '0') continue;
+                if (s[bestPos] == '0' || s[j] < s[bestPos])
+                    bestPos = j;
+            } else {
+                if (s[j] < s[bestPos])
+                    bestPos = j;
+            }
+        }
+        // If all reachable digits for position 0 are '0', skip
+        if (i == 0 && s[bestPos] == '0') continue;
+        for (int j = bestPos; j > i; j--) {
+            swap(s[j], s[j - 1]);
+            K--;
+        }
+    }
+    return s;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    string S;
+    int K;
+    cin >> S >> K;
+
+    cout << minimize(S, K) << "\n";
+    cout << maximize(S, K) << "\n";
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Complexity Analysis}
+\begin{itemize}
+  \item \textbf{Time:} $O(N \cdot \min(N, K))$. For each of $N$
+        positions, we scan at most $\min(K, N)$ positions ahead.
+        The total number of swaps across all iterations is at most $K$.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,247 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2020\\K. Space Walls}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We have a union of axis-aligned unit cubes. Each robot starts on an exposed unit face, facing along one of the
+two tangent axis directions of that face, and then keeps moving ``straight'' over the surface. We must find the
+earliest time when either
+\begin{itemize}[leftmargin=*]
+    \item two robots are on the same face at an integer time, or
+    \item two robots move across the same pair of adjacent faces in opposite directions during one time step.
+\end{itemize}
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item Let the current face normal be on axis $n$ and the current moving direction be on axis $d$.
+    The third axis $a$ is neither $n$ nor $d$.
+    During the whole motion, the coordinate on axis $a$ stays equal to its initial half-integer value.
+    So every robot is confined to one fixed plane $a = c + \tfrac12$.
+    \item Intersect the station with that plane. We obtain a union of unit squares on a 2D grid.
+    Every exposed cube face whose normal is orthogonal to axis $a$ becomes one boundary unit edge of this 2D union.
+    Moving straight on the 3D surface is exactly the same as walking along the boundary of this 2D union, one unit
+    edge per time step.
+    \item Therefore each robot moves on one directed boundary cycle of one 2D slice.
+    After choosing a fixed orientation of every cycle, the position of a robot is just
+    \[
+        s + \delta t \pmod L,
+    \]
+    where $L$ is the cycle length, $s$ is the starting offset on the cycle, and $\delta \in \{+1,-1\}$ tells whether
+    the robot follows the chosen orientation or the opposite one.
+    \item If two robots use the same invariant axis and the same slice, then they can collide only if they are on the
+    same boundary cycle.
+    If their invariant axes are different, then they can never swap locations; they can only meet on a common face.
+\end{itemize}
+
+\section*{Algorithm}
+
+\subsection*{1. Build only the slices that are actually needed}
+
+The invariant axis and slice coordinate of a robot are determined by its input face normal and initial moving
+direction. There are at most $k$ distinct slices, so we build only those.
+
+For one fixed slice:
+\begin{enumerate}[leftmargin=*]
+    \item Take all station boxes intersecting that slice.
+    \item Project them onto the slice plane.
+    \item Coordinate-compress the rectangle borders on the two slice axes.
+    \item Mark the occupied compressed cells.
+\end{enumerate}
+
+\subsection*{2. Extract directed boundary cycles}
+
+For every occupied compressed cell, each side adjacent to empty space contributes one directed primitive boundary edge.
+The direction is chosen so that the occupied cell lies on the \emph{left} side of the edge.
+
+At the end of a directed edge, the next edge on the same contour is found by the usual left-hand rule:
+try \emph{left}, then \emph{straight}, then \emph{right}, then \emph{back}.
+This decomposes all primitive edges into disjoint directed cycles.
+
+Along each cycle we merge consecutive collinear primitive edges into one segment and store:
+\begin{itemize}[leftmargin=*]
+    \item its direction,
+    \item the exposed face normal represented by this segment,
+    \item its coordinate interval,
+    \item its prefix length on the cycle.
+\end{itemize}
+
+\subsection*{3. Map every starting robot state to a cycle position}
+
+The starting face is one unit sub-edge of exactly one segment in its slice.
+Hence we can determine:
+\begin{itemize}[leftmargin=*]
+    \item which cycle contains the robot,
+    \item the cycle length $L$,
+    \item the starting index $s$ of its current face on that cycle,
+    \item whether its motion agrees with the stored cycle orientation ($\delta = +1$) or not ($\delta = -1$).
+\end{itemize}
+
+\subsection*{4. Check every pair of robots}
+
+\paragraph{Same invariant axis and same slice.}
+They can interact only on the same cycle.
+
+If the cycle is the same, then the face occupied by robot $i$ at time $t$ is
+\[
+    p_i(t) \equiv s_i + \delta_i t \pmod L.
+\]
+
+\begin{itemize}[leftmargin=*]
+    \item Same-face collision: solve
+    \[
+        s_1 + \delta_1 t \equiv s_2 + \delta_2 t \pmod L.
+    \]
+    \item Swap collision: this is possible only when $\delta_1 = -\delta_2$.
+    Then robot $2$ must be exactly one step ahead of robot $1$ along robot $1$'s moving direction:
+    \[
+        p_2(t) - p_1(t) \equiv \delta_1 \pmod L.
+    \]
+\end{itemize}
+
+Both are linear congruences in one variable.
+
+\paragraph{Different invariant axes.}
+Assume robot $A$ uses axis $a$ and robot $B$ uses axis $b$, and let $c$ be the third axis.
+They can meet only on faces orthogonal to axis $c$.
+
+For a fixed robot, a cycle segment representing such faces runs along the other robot's invariant axis, so after fixing
+the other robot's slice coordinate, that whole segment contributes at most one candidate face.
+
+For robot $A$, scan all its cycle segments and collect all candidate common faces into a hash map:
+\[
+    (\text{plane coordinate on axis } c,\ \text{sign of the normal}) \mapsto \text{time residue modulo } L_A.
+\]
+Do the same scan for robot $B$; whenever the same face appears in both scans, solve the two congruences
+\[
+    t \equiv r_A \pmod{L_A}, \qquad t \equiv r_B \pmod{L_B}
+\]
+with CRT and keep the smallest solution.
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the earliest collision time.
+
+\paragraph{Lemma 1.}
+For any robot, the coordinate on exactly one axis stays constant during the whole motion.
+
+\paragraph{Proof.}
+At every step, the current face normal axis and the current moving axis are two different coordinate axes.
+The robot always moves over an edge shared by those two directions, so the third axis is not involved in the motion.
+When the robot continues onto the next face, both the old face center and the new face center still have the same
+half-integer coordinate on that third axis. Thus that coordinate is invariant forever. \qed
+
+\paragraph{Lemma 2.}
+Inside one fixed slice plane, the robot motion is exactly a walk along a boundary cycle of the 2D cross-section, moving
+one boundary unit edge per time step.
+
+\paragraph{Proof.}
+Consider the intersection of the station with the invariant slice plane from Lemma~1.
+Every cube cut by the plane contributes one unit square, so the cross-section is a union of grid squares.
+An exposed 3D face orthogonal to the slice plane becomes a boundary unit edge of this union.
+
+Now inspect one robot step locally near the crossed cube edge.
+In the slice plane, this step is precisely the transition from one boundary unit edge to the next boundary unit edge of
+the cross-section contour.
+The ``cannot slip between cubes'' rule is exactly the statement that the walk follows the geometric boundary of the
+occupied region, not a nonexistent gap through it.
+Therefore the robot walks along one boundary cycle, one unit edge per time step. \qed
+
+\paragraph{Lemma 3.}
+After fixing an orientation of a boundary cycle, a robot on that cycle occupies position
+$s + \delta t \pmod L$ at time $t$ for some constants $s$, $\delta \in \{+1,-1\}$ and cycle length $L$.
+
+\paragraph{Proof.}
+By Lemma~2 the robot advances by exactly one boundary unit edge per time step on one cycle of length $L$.
+If the chosen cycle orientation matches the robot's actual traversal direction, the offset increases by $1$ each step;
+otherwise it decreases by $1$ each step. Hence the formula follows. \qed
+
+\paragraph{Lemma 4.}
+For two robots on the same slice, the algorithm finds exactly all same-face and swap collisions between them.
+
+\paragraph{Proof.}
+Different boundary cycles of the same slice correspond to disjoint sets of exposed faces, so only robots on the same
+cycle can interact.
+For robots on one common cycle, Lemma~3 gives explicit formulas for both positions as functions of time.
+
+A same-face collision happens exactly when the two formulas are equal modulo $L$, which is the first congruence solved
+by the algorithm.
+
+A swap collision on one cycle happens exactly when, at time $t$, robot $2$ occupies the unique neighboring cycle edge
+that robot $1$ will enter at time $t+1$.
+That is exactly the second congruence used by the algorithm.
+So every and only valid same-slice collision is detected. \qed
+
+\paragraph{Lemma 5.}
+For two robots with different invariant axes, the algorithm finds exactly all collisions between them.
+
+\paragraph{Proof.}
+Such robots move in different slice planes, so a swap is impossible: one step between adjacent faces is always contained
+in a single slice plane.
+Therefore only same-face collisions matter.
+
+Let the invariant axes be $a$ and $b$, and let $c$ be the third axis.
+Any common face must be orthogonal to axis $c$, because that is the only face type lying in both slice planes.
+For each robot, every relevant cycle segment yields at most one such face after fixing the other robot's slice
+coordinate. The algorithm enumerates precisely those faces and computes, via Lemma~3, the unique time residue modulo the
+robot's period when that face is occupied.
+
+Thus a collision on a particular common face exists exactly when the two residues are compatible, which is exactly what
+the CRT check tests. Therefore the algorithm finds every and only valid cross-slice collision. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the earliest collision time, or \texttt{ok} if no collision ever occurs.
+
+\paragraph{Proof.}
+By Lemmas~4 and~5, for every pair of robots the algorithm enumerates exactly all collision times involving that pair and
+keeps the smallest one. Any collision among several robots contains at least one colliding pair, so the minimum over all
+pairs is the global earliest collision time. If no pair yields a collision time, then no collision ever occurs, so
+\texttt{ok} is correct. \qed
+
+\section*{Complexity Analysis}
+
+Let $S$ be the number of distinct slices used by the robots; clearly $S \le k$.
+
+For one slice, there are at most $2n$ compressed coordinates on each slice axis, hence $O(n^2)$ compressed cells and
+$O(n^2)$ primitive boundary edges.
+Building one slice with the straightforward marking used in the implementation takes $O(n^3)$ time in the worst case
+and $O(n^2)$ memory.
+
+For one pair of robots, checking collisions scans only the segments on their own cycles, which is $O(n^2)$ in the worst
+case.
+
+Therefore the total complexity is
+\[
+    O(Sn^3 + k^2 n^2)
+\]
+time and
+\[
+    O(n^2)
+\]
+memory per slice.
+With $n,k \le 100$, this easily fits.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The cycle lengths can be large, and the CRT may combine two periods, so use 64-bit integers.
+    \item Boundary edges are directed so that occupied area stays on the left; this makes the successor rule uniform.
+    \item In the cross-slice case, the key of a common face is just
+    \[
+        (\text{coordinate of the plane orthogonal to the third axis},\ \text{sign of the normal}),
+    \]
+    because the two slice coordinates are already fixed by the robot pair.
+\end{itemize}
+
+\end{document}

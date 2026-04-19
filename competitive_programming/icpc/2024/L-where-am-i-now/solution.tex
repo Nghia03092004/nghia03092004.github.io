@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2024\\L. Where Am I Now?}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+We know the full map of open cells and walls, but not our starting cell or initial facing direction. In each round we may turn left, turn right, or step forward, and we are told the distance to the next wall in the direction we currently face. We must either determine our exact global position or prove that no strategy can do so.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item By exploring safely, we can recover the entire connected component of open cells that contains the starting cell, in our own local coordinate system.
+    \item The unknown start state only affects how this local component is embedded into the global map: translation plus one of the four rotations.
+    \item Therefore, after the exploration, all remaining ambiguity is geometric. We simply enumerate all embeddings of the explored local component into the given map.
+    \item If there exists a local cell whose image is the same global cell in every valid embedding, then walking to that local cell lets us identify the current position exactly. If no such local cell exists, then no further movement can break the symmetry, so the correct answer is \texttt{no}.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Starting from the unknown initial cell, perform a DFS of the reachable open component.
+
+    \item Use our own local coordinate system. At every visited local cell:
+    \begin{itemize}[leftmargin=*]
+        \item rotate through all four directions;
+        \item use the returned distance to determine whether the adjacent square is open;
+        \item if it is open and unvisited, step there recursively and then backtrack.
+    \end{itemize}
+    This reconstructs the full local graph of the connected component.
+
+    \item Independently compute all connected components of the given global map.
+
+    \item For each global component of the same size as the explored one, and for each of the four rotations, normalize both point sets by translation and compare them. Every match gives one valid embedding of the local component into the global map.
+
+    \item Among all local cells, find one whose image is identical in every valid embedding. If none exists, output \texttt{no}.
+
+    \item Otherwise, BFS in the explored local graph from the local origin to that local cell, execute the corresponding moves, and finally output
+    \[
+    \texttt{yes } i\ j
+    \]
+    for the common global image of that local cell.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+The DFS reconstructs exactly the connected component of the starting cell in local coordinates.
+
+\paragraph{Proof.}
+Whenever the current sensor value is positive, the square directly in front of us is open, so stepping there is safe. The DFS explores every such open neighbor exactly once and backtracks afterwards. Thus every reachable open square is eventually visited, and no wall is ever entered. Therefore the explored local graph is exactly the full connected component of the true starting cell. \qed
+
+\paragraph{Lemma 2.}
+Every possible actual start state corresponds to a valid embedding of the explored local component into the given global map, and every valid embedding corresponds to a possible actual start state.
+
+\paragraph{Proof.}
+By Lemma 1 the explored local graph is the full component shape. The only unknowns are which global component it is, where the local origin maps inside that component, and how the local axes are rotated relative to the global axes. Those are exactly the choices represented by translation plus one of four rotations. Hence the set of possible actual states is exactly the set of valid embeddings. \qed
+
+\paragraph{Lemma 3.}
+If a local cell has the same global image in every valid embedding, then after moving to that local cell we know our exact global position.
+
+\paragraph{Proof.}
+All valid embeddings agree on the image of that local cell, so once we physically move there, every remaining candidate start state yields the same global location. Therefore the position is known exactly. \qed
+
+\paragraph{Lemma 4.}
+If no local cell has a common image across all valid embeddings, then it is impossible to determine the exact position.
+
+\paragraph{Proof.}
+Any future sequence of moves and observations can be simulated in every valid embedding, because the explored local component is the entire reachable component. Since no local cell is mapped to the same global position in all embeddings, there always remain at least two indistinguishable possibilities with different global positions. Thus exact localization is impossible. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the correct answer for every valid input.
+
+\paragraph{Proof.}
+By Lemma 2 the algorithm enumerates exactly all possible actual start states. If it finds a local cell with a common image, Lemma 3 shows that moving there and answering \texttt{yes} is correct. Otherwise, by Lemma 4, answering \texttt{no} is correct. Hence the algorithm is correct in all cases. \qed
+
+\section*{Complexity Analysis}
+
+Let $m$ be the size of the reachable component and let $rc \le 10^4$ be the map size.
+
+\begin{itemize}[leftmargin=*]
+    \item The interactive DFS visits each reachable cell once and checks four directions, so it uses $O(m)$ steps and turns.
+    \item Computing global connected components is $O(rc)$.
+    \item Comparing the explored component with all candidate components under four rotations is $O(rc \log rc)$ in the implementation because normalized point lists are sorted.
+\end{itemize}
+
+The memory usage is $O(rc)$.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item The program maintains its own local orientation and updates it after every turn, so all explored edges are recorded in a consistent local frame.
+    \item Backtracking after DFS recursion restores both the previous local cell and the previous facing direction.
+    \item Only rotations are considered, not reflections, because the unknown initial facing direction can rotate the local frame but cannot mirror it.
+\end{itemize}
+
+\end{document}

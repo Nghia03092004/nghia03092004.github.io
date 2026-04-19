@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+
+\title{ICPC World Finals 2023\\I. Waterworld}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem Summary}
+
+The planet is partitioned into $n$ horizontal bands and $m$ equal rotation slices. For each band-slice
+cell we are given the percentage covered by water, and we must compute the percentage of the whole
+planet covered by water.
+
+\section*{Key Observations}
+
+\begin{itemize}[leftmargin=*]
+    \item On a sphere of radius $R$, the surface area of a horizontal band of height $h$ is $2\pi Rh$.
+    \item Therefore, in the cylindrical equal-area projection, equal vertical heights correspond to equal
+    surface areas.
+    \item Each input row describes one horizontal band of equal height, and each input column describes one
+    rotation slice of equal angle. So every matrix entry corresponds to exactly the same surface area.
+\end{itemize}
+
+\section*{Algorithm}
+
+\begin{enumerate}[leftmargin=*]
+    \item Read all $nm$ percentages.
+    \item Compute their arithmetic mean.
+    \item Output that mean.
+\end{enumerate}
+
+\section*{Correctness Proof}
+
+We prove that the algorithm returns the correct answer.
+
+\paragraph{Lemma 1.}
+All $nm$ cells represented by the input have equal surface area on the sphere.
+
+\paragraph{Proof.}
+Each row has the same height, so by the equal-area formula for spherical bands each row occupies the
+same total surface area as every other row. Each column splits a row into equal angles, so it also splits
+that row into equal areas. Hence every row-column cell has the same surface area. \qed
+
+\paragraph{Theorem.}
+The algorithm outputs the true percentage of the planet covered by water.
+
+\paragraph{Proof.}
+By Lemma 1, the whole planet is partitioned into $nm$ equal-area cells, and the input value of each cell is
+its water percentage. The global water percentage is therefore the average of those $nm$ percentages,
+which is exactly what the algorithm computes. \qed
+
+\section*{Complexity Analysis}
+
+The algorithm reads the matrix once, so the running time is $O(nm)$ and the memory usage is $O(1)$
+besides the input values being streamed.
+
+\section*{Implementation Notes}
+
+\begin{itemize}[leftmargin=*]
+    \item Using floating point only for the final average is enough; the input values themselves are integers.
+\end{itemize}
+
+\end{document}

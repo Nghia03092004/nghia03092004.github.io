@@ -1,0 +1,107 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2017 -- Simurgh}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+We are given a connected graph.
+The hidden set of royal roads is a spanning tree.
+For one query we submit \emph{any} spanning tree and receive how many of its edges are royal.
+
+\section{Bridges}
+Every bridge must belong to every spanning tree, hence every bridge is immediately known to be
+royal.
+So we only need to solve the remaining 2-edge-connected components.
+
+\section{Cycle Classification}
+Suppose $C$ is a simple cycle.
+Contract all vertices of $C$ into one supervertex and build any spanning forest of the remaining
+graph.
+Lifting that forest back gives a fixed edge set $F$ such that, for every edge $e \in C$,
+\[
+F \cup (C \setminus \{e\})
+\]
+is a spanning tree.
+
+If we query this tree for every edge $e \in C$, the outside contribution $|F \cap R|$ is constant.
+At least one edge of $C$ is non-royal (otherwise the hidden roads would contain a cycle), so the
+maximum query value corresponds to omitting a non-royal edge.
+Therefore:
+\begin{itemize}
+  \item omitted edge gives \textbf{maximum} value $\Longrightarrow$ non-royal;
+  \item omitted edge gives value smaller by $1$ $\Longrightarrow$ royal.
+\end{itemize}
+
+\section{Ear Expansion}
+Inside one 2-edge-connected component we maintain a connected subgraph whose edges are already
+classified.
+We start from one cycle, classify it as above, and then repeatedly add an ear:
+\begin{itemize}
+  \item an \emph{open ear}: a path whose endpoints are already in the classified subgraph and
+        whose internal vertices are new;
+  \item a \emph{closed ear}: a new cycle attached to exactly one already-known vertex.
+\end{itemize}
+
+For an ear $P$, let $Q$ be the already-known path between the two endpoints
+(or $Q=\emptyset$ for a closed ear).
+The cycle is $C=P \cup Q$.
+
+\begin{itemize}
+  \item If $Q$ already contains a known non-royal edge, one extra baseline query (omit that edge)
+        is enough; then every edge of $P$ is classified by comparing its query value to the baseline.
+  \item If every edge of $Q$ is known royal, then some edge of $P$ must be non-royal, so the
+        maximum value among the queries that omit edges of $P$ is again the baseline.
+\end{itemize}
+
+Thus each new edge is classified with only $O(1)$ extra overhead.
+
+\section{Finding the Next Ear}
+We run a multi-source BFS from all vertices already in the classified subgraph, using only
+unclassified edges of the current 2-edge-connected component.
+The first collision yields either:
+\begin{itemize}
+  \item a path between two different known vertices, or
+  \item a closed ear returning to the same known vertex.
+\end{itemize}
+
+\section{Complexity}
+Let $m$ be the number of edges.
+\begin{itemize}
+  \item \textbf{Queries:} $O(m+n)$.
+  \item \textbf{Graph work:} polynomial and easily fast enough for the official limits.
+\end{itemize}
+
+\section{Implementation}
+\begin{lstlisting}
+// 1. Find all bridges and mark them royal.
+// 2. Decompose the remaining graph into 2-edge-connected components.
+// 3. In each component:
+//    - classify one initial cycle;
+//    - repeatedly find an ear and classify all of its edges.
+// 4. Return all edges marked royal.
+\end{lstlisting}
+
+\end{document}

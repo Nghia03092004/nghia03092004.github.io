@@ -1,0 +1,125 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=single,
+  tabsize=4,
+  showstringspaces=false
+}
+
+\title{IOI 2015 -- Towns}
+\author{Solution}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Problem Summary}
+We are given distances only between the $N$ leaves of a weighted tree.
+Internal vertices are the large cities.
+We must find the hub radius $R$, and for the full task also decide whether some optimal hub is
+\emph{balanced}: after deleting it, every remaining component contains at most $N/2$ leaves.
+
+\section{Step 1: Find the Radius}
+Pick an arbitrary leaf $v$.
+Query all distances from $v$ and let $s$ be the farthest leaf.
+Then query all distances from $s$ and let $t$ be the farthest leaf from $s$.
+Now $d(s,t)$ is a diameter of the tree.
+
+For any leaf $u$, define
+\[
+p(u) = \frac{d(u,s) + d(v,s) - d(u,v)}{2}.
+\]
+This is exactly the distance from $s$ to the branching point where the path from $u$ meets the
+path $s \to v$.
+Hence the distinct values of $p(u)$ are precisely the vertices on the path $s \to v$ that matter for
+the answer.
+
+If a vertex on that path is at distance $x$ from $s$, then its farthest leaf distance is
+\[
+\max(x,\ d(s,t)-x).
+\]
+So the center(s) are the internal positions minimizing that value.
+There are at most two such positions.
+
+\section{Step 2: A Necessary Median Condition}
+Sort the multiset
+\[
+B = \{\,p(u)\mid u \text{ is a leaf}\,\}.
+\]
+For a center at position $r$:
+\begin{itemize}
+  \item leaves with $p(u) < r$ lie in the $s$-side component;
+  \item leaves with $p(u) > r$ lie in the $v$-side component;
+  \item leaves with $p(u) = r$ branch off exactly at that center.
+\end{itemize}
+
+Therefore a balanced hub must satisfy
+\[
+\#\{p(u) < r\} \le N/2
+\quad\text{and}\quad
+\#\{p(u) > r\} \le N/2.
+\]
+Equivalently, $r$ must lie between the two medians of $B$.
+If the two medians are different, then any candidate center in that interval is automatically
+balanced, because one side already contains exactly $N/2$ leaves, so the group with $p(u)=r$
+has size at most $N/2$.
+
+\section{Step 3: Unique-Median Case}
+The only nontrivial situation is when both medians are the same value $r$.
+Let
+\[
+X = \{\,u \mid p(u) = r\,\}.
+\]
+Now we only need to know whether some component of $T-r$ inside this set has more than $N/2$
+leaves.
+
+For $x,y \in X$, the editorial observation is:
+\[
+x,y \text{ are in the same component of } T-r
+\iff
+d(s,x) + d(s,y) - d(x,y) > 2r.
+\]
+So $X$ becomes a ``colored balls'' problem:
+each component is one color, and we only have an equality test.
+
+We use the standard majority-elimination algorithm:
+\begin{itemize}
+  \item pair up surviving sets and compare representatives;
+  \item merge equal pairs, discard unequal pairs;
+  \item if one set survives, verify it against all discarded representatives.
+\end{itemize}
+This uses fewer than $3|X|/2 \le 3N/2$ extra distance queries.
+If no component of $X$ has size $> N/2$, the center is balanced.
+
+\section{Complexity}
+\begin{itemize}
+  \item \textbf{Queries:} $(N-1) + (N-2)$ to find $s$ and the diameter, plus fewer than
+        $3N/2$ in the unique-median case, for a total below $7N/2$.
+  \item \textbf{Time:} $O(N \log N)$ because we sort the projection values.
+  \item \textbf{Space:} $O(N)$.
+\end{itemize}
+
+\section{Implementation}
+\begin{lstlisting}
+// 1. Query from an arbitrary leaf v, choose the farthest leaf s.
+// 2. Query from s, choose the farthest leaf t and get the diameter.
+// 3. Compute all projection values p(u) onto the path s -> v.
+// 4. Extract the one or two radius-minimizing center positions.
+// 5. Filter them using the median condition on B = {p(u)}.
+// 6. Only if the median is unique, run majority elimination on leaves with p(u)=r.
+\end{lstlisting}
+
+\end{document}
