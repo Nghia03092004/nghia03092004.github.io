@@ -1,0 +1,167 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import { formatDate } from '../../../../lib/content';
+import { withBase } from '../../../../lib/paths';
+import {
+	getCompetitiveProgrammingYearGroup,
+	getCompetitiveProgrammingYearGroups,
+	type CompetitiveProgrammingTrack,
+} from '../../../../features/competitive-programming/lib/competitive-programming';
+
+export async function getStaticPaths() {
+	const [icpcYears, ioiYears] = await Promise.all([
+		getCompetitiveProgrammingYearGroups('icpc'),
+		getCompetitiveProgrammingYearGroups('ioi'),
+	]);
+
+	return [...icpcYears, ...ioiYears].map((group) => ({
+		params: {
+			track: group.track,
+			year: String(group.year),
+		},
+	}));
+}
+
+const trackParam = Astro.params.track;
+if (trackParam !== 'icpc' && trackParam !== 'ioi') {
+	throw new Error(`Unsupported competitive programming track: ${trackParam}`);
+}
+
+const year = Number(Astro.params.year);
+if (!Number.isInteger(year)) {
+	throw new Error(`Invalid competitive programming year: ${Astro.params.year}`);
+}
+
+const track = trackParam as CompetitiveProgrammingTrack;
+const [group, allYears] = await Promise.all([
+	getCompetitiveProgrammingYearGroup(track, year),
+	getCompetitiveProgrammingYearGroups(track),
+]);
+
+if (!group) {
+	throw new Error(`Competitive programming year not found for ${track}/${year}.`);
+}
+
+const currentYearIndex = allYears.findIndex((entry) => entry.year === group.year);
+const previousYear = currentYearIndex > 0 ? allYears[currentYearIndex - 1] : undefined;
+const nextYear =
+	currentYearIndex >= 0 && currentYearIndex < allYears.length - 1 ? allYears[currentYearIndex + 1] : undefined;
+const description =
+	track === 'icpc'
+		? `All ${group.entryCount} ICPC problems from ${group.year}, each with a statement view, editorial, and C++ implementation.`
+		: `All ${group.entryCount} IOI tasks from ${group.year}, organized as individual solution pages.`;
+---
+
+<BaseLayout title={`${track.toUpperCase()} ${group.year}`} description={description}>
+	<section class="page-intro cp-intro">
+		<span class="eyebrow">Competitive Programming</span>
+		<h1>{track.toUpperCase()} {group.year}</h1>
+		<p>{description}</p>
+		<div class="archive-summary">
+			<div class="archive-summary__item">
+				<strong>{group.entryCount}</strong>
+				<span>problem pages</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{track === 'icpc' ? group.statementTextCount : group.entryCount}</strong>
+				<span>{track === 'icpc' ? 'statement text files' : 'editorials'}</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{track === 'icpc' ? group.statementPdfCount : group.entryCount}</strong>
+				<span>{track === 'icpc' ? 'statement PDFs' : 'C++ solutions'}</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{group.latestUpdated ? formatDate(group.latestUpdated) : 'n/a'}</strong>
+				<span>most recently updated solution</span>
+			</div>
+		</div>
+		<div class="chip-row">
+			<a class="button" href={withBase(`/competitive-programming/${track}`)}>
+				Back to {track.toUpperCase()}
+			</a>
+			<a class="button button--ghost" href={withBase('/competitive-programming')}>
+				All competitive programming
+			</a>
+			{group.packetUrl ? (
+				<a class="button button--ghost" href={withBase(group.packetUrl)}>
+					Contest packet
+				</a>
+			) : null}
+		</div>
+	</section>
+
+	<section class="section-panel">
+		<div class="section-heading">
+			<div>
+				<span class="section-label">Problems</span>
+				<h2>Problem set</h2>
+				<p>
+					Each entry below goes straight to the public problem page, with the statement, editorial,
+					code, and raw resources kept together.
+				</p>
+			</div>
+		</div>
+
+		<div class="problem-grid cp-problem-grid">
+			{
+				group.records.map((record) => (
+					<a
+						class="card cp-problem-card"
+						data-tone={track === 'icpc' ? 'warm' : 'cool'}
+						href={withBase(`/competitive-programming/${record.track}/${record.year}/${record.slug}`)}
+					>
+						<div class="cp-problem-card__header">
+							<div>
+								<span class="metric">{track.toUpperCase()} {record.year}</span>
+								<h3>{record.displayTitle}</h3>
+							</div>
+							{record.letter ? <span class="cp-problem-card__letter">{record.letter}</span> : null}
+						</div>
+						<p>{record.statementPreview ?? record.description}</p>
+						<div class="chip-row cp-problem-card__chips">
+							<span class="chip" data-tone="cool">TeX</span>
+							<span class="chip" data-tone="cool">C++</span>
+							{record.hasStatementText ? <span class="chip" data-tone="olive">Statement text</span> : null}
+							{record.hasStatementPdf ? <span class="chip" data-tone="warm">Statement PDF</span> : null}
+						</div>
+						<span class="track-card__link">Open problem page</span>
+					</a>
+				))
+			}
+		</div>
+	</section>
+
+	{
+		previousYear || nextYear ? (
+			<nav class="problem-pagination panel" aria-label="Year navigation">
+				{previousYear ? (
+					<a
+						class="problem-pagination__link"
+						href={withBase(`/competitive-programming/${track}/${previousYear.year}`)}
+						rel="prev"
+					>
+						<span class="problem-pagination__label">Previous year</span>
+						<strong>{track.toUpperCase()} {previousYear.year}</strong>
+						<span>{previousYear.entryCount} problems</span>
+					</a>
+				) : (
+					<div class="problem-pagination__link problem-pagination__link--empty" aria-hidden="true"></div>
+				)}
+
+				{nextYear ? (
+					<a
+						class="problem-pagination__link problem-pagination__link--next"
+						href={withBase(`/competitive-programming/${track}/${nextYear.year}`)}
+						rel="next"
+					>
+						<span class="problem-pagination__label">Next year</span>
+						<strong>{track.toUpperCase()} {nextYear.year}</strong>
+						<span>{nextYear.entryCount} problems</span>
+					</a>
+				) : (
+					<div class="problem-pagination__link problem-pagination__link--empty" aria-hidden="true"></div>
+				)}
+			</nav>
+		) : null
+	}
+</BaseLayout>

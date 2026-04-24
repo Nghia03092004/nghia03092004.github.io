@@ -1,12 +1,11 @@
 export const siteConfig = {
 	title: 'Ethan Pham',
 	description:
-		"Ethan Pham's personal site with Project Euler, competitive programming archives, essays, and source-first technical notes.",
+		"Ethan Pham's personal site with Project Euler, competitive programming, essays, and code notes.",
 	author: 'Ethan Pham (Pham Van Nghia)',
 	email: 'phamvannghia03092004@gmail.com',
 	location: 'Ho Chi Minh City, Vietnam',
-	tagline:
-		'AI/ML engineer publishing Project Euler proofs, ICPC and IOI archives, and theory-heavy engineering notes.',
+	tagline: 'Project Euler, competitive programming, and notes on the things I keep studying.',
 };
 
 export const primaryNav = [
@@ -25,7 +24,7 @@ export const socialLinks = [
 ];
 
 export const focusAreas = [
-	'Project Euler proofs with C++ and Python implementations',
-	'ICPC and IOI archives preserved as TeX and C++ source',
-	'Abstract algebra and post-quantum cryptography study',
+	'Project Euler write-ups with C++ and Python solutions',
+	'ICPC and IOI problems organized by contest and year',
+	'AI/ML, algebra, and post-quantum cryptography',
 ];

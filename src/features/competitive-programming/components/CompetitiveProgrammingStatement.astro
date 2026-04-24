@@ -1,0 +1,213 @@
+---
+import { withBase } from '../../../lib/paths';
+import type { ParsedStatementDocument } from '../lib/statement-text';
+
+interface Props {
+	rootId: string;
+	description: string;
+	parsedStatement?: ParsedStatementDocument;
+	statementHtml?: string;
+	usedFallback?: boolean;
+	rawTextUrl?: string;
+	statementPdfUrl?: string;
+	texUrl: string;
+}
+
+const {
+	rootId,
+	description,
+	parsedStatement,
+	statementHtml,
+	usedFallback = false,
+	rawTextUrl,
+	statementPdfUrl,
+	texUrl,
+} = Astro.props;
+
+const hasStructuredStatement = Boolean(parsedStatement?.hasContent);
+const hasMeta =
+	Boolean(parsedStatement?.meta.timeLimit) ||
+	Boolean(parsedStatement?.meta.inputFile) ||
+	Boolean(parsedStatement?.meta.outputFile);
+---
+
+<section class="cp-content cp-content--statement panel" id="problem-statement" data-cp-statement-root={rootId}>
+	<div class="cp-content__header">
+		<div>
+			<span class="section-label">Problem statement</span>
+			<h2>Problem Statement</h2>
+			<p>{description}</p>
+		</div>
+		<div class="cp-content__actions">
+			{rawTextUrl ? (
+				<a class="button button--ghost" href={withBase(rawTextUrl)}>
+					Statement text
+				</a>
+			) : null}
+			{statementPdfUrl ? (
+				<a class="button button--ghost" href={withBase(statementPdfUrl)}>
+					Statement PDF
+				</a>
+			) : null}
+			{!rawTextUrl && !statementPdfUrl ? (
+				<a class="button button--ghost" href={withBase(texUrl)}>
+					Open TeX section
+				</a>
+			) : null}
+		</div>
+	</div>
+
+	{
+		hasStructuredStatement ? (
+			<>
+				{
+					hasMeta ? (
+						<div class="cp-statement__meta">
+							{parsedStatement?.meta.timeLimit ? (
+								<div class="cp-statement__meta-item">
+									<span class="metric">Time limit</span>
+									<strong>{parsedStatement.meta.timeLimit}</strong>
+								</div>
+							) : null}
+							{parsedStatement?.meta.inputFile ? (
+								<div class="cp-statement__meta-item">
+									<span class="metric">Input file</span>
+									<strong>{parsedStatement.meta.inputFile}</strong>
+								</div>
+							) : null}
+							{parsedStatement?.meta.outputFile ? (
+								<div class="cp-statement__meta-item">
+									<span class="metric">Output file</span>
+									<strong>{parsedStatement.meta.outputFile}</strong>
+								</div>
+							) : null}
+						</div>
+					) : null
+				}
+
+				{parsedStatement?.introHtml ? (
+					<div class="cp-content__body cp-statement__body" set:html={parsedStatement.introHtml} />
+				) : null}
+
+				{
+					parsedStatement?.blocks.map((block, blockIndex) =>
+						block.type === 'section' ? (
+							<section class="cp-statement__section" id={block.id}>
+								<h3>{block.title}</h3>
+								<div class="cp-content__body cp-statement__body" set:html={block.html} />
+							</section>
+						) : (
+							<section class="cp-statement__section" id={block.id}>
+								<h3>{block.title}</h3>
+								<div class="cp-statement__samples">
+									{block.items.map((sample, sampleIndex) => {
+										const inputId = `${rootId}-sample-${blockIndex}-${sampleIndex}-input`;
+										const outputId = `${rootId}-sample-${blockIndex}-${sampleIndex}-output`;
+
+										return (
+											<article class="cp-statement__sample">
+												<div class="cp-statement__sample-header">
+													<strong>{sample.label}</strong>
+												</div>
+												<div class="cp-statement__sample-grid">
+													<div class="cp-statement__sample-panel">
+														<div class="cp-statement__sample-label">
+															<span class="metric">Sample Input</span>
+															<button
+																class="source-copy"
+																type="button"
+																data-statement-copy={inputId}
+															>
+																Copy
+															</button>
+														</div>
+														<pre class="cp-statement__sample-code"><code id={inputId}>{sample.input}</code></pre>
+													</div>
+													<div class="cp-statement__sample-panel">
+														<div class="cp-statement__sample-label">
+															<span class="metric">Sample Output</span>
+															<button
+																class="source-copy"
+																type="button"
+																data-statement-copy={outputId}
+															>
+																Copy
+															</button>
+														</div>
+														<pre class="cp-statement__sample-code"><code id={outputId}>{sample.output}</code></pre>
+													</div>
+												</div>
+												{sample.explanationHtml ? (
+													<div
+														class="cp-content__body cp-statement__sample-explanation"
+														set:html={sample.explanationHtml}
+													/>
+												) : null}
+											</article>
+										);
+									})}
+								</div>
+							</section>
+						),
+					)
+				}
+			</>
+		) : statementHtml ? (
+			<>
+				{usedFallback ? (
+					<p class="cp-content__notice">
+						This statement falls back to the original TeX block because the source could not be
+						converted cleanly enough for a better render.
+					</p>
+				) : null}
+				<div class="cp-content__body cp-statement__body" data-cp-math-content set:html={statementHtml} />
+			</>
+		) : (
+			<p class="cp-content__notice">
+				A separate statement file is not available for this entry, so the page focuses on the editorial
+				and implementation.
+			</p>
+		)
+	}
+</section>
+
+<script is:inline>
+	const setupStatementCopyButtons = () => {
+		document.querySelectorAll('[data-statement-copy]').forEach((button) => {
+			if (!(button instanceof HTMLButtonElement) || button.dataset.copyBound === 'true') {
+				return;
+			}
+
+			button.addEventListener('click', async () => {
+				const targetId = button.dataset.statementCopy;
+				const code = targetId ? document.getElementById(targetId)?.textContent ?? '' : '';
+				if (!code) {
+					return;
+				}
+
+				try {
+					await navigator.clipboard.writeText(code);
+					button.textContent = 'Copied';
+					window.setTimeout(() => {
+						button.textContent = 'Copy';
+					}, 1200);
+				} catch {
+					button.textContent = 'Unavailable';
+					window.setTimeout(() => {
+						button.textContent = 'Copy';
+					}, 1200);
+				}
+			});
+
+			button.dataset.copyBound = 'true';
+		});
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', setupStatementCopyButtons, { once: true });
+	} else {
+		setupStatementCopyButtons();
+	}
+
+	document.addEventListener('astro:page-load', setupStatementCopyButtons);
+</script>

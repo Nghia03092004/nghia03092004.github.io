@@ -29,7 +29,7 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 
 <BaseLayout
 	title="Home"
-	description="Project Euler, competitive programming archives, and technical notes by Ethan Pham."
+	description="Project Euler, competitive programming, and technical notes by Ethan Pham."
 >
 	<section class="hero">
 		<div class="panel hero-copy">
@@ -40,11 +40,11 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 					entries
 				</span>
 			</div>
-			<h1>Project Euler, competitive programming, and theory-heavy engineering notes.</h1>
+			<h1>Project Euler, competitive programming, and the notes I keep around.</h1>
 			<p>
-				Project Euler is still the deepest subsystem here, but it now sits alongside a dedicated
-				competitive programming archive for ICPC and IOI. The site stays source-first: proofs,
-				write-ups, and implementations remain editable in their original files.
+				This is my personal technical site. I use it to keep Project Euler write-ups, competitive
+				programming solutions, essays, and code notes in one place. Most of my time lately has gone
+				into AI/ML, algorithms, algebra, and post-quantum cryptography.
 			</p>
 			<div class="hero-actions">
 				<a class="button" href={withBase('/project-euler')}>Browse Project Euler</a>
@@ -64,15 +64,15 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 
 		<aside class="hero-aside">
 			<div class="hero-aside__panel hero-aside__panel--warm">
-				<span class="eyebrow">What the archives keep</span>
+				<span class="eyebrow">What lives here</span>
 				<p class="lede">
-					Source-of-truth write-ups, exact implementations, and contest-specific context without
-					turning the repo into a pile of generated HTML.
+					Mostly problem solving: Project Euler, ICPC, IOI, and short notes from things I am
+					building or studying.
 				</p>
 				<p class="hero-note">
-					Project Euler pages expose the polished archive format. Competitive programming entries
-					preserve the TeX and C++ source files directly, with ICPC statement assets carried over
-					when they are useful.
+					Project Euler is the deepest part of the site. The competitive programming section is now
+					organized by track, year, and problem so it is easy to browse instead of feeling like a
+					folder dump.
 				</p>
 			</div>
 			<div class="hero-aside__panel hero-aside__panel--grid">
@@ -92,7 +92,7 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 					</div>
 					<div class="stat">
 						<span class="stat__value">{Math.round(totalSourceFiles / 100) / 10}k</span>
-						<span class="stat__label">Source files</span>
+						<span class="stat__label">Solution files</span>
 					</div>
 				</div>
 			</div>
@@ -104,10 +104,10 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 			<div class="section-heading">
 				<div>
 					<span class="section-label">Major areas</span>
-					<h2>The site now has two archive-scale problem-solving sections</h2>
+					<h2>The site has two main problem-solving archives</h2>
 					<p>
-						Project Euler remains the largest corpus, and Competitive Programming now gives ICPC and
-						IOI their own clean archive instead of being buried inside the repo.
+						Project Euler is still the largest body of work here, and Competitive Programming now
+						has its own section instead of being mixed into the repository structure.
 					</p>
 				</div>
 			</div>
@@ -115,7 +115,7 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 				<a class="card track-card" data-tone="warm" href={withBase('/project-euler')}>
 					<span class="track-card__index">01</span>
 					<span class="eyebrow">Project Euler</span>
-					<h3>The long-form mathematics archive</h3>
+					<h3>The long-form math archive</h3>
 					<p>
 						{eulerEntries.length} full problems with statements, proofs, final answers, and both C++
 						and Python implementations.
@@ -125,20 +125,20 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 				<a class="card track-card" data-tone="cool" href={withBase('/competitive-programming')}>
 					<span class="track-card__index">02</span>
 					<span class="eyebrow">Competitive Programming</span>
-					<h3>ICPC and IOI as source-first contest archives</h3>
+					<h3>ICPC and IOI, organized by contest year</h3>
 					<p>
-						{totalCompetitiveProgrammingEntries} entries with exact TeX write-ups and C++
-						implementations copied into a clean, GitHub-friendly structure.
+						{totalCompetitiveProgrammingEntries} problem pages with statement, editorial, and code
+						views, plus direct links to the original files when they are useful.
 					</p>
 					<span class="track-card__link">Open the archive</span>
 				</a>
 				<a class="card track-card" data-tone="olive" href={withBase('/about')}>
 					<span class="track-card__index">03</span>
 					<span class="eyebrow">About</span>
-					<h3>The broader technical direction behind the archive</h3>
+					<h3>A short background on what I am working on</h3>
 					<p>
-						AI/ML engineering, algebra, post-quantum cryptography, and the workflow behind keeping
-						these archives maintainable.
+						AI/ML, algorithms, algebra, post-quantum cryptography, and the kind of work I like to
+						keep notes on.
 					</p>
 					<span class="track-card__link">Read the background</span>
 				</a>
@@ -149,10 +149,10 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 			<div class="section-heading">
 				<div>
 					<span class="section-label">Project Euler</span>
-					<h2>The deepest archive is still the Euler library</h2>
+					<h2>Project Euler is still where I write the most</h2>
 					<p>
-						The front page stays editorial, but the archive and detail pages are optimized for actual
-						use: scan, open, verify, copy, move on.
+						It is the longest-running part of the site, and still the best place to see full problem
+						statements, proofs, and implementations together.
 					</p>
 				</div>
 			</div>
@@ -160,22 +160,22 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 				<a class="card track-card" data-tone="warm" href={withBase('/project-euler')}>
 					<span class="track-card__index">01</span>
 					<span class="eyebrow">Full writeups</span>
-					<h3>The mathematics stays visible</h3>
+					<h3>The math stays visible</h3>
 					<p>Problem statements, proofs, algorithm notes, complexity analysis, and answers on one page.</p>
 					<span class="track-card__link">Browse the archive</span>
 				</a>
 				<a class="card track-card" data-tone="cool" href={withBase('/project-euler/problem-0048')}>
 					<span class="track-card__index">02</span>
 					<span class="eyebrow">C++ source</span>
-					<h3>Reference implementation for performance-minded solves</h3>
+					<h3>C++ implementation next to the write-up</h3>
 					<p>Every problem page exposes the exact C++ file from the local Project Euler archive.</p>
 					<span class="track-card__link">See a source page</span>
 				</a>
 				<a class="card track-card" data-tone="olive" href={withBase('/project-euler/problem-0700')}>
 					<span class="track-card__index">03</span>
 					<span class="eyebrow">Python source</span>
-					<h3>A second implementation for clarity and cross-checking</h3>
-					<p>The Python version lives next to the writeup so the explanation and the code stay in sync.</p>
+					<h3>A second implementation when it helps</h3>
+					<p>The Python version sits next to the write-up when I want a clearer or easier-to-check solution.</p>
 					<span class="track-card__link">Open a dual-language entry</span>
 				</a>
 			</div>
@@ -213,8 +213,7 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 					<span class="section-label">Latest Euler sync</span>
 					<h2>Recently updated Project Euler entries</h2>
 					<p>
-						These are pulled from the source file timestamps, so the homepage can surface recently
-						touched Project Euler entries without manual editing.
+						Pulled from file timestamps so the homepage can surface recent work without a manual list.
 					</p>
 				</div>
 				<a class="button button--ghost" href={withBase('/about')}>
@@ -243,10 +242,10 @@ const totalSourceFiles = eulerEntries.length * 2 + totalCompetitiveProgrammingEn
 			<div class="section-heading">
 				<div>
 					<span class="section-label">Archive depth</span>
-					<h2>The Euler corpus still drives the longest-form writing</h2>
+					<h2>Project Euler still carries the longest writeups</h2>
 					<p>
-						The competitive programming section is source-first and intentionally lean. Project Euler
-						remains the place where the site accumulates the most detailed written mathematics.
+						The competitive programming section is intentionally more concise. Project Euler is still
+						where the most detailed mathematics on the site tends to land.
 					</p>
 				</div>
 			</div>

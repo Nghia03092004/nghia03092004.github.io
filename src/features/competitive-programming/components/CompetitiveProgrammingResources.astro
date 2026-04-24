@@ -1,0 +1,42 @@
+---
+import { withBase } from '../../../lib/paths';
+
+interface ResourceLink {
+	label: string;
+	href: string;
+	path?: string;
+}
+
+interface Props {
+	links: ResourceLink[];
+}
+
+const { links } = Astro.props;
+---
+
+{
+	links.length ? (
+		<section class="cp-resources panel" id="source-files">
+			<div class="cp-resources__header">
+				<span class="section-label">Resources</span>
+				<h2>Source Files and Assets</h2>
+				<p>Raw files are still available here when you want the original TeX, C++, or statement assets.</p>
+			</div>
+
+			<details class="cp-resources__details">
+				<summary class="cp-resources__summary">Show raw files</summary>
+
+				<div class="cp-resources__grid">
+					{
+						links.map((link) => (
+							<a class="cp-resources__link" href={withBase(link.href)}>
+								<strong>{link.label}</strong>
+								{link.path ? <code>{link.path}</code> : null}
+							</a>
+						))
+					}
+				</div>
+			</details>
+		</section>
+	) : null
+}

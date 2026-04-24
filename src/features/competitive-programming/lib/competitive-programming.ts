@@ -86,6 +86,9 @@ export interface CompetitiveProgrammingYearGroup {
 	year: number;
 	entryCount: number;
 	packetUrl?: string;
+	statementTextCount: number;
+	statementPdfCount: number;
+	latestUpdated?: Date;
 	records: CompetitiveProgrammingRecord[];
 }
 
@@ -201,11 +204,33 @@ function extractDescriptionFromTex(texSource: string, fallbackTitle: string) {
 }
 
 function extractStatementPreview(statementText: string) {
-	const normalized = statementText
+	const lines = statementText
 		.split(/\r?\n/)
 		.map((line) => line.trim())
-		.filter(Boolean)
-		.join(' ');
+		.filter(
+			(line) =>
+				Boolean(line) &&
+				!/^This page is intentionally left blank\.?$/i.test(line) &&
+				!/ICPC Foundation/i.test(line),
+		);
+
+	while (lines.length && /^Problem\b/i.test(lines[0] ?? '')) {
+		lines.shift();
+	}
+
+	while (lines.length && /^Time\s+limit:/i.test(lines[0] ?? '')) {
+		lines.shift();
+	}
+
+	if (lines.length && lines[0]!.length <= 80 && lines[0]!.split(/\s+/).length <= 8) {
+		lines.shift();
+	}
+
+	while (lines.length && /^Time\s+limit:/i.test(lines[0] ?? '')) {
+		lines.shift();
+	}
+
+	const normalized = lines.join(' ');
 
 	return normalized ? clampText(normalized, 260) : undefined;
 }
@@ -324,7 +349,14 @@ function cleanIoiTitle(rawTitle: string, year: number, folderName: string) {
 		.trim();
 
 	if (stripped) {
-		return stripped;
+		const normalized = stripped
+			.replace(/^Problem\s+\d+\s*[:.-]\s*/i, '')
+			.replace(/^Task\s+\d+\s*[:.-]\s*/i, '')
+			.trim();
+
+		if (normalized) {
+			return normalized;
+		}
 	}
 
 	return humanizeFolderName(folderName);
@@ -483,8 +515,20 @@ export async function getCompetitiveProgrammingYearGroups(track: CompetitiveProg
 			year,
 			entryCount: yearRecords.length,
 			packetUrl: track === 'icpc' ? yearRecords[0]?.assetUrls.yearPacket : undefined,
+			statementTextCount: yearRecords.filter((record) => record.hasStatementText).length,
+			statementPdfCount: yearRecords.filter((record) => record.hasStatementPdf).length,
+			latestUpdated: [...yearRecords].sort((left, right) => right.updated.getTime() - left.updated.getTime())[0]
+				?.updated,
 			records: yearRecords,
 		})) satisfies CompetitiveProgrammingYearGroup[];
+}
+
+export async function getCompetitiveProgrammingYearGroup(
+	track: CompetitiveProgrammingTrack,
+	year: number,
+) {
+	const groups = await getCompetitiveProgrammingYearGroups(track);
+	return groups.find((group) => group.year === year);
 }
 
 export async function getCompetitiveProgrammingAssetMap() {

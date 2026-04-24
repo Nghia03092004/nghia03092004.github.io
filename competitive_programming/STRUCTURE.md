@@ -38,6 +38,7 @@ competitive_programming/
 This structure is intended to stay:
 
 - easy to browse on GitHub
+- easy to turn into public pages that browse by track, year, then problem
 - easy to extend with more yearly folders
 - easy to extend with more contest tracks later
 - easy for the website build to scan without hidden conventions

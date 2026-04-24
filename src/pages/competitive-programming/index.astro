@@ -5,46 +5,58 @@ import { withBase } from '../../lib/paths';
 import {
 	getCompetitiveProgrammingRecords,
 	getCompetitiveProgrammingTrackSummaries,
+	getCompetitiveProgrammingYearGroups,
 } from '../../features/competitive-programming/lib/competitive-programming';
 
-const [summaries, allRecords] = await Promise.all([
+const [summaries, allRecords, icpcYears, ioiYears] = await Promise.all([
 	getCompetitiveProgrammingTrackSummaries(),
 	getCompetitiveProgrammingRecords(),
+	getCompetitiveProgrammingYearGroups('icpc'),
+	getCompetitiveProgrammingYearGroups('ioi'),
 ]);
-const latestEntries = [...allRecords].sort((left, right) => right.updated.getTime() - left.updated.getTime()).slice(0, 4);
 const totalEntries = summaries.reduce((sum, summary) => sum + summary.entryCount, 0);
 const totalYears = summaries.reduce((sum, summary) => sum + summary.yearCount, 0);
 const latestUpdated = [...allRecords].sort((left, right) => right.updated.getTime() - left.updated.getTime())[0]?.updated;
+const featuredYears = [...icpcYears, ...ioiYears]
+	.sort((left, right) => {
+		if (left.year !== right.year) {
+			return right.year - left.year;
+		}
+
+		return left.track.localeCompare(right.track);
+	})
+	.slice(0, 6);
+const latestEntries = [...allRecords].sort((left, right) => right.updated.getTime() - left.updated.getTime()).slice(0, 6);
 ---
 
 <BaseLayout
 	title="Competitive Programming"
-	description="A source-centric competitive programming archive with ICPC and IOI write-ups preserved as TeX and C++ files."
+	description="ICPC and IOI solutions organized by track, year, and problem."
 >
 	<section class="page-intro cp-intro">
 		<span class="eyebrow">Competitive Programming</span>
-		<h1>ICPC and IOI solutions, kept as editable source files.</h1>
+		<h1>ICPC and IOI, organized to browse like a real archive.</h1>
 		<p>
-			This archive sits alongside Project Euler as a second major problem-solving area on the site.
-			The source of truth stays explicit: written solutions live in <code>.tex</code>, implementations
-			live in <code>.cpp</code>, and the pages are built directly from those copied files.
+			This section collects contest problems I wanted to keep in a usable form: statement, editorial,
+			code, and raw files together on one page. The main path is simple: pick a track, then a year,
+			then a problem.
 		</p>
 		<div class="archive-summary">
 			<div class="archive-summary__item">
 				<strong>{totalEntries}</strong>
-				<span>competitive programming entries</span>
+				<span>problem pages</span>
 			</div>
 			<div class="archive-summary__item">
 				<strong>{summaries.length}</strong>
-				<span>major contest archives</span>
+				<span>contest tracks</span>
 			</div>
 			<div class="archive-summary__item">
 				<strong>{totalYears}</strong>
-				<span>contest years covered</span>
+				<span>contest years</span>
 			</div>
 			<div class="archive-summary__item">
 				<strong>{latestUpdated ? formatDate(latestUpdated) : 'n/a'}</strong>
-				<span>newest copied source file</span>
+				<span>most recently updated entry</span>
 			</div>
 		</div>
 	</section>
@@ -53,12 +65,8 @@ const latestUpdated = [...allRecords].sort((left, right) => right.updated.getTim
 		<div class="section-heading">
 			<div>
 				<span class="section-label">Tracks</span>
-				<h2>Two serious archives with different source models</h2>
-				<p>
-					ICPC entries keep metadata and statement assets with each problem. IOI entries stay lean:
-					just the task folder plus the normalized <code>solution.tex</code> and
-					<code> solution.cpp</code> pair.
-				</p>
+				<h2>Start with a contest track</h2>
+				<p>Each track has its own year-by-year landing page, so the archive is easy to scan without opening raw folders.</p>
 			</div>
 		</div>
 		<div class="track-grid">
@@ -73,12 +81,59 @@ const latestUpdated = [...allRecords].sort((left, right) => right.updated.getTim
 						<span class="eyebrow">{summary.label}</span>
 						<h3>{summary.longLabel}</h3>
 						<p>
-							{summary.entryCount} entries across {summary.yearCount} contest years, with{' '}
-							{summary.statementPdfCount > 0 ? `${summary.statementPdfCount} statement PDFs and ` : ''}
-							exact TeX and C++ source files preserved in the repo.
+							{summary.entryCount} problems across {summary.yearCount} years.
+							{summary.track === 'icpc'
+								? ` ${summary.statementTextCount} statement texts and ${summary.statementPdfCount} PDFs are mirrored in the archive.`
+								: ' Each task page centers the write-up and code.'}
 						</p>
-						<span class="track-card__link">Open {summary.label} archive</span>
+						<span class="track-card__link">Browse {summary.label}</span>
 					</a>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section-panel">
+		<div class="section-heading">
+			<div>
+				<span class="section-label">Browse by year</span>
+				<h2>Recent contest years</h2>
+				<p>The year page is the main browsing layer: it lists the problems, resource badges, and direct links to each solution page.</p>
+			</div>
+		</div>
+
+		<div class="cp-year-grid">
+			{
+				featuredYears.map((group) => (
+					<article class="cp-year-card cp-year-card--browse">
+						<div class="cp-year-card__topline">
+							<div>
+								<strong>{group.year}</strong>
+								<span>{group.entryCount} problems</span>
+							</div>
+							<span class="chip" data-tone={group.track === 'icpc' ? 'warm' : 'cool'}>
+								{group.track.toUpperCase()}
+							</span>
+						</div>
+						<p class="cp-year-card__summary">
+							{group.track === 'icpc'
+								? `${group.statementTextCount} statement texts and ${group.statementPdfCount} PDFs are available for this year.`
+								: 'Task pages are grouped here by year before you drill down into an individual problem.'}
+						</p>
+						<ul class="cp-year-card__list">
+							{group.records.slice(0, 4).map((record) => <li>{record.displayTitle}</li>)}
+						</ul>
+						<div class="cp-year-card__actions">
+							<a class="button" href={withBase(`/competitive-programming/${group.track}/${group.year}`)}>
+								Browse {group.track.toUpperCase()} {group.year}
+							</a>
+							{group.packetUrl ? (
+								<a class="button button--ghost" href={withBase(group.packetUrl)}>
+									Contest packet
+								</a>
+							) : null}
+						</div>
+					</article>
 				))
 			}
 		</div>
@@ -87,12 +142,9 @@ const latestUpdated = [...allRecords].sort((left, right) => right.updated.getTim
 	<section class="section-panel section-panel--signal">
 		<div class="section-heading">
 			<div>
-				<span class="section-label">Recent entries</span>
-				<h2>Newest copied problem folders</h2>
-				<p>
-					These cards are driven from the copied source file timestamps, so the archive can surface
-					recently touched entries without a separate metadata layer.
-				</p>
+				<span class="section-label">Recent additions</span>
+				<h2>Recently updated problem pages</h2>
+				<p>These stay secondary to the track/year browse flow, but they are still useful when you want to see what changed most recently.</p>
 			</div>
 		</div>
 		<div class="signal-grid">
@@ -109,11 +161,11 @@ const latestUpdated = [...allRecords].sort((left, right) => right.updated.getTim
 								{record.track.toUpperCase()} {record.year}
 							</span>
 							<h3>{record.displayTitle}</h3>
-							<p>{record.description}</p>
+							<p>{record.statementPreview ?? record.description}</p>
 						</div>
 						<div class="signal-card__meta">
 							<span class="metric">{formatDate(record.updated)}</span>
-							<span class="metric">TeX + C++</span>
+							<span class="metric">{record.hasStatementText ? 'statement + editorial + code' : 'editorial + code'}</span>
 						</div>
 					</a>
 				))

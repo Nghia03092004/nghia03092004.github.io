@@ -15,10 +15,7 @@ const { html, rawUrl, usedFallback = false } = Astro.props;
 		<div>
 			<span class="section-label">Editorial</span>
 			<h2>Editorial</h2>
-			<p>
-				Rendered from the copied <code>solution.tex</code> file. The original TeX source remains
-				available below.
-			</p>
+			<p>The solution write-up is rendered from the LaTeX source, with equations kept live through MathJax.</p>
 		</div>
 		<div class="cp-content__actions">
 			<a class="button button--ghost" href={withBase(rawUrl)}>Raw TeX</a>
@@ -28,8 +25,7 @@ const { html, rawUrl, usedFallback = false } = Astro.props;
 	{
 		usedFallback ? (
 			<p class="cp-content__notice">
-				This write-up could not be normalized cleanly, so the editorial section falls back to raw TeX
-				display instead of failing the page build.
+				This write-up falls back to raw TeX because the conversion was not reliable enough for a cleaner render.
 			</p>
 		) : null
 	}

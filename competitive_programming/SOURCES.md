@@ -55,10 +55,14 @@ The Astro site scans `competitive_programming/` directly and builds:
 
 - `/competitive-programming`
 - `/competitive-programming/icpc`
+- `/competitive-programming/icpc/<year>`
 - `/competitive-programming/ioi`
+- `/competitive-programming/ioi/<year>`
 - per-entry pages under `/competitive-programming/<track>/<year>/<slug>`
 
 Each entry page exposes the exact copied TeX and C++ files. ICPC pages also expose copied statement assets when they exist.
+
+Public pages are intentionally written for readers first. Workflow notes such as source-of-truth and editing rules stay in this documentation instead of taking over the main site copy.
 
 Raw file URLs are generated from this directory through the site's `competitive-programming-assets` routes, so the repo keeps one clear local source tree instead of duplicating everything into `public/`.
 

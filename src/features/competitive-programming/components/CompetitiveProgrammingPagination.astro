@@ -24,7 +24,7 @@ const getHref = (item: LinkItem) =>
 		<nav class="problem-pagination panel" aria-label="Archive navigation">
 			{previous ? (
 				<a class="problem-pagination__link" href={getHref(previous)} rel="prev">
-					<span class="problem-pagination__label">Previous Entry</span>
+					<span class="problem-pagination__label">Previous Problem</span>
 					<strong>{previous.track.toUpperCase()} {previous.year}</strong>
 					<span>{previous.displayTitle}</span>
 				</a>
@@ -34,7 +34,7 @@ const getHref = (item: LinkItem) =>
 
 			{next ? (
 				<a class="problem-pagination__link problem-pagination__link--next" href={getHref(next)} rel="next">
-					<span class="problem-pagination__label">Next Entry</span>
+					<span class="problem-pagination__label">Next Problem</span>
 					<strong>{next.track.toUpperCase()} {next.year}</strong>
 					<span>{next.displayTitle}</span>
 				</a>

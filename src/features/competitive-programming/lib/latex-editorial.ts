@@ -54,6 +54,7 @@ const THEOREM_LIKE_ENVIRONMENTS = new Set([
 ]);
 
 const STATEMENT_SECTION_PATTERN = /^(problem\s+(statement|summary)|statement)$/i;
+const IMPLEMENTATION_SECTION_PATTERN = /^(implementation|implementation details|reference implementation|code)$/i;
 
 function escapeHtml(value: string) {
 	return value
@@ -153,28 +154,40 @@ function splitTopLevelSections(body: string) {
 	return { preamble, sections };
 }
 
+function isImplementationSection(section: LatexSection) {
+	return (
+		IMPLEMENTATION_SECTION_PATTERN.test(section.title) &&
+		/\\begin\{(?:lstlisting|verbatim)\}|\\lstinputlisting\b/.test(section.content)
+	);
+}
+
 export function extractLatexDocument(texSource: string): ExtractedLatexDocument {
 	const body = extractDocumentBody(texSource);
 	const { preamble, sections } = splitTopLevelSections(body);
 	const statementSection = sections.find((section) => STATEMENT_SECTION_PATTERN.test(section.title));
+	const editorialSections = sections.filter(
+		(section) => section !== statementSection && !isImplementationSection(section),
+	);
 
 	if (!statementSection) {
+		const editorialSource = [preamble, ...editorialSections.map((section) => section.fullSource)]
+			.filter(Boolean)
+			.join('\n\n')
+			.trim();
+
 		return {
 			body,
-			editorialSource: body,
+			editorialSource: editorialSource || body,
 		};
 	}
 
-	const editorialParts = [
-		preamble,
-		...sections.filter((section) => section !== statementSection).map((section) => section.fullSource),
-	].filter(Boolean);
+	const editorialParts = [preamble, ...editorialSections.map((section) => section.fullSource)].filter(Boolean);
 
 	return {
 		body,
 		statementTitle: statementSection.title,
 		statementSource: statementSection.content,
-		editorialSource: editorialParts.join('\n\n').trim(),
+		editorialSource: editorialParts.join('\n\n').trim() || body,
 	};
 }
 

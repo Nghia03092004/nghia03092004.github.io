@@ -1,9 +1,9 @@
 ---
-import CompetitiveProgrammingPagination from '../../../../features/competitive-programming/components/CompetitiveProgrammingPagination.astro';
 import CompetitiveProgrammingEditorial from '../../../../features/competitive-programming/components/CompetitiveProgrammingEditorial.astro';
+import CompetitiveProgrammingPagination from '../../../../features/competitive-programming/components/CompetitiveProgrammingPagination.astro';
+import CompetitiveProgrammingResources from '../../../../features/competitive-programming/components/CompetitiveProgrammingResources.astro';
 import CompetitiveProgrammingSourceTabs from '../../../../features/competitive-programming/components/CompetitiveProgrammingSourceTabs.astro';
-import PostLayout from '../../../../layouts/PostLayout.astro';
-import { withBase } from '../../../../lib/paths';
+import CompetitiveProgrammingStatement from '../../../../features/competitive-programming/components/CompetitiveProgrammingStatement.astro';
 import {
 	getCompetitiveProgrammingRecord,
 	getCompetitiveProgrammingRecords,
@@ -14,6 +14,9 @@ import {
 	extractLatexDocument,
 	renderLatexContent,
 } from '../../../../features/competitive-programming/lib/latex-editorial';
+import { parseStatementText } from '../../../../features/competitive-programming/lib/statement-text';
+import PostLayout from '../../../../layouts/PostLayout.astro';
+import { withBase } from '../../../../lib/paths';
 
 export async function getStaticPaths() {
 	const records = await getCompetitiveProgrammingRecords();
@@ -48,12 +51,16 @@ if (!record) {
 	throw new Error(`Competitive programming entry not found for ${track}/${year}/${slug}.`);
 }
 
-const [records, sources] = await Promise.all([
+const [trackRecords, sources] = await Promise.all([
 	getCompetitiveProgrammingRecords(track),
 	getCompetitiveProgrammingSources(record),
 ]);
 
 const latexDocument = extractLatexDocument(sources.tex);
+const parsedStatement =
+	record.hasStatementText && sources.statementText
+		? parseStatementText(sources.statementText, { title: record.title })
+		: undefined;
 const statementFromTex =
 	!record.hasStatementText && latexDocument.statementSource
 		? renderLatexContent(latexDocument.statementSource, {
@@ -65,143 +72,142 @@ const editorial = renderLatexContent(latexDocument.editorialSource || latexDocum
 	headingDepthOffset: 2,
 	headingSlugPrefix: `cp-editorial-${record.id}`,
 });
-const statementDescription =
-	record.hasStatementText && sources.statementText
-		? 'Copied statement text kept beside the solution archive for direct reference.'
-		: statementFromTex
-			? `Rendered from the "${latexDocument.statementTitle ?? 'Problem Statement'}" section inside solution.tex because this entry has no separate statement file.`
-			: 'This archive entry does not include a standalone statement file or a dedicated statement section in solution.tex.';
-
-const currentIndex = records.findIndex((entry) => entry.id === record.id);
-const previousRecord = currentIndex > 0 ? records[currentIndex - 1] : undefined;
+const summary = record.statementPreview ?? record.description;
+const statementSummary = record.hasStatementText
+	? 'Formatted from the contest statement text, with sample tests broken out into copyable blocks.'
+	: statementFromTex
+		? `Rendered from the "${latexDocument.statementTitle ?? 'Problem Statement'}" section in the LaTeX write-up.`
+		: 'No standalone statement file is available for this entry.';
+const yearRecords = trackRecords.filter((entry) => entry.year === record.year);
+const currentIndex = yearRecords.findIndex((entry) => entry.id === record.id);
+const previousRecord = currentIndex > 0 ? yearRecords[currentIndex - 1] : undefined;
 const nextRecord =
-	currentIndex >= 0 && currentIndex < records.length - 1 ? records[currentIndex + 1] : undefined;
+	currentIndex >= 0 && currentIndex < yearRecords.length - 1 ? yearRecords[currentIndex + 1] : undefined;
+const yearPagePath = `/competitive-programming/${record.track}/${record.year}`;
 
 const headings = [
 	{ depth: 2, slug: 'problem-statement', text: 'Problem Statement' },
 	{ depth: 2, slug: 'editorial', text: 'Editorial' },
 	...editorial.headings,
 	{ depth: 2, slug: 'code', text: 'Code' },
-	{ depth: 2, slug: 'source-files', text: 'Source Files' },
+	{ depth: 2, slug: 'source-files', text: 'Source Files and Assets' },
+];
+
+const tags = [
+	'TeX',
+	'C++',
+	...(record.hasStatementText ? ['Statement text'] : []),
+	...(record.hasStatementPdf ? ['Statement PDF'] : []),
+	...(!record.hasStatementText && statementFromTex ? ['Rendered statement'] : []),
 ];
 
 const metaItems = [
 	{ label: 'Track', value: record.trackLabel },
 	{ label: 'Year', value: String(record.year) },
-	{ label: 'Files', value: record.hasStatementText ? 'TeX, C++, statement assets' : 'TeX and C++' },
-	{ label: 'Folder', value: record.sourceDirectory },
+	{
+		label: 'Statement',
+		value: record.hasStatementText
+			? record.hasStatementPdf
+				? 'Text + PDF'
+				: 'Text'
+			: statementFromTex
+				? 'Rendered from TeX'
+				: 'Not mirrored',
+	},
 ];
 
-const tags = [
-	record.trackLabel,
-	String(record.year),
-	'TeX',
-	'C++',
-	...(record.hasStatementText ? ['statement text'] : []),
-	...(record.hasStatementPdf ? ['statement pdf'] : []),
-];
-
-const primaryLink = record.hasStatementPdf
-	? { label: 'Open statement PDF', href: withBase(record.assetUrls.statementPdf!) }
-	: { label: 'Open raw TeX', href: withBase(record.assetUrls.tex) };
+const primaryLink = {
+	label: `Browse ${record.trackLabel} ${record.year}`,
+	href: withBase(yearPagePath),
+};
 
 const secondaryLinks = [
-	{ label: 'Open raw C++', href: withBase(record.assetUrls.cpp) },
-	...(record.assetUrls.statementText
-		? [{ label: 'Open raw statement', href: withBase(record.assetUrls.statementText) }]
+	{
+		label: `All ${record.trackLabel}`,
+		href: withBase(`/competitive-programming/${record.track}`),
+	},
+	...(record.assetUrls.statementPdf
+		? [{ label: 'Statement PDF', href: withBase(record.assetUrls.statementPdf) }]
 		: []),
 	...(record.assetUrls.yearPacket
-		? [{ label: 'Year problem packet', href: withBase(record.assetUrls.yearPacket) }]
+		? [{ label: 'Contest packet', href: withBase(record.assetUrls.yearPacket) }]
+		: []),
+];
+
+const resourceLinks = [
+	{
+		label: 'TeX write-up',
+		href: record.assetUrls.tex,
+		path: record.sourcePaths.tex,
+	},
+	{
+		label: 'C++ implementation',
+		href: record.assetUrls.cpp,
+		path: record.sourcePaths.cpp,
+	},
+	...(record.assetUrls.statementText
+		? [
+				{
+					label: 'Statement text',
+					href: record.assetUrls.statementText,
+					path: record.sourcePaths.statementText,
+				},
+			]
+		: []),
+	...(record.assetUrls.statementPdf
+		? [
+				{
+					label: 'Statement PDF',
+					href: record.assetUrls.statementPdf,
+					path: record.sourcePaths.statementPdf,
+				},
+			]
+		: []),
+	...(record.assetUrls.meta
+		? [
+				{
+					label: 'Metadata',
+					href: record.assetUrls.meta,
+					path: record.sourcePaths.meta,
+				},
+			]
+		: []),
+	...(record.assetUrls.yearPacket
+		? [
+				{
+					label: 'Year packet',
+					href: record.assetUrls.yearPacket,
+					path: record.sourcePaths.yearPacket,
+				},
+			]
 		: []),
 ];
 ---
 
 <PostLayout
-	title={`${record.trackLabel} ${record.year} - ${record.displayTitle}`}
-	description={record.description}
+	title={record.displayTitle}
+	description={summary}
 	published={record.updated}
-	publishedLabel="Source sync"
-	eyebrow="Competitive Programming"
-	backHref={`/competitive-programming/${record.track}`}
-	backLabel={`All ${record.trackLabel} entries`}
+	publishedLabel="Updated"
+	eyebrow={`${record.trackLabel} ${record.year}`}
+	backHref={yearPagePath}
+	backLabel={`${record.trackLabel} ${record.year}`}
 	tags={tags}
 	metaItems={metaItems}
 	headings={headings}
 	primaryLink={primaryLink}
 	secondaryLinks={secondaryLinks}
 >
-	<section class="cp-detail-note" id="archive-overview">
-		<div class="cp-detail-note__header">
-			<span class="section-label">Source of truth</span>
-			<h2>Source-first archive entry</h2>
-		</div>
-		<p>
-			This page is built from the copied files in <code>{record.sourceDirectory}</code>. Edit
-			<code> {record.sourcePaths.tex}</code> to update the written solution and
-			<code> {record.sourcePaths.cpp}</code> to update the implementation.
-		</p>
-		<p>
-			The website does not replace those files with hand-maintained HTML. It reads the copied source
-			tree during the build and exposes the exact files below.
-		</p>
-		<div class="chip-row">
-			<a class="button button--ghost" href={withBase(record.assetUrls.tex)}>Raw TeX</a>
-			<a class="button button--ghost" href={withBase(record.assetUrls.cpp)}>Raw C++</a>
-			{record.assetUrls.meta ? (
-				<a class="button button--ghost" href={withBase(record.assetUrls.meta)}>
-					Meta JSON
-				</a>
-			) : null}
-		</div>
-	</section>
-
-	<section class="cp-content cp-content--statement panel" id="problem-statement">
-		<div class="cp-content__header">
-			<div>
-				<span class="section-label">Problem statement</span>
-				<h2>Problem Statement</h2>
-				<p>{statementDescription}</p>
-			</div>
-			<div class="cp-content__actions">
-				{record.assetUrls.statementText ? (
-					<a class="button button--ghost" href={withBase(record.assetUrls.statementText)}>
-						Raw text
-					</a>
-				) : null}
-				{record.assetUrls.statementPdf ? (
-					<a class="button button--ghost" href={withBase(record.assetUrls.statementPdf)}>
-						Statement PDF
-					</a>
-				) : null}
-				{!record.assetUrls.statementText && !record.assetUrls.statementPdf ? (
-					<a class="button button--ghost" href={withBase(record.assetUrls.tex)}>
-						Raw TeX
-					</a>
-				) : null}
-			</div>
-		</div>
-
-		{
-			record.hasStatementText && sources.statementText ? (
-				<pre class="cp-statement__plain"><code>{sources.statementText}</code></pre>
-			) : statementFromTex ? (
-				<>
-					{statementFromTex.usedFallback ? (
-						<p class="cp-content__notice">
-							The statement section falls back to raw TeX display because the copied source could not
-							be normalized safely.
-						</p>
-					) : null}
-					<div class="cp-content__body" data-cp-math-content set:html={statementFromTex.html} />
-				</>
-			) : (
-				<p class="cp-content__notice">
-					The statement is not mirrored as a separate asset in this archive. The editorial and source
-					files remain available below.
-				</p>
-			)
-		}
-	</section>
+	<CompetitiveProgrammingStatement
+		rootId={`cp-statement-${record.id}`}
+		description={statementSummary}
+		parsedStatement={parsedStatement}
+		statementHtml={statementFromTex?.html}
+		usedFallback={statementFromTex?.usedFallback}
+		rawTextUrl={record.assetUrls.statementText}
+		statementPdfUrl={record.assetUrls.statementPdf}
+		texUrl={record.assetUrls.tex}
+	/>
 
 	<CompetitiveProgrammingEditorial
 		html={editorial.html}
@@ -212,14 +218,15 @@ const secondaryLinks = [
 	<CompetitiveProgrammingSourceTabs
 		rootId={`cp-code-${record.id}`}
 		sectionId="code"
-		sectionLabel="Source code"
+		sectionLabel="Implementation"
 		title="Code"
-		description="Exact copied C++ implementation from solution.cpp."
+		description="C++ solution used for this page."
+		showPaths={false}
 		tabs={[
 			{
 				id: 'cpp',
 				label: 'C++',
-				description: 'Exact copied implementation source.',
+				description: 'Clean code view with a raw-file link when you want the original source.',
 				path: record.sourcePaths.cpp,
 				rawUrl: record.assetUrls.cpp,
 				languageClass: 'language-cpp',
@@ -228,33 +235,7 @@ const secondaryLinks = [
 		]}
 	/>
 
-	<CompetitiveProgrammingSourceTabs
-		rootId={`cp-source-${record.id}`}
-		sectionId="source-files"
-		sectionLabel="Source files"
-		title="Source Files"
-		description="Exact copied source-of-truth files. Edit solution.tex for the write-up and solution.cpp for the implementation."
-		tabs={[
-			{
-				id: 'tex',
-				label: 'TeX write-up',
-				description: 'Exact copied write-up source.',
-				path: record.sourcePaths.tex,
-				rawUrl: record.assetUrls.tex,
-				languageClass: 'language-latex',
-				source: sources.tex,
-			},
-			{
-				id: 'cpp',
-				label: 'C++ implementation',
-				description: 'Exact copied implementation source.',
-				path: record.sourcePaths.cpp,
-				rawUrl: record.assetUrls.cpp,
-				languageClass: 'language-cpp',
-				source: sources.cpp,
-			},
-		]}
-	/>
+	<CompetitiveProgrammingResources links={resourceLinks} />
 
 	<CompetitiveProgrammingPagination previous={previousRecord} next={nextRecord} />
 </PostLayout>

@@ -17,6 +17,7 @@ interface Props {
 	sectionLabel?: string;
 	title?: string;
 	description?: string;
+	showPaths?: boolean;
 	tabs: SourceTab[];
 }
 
@@ -25,7 +26,8 @@ const {
 	sectionId = 'source-files',
 	sectionLabel = 'Source files',
 	title = 'Source files',
-	description = 'The archive page shows the exact copied source files without rewriting or conversion.',
+	description = 'The implementation is shown directly from the repository source.',
+	showPaths = true,
 	tabs,
 } = Astro.props;
 const firstTab = tabs[0];
@@ -75,7 +77,7 @@ const showTabs = tabs.length > 1;
 				<div class="source-panel__meta">
 					<div class="source-panel__copy">
 						<span class="metric">{tab.label}</span>
-						<code>{tab.path}</code>
+						{showPaths ? <code>{tab.path}</code> : null}
 						<p>{tab.description}</p>
 					</div>
 					<div class="source-panel__actions">
