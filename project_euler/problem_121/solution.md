@@ -43,21 +43,21 @@ Since each subset $T$ of $\{1, \ldots, n\}$ with $|T| = j$ contributes $\prod_{k
 *Proof.* The banker charges $1 per game. For a prize of $M$ dollars, the expected payout is $M \cdot P(\text{win}) = MN/(n+1)!$. Non-negative expected profit requires $MN/(n+1)! \le 1$, hence $M \le (n+1)!/N$. The maximum integer prize is therefore $\lfloor (n+1)!/N \rfloor$. $\square$
 
 ## Editorial
-At turn k, P(blue) = 1/(k+1), P(red) = k/(k+1). Player wins with >= 8 blue out of 15 turns. Prize = floor((n+1)! / N) where N sums elementary symmetric polynomials.
+The winning probability has a common denominator right from the start: each turn contributes a factor of $(k+1)$ in the denominator, so every outcome over 15 turns sits over $16!$. What varies is only the numerator, and for a fixed set of red turns that numerator is the product of the turn indices where red was drawn. Summing those products over all losing-or-drawing red counts produces the numerator $N$ from the mathematical section.
+
+That structure is exactly an elementary symmetric polynomial, so the implementation computes it with a one-dimensional dynamic program instead of enumerating subsets explicitly. After processing turns $1$ through $15$, the relevant DP entries sum to $N$, and the maximum safe prize fund is just $\lfloor 16! / N \rfloor$.
 
 ## Pseudocode
 
 ```text
-    dp[0..floor(n/2)] initialized to 0
-    dp[0] = 1
+Create an array whose j-th entry stores the j-th elementary symmetric sum of the processed turn indices.
+Initialize the zero-th entry to 1 and all others to 0.
 
-    For i from 1 to n:
-        For j from min(i, floor(n/2)) down to 1:
-            dp[j] = dp[j] + i * dp[j-1]
+For each turn index i from 1 through 15:
+    Update the symmetric sums backwards so that each size-j sum either skips i or includes one factor of i.
 
-    N = sum(dp[0..floor(n/2)])
-    D = (n+1)!
-    Return floor(D / N)
+Add together the entries corresponding to at most seven red draws; this gives the numerator N of the winning probability.
+Compute 16! and return the integer part of 16! divided by N.
 ```
 
 ## Complexity Analysis

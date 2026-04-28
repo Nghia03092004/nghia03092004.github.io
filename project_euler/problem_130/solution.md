@@ -6,7 +6,7 @@ Define $R(k)$ as the repunit of length $k$ and $A(n)$ as the least $k$ such that
 
 Find the sum of the first 25 composite values of $n$ for which $\gcd(n, 10) = 1$ and $A(n) \mid (n-1)$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Prime repunit property).** *For any prime $p > 5$, $A(p)$ divides $p - 1$.*
 
@@ -31,34 +31,23 @@ More directly: using $R(k) = (10^k - 1)/9$ and the fact that $\text{ord}_n(10) =
 **Proof.** Follows from $R(k) = 10 R(k-1) + 1$. $\square$
 
 ## Editorial
-We compute A(n). We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
+This search is the composite analogue of Problem 129. The candidates must be composite and coprime to 10, so the implementation walks upward through the integers, immediately discarding multiples of 2 or 5 and discarding primes. For every remaining composite, it computes $A(n)$ with the same repunit-remainder recurrence used in the previous problem.
+
+The acceptance test is then straightforward: keep the number precisely when $A(n)$ divides $n-1$. The first 25 composites satisfying that condition are collected, and their sum is returned.
 
 ## Pseudocode
 
 ```text
-    results = []
-    n = 1
-    While len(results) < target_count:
-        n += 1
-        If gcd(n, 10) != 1 then
-            continue
-        If is_prime(n) then
-            continue
-        Compute A(n)
-        r = 1 mod n
-        k = 1
-        While r != 0:
-            r = (10 * r + 1) mod n
-            k += 1
-        A_n = k
-        If (n - 1) mod A_n == 0 then
-            results.append(n)
-    Return sum(results)
+Initialize an empty list of qualifying composites.
+Scan the integers upward until 25 values have been accepted.
 
-    if n < 2: return false
-    for d = 2, 3, ..., floor(sqrt(n)):
-        if n mod d == 0: return false
-    Return true
+For each n:
+    Skip n if it is divisible by 2 or 5.
+    Skip n if it is prime.
+    Compute A(n) from the repunit remainder recurrence.
+    If A(n) divides n - 1, record n.
+
+Return the sum of the first 25 recorded composites.
 ```
 
 ## Complexity Analysis

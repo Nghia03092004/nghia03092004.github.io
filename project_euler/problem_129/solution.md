@@ -6,7 +6,7 @@ A number consisting entirely of ones is called a repunit. Define $R(k) = \underb
 
 Find the least value of $n$ greater than $10^6$ such that $A(n)$ first exceeds $10^6$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Definition.** The repunit of length $k$ is $R(k) = \frac{10^k - 1}{9}$.
 
@@ -39,14 +39,22 @@ Since $n \mid (R(j) - R(i))$ and $\gcd(10^i, n) = 1$ (because $\gcd(10, n) = 1$)
 **Proof.** Immediate from $A(n) \leq n$. $\square$
 
 ## Editorial
-We compute A(n). We then check after loop: need to handle k=1 case (r=1 != 0 for n>1). Finally, actually iterate: r starts at 1 (=R(1)), check if 0, then update.
+Because Theorem 1 guarantees $A(n) \le n$, any value with $A(n) > 10^6$ must itself lie above $10^6$. That means the search can begin immediately at $10^6+1$. There is also no reason to test numbers divisible by 2 or 5, since those are not coprime to 10 and therefore do not admit an $A(n)$ at all.
+
+For each admissible candidate, the implementation computes $A(n)$ directly from the repunit remainder recurrence. Starting from the remainder of $R(1)$, it repeatedly appends one more digit 1 modulo $n$ until the remainder becomes zero. The first candidate above one million whose period exceeds one million is the answer.
 
 ## Pseudocode
 
 ```text
-Compute A(n)
-Check after loop: need to handle k=1 case (r=1 != 0 for n>1)
-Actually iterate: r starts at 1 (=R(1)), check if 0, then update
+Start from n = 10^6 + 1 and increase n one by one.
+
+For each candidate n:
+    Skip it if n shares a factor with 10.
+    Compute A(n) by tracking the remainders of successive repunits modulo n:
+        Begin with the remainder of R(1).
+        Repeatedly append one more digit 1 modulo n until the remainder becomes 0.
+        Count how many steps this takes.
+    If A(n) is greater than 10^6, return n.
 ```
 
 ## Complexity Analysis

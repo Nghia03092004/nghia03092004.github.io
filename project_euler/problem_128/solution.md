@@ -4,7 +4,7 @@
 
 Hexagonal tiles are arranged in concentric rings around tile 1. For each tile $n$, define $PD(n)$ as the count of differences between $n$ and its six neighbors that are prime. Find the 2000th tile for which $PD(n) = 3$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Definition.** The hexagonal spiral has ring 0 (tile 1) at the center. Ring $r$ ($r \geq 1$) contains $6r$ tiles. The first tile of ring $r$ is $S(r) = 3r(r-1) + 2$. The last tile of ring $r$ is $E(r) = 3r(r+1) + 1$.
 
@@ -49,14 +49,20 @@ For $r \geq 2$, $12r - 7 \geq 17 > 1$, so all three candidates are valid. $\squa
 **Proof.** Direct computation. $\square$
 
 ## Editorial
-Key insight: Only the first and last tile of each ring can have PD=3. We check S(r). We then check E(r) for r >= 2. Finally, unreachable.
+The key structural fact is that almost every tile can be discarded without inspection. The only candidates for $PD(n)=3$ are tile 1 and the two endpoint tiles of each ring, namely the first tile $S(r)$ and the last tile $E(r)$. The mathematical section reduces each of those cases to three explicit primality conditions, so the infinite spiral turns into a simple sweep over ring numbers.
+
+The implementation seeds the count with tile 1, then walks outward ring by ring. At each ring it tests the three prime differences associated with $S(r)$ and, for $r \ge 2$, the three associated with $E(r)$. Every time one of those endpoint formulas passes, another valid tile has been found; the process stops at the 2000th success.
 
 ## Pseudocode
 
 ```text
-Check S(r)
-Check E(r) for r >= 2
-unreachable
+Count tile 1 as the first solution.
+
+For ring numbers r = 1, 2, 3, ... :
+    Test the three prime-difference conditions for the first tile S(r).
+    If they all hold, increase the solution count and return S(r) when the target count is reached.
+    If r is at least 2, test the three prime-difference conditions for the last tile E(r).
+    If they all hold, increase the solution count and return E(r) when the target count is reached.
 ```
 
 ## Complexity Analysis

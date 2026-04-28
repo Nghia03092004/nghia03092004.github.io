@@ -44,3 +44,9 @@ def solve():
 
 def visualize():
     """Visualize the qualifying composite numbers."""
+
+
+if __name__ == "__main__":
+    answer = solve()
+    assert answer == 149253
+    print(answer)

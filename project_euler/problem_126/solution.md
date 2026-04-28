@@ -6,7 +6,7 @@ The minimum number of cubes to cover every visible face on a cuboid measuring $3
 
 Define $C(n)$ to be the number of cuboids that have $n$ cubes in one of its layers. Find the least value of $n$ for which $C(n)$ first reaches 1000.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Layer formula).** *For a cuboid with dimensions $a \times b \times c$ ($a \leq b \leq c$), the number of cubes in the $k$-th layer ($k \geq 1$) is*
 $$f(a, b, c, k) = 2(ab + bc + ac) + 4(a + b + c)(k-1) + 4(k-1)(k-2).$$
@@ -45,21 +45,24 @@ $$f = 2(ab+bc+ac) + 4(a+b+c)(k-1) + 4(k-1)(k-2).$$
 **Proof.** For $k = 1$ with $a = b = c$: $f = 6a^2$, so $6a^2 \leq N$ gives $a \leq \sqrt{N/6}$, which is weaker than $2a^2 \leq N$ (obtained from $f \geq 2(a^2 + a \cdot b + ...) \geq 2a^2$ with $b = c = a$). The other bounds follow from $f \geq 2(ab + bc + ac)$ (the $k=1$ minimum). $\square$
 
 ## Editorial
-Layer formula: f(a,b,c,k) = 2(ab+bc+ac) + 4(a+b+c)(k-1) + 4(k-1)(k-2). We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+Once the closed formula for the $k$-th layer is available, the problem becomes a counting task: how many tuples $(a,b,c,k)$ produce each layer size $n$? Because the layer size is monotone in every parameter, the search can be bounded very tightly. The constraints $a \le b \le c$ avoid duplicate cuboids, and for each fixed cuboid the layer index is increased only until the formula exceeds the global limit.
+
+The implementation maintains a frequency array $C[n]$ telling how many cuboids realize a layer of size $n$. It enumerates every feasible ordered cuboid, walks through its successive layers, increments the corresponding counts, and finally scans upward for the first value where the count reaches 1000.
 
 ## Pseudocode
 
 ```text
-    N = 20000 # upper bound (found experimentally)
-    C[1..N] = 0
-    for a = 1 while 2*a*a <= N:
-        for b = a while 2*(a*b + b*b) <= N:
-            for c = b while 2*(a*b + b*c + a*c) <= N:
-                for k = 1, 2, ...:
-                    val = 2*(a*b + b*c + a*c) + 4*(a+b+c)*(k-1) + 4*(k-1)*(k-2)
-                    If val > N then stop this loop
-                    C[val] += 1
-    Return min(n for n in 1..N if C[n] == target)
+Choose a search limit large enough to contain the first answer.
+Initialize a counting array C over all layer sizes up to that limit.
+
+Enumerate side lengths a, b, c with a <= b <= c, stopping each loop as soon as the first layer is already too large.
+For each cuboid:
+    Increase the layer index k from 1 upward.
+    Evaluate the layer-size formula.
+    If the value exceeds the search limit, stop increasing k for this cuboid.
+    Otherwise increment C at that layer size.
+
+Scan the counting array from small to large and return the first n with C(n) = 1000.
 ```
 
 ## Complexity Analysis

@@ -33,16 +33,19 @@ $$(p-1)^n + (p+1)^n \equiv (-1 + np) + (1 + np) = 2np \pmod{p^2}. \quad \square$
 *Proof.* For even $n$, $r_n = 2$ by Theorem 1. For odd $n$ with $2n < p_n$, $r_n = 2np_n$. Since both $n$ and $p_n$ are increasing functions of $n$, the product $2np_n$ is strictly increasing. We therefore perform a linear search over odd $n$. $\square$
 
 ## Editorial
-For odd n, remainder = 2*n*p_n. For even n, remainder = 2. Search for smallest odd n with 2*n*p_n > 10^10.
+The binomial expansion removes almost all of the arithmetic. Once the remainder formula is simplified modulo $p_n^2$, every even index gives the useless constant value 2, while every relevant odd index behaves like $2np_n$. That means the problem is not really about modular arithmetic anymore; it is just a monotone threshold search over the prime sequence.
+
+The implementation therefore sieves enough primes in advance, scans only odd indices, and evaluates the expression $2np_n$ directly. The first odd index where this value exceeds $10^{10}$ is the answer.
 
 ## Pseudocode
 
 ```text
-    primes = sieve_primes(300000)
-    for n = 1, 3, 5, 7, ...:
-        p = primes[n-1] // n-th prime (1-indexed)
-        If 2 * n * p > limit then
-            Return n
+Generate all primes up to a safe upper bound.
+
+Inspect the prime indices in increasing order, but skip the even indices because their remainder is always 2.
+For each odd index n:
+    Read the n-th prime p_n from the sieve output.
+    If 2 n p_n exceeds the threshold, return n.
 ```
 
 ## Complexity Analysis

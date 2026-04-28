@@ -31,34 +31,23 @@ The most efficient way to compute $x^n$ uses the minimum number of multiplicatio
 *Proof.* Each of the remaining $r - d$ steps can at most double the current maximum. After $r - d$ doublings the maximum attainable value is $a_d \cdot 2^{r-d}$. If this is strictly less than $n$, the target is unreachable from this state. $\square$
 
 ## Editorial
-Uses iterative deepening DFS with doubling-based pruning. We perform a recursive search over the admissible choices, prune branches that violate the derived constraints, and keep only the candidates that satisfy the final condition.
+For a fixed target $n$, the natural search space is the set of addition chains ending at $n$. Since the objective is to minimize chain length, iterative deepening is a good fit: start from the information-theoretic lower bound $\lceil \log_2 n \rceil$ and ask whether any chain of that length exists, then increase the depth only when necessary. The first successful depth is exactly $m(n)$.
+
+The depth-first search extends a partial chain by adding the current largest element to an earlier element, which is enough because any valid next step in an increasing addition chain has that form. The doubling bound gives the essential pruning rule: if even repeated doubling of the current maximum cannot reach the target within the remaining depth, that branch is hopeless and can be discarded immediately.
 
 ## Pseudocode
 
 ```text
-    m[1] = 0
-    For n from 2 to N:
-        For r from ceil(log2(n)) to infinity:
-            If IDDFS(chain=[1], target=n, depth_limit=r) then
-                m[n] = r
-                break
-    Return sum(m[1..N])
+Set the total to zero.
 
-    d = len(chain) - 1
-    a_d = chain[d]
-    If d == depth_limit then
-        Return (a_d == target)
-    If a_d << (depth_limit - d) < target then
-        Return false // pruning
-    For i from d down to 0:
-        next_val = a_d + chain[i]
-        If next_val <= a_d or next_val > target then
-            continue
-        chain.append(next_val)
-        If IDDFS(chain, target, depth_limit) then
-            Return true
-        chain.pop()
-    Return false
+For each target n from 1 through 200:
+    Start from the lower bound ceil(log2 n).
+    Repeatedly try a depth-limited search for an addition chain ending at n.
+    During the search, extend the chain by adding the current maximum to one of the earlier chain values.
+    Prune any branch whose current maximum, even after all remaining doublings, still cannot reach n.
+    When the first successful depth is found, add it to the total.
+
+Return the total over all targets.
 ```
 
 ## Complexity Analysis

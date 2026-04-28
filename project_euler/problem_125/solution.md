@@ -29,26 +29,22 @@ $$S(a,k) = \sum_{i=1}^{a+k-1} i^2 - \sum_{i=1}^{a-1} i^2 = \frac{(a+k-1)(a+k)(2a
 *Proof.* For example, $S(1, 7) = 1 + 4 + 9 + 16 + 25 + 36 + 49 = 140$ and no other pair produces 140, but in general collisions exist among larger sums. The existence of collisions is verified computationally. $\square$
 
 ## Editorial
-We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+The direct object to generate is the sum of consecutive squares, not the palindrome. For each starting point $a$, the running sum grows monotonically as more squares are appended, so once the limit is crossed there is no reason to continue extending that start. This turns the search into a nested sweep over starting and ending points, with very effective early stopping.
+
+Whenever the current sum is still below $10^8$, the only extra test needed is whether its decimal expansion is palindromic. A set is used to store qualifying values because the same number can arise from different consecutive-square representations, and the final answer counts each palindrome only once.
 
 ## Pseudocode
 
 ```text
-    results = empty set
-    for a = 1, 2, 3, ...:
-        If a^2 + (a+1)^2 >= L then
-            break
-        S = a^2
-        for b = a+1, a+2, ...:
-            S += b^2
-            If S >= L then
-                break
-            If is_palindrome(S) then
-                results.add(S)
-    Return sum(results)
+Create an empty set for qualifying palindromic sums.
 
-    s = decimal_string(n)
-    Return s == reverse(s)
+For each starting value a whose first two squares still fit below the limit:
+    Begin a running sum with a^2.
+    Extend the sum by adding consecutive squares (a+1)^2, (a+2)^2, and so on.
+    If the running sum reaches the limit, stop extending this starting point.
+    If the running sum is palindromic, insert it into the set.
+
+Return the sum of the distinct values stored in the set.
 ```
 
 ## Complexity Analysis

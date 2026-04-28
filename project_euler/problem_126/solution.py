@@ -37,3 +37,9 @@ def solve(target=1000):
 
 def visualize():
     """Optional visualization of C(n) distribution."""
+
+
+if __name__ == "__main__":
+    answer = solve()
+    assert answer == 18522
+    print(answer)

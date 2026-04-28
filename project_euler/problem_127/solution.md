@@ -10,7 +10,7 @@ The radical of $n$, $\text{rad}(n)$, is the product of the distinct prime factor
 
 Find $\sum c$ for all abc-hits with $c < 120000$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Pairwise coprimality).** *If $\gcd(a, b) = 1$ and $a + b = c$, then $a$, $b$, $c$ are pairwise coprime.*
 
@@ -33,14 +33,27 @@ Find $\sum c$ for all abc-hits with $c < 120000$.
 **Proof.** If $\text{rad}(a) \geq c / \text{rad}(c)$, then $\text{rad}(a) \cdot \text{rad}(b) \geq \text{rad}(a) \geq c / \text{rad}(c)$ for all $b$. Thus the condition $\text{rad}(a) \cdot \text{rad}(b) < c / \text{rad}(c)$ fails, and all subsequent $a$ (with equal or larger radical) also fail. $\square$
 
 ## Editorial
-An abc-hit: gcd(a,b)=1, a<b, a+b=c, rad(abc) < c. We sieve for radicals. We then sort indices by radical. Finally, find abc-hits.
+The radical condition is what makes the search manageable. For a fixed $c$, Theorem 2 rewrites $\operatorname{rad}(abc) < c$ as a bound on $\operatorname{rad}(a)\operatorname{rad}(b)$, so once $\operatorname{rad}(c)$ is known, only values of $a$ with sufficiently small radical can possibly work. That suggests computing all radicals first and then iterating candidate $a$ values in increasing radical order.
+
+The implementation follows exactly that plan. It sieves the radical array, sorts the integers by radical, and for each $c$ scans only as far as the threshold allows. For every surviving $a$, it recovers $b=c-a$, enforces $a<b$, checks the radical inequality, and uses the coprimality test to confirm an abc-hit before adding $c$ to the total.
 
 ## Pseudocode
 
 ```text
-Sieve for radicals
-Sort indices by radical
-Find abc-hits
+Use a sieve to compute rad(n) for every n below the limit.
+Create the list of candidate a-values sorted by increasing rad(a).
+
+For each c from 3 up to 119999:
+    Compute the threshold c / rad(c).
+    Scan the sorted a-values only while rad(a) stays below that threshold.
+    For each such a:
+        Set b = c - a.
+        Skip the pair unless a < b.
+        Skip it unless rad(a) rad(b) is still below the threshold.
+        Skip it unless the coprimality condition holds.
+        Otherwise record an abc-hit and add c to the answer.
+
+Return the accumulated sum.
 ```
 
 ## Complexity Analysis

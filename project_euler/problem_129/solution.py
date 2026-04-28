@@ -26,3 +26,9 @@ def solve():
 
 def visualize():
     """Visualize A(n) for values near the answer."""
+
+
+if __name__ == "__main__":
+    answer = solve()
+    assert answer == 1000023
+    print(answer)
