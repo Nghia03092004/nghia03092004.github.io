@@ -5,9 +5,9 @@
 Given the function:
 $$f(x) = \lfloor 2^{30.403243784 - x^2} \rfloor \cdot 10^{-9}$$
 
-and the sequence $u_0 = -1$, $u_{n+1} = f(u_n)$, find $\lfloor (u_n + u_{n+1}) \times 10^9 \rfloor$ for sufficiently large $n$ (written as $x.xxxxxxxxx$).
+and the sequence $u_0 = -1$, $u_{n+1} = f(u_n)$, find $u_n + u_{n+1}$ for $n = 10^{12}$, written with 9 digits after the decimal point.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(2-Cycle Convergence.) The sequence $\{u_n\}$ converges to a 2-cycle: there exist constants $a, b \in \mathbb{R}_{>0}$ with $a \neq b$ such that $f(a) = b$ and $f(b) = a$. Moreover, for all sufficiently large $n$:*
 $$u_{2n} \to a, \quad u_{2n+1} \to b.$$
@@ -30,13 +30,19 @@ $$u_n + u_{n+1} = a + b \quad \text{for all large } n.$$
 **Proof.** The error after $n$ iterations of $g$ satisfies $|g^n(u_0) - a| \leq |g'(a)|^n \cdot |u_0 - a|$. With $|g'(a)| \approx 0.35$, after 100 iterations the error is bounded by $0.35^{50} \cdot |u_0 - a| < 10^{-22}$, well below double precision. $\square$
 
 ## Editorial
-f(x) = floor(2^(30.403243784 - x^2)) * 1e-9 u_0 = -1, u_{n+1} = f(u_n) Converges to 2-cycle. Find floor((u_n + u_{n+1}) * 10^9). We iterate over i from 1 to 1000.
+The important observation is that the recursion does not need to be simulated anywhere near `10^12` steps. The sequence rapidly falls into a stable 2-cycle, so after the transient disappears, consecutive terms just alternate between two values and their sum stops changing.
+
+That makes the numerical solution straightforward: iterate the map a generous fixed number of times, such as `1000`, compute one more term, and format the stabilized sum. The mathematical part guarantees that once the 2-cycle has been reached, the parity of `n` no longer matters for `u_n + u_{n+1}`.
 
 ## Pseudocode
 
 ```text
-for i from 1 to 1000
-Now u_n and u_{n+1} are converged
+Start with u = -1.
+Repeat the recurrence a fixed number of times, for example 1000 iterations.
+
+Let v be the next term f(u).
+Compute floor((u + v) * 10^9).
+Print that scaled value as a decimal with 9 digits after the point.
 ```
 
 ## Complexity Analysis

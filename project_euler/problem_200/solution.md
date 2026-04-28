@@ -10,7 +10,7 @@ Find the 200th smallest sqube that:
 1. Contains the substring "200"
 2. Is prime-proof
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Sqube Characterization.) A positive integer $n$ is a sqube if and only if $n = p^2 q^3$ for some pair of distinct primes $p, q$. Note that $p^3 q^2 = q^2 p^3$ is also a sqube (with roles swapped), so every sqube has exactly the form $a^2 b^3$ for distinct primes $a, b$.*
 
@@ -29,18 +29,24 @@ Find the 200th smallest sqube that:
 **Proof.** Position 1: $\{1, \ldots, 9\} \setminus \{d_1\}$ gives 8 choices. Positions $2, \ldots, m$: $\{0, \ldots, 9\} \setminus \{d_i\}$ gives 9 choices each. Total: $8 + 9(m-1) = 9m - 1$. $\square$
 
 ## Editorial
-A sqube is p^2*q^3 or p^3*q^2 for distinct primes p, q. Prime-proof means no single digit change produces a prime. We generate all squbes below B. We then note: p^3 * q^2 is generated as q^2 * p^3 with roles swapped. Finally, filter squbes containing "200".
+The search is only practical if we filter very early. A sqube is determined by two distinct primes, so the code first generates every value of the form `p^2 q^3` or `p^3 q^2` below a safe cutoff and immediately discards anything whose decimal expansion does not contain `"200"`. That leaves a much smaller candidate list.
+
+The prime-proof test is then local in the decimal representation. For each remaining sqube, we try every one-digit substitution, skipping the original digit and illegal leading zeros, and run a deterministic Miller-Rabin test on the modified number. If every such mutation is composite, the candidate survives. Sorting the survivors and taking the 200th one finishes the computation.
 
 ## Pseudocode
 
 ```text
-Generate all squbes below B
-Note: p^3 * q^2 is generated as q^2 * p^3 with roles swapped
-Filter squbes containing "200"
-Check prime-proof condition
-for s in candidates
-for i from 0 to m-1
-for d from 0 to 9
+Sieve primes up to a limit that is sufficient for all squbes below B.
+Generate every distinct sqube of the forms p^2 q^3 and p^3 q^2 below B.
+Keep only the squbes whose decimal expansion contains the substring "200".
+Sort the filtered values.
+
+Scan the sorted candidates in order:
+    for each digit position,
+    try every other replacement digit that keeps the number valid;
+    if any replacement is prime, reject the candidate immediately.
+
+Count the candidates that pass this test and return the 200th one.
 ```
 
 ## Complexity Analysis

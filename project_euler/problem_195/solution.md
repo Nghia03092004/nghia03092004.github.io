@@ -2,9 +2,9 @@
 
 ## Problem Statement
 
-How many triangles with integer sides having one angle of exactly 60 degrees have an inscribed circle (incircle) with radius not exceeding $10^5$?
+Let $T(n)$ be the number of integer-sided triangles with exactly one $60^\circ$ angle whose incircle radius is at most $n$. Given that $T(100)=1234$, $T(1000)=22767$, and $T(10000)=359912$, find $T(1053779)$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Incircle Radius for a 60-Degree Triangle.) Consider a triangle with sides $a$, $b$ and included angle $C = 60°$. The opposite side is $c = \sqrt{a^2 + b^2 - ab}$, the area is $\Delta = \frac{\sqrt{3}}{4}ab$, and the incircle radius is*
 $$r = \frac{\sqrt{3}\,ab}{2(a + b + c)}.$$
@@ -36,20 +36,38 @@ $$a = \frac{2mn + n^2}{3}, \quad b = \frac{m^2 - n^2}{3}, \quad c = \frac{m^2 - 
 **Proof.** The 60-degree angle is uniquely determined by the law of cosines given $c^2 = a^2 - ab + b^2$. The triangle is unchanged by swapping $a$ and $b$. $\square$
 
 ## Editorial
-The upper bound on $m$ is determined by the constraint that the smallest primitive triple for given $m$ must have $r_0 \leq R$. We iterate over n from 1 to m-1. We then family 1: m not congruent to n mod 3. Finally, family 2: m congruent to n mod 3.
+The heavy algebra is already done in the parameterization step, so the algorithm only has to enumerate coprime parameter pairs. For coprime integers `p > q > 0`, the primitive triangle falls into one of two cases depending on whether `p-q` is divisible by `3`. The key simplification is that the primitive inradius collapses to
+\[
+r_0 = \frac{\sqrt{3}\,pq}{2}
+\quad\text{or}\quad
+r_0 = \frac{\sqrt{3}\,pq}{6},
+\]
+so once a primitive triple is known, the number of scaled copies with radius at most `R` is just a floor division in terms of `pq`.
+
+That turns the search into a lattice-point count over coprime pairs. For each `q`, there is a simple upper bound on `p` coming from the larger of the two radius formulas, so the double loop stays manageable. Each admissible pair contributes either `floor((2R/\sqrt3)/(pq))` or `floor((6R/\sqrt3)/(pq))`, and the sum of those contributions is exactly `T(R)`.
 
 ## Pseudocode
 
 ```text
-for n from 1 to m-1
-Family 1: m not congruent to n mod 3
-Family 2: m congruent to n mod 3
+Set R = 1053779.
+Precompute the two radius limits 2R / sqrt(3) and 6R / sqrt(3).
+
+For each q from 1 up to the point where pq can no longer fit the larger limit:
+    let p run from q + 1 up to floor((6R / sqrt(3)) / q);
+    skip the pair if gcd(p, q) is not 1.
+
+    If p - q is divisible by 3:
+        add floor((6R / sqrt(3)) / (p q)) to the answer.
+    Otherwise:
+        add floor((2R / sqrt(3)) / (p q)) to the answer.
+
+Return the final count.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(B^2)$ where $B$ is the upper bound on $m$, determined by $R$. Since $r_0 = \Theta(m)$ for the smallest triples, $B = O(R)$. However, most $(m, n)$ pairs are pruned, so the effective work is significantly less.
-- **Space:** $O(1)$ (no storage beyond loop variables).
+- **Time:** $O(R \log R)$ arithmetic operations. The outer loop over `q` runs to $O(\sqrt{R})$, and for each `q` the inner loop runs to $O(R/q)$, giving the harmonic-series total.
+- **Space:** $O(1)$ beyond the loop variables.
 
 ## Answer
 

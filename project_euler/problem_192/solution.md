@@ -6,7 +6,7 @@ For each non-perfect-square integer $d$ with $2 \leq d \leq 100000$, find the be
 
 Sum all such denominators $q$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Continued Fraction Expansion of Quadratic Irrationals.) For every non-square positive integer $d$, $\sqrt{d}$ has an eventually periodic continued fraction expansion*
 $$\sqrt{d} = [a_0; \overline{a_1, a_2, \ldots, a_T}]$$
@@ -40,17 +40,29 @@ $$(k_s^2 d - h_s^2)^2 \cdot k_{n-1}^2 < (k_{n-1}^2 d - h_{n-1}^2)^2 \cdot k_s^2.
 **Proof.** Both $|k_s \alpha - h_s|$ and $|k_{n-1} \alpha - h_{n-1}|$ are positive (since $\alpha$ is irrational). Squaring preserves the inequality. Substituting $\alpha^2 = d$ converts the comparison to integer arithmetic. The signs of $k_i \alpha - h_i$ alternate with the parity of the convergent index, but this does not affect the absolute value comparison. $\square$
 
 ## Editorial
-For each non-square d <= 100000, find best rational approximation p/q to sqrt(d) with q <= 10^12. Sum all q. We generate continued fraction and convergents. We then actually use standard initialization. Finally, loop.
+Continued fractions are the right tool here because every best approximation to `sqrt(d)` with a denominator cap comes from the convergents or the semiconvergents between two consecutive convergents. For each non-square `d`, we expand the continued fraction only until the next convergent denominator would exceed `10^12`. At that moment there are only two serious candidates left: the previous convergent, and the last semiconvergent that still respects the bound.
+
+The implementation keeps the continued-fraction state and the last two convergent denominators. Once the next denominator is too large, it computes the largest admissible semiconvergent multiplier and uses the exact inequality derived from the complete quotient to decide whether that semiconvergent is closer than the previous convergent. That gives the correct denominator for one `d`, and the global answer is just the sum over all `2 <= d <= 100000` that are not perfect squares.
 
 ## Pseudocode
 
 ```text
-Generate continued fraction and convergents
-Actually use standard initialization:
-loop
-Check semiconvergent
-Compare |ks*sqrt(d) - hs| vs |k1*sqrt(d) - h1|
-for d from 2 to 100000
+Set the denominator bound Q to 10^12 and the running total to 0.
+
+For each d from 2 to 100000:
+    Skip d if it is a perfect square.
+    Initialize the continued-fraction state for sqrt(d).
+    Track the last two convergent denominators.
+
+    Repeatedly generate the next partial quotient and next convergent denominator.
+    When the next denominator would exceed Q:
+        let t be the largest multiplier that keeps a semiconvergent within Q;
+        compare that semiconvergent against the previous convergent
+        with the exact integer test coming from the complete quotient;
+        add the winning denominator to the total;
+        stop processing this d.
+
+Return the total.
 ```
 
 ## Complexity Analysis

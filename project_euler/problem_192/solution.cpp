@@ -1,100 +1,109 @@
-#include <bits/stdc++.h>
+#include <cassert>
+#include <cmath>
+#include <iostream>
+
 using namespace std;
 
-typedef long long ll;
-typedef __int128 lll;
-typedef unsigned long long ull;
+const unsigned long long BASE = 1000000000ULL;
 
-// Integer square root
-ll isqrt(ll n) {
-    ll x = (ll)sqrt((double)n);
-    while (x * x > n) x--;
-    while ((x+1)*(x+1) <= n) x++;
-    return x;
+struct Big4 {
+    unsigned long long limb[4] = {0, 0, 0, 0};
+};
+
+Big4 square_u64(unsigned long long value) {
+    unsigned long long low = value % BASE;
+    unsigned long long high = value / BASE;
+    Big4 result;
+
+    unsigned long long term0 = low * low;
+    result.limb[0] = term0 % BASE;
+    unsigned long long carry = term0 / BASE;
+
+    unsigned long long term1 = 2ULL * low * high + carry;
+    result.limb[1] = term1 % BASE;
+    carry = term1 / BASE;
+
+    unsigned long long term2 = high * high + carry;
+    result.limb[2] = term2 % BASE;
+    result.limb[3] = term2 / BASE;
+    return result;
 }
 
-ll best_denominator(ll d, ll Q) {
-    ll a0 = isqrt(d);
-    if (a0 * a0 == d) return 0; // perfect square, skip
+void multiply_small(Big4& value, unsigned long long factor) {
+    unsigned long long carry = 0;
+    for (int i = 0; i < 4; ++i) {
+        unsigned long long current = value.limb[i] * factor + carry;
+        value.limb[i] = current % BASE;
+        carry = current / BASE;
+    }
+}
 
-    // Continued fraction expansion of sqrt(d)
-    // We track convergents h2/k2 (two steps back), h1/k1 (one step back)
-    ll m = 0, dd = 1, a = a0;
-    ll h2 = 0, h1 = 1, k2 = 1, k1 = 0;
+int compare_big(const Big4& left, const Big4& right) {
+    for (int i = 3; i >= 0; --i) {
+        if (left.limb[i] < right.limb[i]) {
+            return -1;
+        }
+        if (left.limb[i] > right.limb[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
-    // Process a0
-    ll h = a0 * h1 + h2;
-    ll k = a0 * k1 + k2;
-    h2 = h1; h1 = h;
-    k2 = k1; k1 = k;
+long long best_denominator(int d, long long bound) {
+    long long a0 = static_cast<long long>(sqrt(static_cast<long double>(d)));
+    while ((a0 + 1) * (a0 + 1) <= d) {
+        ++a0;
+    }
+    while (a0 * a0 > d) {
+        --a0;
+    }
+    if (a0 * a0 == d) {
+        return 0;
+    }
+
+    long long m = 0;
+    long long den = 1;
+    long long a = a0;
+    long long q_prev2 = 1;
+    long long q_prev1 = 0;
 
     while (true) {
-        m = a * dd - m;
-        dd = (d - m * m) / dd;
-        a = (a0 + m) / dd;
-
-        ll knext = a * k1 + k2;
-        if (knext > Q) {
-            // The full convergent exceeds Q.
-            // Check semiconvergent with max valid m_sc
-            ll m_sc = (Q - k2) / k1;
-            if (m_sc < 1) return k1; // no valid semiconvergent
-
-            ll qs = m_sc * k1 + k2;
-            ll ps = m_sc * h1 + h2;
-
-            // Compare |qs*sqrt(d) - ps| vs |k1*sqrt(d) - h1|
-            // |qs*sqrt(d) - ps|^2 = qs^2*d - 2*ps*qs*sqrt(d) + ps^2
-            // But we can use: for convergent p_{n-1}/q_{n-1}, the error is
-            // 1/(q_{n-1}*(a_n*q_{n-1}+q_{n-2})) approximately.
-            // More precisely:
-            // |q*sqrt(d)-p| compared by squaring is tricky due to sqrt.
-            //
-            // Instead use: semiconvergent is better iff
-            //   |qs*sqrt(d) - ps| < |k1*sqrt(d) - h1|
-            // Both sides positive (after abs). Square both sides:
-            //   (qs^2*d + ps^2 - 2*ps*qs*sqrt(d)) < (k1^2*d + h1^2 - 2*h1*k1*sqrt(d))
-            // Let A = qs^2*d + ps^2 - k1^2*d - h1^2
-            // Let B = 2*(ps*qs - h1*k1)
-            // We need A < B*sqrt(d)
-            // If B > 0: A < B*sqrt(d) iff A < 0 or A^2 < B^2*d
-            // If B <= 0: A < B*sqrt(d) iff A < 0 and A^2 > B^2*d
-
-            lll A = (lll)qs*qs*d + (lll)ps*ps - (lll)k1*k1*d - (lll)h1*h1;
-            lll B = 2*((lll)ps*qs - (lll)h1*k1);
-
-            bool semi_better;
-            if (B > 0) {
-                if (A <= 0) semi_better = true;
-                else semi_better = (A * A < B * B * d);
-            } else {
-                if (A >= 0) semi_better = false;
-                else semi_better = (A * A > B * B * d);
+        long long q_curr = a * q_prev1 + q_prev2;
+        if (q_curr > bound) {
+            long long t = (bound - q_prev2) / q_prev1;
+            if (t <= 0) {
+                return q_prev1;
             }
 
-            return semi_better ? qs : k1;
+            long long rhs_value = den * (2LL * t * q_prev1 + q_prev2) - m * q_prev1;
+            unsigned long long rhs = static_cast<unsigned long long>(rhs_value < 0 ? -rhs_value : rhs_value);
+            Big4 left = square_u64(rhs);
+            Big4 right = square_u64(static_cast<unsigned long long>(q_prev1));
+            multiply_small(right, static_cast<unsigned long long>(d));
+            if (compare_big(left, right) > 0) {
+                return t * q_prev1 + q_prev2;
+            }
+            return q_prev1;
         }
 
-        ll hnext = a * h1 + h2;
-        h2 = h1; h1 = hnext;
-        k2 = k1; k1 = knext;
-
-        if (a == 2 * a0 && k1 <= Q) {
-            // Completed one period; if still within bound, continue
-            // (the CF is periodic, it will repeat)
-        }
+        q_prev2 = q_prev1;
+        q_prev1 = q_curr;
+        m = a * den - m;
+        den = (d - m * m) / den;
+        a = (a0 + m) / den;
     }
 }
 
 int main() {
-    const ll Q = 1000000000000LL; // 10^12
-    const int N = 100000;
-    ll total = 0;
-    for (int d = 2; d <= N; d++) {
-        ll sq = isqrt(d);
-        if (sq * sq == d) continue;
-        total += best_denominator(d, Q);
+    const long long bound = 1000000000000LL;
+    long long total = 0;
+
+    for (int d = 2; d <= 100000; ++d) {
+        total += best_denominator(d, bound);
     }
-    cout << total << endl;
+
+    assert(total == 57060635927998347LL);
+    cout << total << '\n';
     return 0;
 }

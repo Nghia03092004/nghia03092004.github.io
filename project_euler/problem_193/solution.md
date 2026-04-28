@@ -6,7 +6,7 @@ How many squarefree numbers are there below $2^{50}$?
 
 A number is squarefree if it is not divisible by any perfect square other than 1.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Squarefree Indicator Identity.) For all positive integers $n$,*
 $$|\mu(n)|^2 = \sum_{d^2 \mid n} \mu(d),$$
@@ -31,16 +31,29 @@ The exchange of summation is justified since $d^2 \mid n$ and $n \leq N$ imply $
 **Proof.** Initialize $\mu(k) = 1$ for all $k$. For each prime $p \leq M$: multiply $\mu(k)$ by $-1$ for all multiples $k$ of $p$; set $\mu(k) = 0$ for all multiples $k$ of $p^2$. Since each composite is processed once per prime factor, the total work is $\sum_{p \leq M} M/p = O(M \log \log M)$ by Mertens' theorem. $\square$
 
 ## Editorial
-Count squarefree numbers below 2^50. Uses: Q(N) = sum_{k=1}^{sqrt(N)} mu(k) * floor(N/k^2). We sieve Mobius function. We then iterate over p from 2 to M. Finally, iterate over k from p to M step p.
+The direct definition of squarefree numbers is awkward for counting, but the Mobius inversion formula turns the indicator into a divisor sum over squares. After that transformation, the problem stops being about testing individual integers and becomes a single summation
+\[
+Q(N) = \sum_{k \le \sqrt{N}} \mu(k)\left\lfloor \frac{N}{k^2}\right\rfloor.
+\]
+So the whole task reduces to computing the Mobius function up to `sqrt(2^50) = 2^25`.
+
+That is exactly what the modified sieve does. Each prime flips the sign of `mu` on its multiples, and each square of a prime wipes the value back to zero. Once the sieve is finished, one linear pass through `k = 1 .. 2^25` evaluates the formula above and accumulates the squarefree count.
 
 ## Pseudocode
 
 ```text
-Sieve Mobius function
-for p from 2 to M
-for k from p to M step p
-Compute Q(N)
-for k from 1 to M
+Let N = 2^50 - 1 and M = floor(sqrt(N)).
+Initialize mu(1..M) for a Mobius sieve.
+
+For each prime p up to M:
+    flip the sign of mu on every multiple of p;
+    set mu to 0 on every multiple of p^2.
+
+Set the answer to 0.
+For each k from 1 to M:
+    add mu(k) * floor(N / k^2) to the answer.
+
+Return the answer.
 ```
 
 ## Complexity Analysis

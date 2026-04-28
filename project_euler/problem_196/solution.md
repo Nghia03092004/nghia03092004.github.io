@@ -13,13 +13,13 @@ Build a triangle of positive integers:
 ...
 ```
 
-Row $n$ contains $n$ numbers. Two numbers are **neighbours** if they occupy adjacent positions in the triangle (up to 6 neighbours per position: left, right, and up to 2 each in the rows above and below).
+Row $n$ contains $n$ numbers. Two numbers are **neighbours** if they occupy adjacent positions in the triangle, so each entry can have up to 8 neighbours.
 
 A **prime triplet** is a set of three prime numbers where **one** of them has the other two as neighbours (a star configuration).
 
 $S(n)$ is the sum of primes in row $n$ that belong to any prime triplet. Given $S(8) = 60$, $S(9) = 37$, find $S(5678027) + S(7208785)$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Triangle Indexing.) Row $n$ (1-indexed) contains the integers from $T(n) = \frac{n(n-1)}{2} + 1$ to $\frac{n(n+1)}{2}$. Position $k$ (0-indexed) in row $n$ has value $T(n) + k$.*
 
@@ -47,19 +47,27 @@ $S(n)$ is the sum of primes in row $n$ that belong to any prime triplet. Given $
 **Proof.** A neighbour of a position in row $n$ is in row $n-1$, $n$, or $n+1$. A neighbour of that neighbour can be in rows $n-2$ through $n+2$. $\square$
 
 ## Editorial
-A prime triplet is three primes where ONE has the other TWO as neighbors. Neighbors of element (n, k) include up to 8 positions: same row: (n, k-1), (n, k+1) row above: (n-1, k-1), (n-1, k), (n-1, k+1) row below: (n+1, k-1), (n+1, k), (n+1, k+1) A prime p is in a triplet iff: (a) p has >= 2 prime neighbors, OR (b) p has a prime neighbor q that has >= 2 prime neighbors S(n) = sum of primes in row n that are in any prime triplet. Find S(5678027) + S(7208785). Note: This Python solution demonstrates the algorithm on small inputs. For the actual large inputs, use the C++ solution (takes ~5 minutes). We determine the range of values in rows n-2 to n+2. We then segmented sieve: find all primes in [lo, hi]. Finally, first sieve small primes up to sqrt(hi).
+The target row is enormous, so the only viable approach is to work locally. A prime in row `n` can only be affected by numbers in neighboring rows, and the spoke condition only reaches one layer farther, so a segmented sieve over rows `n-3` through `n+3` is enough. That reduces the primality work to a short interval of length `O(n)` instead of sieving all the way up to the values in row `n`.
+
+Once primality in that band is known, membership in a prime triplet is a local graph test. A prime in the target row is valid if it is itself a center with at least two prime neighbours, or if one of its prime neighbours is such a center. The implementation therefore counts prime neighbours on demand inside the sieved band and then performs one pass across the target row, adding exactly the primes that satisfy one of those two conditions.
 
 ## Pseudocode
 
 ```text
-Determine the range of values in rows n-2 to n+2
-Segmented sieve: find all primes in [lo, hi]
-First sieve small primes up to sqrt(hi)
-Segmented sieve for [lo, hi]
-For each prime p in row n:
-for k from 0 to n-1
-Count prime neighbours of v
-Check spoke condition: does any prime neighbour have >= 2 prime neighbours?
+Define solve_row(n):
+    determine the numeric interval covering rows n-3 through n+3;
+    segmented-sieve that interval.
+
+    For any prime position in the band, be able to count its prime neighbours
+    in the same row, the row above, and the row below.
+
+    Scan every value in row n:
+        skip composites;
+        add the prime immediately if it has at least two prime neighbours;
+        otherwise, inspect its prime neighbours and add it if one of them
+        has at least two prime neighbours.
+
+Return solve_row(5678027) + solve_row(7208785).
 ```
 
 ## Complexity Analysis

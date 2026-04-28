@@ -1,37 +1,33 @@
 """
 Problem 199: Iterative Circle Packing
 
-Three unit circles inside an outer circle, iteratively packed for 10 iterations.
-Find fraction of outer circle area not covered.
+Use Descartes' theorem to expand the four initial gaps for ten iterations and
+track the total covered area.
 """
 
 import math
 
-def main():
-    # Outer circle radius
-    R = 1.0 + 2.0 / math.sqrt(3.0)
-    k_outer = -1.0 / R
 
-    # Total area of packed circles (starting with 3 unit circles)
-    total_area = 3.0 * math.pi
+def solve(iterations=10):
+    outer_radius = 1.0 + 2.0 / math.sqrt(3.0)
+    outer_curvature = -1.0 / outer_radius
+    covered_area = 3.0 * math.pi
+    gaps = [(outer_curvature, 1.0, 1.0)] * 3 + [(1.0, 1.0, 1.0)]
 
-    # Initial gaps as curvature triples
-    # 3 outer gaps: (k_outer, 1, 1)
-    # 1 inner gap: (1, 1, 1)
-    gaps = [(k_outer, 1.0, 1.0)] * 3 + [(1.0, 1.0, 1.0)]
-
-    for iteration in range(10):
-        new_gaps = []
+    for _ in range(iterations):
+        next_gaps = []
         for a, b, c in gaps:
-            # Descartes' circle theorem
-            k_new = a + b + c + 2.0 * math.sqrt(a*b + b*c + c*a)
-            total_area += math.pi / (k_new * k_new)
-            new_gaps.append((a, b, k_new))
-            new_gaps.append((a, c, k_new))
-            new_gaps.append((b, c, k_new))
-        gaps = new_gaps
+            new_curvature = a + b + c + 2.0 * math.sqrt(a * b + b * c + c * a)
+            covered_area += math.pi / (new_curvature * new_curvature)
+            next_gaps.append((a, b, new_curvature))
+            next_gaps.append((a, c, new_curvature))
+            next_gaps.append((b, c, new_curvature))
+        gaps = next_gaps
 
-    outer_area = math.pi * R * R
-    fraction = 1.0 - total_area / outer_area
+    outer_area = math.pi * outer_radius * outer_radius
+    return 1.0 - covered_area / outer_area
 
-    print(f"{fraction:.8f}")
+
+if __name__ == "__main__":
+    assert f"{solve(3):.8f}" == "0.06790342"
+    print(f"{solve(10):.8f}")

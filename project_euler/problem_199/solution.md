@@ -4,7 +4,7 @@
 
 Three unit circles are packed inside a larger circle such that each is tangent to the other two and to the outer circle. In the first iteration, we fill each of the initial curvilinear triangular gaps with a circle tangent to all three bounding circles. We repeat this process for 10 iterations. Find the fraction of the outer circle's area not covered by any packed circle, rounded to 8 decimal places.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Descartes' Circle Theorem.) Given four mutually tangent circles with curvatures $k_1, k_2, k_3, k_4$ (where curvature $= 1/\text{radius}$, negative for a circle containing the others internally), the following relation holds:*
 $$(k_1 + k_2 + k_3 + k_4)^2 = 2(k_1^2 + k_2^2 + k_3^2 + k_4^2).$$
@@ -42,14 +42,25 @@ $$R = 1 + \frac{2}{\sqrt{3}} = 1 + \frac{2\sqrt{3}}{3}.$$
 **Proof.** The new circle is tangent to all three bounding circles. It divides the original curvilinear triangle into three smaller curvilinear triangles, each bounded by two of the original circles and the new circle. $\square$
 
 ## Editorial
-Three unit circles inside an outer circle, iteratively packed for 10 iterations. Find fraction of outer circle area not covered. We initial gaps: 3 outer + 1 inner. We then initial covered area: 3 unit circles. Finally, iterate over iter from 1 to iterations.
+Each uncovered region is determined completely by the three circles that bound it, so the natural state is a triple of curvatures. The initial picture gives four gaps: one central gap bounded by the three unit circles, and three identical outer gaps bounded by the enclosing circle together with two unit circles. Descartes' theorem tells us the curvature of the largest circle that can be inserted into any such gap.
+
+After inserting that circle, the old gap disappears and three smaller gaps remain. So the algorithm is a direct recursive expansion of gaps for ten rounds while accumulating the area contributed by each new circle. Dividing the final covered area by the area of the enclosing circle, and subtracting from one, gives the uncovered fraction.
 
 ## Pseudocode
 
 ```text
-Initial gaps: 3 outer + 1 inner
-Initial covered area: 3 unit circles
-for iter from 1 to iterations
+Compute the outer circle radius and its curvature.
+Initialize the covered area with the three unit circles.
+Initialize the gap list with three outer gaps and one inner gap.
+
+Repeat 10 iterations:
+    For each current gap:
+        use Descartes' theorem to compute the new circle curvature;
+        add that circle's area to the covered total;
+        create the three child gaps formed with the new circle.
+    Replace the current gap list with the child gaps.
+
+Return 1 minus covered_area / outer_area, rounded to 8 decimal places.
 ```
 
 ## Complexity Analysis

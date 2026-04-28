@@ -2,9 +2,9 @@
 
 ## Problem Statement
 
-Consider a graph formed by taking two complete graphs $K_a$ and $K_b$ that share exactly one common edge. Count the number of valid $n$-colourings of this graph, for $(a, b, n) = (25, 75, 1984)$. Give the result modulo $10^8$.
+Consider configurations built from `25` copies of unit `A` and `75` copies of unit `B`, glued together along their vertical edges, with vertices coloured from `1984` available colours so that adjacent vertices always receive different colours. Find the last eight digits of the number of such valid configurations.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Chromatic Polynomial of $K_m$.) The number of proper $n$-colourings of the complete graph $K_m$ is the falling factorial*
 $$P(K_m, n) = n^{\underline{m}} = n(n-1)(n-2)\cdots(n-m+1).$$
@@ -32,15 +32,31 @@ $$P(G, n) = \frac{n^{\underline{a}} \cdot n^{\underline{b}}}{n(n-1)}.$$
 Since $n^{\underline{a}} = n(n-1) \cdot (n-2)^{\underline{a-2}}$, the factor $n(n-1)$ cancels exactly. $\square$
 
 ## Editorial
-Count proper n-colourings of graph formed by K_a and K_b sharing one edge. (a, b, n) = (25, 75, 1984), mod 10^8. P(G, n) = n^{down a} * n^{down b} / n^{down 2} = (n-2)^{down (a-2)} * n^{down b}. We iterate over i from 0 to a-3. Finally, iterate over i from 0 to b-1.
+Fix the colours on the leftmost vertical edge first. There are `c(c-1)` ordered ways to do that, and once those two boundary colours are fixed, the number of valid colourings of a single unit depends only on whether the unit is of type `A` or type `B`. Enumerating the five remaining vertices of one unit gives two polynomials:
+\[
+A(c)=c^5-9c^4+34c^3-69c^2+77c-38,
+\]
+\[
+B(c)=c^5-8c^4+27c^3-50c^2+52c-24.
+\]
+
+Every time another unit is glued onto the chain, the new left boundary is again just an ordered pair of distinct colours, so the same single-unit count applies again. That means a configuration with `a` copies of `A` and `b` copies of `B` contributes
+\[
+c(c-1)\,A(c)^a B(c)^b
+\]
+for any fixed order of the units. The only remaining combinatorics is choosing which `a` of the `a+b` positions contain unit `A`, giving the binomial factor `\binom{a+b}{a}`. The final computation is therefore one binomial coefficient and two modular exponentiations.
 
 ## Pseudocode
 
 ```text
-Compute (n-2)^{underline{a-2}} mod mod
-for i from 0 to a-3
-Multiply by n^{underline{b}} mod mod
-for i from 0 to b-1
+Set c = 1984, a = 25, b = 75, and MOD = 10^8.
+Evaluate the single-unit colouring polynomials A(c) and B(c).
+Compute the binomial factor C(a + b, a).
+
+Start with the c(c-1) choices for the colours on the first vertical edge.
+Multiply by A(c)^a and B(c)^b.
+Multiply by C(a + b, a) to account for the placements of the A-units.
+Take the result modulo MOD and return it.
 ```
 
 ## Complexity Analysis

@@ -52,13 +52,23 @@ Since a prize string has at most one $L$, Cases 1 and 2 are exhaustive and disjo
 **Corollary.** For $n = 30$: $g(30) = 53{,}798{,}080$ and $|\mathcal{P}_{30}| = 1{,}918{,}080{,}160$.
 
 ## Editorial
-Count 30-character strings over {O, A, L} with at most one L and no three consecutive A's. We compute g[0..n] via the recurrence. Finally, accumulate |P_n|.
+The constraint on absences is local, so it is natural to separate the problem into strings over `{O, A}` first. If `g(n)` counts length-`n` strings with no `AAA`, the last block of consecutive absences has length `0`, `1`, or `2`, which gives the Tribonacci recurrence immediately. That handles every valid record with no late day at all.
+
+The single late day is then inserted by position. If the `L` sits at index `k`, the prefix on its left and the suffix on its right are completely independent because the `L` breaks any run of absences. So the number of records with the `L` at that position is `g(k) * g(n-1-k)`. Summing those products over all `k`, and then adding the zero-`L` case, gives the required total.
 
 ## Pseudocode
 
 ```text
-Compute g[0..n] via the recurrence
-Accumulate |P_n|
+Set g(0) = 1, g(1) = 2, and g(2) = 4.
+For each length from 3 up to n:
+    extend the no-late count with g(length-1) + g(length-2) + g(length-3).
+
+Start the answer with g(n), which covers records containing no L.
+For each possible position of the unique L:
+    multiply the valid prefix count by the valid suffix count,
+    and add that product to the answer.
+
+Return the final total.
 ```
 
 ## Complexity Analysis
