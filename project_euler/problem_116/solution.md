@@ -8,7 +8,7 @@ If red tiles are chosen there are exactly 7 ways this can be done. If green tile
 
 How many ways can a row of fifty black square tiles be replaced if colours cannot be mixed and at least one coloured tile must be used?
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Single-color tiling recurrence).** *Let $f_L(n)$ denote the number of ways to tile a row of length $n$ using unit black tiles and colored tiles of length $L$ (including the all-black tiling). Then:*
 $$f_L(n) = f_L(n-1) + f_L(n-L), \quad n \geq L$$
@@ -37,21 +37,21 @@ This matches the problem statement. $\square$
 **Proof.** The recurrence $f_2(n) = f_2(n-1) + f_2(n-2)$ with $f_2(0) = 1$ and $f_2(1) = 1$ is exactly the Fibonacci recurrence shifted by one index. $\square$
 
 ## Editorial
-Count ways to tile a row of 50 black squares using tiles of a single color (red=2, green=3, blue=4) without mixing colors, with at least one colored tile. We compute f_L(n).
+Because colors cannot be mixed, the problem splits into three independent one-color tiling counts. For a fixed tile length $L$, every tiling of a row of length $n$ ends either with a black square or with a colored tile of length $L$, which leads immediately to the recurrence for $f_L(n)$. After computing that count, the all-black arrangement is subtracted because the problem requires at least one colored tile.
+
+The implementation simply repeats this one-color dynamic program for $L=2$, $3$, and $4$. Each pass fills the table up to length 50, extracts $f_L(50)-1$, and adds it to the global total. Since the three color choices are disjoint, that sum is the final answer.
 
 ## Pseudocode
 
 ```text
-    total = 0
-    For each L in {2, 3, 4}:
-        Compute f_L(n)
-        f = array of size n+1
-        For k from 0 to L-1:
-            f[k] = 1
-        For k from L to n:
-            f[k] = f[k-1] + f[k-L]
-        total += f[n] - 1
-    Return total
+Set the total number of valid replacements to zero.
+
+For each colored tile length L in {2, 3, 4}:
+    Build the one-color tiling counts from row length 0 up to 50.
+    At each step, combine the tilings that end in a black square with those that end in a colored tile of length L.
+    Subtract the all-black tiling for this color and add the remainder to the total.
+
+Return the total over the three colors.
 ```
 
 ## Complexity Analysis

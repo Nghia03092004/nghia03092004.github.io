@@ -6,16 +6,7 @@ The number 512 is interesting because it is equal to the sum of its digits raise
 
 We define $a_n$ as the $n$-th term of the sequence of numbers where the number equals a power of its digit sum, sorted in increasing order. Given that $a_2 = 512$, find $a_{30}$.
 
-## Correctness
-
-**Theorem.** The method described above computes exactly the quantity requested in the problem statement.
-
-*Proof.* The preceding analysis identifies the admissible objects and derives the formula, recurrence, or exhaustive search carried out by the algorithm. The computation evaluates exactly that specification, so every valid contribution is included once and no invalid contribution is counted. Therefore the returned value is the required answer. $\square$
-
-## Answer
-
-$$\boxed{248155780267521}$$
-## Mathematical Analysis
+## Mathematical Development
 
 ### Approach
 
@@ -50,7 +41,35 @@ $$a_{30} = 248155780267521 = 99^8$$
 
 The answer is **248155780267521**.
 
-## Complexity
+### Correctness
+
+**Theorem.** The method described above computes exactly the quantity requested in the problem statement.
+
+*Proof.* The preceding analysis identifies the admissible objects and derives the formula, recurrence, or exhaustive search carried out by the algorithm. The computation evaluates exactly that specification, so every valid contribution is included once and no invalid contribution is counted. Therefore the returned value is the required answer. $\square$
+
+## Editorial
+The defining condition $n = (\text{digit sum of } n)^k$ suggests searching in the opposite direction: instead of scanning integers and asking whether they have the property, generate powers $s^k$ and test whether their digit sum comes back to the base $s$. That turns a sparse sequence into a compact search over plausible bases and exponents.
+
+The implementation loops over candidate digit sums $s$, repeatedly multiplies by $s$ to generate $s^2, s^3, s^4, \ldots$, and records every value whose digit sum is exactly $s$. Duplicates are removed, the valid values are sorted, and the thirtieth term of that sorted list is returned. The finite bounds on $s$ and on the size of $s^k$ are chosen large enough to guarantee that at least the first 30 terms are present.
+
+## Pseudocode
+
+```text
+Start with an empty collection of valid terms.
+
+For each candidate digit sum s in the chosen search range:
+    Generate the powers s^2, s^3, s^4, ... until the global limit is exceeded.
+    Whenever a power has at least two digits and its digit sum equals s, record it.
+
+Remove duplicates from the recorded values and sort them in increasing order.
+Return the 30th term of the sorted list.
+```
+
+## Complexity Analysis
 
 - **Time**: $O(S \cdot K)$ where $S$ is the maximum base checked and $K$ is the maximum exponent, with digit-sum computation taking $O(\log n)$ per candidate.
 - **Space**: $O(T)$ where $T$ is the number of valid terms found.
+
+## Answer
+
+$$\boxed{248155780267521}$$

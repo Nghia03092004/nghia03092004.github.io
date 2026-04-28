@@ -57,23 +57,21 @@ so $f(n) = f(n-1) + P(n-5) + f(n-4) = f(n-1) + [f(n-1) - f(n-2)] + f(n-4)$... Th
 At $n = 3$: $f(3) = f(2) + P(-1) = 1 + 1 = 2$. At $n = 7$: $f(7) = f(6) + P(3) = 11 + 6 = 17$. $\blacksquare$
 
 ## Editorial
-We else. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+The recurrence comes from the first position of the row. Either that position is black, leaving a subproblem of length $n-1$, or it begins a red block whose length is at least 3 and is followed by the mandatory separator. That decomposition counts every valid filling exactly once, but applying it literally would leave an inner summation for every $n$.
+
+The prefix-sum lemma removes that cost. Instead of re-summing all shorter states whenever a red block is placed, the implementation keeps a running prefix total of previously computed values. Each new $f(n)$ is then obtained from the black-start case plus one prefix lookup, so the entire table up to $n=50$ is filled in linear time.
 
 ## Pseudocode
 
 ```text
-    f = map from integers to integers
-    f[-1] = 1; f[0] = 1
-    P = map from integers to integers
-    P[-1] = 1; P[0] = 2
-    For i from 1 to n:
-        If i >= 3 then
-            sum_term = P[i - 4] if i >= 4 else P[-1]
-        else:
-            sum_term = 0
-        f[i] = f[i - 1] + sum_term
-        P[i] = P[i - 1] + f[i]
-    Return f[n]
+Initialize the counts for lengths -1 and 0, and initialize the matching prefix sums.
+
+For each row length from 1 up to 50:
+    Carry over the fillings that start with a black square from the length-(n-1) state.
+    If a red block can appear, add the contribution of all valid first red blocks by reading the appropriate prefix sum.
+    Store the new filling count and extend the prefix sums.
+
+Return the count for length 50.
 ```
 
 ## Complexity Analysis

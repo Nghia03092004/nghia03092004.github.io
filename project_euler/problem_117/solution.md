@@ -6,7 +6,7 @@ Using a combination of grey squares (length 1), red tiles (length 2), green tile
 
 Note: This is related to Problem 116, but here we allow mixing of tile colors.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Tetranacci recurrence).** *Let $f(n)$ denote the number of distinct tilings of a row of length $n$ using tiles of lengths 1, 2, 3, and 4. Then:*
 $$f(n) = f(n-1) + f(n-2) + f(n-3) + f(n-4), \quad n \geq 4$$
@@ -47,20 +47,23 @@ The constant $C_1 = \alpha / p'(\alpha)$ where $p'(x) = 4x^3 - 3x^2 - 2x - 1$. $
 - $f(10) = 208 + 108 + 56 + 29 = 401$ $\square$
 
 ## Editorial
-Count ways to tile a row of 50 units using grey (1), red (2), green (3), and blue (4) tiles, with colors freely mixed. Recurrence: f(n) = f(n-1) + f(n-2) + f(n-3) + f(n-4) (tetranacci).
+Allowing colors to mix changes the structure completely from Problem 116. Now a tiling of length $n$ can end with any tile of length 1, 2, 3, or 4, and removing that last tile leaves a smaller valid tiling. That gives the four-term recurrence immediately, with the first few values determined by direct enumeration.
+
+The implementation evaluates this recurrence from the bottom up. Starting from the base cases, it extends the table one length at a time, each entry being the sum of the previous four compatible states. By the time the table reaches 50, the desired count has already been accumulated.
 
 ## Pseudocode
 
 ```text
-    if n == 0: return 1
-    if n == 1: return 1
-    if n == 2: return 2
-    if n == 3: return 4
-    a, b, c, d = 1, 1, 2, 4 # f(0), f(1), f(2), f(3)
-    For i from 4 to n:
-        e = a + b + c + d
-        a, b, c, d = b, c, d, e
-    Return d
+Initialize the tiling counts for row lengths 0, 1, 2, and 3.
+
+For each row length from 4 up to 50:
+    Count the tilings whose last tile has length 1.
+    Count the tilings whose last tile has length 2.
+    Count the tilings whose last tile has length 3.
+    Count the tilings whose last tile has length 4.
+    Add those four contributions to obtain the new state.
+
+Return the count for length 50.
 ```
 
 ## Complexity Analysis

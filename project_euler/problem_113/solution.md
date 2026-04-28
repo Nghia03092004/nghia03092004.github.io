@@ -46,21 +46,18 @@ $$\frac{\operatorname{NonBouncy}(n)}{10^n - 1} = O\!\left(\frac{n^{10}}{10^n}\ri
 *Proof.* The leading term of $\binom{n+10}{10}$ is $n^{10}/10!$, which is polynomial in $n$. Since polynomial growth is dominated by exponential growth, the ratio tends to 0. $\blacksquare$
 
 ## Editorial
-We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+This problem is purely a counting argument, so the algorithm is really just an evaluation of the closed forms proved above. Increasing numbers are counted by treating a number with at most 100 digits as a non-decreasing digit sequence with leading zeros allowed, while decreasing numbers are counted by the analogous non-increasing interpretation. Those two counts overlap exactly on the repdigits, so inclusion-exclusion finishes the job.
+
+The implementation therefore does not enumerate any numbers at all. It computes the two binomial coefficients appearing in the formulas, subtracts the duplicated repdigits, and returns the resulting non-bouncy count below $10^{100}$.
 
 ## Pseudocode
 
 ```text
-    inc = Binomial(n + 9, 9)
-    dec = Binomial(n + 10, 10)
-    Return inc + dec - 10 * n - 2
-
-    result = 1
-    For i from 0 to k - 1:
-        result = result * (n - i) / (i + 1)
-    Return result
-
-answer = NonBouncyBelow(100)
+Set n = 100.
+Count the increasing numbers with the formula involving binomial(n + 9, 9).
+Count the decreasing numbers with the formula involving binomial(n + 10, 10).
+Subtract the repdigits that were counted in both totals.
+Return the resulting number of non-bouncy integers below 10^n.
 ```
 
 ## Complexity Analysis

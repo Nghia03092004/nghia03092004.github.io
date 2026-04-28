@@ -8,7 +8,7 @@ Let the fill-count function $F(m, n)$ represent the number of ways that a row of
 
 For $m = 50$, find the least value of $n$ for which $F(50, n)$ first exceeds one million.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Generalized tiling recurrence).** *The fill-count function satisfies:*
 $$F(m, n) = F(m, n-1) + \sum_{L=m}^{n} F(m, n - L - 1)$$
@@ -41,23 +41,20 @@ The characteristic polynomial is $x^{m+1} - x^m - 1 = 0$, which factors as $x^{m
 **Proof.** Direct computation using the recurrence, verified against Problem 114 and the problem statement values. $\square$
 
 ## Editorial
-Recurrence: F(m, n) = F(m, n-1) + P(n-m-1) where P(k) = sum of F(m, j) for j = -1 to k. We else.
+This is the same counting problem as Problem 114, except the minimum red-block length is now a parameter and the goal is to find the first row length whose fill count exceeds a threshold. The same leftmost-cell decomposition gives the recurrence, and the same prefix-sum trick keeps each new value of $F(50,n)$ cheap to compute.
+
+The only extra step is the stopping condition. Rather than fixing $n$ in advance, the implementation grows the dynamic program one row length at a time, updates the prefix totals, and checks after each step whether the count has crossed one million. The first index where that happens is exactly the value requested.
 
 ## Pseudocode
 
 ```text
-    F[-1] = 1; F[0] = 1
-    P[-1] = 1; P[0] = 2
-    for n = 1, 2, 3, ...:
-        If n >= m then
-            idx = n - m - 1
-            sum_term = P[idx] if idx >= -1 else 0
-        else:
-            sum_term = 0
-        F[n] = F[n-1] + sum_term
-        P[n] = P[n-1] + F[n]
-        If F[n] > target then
-            Return n
+Initialize the recurrence values and prefix sums for the empty and boundary cases.
+
+For row lengths n = 1, 2, 3, ... :
+    Start from the fillings whose first square is black.
+    If a red block of minimum length m can fit, add the contribution of all allowed first red blocks through the prefix-sum table.
+    Record F(m, n) and update the prefix sums.
+    As soon as F(m, n) exceeds the target, return n.
 ```
 
 ## Complexity Analysis
