@@ -1,0 +1,7 @@
+{
+  "title": "Convex Hull Trick",
+  "summary": "A deque-based lower hull for DP recurrences with monotone slopes and monotone queries.",
+  "level": "advanced",
+  "tags": ["dp optimization", "lines", "geometry"],
+  "order": 60
+}

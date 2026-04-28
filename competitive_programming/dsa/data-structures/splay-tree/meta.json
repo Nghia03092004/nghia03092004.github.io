@@ -1,0 +1,7 @@
+{
+  "title": "Splay Tree",
+  "summary": "A self-adjusting BST that pays for flexibility with amortized analysis instead of explicit balance invariants.",
+  "level": "expert",
+  "tags": ["self-adjusting bst", "amortized analysis", "split merge"],
+  "order": 70
+}

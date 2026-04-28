@@ -1,0 +1,104 @@
+\section*{Overview}
+
+The Fenwick tree is the smallest data structure I reach for when I need point updates and prefix queries. It is
+lighter than a segment tree, usually faster in practice, and especially good when the array is really a frequency
+table after coordinate compression.
+
+\section*{When to Use It}
+
+Use it when the query can be written as a difference of two prefixes and the updates are local:
+
+\begin{itemize}
+  \item point add, prefix sum, range sum,
+  \item inversion counting,
+  \item sweep-line counting after compression,
+  \item finding the k-th element in a multiset of frequencies.
+\end{itemize}
+
+If the problem needs arbitrary range updates with arbitrary range queries, a Fenwick tree stops being the cleanest
+tool and a segment tree usually takes over.
+
+\section*{Core Idea}
+
+For a 1-indexed array, \texttt{bit[i]} stores the sum of a suffix of the prefix ending at \texttt{i}. The exact
+length is the least significant set bit:
+
+\[
+\texttt{bit[i]} = \sum_{j=i-\mathrm{lsb}(i)+1}^{i} a_j,
+\qquad
+\mathrm{lsb}(i)=i\&(-i).
+\]
+
+That choice makes two traversals work nicely:
+
+\begin{itemize}
+  \item to build a prefix sum, repeatedly remove the lowest set bit from the index,
+  \item to apply an update, repeatedly add the lowest set bit to the index.
+\end{itemize}
+
+Both walks touch only \(O(\log n)\) cells.
+
+\section*{Operations}
+
+\begin{itemize}
+  \item \textbf{add(i, delta)} updates one position and all Fenwick buckets that cover it.
+  \item \textbf{prefix\_sum(i)} accumulates the disjoint buckets whose union is \([1,i]\).
+  \item \textbf{range\_sum(l, r)} is \texttt{prefix\_sum(r) - prefix\_sum(l - 1)}.
+  \item \textbf{kth(k)} works on nonnegative frequencies: greedily jump by powers of two to find the first prefix with sum at least \(k\).
+\end{itemize}
+
+\section*{Correctness Intuition}
+
+The important invariant is that every \texttt{bit[i]} owns exactly one canonical interval ending at \(i\). When we
+query a prefix, the indices visited by subtracting \(\mathrm{lsb}(i)\) produce disjoint intervals whose union is the
+whole prefix. When we update one position, the indices visited by adding \(\mathrm{lsb}(i)\) are exactly the buckets
+whose canonical intervals contain that position.
+
+So the query never misses weight and never double-counts it.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item Point update: \(O(\log n)\)
+  \item Prefix query: \(O(\log n)\)
+  \item Range query: \(O(\log n)\)
+  \item Memory: \(O(n)\)
+\end{itemize}
+
+\section*{Implementation}
+
+The reference code uses a 1-indexed tree with:
+
+\begin{itemize}
+  \item point add,
+  \item prefix sum,
+  \item range sum,
+  \item k-th order statistic on a frequency table.
+\end{itemize}
+
+That last operation is worth keeping around because it appears in offline order-statistic problems surprisingly often.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Mixing 0-indexed input with 1-indexed Fenwick internals.
+  \item Using \texttt{kth} on data that can contain negative values.
+  \item Forgetting to promote to \texttt{long long} when sums can exceed \(2^{31}-1\).
+  \item For range updates, remembering only half of the standard two-tree trick.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count inversions in an array after coordinate compression.
+  \item Maintain a dynamic multiset of values and answer k-th queries.
+  \item Offline rectangle counting with a sweep line and compressed \(y\)-coordinates.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item Peter M. Fenwick, \href{https://www.yumpu.com/en/document/view/43186239/a-new-data-structure-for-cumulative-frequency-tables-citeseerx}{A New Data Structure for Cumulative Frequency Tables}.
+  \item \href{https://cp-algorithms.com/data_structures/fenwick.html}{cp-algorithms: Fenwick Tree}.
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+\end{itemize}

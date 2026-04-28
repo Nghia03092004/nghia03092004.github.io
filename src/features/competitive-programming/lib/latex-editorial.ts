@@ -323,19 +323,31 @@ function readCommandName(source: string, startIndex: number) {
 	};
 }
 
-function renderInlineText(value: string): string {
+function resolveImageSource(assetBasePath: string | undefined, relativePath: string) {
+	if (/^(?:[a-z]+:)?\/\//i.test(relativePath) || relativePath.startsWith('/')) {
+		return relativePath;
+	}
+
+	if (!assetBasePath) {
+		return relativePath;
+	}
+
+	return `${assetBasePath.replace(/\/$/, '')}/${relativePath.replace(/^\.\//, '').replace(/^\/+/, '')}`;
+}
+
+function renderInlineText(value: string, assetBasePath?: string): string {
 	const pieces = splitMathSegments(value).map((segment) => {
 		if (segment.type === 'math') {
 			return escapeHtml(segment.value);
 		}
 
-		return renderTextWithoutMath(segment.value);
+		return renderTextWithoutMath(segment.value, assetBasePath);
 	});
 
 	return pieces.join('');
 }
 
-function renderTextWithoutMath(value: string): string {
+function renderTextWithoutMath(value: string, assetBasePath?: string): string {
 	let html = '';
 	let index = 0;
 
@@ -381,7 +393,7 @@ function renderTextWithoutMath(value: string): string {
 			}
 
 			if (['qed', 'qedhere'].includes(command.name)) {
-				html += '<span class="cp-editorial__qed">&#9633;</span>';
+				html += '<span class="cp-content__qed">&#9633;</span>';
 				index = command.nextIndex;
 				continue;
 			}
@@ -390,6 +402,37 @@ function renderTextWithoutMath(value: string): string {
 				html += '<br />';
 				index = command.nextIndex;
 				continue;
+			}
+
+			if (command.name === 'includegraphics') {
+				let nextIndex = command.nextIndex;
+				while (/\s/.test(value[nextIndex] ?? '')) {
+					nextIndex += 1;
+				}
+				if (value[nextIndex] === '[') {
+					const optionGroup = readBalancedGroup(value, nextIndex, '[', ']');
+					if (optionGroup) {
+						nextIndex = optionGroup.nextIndex;
+						while (/\s/.test(value[nextIndex] ?? '')) {
+							nextIndex += 1;
+						}
+					}
+				}
+				const imageGroup = readBalancedGroup(value, nextIndex, '{', '}');
+				if (imageGroup) {
+					const imagePath = imageGroup.content.trim();
+					const imageAlt =
+						imagePath
+							.split('/')
+							.pop()
+							?.replace(/\.[^.]+$/, '')
+							.replace(/[-_]+/g, ' ') ?? 'diagram';
+					html += `<img class="cp-content__image" src="${escapeHtml(
+						resolveImageSource(assetBasePath, imagePath),
+					)}" alt="${escapeHtml(imageAlt)}" loading="lazy" />`;
+					index = imageGroup.nextIndex;
+					continue;
+				}
 			}
 
 			const inlineGroup = (() => {
@@ -401,7 +444,7 @@ function renderTextWithoutMath(value: string): string {
 			})();
 
 			if (inlineGroup) {
-				const renderedContent = renderInlineText(inlineGroup.content);
+				const renderedContent = renderInlineText(inlineGroup.content, assetBasePath);
 				switch (command.name) {
 					case 'emph':
 					case 'textit':
@@ -415,10 +458,10 @@ function renderTextWithoutMath(value: string): string {
 						html += `<code>${renderedContent}</code>`;
 						break;
 					case 'underline':
-						html += `<span class="cp-editorial__underline">${renderedContent}</span>`;
+						html += `<span class="cp-content__underline">${renderedContent}</span>`;
 						break;
 					case 'textsc':
-						html += `<span class="cp-editorial__smallcaps">${renderedContent}</span>`;
+						html += `<span class="cp-content__smallcaps">${renderedContent}</span>`;
 						break;
 					case 'text':
 					case 'mbox':
@@ -430,7 +473,7 @@ function renderTextWithoutMath(value: string): string {
 						const url = inlineGroup.content.trim();
 						const labelGroup = readBalancedGroup(value, inlineGroup.nextIndex, '{', '}');
 						if (labelGroup) {
-							html += `<a href="${escapeHtml(url)}">${renderInlineText(labelGroup.content)}</a>`;
+							html += `<a href="${escapeHtml(url)}">${renderInlineText(labelGroup.content, assetBasePath)}</a>`;
 							index = labelGroup.nextIndex;
 							continue;
 						}
@@ -476,14 +519,16 @@ class LatexHtmlRenderer {
 	private readonly source: string;
 	private readonly headingDepthOffset: number;
 	private readonly headingSlugPrefix: string;
+	private readonly assetBasePath?: string;
 	private readonly headings: TocHeading[] = [];
 	private readonly slugCounts = new Map<string, number>();
 	private index = 0;
 
-	constructor(source: string, headingDepthOffset: number, headingSlugPrefix: string) {
+	constructor(source: string, headingDepthOffset: number, headingSlugPrefix: string, assetBasePath?: string) {
 		this.source = source;
 		this.headingDepthOffset = headingDepthOffset;
 		this.headingSlugPrefix = headingSlugPrefix;
+		this.assetBasePath = assetBasePath;
 	}
 
 	render() {
@@ -558,7 +603,7 @@ class LatexHtmlRenderer {
 					return `<div class="cp-content__math">${escapeHtml(normalized.trim())}</div>`;
 				}
 
-				return `<p>${renderInlineText(normalized)}</p>`;
+				return `<p>${renderInlineText(normalized, this.assetBasePath)}</p>`;
 			})
 			.join('\n');
 	}
@@ -590,7 +635,7 @@ class LatexHtmlRenderer {
 			text: plainTitle,
 		});
 
-		return `<h${level} id="${slug}">${renderInlineText(titleGroup.content.trim())}</h${level}>`;
+		return `<h${level} id="${slug}">${renderInlineText(titleGroup.content.trim(), this.assetBasePath)}</h${level}>`;
 	}
 
 	private renderParagraphHeading() {
@@ -602,7 +647,10 @@ class LatexHtmlRenderer {
 		}
 
 		this.index = headingGroup.nextIndex;
-		return `<p class="cp-content__paragraph-heading"><strong>${renderInlineText(headingGroup.content.trim())}</strong></p>`;
+		return `<p class="cp-content__paragraph-heading"><strong>${renderInlineText(
+			headingGroup.content.trim(),
+			this.assetBasePath,
+		)}</strong></p>`;
 	}
 
 	private renderEnvironment() {
@@ -670,7 +718,7 @@ class LatexHtmlRenderer {
 
 			const itemBody = this.renderBlocks([environmentName], true).trim();
 			const labelMarkup = itemLabel
-				? `<p class="cp-content__item-label"><strong>${renderInlineText(itemLabel)}</strong></p>`
+				? `<p class="cp-content__item-label"><strong>${renderInlineText(itemLabel, this.assetBasePath)}</strong></p>`
 				: '';
 			items.push(`<li>${labelMarkup}${itemBody}</li>`);
 		}
@@ -691,7 +739,7 @@ class LatexHtmlRenderer {
 	private renderTheoremLike(environmentName: string, optionalArgument?: string) {
 		const label = capitalize(environmentName);
 		const body = this.renderBlocks([environmentName]).trim();
-		const suffix = optionalArgument ? ` (${renderInlineText(optionalArgument)})` : '';
+		const suffix = optionalArgument ? ` (${renderInlineText(optionalArgument, this.assetBasePath)})` : '';
 
 		return [
 			`<section class="cp-content__callout cp-content__callout--${environmentName}">`,
@@ -722,7 +770,7 @@ class LatexHtmlRenderer {
 		const body = rows
 			.map(
 				(row) =>
-					`<tr>${row.map((cell) => `<td>${renderInlineText(cell)}</td>`).join('')}</tr>`,
+					`<tr>${row.map((cell) => `<td>${renderInlineText(cell, this.assetBasePath)}</td>`).join('')}</tr>`,
 			)
 			.join('');
 
@@ -856,7 +904,7 @@ class LatexHtmlRenderer {
 
 export function renderLatexContent(
 	texSource: string,
-	options: { headingDepthOffset?: number; headingSlugPrefix?: string } = {},
+	options: { headingDepthOffset?: number; headingSlugPrefix?: string; assetBasePath?: string } = {},
 ): RenderedLatexContent {
 	const source = texSource.trim();
 	if (!source) {
@@ -872,6 +920,7 @@ export function renderLatexContent(
 			source,
 			options.headingDepthOffset ?? 2,
 			options.headingSlugPrefix ?? 'editorial',
+			options.assetBasePath,
 		);
 		const result = renderer.render();
 

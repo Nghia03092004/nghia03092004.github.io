@@ -1,0 +1,7 @@
+{
+  "title": "Heavy-Light Decomposition",
+  "summary": "Reduce tree path queries to a logarithmic number of segment queries by carving the tree into heavy chains.",
+  "level": "advanced",
+  "tags": ["trees", "path queries", "segment tree"],
+  "order": 120
+}

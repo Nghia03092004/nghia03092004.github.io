@@ -1,0 +1,7 @@
+{
+  "title": "Sparse Table",
+  "summary": "A static range-query structure that turns immutable RMQ-style queries into O(1) lookups.",
+  "level": "basic",
+  "tags": ["static queries", "rmq", "power-of-two decomposition"],
+  "order": 40
+}

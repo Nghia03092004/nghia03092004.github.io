@@ -1,0 +1,7 @@
+{
+  "title": "Digit DP",
+  "summary": "A position-by-position DP over the decimal expansion of an upper bound, with tight and leading-zero states.",
+  "level": "intermediate",
+  "tags": ["digit dp", "counting", "memoization"],
+  "order": 20
+}

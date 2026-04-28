@@ -1,0 +1,7 @@
+{
+  "title": "Dijkstra",
+  "summary": "Single-source shortest paths in non-negative weighted graphs with a min-heap and lazy deletions.",
+  "level": "intermediate",
+  "tags": ["shortest paths", "graphs", "priority queue"],
+  "order": 20
+}

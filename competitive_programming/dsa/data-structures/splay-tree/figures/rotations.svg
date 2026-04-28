@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="340" viewBox="0 0 960 340">
+  <style>
+    .t{font:600 20px 'IBM Plex Mono', monospace; fill:#161412}
+    .s{font:16px 'IBM Plex Mono', monospace; fill:#5e5348}
+    .n{fill:#fff8f1; stroke:#161412; stroke-width:2}
+    .e{stroke:#161412; stroke-width:2.5; fill:none}
+  </style>
+  <text class="t" x="140" y="36">zig</text>
+  <text class="t" x="450" y="36">zig-zig</text>
+  <text class="t" x="760" y="36">zig-zag</text>
+
+  <text class="s" x="52" y="74">before</text>
+  <line class="e" x1="120" y1="108" x2="80" y2="168"/>
+  <circle class="n" cx="120" cy="108" r="18"/><text class="t" x="114" y="115">p</text>
+  <circle class="n" cx="80" cy="168" r="18"/><text class="t" x="74" y="175">x</text>
+  <text class="s" x="170" y="74">after</text>
+  <line class="e" x1="220" y1="108" x2="260" y2="168"/>
+  <circle class="n" cx="220" cy="108" r="18"/><text class="t" x="214" y="115">x</text>
+  <circle class="n" cx="260" cy="168" r="18"/><text class="t" x="254" y="175">p</text>
+
+  <text class="s" x="345" y="74">before</text>
+  <line class="e" x1="420" y1="98" x2="380" y2="158"/>
+  <line class="e" x1="380" y1="158" x2="340" y2="218"/>
+  <circle class="n" cx="420" cy="98" r="18"/><text class="t" x="414" y="105">g</text>
+  <circle class="n" cx="380" cy="158" r="18"/><text class="t" x="374" y="165">p</text>
+  <circle class="n" cx="340" cy="218" r="18"/><text class="t" x="334" y="225">x</text>
+  <text class="s" x="485" y="74">after</text>
+  <line class="e" x1="540" y1="98" x2="500" y2="158"/>
+  <line class="e" x1="540" y1="98" x2="580" y2="158"/>
+  <circle class="n" cx="540" cy="98" r="18"/><text class="t" x="534" y="105">x</text>
+  <circle class="n" cx="500" cy="158" r="18"/><text class="t" x="494" y="165">p</text>
+  <circle class="n" cx="580" cy="158" r="18"/><text class="t" x="574" y="165">g</text>
+
+  <text class="s" x="660" y="74">before</text>
+  <line class="e" x1="740" y1="98" x2="700" y2="158"/>
+  <line class="e" x1="700" y1="158" x2="740" y2="218"/>
+  <circle class="n" cx="740" cy="98" r="18"/><text class="t" x="734" y="105">g</text>
+  <circle class="n" cx="700" cy="158" r="18"/><text class="t" x="694" y="165">p</text>
+  <circle class="n" cx="740" cy="218" r="18"/><text class="t" x="734" y="225">x</text>
+  <text class="s" x="812" y="74">after</text>
+  <line class="e" x1="860" y1="98" x2="820" y2="158"/>
+  <line class="e" x1="860" y1="98" x2="900" y2="158"/>
+  <circle class="n" cx="860" cy="98" r="18"/><text class="t" x="854" y="105">x</text>
+  <circle class="n" cx="820" cy="158" r="18"/><text class="t" x="814" y="165">p</text>
+  <circle class="n" cx="900" cy="158" r="18"/><text class="t" x="894" y="165">g</text>
+</svg>

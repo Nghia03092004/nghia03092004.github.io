@@ -1,0 +1,107 @@
+\section*{Overview}
+
+Dijkstra's algorithm is the shortest-path routine I reach for when the graph has non-negative edge weights and I
+need distances from one source to many targets. The algorithm is greedy, but it is greedy in a very specific way:
+it always expands the vertex whose current tentative distance is smallest.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item edge weights are non-negative,
+  \item the graph is sparse enough that an adjacency list plus heap is natural,
+  \item you need one-source distances, parents, or a shortest-path tree,
+  \item simpler special cases such as BFS or 0-1 BFS do not apply.
+\end{itemize}
+
+If even one edge can be negative, this greedy invariant breaks and I switch to a different tool.
+
+\section*{Core Idea}
+
+Maintain a distance array \(\texttt{dist}\), where \(\texttt{dist}[v]\) is the best distance found so far from the
+source \(s\) to vertex \(v\). Initially \(\texttt{dist}[s] = 0\) and everything else is infinity.
+
+The heap stores candidates \((d, v)\). When the smallest candidate is popped, two cases can happen:
+
+\begin{itemize}
+  \item if \(d \neq \texttt{dist}[v]\), the entry is stale and can be ignored,
+  \item otherwise, \(v\) is the next vertex whose shortest distance is finalized.
+\end{itemize}
+
+From there, relax every outgoing edge \((v, to, w)\). If \(\texttt{dist}[v] + w\) improves the current answer for
+\(to\), update it and push the new pair into the heap.
+
+\section*{Operations}
+
+\begin{itemize}
+  \item \textbf{initialize}: set all distances to infinity except the source,
+  \item \textbf{extract-min}: pop the heap until you find a non-stale state,
+  \item \textbf{relax}: try to improve each neighbor through the current vertex,
+  \item \textbf{restore path}: follow parent pointers backward if you need one concrete shortest path.
+\end{itemize}
+
+The implementation here uses lazy deletion instead of trying to remove old heap entries in place. That keeps the
+code short and reliable.
+
+\section*{Correctness Intuition}
+
+Suppose the heap pops a non-stale state \((d, v)\). I claim that \(d\) is already the true shortest-path distance to
+\(v\).
+
+If there were a strictly shorter path to \(v\), consider the first vertex on that path that had not been finalized
+yet. Its predecessor on the path would already be finalized, so the relaxation from that predecessor would have
+inserted a candidate no larger than the true path length. That candidate would have reached the heap before \(v\)
+was finalized with the larger value \(d\), which is a contradiction.
+
+So every time a fresh state leaves the heap, that distance is permanent.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item Heap-based Dijkstra on an adjacency list: \(O((n + m)\log n)\)
+  \item Memory: \(O(n + m)\)
+\end{itemize}
+
+The bound comes from pushing at most one improved state per successful relaxation and paying a logarithmic heap cost.
+
+\section*{Implementation}
+
+The reference code keeps:
+
+\begin{itemize}
+  \item an adjacency list of \((to, weight)\) pairs,
+  \item a min-heap of \((distance, vertex)\),
+  \item a parent array for path restoration,
+  \item lazy deletion for stale heap entries.
+\end{itemize}
+
+That is the version I trust most under contest pressure. It is also the easiest one to adapt to multi-source
+initialization: just push several sources with distance zero.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Running Dijkstra on graphs with negative edges.
+  \item Forgetting to skip stale heap entries.
+  \item Using \texttt{int} when path lengths need \texttt{long long}.
+  \item Setting infinity too small and silently overflowing during relaxation.
+  \item Missing special-case optimizations such as BFS or 0-1 BFS when the weights allow them.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item CSES: \texttt{Shortest Routes I}
+  \item CSES: \texttt{Flight Routes}
+  \item Path problems where you need distances first and then some second pass over the shortest-path tree
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/dijkstra.html}{cp-algorithms: Dijkstra's algorithm}.
+  \item \href{https://cp-algorithms.com/graph/dijkstra_sparse.html}{cp-algorithms: Dijkstra on sparse graphs}.
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

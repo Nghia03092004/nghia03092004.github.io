@@ -1,0 +1,7 @@
+{
+  "title": "Link-Cut Tree",
+  "summary": "A dynamic-forest structure built on splay trees for link, cut, reroot, and path-query operations.",
+  "level": "expert",
+  "tags": ["dynamic forest", "splay tree", "path queries"],
+  "order": 80
+}

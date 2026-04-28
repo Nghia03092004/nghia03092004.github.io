@@ -1,0 +1,103 @@
+\section*{Overview}
+
+The number theoretic transform is the modular version of FFT. In contest terms, it is the standard way to multiply
+polynomials in \(O(n \log n)\) time while staying in exact integer arithmetic modulo a suitable prime.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item you need polynomial convolution faster than \(O(n^2)\),
+  \item the coefficients are naturally taken modulo a prime such as \(998244353\),
+  \item exact arithmetic matters more than floating-point convenience,
+  \item the problem secretly asks for counting pair sums, subset combinations, or DP transitions that are
+  convolutions.
+\end{itemize}
+
+If the modulus is incompatible or the arrays are tiny, ordinary multiplication may still be the better choice.
+
+\section*{Core Idea}
+
+FFT speeds up convolution by moving to a basis where convolution becomes pointwise multiplication. NTT does the same
+thing, but the roots of unity live in modular arithmetic instead of the complex plane.
+
+For the popular modulus \(998244353\), we have
+\[
+998244353 - 1 = 119 \cdot 2^{23},
+\]
+so powers of a primitive root generate enough \(2^k\)-th roots of unity for transform lengths up to \(2^{23}\).
+
+The iterative implementation applies butterfly layers of size \(2, 4, 8, \ldots\) after a bit-reversal
+permutation.
+
+\section*{Operations}
+
+\begin{itemize}
+  \item resize both polynomials to one common power-of-two length,
+  \item run the forward transform on each array,
+  \item multiply pointwise,
+  \item run the inverse transform and divide by \(n\) modulo the prime.
+\end{itemize}
+
+That final division is just multiplication by \(n^{-1} \bmod \texttt{MOD}\).
+
+\section*{Correctness Intuition}
+
+The transform matrix over modular roots of unity has the same algebraic role as the complex DFT matrix. Distinct
+roots make the evaluation map invertible, so evaluating both polynomials at all transform points, multiplying the
+values pointwise, and interpolating back produces exactly the coefficient-wise convolution.
+
+The butterfly steps are just a structured way to perform that evaluation and interpolation in \(O(n \log n)\) rather
+than \(O(n^2)\).
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item one forward transform: \(O(n \log n)\),
+  \item one inverse transform: \(O(n \log n)\),
+  \item convolution: \(O(n \log n)\) total after padding,
+  \item memory: \(O(n)\).
+\end{itemize}
+
+Here \(n\) is the chosen power-of-two transform length, not the original polynomial degree.
+
+\section*{Implementation}
+
+The reference code uses:
+
+\begin{itemize}
+  \item modulus \(998244353\),
+  \item primitive root \(3\),
+  \item iterative bit-reversal,
+  \item a \texttt{convolution(a, b)} wrapper that returns the trimmed result.
+\end{itemize}
+
+That is the version I use most often in contests. If a problem already allows AtCoder Library, their
+\texttt{convolution} function is even safer.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using a modulus that does not support the required power-of-two roots of unity.
+  \item Forgetting to normalize the inverse transform by \(n^{-1}\).
+  \item Mixing signed coefficients with modular arithmetic and forgetting to re-normalize.
+  \item Padding to the wrong transform length.
+  \item Using NTT where the output size is too small for the setup cost to pay off.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Polynomial multiplication modulo \(998244353\).
+  \item Counting pair sums or subset sums via coefficient convolution.
+  \item DP problems where transitions become convolution after regrouping states.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/algebra/fft.html}{cp-algorithms: FFT and NTT overview}.
+  \item \href{https://atcoder.github.io/ac-library/production/document_en/convolution.html}{AtCoder Library: convolution}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

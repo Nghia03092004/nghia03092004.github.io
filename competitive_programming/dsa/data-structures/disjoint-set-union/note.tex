@@ -1,0 +1,85 @@
+\section*{Overview}
+
+Disjoint set union is the standard answer when the graph only becomes more connected over time. It tracks connected
+components, supports merges, and lets a representative carry small component metadata such as size.
+
+\section*{When to Use It}
+
+Use DSU when:
+
+\begin{itemize}
+  \item edges are only added, not deleted,
+  \item you need to know whether two vertices are already connected,
+  \item component-level information can be merged locally.
+\end{itemize}
+
+The most common contest appearances are Kruskal, offline connectivity, grouping equal states, and greedy merging.
+
+\section*{Core Idea}
+
+Each set is represented by a rooted tree. The root is the leader. Two heuristics keep the trees shallow:
+
+\begin{itemize}
+  \item \textbf{union by size/rank}: attach the smaller tree under the larger one,
+  \item \textbf{path compression}: while finding the leader, rewrite the path to point closer to the root.
+\end{itemize}
+
+Together they make the amortized complexity essentially constant for contest purposes.
+
+\section*{Operations}
+
+\begin{itemize}
+  \item \textbf{find(x)} returns the representative of \(x\)'s set.
+  \item \textbf{unite(a, b)} merges the two sets if they are different.
+  \item \textbf{same(a, b)} checks connectivity.
+  \item \textbf{size(x)} returns the current component size via the representative.
+\end{itemize}
+
+\section*{Correctness Intuition}
+
+The structure is correct because the parent pointers always define a forest whose roots are exactly the set leaders.
+Union only changes one root to point to another root, so it merges two components into one without mixing unrelated
+vertices. Path compression changes the forest shape but not the represented partition.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item \textbf{find} and \textbf{unite}: \(O(\alpha(n))\) amortized
+  \item Memory: \(O(n)\)
+\end{itemize}
+
+\(\alpha(n)\) is the inverse Ackermann function. In practice, it is smaller than any logarithm you care about.
+
+\section*{Implementation}
+
+The code panel keeps the standard contest shape:
+
+\begin{itemize}
+  \item negative parent array values store component sizes at roots,
+  \item non-roots store the parent index,
+  \item \texttt{find} is recursive with path compression.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that ordinary DSU does \emph{not} support deletions.
+  \item Storing component metadata on non-root nodes.
+  \item Accidentally using stale leaders after a merge.
+  \item Confusing union by rank and union by size when updating the stored field.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Dynamic road construction with component counts and largest component size.
+  \item Kruskal minimum spanning tree.
+  \item Offline reverse-process connectivity queries.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/data_structures/disjoint_set_union.html}{cp-algorithms: Disjoint Set Union}.
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+\end{itemize}

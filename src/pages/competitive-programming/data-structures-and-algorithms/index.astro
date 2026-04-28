@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CompetitiveProgrammingResources from '../../../features/competitive-programming/components/CompetitiveProgrammingResources.astro';
+import DsaLatexContent from '../../../features/competitive-programming-dsa/components/DsaLatexContent.astro';
+import {
+	getDsaCategoryRecords,
+	getDsaLandingSources,
+	getDsaLevelTone,
+	getDsaRoutePath,
+} from '../../../features/competitive-programming-dsa/lib/dsa';
+import { renderLatexContent } from '../../../features/competitive-programming/lib/latex-editorial';
+import { withBase } from '../../../lib/paths';
+
+const [categories, landingSources] = await Promise.all([getDsaCategoryRecords(), getDsaLandingSources()]);
+const intro = renderLatexContent(landingSources.introTex, {
+	headingDepthOffset: 2,
+	headingSlugPrefix: 'dsa-landing',
+});
+const taxonomy = renderLatexContent(landingSources.taxonomyTex, {
+	headingDepthOffset: 2,
+	headingSlugPrefix: 'dsa-taxonomy',
+});
+const implementedNotes = categories.flatMap((category) => category.notes);
+---
+
+<BaseLayout
+	title="Data Structures & Algorithms"
+	description="Long-form competitive programming notes on algorithms, data structures, and advanced techniques."
+>
+	<section class="page-intro cp-intro">
+		<span class="eyebrow">Competitive Programming</span>
+		<h1>Data Structures & Algorithms</h1>
+		<p>
+			Long-form notes on the algorithms, data structures, and contest patterns I want to keep in a form that is still useful months later.
+		</p>
+		<div class="archive-summary">
+			<div class="archive-summary__item">
+				<strong>{implementedNotes.length}</strong>
+				<span>published notes</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{categories.length}</strong>
+				<span>categories</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>{categories.reduce((sum, category) => sum + category.plannedTopics.length, 0)}</strong>
+				<span>planned topics</span>
+			</div>
+			<div class="archive-summary__item">
+				<strong>TeX + C++</strong>
+				<span>source-first workflow</span>
+			</div>
+		</div>
+		<div class="chip-row">
+			<a class="button" href={withBase('/competitive-programming')}>All competitive programming</a>
+			<a class="button button--ghost" href={withBase('/competitive-programming/icpc')}>ICPC</a>
+			<a class="button button--ghost" href={withBase('/competitive-programming/ioi')}>IOI</a>
+		</div>
+	</section>
+
+	<DsaLatexContent
+		sectionId="overview"
+		label="Overview"
+		title="How This Section Is Organized"
+		description="The landing note explains the scope; the taxonomy section keeps the bigger map visible."
+		html={intro.html}
+		rawUrl={landingSources.assetUrls.intro}
+		usedFallback={intro.usedFallback}
+	/>
+
+	<section class="section-panel">
+		<div class="section-heading">
+			<div>
+				<span class="section-label">Categories</span>
+				<h2>Browse by technique family</h2>
+				<p>Each category page mixes finished notes with clearly marked planned topics, so the section can grow without pretending to be complete.</p>
+			</div>
+		</div>
+		<div class="track-grid">
+			{
+				categories.map((category, index) => (
+					<a
+						class="card track-card dsa-track-card"
+						data-tone={index % 3 === 0 ? 'cool' : index % 3 === 1 ? 'olive' : 'warm'}
+						href={withBase(getDsaRoutePath(category.slug))}
+					>
+						<span class="track-card__index">0{index + 1}</span>
+						<span class="eyebrow">{category.title}</span>
+						<h3>{category.noteCount} published note{category.noteCount === 1 ? '' : 's'}</h3>
+						<p>{category.longDescription}</p>
+						<span class="track-card__link">Open {category.title}</span>
+					</a>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section-panel section-panel--signal">
+		<div class="section-heading">
+			<div>
+				<span class="section-label">Published notes</span>
+				<h2>Current note library</h2>
+				<p>The first pass focuses on notes I expect to reuse often in contest prep, implementation review, and post-contest study.</p>
+			</div>
+		</div>
+		<div class="signal-grid">
+			{
+				implementedNotes.map((note, index) => (
+					<a class="signal-card dsa-note-card" data-tone={getDsaLevelTone(note.level)} href={withBase(getDsaRoutePath(note.categorySlug, note.slug))}>
+						<span class="signal-card__index">0{index + 1}</span>
+						<div>
+							<span class="eyebrow">{note.categoryTitle}</span>
+							<h3>{note.title}</h3>
+							<p>{note.summary}</p>
+						</div>
+						<div class="signal-card__meta">
+							<span class="metric">{note.level}</span>
+							<span class="metric">{note.tags.slice(0, 2).join(' / ')}</span>
+						</div>
+					</a>
+				))
+			}
+		</div>
+	</section>
+
+	<DsaLatexContent
+		sectionId="taxonomy"
+		label="Taxonomy"
+		title="Controlled Topic Map"
+		description="This is the stable topic map for the section: some entries already have full notes, others are intentionally marked as planned."
+		html={taxonomy.html}
+		rawUrl={landingSources.assetUrls.taxonomy}
+		usedFallback={taxonomy.usedFallback}
+	/>
+
+	<CompetitiveProgrammingResources
+		links={[
+			{ label: 'Landing TeX source', href: landingSources.assetUrls.intro, path: landingSources.sourcePaths.intro },
+			{ label: 'Taxonomy TeX source', href: landingSources.assetUrls.taxonomy, path: landingSources.sourcePaths.taxonomy },
+		]}
+	/>
+</BaseLayout>

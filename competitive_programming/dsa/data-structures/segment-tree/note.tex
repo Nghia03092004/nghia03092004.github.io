@@ -1,0 +1,93 @@
+\section*{Overview}
+
+The segment tree is the contest default when the problem is really about intervals. It keeps the array in a binary
+decomposition of ranges, which makes it flexible enough for sums, minima, maxima, gcds, and many custom merges.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item queries are on arbitrary intervals,
+  \item updates are not limited to prefixes,
+  \item the merge operation is associative,
+  \item a Fenwick tree is too specialized.
+\end{itemize}
+
+It is often the right first structure for path-query frameworks such as heavy-light decomposition too.
+
+\section*{Core Idea}
+
+Every node represents a segment. Its value is the merge of the two child segments. The root stores the whole array,
+its children store the left and right halves, and so on until leaves represent single positions.
+
+The reason this is useful is that any query interval can be decomposed into only \(O(\log n)\) disjoint tree nodes.
+So instead of scanning the whole interval, we merge a logarithmic number of precomputed summaries.
+
+\section*{Operations}
+
+\begin{itemize}
+  \item \textbf{build}: initialize the leaves, then pull parent values upward.
+  \item \textbf{point update}: change one leaf, then recompute the ancestors.
+  \item \textbf{range query}: walk upward from the left and right borders, collecting the covered segments.
+\end{itemize}
+
+The reference implementation uses the iterative layout because it is short, cache-friendly, and hard to break.
+
+\section*{Correctness Intuition}
+
+Two facts do all the work:
+
+\begin{itemize}
+  \item every internal node is defined as the merge of its two children,
+  \item every query interval can be partitioned into disjoint node intervals from the tree.
+\end{itemize}
+
+Once those are true, the answer over any queried interval is just the merge over that partition.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item Build: \(O(n)\)
+  \item Point update: \(O(\log n)\)
+  \item Range query: \(O(\log n)\)
+  \item Memory: \(O(n)\) in the iterative layout, usually stored as \(2n\)
+\end{itemize}
+
+\section*{Implementation}
+
+The code panel shows an iterative sum segment tree with:
+
+\begin{itemize}
+  \item build from an array,
+  \item point assignment,
+  \item point increment,
+  \item range sum query on \([l,r]\).
+\end{itemize}
+
+If the problem needs a different merge, the structure stays the same and only the node type plus merge function change.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Mixing inclusive and half-open interval conventions.
+  \item Forgetting that the iterative layout naturally wants 0-indexed positions but stores leaves starting at \texttt{n}.
+  \item Using a non-associative merge.
+  \item Reaching for a segment tree when the problem is static and a sparse table would be simpler.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Dynamic range sum / min queries on an array.
+  \item Path queries after heavy-light decomposition.
+  \item Segment-tree-based DP transitions where each node stores a custom state.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/data_structures/segment_tree.html}{cp-algorithms: Segment Tree}.
+  \item \href{https://github.com/kth-competitive-programming/kactl}{KACTL}.
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+\end{itemize}

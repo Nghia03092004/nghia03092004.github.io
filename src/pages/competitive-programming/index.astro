@@ -1,5 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+	getDsaCategoryRecords,
+	getDsaNoteRecords,
+	getDsaRoutePath,
+} from '../../features/competitive-programming-dsa/lib/dsa';
 import { formatDate } from '../../lib/content';
 import { withBase } from '../../lib/paths';
 import {
@@ -8,15 +13,17 @@ import {
 	getCompetitiveProgrammingYearGroups,
 } from '../../features/competitive-programming/lib/competitive-programming';
 
-const [summaries, allRecords, icpcYears, ioiYears] = await Promise.all([
+const [summaries, allRecords, icpcYears, ioiYears, dsaCategories, dsaNotes] = await Promise.all([
 	getCompetitiveProgrammingTrackSummaries(),
 	getCompetitiveProgrammingRecords(),
 	getCompetitiveProgrammingYearGroups('icpc'),
 	getCompetitiveProgrammingYearGroups('ioi'),
+	getDsaCategoryRecords(),
+	getDsaNoteRecords(),
 ]);
 const totalEntries = summaries.reduce((sum, summary) => sum + summary.entryCount, 0);
-const totalYears = summaries.reduce((sum, summary) => sum + summary.yearCount, 0);
-const latestUpdated = [...allRecords].sort((left, right) => right.updated.getTime() - left.updated.getTime())[0]?.updated;
+const latestUpdated = [...allRecords.map((record) => record.updated), ...dsaNotes.map((note) => note.updated)]
+	.sort((left, right) => right.getTime() - left.getTime())[0];
 const featuredYears = [...icpcYears, ...ioiYears]
 	.sort((left, right) => {
 		if (left.year !== right.year) {
@@ -27,19 +34,44 @@ const featuredYears = [...icpcYears, ...ioiYears]
 	})
 	.slice(0, 6);
 const latestEntries = [...allRecords].sort((left, right) => right.updated.getTime() - left.updated.getTime()).slice(0, 6);
+const publicBranches = [
+	...summaries.map((summary, index) => ({
+		key: summary.track,
+		href: withBase(`/competitive-programming/${summary.track}`),
+		tone: summary.track === 'icpc' ? 'warm' : 'cool',
+		indexLabel: `0${index + 1}`,
+		eyebrow: summary.label,
+		title: summary.longLabel,
+		description:
+			summary.track === 'icpc'
+				? `${summary.entryCount} problems across ${summary.yearCount} years. ${summary.statementTextCount} statement texts and ${summary.statementPdfCount} PDFs are mirrored in the archive.`
+				: `${summary.entryCount} problems across ${summary.yearCount} years. Each task page centers the write-up and code.`,
+		linkLabel: `Browse ${summary.label}`,
+	})),
+	{
+		key: 'dsa',
+		href: withBase(getDsaRoutePath()),
+		tone: 'olive',
+		indexLabel: '03',
+		eyebrow: 'DSA',
+		title: 'Data Structures & Algorithms',
+		description: `${dsaNotes.length} published notes across ${dsaCategories.length} categories, all kept in TeX plus standalone C++ so the write-up and implementation stay editable.`,
+		linkLabel: 'Browse DSA notes',
+	},
+];
 ---
 
 <BaseLayout
 	title="Competitive Programming"
-	description="ICPC and IOI solutions organized by track, year, and problem."
+	description="ICPC, IOI, and data-structures-and-algorithms notes organized for browsing, revision, and reuse."
 >
 	<section class="page-intro cp-intro">
 		<span class="eyebrow">Competitive Programming</span>
-		<h1>ICPC and IOI, organized to browse like a real archive.</h1>
+		<h1>Contest archive plus long-form study notes.</h1>
 		<p>
-			This section collects contest problems I wanted to keep in a usable form: statement, editorial,
-			code, and raw files together on one page. The main path is simple: pick a track, then a year,
-			then a problem.
+			This section has three public branches: the ICPC archive, the IOI archive, and a growing Data
+			Structures &amp; Algorithms notebook. The archive pages keep statements, editorials, and code together;
+			the DSA branch keeps reusable ideas in longer note form.
 		</p>
 		<div class="archive-summary">
 			<div class="archive-summary__item">
@@ -47,16 +79,16 @@ const latestEntries = [...allRecords].sort((left, right) => right.updated.getTim
 				<span>problem pages</span>
 			</div>
 			<div class="archive-summary__item">
-				<strong>{summaries.length}</strong>
-				<span>contest tracks</span>
+				<strong>{dsaNotes.length}</strong>
+				<span>published DSA notes</span>
 			</div>
 			<div class="archive-summary__item">
-				<strong>{totalYears}</strong>
-				<span>contest years</span>
+				<strong>{publicBranches.length}</strong>
+				<span>public branches</span>
 			</div>
 			<div class="archive-summary__item">
 				<strong>{latestUpdated ? formatDate(latestUpdated) : 'n/a'}</strong>
-				<span>most recently updated entry</span>
+				<span>most recently updated page</span>
 			</div>
 		</div>
 	</section>
@@ -64,29 +96,24 @@ const latestEntries = [...allRecords].sort((left, right) => right.updated.getTim
 	<section class="section-panel">
 		<div class="section-heading">
 			<div>
-				<span class="section-label">Tracks</span>
-				<h2>Start with a contest track</h2>
-				<p>Each track has its own year-by-year landing page, so the archive is easy to scan without opening raw folders.</p>
+				<span class="section-label">Branches</span>
+				<h2>Start with a public branch</h2>
+				<p>The contest archive still browses by track and year, while the DSA branch is organized as a reusable knowledge base.</p>
 			</div>
 		</div>
 		<div class="track-grid">
 			{
-				summaries.map((summary, index) => (
+				publicBranches.map((branch) => (
 					<a
 						class="card track-card"
-						data-tone={summary.track === 'icpc' ? 'warm' : 'cool'}
-						href={withBase(`/competitive-programming/${summary.track}`)}
+						data-tone={branch.tone}
+						href={branch.href}
 					>
-						<span class="track-card__index">0{index + 1}</span>
-						<span class="eyebrow">{summary.label}</span>
-						<h3>{summary.longLabel}</h3>
-						<p>
-							{summary.entryCount} problems across {summary.yearCount} years.
-							{summary.track === 'icpc'
-								? ` ${summary.statementTextCount} statement texts and ${summary.statementPdfCount} PDFs are mirrored in the archive.`
-								: ' Each task page centers the write-up and code.'}
-						</p>
-						<span class="track-card__link">Browse {summary.label}</span>
+						<span class="track-card__index">{branch.indexLabel}</span>
+						<span class="eyebrow">{branch.eyebrow}</span>
+						<h3>{branch.title}</h3>
+						<p>{branch.description}</p>
+						<span class="track-card__link">{branch.linkLabel}</span>
 					</a>
 				))
 			}

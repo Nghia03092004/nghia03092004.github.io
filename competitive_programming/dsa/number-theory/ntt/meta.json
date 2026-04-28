@@ -1,0 +1,7 @@
+{
+  "title": "NTT",
+  "summary": "Polynomial convolution modulo 998244353 using roots of unity and iterative butterfly layers.",
+  "level": "advanced",
+  "tags": ["convolution", "polynomials", "modular arithmetic"],
+  "order": 80
+}

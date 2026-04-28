@@ -1,0 +1,7 @@
+{
+  "title": "KMP",
+  "summary": "Prefix-function based linear-time string matching with no backtracking in the text.",
+  "level": "basic",
+  "tags": ["strings", "pattern matching", "prefix function"],
+  "order": 10
+}

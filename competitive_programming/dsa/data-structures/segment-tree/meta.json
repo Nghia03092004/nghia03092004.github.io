@@ -1,0 +1,7 @@
+{
+  "title": "Segment Tree",
+  "summary": "The general-purpose interval tree for logarithmic range queries and updates when Fenwick is too small.",
+  "level": "basic",
+  "tags": ["range queries", "interval decomposition", "iterative tree"],
+  "order": 20
+}

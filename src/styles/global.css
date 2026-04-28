@@ -1622,6 +1622,17 @@ h4 {
 	margin: 1rem 0;
 }
 
+.cp-content__image {
+	display: block;
+	margin: 1.1rem auto;
+	padding: 0.6rem;
+	max-width: min(100%, 54rem);
+	border-radius: 20px;
+	background: rgba(255, 255, 255, 0.94);
+	border: 1px solid rgba(22, 20, 18, 0.08);
+	box-shadow: 0 14px 28px rgba(22, 20, 18, 0.08);
+}
+
 .cp-content__body table {
 	border-collapse: collapse;
 	max-width: 100%;
@@ -1697,6 +1708,32 @@ h4 {
 
 .cp-problem-card {
 	min-height: 19rem;
+}
+
+.dsa-track-card {
+	min-height: 19rem;
+}
+
+.dsa-note-card {
+	min-height: 16rem;
+}
+
+.dsa-topic-chip-row {
+	gap: 0.75rem;
+}
+
+.dsa-topic-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.55rem;
+}
+
+.dsa-topic-chip small {
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.72rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--muted);
 }
 
 .cp-problem-card__header {

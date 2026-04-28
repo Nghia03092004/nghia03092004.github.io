@@ -1,0 +1,7 @@
+{
+  "title": "Treap",
+  "summary": "A randomized BST built from split and merge, with order statistics and clean structural recursion.",
+  "level": "advanced",
+  "tags": ["balanced bst", "split merge", "order statistics"],
+  "order": 60
+}

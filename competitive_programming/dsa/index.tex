@@ -1,0 +1,49 @@
+\section*{Overview}
+
+These notes are the part of the competitive programming archive that is not tied to one contest year.
+The goal is simple: keep the ideas that I actually want to reuse in a form that is still readable after
+the adrenaline of the original contest is gone.
+
+I care about three things here:
+
+\begin{itemize}
+  \item the structural reason an algorithm works,
+  \item the shape of the implementation I would trust in contest code,
+  \item the failure modes that usually cost time or wrong answers.
+\end{itemize}
+
+\section*{How the Notes Are Written}
+
+Each topic keeps \texttt{note.tex} as the written source of truth and \texttt{code.cpp} as the implementation
+source of truth. The site renders the TeX into HTML and shows the C++ file separately, so the prose can stay
+focused while the code remains directly copyable.
+
+The finished notes are meant to be public-facing study material, not private scraps. That means the emphasis is
+on explanations, invariants, and tradeoffs instead of dumping templates with no context.
+
+\section*{What ``Finished'' Means Here}
+
+A finished note should answer the questions I usually care about when revising:
+
+\begin{itemize}
+  \item What kind of contest situations make this technique the right tool?
+  \item What invariant is doing the real work?
+  \item Which implementation shape is the least fragile under time pressure?
+  \item Which edge cases usually break the first version?
+\end{itemize}
+
+Some topics are still only planned. They are listed openly as planned instead of pretending that a shallow page
+is enough.
+
+\section*{References Behind the Section}
+
+The explanations are rewritten in my own words, but the topic map and many implementation choices were informed by:
+
+\begin{itemize}
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog},
+  \item \href{https://cp-algorithms.com/}{cp-algorithms},
+  \item \href{https://usaco.guide/}{USACO Guide},
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook},
+  \item \href{https://github.com/kth-competitive-programming/kactl}{KACTL},
+  \item \href{https://oi-wiki.org/}{OI Wiki}.
+\end{itemize}

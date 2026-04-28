@@ -1,0 +1,7 @@
+{
+  "title": "Disjoint Set Union",
+  "summary": "Union-find for dynamic connectivity and component bookkeeping when edges only merge components.",
+  "level": "basic",
+  "tags": ["connectivity", "union find", "amortized"],
+  "order": 50
+}

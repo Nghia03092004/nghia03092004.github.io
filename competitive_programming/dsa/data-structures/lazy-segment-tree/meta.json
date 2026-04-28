@@ -1,0 +1,7 @@
+{
+  "title": "Lazy Segment Tree",
+  "summary": "The standard extension of a segment tree when range updates must stay logarithmic too.",
+  "level": "intermediate",
+  "tags": ["range updates", "lazy propagation", "interval tree"],
+  "order": 30
+}

@@ -1,0 +1,105 @@
+\section*{Overview}
+
+Mo's algorithm is an offline range-query technique for static arrays. Instead of answering queries in the given
+order, it reorders them so that the current interval moves only a small amount from one query to the next.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item the array is static or almost static,
+  \item the answer can be maintained by cheap \texttt{add} and \texttt{remove} operations,
+  \item segment trees or Fenwick trees do not naturally express the query statistic,
+  \item offline reordering is allowed.
+\end{itemize}
+
+It is especially attractive for statistics such as number of distinct values, frequency-based scores, and some xor or
+mode-like variants.
+
+\section*{Core Idea}
+
+Split the array into blocks of size about \(\sqrt{n}\). Sort queries primarily by the block of the left endpoint and
+secondarily by the right endpoint.
+
+Then keep one active interval \([curL, curR]\). For each next query, slide the endpoints until the active interval
+matches the requested one, calling only:
+
+\begin{itemize}
+  \item \texttt{add(index)}
+  \item \texttt{remove(index)}
+\end{itemize}
+
+The sorted order is chosen so that the total movement over all queries stays manageable.
+
+\section*{Operations}
+
+\begin{itemize}
+  \item choose a block size, usually near \(\sqrt{n}\),
+  \item sort queries by block order,
+  \item maintain one answer object for the active interval,
+  \item apply endpoint moves until the current interval equals the query interval.
+\end{itemize}
+
+The note code uses the common alternating right-endpoint order inside each block, which reduces pointer movement in
+practice.
+
+\section*{Correctness Intuition}
+
+At every step, the maintained data structure reflects exactly the current active interval. The only thing Mo's
+algorithm changes is the order in which queries are processed, not the definition of the answer for any query.
+
+Because every interval transition is implemented by a sequence of valid \texttt{add} and \texttt{remove} operations,
+the maintained statistic after the transition is exactly the answer for the new query.
+
+\section*{Complexity Analysis}
+
+With block size about \(\sqrt{n}\), the standard bound is:
+
+\begin{itemize}
+  \item sorting: \(O(q \log q)\),
+  \item interval movement plus updates: about \(O((n + q)\sqrt{n})\) when each add/remove is \(O(1)\),
+  \item memory: problem-dependent, often \(O(n)\) or \(O(\text{value range})\).
+\end{itemize}
+
+The constants matter a lot. Mo's algorithm is powerful, but it is not the first tool I try when an online log-time
+structure already fits.
+
+\section*{Implementation}
+
+The reference code solves the classic distinct-value query problem on a static array. It assumes the values are
+already coordinate compressed, which keeps the frequency table compact.
+
+The key ingredients are:
+
+\begin{itemize}
+  \item a \texttt{Query} struct with \texttt{l}, \texttt{r}, and \texttt{idx},
+  \item one frequency table,
+  \item one integer tracking the current number of distinct values.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that the technique is offline.
+  \item Using raw values so large that the frequency table becomes wasteful instead of compressing first.
+  \item Mixing inclusive and half-open interval conventions.
+  \item Choosing a perfectly fine theoretical block size but missing constant-factor optimizations in practice.
+  \item Forcing Mo's algorithm onto problems with updates, where the three-dimensional variant becomes much harder.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Distinct values on subarrays.
+  \item Frequency-based score functions where \texttt{add} and \texttt{remove} are symmetric.
+  \item Offline range queries that resist prefix sums and segment trees.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/data_structures/sqrt_decomposition.html}{cp-algorithms: Sqrt decomposition and Mo's algorithm}.
+  \item \href{https://usaco.guide/plat/sqrt}{USACO Guide: Square root decomposition and Mo's algorithm}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

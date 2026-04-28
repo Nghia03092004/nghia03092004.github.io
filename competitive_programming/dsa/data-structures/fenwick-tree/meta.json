@@ -1,0 +1,7 @@
+{
+  "title": "Fenwick Tree",
+  "summary": "A compact range-query structure for point updates, prefix sums, and frequency-based order statistics.",
+  "level": "basic",
+  "tags": ["range queries", "prefix sums", "binary lifting"],
+  "order": 10
+}

@@ -1,0 +1,113 @@
+---
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+
+import CompetitiveProgrammingResources from '../../../../features/competitive-programming/components/CompetitiveProgrammingResources.astro';
+import CompetitiveProgrammingSourceTabs from '../../../../features/competitive-programming/components/CompetitiveProgrammingSourceTabs.astro';
+import DsaLatexContent from '../../../../features/competitive-programming-dsa/components/DsaLatexContent.astro';
+import { getDsaNoteRecord, getDsaNoteRecords, getDsaRoutePath } from '../../../../features/competitive-programming-dsa/lib/dsa';
+import { renderLatexContent } from '../../../../features/competitive-programming/lib/latex-editorial';
+import PostLayout from '../../../../layouts/PostLayout.astro';
+import { withBase } from '../../../../lib/paths';
+
+export async function getStaticPaths() {
+	const notes = await getDsaNoteRecords();
+	return notes.map((note) => ({
+		params: {
+			category: note.categorySlug,
+			note: note.slug,
+		},
+	}));
+}
+
+const categoryParam = Astro.params.category;
+const noteParam = Astro.params.note;
+if (!categoryParam || !noteParam) {
+	throw new Error('Missing DSA note route parameters.');
+}
+
+const note = await getDsaNoteRecord(categoryParam, noteParam);
+if (!note) {
+	throw new Error(`Unknown DSA note: ${categoryParam}/${noteParam}`);
+}
+
+const [texSource, cppSource] = await Promise.all([
+	fs.readFile(path.resolve(process.cwd(), note.sourcePaths.tex), 'utf8'),
+	fs.readFile(path.resolve(process.cwd(), note.sourcePaths.cpp), 'utf8'),
+]);
+
+const rendered = renderLatexContent(texSource, {
+	headingDepthOffset: 2,
+	headingSlugPrefix: `dsa-note-${note.categorySlug}-${note.slug}`,
+	assetBasePath: withBase(note.assetUrls.assetBase),
+});
+
+const headings = [
+	{ depth: 2, slug: 'note', text: 'Note' },
+	...rendered.headings,
+	{ depth: 2, slug: 'code', text: 'Code' },
+	{ depth: 2, slug: 'source-files', text: 'Source Files and Assets' },
+];
+
+const resourceLinks = [
+	{ label: 'Note TeX', href: note.assetUrls.tex, path: note.sourcePaths.tex },
+	{ label: 'C++ code', href: note.assetUrls.cpp, path: note.sourcePaths.cpp },
+	...note.assetUrls.figures.map((href, index) => ({
+		label: `Figure ${index + 1}`,
+		href,
+		path: note.sourcePaths.figures[index],
+	})),
+];
+---
+
+<PostLayout
+	title={note.title}
+	description={note.summary}
+	eyebrow="Data Structures & Algorithms"
+	backHref={getDsaRoutePath(note.categorySlug)}
+	backLabel={note.categoryTitle}
+	tags={note.tags}
+	metaItems={[
+		{ label: 'Category', value: note.categoryTitle },
+		{ label: 'Level', value: note.level },
+		{ label: 'Source', value: 'TeX + C++' },
+	]}
+	headings={headings}
+	primaryLink={{ label: 'DSA landing page', href: withBase(getDsaRoutePath()) }}
+	secondaryLinks={[
+		{ label: 'This category', href: withBase(getDsaRoutePath(note.categorySlug)) },
+		{ label: 'Jump to Code', href: '#code' },
+	]}
+>
+	<DsaLatexContent
+		sectionId="note"
+		label={note.categoryTitle}
+		title={note.title}
+		description="The main note is rendered from the TeX source. Code lives in a separate C++ file so the write-up stays readable."
+		html={rendered.html}
+		rawUrl={note.assetUrls.tex}
+		usedFallback={rendered.usedFallback}
+	/>
+
+	<CompetitiveProgrammingSourceTabs
+		rootId={`dsa-code-${note.id}`}
+		sectionId="code"
+		sectionLabel="Implementation"
+		title="Code"
+		description="Contest-ready reference implementation for the idea explained above."
+		showPaths={true}
+		tabs={[
+			{
+				id: 'cpp',
+				label: 'C++',
+				description: 'Kept as a standalone source file so the implementation can be copied without TeX markup around it.',
+				path: note.sourcePaths.cpp,
+				rawUrl: note.assetUrls.cpp,
+				languageClass: 'language-cpp',
+				source: cppSource,
+			},
+		]}
+	/>
+
+	<CompetitiveProgrammingResources links={resourceLinks} />
+</PostLayout>

@@ -1,0 +1,81 @@
+\section*{Overview}
+
+The sparse table is what I want when the array will never change after preprocessing. In that setting it beats a
+segment tree on simplicity for idempotent queries such as minimum, maximum, or gcd.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item the data is immutable,
+  \item the merge operation is associative,
+  \item especially when the operation is idempotent, so two overlapping blocks are harmless.
+\end{itemize}
+
+The standard examples are RMQ, range maximum, and range gcd.
+
+\section*{Core Idea}
+
+Precompute answers for every interval whose length is a power of two:
+
+\[
+\texttt{st[k][i]} = \text{answer on } [i,\, i + 2^k - 1].
+\]
+
+Then any interval is assembled from those blocks. For general associative queries that takes \(O(\log n)\) blocks.
+For idempotent queries such as minimum, we only need two overlapping blocks of equal length:
+
+\[
+\min([l,r]) = \min(\texttt{st[k][l]},\, \texttt{st[k][r-2^k+1]}),
+\]
+
+where \(k = \lfloor \log_2(r-l+1) \rfloor\).
+
+\section*{Operations}
+
+\begin{itemize}
+  \item \textbf{build}: fill level \(0\), then combine adjacent blocks to build higher levels.
+  \item \textbf{query}: choose the largest power of two fitting inside the interval.
+\end{itemize}
+
+\section*{Correctness Intuition}
+
+Every power-of-two block answer is correct by construction. For RMQ-style queries, the two chosen blocks together
+cover the whole interval. They may overlap, but idempotence means reusing elements does not change the answer.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item Build: \(O(n \log n)\)
+  \item RMQ query: \(O(1)\)
+  \item Memory: \(O(n \log n)\)
+\end{itemize}
+
+\section*{Implementation}
+
+The reference code stores a minimum sparse table and a precomputed logarithm table. It is short enough that I often
+prefer it over an LCA-specific RMQ helper when the query type is already static.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using the two-block \(O(1)\) query formula on a non-idempotent operation such as sum.
+  \item Forgetting that preprocessing cost and memory both scale by \(n \log n\).
+  \item Building the log table with the wrong base case.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Static range minimum query.
+  \item LCA via Euler tour + RMQ.
+  \item Static range gcd or maximum queries.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/data_structures/sparse-table.html}{cp-algorithms: Sparse Table}.
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+\end{itemize}

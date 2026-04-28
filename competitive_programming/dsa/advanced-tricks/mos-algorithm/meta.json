@@ -1,0 +1,7 @@
+{
+  "title": "Mo's Algorithm",
+  "summary": "Offline range-query ordering that trades sorting plus add/remove operations for fast answers on static arrays.",
+  "level": "intermediate",
+  "tags": ["offline queries", "sqrt decomposition", "frequency counting"],
+  "order": 20
+}

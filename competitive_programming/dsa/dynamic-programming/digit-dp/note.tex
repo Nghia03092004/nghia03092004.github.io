@@ -1,0 +1,106 @@
+\section*{Overview}
+
+Digit DP is the technique for counting integers in a large range when the property depends on the digits themselves.
+Instead of iterating through every number up to \(10^{18}\), I build the answer one digit at a time while tracking
+just enough state to know whether a partial prefix can still lead to a valid number.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item the range endpoint is huge, so direct iteration is impossible,
+  \item validity depends on decimal digits, digit counts, adjacency, sums, or remainders,
+  \item the natural way to answer \([L, R]\) is \(\texttt{solve}(R) - \texttt{solve}(L - 1)\).
+\end{itemize}
+
+If the property does not care about digits specifically, a normal combinatorial DP or prefix technique is usually
+cleaner.
+
+\section*{Core Idea}
+
+Write an upper bound \(N\) as a string of digits. Process it from left to right.
+
+The standard state usually contains:
+
+\begin{itemize}
+  \item \textbf{position}: which digit are we filling now,
+  \item \textbf{tight}: have we matched the prefix of \(N\) exactly so far,
+  \item \textbf{started}: have we placed a non-leading-zero digit yet,
+  \item problem-specific state such as digit sum, remainder, previous digit, or count information.
+\end{itemize}
+
+The \texttt{tight} flag is the reason the DP respects the upper bound. If it is still true, the current digit cannot
+exceed the corresponding digit of \(N\). Once it becomes false, the rest of the positions can use any digit.
+
+\section*{Operations}
+
+\begin{itemize}
+  \item define \(\texttt{solve}(N)\) on one upper bound,
+  \item memoize only the states with \texttt{tight = false},
+  \item loop over the next digit and update the problem-specific state,
+  \item answer a range by subtraction.
+\end{itemize}
+
+The reference code counts numbers whose digit sum is exactly a given target. That example is small enough to read,
+but the same skeleton extends to many other properties.
+
+\section*{Correctness Intuition}
+
+Every integer in \([0, N]\) corresponds to exactly one root-to-leaf path in the state graph: the path that writes its
+decimal digits from left to right. The \texttt{tight} flag guarantees that invalid prefixes above \(N\) are never
+generated, and the problem-specific state records all information needed to decide validity at the end.
+
+Because two states with the same \((position, problem\_state, started)\) and \(\texttt{tight = false}\) have exactly
+the same future options, memoizing them is valid.
+
+\section*{Complexity Analysis}
+
+If the problem-specific state size is \(S\) and the decimal alphabet size is \(10\), then the complexity is roughly
+\(O(\text{digits} \cdot S \cdot 10)\).
+
+For the example note code:
+
+\begin{itemize}
+  \item states: position, sum so far, started,
+  \item transitions per state: 10 digits,
+  \item memory: \(O(\text{digits} \cdot \text{target sum})\).
+\end{itemize}
+
+\section*{Implementation}
+
+The reference implementation exposes:
+
+\begin{itemize}
+  \item \texttt{count\_exact\_sum(limit, wanted\_sum)}
+  \item \texttt{count\_in\_range(left, right, wanted\_sum)}
+\end{itemize}
+
+It treats leading zeros carefully so that the digit sum of \(0\) is still defined sensibly. In real problems I often
+replace the sum state with a remainder, a previous digit, a bitmask, or some compressed automaton state.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting the \texttt{started} flag and accidentally counting leading zeros as real digits.
+  \item Memoizing tight states, which depend on the exact upper bound prefix.
+  \item Returning the wrong base case for the number \(0\).
+  \item Letting the problem-specific state grow too large and turning the DP into a memory sink.
+  \item Writing the transitions correctly for \(\texttt{solve}(N)\) but forgetting to subtract \(\texttt{solve}(L - 1)\).
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count numbers with a fixed digit sum or digit remainder condition.
+  \item Count numbers with no adjacent equal digits.
+  \item Range counting where the digit property can be represented by a small automaton or previous-digit state.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/gold/digit-dp?lang=cpp}{USACO Guide: Digit DP}.
+  \item \href{https://usaco.guide/PAPS.pdf}{Principles of Algorithmic Problem Solving}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}
