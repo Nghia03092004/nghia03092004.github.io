@@ -33,5 +33,10 @@ def solve():
                 c += 1
         a += 1
 
-    answer = sum(progressive_squares)
+    return sum(progressive_squares)
+
+
+if __name__ == "__main__":
+    answer = solve()
+    assert answer == 878454337159
     print(answer)

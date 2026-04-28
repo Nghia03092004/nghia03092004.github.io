@@ -6,7 +6,7 @@ How many entries in the first $10^9$ rows of Pascal's triangle are **not** divis
 
 (Rows are numbered starting from row 0 at the top.)
 
-## Mathematical Analysis
+## Mathematical Development
 
 ### Lucas' Theorem
 
@@ -56,7 +56,32 @@ $$S(7^k) = \prod_{i=0}^{k-1} \sum_{d_i=0}^{6} (d_i + 1) = \prod_{i=0}^{k-1} 28 =
 
 $10^9 = (3\; 3\; 5\; 3\; 1\; 6\; 0\; 0\; 6\; 1\; 6)_7$ (MSB to LSB).
 
-## Complexity
+## Editorial
+
+Lucas' theorem turns the divisibility question into a digit-by-digit counting problem in base 7. Once row $n$ is written in base 7, the number of entries in that row not divisible by 7 is simply the product of one plus each digit. So the global task is no longer about Pascal's triangle directly; it becomes a digit-DP style summation over all rows from 0 up to $10^9-1$.
+
+The implementation uses the recurrence for complete base-7 blocks. When the current digit equals $d$, all smaller leading digits contribute
+$$\frac{d(d+1)}{2}\cdot 28^i,$$
+and the rows sharing that same leading digit contribute an extra factor of $(d+1)$ times the result from the already processed lower part. Processing the base-7 digits from least significant to most significant therefore builds the answer in logarithmic time.
+
+## Pseudocode
+
+```text
+Write $10^9$ in base 7, keeping the digits from least significant to most significant.
+
+Initialize:
+    the answer as 0,
+    the current block weight as $28^0=1$.
+
+For each base-7 digit $d$ in that order:
+    Add the contribution of all rows whose current digit is smaller than $d$.
+    Then scale the partial answer by $(d+1)$ to account for rows whose current digit matches $d$.
+    Advance the block weight from $28^i$ to $28^{i+1}$.
+
+After the final digit has been processed, return the accumulated answer.
+```
+
+## Complexity Analysis
 
 - Converting $N$ to base 7: $O(\log_7 N)$ digits.
 - Iterative computation: $O(\log_7 N)$ steps.

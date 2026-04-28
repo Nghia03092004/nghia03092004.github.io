@@ -45,4 +45,10 @@ def solve():
         x0, y0 = x1, y1
         x1, y1 = x2, y2
 
-    print(count)
+    return count
+
+
+if __name__ == "__main__":
+    answer = solve()
+    assert answer == 354
+    print(answer)

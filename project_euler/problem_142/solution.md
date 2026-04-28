@@ -4,7 +4,7 @@
 
 Find the smallest $x + y + z$ with $x > y > z > 0$ such that all six quantities $x+y$, $x-y$, $x+z$, $x-z$, $y+z$, $y-z$ are perfect squares.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *Let $a^2 = x+y$, $b^2 = x-y$, $c^2 = x+z$, $d^2 = x-z$, $e^2 = y+z$, $f^2 = y-z$. Then the following Pythagorean-type identities hold:*
 1. $a^2 = c^2 + f^2$
@@ -35,13 +35,39 @@ which is identity (4). $\square$
 **Proof.** $x > y \iff b^2 = x - y > 0 \iff b > 0$. $y > z \iff f^2 = y - z > 0 \iff f > 0$. $x > z \iff d^2 > 0 \iff d > 0$. The ordering among $a, c, e$ follows from $a^2 = c^2 + f^2 > c^2$ and $c^2 = b^2 + e^2 > e^2$. $\square$
 
 ## Editorial
-Let a^2=x+y, b^2=x-y, c^2=x+z, d^2=x-z, e^2=y+z, f^2=y-z. Key relations: a^2 - f^2 = c^2 => a^2 = c^2 + f^2 c^2 - b^2 = e^2 => c^2 = b^2 + e^2 (and then d^2 = a^2 - e^2, verify b^2 + f^2 = d^2) Strategy: for each a, find all ways to write a^2 = c^2 + f^2. For each such (c, f), check if c^2 - b^2 = e^2 for some b, e with a^2 - e^2 = d^2 (perfect square) and b^2 + f^2 = d^2. Simpler: for each a, find all (c, f) with a^2 = c^2 + f^2. Then for each (c, f), iterate over e < c, check if c^2 - e^2 = b^2 (perfect square), and then check if a^2 - e^2 = d^2 (perfect square).
+The identities in the mathematical development suggest treating $a^2=x+y$ as the outer quantity and searching for compatible decompositions underneath it. Once $a$ is fixed, every valid solution must first split $a^2$ as
+$$a^2=c^2+f^2,$$
+so the program enumerates those Pythagorean decompositions by trying each possible $f$ and checking whether the remaining value is a square.
+
+For each surviving pair $(c,f)$, the next task is to choose $e$ so that
+$$c^2=b^2+e^2 \quad \text{and} \quad a^2-e^2=d^2.$$
+Those two square tests are enough to reconstruct $b$ and $d$, and the remaining identity $d^2=b^2+f^2$ is verified explicitly before building $(x,y,z)$. At that point the formulas
+$$x=\frac{a^2+b^2}{2},\qquad y=\frac{a^2-b^2}{2},\qquad z=e^2-y$$
+recover the candidate triple, and the search keeps the smallest value of $x+y+z$ that satisfies the strict ordering $x>y>z>0$.
 
 ## Pseudocode
 
 ```text
-INPUT: Find minimum x + y + z
-OUTPUT: Smallest valid x + y + z
+Start with the best sum marked as infinity.
+
+For each $a$ in a generous search range:
+    Compute $a^2$.
+
+    For each positive $f<a$:
+        Let $c^2=a^2-f^2$.
+        Continue only when $c^2$ is a perfect square.
+
+        For each $e$ with $1 \le e < c$:
+            Let $b^2=c^2-e^2$ and require it to be a perfect square.
+            Let $d^2=a^2-e^2$ and require it to be a perfect square as well.
+            Check that $b^2+f^2=d^2$ really holds.
+
+            Reconstruct
+            $$x=\frac{a^2+b^2}{2},\qquad y=\frac{a^2-b^2}{2},\qquad z=e^2-y.$$
+            If these are integers with $x>y>z>0$, compute $x+y+z$.
+            Replace the current best answer whenever this sum is smaller.
+
+Return the smallest sum found.
 ```
 
 ## Complexity Analysis

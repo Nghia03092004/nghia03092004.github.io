@@ -8,7 +8,7 @@ How many rectangles could be situated within a 47 x 43 cross-hatched grid?
 
 The answer is the **sum** over all sub-grid sizes $(w, h)$ for $1 \le w \le 47$ and $1 \le h \le 43$ of the count of rectangles in a $w \times h$ grid.
 
-## Mathematical Analysis
+## Mathematical Development
 
 ### Axis-Aligned Rectangles
 
@@ -48,13 +48,35 @@ where $D(w,h)$ is the diagonal rectangle count computed by the algorithm above.
 
 Note that $D(w,h) = D(h,w)$, so results are cached with sorted keys.
 
-## Correctness
+## Editorial
 
-**Theorem.** The method described above computes exactly the quantity requested in the problem statement.
+The total is accumulated over every sub-grid size, so for each pair $(w,h)$ the program needs the rectangle count in a single cross-hatched grid and then adds it to the grand sum. The axis-aligned part is immediate from the standard rectangle formula, so the only real work is counting tilted rectangles.
 
-*Proof.* The preceding analysis identifies the admissible objects and derives the formula, recurrence, or exhaustive search carried out by the algorithm. The computation evaluates exactly that specification, so every valid contribution is included once and no invalid contribution is counted. Therefore the returned value is the required answer. $\square$
+The implementation handles tilted rectangles by switching to doubled coordinates. In that model every 45-degree rectangle has integer endpoints, and the two possible parities of the starting cell correspond to the two families of diamond-shaped unit cells created by the cross-hatching. For each possible anchor and parity, the code extends one side along a descending diagonal and the other side along an ascending diagonal, counting every rectangle that stays inside the current grid. Because the tilted count is symmetric in $(w,h)$, it is cached with a sorted key and reused whenever the transposed grid appears later in the outer summation.
 
-## Complexity
+## Pseudocode
+
+```text
+Initialize the total answer to zero and create a cache for tilted counts.
+
+For every sub-grid width $w$ from 1 to 47:
+    For every sub-grid height $h$ from 1 to 43:
+        Add the axis-aligned rectangle count
+        $$\binom{w+1}{2}\binom{h+1}{2}.$$
+
+        If the tilted count for the unordered pair $(w,h)$ is not cached yet:
+            Enumerate every possible anchor cell and both parity classes.
+            From each anchor, extend the lower side along one diagonal direction.
+            For each such width, extend the opposite side along the perpendicular diagonal direction
+            while the far corner remains inside the doubled-coordinate boundary.
+            Count every valid placement exactly once and store the result in the cache.
+
+        Add the cached tilted count for this sub-grid.
+
+Return the accumulated total.
+```
+
+## Complexity Analysis
 
 - Axis-aligned: $O(1)$ per sub-grid, $O(MN)$ total.
 - Diagonal: $O(w \cdot h \cdot \min(w,h))$ per sub-grid in the worst case, with caching reducing repeated computations.

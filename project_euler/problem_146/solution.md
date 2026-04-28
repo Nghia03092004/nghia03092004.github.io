@@ -6,7 +6,7 @@ The smallest positive integer $n$ for which the numbers $n^2+1$, $n^2+3$, $n^2+7
 
 Find the sum of all integers $n$, $0 < n < 150{,}000{,}000$, such that $n^2+1$, $n^2+3$, $n^2+7$, $n^2+9$, $n^2+13$, and $n^2+27$ are consecutive primes.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Parity constraint).** *For $n^2 + 1$ to be an odd prime (greater than 2), $n$ must be even.*
 
@@ -48,17 +48,37 @@ So $n^2 \equiv 2 \pmod{7}$, i.e., $n \equiv 3$ or $4 \pmod{7}$. $\square$
 **Proof.** This follows from the result of Jaeschke (1993) and subsequent computational verification: the witnesses $\{2, 3, 5, 7, 11, 13\}$ form a sufficient set for numbers below $3.317 \times 10^{24}$. $\square$
 
 ## Editorial
-We precompute valid residues mod 210 = lcm(2, 3, 5, 7). We then quick composite checks for must-not-be-prime offsets. Finally, check consecutive: no primes at intermediate offsets.
+The key to making the search feasible is to eliminate almost every integer before any expensive primality testing happens. The congruence arguments force $n$ into a tiny set of residue classes modulo $210=\operatorname{lcm}(2,3,5,7)$, so the program first precomputes exactly which residues survive those modular filters.
+
+The main loop then scans candidates of the form $n=\text{base}+r$ using only those residues. For each candidate, it first checks that the six required values
+$$n^2+1,\ n^2+3,\ n^2+7,\ n^2+9,\ n^2+13,\ n^2+27$$
+are prime. Only after that does it verify the "consecutive primes" condition by testing the odd offsets in between that are supposed to be composite. Because the candidate set is already heavily reduced, deterministic Miller-Rabin primality tests are fast enough for the full bound.
 
 ## Pseudocode
 
 ```text
-INPUT: Bound B = 150,000,000
-OUTPUT: Sum of all valid n
-Precompute valid residues mod 210 = lcm(2, 3, 5, 7)
-Quick composite checks for must-not-be-prime offsets
-Check consecutive: no primes at intermediate offsets
-if ok
+Set the search limit to 150000000.
+Precompute all residues modulo 210 that satisfy the parity, mod 3, mod 5, and mod 7 filters.
+
+Prepare the two offset lists:
+    one list for values that must be prime,
+    one list for odd intermediate values that must be composite.
+
+Initialize the answer to zero.
+For each multiple of 210 below the limit:
+    For each admissible residue:
+        Form the candidate $n$ and skip it if it falls outside the open interval $(0,150000000)$.
+        Compute $n^2$ once.
+
+        Test every required offset for primality.
+        If any required value is composite, reject this candidate immediately.
+
+        Then test every forbidden odd offset.
+        If any forbidden value is prime, reject this candidate.
+
+        Otherwise add $n$ to the running total.
+
+Return the total.
 ```
 
 ## Complexity Analysis

@@ -6,7 +6,7 @@ A laser beam enters a white cell (an ellipse defined by $4x^2 + y^2 = 100$) at t
 
 How many times does the laser beam hit the internal surface before exiting through the opening at the top ($-0.01 \leq x \leq 0.01$ on the top of the ellipse)?
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *For the ellipse $4x^2 + y^2 = 100$, the outward unit normal at a point $(x_0, y_0)$ on the ellipse is proportional to $(4x_0, y_0)$.*
 
@@ -38,17 +38,29 @@ $\square$
 **Proof.** The numerator $2(4x_0 d_x + y_0 d_y) = 2(\mathbf{n} \cdot \mathbf{d})$ vanishes only when $\mathbf{d}$ is tangent to the ellipse at $(x_0, y_0)$. After reflection, $\mathbf{d}'$ has a nonzero normal component (since the incoming ray was not tangent), so the numerator is nonzero. $\square$
 
 ## Editorial
-Simulate laser reflections inside the ellipse 4x^2 + y^2 = 100. Entry at (0, 10.1), first hit at (1.4, -9.6). Exit when |x| <= 0.01 at the top (y > 0). We repeat. We then reflect. Finally, next intersection.
+This problem is a straight geometric simulation once the reflection formula is in place. At each impact point on the ellipse, the incoming beam direction is reflected across the normal vector $(4x,y)$. That gives the outgoing direction without ever computing angles explicitly.
+
+After the direction has been updated, the next collision is the second intersection of the reflected ray with the ellipse. Substituting the parametric line into $4x^2+y^2=100$ yields a quadratic with one root at the current point and one nonzero root at the next impact. Repeating this step advances the beam from reflection to reflection until the new point lies inside the narrow exit window near the top of the ellipse. The answer is simply the number of internal hits before that escape happens.
 
 ## Pseudocode
 
 ```text
-INPUT: Ellipse 4x^2 + y^2 = 100, entry (0, 10.1), first hit (1.4, -9.6)
-OUTPUT: Number of internal reflections before exit
-repeat
-Reflect
-Next intersection
-Check exit
+Start from the entry point and the first point where the beam hits the ellipse.
+Initialize the reflection counter to zero.
+
+Repeat:
+    Form the incoming direction from the previous point to the current one.
+    Compute the surface normal $(4x,y)$ at the current impact point.
+    Reflect the direction vector across that normal.
+
+    Intersect the reflected ray with the ellipse.
+    Ignore the zero root corresponding to the current point and keep the other root.
+    Move to that next intersection point and increase the reflection counter.
+
+    If the new point has positive $y$ and lies within the exit window
+    $|x| \le 0.01$, stop the simulation.
+
+Return the number of reflections performed before stopping.
 ```
 
 ## Complexity Analysis

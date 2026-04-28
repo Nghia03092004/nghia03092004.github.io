@@ -10,7 +10,7 @@ Row $r$ (0-indexed) has $r+1$ entries. A **downward-pointing sub-triangle** with
 
 **Find the sub-triangle with the minimum sum.**
 
-## Mathematical Analysis
+## Mathematical Development
 
 ### Linear Congruential Generator
 
@@ -48,22 +48,31 @@ Since $s_k \in [-2^{19}, 2^{19} - 1]$ with mean approximately $-0.5$, many sub-t
 - Total number of entries: $\sum_{r=0}^{999} (r+1) = 500500$.
 - The minimum sub-triangle sum is negative and large in magnitude.
 
-## Solution Approaches
+## Editorial
 
-### Approach 1: Prefix Sums + Triple Loop (Primary)
+The generator produces half a million entries, but the important observation is that a downward-pointing sub-triangle can be grown one row at a time. Once row prefix sums are available, the contribution of the next row segment under a fixed apex is an $O(1)$ lookup, so extending the triangle by one level costs constant time instead of recomputing the entire sum.
 
-1. Generate the triangular array using the LCG.
-2. Compute prefix sums for each row.
-3. For each apex $(r, c)$, extend depth $h = 0, 1, \ldots$ while $r + h < N$.
-4. Track the running minimum over all sub-triangles.
+The implementation therefore has two phases. First it builds the triangular array and the prefix sums for every row. Then it tries every possible apex $(r,c)$. Starting from height zero, it keeps a running subtotal and repeatedly adds the next row slice
+$$P[r+h][c+h+1]-P[r+h][c].$$
+Each intermediate subtotal is the sum of one specific downward-pointing sub-triangle, so updating the global minimum during this expansion visits every candidate exactly once.
 
-### Approach 2: Brute Force (for verification on small $N$)
+## Pseudocode
 
-Generate a small triangle and enumerate all sub-triangles explicitly.
+```text
+Generate the triangular array from the linear congruential generator.
 
-## Proof of Correctness
+For each row, build a prefix-sum array so any contiguous slice in that row can be read in constant time.
 
-The algorithm exhaustively examines every possible (apex, depth) pair. The prefix sum technique correctly computes each row-slice in $O(1)$. The running minimum across all sub-triangles gives the global minimum.
+Initialize the best answer to positive infinity.
+
+For every apex position $(r,c)$ in the triangle:
+    Set the current sub-triangle sum to zero.
+    Increase the height one row at a time while the triangle still fits:
+        Add the new bottom row segment using the row prefix sums.
+        Compare the updated subtotal against the global minimum.
+
+Return the smallest subtotal encountered.
+```
 
 ## Complexity Analysis
 
@@ -73,42 +82,3 @@ The algorithm exhaustively examines every possible (apex, depth) pair. The prefi
 ## Answer
 
 $$\boxed{-271248680}$$
-## Extended Analysis
-
-### Detailed Derivation
-
-The solution proceeds through several key steps, each building on fundamental results from number theory and combinatorics.
-
-**Step 1: Problem Reduction.** The original problem is first reduced to a computationally tractable form. This involves identifying the key mathematical structure (multiplicative functions, recurrences, generating functions, or geometric properties) that underlies the problem.
-
-**Step 2: Algorithm Design.** Based on the mathematical structure, we design an efficient algorithm. The choice between dynamic programming, sieve methods, recursive enumeration, or numerical computation depends on the problem's specific characteristics.
-
-**Step 3: Implementation.** The algorithm is implemented with careful attention to numerical precision, overflow avoidance, and modular arithmetic where applicable.
-
-### Numerical Verification
-
-The solution has been verified through multiple independent methods:
-
-1. **Small-case brute force:** For reduced problem sizes, exhaustive enumeration confirms the algorithm's correctness.
-
-2. **Cross-implementation:** Both Python and C++ implementations produce identical results, ruling out language-specific numerical issues.
-
-3. **Mathematical identities:** Where applicable, the computed answer satisfies known mathematical identities or asymptotic bounds.
-
-### Historical Context
-
-This problem draws on classical results in mathematics. The techniques used have roots in the work of Euler, Gauss, and other pioneers of number theory and combinatorics. Modern algorithmic implementations of these classical ideas enable computation at scales far beyond what was possible historically.
-
-### Error Analysis
-
-For problems involving modular arithmetic, the computation is exact (no rounding errors). For problems involving floating-point computation, the algorithm maintains sufficient precision throughout to guarantee correctness of the final answer.
-
-### Alternative Approaches Considered
-
-Several alternative approaches were considered during solution development:
-
-- **Brute force enumeration:** Feasible for verification on small inputs but exponential in the problem parameters, making it impractical for the full problem.
-
-- **Analytic methods:** Closed-form expressions or generating function techniques can sometimes bypass the need for explicit computation, but the problem's structure may not always admit such simplification.
-
-- **Probabilistic estimates:** While useful for sanity-checking, these cannot provide the exact answer required.
