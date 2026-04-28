@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import copyTexScriptUrl from 'katex/dist/contrib/copy-tex.min.js?url';
+import copyCodeScriptUrl from '../scripts/code-copy.js?url';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { withBase } from '../lib/paths';
@@ -47,6 +48,7 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString(
 			</main>
 			<SiteFooter />
 		</div>
+		<script type="module" src={copyCodeScriptUrl}></script>
 		<script is:inline src={copyTexScriptUrl} defer></script>
 	</body>
 </html>

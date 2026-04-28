@@ -116,7 +116,7 @@ const hasMeta =
 															<button
 																class="source-copy"
 																type="button"
-																data-statement-copy={inputId}
+																data-copy-target={inputId}
 															>
 																Copy
 															</button>
@@ -129,7 +129,7 @@ const hasMeta =
 															<button
 																class="source-copy"
 																type="button"
-																data-statement-copy={outputId}
+																data-copy-target={outputId}
 															>
 																Copy
 															</button>
@@ -170,44 +170,3 @@ const hasMeta =
 		)
 	}
 </section>
-
-<script is:inline>
-	const setupStatementCopyButtons = () => {
-		document.querySelectorAll('[data-statement-copy]').forEach((button) => {
-			if (!(button instanceof HTMLButtonElement) || button.dataset.copyBound === 'true') {
-				return;
-			}
-
-			button.addEventListener('click', async () => {
-				const targetId = button.dataset.statementCopy;
-				const code = targetId ? document.getElementById(targetId)?.textContent ?? '' : '';
-				if (!code) {
-					return;
-				}
-
-				try {
-					await navigator.clipboard.writeText(code);
-					button.textContent = 'Copied';
-					window.setTimeout(() => {
-						button.textContent = 'Copy';
-					}, 1200);
-				} catch {
-					button.textContent = 'Unavailable';
-					window.setTimeout(() => {
-						button.textContent = 'Copy';
-					}, 1200);
-				}
-			});
-
-			button.dataset.copyBound = 'true';
-		});
-	};
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', setupStatementCopyButtons, { once: true });
-	} else {
-		setupStatementCopyButtons();
-	}
-
-	document.addEventListener('astro:page-load', setupStatementCopyButtons);
-</script>

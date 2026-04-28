@@ -9,6 +9,8 @@ interface Props {
 
 const { problem, cppSource, pythonSource, cppPath, pythonPath } = Astro.props;
 const rootId = `source-tabs-${problem}`;
+const cppCodeId = `${rootId}-code-cpp`;
+const pythonCodeId = `${rootId}-code-python`;
 ---
 
 <section class="source-library panel" id="code" data-source-root={rootId}>
@@ -34,18 +36,18 @@ const rootId = `source-tabs-${problem}`;
 		<div class="source-panel__meta">
 			<span class="metric">C++</span>
 			<code>{cppPath}</code>
-			<button class="source-copy" type="button" data-source-copy="cpp">Copy</button>
+			<button class="source-copy" type="button" data-copy-target={cppCodeId}>Copy</button>
 		</div>
-		<pre><code class="language-cpp">{cppSource}</code></pre>
+		<pre><code id={cppCodeId} class="language-cpp">{cppSource}</code></pre>
 	</article>
 
 	<article class="source-panel" id="python-source" data-source-panel="python" hidden>
 		<div class="source-panel__meta">
 			<span class="metric">Python</span>
 			<code>{pythonPath}</code>
-			<button class="source-copy" type="button" data-source-copy="python">Copy</button>
+			<button class="source-copy" type="button" data-copy-target={pythonCodeId}>Copy</button>
 		</div>
-		<pre><code class="language-python">{pythonSource}</code></pre>
+		<pre><code id={pythonCodeId} class="language-python">{pythonSource}</code></pre>
 	</article>
 </section>
 
@@ -55,7 +57,6 @@ const rootId = `source-tabs-${problem}`;
 	sourceRoots.forEach((root) => {
 		const buttons = Array.from(root.querySelectorAll('[data-source-tab]'));
 		const panels = Array.from(root.querySelectorAll('[data-source-panel]'));
-		const copyButtons = Array.from(root.querySelectorAll('[data-source-copy]'));
 
 		const setActive = (language) => {
 			buttons.forEach((button) => {
@@ -73,30 +74,6 @@ const rootId = `source-tabs-${problem}`;
 
 		buttons.forEach((button) => {
 			button.addEventListener('click', () => setActive(button.dataset.sourceTab));
-		});
-
-		copyButtons.forEach((button) => {
-			button.addEventListener('click', async () => {
-				const language = button.dataset.sourceCopy;
-				const codeElement = root.querySelector(`[data-source-panel="${language}"] code`);
-				const code = codeElement?.textContent ?? '';
-				if (!code) {
-					return;
-				}
-
-				try {
-					await navigator.clipboard.writeText(code);
-					button.textContent = 'Copied';
-					window.setTimeout(() => {
-						button.textContent = 'Copy';
-					}, 1200);
-				} catch {
-					button.textContent = 'Unavailable';
-					window.setTimeout(() => {
-						button.textContent = 'Copy';
-					}, 1200);
-				}
-			});
 		});
 
 		setActive('cpp');

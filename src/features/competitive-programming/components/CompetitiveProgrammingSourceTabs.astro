@@ -82,12 +82,16 @@ const showTabs = tabs.length > 1;
 					</div>
 					<div class="source-panel__actions">
 						<a class="button button--ghost" href={withBase(tab.rawUrl)}>Raw file</a>
-						<button class="source-copy" type="button" data-source-copy={tab.id}>
+						<button
+							class="source-copy"
+							type="button"
+							data-copy-target={`${rootId}-${tab.id}-code`}
+						>
 							Copy
 						</button>
 					</div>
 				</div>
-				<pre><code class={tab.languageClass}>{tab.source}</code></pre>
+				<pre><code id={`${rootId}-${tab.id}-code`} class={tab.languageClass}>{tab.source}</code></pre>
 			</article>
 		))
 	}
@@ -103,7 +107,6 @@ const showTabs = tabs.length > 1;
 
 		const buttons = Array.from(root.querySelectorAll('[data-source-tab]'));
 		const panels = Array.from(root.querySelectorAll('[data-source-panel]'));
-		const copyButtons = Array.from(root.querySelectorAll('[data-source-copy]'));
 
 		const setActive = (tabId) => {
 			buttons.forEach((button) => {
@@ -121,30 +124,6 @@ const showTabs = tabs.length > 1;
 
 		buttons.forEach((button) => {
 			button.addEventListener('click', () => setActive(button.dataset.sourceTab));
-		});
-
-		copyButtons.forEach((button) => {
-			button.addEventListener('click', async () => {
-				const tabId = button.dataset.sourceCopy;
-				const codeElement = root.querySelector(`[data-source-panel="${tabId}"] code`);
-				const code = codeElement?.textContent ?? '';
-				if (!code) {
-					return;
-				}
-
-				try {
-					await navigator.clipboard.writeText(code);
-					button.textContent = 'Copied';
-					window.setTimeout(() => {
-						button.textContent = 'Copy';
-					}, 1200);
-				} catch {
-					button.textContent = 'Unavailable';
-					window.setTimeout(() => {
-						button.textContent = 'Copy';
-					}, 1200);
-				}
-			});
 		});
 
 		setActive(root.dataset.defaultTab ?? 'tex');

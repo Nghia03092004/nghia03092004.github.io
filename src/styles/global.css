@@ -94,6 +94,23 @@ pre {
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+.code-copy-shell {
+	position: relative;
+	margin: 1em 0;
+}
+
+.code-copy-shell > pre {
+	margin: 0;
+	padding-top: 3.85rem;
+}
+
+.code-copy-button {
+	position: absolute;
+	top: 0.85rem;
+	right: 0.85rem;
+	z-index: 1;
+}
+
 pre code {
 	background: transparent;
 	padding: 0;
