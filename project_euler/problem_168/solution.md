@@ -4,7 +4,7 @@
 
 Find all integers $n$ with $10 \leq n < 10^{100}$ such that moving the last digit of $n$ to the front produces a number that is an exact multiple of $n$. Sum the last 5 digits of all such $n$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Algebraic formulation).** *Let $n$ be a $d$-digit number ($d \geq 2$) with last digit $r$. Write $n = 10q + r$ where $q = \lfloor n/10 \rfloor$. The rotated number is $m = r \cdot 10^{d-1} + q$. The condition $m = kn$ for a positive integer $k$ is equivalent to:*
 $$q = \frac{r(10^{d-1} - k)}{10k - 1}$$
@@ -36,22 +36,26 @@ Since each $a_i \in \{0, \ldots, 9\}$ and $c_i \in \{0, \ldots, 8\}$ (because $k
 **Proof.** As shown in Lemma 1, $r = 0$ is impossible. For each $(k, r)$, the carry recurrence starting from $c_d = 0$, $a_d = r$ generates digits $a_{d-1}, a_{d-2}, \ldots$ with carries $c_{d-1}, c_{d-2}, \ldots$. A valid $n$ of length $d$ requires returning to carry $c = 0$ with the final digit being $a_d = r$ after $d$ steps. This happens at all multiples of the fundamental cycle length. $\square$
 
 ## Editorial
-(The actual implementation tracks the carry recurrence carefully and checks the cycle-closing condition at each length.). We compute next digit and carry. We then check cycle closure: need carry = 0 and new_digit produces r. Finally, i.e., k * new_digit + carry_at_this_step should close.
+The solver works digit by digit from the rightmost end. Once the multiplier $k$ and the final digit $r$ are fixed, the multiplication relation determines the next digit and carry uniquely. So each pair $(k,r)$ generates a deterministic digit stream rather than a branching search tree.
+
+As the digits are produced, the program keeps the last five digits of the current candidate modulo $100000$, because that is all the final sum needs. Whenever the recurrence closes cleanly, meaning the carry vanishes and the left end reconnects to the original last digit, a valid rotated multiple has been found. Enumerating all $k \in \{1,\dots,9\}$ and $r \in \{1,\dots,9\}$, and extending each chain up to 100 digits, covers every admissible number below $10^{100}$.
 
 ## Pseudocode
 
 ```text
-Start: digit = r, carry = 0
-Compute next digit and carry
-Check cycle closure: need carry = 0 and new_digit produces r
-i.e., k * new_digit + carry_at_this_step should close
-Actually: check if carry = 0 and the leading digit gives
-k * a_1 + c_1 = r (the rotation condition)
-Actually: need k*a_1 + c_1 = a_d = r with no further carry
-This means the cycle has closed
-but must verify the leading digit a_1 != 0
-(no leading zeros in n)
-Simpler: just check closing condition properly
+Initialize the answer modulo 100000 to zero.
+
+For each multiplier $k$ from 1 to 9:
+    For each possible last digit $r$ from 1 to 9:
+        Start the recurrence with current digit $r$ and carry 0.
+        Build the number from right to left for lengths up to 100 digits,
+        updating the stored last-five-digit residue as new digits are appended.
+
+        After each step, compute the next digit and next carry from the multiplication rule.
+        Whenever the chain has length at least 2 and the new state closes back to digit $r$
+        with zero carry, record the current residue as one valid number.
+
+Return the final sum modulo 100000.
 ```
 
 ## Complexity Analysis

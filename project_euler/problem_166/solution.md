@@ -4,7 +4,7 @@
 
 A $4 \times 4$ grid is filled with digits $d$ ($0 \leq d \leq 9$), and we require that every row, every column, and both main diagonals all share the same sum $S$. How many such grids exist?
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Definition.** A *semi-magic square of order 4 over digits* is a $4 \times 4$ matrix $(a_{ij})$ with $a_{ij} \in \{0, 1, \ldots, 9\}$ such that all row sums, column sums, and both main diagonal sums equal a common value $S$.
 
@@ -32,15 +32,30 @@ $$m = S - a - e - i, \quad n = S - b - f - j, \quad o = S - c - g - k, \quad p =
 **Proof.** These are the only constraints not yet enforced by the row-sum and column-sum conditions. $\square$
 
 ## Editorial
-Optimization: precompute tuples per sum $S$. Use early termination: after fixing rows 1 and 2, check partial diagonal feasibility before enumerating row 3. Split enumeration with meet-in-the-middle on top-two vs. bottom-two rows. We generate all 4-tuples of digits summing to S. We then determine Row 4. Finally, check digits in range.
+The code uses meet-in-the-middle around the common sum $S$. For a fixed $S$, every row must be a 4-tuple of digits summing to $S$, so the first step is to generate that row catalog once. Instead of trying all four rows together, the program groups the top two rows and the bottom two rows separately.
+
+For the top half, it records the four partial column sums and the two partial diagonal sums that those rows contribute. For the bottom half, it computes the complementary values needed so that the full columns and diagonals land exactly on $S$. A hash map from the top-half signature to its multiplicity then makes the final count a lookup problem: every bottom-half configuration asks how many matching top halves can complete it. This turns a much heavier brute-force search into a manageable join over summarized states.
 
 ## Pseudocode
 
 ```text
-Generate all 4-tuples of digits summing to S
-Determine Row 4
-Check digits in range
-Check diagonals
+Initialize the total answer to zero.
+
+For each possible common sum $S$ from 0 to 36:
+    Generate every row of four digits whose entries add up to $S$.
+
+    Enumerate all ordered pairs of top rows.
+    For each pair, store in a map:
+        the four column sums contributed so far,
+        the two diagonal partial sums,
+        and how many times this signature occurs.
+
+    Enumerate all ordered pairs of bottom rows.
+    For each pair, compute the complementary signature needed from the top half
+    so that every column and both diagonals finish with total sum $S$.
+    Add the number of matching top-half signatures from the map.
+
+Return the accumulated total.
 ```
 
 ## Complexity Analysis

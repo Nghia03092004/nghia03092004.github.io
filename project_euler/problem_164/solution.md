@@ -4,7 +4,7 @@
 
 How many 20-digit numbers $n$ (without any leading zeros) exist such that no three consecutive digits of $n$ have a sum greater than 9?
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1 (Recurrence).** *Let $f(\ell, a, b)$ denote the number of $\ell$-digit suffixes (allowing leading zeros) such that the first two digits are $a$ and $b$, and every three consecutive digits sum to at most 9. Then:*
 $$f(\ell, a, b) = \begin{cases} 1 & \text{if } \ell = 2, \\ \displaystyle\sum_{d=0}^{9 - a - b} f(\ell - 1, b, d) & \text{if } \ell \geq 3. \end{cases}$$
@@ -29,16 +29,28 @@ $\square$
 **Proof.** Each multiplication by $M$ extends the suffix by one digit. After $\ell - 2$ multiplications, we sum over all terminal states. $\square$
 
 ## Editorial
-Count 20-digit numbers where no three consecutive digits sum > 9. Dynamic programming with state = (last two digits). We use dynamic programming with a rolling array. We then state: (last_two_digits) = (a, b) with a + b <= 9. Finally, initialize for length 2.
+The natural state is the last two digits already placed. Once those are known, the next digit is allowed to range only up to $9-a-b$, so the rest of the prefix no longer matters. That makes this a small dynamic program on ordered pairs $(a,b)$ rather than on full 20-digit strings.
+
+The implementation starts by enumerating all valid first-two-digit pairs, respecting the no-leading-zero rule. It then extends the number one digit at a time with a rolling DP table: each state `(a, b)` pushes its count to all next states `(b, c)` satisfying $a+b+c \le 9$. After the twentieth digit has been placed, summing the remaining state counts gives the answer.
 
 ## Pseudocode
 
 ```text
-DP with rolling array
-State: (last_two_digits) = (a, b) with a + b <= 9
-Initialize for length 2
-Extend from length 2 to length 20
-Sum over starting digits a >= 1
+Create a DP table indexed by the last two digits.
+
+Initialize all two-digit prefixes:
+    the first digit must be between 1 and 9,
+    the second digit must allow at least one valid continuation,
+    so only pairs with $a+b \le 9$ receive count 1.
+
+For each remaining digit position from 3 through 20:
+    build a fresh table.
+    For every current pair $(a,b)$ with nonzero count:
+        try every digit $c$ from 0 up to $9-a-b$.
+        Add the count from $(a,b)$ into the next state $(b,c)$.
+    Replace the old table with the new one.
+
+Return the sum of all counts in the final table.
 ```
 
 ## Complexity Analysis

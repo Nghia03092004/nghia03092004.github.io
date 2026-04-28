@@ -6,13 +6,13 @@ A triomino is a shape consisting of three unit squares joined edge-to-edge. Ther
 
 Determine the number of ways to tile a $9 \times 12$ grid with triominoes.
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** A *tiling* of a region $R$ by triominoes is a partition of the unit squares of $R$ into triominoes such that every square belongs to exactly one triomino.
 
 **Definition 2.** The *broken profile* at cell $(r, c)$ in a row-major traversal of a grid is the bitmask encoding which cells ahead of $(r, c)$ in the traversal order are already occupied by previously placed triominoes.
-
-## Mathematical Development
 
 **Theorem 1 (Existence and finiteness).** *The number of distinct tilings of the $9 \times 12$ grid by triominoes is a well-defined non-negative integer.*
 
@@ -46,13 +46,27 @@ After processing all $108$ cells, $\mathrm{dp}[0]$ counts the tilings where ever
 *Proof.* The upper bound follows from the bitmask width. The reduction occurs because many bitmask patterns (e.g., isolated single empty cells surrounded by filled cells) cannot arise from valid partial placements. $\square$
 
 ## Editorial
-Count the number of ways to tile a 9x12 grid with triominoes (both L-shaped and I-shaped) using broken-profile dynamic programming. We else. Finally, and the corresponding bits in mask are 0.
+The implementation uses broken-profile dynamic programming, scanning the board in row-major order and remembering only which future cells near the current frontier are already occupied. That is enough because every legal triomino placement is anchored at the first uncovered cell and extends only a small, fixed distance ahead. The state therefore collapses to a bitmask rather than the entire partial tiling.
+
+At each cell there are only two situations. If the low bit of the mask says the cell is already covered, the algorithm simply shifts the mask and advances. Otherwise it tries each of the six triomino shapes anchored at that position, checks whether every required square stays inside the grid and is currently free, and then marks those squares in the mask. Summing the transition counts over all cells gives the number of complete tilings, with mask `0` at the end representing a fully covered board.
 
 ## Pseudocode
 
 ```text
-else
-and the corresponding bits in mask are 0
+Start with one DP state: an empty frontier mask with count 1.
+
+Process the board cell by cell in row-major order.
+For each current mask:
+    If the current cell is already occupied in the mask:
+        shift the mask right by one position and carry its count forward.
+    Otherwise:
+        try each anchored triomino shape.
+        Reject a shape if any covered square leaves the board
+        or if any corresponding bit is already set in the mask.
+        For every valid shape, set the occupied bits, shift right by one,
+        and add the count into the next DP table.
+
+After the last cell, return the count stored for the empty mask.
 ```
 
 ## Complexity Analysis

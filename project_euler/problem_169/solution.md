@@ -4,7 +4,7 @@
 
 Define $f(n)$ as the number of ways to express $n$ as a sum of powers of 2, where each power of 2 is used at most twice. Find $f(10^{25})$.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Definition.** $f(n) = |\{(c_0, c_1, c_2, \ldots) : c_i \in \{0, 1, 2\}, \, \sum_{i \geq 0} c_i \cdot 2^i = n\}|$.
 
@@ -34,13 +34,28 @@ Total: $f(n) = f(n/2) + f(n/2 - 1)$. $\square$
 **Proof.** $\log_2(10^{25}) = 25 \log_2 10 \approx 25 \times 3.3219 = 83.05$, so the recursion depth is 84. $\square$
 
 ## Editorial
-each power used at most twice. Find f(10^25). Recurrence: f(0) = 1 f(n) = f(n//2) if n is odd f(n) = f(n//2) + f(n//2-1) if n is even. We else.
+The recurrence already does all the heavy lifting. Looking at the coefficient of $2^0$ splits the problem into one smaller subproblem when $n$ is odd and two smaller subproblems when $n$ is even. Because every recursive call roughly halves the argument, the state graph stays tiny even for $10^{25}$.
+
+The implementation is therefore just memoized recursion. Each distinct value of $n$ is solved once, cached, and reused whenever it reappears from a different branch. That turns what looks like an exponential expansion into a small DAG of overlapping subproblems, making the exact count for $10^{25}$ straightforward to obtain.
 
 ## Pseudocode
 
 ```text
-if n is odd
-else
+Define a memoized function `f(n)`.
+
+If `n` is zero, return 1.
+If `n` is already cached, return the cached value.
+
+If `n` is odd:
+    the coefficient of 1 is forced to be 1,
+    so return `f(n // 2)`.
+
+If `n` is even:
+    either use zero copies of 1 or two copies of 1,
+    so return `f(n // 2) + f(n // 2 - 1)`.
+
+Store the result in the cache and return it.
+Evaluate the function at $10^{25}$.
 ```
 
 ## Complexity Analysis

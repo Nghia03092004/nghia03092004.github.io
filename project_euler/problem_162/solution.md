@@ -4,13 +4,13 @@
 
 In the hexadecimal number system, numbers are represented using 16 digits: $0, 1, 2, \ldots, 9, A, B, C, D, E, F$. How many hexadecimal numbers containing at most sixteen hexadecimal digits exist with all of the digits $0$, $1$, and $A$ present at least once? Express the answer in hexadecimal (uppercase, no leading zeros or `0x` prefix).
 
-## Definitions
+## Mathematical Development
+
+### Definitions
 
 **Definition 1.** An *$n$-digit hexadecimal number* is a string $d_1 d_2 \cdots d_n$ over the alphabet $\{0,1,\ldots,9,A,\ldots,F\}$ with $d_1 \neq 0$ and $n \geq 1$.
 
 **Definition 2.** For a subset $T \subseteq \{0,1,\ldots,F\}$ and an $n$-digit hex number $x$, we write $T \subseteq \mathrm{digits}(x)$ to mean every element of $T$ appears among the digits of $x$.
-
-## Mathematical Development
 
 **Theorem 1 (Inclusion-exclusion formula).** *Let $S_n$ denote the set of $n$-digit hex numbers (no leading zero). Let $N(n) = |\{x \in S_n : \{0, 1, A\} \subseteq \mathrm{digits}(x)\}|$. Then:*
 $$N(n) = 15 \cdot 16^{n-1} - 15^n - 2 \cdot 14 \cdot 15^{n-1} + 2 \cdot 14^n + 13 \cdot 14^{n-1} - 13^n.$$
@@ -49,21 +49,23 @@ $$\sum_{n=1}^{16} 15 \cdot 16^{n-1} = 15 \cdot \frac{16^{16} - 1}{16 - 1} = 16^{
 *Similarly for the other five terms. All intermediate values fit in 64-bit unsigned integers.*
 
 ## Editorial
-Count hexadecimal numbers with at most 16 digits containing all of 0, 1, and A at least once. Uses the inclusion-exclusion principle.
+This is a direct inclusion-exclusion count done independently for each possible length. For a fixed number of digits $n$, the total number of valid hexadecimal strings is easy, and the only work is subtracting the strings that miss at least one of `0`, `1`, or `A`. The mathematical development already gives closed formulas for every singleton, pairwise, and triple omission case.
+
+The program simply evaluates that formula for each length from 1 through 16 and accumulates the result. Because the problem asks for the final answer in hexadecimal, the only post-processing step is formatting the total with uppercase hexadecimal digits.
 
 ## Pseudocode
 
 ```text
-    total = 0
-    For n from 1 to 16:
-        N_n = 15 * 16^(n-1)
-              - 15^n
-              - 2 * 14 * 15^(n-1)
-              + 2 * 14^n
-              + 13 * 14^(n-1)
-              - 13^n
-        total += N_n
-    Return TO_HEX_UPPERCASE(total)
+Initialize the total count to zero.
+
+For each digit length from 1 to 16:
+    Count all length-$n$ hexadecimal numbers with no leading zero.
+    Subtract the numbers missing `0`, missing `1`, or missing `A`.
+    Add back the numbers missing each pair of these digits.
+    Subtract the numbers missing all three digits.
+    Add the resulting valid count into the running total.
+
+Convert the final total to uppercase hexadecimal and return it.
 ```
 
 ## Complexity Analysis

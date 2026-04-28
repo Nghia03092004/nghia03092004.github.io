@@ -6,7 +6,7 @@ For $2 \leq n \leq 10$, find $U(2, 2n+1)(10^{11})$ -- the $(10^{11})$-th term of
 
 An Ulam sequence $U(a, b)$ with $a < b$ starts with $a, b$ and then each subsequent term is the smallest integer greater than the previous term that can be written as the sum of two distinct earlier terms in exactly one way.
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Definition.** The *Ulam sequence* $U(a, b) = (u_1, u_2, u_3, \ldots)$ is defined by $u_1 = a$, $u_2 = b$, and for $k \geq 3$, $u_k$ is the smallest integer $m > u_{k-1}$ such that $|\{(i, j) : i < j, \, u_i + u_j = m\}| = 1$.
 
@@ -45,17 +45,31 @@ $$u_k = u_{T + r} + q \cdot D$$
 **Proof.** By periodicity of differences: $u_{T + qP + r} = u_{T+r} + q \cdot \sum_{i=1}^{P} d_{T+i} = u_{T+r} + qD$. $\square$
 
 ## Editorial
-For U(2, 2n+1) with n=2..10, find the 10^11-th term and sum them. We generate terms using XOR rule until periodicity detected. We then generate using XOR: for odd c, c in U iff exactly one of. Finally, (c-2 in U), (c-e in U) is true.
+The implementation follows the structure suggested by the parity theorem. For each sequence $U(2,2n+1)$, it first finds the second even term by a short brute-force startup. After that point, every relevant candidate is odd, and membership is determined by the XOR rule using the two offsets from the mathematical development. That lets the code generate long stretches of the sequence in constant time per accepted term.
+
+The real acceleration comes from the eventual periodicity of the differences. The solver generates enough terms to verify the known period for each $n$, pushes the periodic block backward as far as it remains valid, and records the sum of one full period of differences. Once that data is known, the $10^{11}$-th term is no longer computed by simulation; it is obtained by jumping across full periods and adding the appropriate residual offset.
 
 ## Pseudocode
 
 ```text
-Generate terms using XOR rule until periodicity detected
-Generate using XOR: for odd c, c in U iff exactly one of
-(c-2 in U), (c-e in U) is true
-Also handle even member e
-Detect period in difference sequence
-Extrapolate to k = 10^11
+For each odd starting value $v=2n+1$ with $2 \le n \le 10$:
+    Generate the beginning of the Ulam sequence directly until the second even term appears.
+    Call that even term $e$.
+
+    Continue generating only odd candidates.
+    Accept an odd number $c$ exactly when membership of $c-2$ and $c-e$
+    differs, which is the XOR rule.
+    Stop after enough terms have been produced to test periodicity.
+
+    Form the difference sequence.
+    Verify the known period for this value of $n$.
+    Move the start of the periodic region backward while the same period still repeats.
+    Record the sum of one whole period of differences.
+
+    If the desired index is still inside the generated prefix, read it directly.
+    Otherwise jump ahead by whole periods and then finish with the residual offset.
+
+Add the requested term from each sequence and return the grand total.
 ```
 
 ## Complexity Analysis
