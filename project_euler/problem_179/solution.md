@@ -4,7 +4,7 @@
 
 Find the number of integers $n$, $1 < n < 10^7$, for which $d(n) = d(n+1)$, where $d(n)$ denotes the number of positive divisors of $n$.
 
-## Mathematical Analysis
+## Mathematical Development
 
 ### The Divisor Function
 
@@ -51,27 +51,28 @@ The most common divisor counts for $n \leq 10^7$:
 | 6 | 1089960 | 12, 18, 20 |
 | 8 | 1247701 | 24, 30, 40 |
 
-## Solution Approaches
+## Editorial
 
-### Approach 1: Divisor Sieve (Primary)
+The simplest workable approach is a divisor sieve. Instead of factorizing each number independently, the program lets every integer $k$ contribute one divisor count to each of its multiples. After this sweep, the array entry at position $n$ is exactly $d(n)$.
 
-1. Initialize $d[1 \ldots N] = 0$.
-2. For $k = 1$ to $N+1$: increment $d[j]$ for all multiples $j \leq N+1$.
-3. Count $n$ where $d[n] = d[n+1]$ for $2 \leq n < 10^7$.
+Once the divisor counts are available, the rest is just a linear scan through consecutive pairs. Every index $n$ with $2 \le n < 10^7$ is checked against $n+1$, and the answer is the number of times the two divisor counts match. The code also keeps a small brute-force verifier for tiny limits, but the main computation is entirely driven by the sieve.
 
-### Approach 2: SPF Sieve (Faster)
+## Pseudocode
 
-1. Compute smallest prime factor via linear sieve.
-2. Factorize each $n$ and compute $d(n) = \prod(e_i + 1)$.
-3. Count consecutive equal values.
+```text
+Create an array of divisor counts initialized to zero.
 
-### Approach 3: Brute Force Factorization
+For each integer $k$ from 1 up to $10^7 + 1$:
+    visit every multiple of $k$ within the array bounds
+    and add 1 to that multiple's divisor count.
 
-For each $n$, trial-divide to find the prime factorization and compute $d(n)$. Time: $O(N \sqrt{N})$ -- too slow.
+Initialize the answer to zero.
+For each $n$ from 2 up to $10^7 - 1$:
+    if the counts of $n$ and $n+1$ are equal,
+    increase the answer.
 
-## Proof of Correctness
-
-The divisor sieve correctly counts divisors: each $k$ contributes exactly 1 to $d[j]$ for every multiple $j$ of $k$. By definition, $d(n) = |\{k : k \mid n\}|$, and the sieve iterates over all $(k, j)$ pairs with $k \mid j$.
+Return the final count.
+```
 
 ## Complexity Analysis
 

@@ -4,7 +4,7 @@
 
 Define $N(t)$ as the number of hollow square laminae that can be formed using exactly $t$ tiles. How many values of $t \leq 10^6$ satisfy $1 \leq N(t) \leq 10$?
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Tile-count parameterization.) Every hollow square lamina with outer side $a$, inner side $b$, $a \equiv b \pmod{2}$, $a \geq b + 2$, $b \geq 1$, uses $t = 4k(b + k)$ tiles where $k = (a - b)/2 \geq 1$. In particular, $4 \mid t$.*
 
@@ -21,25 +21,25 @@ which in both cases equals $|\{k : k \mid m,\; k < \sqrt{m}\}|$. $\square$
 **Proof.** Each pair $(k, q)$ with $k < q$ and $kq = m$ is visited exactly once. The total number of pairs is $\sum_{k=1}^{\lfloor\sqrt{M}\rfloor} \lfloor M/k - k \rfloor \leq \sum_{k=1}^{\lfloor\sqrt{M}\rfloor} M/k = O(M \log \sqrt{M}) = O(M \log M)$. $\square$
 
 ## Editorial
-That Can Form One, Two, Three, ... Distinct Arrangements N(t) = number of laminae with exactly t tiles. Count values of t <= 10^6 with 1 <= N(t) <= 10. Key insight: t = 4m, and N(t) = number of divisors k of m with k < sqrt(m).
+The divisor reformulation turns the problem into a counting sieve on $m=t/4$. For each factor pair $m=kq$ with $k<q$, there is exactly one hollow lamina using $t=4m$ tiles. So instead of generating laminae geometrically, the program counts how many strict factor pairs each $m$ has.
+
+The implementation loops over the smaller factor $k$ and increments every product $kq$ with $q>k$. After that sieve pass, the array entry for $m$ is exactly $N(4m)$. The final answer is obtained by counting how many of those entries fall between 1 and 10 inclusive.
 
 ## Pseudocode
 
 ```text
-M = N / 4 # N = 10^6, so M = 250000
-count[1..M] = 0
+Let $M = 10^6 / 4$ and create an array of zero counts for $1 \le m \le M$.
 
-For k from 1 to floor(sqrt(M)):
-    For q from k+1 to M/k:
-        m = k * q
-        count[m] += 1
+For each possible smaller factor $k$:
+    let the larger factor start at $k+1$ so that only strict pairs are counted.
+    For every $q$ with $kq \le M$:
+        increment the counter of $m = kq$.
 
-answer = 0
-For m from 1 to M:
-    If 1 <= count[m] <= 10 then
-        answer += 1
+After all factor pairs are processed:
+    scan the array once more,
+    and count how many entries lie between 1 and 10 inclusive.
 
-Return answer
+Return that count.
 ```
 
 ## Complexity Analysis

@@ -13,7 +13,7 @@ A **golden triple** of order $k$ is $(x,y,z)$ where each coordinate is a rationa
 
 Let $s(x,y,z) = x+y+z$. Let $t = u/v$ be the reduced form of $s$. Define $S(k) = \sum t$ over all distinct $t$ values from golden triples. Express $S(35) = p/q$ in lowest terms. Find $p + q$.
 
-## Mathematical Analysis
+## Mathematical Development
 
 ### Identifying the Zero Set
 
@@ -50,9 +50,38 @@ For $k = 35$, generate all 383 proper fractions $a/b$ with $1 \leq a < b \leq 35
 
 Collect all distinct $s = x + y + z$ values and sum them.
 
+## Editorial
+
+The mathematical reduction is what makes the brute-force search viable. Once Fermat's theorem removes every exponent except $1$, $2$, $-1$, and $-2$, each ordered pair $(x,y)$ produces at most four candidate values of $z$. So the problem becomes a finite search over proper fractions with denominator at most 35, followed by exact rational filtering.
+
+The implementation first builds the full set of admissible fractions once. Then, for every pair $(x,y)$, it checks the four surviving cases: direct addition, harmonic addition, the Pythagorean square-root case, and its reciprocal-square analogue. Whenever the resulting $z$ is again a valid proper fraction of order 35, the sum $x+y+z$ is inserted into a set. Distinct golden triples may lead to the same rational sum, so the set on these totals is essential before the final fraction sum is reduced and converted to $p+q$.
+
+## Pseudocode
+
+```text
+Generate every proper fraction with denominator at most 35 and store them in a sorted list.
+Create an empty set of admissible sums.
+
+For each ordered pair `(x, y)` from that list:
+    Check the linear case `z = x + y`.
+    Check the harmonic case `z = xy / (x + y)`.
+
+    Compute `x^2 + y^2`.
+    If this rational is a perfect square:
+        let `z` be its square root and test the quadratic case.
+        let `z = xy / sqrt(x^2 + y^2)` and test the inverse-quadratic case.
+
+    Whenever a candidate `z` is a proper fraction with denominator at most 35,
+    insert `x + y + z` into the set of sums.
+
+Add all distinct sums in the set, reduce the resulting fraction to lowest terms,
+and return numerator plus denominator.
+```
+
+## Complexity Analysis
+
+The fraction set has 383 elements, so the search examines $O(R^2)$ ordered pairs with $R=383$. Each pair performs only constant-time rational arithmetic and a small amount of perfect-square checking, giving overall time $O(R^2)$ and negligible space beyond the set of distinct sums.
+
 ## Answer
 
 $$\boxed{285196020571078987}$$
-## Complexity
-
-The enumeration iterates over $O(R^2)$ pairs where $R = 383$ rationals, with $O(1)$ work per pair per case. Total: $O(R^2) \approx 1.5 \times 10^5$ operations. Negligible runtime.

@@ -6,7 +6,7 @@ The four right triangles with sides (9,12,15), (12,16,20), (5,12,13), and (12,35
 
 Find the smallest integer that can be a leg of exactly 47547 right triangles.
 
-## Mathematical Analysis
+## Mathematical Development
 
 ### Counting Right Triangles with a Given Leg
 
@@ -50,15 +50,40 @@ $$a = 2^{10} \times 3^6 \times 5^5 \times 7^3 \times 11^2 = 96818198400000$$
 
 $(2 \times 10 - 1)(2 \times 6 + 1)(2 \times 5 + 1)(2 \times 3 + 1)(2 \times 2 + 1) = 19 \times 13 \times 11 \times 7 \times 5 = 95095$ and $(95095 - 1)/2 = 47547$. Confirmed.
 
-## Correctness
+## Editorial
 
-**Theorem.** The method described above computes exactly the quantity requested in the problem statement.
+Once the divisor formula is written down, the search is no longer geometric. We only need to realize the target value
+$$2f(a)+1 = 95095 = 5 \cdot 7 \cdot 11 \cdot 13 \cdot 19$$
+as the product of the odd factors coming from the prime exponents of the leg length. That means enumerating multiplicative partitions of 95095 and translating each factor into an exponent.
 
-*Proof.* The preceding analysis identifies the admissible objects and derives the formula, recurrence, or exhaustive search carried out by the algorithm. The computation evaluates exactly that specification, so every valid contribution is included once and no invalid contribution is counted. Therefore the returned value is the required answer. $\square$
+For every partition, the candidate leg is minimized by assigning the largest exponents to the smallest primes. The code checks both the odd-leg interpretation and the even-leg interpretation, where one factor is reserved for the power of 2 through the term $2e_0-1$. Taking the minimum over all such assignments yields the smallest leg with exactly 47547 right-triangle partners.
+
+## Pseudocode
+
+```text
+Factor the target odd product 95095.
+Enumerate every multiplicative partition of 95095 into factors at least 2.
+
+For each partition:
+    Interpret all factors as odd-prime exponent terms.
+    Convert each factor $f$ into exponent $(f-1)/2$.
+    Assign the largest exponents to the smallest odd primes and form the candidate leg.
+    Update the best answer if this candidate is smaller.
+
+    Then try the even-leg case:
+        choose one factor to play the role of $2e_0-1$,
+        convert it into the exponent of 2 via $(f+1)/2$,
+        convert the remaining factors as before,
+        assign the remaining exponents to the smallest odd primes,
+        and update the best answer again.
+
+Return the smallest candidate found.
+```
+
+## Complexity Analysis
+
+The algorithm enumerates multiplicative partitions of 95095. Since 95095 has only five prime factors and relatively few factor-groupings, the search space is tiny. Each partition is processed in time linear in its number of parts, so the whole computation is effectively constant-time.
 
 ## Answer
 
 $$\boxed{96818198400000}$$
-## Complexity
-
-The algorithm enumerates multiplicative partitions of 95095 (a small number of partitions since 95095 has only 5 prime factors). For each partition, the computation is $O(k)$ where $k$ is the number of parts. Total time: effectively $O(1)$.

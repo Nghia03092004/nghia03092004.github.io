@@ -4,7 +4,7 @@
 
 Define $f(n)$ as the number of ways to write $n$ as a sum of powers of 2, where each power is used at most twice. The ratio $f(n)/f(n-1)$ enumerates every positive rational exactly once via the Calkin-Wilf sequence. Given $p/q = 123456789/987654321$, find the shorthand representation (run-length encoding of the Calkin-Wilf tree path).
 
-## Mathematical Foundation
+## Mathematical Development
 
 **Theorem 1.** *(Calkin-Wilf tree.) The binary tree rooted at $1/1$ with left child $a/(a+b)$ and right child $(a+b)/b$ of node $a/b$ contains every positive rational number exactly once in lowest terms.*
 
@@ -31,15 +31,25 @@ Applying the path-recovery algorithm to $a/b = 13717421/109739369$:
 Reversed path (root-to-leaf): R(13717420), L(1), L(7). Merging the two consecutive L-runs: R(13717420), L(8). The shorthand is $1, 13717420, 8$ (where by convention the first entry represents the direction from the leaf, giving the reversed reading).
 
 ## Editorial
-a Number Can Be Expressed as a Sum of Powers of 2 Find the shorthand notation for f(123456789/987654321). The shorthand for fraction p/q (with p < q, both reduced) is: 1. Compute the continued fraction of q/p. 2. Ensure the last partial quotient is 1 (split if needed: [..., n] -> [..., n-1, 1]). 3. Reverse the sequence. This gives the Calkin-Wilf tree path encoding. We else. We then merge last two entries if they represent same direction. Finally, (they alternate, so merge means add to previous).
+After reducing the fraction, the entire task collapses to recovering the path in the Calkin-Wilf tree. The continued fraction of $q/p$ is exactly the batched Euclidean-algorithm record of how many consecutive left or right moves occur while tracing the fraction back toward the root.
+
+The implementation therefore computes that continued fraction directly, then performs the standard adjustment that forces the final partial quotient to be 1. That keeps the path from overshooting past $1/1$. Reversing the resulting list converts the backtracking description into the shorthand notation requested by the problem.
 
 ## Pseudocode
 
 ```text
-else
-Merge last two entries if they represent same direction
-(they alternate, so merge means add to previous)
-Reverse to get root-to-leaf order
+Reduce the given fraction to lowest terms.
+
+Run the Euclidean algorithm on $q/p$ and record the successive quotients.
+These quotients form the continued fraction of $q/p$.
+
+If the last quotient is larger than 1:
+    decrease it by 1,
+    then append a final 1.
+This is the standard last-step adjustment that keeps the path ending at $1/1$.
+
+Reverse the quotient list.
+Output the reversed list as the shorthand representation.
 ```
 
 ## Complexity Analysis

@@ -41,32 +41,32 @@ After processing all $D = 20$ positions, $T[20][j^2]$ accumulates the sum of all
 Finally, the string $00\cdots0$ representing $n = 0$ has $f(0) = 0$, which is a perfect square ($0 = 0^2$). However, since $n = 0$ contributes $0$ to the sum, the exclusion $n > 0$ in the problem statement requires no correction. $\square$
 
 ## Editorial
-Is a Perfect Square Find the last nine digits of the sum of all n, 0 < n < 10^20, such that f(n) = sum of squares of digits of n is a perfect square. Method: Digit DP tracking (count, value_sum) keyed by digit-square-sum.
+The key observation is that the condition depends only on the sum of squared digits, not on the exact arrangement of those digits. That makes a digit DP natural: for each processed prefix we only need to know how many strings lead to a given square-sum total, and what the sum of the corresponding numeric values is modulo $10^9$.
+
+Appending one digit updates both pieces of information at once. The count table tells us how many prefixes reach a given sum, while the total table uses the digit-append identity to update the accumulated numeric sum when a new digit is attached on the right. After 20 positions, we simply collect the states whose digit-square-sum is one of the attainable perfect squares up to 1600.
 
 ## Pseudocode
 
 ```text
-MOD = 10^9
-S_MAX = 1620
+Let the state be the current digit-square-sum.
+Store for each state:
+    how many digit strings reach it,
+    and the sum of those digit strings modulo $10^9$.
 
-C[0..S_MAX] = 0; T[0..S_MAX] = 0
-C[0] = 1
+Start with the empty string: count 1 at square-sum 0, total 0.
 
-For k from 1 to 20:
-    C'[0..S_MAX] = 0; T'[0..S_MAX] = 0
-    For s from 0 to S_MAX:
-        If C[s] == 0 then continue
-        For d from 0 to 9:
-            s' = s + d*d
-            if s' > S_MAX: break // digits are in order, so d^2 increases
-            C'[s'] += C[s]
-            T'[s'] = (T'[s'] + 10*T[s] + d*C[s]) mod MOD
-    C = C'; T = T'
+Repeat 20 times:
+    create fresh count and total arrays.
+    For every reachable square-sum:
+        try appending each digit from 0 to 9.
+        Move to the new square-sum by adding the digit square.
+        Add the old count into the new count array.
+        Update the new total array with
+        ten times the previous total plus the appended digit times the previous count.
 
-answer = 0
-For j from 1 to 40:
-    answer = (answer + T[j*j]) mod MOD
-Return answer
+After all 20 digits are processed, sum the total-array entries
+whose indices are perfect squares from $1^2$ through $40^2$.
+Return the result modulo $10^9$.
 ```
 
 ## Complexity Analysis

@@ -6,7 +6,7 @@ Let ABCD be a convex quadrilateral with diagonals AC and BD. At each vertex, the
 
 How many non-similar convex quadrilaterals exist such that all eight corner angles have integer values when measured in degrees?
 
-## Mathematical Analysis
+## Mathematical Development
 
 ### Setup
 
@@ -63,29 +63,39 @@ $$(\alpha,\beta,\gamma,\delta,\varepsilon,\zeta,\eta,\theta) \to (\beta,\alpha,\
 These generate 8 symmetries. Two 8-tuples in the same orbit represent similar quadrilaterals. We canonicalize each valid tuple under this group and count distinct canonical forms.
 
 ## Editorial
-Count non-similar convex quadrilaterals ABCD where both diagonals split all four angles into integer-degree sub-angles. 8 sub-angles: alpha=BAC, beta=CAD, gamma=ABD, delta=DBC, epsilon=BCA, zeta=ACD, eta=CDB, theta=BDA Constraints from diagonal intersection angle p: alpha+gamma = 180-p, delta+epsilon = p, zeta+eta = 180-p, theta+beta = p Closure: sin(alpha)*sin(delta)*sin(zeta)*sin(theta) = sin(beta)*sin(gamma)*sin(epsilon)*sin(eta) Symmetry group (dihedral-8) reduces count by factor ~8. We iterate over each $p$ from 2 to 178. We then iterate over each $(\alpha, \delta, \zeta)$ in valid ranges. Finally, solve for $\theta$ using the closure condition.
+The implementation treats the intersection angle $p$ and three of the corner sub-angles as free variables. Once $p$, $\alpha$, $\delta$, and $\zeta$ are chosen, the companion angles $\gamma$, $\varepsilon$, and $\eta$ are forced by the triangle-sum identities, and the closure equation determines the only plausible value of $\theta$. Instead of blindly trying every integer $\theta$, the code uses the trigonometric identity to compute a floating-point estimate with `atan2`, then tests only the nearby integer candidates.
+
+That leaves two final filters. The sine-product equation must still hold to high precision, and the resulting quadrilateral angles must all stay below 180 degrees to ensure convexity. Every surviving 8-tuple is then canonicalized under the dihedral symmetry group of the quadrilateral, so all rotated or reflected copies collapse to a single representative before counting.
 
 ## Pseudocode
 
 ```text
-For each $p$ from 2 to 178:
-For each $(\alpha, \delta, \zeta)$ in valid ranges:
-Solve for $\theta$ using the closure condition
-If $\theta$ is a positive integer in range, verify the closure and convexity
-Canonicalize the 8-tuple under the dihedral-8 symmetry group
-Insert into a set of canonical forms
-Output the size of the set
+Precompute the sine values for all integer angles from 0 to 180 degrees.
+Prepare the eight symmetry permutations of the quadrilateral labels.
+
+For each intersection angle $p$ from 2 to 178:
+    For each admissible triple $(\alpha, \delta, \zeta)$:
+        derive $\gamma$, $\varepsilon$, and $\eta$ from the angle-sum constraints.
+
+        Use the closure equation to estimate $\theta$ with `atan2`.
+        Check only the small set of nearby integer values of $\theta`.
+
+        For each such candidate:
+            derive $\beta = p - \theta$.
+            verify the sine-product closure condition numerically.
+            verify that all four full quadrilateral angles are strictly below 180.
+
+            Form the 8-tuple of sub-angles.
+            Replace it by the lexicographically smallest image under the dihedral symmetries.
+            Insert that canonical tuple into a set.
+
+Return the size of the set.
 ```
 
-## Correctness
+## Complexity Analysis
 
-**Theorem.** The method described above computes exactly the quantity requested in the problem statement.
-
-*Proof.* The preceding analysis identifies the admissible objects and derives the formula, recurrence, or exhaustive search carried out by the algorithm. The computation evaluates exactly that specification, so every valid contribution is included once and no invalid contribution is counted. Therefore the returned value is the required answer. $\square$
+The outer loops cover all admissible values of $p$, $\alpha$, $\delta$, and $\zeta$, but the angle constraints shrink the practical search far below the naive quartic bound. For each surviving triple, solving for $\theta$, checking closure, and canonicalizing under the eight symmetries all take constant time. The total runtime is therefore dominated by the nested enumeration and is practical in a few seconds.
 
 ## Answer
 
 $$\boxed{129325}$$
-## Complexity
-
-The outer loops iterate $O(178 \times 178 \times 178 \times 178) \approx 10^9$ in the worst case, but the average is much smaller (about $1.25 \times 10^8$ due to range constraints). The atan2-based solver and canonicalization add $O(1)$ per iteration. Total runtime is a few seconds.

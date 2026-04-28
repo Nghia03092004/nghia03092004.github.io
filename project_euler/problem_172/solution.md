@@ -29,25 +29,37 @@ $$\mathrm{dp}'[j + c] \mathrel{+}= \mathrm{dp}[j] \cdot \binom{L-j}{c}, \qquad c
 $$\prod_{i=0}^{9} \binom{L - \sum_{j<i} c_j}{c_i} = \frac{L!}{\prod_{i=0}^{9} c_i!}. \quad \square$$
 
 ## Editorial
-How many 18-digit numbers n (no leading zero) have each digit appearing at most three times? Method: Sequential digit DP using binomial coefficients.
+The implementation counts digit frequencies rather than building numbers position by position. It processes the ten digits one at a time and asks: after deciding how many copies of the digits seen so far are used, in how many ways can they occupy a chosen number of positions? The binomial factors handle the placement choices, while the DP keeps track of how many positions have already been filled.
+
+That gives the count of all length-18 strings whose digit multiplicities never exceed three. To enforce the no-leading-zero rule, the program subtracts the strings that start with zero. Once that first zero is fixed, there are only 17 positions left and digit 0 may appear at most two more times, while every other digit still has capacity three.
 
 ## Pseudocode
 
 ```text
-    dp[0..L] = 0; dp[0] = 1
-    For i from 0 to 9:
-        dp'[0..L] = 0
-        For j from 0 to L:
-            If dp[j] == 0 then continue
-            For c from 0 to max_freq[i]:
-                If j + c > L then stop this loop
-                dp'[j + c] += dp[j] * C(L - j, c)
-        dp = dp'
-    Return dp[L]
+Define a routine that counts length-$L$ digit strings
+when digit $i$ is allowed to appear at most `max_freq[i]` times.
 
-T = count_strings(18, [3,3,3,3,3,3,3,3,3,3])
-T0 = count_strings(17, [2,3,3,3,3,3,3,3,3,3])
-answer = T - T0
+In that routine:
+    let `dp[j]` mean the number of ways to fill exactly `j` positions
+    using the digits processed so far.
+    Start with `dp[0] = 1`.
+
+    For each digit from 0 through 9:
+        create a fresh DP array.
+        For each already filled count `j`:
+            choose how many copies of the current digit to place,
+            from 0 up to its allowed maximum,
+            and multiply by the number of ways to choose those positions
+            among the remaining `L - j` slots.
+
+    The final value at `dp[L]` is the number of valid strings.
+
+Compute:
+    the unrestricted 18-position count with cap 3 on every digit,
+    minus the 17-position count after forcing a leading zero,
+    which lowers the remaining cap of digit 0 from 3 to 2.
+
+Return the difference.
 ```
 
 ## Complexity Analysis
