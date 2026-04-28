@@ -36,13 +36,24 @@ If $B = \emptyset$, then $C' = D \cup C$ and $B' = D$, so $S(D \cup C) = S(D)$, 
 **Proof.** There are $2^n - 1$ non-empty subsets. We compute each subset sum incrementally (e.g., using Gray code enumeration, changing one element at a time, giving $O(1)$ per subset sum update). Inserting into and querying a hash set takes $O(1)$ expected time per operation. Total: $O(2^n)$. $\square$
 
 ## Editorial
-From a file of 100 sets, find those that are special sum sets and compute the sum of their S(A) values. A special sum set satisfies: 1. All subset sums are distinct. 2. Larger subsets have larger sums (size-ordering property). Approach: For each set, check Condition 2 in O(n), then Condition 1 in O(2^n). We iterate over each set A in sets.
+Each set in the file is small enough that exhaustive subset work is feasible, but it is still worth rejecting bad sets as early as possible. After sorting a candidate set, the implementation first applies the size-ordering test from Theorem 1, which only compares a few sums of smallest and largest elements. If that condition fails, the set cannot possibly be special and no subset enumeration is needed.
+
+Only sets that pass this quick filter are checked for distinct subset sums. At that point every non-empty subset is generated, its sum is inserted into a hash set, and the set is rejected immediately if a collision appears. The sums of all sets surviving both tests are then added together.
 
 ## Pseudocode
 
 ```text
-for each set A in sets
-if s in seen
+Set the grand total to zero.
+
+For each set in the input file:
+    Sort the set.
+    Check the size-ordering inequalities using the smallest and largest elements.
+    If that test fails, discard the set immediately.
+    Otherwise enumerate every non-empty subset and record each subset sum in a hash set.
+    If a subset sum repeats, discard the set.
+    If the set passes both tests, add the sum of its elements to the grand total.
+
+Return the grand total.
 ```
 
 ## Complexity Analysis

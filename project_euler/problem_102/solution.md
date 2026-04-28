@@ -35,21 +35,21 @@ which is the $z$-component of $\vec{OA} \times \vec{OB}$. $\blacksquare$
 *Proof.* Immediate from Theorem 1 and Lemma 1, noting that multiplication by 2 preserves sign. $\blacksquare$
 
 ## Editorial
-Count how many of 1000 triangles contain the origin (0,0). Uses the cross-product sign test. We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+Each triangle can be tested independently by looking only at orientation signs. For vertices $A$, $B$, and $C$, the quantities $A \times B$, $B \times C$, and $C \times A$ are the signed areas of the triangles formed with the origin. If these three values are all nonnegative or all nonpositive, then the origin lies inside the triangle (or on its boundary); if both positive and negative signs occur, the origin must lie outside.
+
+That reduces the problem to a straight scan of the data file. For every triangle we compute three determinants, apply the sign test, and increment the answer when the origin passes the test.
 
 ## Pseudocode
 
 ```text
-    Set count <- 0
-    For each each (A, B, C) in triangles:
-        Set d1 <- A.x * B.y - B.x * A.y
-        Set d2 <- B.x * C.y - C.x * B.y
-        Set d3 <- C.x * A.y - A.x * C.y
-        Set has_neg <- (d1 < 0) or (d2 < 0) or (d3 < 0)
-        Set has_pos <- (d1 > 0) or (d2 > 0) or (d3 > 0)
-        If not (has_neg and has_pos) then
-            Set count <- count + 1
-    Return count
+Set the count to zero.
+
+For each triangle with vertices A, B, and C:
+    Compute the signed areas of OAB, OBC, and OCA.
+    If these three values do not mix positive and negative signs:
+        Increase the count.
+
+Return the count.
 ```
 
 ## Complexity Analysis

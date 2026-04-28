@@ -32,13 +32,23 @@ violating Property 1. If exactly one (say $C$) is empty, then $C' \subseteq B'$ 
 *Proof.* This construction, due to Lunnon, yields a set satisfying both properties. The minimum element is $b_m > 0$, ensuring positivity. Property 2 is satisfied because the spread $b_m + b_1$ vs.\ $b_m + b_{n-1}$ inherits the structure of the original set. Optimality is not guaranteed, but the set serves as a starting point for local search. $\blacksquare$
 
 ## Editorial
-We check Property 2. Finally, check Property 1. Candidates are generated from the derived formulas, filtered by the required conditions, and processed in order until the desired value is obtained.
+The near-optimum set from the construction theorem gives a narrow neighborhood in which the true optimum is expected to lie, so the implementation performs a local search around $\{20,31,38,39,40,42,45\}$ rather than scanning arbitrary 7-element sets. Every candidate produced by a small perturbation is sorted and immediately rejected if it contains a nonpositive entry, repeats an element, or already has a larger total sum than the best set found so far.
+
+The two special-set conditions are then applied in the cheapest useful order. Property 2 is a fast filter because it only compares a few prefix and suffix sums. Only candidates that survive that test pay the cost of Property 1, where every non-empty subset sum is generated and checked for collisions. Whenever a candidate passes both tests and improves the current optimum, it becomes the new best set.
 
 ## Pseudocode
 
 ```text
-Check Property 2
-Check Property 1
+Begin with the near-optimum set as the current best answer.
+
+For every 7-tuple of perturbations in the chosen search window:
+    Add the perturbation to the base set and sort the result.
+    Skip this candidate if an entry is nonpositive, if two entries coincide, or if its total already exceeds the best sum found so far.
+    Test Property 2 by comparing the sums of the smallest k+1 elements with the largest k elements.
+    If Property 2 holds, enumerate all non-empty subsets and check that no subset sum repeats.
+    If the candidate passes both tests and improves the best set, record it.
+
+Concatenate the elements of the best set and return that string.
 ```
 
 ## Complexity Analysis

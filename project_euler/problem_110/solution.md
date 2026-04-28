@@ -47,30 +47,22 @@ and $f(n) = \lceil 8{,}037{,}225/2 \rceil = 4{,}018{,}613 > 4{,}000{,}000$.
 To verify minimality: any alternative exponent sequence with $\prod(2a_i+1) \geq 8{,}000{,}001$ yields $n \geq 9{,}350{,}130{,}049{,}860{,}600$. This is confirmed by exhaustive search over all feasible non-increasing exponent sequences (bounded by $k \leq 15$ primes and $a_1 \leq 14$), computing $n$ for each and retaining the minimum. $\square$
 
 ## Editorial
-Same approach as Problem 108 but with threshold 8,000,001 for d(n^2). Uses log-space comparison to handle large n values. We first generate the primes required by the search, then enumerate the admissible combinations and retain only the values that satisfy the final test.
+This is the same divisor-count minimization as Problem 108, but the target is now so large that comparing candidate integers directly during the search becomes awkward. The structure of the optimal solution is unchanged: we still assign a non-increasing exponent sequence to successive primes, because moving a larger exponent onto a smaller prime always makes $n$ smaller.
+
+The implementation therefore performs the same recursive search over exponent patterns, but it compares candidates in log-space. Tracking $\log n = \sum a_i \log p_i$ preserves the ordering of candidate values while avoiding overflow during recursion. Once the best exponent pattern has been identified, the actual integer $n$ is reconstructed from those stored exponents.
 
 ## Pseudocode
 
 ```text
-    target = 8000001 // need d(n^2) >= 8000001
-    primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
-    best_n = infinity
+Store the primes and their logarithms, and begin with no exponents chosen.
+Recursively assign an exponent to each successive prime, never exceeding the previous exponent.
 
-    search(product=1, n=1, prime_idx=0, max_exp=15)
-    Return best_n
+At each recursive call:
+    If the current divisor product has reached 8,000,001, compare the current log(n) with the best one seen so far and keep the better exponent pattern.
+    Otherwise try the next exponent values in order, update both the divisor product and log(n), and abandon any branch that is already no better than the current best.
+    After returning from a branch, remove the exponent and continue with the next choice.
 
-    If product >= target then
-        best_n = min(best_n, n)
-        return
-    If prime_idx >= len(primes) then
-        return
-    p = primes[prime_idx]
-    For a from min(max_exp, ...) down to 1:
-        new_n = n * p^a
-        If new_n >= best_n then
-            continue // prune
-        new_product = product * (2*a + 1)
-        search(new_product, new_n, prime_idx + 1, a)
+After the search finishes, rebuild n from the stored best exponents and return it.
 ```
 
 ## Complexity Analysis

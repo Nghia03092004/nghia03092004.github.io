@@ -41,30 +41,21 @@ $$P_k(x_0) = \sum_{i=1}^{k} y_i \prod_{\substack{j=1 \\ j \neq i}}^{k} \frac{x_0
 involves $k$ terms, each requiring $k - 1$ multiplications and $k - 1$ divisions. The total count is $k(2k - 2) = \Theta(k^2)$ arithmetic operations. $\blacksquare$
 
 ## Editorial
-Given u(n) = sum_{j=0}^{10} (-1)^j n^j, find the sum of all FITs for the BOPs using the first k = 1, ..., 10 terms.
+For each $k$, we need the polynomial of degree at most $k-1$ that agrees with the true sequence at $n = 1, 2, \ldots, k$, and then we need its first failure at $n = k+1$. Because only that one value is required, it is cleaner to evaluate the interpolating polynomial directly in Lagrange form than to solve for its coefficients explicitly.
+
+The implementation therefore builds the first $k$ sample points, evaluates the unique interpolant at $k+1$ using exact rational arithmetic, and adds that FIT to a running total. Repeating this for $k = 1$ through $10$ produces exactly the sum requested in the problem.
 
 ## Pseudocode
 
 ```text
-    define u(n) = sum_{j=0}^{10} (-n)^j
+Start with a running total of zero.
 
-    Set S <- 0
-    For k from 1 to 10:
-        Set points <- [(i, u(i)) for i = 1, ..., k]
-        Set FIT_k <- LAGRANGE_EVAL(points, k + 1)
-        Set S <- S + FIT_k
-    Return S
+For each k from 1 through 10:
+    Form the sample points (1, u(1)), (2, u(2)), ..., (k, u(k)).
+    Evaluate the degree-(k-1) interpolating polynomial at n = k + 1 by summing its Lagrange basis terms exactly.
+    Add that value to the running total.
 
-    Set k <- |points|
-    Set result <- 0
-    For i from 1 to k:
-        (x_i, y_i) <- points[i]
-        Set basis <- y_i
-        For j from 1 to k, j != i:
-            (x_j, _) <- points[j]
-            Set basis <- basis * (x0 - x_j) / (x_i - x_j)
-        Set result <- result + basis
-    Return result
+Return the running total.
 ```
 
 ## Complexity Analysis

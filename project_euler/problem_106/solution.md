@@ -50,18 +50,22 @@ where $C_k = \frac{1}{k+1}\binom{2k}{k}$.
 For $k = 1$: $\frac{1}{2}\binom{2}{1} - C_1 = 1 - 1 = 0$, so no singleton pairs need testing (if $b_1 < c_1$ then trivially $S(B) < S(C)$). Hence the sum starts at $k = 2$. $\square$
 
 ## Editorial
-|-----|-------------------|-----------------------------|--------|------------|--------------| | 2   | 495               | 3                           | 2      | 1          | 495          | | 3   | 924               | 10                          | 5      | 5          | 4620         | | 4   | 495               | 35                          | 14     | 21         | 10395        | | 5   | 66                | 126                         | 42     | 84         | 5544         | | 6   | 1                 | 462                         | 132    | 330        | 330          |.
+Once Property 2 is assumed, unequal subset sizes no longer matter: those sums are already forced to be different. So the only pairs that can require an explicit equality check are disjoint pairs of the same size. For a fixed $k$, we choose the $2k$ participating elements, count all unordered ways to split them into two $k$-subsets, and then subtract the splits that are automatically ordered term by term and therefore cannot possibly have equal sums.
+
+The Catalan-number argument from the mathematical section counts exactly those automatically safe splits. That leaves a closed formula for the number of genuinely ambiguous pairs, and the program simply evaluates that formula for each $k = 2, 3, \ldots, \lfloor n/2 \rfloor$. The worked table below is just the numerical evaluation of those contributions for $n = 12$.
 
 ## Pseudocode
 
 ```text
-    total = 0
-    For k from 2 to floor(n/2):
-        choose_2k = binomial(n, 2*k)
-        half_middle = binomial(2*k, k) / 2
-        catalan_k = binomial(2*k, k) / (k + 1)
-        total += choose_2k * (half_middle - catalan_k)
-    Return total
+Set the total number of required tests to zero.
+
+For each subset size k from 2 up to floor(n/2):
+    Count the ways to choose the 2k elements that appear in the pair.
+    Count all unordered splits of those elements into two k-subsets.
+    Count the non-crossing splits, using the Catalan number C_k, that are automatically ordered and need no test.
+    Add the difference to the running total.
+
+Return the total.
 ```
 
 **Computation for $n = 12$:**
@@ -75,7 +79,6 @@ For $k = 1$: $\frac{1}{2}\binom{2}{1} - C_1 = 1 - 1 = 0$, so no singleton pairs 
 | 6 | 1 | 462 | 132 | 330 | 330 |
 
 $$T = 495 + 4620 + 10395 + 5544 + 330 = 21384$$
-```
 
 ## Complexity Analysis
 

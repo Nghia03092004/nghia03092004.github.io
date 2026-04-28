@@ -33,25 +33,20 @@ The error $|\varepsilon_n|$ satisfies $|\varepsilon_n| < |\psi|^n/(\sqrt{5}\ln 1
 **Definition.** A positive integer $N$ with exactly 9 digits is *1--9 pandigital* if its decimal representation is a permutation of $\{1, 2, 3, 4, 5, 6, 7, 8, 9\}$.
 
 ## Editorial
-We enumerate the admissible parameter range, discard candidates that violate the derived bounds or arithmetic constraints, and update the final set or total whenever a candidate passes the acceptance test.
+The last nine digits of a Fibonacci number are easy to maintain exactly: we simply run the recurrence modulo $10^9$. The first nine digits are harder to obtain directly, but Binet's formula shows that for large $k$ they are determined by the fractional part of $k \log_{10}\varphi - \tfrac12 \log_{10} 5$. So the problem naturally splits into a cheap exact check for the tail and a logarithmic approximation for the head.
+
+The implementation uses that split as a filter. It advances through Fibonacci residues modulo $10^9$, tests whether the trailing nine digits are pandigital, and only for those rare survivors computes the leading nine digits from the logarithmic formula. This avoids ever constructing huge Fibonacci numbers while still checking exactly the two conditions required by the problem.
 
 ## Pseudocode
 
 ```text
-    Set MOD <- 10^9
-    Set log_phi <- log10((1 + sqrt(5)) / 2)
-    Set log_s5 <- 0.5 * log10(5)
-    Set a, b <- 1, 1 // F_1, F_2 mod MOD
+Store two consecutive Fibonacci residues modulo 10^9.
 
-    for k = 3, 4, 5, ...:
-        Set a, b <- b, (a + b) mod MOD
-        if not IS_PANDIGITAL(b): continue // filter on last 9 digits
-        Set L <- k * log_phi - log_s5
-        Set f <- L - floor(L)
-        Set first9 <- floor(10^(f + 8))
-        if IS_PANDIGITAL(first9): return k
-
-    Return (x has exactly 9 digits) and (digit set = {1,...,9})
+For k = 3, 4, 5, ... :
+    Update the trailing nine digits with the modular Fibonacci recurrence.
+    If the last nine digits are not 1-9 pandigital, move on to the next index.
+    Use the fractional part of k log10(phi) - (1/2) log10(5) to reconstruct the first nine digits.
+    If those first nine digits are also 1-9 pandigital, return k.
 ```
 
 ## Complexity Analysis

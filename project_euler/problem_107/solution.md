@@ -23,13 +23,23 @@ When Kruskal's adds edge $e = (u, v)$, the vertices $u$ and $v$ are in different
 **Proof.** A tree is a connected acyclic graph. By induction on $n$: a tree with 1 vertex has 0 edges. For $n \geq 2$, every tree has a leaf $v$ (a vertex of degree 1) -- this follows because $\sum \deg(v) = 2|E| = 2(n-1)$ and if all vertices had degree $\geq 2$ then $\sum \deg \geq 2n > 2(n-1)$ for $n \geq 2$. Removing $v$ and its incident edge yields a tree on $n-1$ vertices with $n-2$ edges (by induction). Adding the edge back gives $n-1$ edges. $\square$
 
 ## Editorial
-Saving = Total edge weight - MST weight. Uses Kruskal's algorithm with Union-Find. The network data is a 40x40 symmetric adjacency matrix from Project Euler. The data file (p107_network.txt) should be placed in the same directory, or the solution will attempt to download it. We extract edges from upper triangle of adjacency matrix. Finally, kruskal's algorithm.
+This is a minimum-spanning-tree computation. The adjacency matrix describes an undirected graph, so each usable entry in the upper triangle corresponds to one edge, and summing those entries gives the total weight of the original network.
+
+After the edge list is built, the implementation sorts the edges by weight and runs Kruskal's algorithm with a disjoint-set structure. Every time the next lightest edge joins two previously separate components, that edge is accepted into the spanning tree. The saving is then the original total weight minus the weight of the resulting MST.
 
 ## Pseudocode
 
 ```text
-Extract edges from upper triangle of adjacency matrix
-Kruskal's algorithm
+Read the adjacency matrix and turn every finite upper-triangular entry into an undirected edge.
+Add all of those edge weights to obtain the weight of the full network.
+Sort the edges from lightest to heaviest.
+Initialize one disjoint-set component for each vertex.
+
+Walk through the sorted edges:
+    If an edge connects two different components, merge those components and add the edge weight to the spanning-tree total.
+    Stop once the spanning tree has n - 1 edges.
+
+Return the full-network weight minus the spanning-tree weight.
 ```
 
 ## Complexity Analysis

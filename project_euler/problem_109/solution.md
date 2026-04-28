@@ -51,15 +51,22 @@ where $\{d_1, d_2\}$ is an unordered multiset (combination with repetition).
 **Proof.** By the problem statement, the order of non-final darts does not matter. For example, S1-T2-D3 and T2-S1-D3 are the same checkout. However, S1-D3 (as a 2-dart checkout) is different from S1-T2-D3 (3-dart checkout) even though both end with D3 -- they involve different numbers of darts. $\square$
 
 ## Editorial
-Count distinct ways to check out (reach exactly 0) with score < 100. Last dart must be a double. Up to 3 darts total. Non-final darts are unordered (combinations, not permutations). We build list of all dart types with scores. We then 1-dart checkouts. Finally, 2-dart checkouts.
+The counting is easiest if the final dart is separated from the earlier ones. Every checkout must end with a double, so once the 62 distinct dart types have been listed, the remaining work is just a case split by the number of darts used. Distinct dart types must be kept separate even when they have the same numerical score, because for example $S6$, $D3$, and $T2$ represent different checkouts.
+
+The implementation therefore counts one-dart finishes, then two-dart finishes, and finally three-dart finishes. In the three-dart case the first two darts are treated as an unordered pair with repetition allowed, so using an index order avoids double-counting permutations of the non-final darts.
 
 ## Pseudocode
 
 ```text
-Build list of all dart types with scores
-1-dart checkouts
-2-dart checkouts
-3-dart checkouts (unordered pairs of non-final darts)
+List every distinct dart type together with its score, and keep a separate list of finishing doubles.
+Start the checkout count at zero.
+
+Count the one-dart finishes by scanning the doubles.
+Count the two-dart finishes by pairing each dart type with each finishing double.
+Count the three-dart finishes by choosing the first two darts as an unordered pair, with repetition allowed, and then appending each finishing double.
+
+Whenever the total score is less than 100, add that checkout to the count.
+Return the count.
 ```
 
 ## Complexity Analysis
