@@ -1,0 +1,7 @@
+{
+  "title": "Lowest Common Ancestor (Binary Lifting)",
+  "summary": "Lift nodes by powers of two so LCA and ancestor queries become logarithmic after one tree preprocessing pass.",
+  "level": "intermediate",
+  "tags": ["trees", "binary lifting", "ancestor queries"],
+  "order": 40
+}

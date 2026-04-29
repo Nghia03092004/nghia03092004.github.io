@@ -1,0 +1,106 @@
+\section*{Overview}
+
+Min-cost max-flow extends ordinary max flow by attaching a cost to each unit of flow on each edge. The goal is not
+just to push flow, but to push it as cheaply as possible. This is the right tool when a plain feasibility or cardinality
+answer is not enough.
+
+\section*{When to Use It}
+
+Use min-cost max-flow when:
+
+\begin{itemize}
+  \item the network model is already natural,
+  \item each assignment or transfer has a linear cost,
+  \item you need either the cheapest way to send a fixed amount or the cheapest maximum flow.
+\end{itemize}
+
+Contest examples include weighted assignment, transportation, balancing supply and demand, and extracting \(k\) cheapest
+disjoint paths in small-to-medium graphs.
+
+\section*{Core Idea}
+
+The standard contest implementation is successive shortest augmenting path:
+
+\begin{itemize}
+  \item keep a residual network with capacities and edge costs,
+  \item repeatedly find the cheapest augmenting path from \(s\) to \(t\),
+  \item push as much flow as possible on that path,
+  \item update residual capacities and accumulated cost.
+\end{itemize}
+
+Potentials reweight edges so Dijkstra can still be used even when the residual network contains negative-cost reverse
+edges.
+
+\section*{Key Insight}
+
+The reverse edge is what makes cost corrections possible. If later decisions should undo some earlier expensive choice,
+the residual network exposes that option as a negative-cost reverse edge.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item add forward and reverse residual edges,
+  \item shortest path in the residual network with reduced costs,
+  \item augment,
+  \item update vertex potentials.
+\end{itemize}
+
+\paragraph{Worked example.}
+In weighted bipartite assignment, each left-right compatibility edge carries a cost. Sending one unit of flow from
+source to left vertex to right vertex to sink corresponds exactly to choosing one assignment pair.
+
+\section*{Correctness Intuition}
+
+Each augmentation chooses the cheapest possible additional residual path under the current reweighting. Potentials do
+not change which paths are optimal; they only keep reduced edge costs nonnegative so Dijkstra remains valid. When no
+more augmenting path exists, the flow is maximal, and the accumulated augmentations are minimum-cost among flows of that
+value.
+
+\section*{Complexity Analysis}
+
+With Dijkstra and potentials, one augmentation is roughly \(O(E \log V)\). The total cost depends on how many times the
+algorithm augments, so the method is best when the graph and required flow are not enormous.
+
+\section*{Implementation}
+
+The sample returns both:
+
+\begin{itemize}
+  \item the achieved flow,
+  \item the total minimum cost.
+\end{itemize}
+
+That makes it usable both for ``send exactly \(k\)'' and ``find the cheapest maximum flow'' style tasks.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to add the reverse edge with negated cost.
+  \item Not updating potentials after each shortest-path phase.
+  \item Using the algorithm on constraints where the number of augmentations is too large.
+  \item Confusing minimum-cost maximum flow with minimum-cost feasible flow of a specified amount.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Min-cost flow for a fixed required amount.
+  \item Lower bounds and circulation reductions.
+  \item Potentials initialized by Bellman-Ford or SPFA if true negative edges exist initially.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Weighted bipartite matching through a flow model.
+  \item Send \(k\) units through a graph with edge costs.
+  \item Transportation between supply and demand nodes.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/min_cost_flow.html}{cp-algorithms: Min-Cost Flow}.
+  \item \href{https://usaco.guide/adv/min-cost-flow}{USACO Guide: Min-Cost Flow}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

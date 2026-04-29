@@ -1,0 +1,7 @@
+{
+  "title": "Bridges and Articulation Points",
+  "summary": "Use DFS lowlink values to find edges or vertices whose removal disconnects an undirected graph.",
+  "level": "intermediate",
+  "tags": ["lowlink", "graph structure", "connectivity"],
+  "order": 60
+}

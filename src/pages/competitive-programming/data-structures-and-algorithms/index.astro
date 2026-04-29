@@ -27,10 +27,11 @@ const pickNotes = (keys: string[]) =>
 		.map((key) => noteByKey.get(key))
 		.filter((note): note is NonNullable<typeof note> => Boolean(note));
 const startHereNotes = pickNotes([
+	'fundamentals/binary-search',
+	'fundamentals/prefix-sums-and-difference-arrays',
+	'fundamentals/two-pointers-and-sliding-window',
+	'graph-algorithms/bfs-and-dfs',
 	'data-structures/fenwick-tree',
-	'data-structures/segment-tree',
-	'data-structures/disjoint-set-union',
-	'graph-algorithms/dijkstra',
 	'string-algorithms/kmp',
 ]);
 const spotlightNotes = pickNotes([
@@ -43,23 +44,23 @@ const spotlightNotes = pickNotes([
 const learningPath = [
 	{
 		title: 'Start here',
-		description: 'Prefix and interval structures, one shortest-path routine, and one core string matcher.',
-		notes: 'Fenwick Tree, Segment Tree, Disjoint Set Union, Dijkstra, KMP',
+		description: 'Learn the low-friction patterns first: monotone search, prefix preprocessing, window scans, and basic traversal.',
+		notes: 'Binary Search, Prefix Sums and Difference Arrays, Two Pointers and Sliding Window, BFS and DFS',
 	},
 	{
 		title: 'Build fluency',
-		description: 'Range updates, static RMQ, offline ordering, and the first state-heavy DP pattern.',
-		notes: 'Lazy Segment Tree, Sparse Table, Mo\'s Algorithm, Digit DP',
+		description: 'Add the first reusable data structures and string baselines once the array and graph patterns feel routine.',
+		notes: 'Fenwick Tree, Segment Tree, Disjoint Set Union, KMP, Z-Function, Topological Sort',
 	},
 	{
 		title: 'Push into advanced',
-		description: 'Tree-path reductions, DP line containers, randomized BSTs, and polynomial convolution.',
-		notes: 'Heavy-Light Decomposition, Convex Hull Trick, Treap, NTT',
+		description: 'This is where tree queries, heavier DP, and flow or number-theory machinery start paying off.',
+		notes: 'Lazy Segment Tree, Sparse Table, Knapsack, Tree DP, Dijkstra, Lowest Common Ancestor, Dinic, NTT',
 	},
 	{
 		title: 'Save for last',
-		description: 'The pointer-heavy amortized structures that pay off once the foundations are already solid.',
-		notes: 'Splay Tree, Link-Cut Tree',
+		description: 'Keep the amortized and pointer-heavy machinery for after the more standard contest baselines are stable.',
+		notes: 'Heavy-Light Decomposition, Convex Hull Trick, Splay Tree, Link-Cut Tree, Min-Cost Max-Flow',
 	},
 ];
 ---

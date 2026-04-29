@@ -1,0 +1,93 @@
+\section*{Overview}
+
+Rolling hash turns substrings into fingerprints that can be compared in constant time after preprocessing. It is not a
+proof-level string algorithm like KMP or suffix automaton, but it is extremely practical in contests when fast
+substring equality is the real need.
+
+\section*{When to Use It}
+
+Use rolling hash when:
+
+\begin{itemize}
+  \item many substring-equality checks are needed,
+  \item deterministic linear matching is not the main bottleneck,
+  \item a tiny collision probability is acceptable or can be reduced with double hashing.
+\end{itemize}
+
+\section*{Core Idea}
+
+Interpret the string as a polynomial:
+\[
+h(s_0 s_1 \dots s_{n-1}) = \sum s_i \cdot base^i \pmod{mod}.
+\]
+Precompute prefix hashes and powers of the base. Then any substring hash can be extracted in \(O(1)\).
+
+\section*{Key Insight}
+
+The ``rolling'' part is that neighboring substrings differ by one removed character and one added character. Prefix
+preprocessing packages that relation so individual substring queries become constant-time arithmetic.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item precompute powers and prefix hashes,
+  \item query a substring hash in \(O(1)\),
+  \item compare two substrings by comparing their normalized hashes.
+\end{itemize}
+
+\paragraph{Worked example.}
+If I need to compare \(s[l_1 \dots r_1]\) and \(s[l_2 \dots r_2]\) many times, rolling hash turns each comparison into
+two prefix-difference computations instead of a character-by-character scan.
+
+\section*{Correctness Intuition}
+
+The hash is designed so concatenation and prefix removal behave algebraically. Taking a prefix difference isolates the
+contribution of one substring, and multiplying by the right power aligns hashes from different positions.
+
+The algorithm is probabilistic: equal hashes strongly suggest equal substrings, but collisions are possible.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item preprocessing: \(O(n)\),
+  \item substring hash query: \(O(1)\),
+  \item memory: \(O(n)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The reference code uses one modulus and one base for clarity. In harder problems I often upgrade that to double hashing
+or 64-bit hashing to reduce collision risk.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that hashing is probabilistic.
+  \item Using a poor base or modulus choice.
+  \item Comparing unnormalized substring hashes from different positions.
+  \item Treating hash equality as a formal proof in adversarial settings.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Double hashing with two moduli.
+  \item 64-bit hashing with natural overflow.
+  \item Binary search plus hashing for longest common prefix queries.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Many substring-equality queries on one string.
+  \item Detect repeated substrings quickly.
+  \item Binary-search the longest duplicate or longest common substring length.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/string/string-hashing.html}{cp-algorithms: String Hashing}.
+  \item \href{https://usaco.guide/gold/hashing?lang=cpp}{USACO Guide: Hashing}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

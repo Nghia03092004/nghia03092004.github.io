@@ -1,0 +1,7 @@
+{
+  "title": "Offline Queries",
+  "summary": "Reorder queries so that one sweep or one monotone data-structure state can answer them more cheaply than online processing.",
+  "level": "intermediate",
+  "tags": ["offline processing", "sorting", "Fenwick tree"],
+  "order": 20
+}

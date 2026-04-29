@@ -1,0 +1,88 @@
+\section*{Overview}
+
+Offline queries are the answer when online order is a burden rather than a requirement. If all queries are known in
+advance, I can sort or bucket them into a friendlier order and maintain a data structure state that only moves forward.
+
+\section*{When to Use It}
+
+Use offline processing when:
+
+\begin{itemize}
+  \item all queries are available before answering begins,
+  \item sorting queries by one parameter makes updates monotone,
+  \item the online version would require a more complex data structure.
+\end{itemize}
+
+\section*{Core Idea}
+
+Choose an order in which processing becomes incremental. A common example is:
+
+\begin{itemize}
+  \item sort array elements by value,
+  \item sort range queries by threshold \(x\),
+  \item add all elements with value \(\le x\) to a Fenwick tree before answering that query.
+\end{itemize}
+
+\section*{Key Insight}
+
+Offline means I am allowed to change time order as long as I remember the original query indices. That freedom often
+replaces a hard dynamic problem with a simple sweep.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item annotate each query with its original index,
+  \item sort by a parameter that should move monotonically,
+  \item sweep through updates and answer queries in that order,
+  \item restore the original answer order at the end.
+\end{itemize}
+
+\paragraph{Worked example.}
+To count how many values in \([l, r]\) are at most \(x\), sort the queries by \(x\), insert positions of array values
+in increasing-value order into a Fenwick tree, and query the active-count range when each threshold is reached.
+
+\section*{Correctness Intuition}
+
+The sorted sweep ensures that, before answering a query with threshold \(x\), the data structure exactly represents all
+contributions that should be active for that threshold and none that should not. The original query order is irrelevant
+once the answers are stored by index.
+
+\section*{Complexity Analysis}
+
+Typical offline sweeps cost \(O((n + q)\log n)\) after sorting, instead of paying for a heavier online structure.
+
+\section*{Implementation}
+
+The sample code implements the threshold-query pattern described above with a Fenwick tree. It answers range counts of
+values \(\le x\).
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to preserve original query indices.
+  \item Sorting by the wrong key so the sweep state no longer matches the query meaning.
+  \item Forcing an offline solution when the statement requires interactive or online answers.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Mo's algorithm for reordering by block locality.
+  \item Parallel binary search.
+  \item CDQ divide and conquer for time-ordered offline events.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count values \(\le x\) in subarrays.
+  \item Offline rectangle counting after coordinate compression.
+  \item Process add-and-query events after sorting by time or threshold.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+  \item \href{https://cp-algorithms.com/data_structures/fenwick.html}{cp-algorithms: Fenwick Tree} for the standard sweep helper.
+\end{itemize}

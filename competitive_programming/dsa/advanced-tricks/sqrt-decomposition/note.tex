@@ -1,0 +1,91 @@
+\section*{Overview}
+
+Sqrt decomposition is the middle ground between a raw array and a full segment tree. It groups the array into blocks
+and stores one summary per block, which is often enough to answer queries within the required limits.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item the operation is simple enough to summarize per block,
+  \item a segment tree would work but feels heavier than necessary,
+  \item the constraints are moderate and a \(O(\sqrt{n})\) tradeoff is acceptable.
+\end{itemize}
+
+\section*{Core Idea}
+
+Partition the array into blocks of size about \(\sqrt{n}\). For a range query:
+
+\begin{itemize}
+  \item scan the partial blocks at the ends directly,
+  \item use the precomputed summaries for the fully covered middle blocks.
+\end{itemize}
+
+\section*{Key Insight}
+
+Only \(O(\sqrt{n})\) blocks can be touched by one query. The only expensive work is on the two boundary blocks; the
+middle is handled by block summaries.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item choose a block size,
+  \item precompute one summary per block,
+  \item answer queries by mixing direct scans and block summaries,
+  \item update one position by fixing both the raw value and its block summary.
+\end{itemize}
+
+\paragraph{Worked example.}
+For range sum with point updates, each block stores its total. A query over \([l, r]\) scans at most two partial blocks
+and adds the totals of the whole blocks in between.
+
+\section*{Correctness Intuition}
+
+The range is partitioned into disjoint pieces: left partial block, some number of full blocks, and right partial block.
+Each piece contributes exactly once, so the total is correct.
+
+\section*{Complexity Analysis}
+
+For block size \(B\):
+\begin{itemize}
+  \item point update: \(O(1)\),
+  \item range query: \(O(B + n/B)\).
+\end{itemize}
+Choosing \(B \approx \sqrt{n}\) gives the usual \(O(\sqrt{n})\) bound.
+
+\section*{Implementation}
+
+The sample code implements point update and range-sum query. The same framework can support other mergeable block
+statistics as long as a whole block can be summarized compactly.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Choosing a block size that is much too small or too large.
+  \item Forgetting to update the block summary after a point update.
+  \item Using sqrt decomposition when the query/update mix clearly calls for a stronger structure.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Range add with lazy block tags.
+  \item Ordered statistics inside blocks after rebuilding.
+  \item Mo's algorithm as a different block-based philosophy for offline queries.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Range sum with point updates.
+  \item Range minimum with easy block recomputation.
+  \item Frequency or order-statistic queries with sorted blocks.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/data_structures/sqrt_decomposition.html}{cp-algorithms: Sqrt Decomposition}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

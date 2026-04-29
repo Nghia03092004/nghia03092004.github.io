@@ -1,0 +1,83 @@
+\section*{Overview}
+
+The Z-function stores, for every position \(i\), the length of the longest prefix of the string that matches the
+suffix starting at \(i\). It is one of the cleanest linear-time string tools because its meaning is direct: ``how much
+does the whole string match here?''
+
+\section*{When to Use It}
+
+Use the Z-function when:
+
+\begin{itemize}
+  \item you need pattern matching on \(p + \# + t\),
+  \item the problem asks about borders, repetitions, or periodicity,
+  \item you want a prefix-matching tool that is often easier to reason about than KMP for some tasks.
+\end{itemize}
+
+\section*{Core Idea}
+
+Let \(z[i]\) be the longest common prefix of \(s\) and \(s[i \dots]\). The naive computation is quadratic, but the
+linear algorithm keeps the rightmost matched segment \([l, r]\) and reuses previous information inside that window.
+
+\section*{Key Insight}
+
+Inside the current matched segment, the string already mirrors the prefix. That lets me copy part of a previous answer
+instead of comparing from scratch, and only extend when necessary.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item compute the Z-array in one scan,
+  \item pattern matching by running Z on \(p + \# + t\),
+  \item detect periods or borders from large Z-values.
+\end{itemize}
+
+\paragraph{Worked example.}
+For \(\texttt{s = "aaaaa"}\), the Z-array is \([0, 4, 3, 2, 1]\). Every suffix is a prefix again, just shorter.
+
+\section*{Correctness Intuition}
+
+The maintained window \([l, r]\) is a segment known to match the prefix. If \(i\) lies inside it, the corresponding
+prefix position already tells me a lower bound for \(z[i]\). Any extra matching beyond that lower bound is found by
+explicit extension. No character comparison is wasted too many times, which gives linear time.
+
+\section*{Complexity Analysis}
+
+The Z-function is computed in \(O(n)\) time and \(O(n)\) memory.
+
+\section*{Implementation}
+
+The code provides the standard linear routine and one helper that returns all pattern-occurrence positions inside a text
+using the concatenation trick.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to use a separator that cannot appear in the original strings.
+  \item Misreading \(z[i]\) as a substring-substring LCP instead of prefix-suffix LCP.
+  \item Confusing the Z-function with the prefix function from KMP.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Border and periodicity checks.
+  \item String compression problems using smallest period detection.
+  \item Comparison with KMP: same asymptotic power, different viewpoint.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Find all occurrences of a pattern in a text.
+  \item Determine the smallest period of a string.
+  \item Count borders or repeated prefix occurrences.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/string/z-function.html}{cp-algorithms: Z-Function}.
+  \item \href{https://usaco.guide/adv/string-search?lang=cpp}{USACO Guide: String Search}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

@@ -1,0 +1,7 @@
+{
+  "title": "Strongly Connected Components",
+  "summary": "Compress a directed graph into its mutually reachable blocks, then reason on the resulting DAG instead of the original cycles.",
+  "level": "intermediate",
+  "tags": ["directed graphs", "SCC", "condensation DAG"],
+  "order": 50
+}

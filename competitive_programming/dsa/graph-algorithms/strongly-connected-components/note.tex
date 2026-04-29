@@ -1,0 +1,95 @@
+\section*{Overview}
+
+Strongly connected components are the natural building blocks of directed graphs with cycles. Inside one SCC, every
+vertex can reach every other. Once those components are collapsed, the graph becomes a DAG, and many problems become
+much easier.
+
+\section*{When to Use It}
+
+Use SCC decomposition when:
+
+\begin{itemize}
+  \item the graph is directed and reachability inside cycles matters,
+  \item the problem asks about mutual reachability or cycle groups,
+  \item a graph with cycles should be reduced to a DAG before DP or counting.
+\end{itemize}
+
+\section*{Core Idea}
+
+Kosaraju's algorithm uses two DFS passes:
+
+\begin{itemize}
+  \item one DFS on the original graph to record finishing order,
+  \item one DFS on the reversed graph in reverse finishing order to extract components.
+\end{itemize}
+
+\section*{Key Insight}
+
+The finishing order from the first pass places SCCs in a useful reverse-topological arrangement. When the second pass
+starts from the latest unfinished vertex on the reversed graph, it captures exactly one SCC at a time.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item build the reverse graph,
+  \item first DFS for finishing order,
+  \item second DFS for component assignment,
+  \item optionally build the condensation DAG.
+\end{itemize}
+
+\paragraph{Worked example.}
+If vertices \(\{1,2,3\}\) can all reach each other, they form one SCC no matter how many internal edges they have. A
+single edge leaving that group becomes one edge in the condensation DAG.
+
+\section*{Correctness Intuition}
+
+In the condensation DAG, finishing times in the first pass place source components late enough that the reversed-graph
+DFS can collect them without leaking into another unassigned component. Repeating that process partitions the graph
+exactly into SCCs.
+
+\section*{Complexity Analysis}
+
+Kosaraju runs in \(O(n + m)\) time and \(O(n + m)\) memory.
+
+\section*{Implementation}
+
+The code returns:
+
+\begin{itemize}
+  \item a component id for each vertex,
+  \item the list of vertices in each component.
+\end{itemize}
+
+That is enough to build a condensation graph afterward if needed.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to build the reversed graph.
+  \item Reusing the visited array incorrectly between the two DFS passes.
+  \item Confusing SCCs with weakly connected components.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Tarjan's one-pass SCC algorithm.
+  \item 2-SAT by SCC on the implication graph.
+  \item DAG DP after condensation.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count SCCs in a directed graph.
+  \item Build and analyze the condensation DAG.
+  \item Solve 2-SAT or reachability constraints through SCC decomposition.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/strongly-connected-components.html}{cp-algorithms: Strongly Connected Components and Condensation Graph}.
+  \item \href{https://usaco.guide/adv/SCC?lang=cpp}{USACO Guide: Strongly Connected Components}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

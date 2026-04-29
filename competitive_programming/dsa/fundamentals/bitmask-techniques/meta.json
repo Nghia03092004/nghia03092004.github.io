@@ -1,0 +1,7 @@
+{
+  "title": "Bitmask Techniques",
+  "summary": "Compact subset state, fast bit operations, and the enumeration patterns that power many small-state solutions.",
+  "level": "intermediate",
+  "tags": ["subset state", "bit operations", "enumeration"],
+  "order": 40
+}

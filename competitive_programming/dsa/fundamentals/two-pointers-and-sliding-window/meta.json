@@ -1,0 +1,7 @@
+{
+  "title": "Two Pointers and Sliding Window",
+  "summary": "Exploit one-way pointer movement to turn many quadratic scans into linear passes over arrays and strings.",
+  "level": "basic",
+  "tags": ["window techniques", "linear scan", "invariants"],
+  "order": 30
+}

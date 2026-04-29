@@ -1,0 +1,99 @@
+\section*{Overview}
+
+The Chinese remainder theorem combines several modular constraints into one. In contests it turns ``find a number that
+matches all these remainders'' into a constructive algorithm rather than a search.
+
+\section*{When to Use It}
+
+Use CRT when:
+
+\begin{itemize}
+  \item a value is constrained by several congruences,
+  \item information is naturally split across different moduli,
+  \item one large-modulus computation is easier after merging smaller ones.
+\end{itemize}
+
+\section*{Core Idea}
+
+For coprime moduli, the system
+\[
+x \equiv r_1 \pmod{m_1}, \qquad x \equiv r_2 \pmod{m_2}
+\]
+has a unique solution modulo \(m_1 m_2\).
+
+In the generalized version, two congruences are compatible iff
+\[
+r_1 \equiv r_2 \pmod{\gcd(m_1, m_2)}.
+\]
+If they are compatible, they can still be merged into one congruence modulo \(\mathrm{lcm}(m_1, m_2)\).
+
+\section*{Key Insight}
+
+CRT is really an alignment problem. Each congruence describes an arithmetic progression, and the theorem tells me when
+those progressions overlap and how to describe the overlap compactly.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item combine two congruences at a time,
+  \item use extended Euclid to solve the alignment step,
+  \item iterate that merge across a whole system.
+\end{itemize}
+
+\paragraph{Worked example.}
+The system
+\[
+x \equiv 2 \pmod 3, \qquad x \equiv 3 \pmod 5
+\]
+merges into
+\[
+x \equiv 8 \pmod{15}.
+\]
+
+\section*{Correctness Intuition}
+
+When the residues agree modulo the gcd of the moduli, the two arithmetic progressions are synchronized often enough to
+meet. Extended Euclid gives the coefficient needed to shift one progression onto the other. The merged modulus is the
+period of that overlap.
+
+\section*{Complexity Analysis}
+
+Merging one pair of congruences takes \(O(\log m)\) because it relies on gcd and extended Euclid. Merging \(k\)
+congruences is linear in \(k\) times that gcd cost.
+
+\section*{Implementation}
+
+The code supports the generalized pairwise merge, so it handles both coprime and merely compatible moduli. It returns a
+boolean success flag together with the merged congruence.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Assuming the moduli are coprime when the statement does not say so.
+  \item Forgetting to normalize the merged residue into \([0, m-1]\).
+  \item Overflow when multiplying large moduli.
+  \item Treating an inconsistent system as if it had a solution.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Garner's algorithm for reconstruction in mixed-radix form.
+  \item Using CRT after several independent modular computations.
+  \item Combining with modular inverse and extended Euclid in constructive number-theory problems.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Find the first time two or more periodic events align.
+  \item Reconstruct a number from its residues.
+  \item Merge congruence constraints in a simulation or scheduling problem.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/algebra/chinese-remainder-theorem.html}{cp-algorithms: Chinese Remainder Theorem}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

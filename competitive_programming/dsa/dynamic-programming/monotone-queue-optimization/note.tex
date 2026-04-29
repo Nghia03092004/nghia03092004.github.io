@@ -1,0 +1,91 @@
+\section*{Overview}
+
+Monotone queue optimization is a DP speedup for transitions that ask for the minimum or maximum over a sliding window
+of previous states. Instead of scanning that window every time, a deque keeps only the candidates that can still win in
+the future.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item the transition is \(\min\) or \(\max\) over a contiguous range of previous indices,
+  \item the valid range slides forward as the current index increases,
+  \item the value compared inside the transition can be maintained in monotone order.
+\end{itemize}
+
+\section*{Core Idea}
+
+Suppose
+\[
+dp[i] = a[i] + \min_{i-k \le j < i} dp[j].
+\]
+As \(i\) moves right, the allowed range of \(j\) also moves right. A deque can store candidate indices in increasing
+order of their DP values while discarding:
+\begin{itemize}
+  \item indices that leave the range,
+  \item indices whose value is dominated by a newer candidate.
+\end{itemize}
+
+\section*{Key Insight}
+
+If a newer index has a DP value no worse than an older one, and it will remain valid at least as long, the older one
+can never become optimal again. That is what makes the deque small.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item pop from the front while an index is out of range,
+  \item use the front as the best candidate,
+  \item pop from the back while the new value dominates older candidates,
+  \item push the current index.
+\end{itemize}
+
+\paragraph{Worked example.}
+If the deque stores candidate DP values \([5, 7, 9]\) and the new state has value \(6\), then \(7\) and \(9\) are
+removed from the back because they will never beat \(6\) in any future window where \(6\) is still present.
+
+\section*{Correctness Intuition}
+
+The deque remains ordered by increasing candidate value, so its front is always the best valid transition source. The
+domination rule is safe because any removed candidate is worse than a newer one and expires no later.
+
+\section*{Complexity Analysis}
+
+Each index enters and leaves the deque at most once, so the optimized transition runs in \(O(n)\) total time.
+
+\section*{Implementation}
+
+The sample code solves the sliding-window minimum DP pattern directly. In practice, many problems reduce to that form
+after algebraic cleanup of the transition.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Applying the trick when the valid transition range is not contiguous.
+  \item Forgetting which transformed value should be monotone in the deque.
+  \item Off-by-one mistakes in the window endpoints.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Sliding-window maximum by reversing the comparisons.
+  \item Deque optimization after subtracting a linear term from the transition.
+  \item Comparison with convex hull trick when the dependence is linear instead of window-based.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item DP with a bounded jump length.
+  \item Minimum-cost path with moves limited to the last \(k\) states.
+  \item Sequence partition problems reducible to sliding minima.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+  \item \href{https://usaco.guide/plat/convex-hull-trick}{USACO Guide sections on DP optimization for related patterns}.
+\end{itemize}

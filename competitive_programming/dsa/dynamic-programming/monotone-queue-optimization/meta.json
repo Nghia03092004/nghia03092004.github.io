@@ -1,0 +1,7 @@
+{
+  "title": "Monotone Queue Optimization",
+  "summary": "Speed up DP transitions over a sliding range by keeping only the best candidates in a deque.",
+  "level": "advanced",
+  "tags": ["dynamic programming", "deque", "optimization"],
+  "order": 40
+}

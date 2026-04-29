@@ -1,0 +1,93 @@
+\section*{Overview}
+
+Point-in-polygon is the routine that turns polygon input into actual queries. In contests the goal is usually modest:
+given a simple polygon and many query points, classify each point as outside, on the boundary, or strictly inside.
+
+\section*{When to Use It}
+
+Use this when:
+
+\begin{itemize}
+  \item the input polygon is fixed and many query points follow,
+  \item the statement distinguishes inside from boundary,
+  \item you want a simple, reliable predicate rather than heavy geometry machinery.
+\end{itemize}
+
+\section*{Core Idea}
+
+The standard parity test casts a ray from the query point and counts how many polygon edges cross it. If the number of
+crossings is odd, the point is inside; if even, it is outside.
+
+Before applying parity, check whether the point lies on an edge. That boundary case should be handled explicitly.
+
+\section*{Key Insight}
+
+The difficult part is not the odd/even rule. It is choosing a crossing convention that does not double-count vertices.
+The common fix is to count an edge only when its endpoints straddle the horizontal line in a half-open way.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item test every edge for boundary contact,
+  \item apply a ray-crossing parity count,
+  \item return a three-way classification.
+\end{itemize}
+
+\paragraph{Worked example.}
+If a horizontal ray from the query point crosses the polygon boundary three times, the point is inside. If it crosses
+zero or two times, it is outside. If the point lies on one of the edges, the parity rule is skipped.
+
+\section*{Correctness Intuition}
+
+A ray from an outside point enters and leaves the polygon in pairs, so the crossing count is even. A ray from an
+inside point has one unmatched exit, so the count is odd. The boundary check removes degenerate cases where the point
+lies exactly on the polygon.
+
+\section*{Complexity Analysis}
+
+For a polygon with \(n\) vertices, one query takes \(O(n)\) time and \(O(1)\) extra memory.
+
+\section*{Implementation}
+
+The sample code returns:
+
+\begin{itemize}
+  \item \texttt{0} for outside,
+  \item \texttt{1} for boundary,
+  \item \texttt{2} for inside.
+\end{itemize}
+
+For many queries on the same polygon, that linear routine is often enough unless the constraints are very large.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Double-counting vertices in the ray-crossing loop.
+  \item Forgetting the boundary case and classifying it by parity.
+  \item Assuming the polygon is convex when the problem does not say so.
+  \item Using floating-point comparisons when an integer boundary test is available.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Winding-number interpretation instead of parity.
+  \item Faster query structures for many points against one polygon.
+  \item Convex-polygon queries in \(O(\log n)\) after preprocessing.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Classify query points relative to a simple polygon.
+  \item Count how many points lie strictly inside.
+  \item Combine point-in-polygon with polygon area or intersection tasks.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/geometry/point-in-convex-polygon.html}{cp-algorithms: Point in Polygon related geometry routines}.
+  \item \href{https://usaco.guide/plat/geo-prims}{USACO Guide: Geometry Primitives}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

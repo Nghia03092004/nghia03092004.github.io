@@ -1,0 +1,100 @@
+\section*{Overview}
+
+Lowest common ancestor is the standard query on rooted trees: for two vertices \(u\) and \(v\), find the deepest
+vertex that is an ancestor of both. Binary lifting is the contest workhorse because it is easy to combine with depth
+logic and other ancestor-style queries.
+
+\section*{When to Use It}
+
+Use LCA when:
+
+\begin{itemize}
+  \item a problem asks about paths in a rooted tree,
+  \item distance, ancestry, or path decomposition repeatedly mentions two vertices,
+  \item you need a reusable tree-query baseline before heavier tools like HLD.
+\end{itemize}
+
+\section*{Core Idea}
+
+Precompute \(\texttt{up[k][v]}\), the \(2^k\)-th ancestor of vertex \(v\). Then:
+
+\begin{itemize}
+  \item raise the deeper node until both nodes are at the same depth,
+  \item lift both nodes together from large powers to small until their ancestors diverge,
+  \item the parent just above that divergence is the LCA.
+\end{itemize}
+
+\section*{Key Insight}
+
+Binary lifting turns ancestor climbing into bit decomposition. Moving up \(13\) levels is the same as moving up
+\(8 + 4 + 1\) levels. That is exactly what the jump table stores.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item DFS or BFS to compute parent and depth,
+  \item build the jump table,
+  \item answer \texttt{lca(u, v)},
+  \item support \texttt{kth\_ancestor(v, k)} and distance queries as well.
+\end{itemize}
+
+\paragraph{Worked example.}
+If one node is 11 levels deeper than the other, binary lifting raises it by the set bits of \(11\), namely
+\(8 + 2 + 1\), before the paired lifting phase starts.
+
+\section*{Correctness Intuition}
+
+The first phase preserves the LCA because only the deeper node moves upward. In the second phase, if the
+\(2^k\)-ancestors of the two nodes differ, both nodes can safely jump there without passing the LCA. After all such
+jumps, they sit directly below the LCA.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item preprocessing: \(O(n \log n)\),
+  \item one LCA query: \(O(\log n)\),
+  \item memory: \(O(n \log n)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The code builds the binary-lifting table from a rooted tree and supports:
+
+\begin{itemize}
+  \item \texttt{kth\_ancestor},
+  \item \texttt{lca},
+  \item \texttt{distance}.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to root the tree consistently.
+  \item Using too few lifting levels for the maximum \(n\).
+  \item Mixing edge count and vertex depth conventions in distance formulas.
+  \item Recursion depth issues on deep trees if DFS is used directly.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Euler tour plus RMQ for \(O(1)\) LCA queries after different preprocessing.
+  \item Binary lifting for functional graphs.
+  \item Path queries combined with HLD or Euler-tour flattening.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Distance queries on a tree.
+  \item K-th ancestor or jump queries.
+  \item Path intersection or meeting-point problems on trees.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/lca_binary_lifting.html}{cp-algorithms: Lowest Common Ancestor - Binary Lifting}.
+  \item \href{https://usaco.guide/plat/binary-jump}{USACO Guide: Binary Jumping}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

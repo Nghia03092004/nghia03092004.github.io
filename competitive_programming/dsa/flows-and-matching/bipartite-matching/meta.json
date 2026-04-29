@@ -1,0 +1,7 @@
+{
+  "title": "Bipartite Matching",
+  "summary": "Match the two sides of a bipartite graph efficiently, and recognize when the problem is assignment rather than general flow.",
+  "level": "intermediate",
+  "tags": ["matching", "bipartite graph", "hopcroft-karp"],
+  "order": 20
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Min-Cost Max-Flow",
+  "summary": "Send flow while optimizing total cost, which turns assignment and constrained transport models into graph problems.",
+  "level": "advanced",
+  "tags": ["flow", "cost optimization", "successive shortest path"],
+  "order": 30
+}

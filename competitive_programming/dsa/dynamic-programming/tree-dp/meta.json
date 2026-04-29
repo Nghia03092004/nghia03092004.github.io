@@ -1,0 +1,7 @@
+{
+  "title": "Tree DP",
+  "summary": "Exploit the parent-child structure of trees so each state only has to summarize one rooted subtree at a time.",
+  "level": "intermediate",
+  "tags": ["dynamic programming", "trees", "subtree states"],
+  "order": 30
+}

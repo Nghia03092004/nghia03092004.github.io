@@ -1,0 +1,7 @@
+{
+  "title": "Dinic",
+  "summary": "A layered-network max-flow algorithm that is fast enough for most contest flow models and reusable in many reductions.",
+  "level": "advanced",
+  "tags": ["max flow", "layered graph", "network modeling"],
+  "order": 10
+}

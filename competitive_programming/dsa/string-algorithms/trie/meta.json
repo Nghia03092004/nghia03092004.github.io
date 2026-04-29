@@ -1,0 +1,7 @@
+{
+  "title": "Trie",
+  "summary": "Store strings by prefix so inserts, prefix checks, and dictionary transitions depend on length rather than set size.",
+  "level": "intermediate",
+  "tags": ["prefix tree", "strings", "dictionary"],
+  "order": 40
+}

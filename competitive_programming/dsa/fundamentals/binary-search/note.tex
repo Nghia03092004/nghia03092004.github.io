@@ -1,0 +1,127 @@
+\section*{Overview}
+
+Binary search is not really about sorted arrays. The broader pattern is: there is an ordered search space, and once a
+candidate becomes valid, everything on one side stays valid as well. Then I can replace a linear scan with repeated
+halving.
+
+In contests this appears in several forms: searching inside a sorted container, finding the first time a process
+becomes feasible, and binary searching an answer when the real work is hidden inside a checker.
+
+\section*{When to Use It}
+
+Use binary search when:
+
+\begin{itemize}
+  \item the search space is ordered,
+  \item the predicate is monotone,
+  \item checking one candidate is much cheaper than trying every candidate,
+  \item the final answer is a boundary such as ``first valid'', ``last valid'', or an approximate real value.
+\end{itemize}
+
+Typical examples are minimum capacity, maximum achievable score, smallest time, or first position where a prefix
+condition becomes true.
+
+\section*{Core Idea}
+
+Maintain an interval that is guaranteed to contain the answer. At each step, evaluate the middle point and throw away
+the half that cannot contain the boundary anymore.
+
+For a first-true search on integers, I keep the invariant:
+\[
+\texttt{answer} \in [lo, hi], \qquad \texttt{pred(hi) = true}.
+\]
+If \(\texttt{pred(mid)}\) is true, the answer is in the left half. Otherwise it is in the right half.
+
+\section*{Key Insight}
+
+The main job is not writing the loop. The main job is choosing a predicate whose truth set is monotone.
+
+For example, if I want the minimum value \(x\) such that some task can be completed, I do not search directly on the
+construction. I ask a yes/no question: ``Can I do it with limit \(x\)?'' If the answer changes from false to true only
+once, the problem is ready for binary search.
+
+\section*{Operations / Main Technique}
+
+\paragraph{Sorted array search.}
+Use the standard lower-bound / upper-bound interpretation:
+\begin{itemize}
+  \item first position with value \(\ge x\),
+  \item first position with value \(> x\),
+  \item last position with value \(\le x\).
+\end{itemize}
+
+\paragraph{Binary search on answer.}
+Pick a candidate answer \(mid\), run a greedy, DP, or prefix-based checker, and use the result as a monotone
+predicate.
+
+\paragraph{Real-valued search.}
+If the answer is a real number, run a fixed number of iterations instead of relying on exact equality.
+
+\paragraph{Worked example.}
+Suppose I need the smallest machine speed that finishes all jobs within \(T\) hours. If speed \(s\) works, then every
+speed larger than \(s\) also works. That turns the optimization problem into a first-true boundary search.
+
+\section*{Correctness Intuition}
+
+Each iteration preserves the invariant that the answer still lies in the active interval. The monotonicity of the
+predicate guarantees that once one side is rejected, no valid answer is lost with it.
+
+When the interval shrinks to one point, that point must be the boundary we were maintaining.
+
+\section*{Complexity Analysis}
+
+If the search space has size \(N\), integer binary search needs \(O(\log N)\) predicate calls. The total cost is
+\[
+O(\log N \cdot \text{cost of checker}).
+\]
+For real-valued search, the complexity is \(O(k \cdot \text{cost of checker})\), where \(k\) is the chosen iteration
+count.
+
+\section*{Implementation}
+
+The reference code includes:
+
+\begin{itemize}
+  \item \texttt{first\_true} on integers,
+  \item \texttt{last\_true} on integers,
+  \item a floating-point variant with a fixed number of iterations.
+\end{itemize}
+
+I prefer writing these as small templates and keeping the predicate outside. That makes the checker easy to test on
+its own.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using binary search without proving the predicate is monotone.
+  \item Picking bounds that do not actually contain the answer.
+  \item Mixing ``first true'' and ``last true'' logic in the same loop.
+  \item Overflow in \(\texttt{mid = (lo + hi) / 2}\) when the bounds are large.
+  \item Using binary search on real values when the problem really wants an exact discrete argument.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Exponential search to discover an upper bound before binary search.
+  \item Parallel binary search for many offline monotone queries.
+  \item Binary lifting style search on Fenwick trees or doubling tables.
+  \item Ternary search when the target is unimodal rather than monotone.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Find the first position of a value in a sorted array with duplicates.
+  \item Minimum capacity to ship packages within \(D\) days.
+  \item Maximum minimum distance after placing objects greedily.
+  \item Binary search on answer where the checker uses prefix sums or greedy feasibility.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/num_methods/binary_search.html}{cp-algorithms: Binary Search}.
+  \item \href{https://usaco.guide/silver/binary-search}{USACO Guide: Binary Search}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

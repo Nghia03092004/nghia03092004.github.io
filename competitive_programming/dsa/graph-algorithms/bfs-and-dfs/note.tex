@@ -1,0 +1,91 @@
+\section*{Overview}
+
+BFS and DFS are the first graph routines worth internalizing. They are simple enough to write from memory and strong
+enough to sit inside many larger algorithms later: topological sort, SCC, bridges, tree DP, shortest paths on
+unweighted graphs, and more.
+
+\section*{When to Use It}
+
+Use BFS or DFS when:
+
+\begin{itemize}
+  \item the graph structure itself is the problem,
+  \item you need reachability, connected components, or a traversal order,
+  \item the graph is a tree and you need parent/depth information.
+\end{itemize}
+
+\section*{Core Idea}
+
+DFS follows one path as far as it can before backtracking. BFS expands in layers from the starting node. Both visit
+every reachable vertex, but the order they expose is different and useful in different ways.
+
+\section*{Key Insight}
+
+BFS is the right tool when distance in number of edges matters. DFS is the right tool when the recursion tree or entry /
+exit structure matters. A lot of graph problems become easy once that distinction is clear.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item BFS from one source for unweighted shortest paths,
+  \item DFS for components, subtree structure, or cycle detection,
+  \item repeated traversal from unvisited nodes for a full graph decomposition.
+\end{itemize}
+
+\paragraph{Worked example.}
+On an unweighted graph, BFS from node \(s\) reaches every vertex at distance \(1\) before any vertex at distance \(2\).
+That is exactly why the first time a node is popped, its distance is final.
+
+\section*{Correctness Intuition}
+
+DFS visits every edge leaving a reached vertex, so it eventually explores the whole reachable region. BFS keeps a queue
+ordered by layer, so nodes are expanded in nondecreasing distance from the source.
+
+\section*{Complexity Analysis}
+
+With adjacency lists, both traversals run in \(O(n + m)\) time and \(O(n)\) extra memory.
+
+\section*{Implementation}
+
+The code includes:
+
+\begin{itemize}
+  \item BFS distances on an adjacency list,
+  \item iterative DFS order collection,
+  \item a connected-components helper.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to clear the visited array between test cases.
+  \item Recursive DFS stack overflow on very deep graphs.
+  \item Using BFS when weighted edges invalidate the layer guarantee.
+  \item Mixing 0-indexed and 1-indexed graph input.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Multi-source BFS.
+  \item 0-1 BFS for edge weights \(0\) and \(1\).
+  \item DFS timestamps for bridges, SCC, or subtree intervals.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count connected components.
+  \item Shortest path in an unweighted graph.
+  \item Check whether a graph is bipartite with BFS coloring.
+  \item Gather subtree sizes in a rooted tree with DFS.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/breadth-first-search.html}{cp-algorithms: Breadth First Search}.
+  \item \href{https://cp-algorithms.com/graph/depth-first-search.html}{cp-algorithms: Depth First Search}.
+  \item \href{https://usaco.guide/silver/graph-traversal}{USACO Guide: Graph Traversal}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

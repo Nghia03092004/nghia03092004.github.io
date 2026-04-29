@@ -3,7 +3,8 @@
 Some problems only look combinatorial until the constraints line up and the clean model is flow. This category is
 for those reductions: send units through a network, enforce conservation, and let the residual structure do the work.
 
-\section*{Planned Focus}
+\section*{Current Focus}
 
-The first notes I want here are the standard workhorses: Dinic, min-cost flow, and bipartite matching. After that,
-the more specialized assignment and general-matching routines can follow.
+The current baseline covers the three core tools I expect to reuse most often: Dinic for max flow, bipartite matching
+when the graph structure is already clean, and min-cost max-flow when the model needs an optimization layer on top of
+feasibility. The next additions here should be more specialized routines such as Hungarian or general matching.

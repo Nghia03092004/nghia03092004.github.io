@@ -1,0 +1,7 @@
+{
+  "title": "Topological Sort",
+  "summary": "Order a DAG so every directed edge points forward, then reuse that order for dependency processing and DAG DP.",
+  "level": "basic",
+  "tags": ["DAG", "ordering", "dependencies"],
+  "order": 20
+}

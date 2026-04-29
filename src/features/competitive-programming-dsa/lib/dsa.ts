@@ -83,12 +83,7 @@ const CATEGORY_DEFINITIONS = [
 		plannedTopics: [
 			{ title: 'Complexity analysis', status: 'planned' },
 			{ title: 'Sorting', status: 'planned' },
-			{ title: 'Binary search', status: 'planned' },
-			{ title: 'Two pointers', status: 'planned' },
-			{ title: 'Prefix sums', status: 'planned' },
-			{ title: 'Difference arrays', status: 'planned' },
 			{ title: 'Coordinate compression', status: 'planned' },
-			{ title: 'Bitmasks', status: 'planned' },
 			{ title: 'Meet-in-the-middle', status: 'planned' },
 		],
 	},
@@ -104,7 +99,6 @@ const CATEGORY_DEFINITIONS = [
 			{ title: 'Ordered set', status: 'planned' },
 			{ title: 'Persistent segment tree', status: 'planned' },
 			{ title: 'Li Chao tree', status: 'planned' },
-			{ title: 'Trie', status: 'planned' },
 			{ title: 'Wavelet tree', status: 'outline' },
 			{ title: 'DSU rollback', status: 'outline' },
 			{ title: 'Persistent DSU', status: 'outline' },
@@ -117,18 +111,12 @@ const CATEGORY_DEFINITIONS = [
 		longDescription:
 			'When a problem hides an interaction graph, these notes aim to make the graph structure explicit instead of magical.',
 		plannedTopics: [
-			{ title: 'DFS / BFS', status: 'planned' },
-			{ title: 'Topological sort', status: 'planned' },
 			{ title: 'Bellman-Ford', status: 'planned' },
 			{ title: 'Floyd-Warshall', status: 'planned' },
 			{ title: 'DSU on tree', status: 'planned' },
-			{ title: 'LCA', status: 'planned' },
-			{ title: 'Bridges / articulation points', status: 'planned' },
-			{ title: 'SCC', status: 'planned' },
 			{ title: 'Euler tour technique', status: 'planned' },
 			{ title: 'Centroid decomposition', status: 'planned' },
 			{ title: 'Minimum spanning tree', status: 'planned' },
-			{ title: 'Binary lifting', status: 'outline' },
 			{ title: 'Virtual tree', status: 'outline' },
 			{ title: '2-SAT', status: 'outline' },
 			{ title: 'Dominator tree', status: 'outline' },
@@ -142,14 +130,10 @@ const CATEGORY_DEFINITIONS = [
 			'The focus here is less on memorizing formulas and more on seeing what information must survive from one decision to the next.',
 		plannedTopics: [
 			{ title: 'Classical DP', status: 'planned' },
-			{ title: 'Knapsack', status: 'planned' },
 			{ title: 'Interval DP', status: 'planned' },
-			{ title: 'Tree DP', status: 'planned' },
-			{ title: 'Bitmask DP', status: 'planned' },
 			{ title: 'Divide-and-conquer optimization', status: 'planned' },
 			{ title: 'Knuth optimization', status: 'planned' },
 			{ title: 'Aliens trick / Lagrangian relaxation', status: 'planned' },
-			{ title: 'Monotone queue optimization', status: 'planned' },
 			{ title: 'SOS DP', status: 'outline' },
 			{ title: 'Subset convolution', status: 'outline' },
 			{ title: 'Rerooting DP', status: 'outline' },
@@ -163,11 +147,7 @@ const CATEGORY_DEFINITIONS = [
 		longDescription:
 			'These notes emphasize the parts of number theory that become algorithms rather than standalone proofs.',
 		plannedTopics: [
-			{ title: 'gcd / lcm', status: 'planned' },
 			{ title: 'Modular arithmetic', status: 'planned' },
-			{ title: 'Modular inverse', status: 'planned' },
-			{ title: 'CRT', status: 'planned' },
-			{ title: 'Sieve', status: 'planned' },
 			{ title: 'Prime factorization', status: 'planned' },
 			{ title: 'Euler phi', status: 'planned' },
 			{ title: 'Mobius function', status: 'planned' },
@@ -186,8 +166,6 @@ const CATEGORY_DEFINITIONS = [
 		longDescription:
 			'String problems are often bookkeeping problems in disguise. The goal is to keep the invariant small enough to update in linear time.',
 		plannedTopics: [
-			{ title: 'Z-function', status: 'planned' },
-			{ title: 'Rolling hash', status: 'planned' },
 			{ title: 'Suffix array', status: 'planned' },
 			{ title: 'Suffix automaton', status: 'planned' },
 			{ title: 'Aho-Corasick', status: 'planned' },
@@ -202,13 +180,9 @@ const CATEGORY_DEFINITIONS = [
 		longDescription:
 			'The intended emphasis is contest geometry that survives integer arithmetic, not coordinate-free elegance for its own sake.',
 		plannedTopics: [
-			{ title: 'Orientation / cross product', status: 'planned' },
-			{ title: 'Line intersection', status: 'planned' },
-			{ title: 'Convex hull', status: 'planned' },
 			{ title: 'Rotating calipers', status: 'planned' },
 			{ title: 'Closest pair', status: 'planned' },
 			{ title: 'Half-plane intersection', status: 'planned' },
-			{ title: 'Point in polygon', status: 'planned' },
 			{ title: 'Sweep line', status: 'outline' },
 			{ title: 'KD-tree', status: 'outline' },
 		],
@@ -220,10 +194,6 @@ const CATEGORY_DEFINITIONS = [
 		longDescription:
 			'This branch collects problems where the cleanest solution is to phrase the whole task as conserved flow or structural matching.',
 		plannedTopics: [
-			{ title: 'Dinic', status: 'planned' },
-			{ title: 'Min-cost max-flow', status: 'planned' },
-			{ title: 'Bipartite matching', status: 'planned' },
-			{ title: 'Hopcroft-Karp', status: 'planned' },
 			{ title: 'Hungarian algorithm', status: 'outline' },
 			{ title: 'General matching', status: 'outline' },
 		],
@@ -235,9 +205,6 @@ const CATEGORY_DEFINITIONS = [
 		longDescription:
 			'These topics are the part of competitive programming that is hardest to compress into one sentence but easiest to recognize after enough practice.',
 		plannedTopics: [
-			{ title: 'Sqrt decomposition', status: 'planned' },
-			{ title: 'Small-to-large merging', status: 'planned' },
-			{ title: 'Offline queries', status: 'planned' },
 			{ title: 'Divide and conquer on answer', status: 'planned' },
 			{ title: 'Parallel binary search', status: 'planned' },
 			{ title: 'Randomization', status: 'planned' },

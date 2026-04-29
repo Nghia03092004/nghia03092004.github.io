@@ -1,0 +1,129 @@
+\section*{Overview}
+
+Prefix sums and difference arrays are among the smallest tools in the toolkit, but they repeatedly remove an entire
+logarithm or even an entire data structure from the solution. They are often the right answer before segment trees and
+Fenwick trees enter the conversation.
+
+\section*{When to Use It}
+
+Use a prefix sum when:
+
+\begin{itemize}
+  \item the query asks for a range sum, count, or any range quantity expressible as a difference of prefixes,
+  \item the array is static or only built once,
+  \item many queries are asked after a preprocessing step.
+\end{itemize}
+
+Use a difference array when:
+
+\begin{itemize}
+  \item many updates add the same value on a whole interval,
+  \item the final array is only needed after all updates are known,
+  \item reconstructing once at the end is acceptable.
+\end{itemize}
+
+\section*{Core Idea}
+
+For prefix sums, define
+\[
+pref[i] = a_1 + a_2 + \cdots + a_i.
+\]
+Then the sum on \([l, r]\) becomes
+\[
+pref[r] - pref[l - 1].
+\]
+
+For difference arrays, store changes instead of values:
+\[
+diff[i] = a_i - a_{i-1}.
+\]
+To add \(x\) on \([l, r]\), do
+\[
+diff[l] += x, \qquad diff[r + 1] -= x.
+\]
+One final prefix pass reconstructs the actual array.
+
+\section*{Key Insight}
+
+Both techniques work by moving the work to boundaries.
+
+\begin{itemize}
+  \item Prefix sums answer an interval by looking only at its two ends.
+  \item Difference arrays mark only where an update starts and where it stops.
+\end{itemize}
+
+This boundary view is the reason they are so common in greedy checks, offline processing, and line-sweep style tasks.
+
+\section*{Operations / Main Technique}
+
+\paragraph{Prefix-sum query.}
+Build once in \(O(n)\), answer each range sum in \(O(1)\).
+
+\paragraph{Difference-array update.}
+Apply each range add in \(O(1)\), rebuild in \(O(n)\) at the end.
+
+\paragraph{Worked example.}
+If I need to add \(+3\) on \([2, 5]\) and \(+4\) on \([4, 6]\), the difference array marks only four positions:
+\[
+diff[2] += 3, \; diff[6] -= 3, \; diff[4] += 4, \; diff[7] -= 4.
+\]
+The prefix of \(\texttt{diff}\) then recreates the final values.
+
+\section*{Correctness Intuition}
+
+For prefix sums, each interval sum is the full prefix to \(r\) minus the prefix before \(l\). Everything outside the
+interval cancels.
+
+For difference arrays, a range update raises the running prefix by \(x\) starting at \(l\), and removes that extra
+contribution after \(r\). So every position inside the range sees \(x\), and every position outside does not.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item build prefix sums: \(O(n)\),
+  \item range sum query: \(O(1)\),
+  \item one difference-array range update: \(O(1)\),
+  \item reconstruct final array from differences: \(O(n)\),
+  \item memory: \(O(n)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The code includes one small helper for static prefix sums and one helper for offline range additions with a difference
+array. Both are 0-indexed externally, which avoids repeated shifts in typical vector-based code.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting the extra slot needed for \(\texttt{diff[r + 1]}\).
+  \item Mixing inclusive and half-open intervals.
+  \item Reaching for prefix sums when updates are online and frequent.
+  \item Using \texttt{int} for sums that should be \texttt{long long}.
+  \item Forgetting that prefix sums work for more than sums: counts, XOR, and weighted prefixes show up often too.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Two-dimensional prefix sums for submatrix queries.
+  \item Two-dimensional difference arrays for rectangle updates.
+  \item Prefix sums over frequencies after coordinate compression.
+  \item Weighted prefix sums for fast range cost formulas.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Many static range-sum queries on one array.
+  \item Offline interval additions followed by one final scan.
+  \item Counting active segments at every coordinate after compression.
+  \item Binary-search checkers that need fast range totals.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/silver/prefix-sums}{USACO Guide: Prefix Sums}.
+  \item \href{https://cp-algorithms.com/data_structures/fenwick.html}{cp-algorithms: Fenwick Tree} for the online extension of the same prefix idea.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

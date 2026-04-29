@@ -1,0 +1,98 @@
+\section*{Overview}
+
+Bipartite matching is the cleanest example of turning a structural graph question into an algorithmic primitive. Many
+``pair these objects'' problems are really asking for the largest set of disjoint edges between a left side and a right
+side.
+
+\section*{When to Use It}
+
+Use bipartite matching when:
+
+\begin{itemize}
+  \item the objects naturally split into two groups,
+  \item each allowed pairing links one left item to one right item,
+  \item every item can be used only a limited number of times, often exactly once.
+\end{itemize}
+
+Examples include job assignment, student-project pairing, rook placement, or scheduling with compatibility edges.
+
+\section*{Core Idea}
+
+A matching is a set of edges with no shared endpoints. The algorithm grows the matching by finding augmenting paths:
+paths that alternate between unmatched and matched edges and start and end at free vertices.
+
+Flipping the status of the edges on such a path increases the matching size by one.
+
+\section*{Key Insight}
+
+The alternating-path view explains both correctness and implementation. Hopcroft-Karp speeds things up by finding many
+shortest augmenting paths in one BFS/DFS phase instead of increasing the matching by only one edge at a time.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item build the bipartite graph from left to right,
+  \item BFS from free left vertices to compute distance layers,
+  \item DFS through those layers to find augmenting paths,
+  \item repeat until no free right vertex is reachable.
+\end{itemize}
+
+\paragraph{Worked example.}
+If \(L_1\) is free, \(R_3\) is matched to \(L_4\), and there is a path
+\[
+L_1 \to R_3 \to L_4 \to R_2,
+\]
+where \(R_2\) is free, flipping matched and unmatched edges along that path increases the total matching size by one.
+
+\section*{Correctness Intuition}
+
+An augmenting path always increases the matching by one because it starts and ends at free vertices and alternates
+edge status in between. When no augmenting path exists, the current matching is maximum. Hopcroft-Karp is still based
+on that fact; it only batches shortest augmenting paths together.
+
+\section*{Complexity Analysis}
+
+Hopcroft-Karp runs in \(O(E \sqrt{V})\), which is usually much better than repeated DFS matching on larger graphs.
+
+\section*{Implementation}
+
+The code uses Hopcroft-Karp with:
+
+\begin{itemize}
+  \item adjacency lists from the left side,
+  \item distance labels for the BFS phase,
+  \item two match arrays, one per side.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that the graph must be bipartite before this model applies.
+  \item Mixing left-side and right-side indexing in the match arrays.
+  \item Reaching for general max flow when plain bipartite matching is enough.
+  \item Using Kuhn's algorithm on input sizes that really need Hopcroft-Karp.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Minimum vertex cover in bipartite graphs via Konig's theorem.
+  \item Weighted assignment, which leads to Hungarian or min-cost flow instead.
+  \item Capacity on one side by splitting or by a small flow reduction.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Maximum bipartite matching on compatibility edges.
+  \item Place the maximum number of non-attacking objects on a constrained grid.
+  \item Recover a minimum vertex cover after finding a maximum matching.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/kuhn_maximum_bipartite_matching.html}{cp-algorithms: Bipartite Matching}.
+  \item \href{https://usaco.guide/adv/bipartite-matching}{USACO Guide: Bipartite Matching}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

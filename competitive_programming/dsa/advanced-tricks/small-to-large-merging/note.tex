@@ -1,0 +1,83 @@
+\section*{Overview}
+
+Small-to-large merging is the trick I reach for when each subtree carries a container and naive merging would be
+quadratic. The rule is simple: always merge the smaller container into the larger one.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item you are doing DFS on a tree,
+  \item each subtree needs a set, map, frequency table, or similar container,
+  \item parent states are formed by merging all child containers.
+\end{itemize}
+
+\section*{Core Idea}
+
+After solving every child subtree, keep the largest child container as the base and insert all elements from smaller
+child containers into it. That strategy limits how many times one element can move.
+
+\section*{Key Insight}
+
+Whenever one element moves, it moves into a container at least twice as large as before. So one element can be moved at
+most \(O(\log n)\) times overall. That is the amortized reason the technique is fast.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item DFS the children first,
+  \item select the largest child container as the main container,
+  \item merge smaller child containers into it,
+  \item answer the current node's query from the merged state.
+\end{itemize}
+
+\paragraph{Worked example.}
+If each subtree stores the set of colors appearing in it, then small-to-large merging gives all subtree color counts in
+roughly \(O(n \log n)\) instead of repeatedly rebuilding sets from scratch.
+
+\section*{Correctness Intuition}
+
+The merge order does not affect the final container contents, only the cost. Since all child data eventually lands in
+the parent's chosen base container, the subtree summary remains correct.
+
+\section*{Complexity Analysis}
+
+With balanced-tree maps or sets, many common uses run in \(O(n \log^2 n)\) or \(O(n \log n)\), depending on the exact
+container operations.
+
+\section*{Implementation}
+
+The code shows the classic subtree-color-count example using maps. The same pattern applies to sets, multisets, and
+other associative containers.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to swap so the larger container stays as the base.
+  \item Copying containers instead of reusing pointers or references.
+  \item Using the trick when the merge operation itself is too expensive or not associative enough.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item DSU on tree, which is related but organized differently.
+  \item Maintaining best frequency or color answer alongside the map.
+  \item Using vectors plus coordinate compression when keys are small.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Number of distinct colors in every subtree.
+  \item Frequency-based subtree queries.
+  \item Merge subtree statistics where order is irrelevant.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+  \item \href{https://usaco.guide/plat/merging}{USACO Guide: Small-to-Large Merging}.
+\end{itemize}

@@ -1,0 +1,83 @@
+\section*{Overview}
+
+Topological sort turns a DAG into a linear order that respects every directed edge. Once that order exists, many
+dependency problems become ordinary left-to-right DP or greedy scans.
+
+\section*{When to Use It}
+
+Use topological sort when:
+
+\begin{itemize}
+  \item the graph is directed and acyclic, or the task asks you to detect whether it is,
+  \item edges represent prerequisites or dependency constraints,
+  \item a DP transition only depends on earlier states.
+\end{itemize}
+
+\section*{Core Idea}
+
+In a DAG, at least one vertex has indegree zero. Remove such vertices one by one, appending them to the order and
+updating the indegrees of their outgoing neighbors. That is Kahn's algorithm.
+
+\section*{Key Insight}
+
+The order is not usually unique, and that is fine. What matters is that every edge goes from earlier to later. That is
+exactly the condition needed to process a node after all of its prerequisites are done.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item compute indegrees,
+  \item push all indegree-zero vertices into a queue,
+  \item repeatedly pop, output, and relax outgoing edges,
+  \item if not all vertices are output, a cycle exists.
+\end{itemize}
+
+\paragraph{Worked example.}
+If course \(A\) and \(B\) must be taken before \(C\), then edges \(A \to C\) and \(B \to C\) guarantee \(C\) appears
+after both of them in every topological order.
+
+\section*{Correctness Intuition}
+
+A vertex with indegree zero has no remaining prerequisite, so placing it next cannot violate any edge constraint. When
+it is removed, its outgoing edges are no longer relevant to the remaining graph. Repeating this preserves correctness.
+
+\section*{Complexity Analysis}
+
+Kahn's algorithm runs in \(O(n + m)\) time and \(O(n)\) extra memory.
+
+\section*{Implementation}
+
+The sample returns an empty vector if the graph contains a cycle. That makes it easy to use the same routine both for
+ordering and for cycle detection.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that topological order exists only for DAGs.
+  \item Using an order-based DP without checking for cycles first.
+  \item Mixing edge direction with the dependency statement from the problem.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item DFS finishing-order topological sort.
+  \item Lexicographically smallest topological order with a priority queue.
+  \item DAG DP once the order is available.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Order courses by prerequisites.
+  \item Longest path in a DAG.
+  \item Count paths in a DAG modulo a prime.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/topological-sort.html}{cp-algorithms: Topological Sorting}.
+  \item \href{https://usaco.guide/gold/toposort?lang=cpp}{USACO Guide: Topological Sort}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

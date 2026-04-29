@@ -1,0 +1,101 @@
+\section*{Overview}
+
+A modular inverse is the number that undoes multiplication modulo \(m\). It appears everywhere once modular arithmetic
+stops being a toy: dividing by factorials, normalizing transitions, solving congruences, and implementing formulas that
+look rational but are really modular.
+
+\section*{When to Use It}
+
+Use a modular inverse when:
+
+\begin{itemize}
+  \item a formula under modulo arithmetic needs division,
+  \item you need to solve \(ax \equiv b \pmod m\),
+  \item factorial inverses or combinatorics tables are involved.
+\end{itemize}
+
+\section*{Core Idea}
+
+The inverse of \(a\) modulo \(m\) is a value \(a^{-1}\) such that
+\[
+a \cdot a^{-1} \equiv 1 \pmod m.
+\]
+It exists iff \(\gcd(a, m) = 1\).
+
+There are two common ways to compute it:
+\begin{itemize}
+  \item extended Euclid for a general modulus,
+  \item fast exponentiation \(a^{m-2}\) when \(m\) is prime.
+\end{itemize}
+
+\section*{Key Insight}
+
+``Division modulo \(m\)'' is not automatic. It is multiplication by an inverse, and that only makes sense when the
+number is coprime with the modulus.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item inverse by extended Euclid for arbitrary coprime \((a, m)\),
+  \item inverse by Fermat's little theorem for prime \(m\),
+  \item batch inverse tables when many inverses under one prime modulus are needed.
+\end{itemize}
+
+\paragraph{Worked example.}
+Modulo \(11\), the inverse of \(3\) is \(4\) because \(3 \cdot 4 = 12 \equiv 1 \pmod{11}\).
+
+\section*{Correctness Intuition}
+
+Extended Euclid returns coefficients \(x, y\) such that
+\[
+ax + my = \gcd(a, m).
+\]
+When the gcd is \(1\), reducing modulo \(m\) gives \(ax \equiv 1 \pmod m\), so \(x\) is the inverse.
+
+For prime moduli, Fermat gives \(a^{m-1} \equiv 1\), so \(a^{m-2}\) is the inverse.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item inverse by extended Euclid: \(O(\log m)\),
+  \item inverse by fast power: \(O(\log m)\),
+  \item build inverse table \(1 \ldots n\) under prime modulus: \(O(n)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The code includes both the general and prime-modulus versions. I prefer keeping both because contest moduli vary, and
+assuming primality when it is not given is a common bug.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Trying to invert a value that is not coprime to the modulus.
+  \item Using \(a^{m-2}\) when the modulus is not prime.
+  \item Forgetting to normalize the extended-Euclid result into \([0, m-1]\).
+  \item Dividing under modulo arithmetic before taking the modulo safely.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Precompute factorials and inverse factorials.
+  \item Solve linear congruences and CRT systems.
+  \item Inverse tables for repeated combinatorics queries.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Compute binomial coefficients modulo a prime.
+  \item Solve \(ax \equiv b \pmod m\).
+  \item Evaluate rational-looking formulas modulo a large prime.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/algebra/module-inverse.html}{cp-algorithms: Modular Multiplicative Inverse}.
+  \item \href{https://usaco.guide/gold/modular?lang=cpp}{USACO Guide: Modular Arithmetic}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

@@ -1,0 +1,7 @@
+{
+  "title": "Rolling Hash",
+  "summary": "A fast probabilistic fingerprint for substring comparison, string sets, and prefix-based matching tricks.",
+  "level": "intermediate",
+  "tags": ["hashing", "substrings", "probabilistic"],
+  "order": 30
+}

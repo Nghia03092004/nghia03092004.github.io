@@ -1,0 +1,7 @@
+{
+  "title": "GCD and Extended Euclid",
+  "summary": "The basic divisibility toolkit for reducing fractions, solving linear equations, and building modular arithmetic routines.",
+  "level": "basic",
+  "tags": ["gcd", "extended euclid", "diophantine equations"],
+  "order": 10
+}

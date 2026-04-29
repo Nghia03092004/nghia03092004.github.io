@@ -1,0 +1,7 @@
+{
+  "title": "Bitmask DP",
+  "summary": "Dynamic programming over subsets when the state is a small visited set, partition, or compatibility frontier.",
+  "level": "intermediate",
+  "tags": ["dynamic programming", "bitmasks", "subset state"],
+  "order": 20
+}

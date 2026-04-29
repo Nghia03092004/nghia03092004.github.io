@@ -1,0 +1,113 @@
+\section*{Overview}
+
+Bitmasks are the natural representation when the state is a small subset of items. Instead of carrying a set object, I
+store one integer whose bits say which elements are present.
+
+This is the bridge between straightforward brute force and the more structured subset DP techniques that appear later.
+
+\section*{When to Use It}
+
+Use bitmasks when:
+
+\begin{itemize}
+  \item the universe size is small, usually \(n \le 20\) or a little more depending on the transition,
+  \item the state is a subset, partition, or visited-set condition,
+  \item checking or updating membership with bit operations is simpler than with containers,
+  \item you need to enumerate subsets, submasks, or supersets systematically.
+\end{itemize}
+
+\section*{Core Idea}
+
+Map item \(i\) to bit \(i\). Then:
+\[
+\texttt{mask \& (1 << i)}
+\]
+tells me whether the item is present, while
+\[
+\texttt{mask | (1 << i)}
+\]
+adds it.
+
+The state becomes an integer, which means subset transitions are cheap and array indexing by mask becomes possible.
+
+\section*{Key Insight}
+
+The real power is not compact storage. It is the ability to iterate over combinatorial states with simple arithmetic.
+
+The most important loop is submask enumeration:
+\[
+\texttt{for (sub = mask; ; sub = (sub - 1) \& mask)}.
+\]
+This visits every submask exactly once in descending order.
+
+\section*{Operations / Main Technique}
+
+\paragraph{Membership and updates.}
+Test, add, remove, or toggle an element in \(O(1)\).
+
+\paragraph{Enumerate all subsets.}
+Loop over \(\texttt{mask = 0 .. (1 << n) - 1}\).
+
+\paragraph{Enumerate all submasks of one mask.}
+Useful for subset DP, partition transitions, and meet-in-the-middle postprocessing.
+
+\paragraph{Worked example.}
+If \(mask = 13\), its binary form is \(1101_2\). That means items \(0, 2, 3\) are active. The submasks are
+\(1101, 1100, 1001, 1000, 0101, 0100, 0001, 0000\).
+
+\section*{Correctness Intuition}
+
+Each bit represents one independent yes/no choice, so the mask gives a one-to-one encoding of subsets. Bitwise
+operations preserve that meaning exactly, which is why set transitions can be written as integer transitions.
+
+For submask enumeration, the \(\texttt{(sub - 1) \& mask}\) step removes the lowest active bit and freely chooses
+smaller bits afterward, which is exactly what is needed to reach every submask once.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item test or update one bit: \(O(1)\),
+  \item enumerate all subsets of \(n\) items: \(O(2^n)\),
+  \item enumerate all submasks of one mask with \(k\) active bits: \(O(2^k)\),
+  \item many subset DP routines: \(O(n 2^n)\) or \(O(3^n)\) depending on the transition.
+\end{itemize}
+
+\section*{Implementation}
+
+The code includes basic helpers, submask enumeration, and one small routine that precomputes subset sums in
+\(O(n 2^n)\). That precomputation pattern appears often in DP and meet-in-the-middle tasks.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using \(\texttt{1 << n}\) with \(n \ge 31\) in 32-bit integers.
+  \item Forgetting that \texttt{__builtin\_popcount} is for \texttt{unsigned int}; use the 64-bit version when needed.
+  \item Writing a submask loop that skips \(\texttt{0}\) by accident.
+  \item Treating \(2^n\) as cheap when \(n\) is already too large for the transition cost.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Bitset acceleration when the state is large but operations are dense.
+  \item SOS DP and subset convolution.
+  \item Meet-in-the-middle by splitting the items into two halves.
+  \item State compression DP on grids or graphs.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Traveling-salesman style DP on \(n \le 20\).
+  \item Count or optimize over all subsets with a compatibility condition.
+  \item Enumerate all partitions of a subset using submask loops.
+  \item Small-state BFS where the visited state includes a bitmask.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/gold/dp-bitmasks}{USACO Guide: Bitmask DP}.
+  \item \href{https://cp-algorithms.com/algebra/all-submasks.html}{cp-algorithms: Enumerating submasks of a bitmask}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

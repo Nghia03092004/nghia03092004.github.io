@@ -1,0 +1,104 @@
+\section*{Overview}
+
+Two pointers is one of the simplest ways to save a factor of \(n\). The pattern is to maintain a window or a pair of
+positions and move each pointer only forward. If the state can be updated incrementally, the whole scan becomes linear.
+
+\section*{When to Use It}
+
+Reach for this pattern when:
+
+\begin{itemize}
+  \item the answer depends on a contiguous subarray or substring,
+  \item the left and right boundaries only need to move forward,
+  \item adding one element and removing one element can be maintained cheaply,
+  \item a brute-force nested loop would revisit almost the same interval many times.
+\end{itemize}
+
+Classic tasks include longest valid subarray, shortest valid window, counting windows with some bound, or merging two
+sorted lists.
+
+\section*{Core Idea}
+
+Maintain a current window \([l, r]\) and an invariant that describes when the window is valid. Expand \(r\) to add new
+information; shrink \(l\) only when the invariant is violated or when you want to make the window minimal.
+
+Because each pointer moves at most \(n\) times, the total number of operations is linear apart from the work needed to
+maintain the window state.
+
+\section*{Key Insight}
+
+The technique works only when the window reacts monotonically enough to one-way movement.
+
+For nonnegative arrays, if a sum is too large, moving the left pointer right can only decrease it. That makes the
+state manageable. If negative numbers are allowed, the same trick often breaks and you need prefix sums or a different
+data structure.
+
+\section*{Operations / Main Technique}
+
+\paragraph{Fixed-state sliding window.}
+Add \(\texttt{a[r]}\), update counts or sums, then shrink while invalid.
+
+\paragraph{Two sorted arrays.}
+Use two indices to merge, count inversions in specialized settings, or match greedily.
+
+\paragraph{Worked example.}
+For the longest subarray with sum at most \(S\) and nonnegative values, expand the right end until the sum becomes too
+large, then move the left end until the window is valid again. Every index enters once and leaves once.
+
+\section*{Correctness Intuition}
+
+At every step, the maintained invariant tells me what the current window means: valid, minimal valid, or maximal valid
+ending at \(r\). Since the pointers never move backward, the algorithm never repeats a discarded state.
+
+The one-way movement is the whole proof skeleton: each decision throws away configurations that will never become useful
+again.
+
+\section*{Complexity Analysis}
+
+If both pointers only move forward, the total number of pointer updates is \(O(n)\). With \(O(1)\) amortized window
+maintenance, the entire method is \(O(n)\).
+
+\section*{Implementation}
+
+The code includes:
+
+\begin{itemize}
+  \item a longest-window routine for nonnegative sums,
+  \item a counter for subarrays with at most \(k\) distinct values.
+\end{itemize}
+
+Those two patterns cover a large fraction of contest sliding-window problems.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Applying the nonnegative-sum template when negative values are present.
+  \item Forgetting whether the window is inclusive or half-open.
+  \item Not updating the answer in the right place: before shrinking, after shrinking, or both.
+  \item Letting the frequency map keep zero-count keys and then miscounting distinct values.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Count exactly \(k\) distinct by \(\texttt{at\_most(k) - at\_most(k - 1)}\).
+  \item Monotone deque when the window also needs min or max queries.
+  \item Two pointers on sorted arrays for pair sum, interval stabbing, or greedy matching.
+  \item Meet-in-the-middle or prefix tricks when the window state is not one-way monotone.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Longest substring without repeated characters.
+  \item Number of subarrays with at most \(k\) distinct values.
+  \item Shortest subarray with sum at least \(S\) in the nonnegative setting.
+  \item Merge-like matching between two sorted sequences.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/silver/two-pointers}{USACO Guide: Two Pointers}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

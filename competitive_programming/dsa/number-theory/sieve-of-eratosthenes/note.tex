@@ -1,0 +1,92 @@
+\section*{Overview}
+
+The sieve is the standard way to turn repeated prime questions into preprocessing. Instead of testing each number from
+scratch, I mark composite numbers once and reuse that work everywhere else.
+
+\section*{When to Use It}
+
+Use a sieve when:
+
+\begin{itemize}
+  \item many primality or factorization queries are asked up to a common bound,
+  \item you need all primes up to \(n\),
+  \item multiplicative preprocessing starts from prime information.
+\end{itemize}
+
+\section*{Core Idea}
+
+Initialize every number as potentially prime, then iterate through the range. When a prime \(p\) is found, mark its
+multiples as composite. Each composite is crossed out because it has a smaller prime divisor.
+
+\section*{Key Insight}
+
+The sieve wins because composite numbers are processed by structure rather than individually. After that, primality and
+smallest-prime-factor queries become array lookups.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item build a boolean primality table,
+  \item optionally record the smallest prime factor of each number,
+  \item factor numbers quickly by repeatedly dividing by the stored smallest prime factor.
+\end{itemize}
+
+\paragraph{Worked example.}
+Once \(2\) is known prime, mark \(4, 6, 8, \ldots\). Once \(3\) is known prime, mark \(9, 12, 15, \ldots\). Numbers
+that survive all smaller prime marks are prime.
+
+\section*{Correctness Intuition}
+
+Every composite number has a smallest prime divisor. When that prime is processed, the composite is marked. A prime is
+never marked by a smaller factor because none exists.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item classic sieve: \(O(n \log \log n)\),
+  \item linear smallest-prime-factor sieve: \(O(n)\),
+  \item one factorization using SPF: \(O(\log n)\) in practice.
+\end{itemize}
+
+\section*{Implementation}
+
+The reference code uses the linear sieve pattern because it naturally produces:
+
+\begin{itemize}
+  \item a list of primes,
+  \item a smallest-prime-factor array,
+  \item fast factorization support afterward.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Choosing a bound that is too small for later queries.
+  \item Forgetting that the sieve is preprocessing, so it only helps if many queries share one limit.
+  \item Using too much memory when the bound is very large.
+  \item Confusing primality with smallest prime factor \(= 0\) or \(= i\) depending on the implementation.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Segment sieve for a large interval \([L, R]\).
+  \item Euler phi and Mobius preprocessing.
+  \item Prime-counting prefix arrays on top of the primality table.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Answer many primality queries.
+  \item Factor all array values up to a fixed limit.
+  \item Precompute multiplicative functions for many numbers.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/algebra/sieve-of-eratosthenes.html}{cp-algorithms: Sieve of Eratosthenes}.
+  \item \href{https://usaco.guide/gold/prime-factorization}{USACO Guide: Prime Factorization and Sieve}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

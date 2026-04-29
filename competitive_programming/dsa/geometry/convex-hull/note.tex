@@ -1,0 +1,96 @@
+\section*{Overview}
+
+The convex hull is the smallest convex polygon containing a set of points. In competitive programming it is often the
+first real geometry construction: once the hull is built, diameter, tangents, support lines, and several optimization
+problems become easier.
+
+\section*{When to Use It}
+
+Use a convex hull when:
+
+\begin{itemize}
+  \item the answer depends only on the extreme points,
+  \item interior points are irrelevant noise,
+  \item you need a clean polygonal envelope before running rotating calipers or tangent queries.
+\end{itemize}
+
+\section*{Core Idea}
+
+The monotone-chain algorithm sorts the points, then builds the lower and upper hulls separately. While scanning, it
+removes the last point whenever the last two hull points together with the new point fail the chosen turn condition.
+
+That means the hull is maintained as a sequence of valid turns instead of recomputed from scratch.
+
+\section*{Key Insight}
+
+After sorting by \((x, y)\), every point is processed in the only order that matters for the lower and upper envelopes.
+If a point creates a non-left turn on the lower hull, it can never belong to the final lower envelope, so it is safe
+to remove immediately.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item sort points lexicographically,
+  \item build the lower hull,
+  \item build the upper hull,
+  \item concatenate them while avoiding duplicate endpoints.
+\end{itemize}
+
+\paragraph{Worked example.}
+If three consecutive candidate points make a clockwise turn while building the lower hull, the middle point lies inside
+or on the boundary of the current envelope and can be removed.
+
+\section*{Correctness Intuition}
+
+The hull must be convex, so each chain must keep turning in the same direction. Whenever three consecutive points break
+that rule, the middle one cannot be an extreme vertex of that chain. Repeating this local repair produces the global
+envelope.
+
+\section*{Complexity Analysis}
+
+Sorting dominates the cost:
+\begin{itemize}
+  \item time: \(O(n \log n)\),
+  \item memory: \(O(n)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The code uses monotone chain on integer points and returns the hull in counterclockwise order without repeating the
+first vertex at the end.
+
+The only policy choice is how to treat collinear boundary points. The sample keeps the extreme endpoints and removes
+intermediate collinear points from each edge.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to remove duplicate input points first.
+  \item Using the wrong turn condition for the chosen collinearity policy.
+  \item Mishandling the cases \(n = 0\), \(1\), or \(2\).
+  \item Expecting interior collinear points to remain when the implementation intentionally compresses edges.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Keep all boundary points by changing the pop condition.
+  \item Rotating calipers on the hull for diameter or width.
+  \item Dynamic hull maintenance, which is a different problem and much harder.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Build the hull of a planar point set.
+  \item Compute the diameter of a point set after building the hull.
+  \item Count or list the vertices of the outer envelope only.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/geometry/convex-hull.html}{cp-algorithms: Convex Hull Construction}.
+  \item \href{https://usaco.guide/plat/convex-hull}{USACO Guide: Convex Hull}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

@@ -1,0 +1,109 @@
+\section*{Overview}
+
+Most contest geometry starts with one predicate: given three points, do they make a left turn, a right turn, or stay
+collinear? That question is answered by the cross product, and once that primitive is solid, many other routines become
+simple compositions of it.
+
+\section*{When to Use It}
+
+Use orientation and cross products when:
+
+\begin{itemize}
+  \item you need to compare turns without floating-point angles,
+  \item the task asks about segment intersection, convexity, polygon area, or hull building,
+  \item integer coordinates are available and exact predicates matter.
+\end{itemize}
+
+\section*{Core Idea}
+
+For vectors \(\vec{u} = (x_1, y_1)\) and \(\vec{v} = (x_2, y_2)\), the 2D cross product is
+\[
+\vec{u} \times \vec{v} = x_1 y_2 - y_1 x_2.
+\]
+
+For three points \(a, b, c\), compute
+\[
+(b - a) \times (c - a).
+\]
+Its sign tells the turn:
+\begin{itemize}
+  \item positive: left turn,
+  \item negative: right turn,
+  \item zero: collinear.
+\end{itemize}
+
+\section*{Key Insight}
+
+The cross product is both a turn test and a signed-area test. Its magnitude is twice the signed area of triangle
+\(abc\). That one fact explains why it appears in hulls, polygon area, intersection predicates, and half-plane tests.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item \textbf{orientation}: left / right / collinear.
+  \item \textbf{on-segment test}: after confirming collinearity, check whether a point lies inside the bounding box.
+  \item \textbf{polygon area}: sum edge cross products.
+  \item \textbf{turn filtering}: keep only left turns when building a convex hull.
+\end{itemize}
+
+\paragraph{Worked example.}
+If \(a = (0,0)\), \(b = (3,0)\), and \(c = (1,2)\), then
+\[
+(b-a) \times (c-a) = 3 \cdot 2 - 0 \cdot 1 = 6 > 0,
+\]
+so \(a \to b \to c\) is a left turn.
+
+\section*{Correctness Intuition}
+
+The sign of the cross product tells which side of the directed line \(a \to b\) the point \(c\) lies on. Everything
+else is built on top of that side test. Since the computation uses only integer arithmetic, the predicate is exact as
+long as overflow is avoided.
+
+\section*{Complexity Analysis}
+
+Each primitive here is \(O(1)\) time and \(O(1)\) memory.
+
+\section*{Implementation}
+
+The reference code provides:
+
+\begin{itemize}
+  \item a point type on 64-bit integers,
+  \item \texttt{cross(a, b, c)} for orientation,
+  \item \texttt{orient} returning \(-1, 0, 1\),
+  \item \texttt{on\_segment} for boundary checks.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using \texttt{int} when coordinates can make the cross product overflow.
+  \item Forgetting that a zero cross product only means collinear, not necessarily on the segment.
+  \item Mixing clockwise and counterclockwise conventions between notes and code.
+  \item Reaching for \(\texttt{atan2}\) when a sign test would be simpler and more reliable.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Dot product for projection and angle-related tests.
+  \item Shoelace formula for polygon area.
+  \item Orientation as the core primitive for segment intersection and convex hull.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Determine whether two segments intersect.
+  \item Compute polygon area from its vertices.
+  \item Filter turns while constructing a convex hull.
+  \item Check whether a polygon is strictly convex.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/geometry/basic-geometry.html}{cp-algorithms: Basic Geometry}.
+  \item \href{https://usaco.guide/plat/geo-prims}{USACO Guide: Geometry Primitives}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

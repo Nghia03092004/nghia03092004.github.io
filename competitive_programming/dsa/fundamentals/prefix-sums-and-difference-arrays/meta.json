@@ -1,0 +1,7 @@
+{
+  "title": "Prefix Sums and Difference Arrays",
+  "summary": "Turn repeated range work into constant-time queries or constant-time lazy marks by changing what the array stores.",
+  "level": "basic",
+  "tags": ["preprocessing", "range queries", "range updates"],
+  "order": 20
+}

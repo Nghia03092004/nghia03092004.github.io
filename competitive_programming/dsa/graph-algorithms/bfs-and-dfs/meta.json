@@ -1,0 +1,7 @@
+{
+  "title": "BFS and DFS",
+  "summary": "The fundamental graph traversals for reachability, layering, component discovery, and tree exploration.",
+  "level": "basic",
+  "tags": ["graph traversal", "reachability", "components"],
+  "order": 10
+}

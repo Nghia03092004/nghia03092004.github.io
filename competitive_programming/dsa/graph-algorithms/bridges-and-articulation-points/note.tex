@@ -1,0 +1,98 @@
+\section*{Overview}
+
+Bridges and articulation points identify the fragile parts of an undirected graph. A bridge is an edge whose removal
+disconnects the graph. An articulation point is a vertex whose removal does the same.
+
+\section*{When to Use It}
+
+Use these routines when:
+
+\begin{itemize}
+  \item the problem asks which roads, links, or nodes are critical,
+  \item the graph is undirected and connectivity under deletions matters,
+  \item biconnected structure is more relevant than shortest paths.
+\end{itemize}
+
+\section*{Core Idea}
+
+Run DFS and compute:
+
+\begin{itemize}
+  \item \(\texttt{tin[v]}\): the DFS entry time,
+  \item \(\texttt{low[v]}\): the smallest entry time reachable from \(v\)'s subtree using tree edges and at most one back edge.
+\end{itemize}
+
+These values tell whether a subtree can reconnect to an ancestor without using its parent edge.
+
+\section*{Key Insight}
+
+If a child subtree of \(v\) cannot reach an ancestor of \(v\), then the edge to that child is a bridge. The same
+structural failure also tells when \(v\) separates that subtree from the rest of the graph.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item DFS with parent tracking,
+  \item update \(\texttt{low}\) from tree children and back edges,
+  \item test bridge condition \(\texttt{low[to] > tin[v]}\),
+  \item test articulation condition with the root and non-root cases separated.
+\end{itemize}
+
+\paragraph{Worked example.}
+If child \(\texttt{to}\) of \(v\) has \(\texttt{low[to] > tin[v]}\), then the subtree rooted at \(\texttt{to}\) has no
+back edge reaching \(v\) or above. So removing edge \((v, to)\) disconnects that subtree.
+
+\section*{Correctness Intuition}
+
+The lowlink value summarizes the highest ancestor reachable from the subtree. If that reach does not climb above the
+parent edge, then the parent edge is the only connection upward. That is exactly the bridge condition. The articulation
+condition is the vertex version of the same idea.
+
+\section*{Complexity Analysis}
+
+With adjacency lists, the algorithm runs in \(O(n + m)\) time and \(O(n)\) extra memory.
+
+\section*{Implementation}
+
+The sample collects both:
+
+\begin{itemize}
+  \item all bridges,
+  \item all articulation points.
+\end{itemize}
+
+It assumes a simple undirected graph. Multiedges need a little extra care in the parent-edge handling.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting the special root case for articulation points.
+  \item Mishandling multiedges or self-loops.
+  \item Updating \(\texttt{low}\) with the wrong endpoint on back edges.
+  \item Treating the algorithm as if it worked unchanged on directed graphs.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Edge-biconnected and vertex-biconnected components.
+  \item Bridge tree after contracting 2-edge-connected components.
+  \item Offline connectivity reasoning with lowlink as a subroutine.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item List all bridges in a network.
+  \item Count articulation points.
+  \item Contract components after removing bridges and run tree DP on the result.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/bridge-searching.html}{cp-algorithms: Finding Bridges in a Graph}.
+  \item \href{https://cp-algorithms.com/graph/cutpoints.html}{cp-algorithms: Finding Articulation Points in a Graph}.
+  \item \href{https://usaco.guide/adv/BCC-2CC}{USACO Guide: Biconnected Components}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

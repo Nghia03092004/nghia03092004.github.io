@@ -1,0 +1,95 @@
+\section*{Overview}
+
+In contest geometry, line intersection usually means one of two things: deciding whether two segments intersect, or
+computing the actual crossing point of two non-parallel lines. The first task should stay exact whenever possible; the
+second often needs a carefully isolated floating-point step.
+
+\section*{When to Use It}
+
+Use these routines when:
+
+\begin{itemize}
+  \item the problem asks whether paths, walls, rays, or polygon edges cross,
+  \item boundary contact counts as an intersection,
+  \item you need a robust primitive before moving on to polygon or sweep-line logic.
+\end{itemize}
+
+\section*{Core Idea}
+
+Two segments intersect if each segment straddles the line through the other, with collinear overlap handled
+separately. Orientation tests are enough for the discrete predicate.
+
+For the actual crossing point of two non-parallel infinite lines, solve the linear equations of the two lines. That
+part can use floating-point arithmetic after the combinatorial case split is done.
+
+\section*{Key Insight}
+
+Most bugs come from treating all cases the same. Proper intersections, touching endpoints, and collinear overlap should
+be separated mentally even if the final code merges them into one predicate.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item orientation of endpoint triples,
+  \item on-segment checks for collinear cases,
+  \item one predicate for segment intersection,
+  \item one helper for the intersection point of non-parallel lines.
+\end{itemize}
+
+\paragraph{Worked example.}
+If the endpoints of segment \(ab\) lie on opposite sides of line \(cd\), and the endpoints of \(cd\) lie on opposite
+sides of line \(ab\), the segments cross properly. If one orientation is zero, it becomes a boundary-touch case.
+
+\section*{Correctness Intuition}
+
+Orientation determines the side of a line. For a proper intersection, each segment's endpoints must lie on different
+sides of the other segment's supporting line. Collinear cases are not captured by side changes, so they are handled by
+explicit range overlap.
+
+\section*{Complexity Analysis}
+
+All primitives here run in \(O(1)\) time and \(O(1)\) memory.
+
+\section*{Implementation}
+
+The reference code gives:
+
+\begin{itemize}
+  \item \texttt{segments\_intersect} with inclusive boundary handling,
+  \item \texttt{line\_intersection} for two non-parallel infinite lines.
+\end{itemize}
+
+That is the split I use most often in contests: exact predicate first, coordinate computation second.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that collinear overlap is still an intersection.
+  \item Using a floating-point epsilon for problems that can be solved exactly with integer predicates.
+  \item Not deciding whether touching at one endpoint should count.
+  \item Computing the intersection point before checking for parallel lines.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Ray or half-line intersection.
+  \item Segment-polygon intersection.
+  \item Sweep-line event ordering, which still relies on the same primitives.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Determine whether two segments intersect.
+  \item Count how many query segments intersect a polygon boundary.
+  \item Compute the crossing point of two non-parallel lines.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/geometry/segments-intersection.html}{cp-algorithms: Intersection of Segments}.
+  \item \href{https://usaco.guide/plat/geo-prims}{USACO Guide: Geometry Primitives}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

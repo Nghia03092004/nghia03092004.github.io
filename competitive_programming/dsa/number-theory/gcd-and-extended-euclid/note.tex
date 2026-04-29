@@ -1,0 +1,102 @@
+\section*{Overview}
+
+The greatest common divisor is one of the smallest ideas in number theory, but it sits underneath modular inverses,
+CRT, fraction normalization, and linear Diophantine equations. Extended Euclid is the version worth remembering in
+contests because it produces coefficients, not just the gcd itself.
+
+\section*{When to Use It}
+
+Use this when:
+
+\begin{itemize}
+  \item divisibility is part of the condition,
+  \item you need to simplify a fraction or a ratio,
+  \item the equation looks like \(ax + by = c\),
+  \item a modular inverse exists only when the gcd condition is satisfied.
+\end{itemize}
+
+\section*{Core Idea}
+
+Euclid's algorithm repeatedly replaces \((a, b)\) by \((b, a \bmod b)\). The gcd does not change under that step, and
+the numbers get smaller quickly.
+
+Extended Euclid keeps track of coefficients \(x, y\) such that
+\[
+ax + by = \gcd(a, b).
+\]
+Those coefficients are exactly what later number-theory algorithms need.
+
+\section*{Key Insight}
+
+The recursive remainder relation
+\[
+\gcd(a, b) = \gcd(b, a \bmod b)
+\]
+is not just a gcd trick. It lets every remainder step be unwound into a linear combination of the original numbers.
+That is why extended Euclid can recover the coefficients.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item \textbf{gcd}: decide divisibility and reduce ratios.
+  \item \textbf{lcm}: compute by \(a / \gcd(a,b) \cdot b\) to avoid overflow as much as possible.
+  \item \textbf{extended gcd}: recover coefficients.
+  \item \textbf{Diophantine existence}: \(ax + by = c\) is solvable iff \(\gcd(a,b)\) divides \(c\).
+\end{itemize}
+
+\paragraph{Worked example.}
+If \(\gcd(18, 30) = 6\), then \(18x + 30y = 12\) is solvable, but \(18x + 30y = 5\) is not.
+
+\section*{Correctness Intuition}
+
+Each Euclid step preserves the set of common divisors, so it preserves the gcd. Extended Euclid simply records how the
+current pair came from the previous pair. Unwinding those steps reconstructs the linear combination for the original
+inputs.
+
+\section*{Complexity Analysis}
+
+Euclid and extended Euclid run in \(O(\log \min(a, b))\) time and \(O(\log \min(a, b))\) recursion depth.
+
+\section*{Implementation}
+
+The code includes:
+
+\begin{itemize}
+  \item \texttt{gcd\_ll},
+  \item \texttt{lcm\_ll},
+  \item \texttt{ext\_gcd} producing coefficients,
+  \item a small solver for \(ax + by = c\).
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that a modular inverse requires gcd \(= 1\).
+  \item Overflow in the direct formula \(a \cdot b / \gcd(a,b)\).
+  \item Losing sign conventions when negative numbers are allowed.
+  \item Treating one particular Diophantine solution as the only one.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Modular inverse via extended Euclid.
+  \item Chinese remainder theorem.
+  \item Solving linear congruences.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count or construct solutions to \(ax + by = c\).
+  \item Normalize slope or direction pairs by gcd.
+  \item Check whether two periodic processes ever align.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/algebra/extended-euclid-algorithm.html}{cp-algorithms: Extended Euclidean Algorithm}.
+  \item \href{https://usaco.guide/adv/extend-euclid?lang=cpp}{USACO Guide: Extended Euclid}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

@@ -1,0 +1,7 @@
+{
+  "title": "Modular Inverse",
+  "summary": "Undo multiplication modulo m when the gcd condition allows it, and choose the right inverse routine for the modulus.",
+  "level": "basic",
+  "tags": ["modular arithmetic", "inverse", "extended euclid"],
+  "order": 20
+}

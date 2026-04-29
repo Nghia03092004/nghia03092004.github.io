@@ -1,0 +1,97 @@
+\section*{Overview}
+
+Knapsack is the template DP for resource allocation. The items change from problem to problem, but the state shape is
+stable: after considering some objects, what is the best value achievable with a given amount of capacity?
+
+\section*{When to Use It}
+
+Use knapsack-style DP when:
+
+\begin{itemize}
+  \item choices consume some bounded resource,
+  \item items can be taken zero, one, or many times,
+  \item the resource limit is small enough for pseudo-polynomial DP.
+\end{itemize}
+
+\section*{Core Idea}
+
+Let \(\texttt{dp[w]}\) be the best value achievable with total weight exactly or at most \(w\). Each item updates this
+array by either using the item or skipping it.
+
+\section*{Key Insight}
+
+The direction of the capacity loop is the entire difference between 0/1 and unbounded knapsack:
+
+\begin{itemize}
+  \item descending loop: each item used at most once,
+  \item ascending loop: the same item may contribute again in the same phase.
+\end{itemize}
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item choose the state meaning carefully,
+  \item initialize impossible states correctly,
+  \item update by item transitions,
+  \item compress the first dimension when only the previous item layer is needed.
+\end{itemize}
+
+\paragraph{Worked example.}
+In 0/1 knapsack, if an item has weight \(3\) and value \(7\), then every capacity \(w \ge 3\) can try the transition
+\[
+dp[w] = \max(dp[w], dp[w - 3] + 7),
+\]
+but only from the previous-item layer, which is why the loop goes backward.
+
+\section*{Correctness Intuition}
+
+Every state represents the best answer among all valid subsets respecting the processed prefix of items. The transition
+simply partitions those subsets into two groups: ones that do not use the current item and ones that do.
+
+\section*{Complexity Analysis}
+
+With capacity \(W\) and \(n\) items, the standard implementation is \(O(nW)\) time and \(O(W)\) memory after
+compression.
+
+\section*{Implementation}
+
+The code includes:
+
+\begin{itemize}
+  \item 0/1 knapsack,
+  \item unbounded knapsack.
+\end{itemize}
+
+Those two loop directions are the main thing to remember.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using the wrong loop direction.
+  \item Initializing impossible states as zero when they should be negative infinity.
+  \item Forcing knapsack on constraints where \(W\) is too large and another state definition is needed.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Bounded knapsack.
+  \item Value-based knapsack.
+  \item Multiple constraints or grouped items.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Standard 0/1 knapsack.
+  \item Unbounded coin change or resource allocation.
+  \item Value-based DP when weights are too large.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/dynamic_programming/knapsack.html}{cp-algorithms: Knapsack Problem}.
+  \item \href{https://usaco.guide/gold/knapsack}{USACO Guide: Knapsack DP}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

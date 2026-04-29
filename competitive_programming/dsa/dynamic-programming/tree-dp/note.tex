@@ -1,0 +1,88 @@
+\section*{Overview}
+
+Tree DP works because removing one edge splits the structure cleanly. That means a subtree often carries exactly the
+local information needed for a recurrence, without the cycles that make general graph DP difficult.
+
+\section*{When to Use It}
+
+Use tree DP when:
+
+\begin{itemize}
+  \item the input is a tree or can be reduced to one,
+  \item the answer decomposes naturally across child subtrees,
+  \item a parent only needs a summary from each child, not the full internal structure.
+\end{itemize}
+
+\section*{Core Idea}
+
+Root the tree, then define DP states per vertex. A typical pattern is:
+\[
+dp[v][state] = \text{best answer inside the subtree of } v \text{ under some local condition at } v.
+\]
+
+\section*{Key Insight}
+
+The tree structure removes cyclic dependencies. Once the children are solved, their contributions can be merged into
+the parent's state.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item choose a root,
+  \item define a local state at each node,
+  \item DFS from leaves upward,
+  \item merge child contributions.
+\end{itemize}
+
+\paragraph{Worked example.}
+For maximum independent set on a tree, use two states:
+\begin{itemize}
+  \item \(\texttt{take[v]}\): best if \(v\) is chosen,
+  \item \(\texttt{skip[v]}\): best if \(v\) is not chosen.
+\end{itemize}
+If \(v\) is taken, no child may be taken. If \(v\) is skipped, each child chooses its better state.
+
+\section*{Correctness Intuition}
+
+Every edge is cut exactly once by the parent-child direction, so a subtree DP can summarize all decisions below a node
+without ambiguity. The merge step is correct because child subtrees are disjoint except for the parent connection.
+
+\section*{Complexity Analysis}
+
+Many tree DP routines are \(O(n)\) or \(O(n \log n)\), depending on the merge cost per child.
+
+\section*{Implementation}
+
+The reference code implements maximum independent set on a tree, which is a clean example of the parent-child state
+split and the merge logic.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to exclude the parent during DFS.
+  \item Choosing a state that is too weak and loses necessary information.
+  \item Writing an \(O(n^2)\) merge when the state can be simplified.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Rerooting DP.
+  \item DP on trees with knapsack-style child merges.
+  \item Tree DP after bridge-tree or condensation reductions.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Maximum independent set on a tree.
+  \item Count colorings with parent-child restrictions.
+  \item Subtree optimization with one local state per node.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/gold/dp-trees}{USACO Guide: DP on Trees}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

@@ -1,0 +1,101 @@
+\section*{Overview}
+
+Dinic is the max-flow algorithm I expect to implement in contests unless the graph is tiny or the reduction is very
+specialized. It is general, predictable, and usually fast enough for the standard modeling problems built on source,
+sink, capacities, and cut arguments.
+
+\section*{When to Use It}
+
+Use Dinic when:
+
+\begin{itemize}
+  \item the problem can be modeled as moving as much flow as possible through a capacitated network,
+  \item you need edge-disjoint or vertex-disjoint path style reasoning,
+  \item the graph is too large for a naive augmenting-path implementation.
+\end{itemize}
+
+Typical reductions include bipartite matching, task assignment with capacities, cut separation, and path packing.
+
+\section*{Core Idea}
+
+Dinic alternates between two steps:
+
+\begin{itemize}
+  \item run BFS from the source to build a level graph,
+  \item run DFS only along edges that go one level deeper, pushing a blocking flow.
+\end{itemize}
+
+The level graph ensures that DFS only explores shortest augmenting paths in the current residual network.
+
+\section*{Key Insight}
+
+One BFS groups many augmenting paths together. Instead of finding and using only one path, Dinic pushes a whole
+blocking flow before rebuilding levels. That is why it is much faster than plain Ford-Fulkerson with arbitrary paths.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item add a directed edge plus its residual reverse edge,
+  \item BFS to compute levels,
+  \item DFS with current-edge pointers to avoid rescanning dead edges,
+  \item repeat until the sink becomes unreachable.
+\end{itemize}
+
+\paragraph{Worked example.}
+In a bipartite matching reduction, the BFS builds layers \(s \to\) left part \(\to\) right part \(\to t\). The DFS
+then pushes multiple augmenting paths through that layered structure before the next BFS is needed.
+
+\section*{Correctness Intuition}
+
+Every DFS push follows a valid residual path and preserves flow conservation. When the blocking flow step ends, every
+source-to-sink path in the current level graph contains a saturated edge, so no more shortest augmenting paths remain.
+If BFS later cannot reach the sink, the residual network has no augmenting path at all, so the current flow is maximum.
+
+\section*{Complexity Analysis}
+
+The general bound is \(O(V^2 E)\), with much better behavior on many contest graph families. In practice Dinic is the
+standard max-flow baseline for sparse graphs.
+
+\section*{Implementation}
+
+The code uses:
+
+\begin{itemize}
+  \item adjacency lists of residual edges,
+  \item level BFS,
+  \item DFS with iterator pointers,
+  \item 64-bit capacities.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting the reverse edge or updating the wrong reverse index.
+  \item Using 32-bit capacities when the modeled totals are large.
+  \item Omitting the current-edge pointer and then rescanning too much.
+  \item Building the graph correctly but forgetting vertex-splitting when vertex capacities matter.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Bipartite matching as a unit-capacity flow problem.
+  \item Lower-bound flow and circulation reductions.
+  \item Dinic on graphs with vertex capacities via node splitting.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Maximum bipartite matching by max flow.
+  \item Edge-disjoint paths between two vertices.
+  \item Minimum cut partition after computing a max flow.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/dinic.html}{cp-algorithms: Maximum Flow - Dinic's Algorithm}.
+  \item \href{https://usaco.guide/adv/max-flow}{USACO Guide: Max Flow}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

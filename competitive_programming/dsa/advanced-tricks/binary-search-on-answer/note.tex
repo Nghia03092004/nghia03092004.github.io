@@ -1,0 +1,89 @@
+\section*{Overview}
+
+Binary search on answer is a modeling trick rather than a data structure. The goal is to turn ``find the best value''
+into ``can I achieve at least / at most this value?'' Once that yes/no question is monotone, ordinary binary search
+does the rest.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item the statement asks for a minimum feasible or maximum feasible value,
+  \item a candidate answer can be checked faster than trying all answers directly,
+  \item the feasibility condition changes only once across the ordered search space.
+\end{itemize}
+
+\section*{Core Idea}
+
+Pick a candidate answer \(x\). Write a checker:
+\[
+\texttt{can(x)} = \text{``the problem is solvable with answer } x \text{''}.
+\]
+If the set of true values is an interval, binary search finds the boundary.
+
+\section*{Key Insight}
+
+The difficult part is usually not the search loop. It is simplifying the optimization target until the checker becomes
+monotone. That checker often ends up being greedy, prefix-sum based, or a smaller DP.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item define the answer space,
+  \item prove the feasibility predicate is monotone,
+  \item derive a checker,
+  \item binary search the first true or last true value.
+\end{itemize}
+
+\paragraph{Worked example.}
+For partitioning an array into at most \(k\) segments while minimizing the maximum segment sum, the checker greedily
+starts a new segment whenever adding the next value would exceed the candidate limit. If limit \(x\) works, any larger
+limit works too.
+
+\section*{Correctness Intuition}
+
+Binary search itself is correct once the monotone predicate exists. The real proof burden is showing that the checker
+answers feasibility correctly and that feasibility indeed moves in only one direction as the answer changes.
+
+\section*{Complexity Analysis}
+
+If the checker costs \(T\) and the answer space has size \(A\), the total cost is \(O(T \log A)\).
+
+\section*{Implementation}
+
+The code keeps a generic \texttt{first\_true} template and one sample checker for the segment-partition problem above.
+That captures the pattern without tying it to one statement.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Searching before proving monotonicity.
+  \item Choosing bounds that do not contain the answer.
+  \item Writing a checker that is too slow, making the outer binary search irrelevant.
+  \item Using integer search for a problem that really needs real-valued precision control.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Real-valued answer search.
+  \item Parallel binary search for many offline queries.
+  \item Parametric search with more structural checkers.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Minimize the largest segment sum.
+  \item Maximize minimum distance under greedy placement.
+  \item Any ``minimum feasible'' scheduling or capacity problem with a monotone checker.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/num_methods/binary_search.html}{cp-algorithms: Binary Search on the Answer}.
+  \item \href{https://usaco.guide/silver/binary-search}{USACO Guide: Binary Search}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

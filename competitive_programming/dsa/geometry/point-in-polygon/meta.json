@@ -1,0 +1,7 @@
+{
+  "title": "Point in Polygon",
+  "summary": "Classify a point as outside, on the boundary, or inside a polygon with a contest-ready ray-crossing routine.",
+  "level": "intermediate",
+  "tags": ["polygons", "classification", "integer geometry"],
+  "order": 40
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Orientation and Cross Product",
+  "summary": "The core integer-geometry predicate behind turns, area tests, segment intersection, and hull construction.",
+  "level": "basic",
+  "tags": ["geometry primitives", "integer geometry", "predicates"],
+  "order": 10
+}

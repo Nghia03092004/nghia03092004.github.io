@@ -5,5 +5,6 @@ them. The main goal is to avoid fragile floating-point reasoning when integer ge
 
 \section*{Scope}
 
-This branch is still mostly planned, but the long-term split is clear: basic primitives, hull routines, calipers,
-intersections, and sweep-line style reductions.
+The current coverage starts with the integer-geometry basics that most later routines depend on: orientation tests,
+segment interaction, hull construction, and polygon classification. From there the natural next layer is calipers,
+closest-pair style routines, and more global sweep-line reductions.

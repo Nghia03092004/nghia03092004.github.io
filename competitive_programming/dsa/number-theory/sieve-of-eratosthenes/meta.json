@@ -1,0 +1,7 @@
+{
+  "title": "Sieve of Eratosthenes",
+  "summary": "Precompute primality and smallest prime factors once, then answer many prime-related queries cheaply.",
+  "level": "basic",
+  "tags": ["primes", "preprocessing", "smallest prime factor"],
+  "order": 30
+}

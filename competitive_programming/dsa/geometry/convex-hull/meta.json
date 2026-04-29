@@ -1,0 +1,7 @@
+{
+  "title": "Convex Hull",
+  "summary": "Build the outer envelope of a point set with monotone chain and use it as the basis for many geometry reductions.",
+  "level": "intermediate",
+  "tags": ["geometry", "convex hull", "monotone chain"],
+  "order": 20
+}

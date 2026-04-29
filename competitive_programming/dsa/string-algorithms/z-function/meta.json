@@ -1,0 +1,7 @@
+{
+  "title": "Z-Function",
+  "summary": "Measure how much each suffix matches the full string, then reuse that linear-time structure for pattern matching and periodicity.",
+  "level": "intermediate",
+  "tags": ["strings", "linear matching", "periodicity"],
+  "order": 20
+}

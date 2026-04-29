@@ -1,0 +1,7 @@
+{
+  "title": "Sqrt Decomposition",
+  "summary": "Split the array into blocks so point updates and range queries become simple block-level work instead of full rescans.",
+  "level": "intermediate",
+  "tags": ["block decomposition", "range queries", "tradeoffs"],
+  "order": 40
+}

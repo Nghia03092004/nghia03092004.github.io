@@ -1,0 +1,83 @@
+\section*{Overview}
+
+Bitmask DP appears when the state is a small subset and the transition depends on which elements have already been
+taken. The size limit is strict, but within that range the technique is extremely expressive.
+
+\section*{When to Use It}
+
+Use bitmask DP when:
+
+\begin{itemize}
+  \item \(n\) is small enough that \(2^n\) states are plausible,
+  \item the state is ``which items are already used'',
+  \item transitions depend on the last chosen item, the next free item, or a submask split.
+\end{itemize}
+
+\section*{Core Idea}
+
+Represent the chosen set by a mask. Then define a DP state such as:
+\[
+dp[mask][last] = \text{best answer after visiting exactly the items in } mask \text{ and ending at } last.
+\]
+
+\section*{Key Insight}
+
+The technique works because the mask compresses an exponential family of subsets into array indices. That turns
+``visited-set'' recursion into an iterative DP over masks.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item choose a subset state,
+  \item iterate masks in increasing order,
+  \item transition by adding one new bit or splitting into submasks.
+\end{itemize}
+
+\paragraph{Worked example.}
+In TSP-style DP, from state \((mask, last)\), try every city \(\texttt{nxt}\) not in \(\texttt{mask}\) and transition
+to \((mask \cup \{nxt\}, nxt)\).
+
+\section*{Correctness Intuition}
+
+Each mask encodes exactly which decisions have already been made. The transition adds one legal next decision, so every
+valid configuration is reached from smaller subsets, and every DP value is built from the relevant previous states.
+
+\section*{Complexity Analysis}
+
+Many standard forms run in \(O(n 2^n)\) or \(O(n^2 2^n)\), with \(O(n 2^n)\) memory.
+
+\section*{Implementation}
+
+The code shows an assignment-style bitmask DP where \(\texttt{dp[mask]}\) tracks the best cost after assigning the
+first \(\texttt{popcount(mask)}\) rows to the chosen columns.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Starting bitmask DP when \(n\) is already too large.
+  \item Forgetting whether the transition depends on set size, last item, or both.
+  \item Writing \(O(3^n)\) subset loops when \(O(n 2^n)\) would be enough.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item TSP / Hamiltonian path DP.
+  \item SOS DP and subset convolution.
+  \item State-compression DP on grids.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Assignment or matching on \(n \le 20\).
+  \item Traveling salesman on a small graph.
+  \item Partition a small set into compatible groups.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/gold/dp-bitmasks}{USACO Guide: Bitmask DP}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

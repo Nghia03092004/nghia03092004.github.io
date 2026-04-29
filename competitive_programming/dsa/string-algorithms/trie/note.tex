@@ -1,0 +1,99 @@
+\section*{Overview}
+
+A trie stores strings by their prefixes. Instead of comparing one full string against many others, I walk character by
+character through shared nodes. That makes tries a natural fit for dictionary problems, prefix queries, and some
+automaton constructions.
+
+\section*{When to Use It}
+
+Use a trie when:
+
+\begin{itemize}
+  \item the main queries are by prefix,
+  \item the alphabet is small enough to store transitions directly,
+  \item many strings share prefixes and you want to reuse that structure.
+\end{itemize}
+
+\section*{Core Idea}
+
+Each edge corresponds to one character, and each root-to-node path represents a prefix. Full words are marked with an
+end flag or a terminal counter.
+
+Because the path length equals the string length, operations depend on the string size rather than the number of stored
+strings.
+
+\section*{Key Insight}
+
+The trie is valuable when the query is ``what happens after this prefix?'' If the problem is only about exact whole-word
+lookup, a hash table is usually simpler. The structure pays for itself when prefix sharing matters.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item insert a word,
+  \item test whether a word exists,
+  \item test whether a prefix exists,
+  \item count how many words pass through a prefix node.
+\end{itemize}
+
+\paragraph{Worked example.}
+If the set contains \(\texttt{car}\), \(\texttt{card}\), and \(\texttt{care}\), then the path for \(\texttt{car}\) is
+shared and branches only afterward.
+
+\section*{Correctness Intuition}
+
+Each inserted character follows or creates the unique outgoing edge for that symbol, so the path stored in the trie is
+exactly the word itself. Shared prefixes meet at shared nodes, and different next characters diverge into different
+children.
+
+\section*{Complexity Analysis}
+
+For word length \(L\):
+\begin{itemize}
+  \item insert: \(O(L)\),
+  \item contains: \(O(L)\),
+  \item prefix query: \(O(L)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The sample code uses a lowercase English alphabet trie with:
+
+\begin{itemize}
+  \item a terminal counter,
+  \item a pass-through counter,
+  \item insert, exact lookup, and prefix counting.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using a trie when the alphabet is huge and sparse.
+  \item Forgetting whether repeated insertions should be allowed or counted.
+  \item Confusing ``prefix exists'' with ``full word exists''.
+  \item Spending too much memory on a static array when a compressed representation would be better.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Binary trie for XOR problems.
+  \item Aho-Corasick, which augments the trie with failure links.
+  \item Compressed trie or radix tree for memory-sensitive settings.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Prefix dictionary queries.
+  \item Count how many stored words share a given prefix.
+  \item Maximum XOR using a binary trie.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/string/aho_corasick.html}{cp-algorithms: Trie-based Aho-Corasick background}.
+  \item \href{https://usaco.guide/gold/strings}{USACO Guide: String Techniques}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
+\end{itemize}

@@ -1,0 +1,7 @@
+{
+  "title": "Knapsack",
+  "summary": "The standard capacity-based DP pattern, with the loop directions and state choices that distinguish 0/1 from unbounded use.",
+  "level": "basic",
+  "tags": ["dynamic programming", "capacity DP", "state transitions"],
+  "order": 10
+}

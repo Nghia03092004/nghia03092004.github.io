@@ -1,0 +1,7 @@
+{
+  "title": "Chinese Remainder Theorem",
+  "summary": "Combine modular constraints into one congruence when the residue classes are compatible.",
+  "level": "advanced",
+  "tags": ["CRT", "congruences", "extended euclid"],
+  "order": 40
+}
