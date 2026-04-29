@@ -1,0 +1,7 @@
+{
+  "title": "Divide and Conquer DP Optimization",
+  "summary": "Speed up row-by-row transition minimization when the optimal split point moves monotonically.",
+  "level": "advanced",
+  "tags": ["DP optimization", "monotonicity", "partition DP"],
+  "order": 50
+}

@@ -1,0 +1,7 @@
+{
+  "title": "SOS DP",
+  "summary": "Transform subset-based values so every mask can aggregate information from all of its submasks or supermasks efficiently.",
+  "level": "advanced",
+  "tags": ["bitmasks", "subset transform", "DP optimization"],
+  "order": 70
+}

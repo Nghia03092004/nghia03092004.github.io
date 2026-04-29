@@ -1,0 +1,7 @@
+{
+  "title": "Miller-Rabin and Pollard Rho",
+  "summary": "The standard 64-bit primality and factorization toolkit once trial division stops being realistic.",
+  "level": "advanced",
+  "tags": ["primality", "factorization", "randomized"],
+  "order": 90
+}

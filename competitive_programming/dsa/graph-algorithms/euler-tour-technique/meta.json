@@ -1,0 +1,7 @@
+{
+  "title": "Euler Tour Technique",
+  "summary": "Flatten a rooted tree into entry and exit times so subtree queries become interval queries on an array.",
+  "level": "intermediate",
+  "tags": ["trees", "flattening", "subtree queries"],
+  "order": 35
+}

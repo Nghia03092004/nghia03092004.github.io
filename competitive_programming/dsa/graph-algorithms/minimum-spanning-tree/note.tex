@@ -1,0 +1,100 @@
+\section*{Overview}
+
+Minimum spanning tree is the weighted-graph tool I expect to need whenever the task says ``connect everything as
+cheaply as possible'' without singling out one source or sink. In contests, Kruskal plus DSU is the version I reach for
+first because it is short, stable, and easy to adapt.
+
+\section*{When to Use It}
+
+Use MST ideas when:
+
+\begin{itemize}
+  \item the graph is undirected and weighted,
+  \item the goal is to connect all vertices with minimum total edge weight,
+  \item the problem hides a connectivity threshold or ``bottleneck'' argument.
+\end{itemize}
+
+\section*{Core Idea}
+
+A spanning tree uses exactly \(n - 1\) edges and connects every vertex. The minimum spanning tree is the spanning tree
+with the smallest possible total weight.
+
+Kruskal's algorithm sorts all edges by weight and scans from lightest to heaviest, adding an edge only when it connects
+two different DSU components.
+
+\section*{Key Insight}
+
+The algorithm is safe because of the cut property: for any cut of the graph, the lightest edge crossing that cut can
+belong to some MST. Kruskal keeps using that fact globally by always taking the cheapest edge that does not create a
+cycle.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item sort edges by weight,
+  \item maintain DSU components,
+  \item add an edge iff its endpoints are currently in different components,
+  \item stop after selecting \(n - 1\) edges.
+\end{itemize}
+
+\paragraph{Worked example.}
+If the next lightest edge joins two vertices already connected through previously chosen edges, adding it would only
+create a cycle and cannot improve the tree, so Kruskal skips it.
+
+\section*{Correctness Intuition}
+
+Whenever Kruskal picks the cheapest edge that joins two components, there exists some MST that includes it. Repeating
+that exchange argument edge by edge shows that the whole constructed tree can be part of an MST, and once \(n - 1\)
+edges are chosen, the tree is minimum.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item sorting edges: \(O(m \log m)\),
+  \item DSU operations: almost linear,
+  \item overall: \(O(m \log m)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The reference code returns both:
+
+\begin{itemize}
+  \item the total weight,
+  \item the list of chosen edges.
+\end{itemize}
+
+That is enough both for plain MST tasks and for follow-up tree processing.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that MST is for undirected graphs.
+  \item Assuming an MST exists even when the graph is disconnected.
+  \item Using 32-bit sums when edge weights and \(n\) are large.
+  \item Reaching for MST when the statement is actually about shortest paths from one source.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Prim's algorithm for dense graphs or adjacency-matrix settings.
+  \item Maximum spanning tree by reversing the comparator.
+  \item Second-best MST and replacement-edge arguments.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Standard minimum spanning tree construction.
+  \item Minimum bottleneck connection problems.
+  \item Build the MST first, then answer queries on the resulting tree.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/mst_kruskal.html}{cp-algorithms: Minimum Spanning Tree - Kruskal}.
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+\end{itemize}

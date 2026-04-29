@@ -1,0 +1,7 @@
+{
+  "title": "Centroid Decomposition",
+  "summary": "Recursively split a tree by balanced centroids so global path problems can be reduced to logarithmically many local views.",
+  "level": "advanced",
+  "tags": ["trees", "divide and conquer", "path queries"],
+  "order": 110
+}

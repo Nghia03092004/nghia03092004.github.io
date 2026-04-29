@@ -1,0 +1,7 @@
+{
+  "title": "Suffix Array",
+  "summary": "Sort all suffixes once, then reuse the order and LCP information for many substring and lexicographic queries.",
+  "level": "advanced",
+  "tags": ["suffix structures", "sorting", "LCP"],
+  "order": 50
+}

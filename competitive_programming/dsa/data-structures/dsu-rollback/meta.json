@@ -1,0 +1,7 @@
+{
+  "title": "DSU Rollback",
+  "summary": "A union-find variant that can undo merges, which is the missing piece behind offline dynamic connectivity.",
+  "level": "advanced",
+  "tags": ["union find", "rollback", "offline"],
+  "order": 120
+}

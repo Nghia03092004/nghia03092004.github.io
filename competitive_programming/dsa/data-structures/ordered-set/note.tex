@@ -1,0 +1,102 @@
+\section*{Overview}
+
+An ordered set gives me the normal balanced-BST operations plus order statistics: ``how many elements are smaller than
+\(x\)?'' and ``what is the \(k\)-th smallest element?'' In GNU C++, the practical contest version is usually PBDS
+(\texttt{tree\_order\_statistics\_node\_update}).
+
+\section*{When to Use It}
+
+Use an ordered set when:
+
+\begin{itemize}
+  \item you need \texttt{insert}, \texttt{erase}, and membership like \texttt{std::set},
+  \item you also need \texttt{order\_of\_key} or \texttt{find\_by\_order},
+  \item the constraints do not justify a custom treap or splay tree.
+\end{itemize}
+
+Typical uses are inversion-like online counts, median maintenance, k-th queries on a dynamic set, and duplicate-aware
+rank queries with the pair trick.
+
+\section*{Core Idea}
+
+PBDS stores the set as a balanced tree augmented with subtree sizes. That subtree-size information is what powers:
+
+\begin{itemize}
+  \item \texttt{order\_of\_key(x)}: number of elements strictly smaller than \(x\),
+  \item \texttt{find\_by\_order(k)}: iterator to the element with 0-indexed rank \(k\).
+\end{itemize}
+
+\section*{Key Insight}
+
+This note is really about picking the lightest tool that still matches the query pattern. If all I need is order
+statistics on one set, PBDS is usually the shortest correct answer. If I need split/merge, lazy tags, or custom
+aggregates, I should move to treap or splay instead.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item insert and erase in \(O(\log n)\),
+  \item rank queries with \texttt{order\_of\_key},
+  \item k-th queries with \texttt{find\_by\_order}.
+\end{itemize}
+
+\paragraph{Duplicates.}
+The standard set version does not allow duplicates. The normal contest workaround is to store
+\(\texttt{pair<value, id>}\) so each insertion is unique while order is still controlled by the value first.
+
+\section*{Correctness Intuition}
+
+The tree maintains sorted order exactly like \texttt{std::set}. The extra subtree-size metadata only summarizes how
+many keys lie below each node, which is exactly what rank and k-th queries need.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item insert / erase / find: \(O(\log n)\),
+  \item \texttt{order\_of\_key}: \(O(\log n)\),
+  \item \texttt{find\_by\_order}: \(O(\log n)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The code includes:
+
+\begin{itemize}
+  \item a plain ordered set alias,
+  \item a duplicate-friendly multiset wrapper based on \(\texttt{pair<value, id>}\).
+\end{itemize}
+
+This is GNU-specific, which is worth remembering before depending on it in a stricter environment.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting that PBDS is not part of the C++ standard library.
+  \item Using \texttt{erase(value)} in the duplicate case when the stored key is actually a pair.
+  \item Treating \texttt{find\_by\_order(k)} as 1-indexed when it is 0-indexed.
+  \item Assuming the structure supports custom range aggregates the way a treap or segment tree would.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Ordered map with the same policy update.
+  \item Treap or splay tree if split/merge or augmentation is needed.
+  \item Fenwick tree on compressed coordinates when the key universe is static enough.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Maintain the median of a dynamic multiset.
+  \item Count how many previous values are smaller than the current one.
+  \item Answer k-th smallest queries under online insert and erase.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+  \item \href{https://usaco.guide/gold/intro-sorted-sets}{USACO Guide: Sorted Sets}.
+  \item \href{https://github.com/kth-competitive-programming/kactl}{KACTL}.
+\end{itemize}

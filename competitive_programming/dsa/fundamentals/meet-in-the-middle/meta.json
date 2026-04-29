@@ -1,0 +1,7 @@
+{
+  "title": "Meet-in-the-Middle",
+  "summary": "Split an exponential search into two smaller exponential searches and join the halves with sorting or hashing.",
+  "level": "intermediate",
+  "tags": ["complete search", "subset sums", "half enumeration"],
+  "order": 60
+}

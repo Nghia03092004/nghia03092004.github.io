@@ -1,0 +1,94 @@
+\section*{Overview}
+
+Euler tour technique is the standard way to turn tree structure into array intervals. Once each subtree becomes one
+contiguous segment, the rest of the problem often becomes a Fenwick-tree or segment-tree task instead of a tree task.
+
+\section*{When to Use It}
+
+Use Euler tour technique when:
+
+\begin{itemize}
+  \item queries are about subtrees of a rooted tree,
+  \item you want to map tree nodes to an array,
+  \item another array-based structure already solves the interval version.
+\end{itemize}
+
+\section*{Core Idea}
+
+Run DFS and record the entry time \(\texttt{tin[v]}\) of each node. If nodes are appended to an order array at entry
+time, then the subtree of \(v\) occupies one contiguous interval:
+\[
+[\texttt{tin[v]}, \texttt{tout[v]}].
+\]
+
+\section*{Key Insight}
+
+DFS enters a subtree, finishes all of it, and only then leaves. That nesting property is exactly why every rooted
+subtree becomes a single interval in entry order.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item root the tree,
+  \item DFS once to compute \(\texttt{tin}\), \(\texttt{tout}\), and the flattened order,
+  \item convert a subtree query into one array interval,
+  \item answer with Fenwick or segment tree if updates are also present.
+\end{itemize}
+
+\paragraph{Worked example.}
+If node \(v\) gets entry time \(7\) and its subtree ends at time \(12\), then ``sum over subtree \(v\)'' becomes ``sum
+over interval \([7,12]\)'' on the flattened array.
+
+\section*{Correctness Intuition}
+
+During DFS, every node in the subtree of \(v\) is visited after entering \(v\) and before leaving it. No outside node
+can appear inside that interval, so the entry-order slice exactly matches the subtree.
+
+\section*{Complexity Analysis}
+
+The flattening DFS is \(O(n)\). After that, the complexity is whatever interval structure is used on top of the order
+array.
+
+\section*{Implementation}
+
+The code provides a reusable flattener with:
+
+\begin{itemize}
+  \item \texttt{tin},
+  \item \texttt{tout},
+  \item \texttt{order},
+  \item subtree interval accessors.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to root the tree consistently.
+  \item Confusing node times with edge times in edge-weighted tasks.
+  \item Assuming the same flattening also makes arbitrary paths contiguous. It usually does not.
+  \item Mixing inclusive and half-open interval conventions.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Full Euler tour with entry and exit duplicates for LCA/RMQ style reductions.
+  \item Subtree add and subtree sum with a Fenwick or segment tree.
+  \item Mo on trees by combining an Euler tour with offline query ordering.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Subtree sum with point updates.
+  \item Count colors or active markers inside subtrees.
+  \item Convert a tree DP precomputation into subtree interval updates.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+  \item \href{https://usaco.guide/plat/sqrt}{USACO Guide modules using tree flattening and Euler order}.
+  \item \href{https://github.com/kth-competitive-programming/kactl}{KACTL}.
+\end{itemize}

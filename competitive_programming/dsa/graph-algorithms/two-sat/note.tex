@@ -1,0 +1,112 @@
+\section*{Overview}
+
+2-SAT is the form of Boolean satisfiability that still behaves like graph theory. Once every clause has exactly two
+literals, the problem can be turned into an implication graph and solved with SCC decomposition in linear time.
+
+\section*{When to Use It}
+
+Use 2-SAT when:
+
+\begin{itemize}
+  \item choices are binary,
+  \item constraints look like ``at least one of these two literals must hold'',
+  \item the problem is really about compatible or incompatible pairs of decisions.
+\end{itemize}
+
+This appears in switch toggles, orientation choices, scheduling with binary states, and selection problems with pairwise
+logic constraints.
+
+\section*{Core Idea}
+
+Represent each variable \(x\) by two nodes:
+\[
+x \quad\text{and}\quad \lnot x.
+\]
+A clause \((a \lor b)\) is equivalent to the two implications:
+\[
+\lnot a \Rightarrow b,
+\qquad
+\lnot b \Rightarrow a.
+\]
+Add those edges to the implication graph, then compute SCCs.
+
+\section*{Key Insight}
+
+If \(x\) and \(\lnot x\) lie in the same SCC, then each implies the other, so the formula forces both true and false at
+once. Otherwise, the SCC topological order gives a satisfying assignment.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item encode each literal as one graph node,
+  \item add implications for every clause,
+  \item compute SCCs,
+  \item assign each variable by SCC order.
+\end{itemize}
+
+\paragraph{Worked example.}
+The clause \((x \lor \lnot y)\) produces:
+\[
+\lnot x \Rightarrow \lnot y,
+\qquad
+y \Rightarrow x.
+\]
+These are the two graph edges the solver actually needs.
+
+\section*{Correctness Intuition}
+
+Every clause \((a \lor b)\) fails only when both \(a\) and \(b\) are false, so the implication form precisely captures
+which literals must become true when another literal is false. SCCs detect contradictions, and the reverse topological
+order ensures that once one side of a variable pair is chosen, all of its implications are respected.
+
+\section*{Complexity Analysis}
+
+For \(n\) variables and \(m\) clauses:
+\begin{itemize}
+  \item graph size: \(2n\) vertices and \(2m\) edges,
+  \item total time: \(O(n + m)\),
+  \item memory: \(O(n + m)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The code includes a compact solver with:
+
+\begin{itemize}
+  \item clause insertion,
+  \item implication insertion,
+  \item satisfiability check,
+  \item one recovered assignment.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Mixing variable indices with literal indices incorrectly.
+  \item Forgetting that the assignment is read from SCC order, not from raw DFS order.
+  \item Trying to force constraints that are not reducible to binary clauses.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Encode ``at most one'' constraints with several binary clauses in small cases.
+  \item Use the implication graph to explain forced assignments and contradictions.
+  \item General SAT, which is far harder and not covered by this graph trick.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Assign binary states under pairwise logical constraints.
+  \item Choose orientations or colors from two options with incompatibility rules.
+  \item Giant Pizza and similar implication-graph tasks.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/graph/2SAT.html}{cp-algorithms: 2-SAT}.
+  \item \href{https://usaco.guide/adv/SCC}{USACO Guide: SCC and 2-SAT}.
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+\end{itemize}

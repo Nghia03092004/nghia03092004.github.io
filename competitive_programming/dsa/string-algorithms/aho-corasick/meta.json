@@ -1,0 +1,7 @@
+{
+  "title": "Aho-Corasick",
+  "summary": "A trie with failure links that searches many patterns in one text in a single pass.",
+  "level": "advanced",
+  "tags": ["multiple patterns", "automaton", "trie"],
+  "order": 70
+}

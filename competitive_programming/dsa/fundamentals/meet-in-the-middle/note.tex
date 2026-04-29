@@ -1,0 +1,101 @@
+\section*{Overview}
+
+Meet-in-the-middle is what I use when \(2^n\) is too large but \(2^{n/2}\) is still comfortable. The trick is to split
+the objects into two halves, enumerate each half independently, and then combine the partial results more intelligently
+than a full brute force would.
+
+\section*{When to Use It}
+
+Use it when:
+
+\begin{itemize}
+  \item the direct search is exponential in \(n\),
+  \item \(n\) is around \(35\) to \(45\), so \(2^{n/2}\) is still manageable,
+  \item the objective can be expressed by combining one partial choice from the left half and one from the right half.
+\end{itemize}
+
+Classic patterns are subset sum, balanced partition, small-set knapsack, and ``find two partial states that fit
+together'' problems.
+
+\section*{Core Idea}
+
+Split the items into two halves:
+\[
+L = \{a_0, \dots, a_{m-1}\},
+\qquad
+R = \{a_m, \dots, a_{n-1}\}.
+\]
+Enumerate all subset summaries of each half. Then combine the two lists by sorting, binary search, two pointers, or a
+hash map depending on the objective.
+
+\section*{Key Insight}
+
+The exponential part is still there, but the exponent is cut in half. That is a huge change:
+\[
+2^{40} \text{ is impossible in contest time, but } 2^{20} + 2^{20} \text{ is completely normal.}
+\]
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item enumerate all subset sums or other half summaries,
+  \item sort one side,
+  \item for each value on the other side, find the best compatible partner.
+\end{itemize}
+
+\paragraph{Worked example.}
+To find the largest subset sum at most \(S\), enumerate all sums on the left and right. Sort the right sums. For each
+left sum \(x\), binary search the largest right sum \(y\) with \(x + y \le S\).
+
+\section*{Correctness Intuition}
+
+Every full subset is uniquely determined by its choice on the left half and its choice on the right half. So once both
+half enumerations are complete, combining them explores the full search space without ever enumerating all \(2^n\)
+states directly.
+
+\section*{Complexity Analysis}
+
+For \(n\) items, the standard subset-sum version runs in:
+\begin{itemize}
+  \item \(O(2^{n/2})\) to enumerate each half,
+  \item \(O(2^{n/2} \log 2^{n/2})\) to sort and search,
+  \item memory \(O(2^{n/2})\).
+\end{itemize}
+
+\section*{Implementation}
+
+The reference code solves the ``maximum subset sum at most \(S\)'' template. That is the most reusable starting point,
+and many other meet-in-the-middle problems are just different summaries or a different merge step.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using meet-in-the-middle when \(n\) is already small enough for a simpler DP or brute force.
+  \item Forgetting the memory cost of storing all half summaries.
+  \item Generating all half states correctly but combining them with the wrong inequality or boundary handling.
+  \item Missing dominance pruning when one half can be compressed further.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Split knapsack by weight or value summaries.
+  \item Enumerate masks on one side and hashed states on the other.
+  \item Use Pareto pruning when the summary has two dimensions.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Maximum subset sum not exceeding a limit.
+  \item Closest subset sum to a target.
+  \item Count subset pairs satisfying a constraint after sorting one half.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+  \item \href{https://oi-wiki.org/search/mitm/}{OI Wiki: Meet in the Middle}.
+\end{itemize}

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 320" role="img" aria-labelledby="title desc">
+  <title id="title">Centroid decomposition layers</title>
+  <desc id="desc">A tree is split at a centroid, then each remaining component is decomposed recursively into the next layer.</desc>
+  <style>
+    .bg { fill: #f4efe8; }
+    .edge { stroke: #7b6a58; stroke-width: 4; }
+    .node { fill: #d8e4dd; stroke: #51645b; stroke-width: 3; }
+    .centroid { fill: #e7b98a; stroke: #9b5f2d; stroke-width: 3; }
+    .txt { font: 18px 'IBM Plex Mono', monospace; fill: #2f241d; }
+  </style>
+  <rect class="bg" width="860" height="320" rx="24"/>
+  <line class="edge" x1="180" y1="84" x2="110" y2="154"/>
+  <line class="edge" x1="180" y1="84" x2="180" y2="154"/>
+  <line class="edge" x1="180" y1="84" x2="250" y2="154"/>
+  <line class="edge" x1="250" y1="154" x2="290" y2="224"/>
+  <line class="edge" x1="180" y1="154" x2="145" y2="224"/>
+  <line class="edge" x1="180" y1="154" x2="215" y2="224"/>
+  <circle class="centroid" cx="180" cy="84" r="24"/>
+  <circle class="node" cx="110" cy="154" r="20"/>
+  <circle class="node" cx="180" cy="154" r="20"/>
+  <circle class="node" cx="250" cy="154" r="20"/>
+  <circle class="node" cx="145" cy="224" r="18"/>
+  <circle class="node" cx="215" cy="224" r="18"/>
+  <circle class="node" cx="290" cy="224" r="18"/>
+  <line class="edge" x1="530" y1="84" x2="470" y2="154"/>
+  <line class="edge" x1="530" y1="84" x2="590" y2="154"/>
+  <line class="edge" x1="470" y1="154" x2="435" y2="224"/>
+  <line class="edge" x1="470" y1="154" x2="505" y2="224"/>
+  <line class="edge" x1="590" y1="154" x2="555" y2="224"/>
+  <line class="edge" x1="590" y1="154" x2="625" y2="224"/>
+  <circle class="centroid" cx="470" cy="154" r="20"/>
+  <circle class="centroid" cx="590" cy="154" r="20"/>
+  <circle class="node" cx="435" cy="224" r="18"/>
+  <circle class="node" cx="505" cy="224" r="18"/>
+  <circle class="node" cx="555" cy="224" r="18"/>
+  <circle class="node" cx="625" cy="224" r="18"/>
+  <text class="txt" x="112" y="40">level 0 centroid</text>
+  <text class="txt" x="420" y="40">level 1 centroids in child components</text>
+  <text class="txt" x="320" y="292">each recursion step halves the component size enough to keep depth logarithmic</text>
+</svg>

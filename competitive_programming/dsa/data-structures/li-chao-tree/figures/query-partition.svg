@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 280" role="img" aria-labelledby="title desc">
+  <title id="title">Li Chao midpoint comparison</title>
+  <desc id="desc">Two lines are compared at a segment midpoint. The better line stays in the current node, and the other line recurses only into the side where it can still win.</desc>
+  <style>
+    .bg { fill: #f7efe2; }
+    .axis { stroke: #2f241d; stroke-width: 3; }
+    .grid { stroke: #d6c7b0; stroke-width: 1.5; stroke-dasharray: 6 6; }
+    .line-a { stroke: #1f6f8b; stroke-width: 5; fill: none; }
+    .line-b { stroke: #b95732; stroke-width: 5; fill: none; }
+    .mid { stroke: #2f241d; stroke-width: 2.5; stroke-dasharray: 10 6; }
+    .label { font: 20px 'IBM Plex Mono', monospace; fill: #2f241d; }
+    .note { font: 18px 'IBM Plex Mono', monospace; fill: #5f4634; }
+  </style>
+  <rect class="bg" width="820" height="280" rx="20"/>
+  <line class="axis" x1="70" y1="220" x2="760" y2="220"/>
+  <line class="grid" x1="415" y1="40" x2="415" y2="220"/>
+  <line class="mid" x1="415" y1="40" x2="415" y2="220"/>
+  <path class="line-a" d="M90 180 C220 165, 330 145, 470 120 S660 85, 740 70"/>
+  <path class="line-b" d="M90 95 C210 110, 310 122, 415 125 S610 130, 740 110"/>
+  <text class="label" x="120" y="82">new line wins on the left</text>
+  <text class="label" x="505" y="92">stored line wins at mid</text>
+  <text class="label" x="392" y="30">mid</text>
+  <text class="note" x="88" y="252">left half still uncertain</text>
+  <text class="note" x="470" y="252">right half already decided</text>
+</svg>

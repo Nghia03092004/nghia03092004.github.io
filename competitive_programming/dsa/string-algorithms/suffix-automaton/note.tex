@@ -1,0 +1,92 @@
+\section*{Overview}
+
+Suffix automaton is the suffix structure I want when the string is built online or when substring-state transitions feel
+more natural than suffix-array order. It represents all substrings of one string in a DAG with only \(O(n)\) states.
+
+\section*{When to Use It}
+
+Use a suffix automaton when:
+
+\begin{itemize}
+  \item distinct substrings, occurrence counts, or longest common substring style queries appear,
+  \item the string is processed left to right,
+  \item an automaton over substring states feels easier than sorting suffixes.
+\end{itemize}
+
+\section*{Core Idea}
+
+Each state represents an equivalence class of substrings that share the same set of ending positions. The automaton is
+extended one character at a time, and occasionally a clone state is created to preserve the correct suffix-link and
+transition structure.
+
+\section*{Key Insight}
+
+The suffix link points to the largest proper suffix class that still matters after extending the string. That is why the
+automaton remains linear even though it compactly represents every substring.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item extend by one character,
+  \item follow transitions to test whether a pattern is a substring,
+  \item use \(\texttt{len[state] - len[link[state]]}\) to count distinct substrings,
+  \item propagate end-position counts in topological length order for occurrence queries.
+\end{itemize}
+
+\paragraph{Worked example.}
+Every time a new character is appended, all new substrings are exactly the suffixes ending at that new position. The
+automaton extension adds those efficiently without rebuilding older states.
+
+\section*{Correctness Intuition}
+
+The construction maintains the smallest automaton that recognizes all suffixes of the processed prefix, which is enough
+to recognize all substrings as well. Clone states appear only when an old state needs to be split into two equivalence
+classes with different longest-length behavior.
+
+\section*{Complexity Analysis}
+
+The suffix automaton is built in \(O(n)\) time and memory for a fixed alphabet representation that supports \(O(1)\)
+transitions on average or with arrays.
+
+\section*{Implementation}
+
+The code supports:
+
+\begin{itemize}
+  \item online extension,
+  \item substring existence checks,
+  \item counting distinct substrings,
+  \item occurrence counts after one propagation pass.
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Getting clone-state initialization wrong.
+  \item Forgetting that occurrence counts need a later propagation step.
+  \item Using a suffix automaton when the problem is really about lexicographic order, where suffix array fits better.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Longest common substring between strings.
+  \item Build the suffix-link tree for further DP.
+  \item Palindromic tree when the structure is about palindromes rather than arbitrary substrings.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count distinct substrings.
+  \item Query whether many patterns are substrings.
+  \item Longest common substring or repeated-substring tasks.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/string/suffix-automaton.html}{cp-algorithms: Suffix Automaton}.
+  \item \href{https://usaco.guide/adv/string-suffix}{USACO Guide: String Suffix Structures}.
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+\end{itemize}

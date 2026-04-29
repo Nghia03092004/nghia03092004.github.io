@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 300" role="img" aria-labelledby="title desc">
+  <title id="title">Aho-Corasick failure links</title>
+  <desc id="desc">Trie edges go downward, while dashed failure links point to the next longest suffix that is also a prefix in the trie.</desc>
+  <style>
+    .bg { fill: #eef2f8; }
+    .edge { stroke: #4c617a; stroke-width: 4; }
+    .fail { stroke: #b65d3b; stroke-width: 3; stroke-dasharray: 10 8; fill: none; }
+    .node { fill: #dce5f0; stroke: #4c617a; stroke-width: 3; }
+    .txt { font: 18px 'IBM Plex Mono', monospace; fill: #243140; }
+  </style>
+  <rect class="bg" width="860" height="300" rx="24"/>
+  <line class="edge" x1="140" y1="70" x2="260" y2="140"/>
+  <line class="edge" x1="140" y1="70" x2="140" y2="140"/>
+  <line class="edge" x1="140" y1="140" x2="140" y2="215"/>
+  <line class="edge" x1="260" y1="140" x2="380" y2="215"/>
+  <path class="fail" d="M380 215 C335 170, 235 165, 140 140"/>
+  <path class="fail" d="M260 140 C220 105, 180 95, 140 70"/>
+  <circle class="node" cx="140" cy="70" r="22"/>
+  <circle class="node" cx="140" cy="140" r="22"/>
+  <circle class="node" cx="260" cy="140" r="22"/>
+  <circle class="node" cx="140" cy="215" r="22"/>
+  <circle class="node" cx="380" cy="215" r="22"/>
+  <text class="txt" x="95" y="35">root</text>
+  <text class="txt" x="120" y="145">h</text>
+  <text class="txt" x="245" y="145">s</text>
+  <text class="txt" x="120" y="220">he</text>
+  <text class="txt" x="360" y="220">she</text>
+  <text class="txt" x="440" y="90">solid edges: trie transitions</text>
+  <text class="txt" x="440" y="125">dashed edges: failure fallback</text>
+</svg>

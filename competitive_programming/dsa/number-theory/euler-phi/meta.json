@@ -1,0 +1,7 @@
+{
+  "title": "Euler Phi",
+  "summary": "Count how many integers up to n are coprime to n, and use the factorization formula to turn that count into code.",
+  "level": "intermediate",
+  "tags": ["coprimality", "multiplicative function", "totient"],
+  "order": 60
+}

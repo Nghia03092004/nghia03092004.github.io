@@ -1,0 +1,102 @@
+\section*{Overview}
+
+Euler's phi function \(\varphi(n)\) counts how many integers in \([1, n]\) are coprime to \(n\). It shows up in
+modular arithmetic, counting reduced fractions, cycle lengths, and several multiplicative-function problems.
+
+\section*{When to Use It}
+
+Use \(\varphi\) when:
+
+\begin{itemize}
+  \item the question asks for coprime counts,
+  \item Euler's theorem might replace a large exponent,
+  \item a multiplicative formula over prime factors is wanted.
+\end{itemize}
+
+\section*{Core Idea}
+
+If
+\[
+n = p_1^{e_1} p_2^{e_2} \cdots p_k^{e_k},
+\]
+then
+\[
+\varphi(n) = n \prod_{i=1}^{k}\left(1 - \frac{1}{p_i}\right).
+\]
+
+So once the distinct prime divisors are known, computing \(\varphi(n)\) is straightforward.
+
+\section*{Key Insight}
+
+Phi is counting by exclusion. Among the numbers \(1\) through \(n\), the only ones that fail to be coprime to \(n\) are
+those divisible by one of its prime factors. The product formula is inclusion-exclusion compressed into multiplicative
+form.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item factor \(n\),
+  \item start from \(\texttt{result = n}\),
+  \item for each distinct prime divisor \(p\), apply
+  \[
+  \texttt{result -= result / p}.
+  \]
+\end{itemize}
+
+\paragraph{Worked example.}
+For \(n = 12 = 2^2 \cdot 3\),
+\[
+\varphi(12) = 12\left(1 - \frac{1}{2}\right)\left(1 - \frac{1}{3}\right) = 4.
+\]
+The coprime values are \(1, 5, 7, 11\).
+
+\section*{Correctness Intuition}
+
+Removing multiples of each distinct prime divisor removes exactly the numbers that share a nontrivial gcd with \(n\).
+The product formula works because phi is multiplicative on coprime arguments.
+
+\section*{Complexity Analysis}
+
+If factorization is done by trial division, computing \(\varphi(n)\) is \(O(\sqrt{n})\). With precomputed SPF or a phi
+sieve for many queries, the per-query or all-values cost can be much better.
+
+\section*{Implementation}
+
+The code includes:
+
+\begin{itemize}
+  \item \texttt{phi\_single(n)} from factorization,
+  \item a linear-style sieve for \(\varphi(1 \dots N)\).
+\end{itemize}
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Updating the result once per prime power instead of once per distinct prime.
+  \item Using Euler's theorem where the base is not coprime to the modulus.
+  \item Recomputing phi from scratch many times when a sieve would be better.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Phi sieve for all values up to \(N\).
+  \item Use phi inside modular-exponent cycles.
+  \item General multiplicative-function preprocessing alongside Mobius and divisor counts.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Compute \(\varphi(n)\) for many values.
+  \item Count reduced fractions or coprime pairs.
+  \item Evaluate large exponents modulo \(m\) with phi-based reasoning.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/algebra/phi-function.html}{cp-algorithms: Euler Totient Function}.
+  \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+\end{itemize}

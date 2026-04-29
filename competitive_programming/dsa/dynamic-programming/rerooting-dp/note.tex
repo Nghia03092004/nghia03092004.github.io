@@ -1,0 +1,90 @@
+\section*{Overview}
+
+Rerooting DP is the pattern for ``solve the same tree DP for every root.'' Instead of recomputing from scratch \(n\)
+times, it uses one pass to gather subtree information and a second pass to transfer the parent-side contribution into
+each child.
+
+\section*{When to Use It}
+
+Use rerooting when:
+
+\begin{itemize}
+  \item the tree answer is wanted at every vertex,
+  \item the answer for one root can be updated locally when moving the root across one edge,
+  \item the DP contribution can be merged from children plus one parent-side term.
+\end{itemize}
+
+\section*{Core Idea}
+
+The first DFS computes the usual subtree DP. The second DFS tells each child what the world outside that child's
+subtree contributes, so the child can combine:
+
+\begin{itemize}
+  \item its own subtree data,
+  \item the contribution coming from the parent side.
+\end{itemize}
+
+\section*{Key Insight}
+
+Moving the root from a parent to a child only changes one edge's direction. If the DP can be updated across that local
+change, all-roots answers become a transfer problem rather than \(n\) separate DPs.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item compute downward subtree values,
+  \item derive the full answer at the initial root,
+  \item pass adjusted parent-side information into each child,
+  \item record the answer for every node.
+\end{itemize}
+
+\paragraph{Worked example.}
+For the sum of distances from each node to all others, moving the root from \(v\) to child \(to\) decreases the
+distance to every node in \(to\)'s subtree by \(1\) and increases the distance to every other node by \(1\).
+
+\section*{Correctness Intuition}
+
+The subtree pass is ordinary tree DP. The reroot pass is correct because each child receives exactly the contribution of
+everything not in its own subtree, adjusted as if that child were the new root. Together, those two pieces cover the
+entire tree without overlap.
+
+\section*{Complexity Analysis}
+
+Most rerooting solutions run in \(O(n)\) time once the merge and transfer formulas are \(O(1)\) per edge.
+
+\section*{Implementation}
+
+The sample code solves the classic ``sum of distances to all nodes'' problem. It is a good template because the transfer
+formula is explicit and easy to check.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Forgetting to remove a child's own contribution before passing the parent-side value back into it.
+  \item Designing a state that works for one root but is too weak to transfer cleanly.
+  \item Recomputing siblings from scratch instead of deriving the transferred value algebraically.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Max/min answers for every root.
+  \item Prefix-suffix child merges when each child needs the aggregate of all other children.
+  \item Generic rerooting templates with custom combine and lift operations.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Sum of distances from every node.
+  \item Best root under a subtree-based score.
+  \item Count or optimize rooted configurations for every possible root.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/gold/all-roots?lang=cpp}{USACO Guide: DP on Trees - Solving for All Roots}.
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+  \item \href{https://github.com/kth-competitive-programming/kactl}{KACTL}.
+\end{itemize}

@@ -1,0 +1,7 @@
+{
+  "title": "Coordinate Compression",
+  "summary": "Replace large or sparse values by their rank order so array-based structures become practical again.",
+  "level": "basic",
+  "tags": ["preprocessing", "indexing", "offline"],
+  "order": 50
+}

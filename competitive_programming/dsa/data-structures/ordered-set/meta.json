@@ -1,0 +1,7 @@
+{
+  "title": "Ordered Set (Policy-Based Data Structures)",
+  "summary": "An indexed balanced tree for order statistics when std::set is not enough and a full custom BST is overkill.",
+  "level": "intermediate",
+  "tags": ["order statistics", "GNU PBDS", "balanced tree"],
+  "order": 90
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Persistent Segment Tree",
+  "summary": "Path-copy only the changed nodes so every update creates a new version without destroying the old one.",
+  "level": "advanced",
+  "tags": ["persistence", "range queries", "versioned structure"],
+  "order": 110
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Prime Factorization",
+  "summary": "Break numbers into prime powers and choose the right factorization strategy for the size and query pattern.",
+  "level": "basic",
+  "tags": ["primes", "factorization", "divisors"],
+  "order": 50
+}

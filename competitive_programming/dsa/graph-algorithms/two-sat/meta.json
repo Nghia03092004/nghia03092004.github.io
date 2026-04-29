@@ -1,0 +1,7 @@
+{
+  "title": "2-SAT",
+  "summary": "Reduce two-literal clauses to an implication graph, then solve satisfiability with SCC decomposition.",
+  "level": "advanced",
+  "tags": ["logic", "SCC", "implication graph"],
+  "order": 70
+}

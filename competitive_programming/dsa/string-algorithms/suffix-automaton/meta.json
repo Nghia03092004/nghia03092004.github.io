@@ -1,0 +1,7 @@
+{
+  "title": "Suffix Automaton",
+  "summary": "A linear-time substring automaton that is especially good at online extension, distinct-substring counts, and occurrence queries.",
+  "level": "advanced",
+  "tags": ["suffix structures", "automaton", "substrings"],
+  "order": 60
+}

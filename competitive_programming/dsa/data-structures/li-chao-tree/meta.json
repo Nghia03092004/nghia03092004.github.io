@@ -1,0 +1,7 @@
+{
+  "title": "Li Chao Tree",
+  "summary": "A segment-tree-style structure for maintaining a dynamic lower envelope of lines under point queries.",
+  "level": "advanced",
+  "tags": ["lines", "DP optimization", "dynamic hull"],
+  "order": 100
+}

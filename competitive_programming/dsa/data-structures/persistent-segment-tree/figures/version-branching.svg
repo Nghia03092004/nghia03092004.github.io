@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 320" role="img" aria-labelledby="title desc">
+  <title id="title">Persistent segment tree path copying</title>
+  <desc id="desc">An update copies only the nodes on one root-to-leaf path, creating a new version that shares unchanged subtrees with the previous version.</desc>
+  <style>
+    .bg { fill: #eef4f2; }
+    .edge { stroke: #58736b; stroke-width: 4; }
+    .shared { fill: #d1e5de; stroke: #58736b; stroke-width: 3; }
+    .new { fill: #f0d7c2; stroke: #9b5f2d; stroke-width: 3; }
+    .txt { font: 18px 'IBM Plex Mono', monospace; fill: #21312b; }
+    .note { font: 17px 'IBM Plex Mono', monospace; fill: #5c4b3c; }
+  </style>
+  <rect class="bg" width="840" height="320" rx="22"/>
+  <line class="edge" x1="185" y1="78" x2="120" y2="150"/>
+  <line class="edge" x1="185" y1="78" x2="250" y2="150"/>
+  <line class="edge" x1="250" y1="150" x2="215" y2="220"/>
+  <line class="edge" x1="250" y1="150" x2="285" y2="220"/>
+  <line class="edge" x1="525" y1="78" x2="460" y2="150"/>
+  <line class="edge" x1="525" y1="78" x2="590" y2="150"/>
+  <line class="edge" x1="590" y1="150" x2="555" y2="220"/>
+  <line class="edge" x1="590" y1="150" x2="285" y2="220"/>
+  <line class="edge" x1="460" y1="150" x2="120" y2="150"/>
+  <circle class="shared" cx="185" cy="78" r="26"/>
+  <circle class="shared" cx="120" cy="150" r="24"/>
+  <circle class="shared" cx="250" cy="150" r="24"/>
+  <circle class="shared" cx="215" cy="220" r="22"/>
+  <circle class="shared" cx="285" cy="220" r="22"/>
+  <circle class="new" cx="525" cy="78" r="26"/>
+  <circle class="new" cx="590" cy="150" r="24"/>
+  <circle class="new" cx="555" cy="220" r="22"/>
+  <circle class="shared" cx="460" cy="150" r="24"/>
+  <text class="txt" x="150" y="35">version v0</text>
+  <text class="txt" x="490" y="35">version v1</text>
+  <text class="note" x="63" y="285">shared nodes are reused</text>
+  <text class="note" x="472" y="285">only one root-to-leaf path is copied</text>
+</svg>

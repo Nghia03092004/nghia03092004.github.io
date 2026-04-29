@@ -1,0 +1,7 @@
+{
+  "title": "Rerooting DP",
+  "summary": "Compute a tree answer for every possible root by combining one downward DP pass with one upward transfer pass.",
+  "level": "advanced",
+  "tags": ["trees", "all roots", "DP transfer"],
+  "order": 80
+}

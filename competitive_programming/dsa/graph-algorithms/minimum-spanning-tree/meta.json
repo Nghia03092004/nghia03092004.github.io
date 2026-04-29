@@ -1,0 +1,7 @@
+{
+  "title": "Minimum Spanning Tree",
+  "summary": "Connect a weighted graph as cheaply as possible, usually with Kruskal and DSU as the contest default.",
+  "level": "intermediate",
+  "tags": ["weighted graphs", "Kruskal", "DSU"],
+  "order": 30
+}

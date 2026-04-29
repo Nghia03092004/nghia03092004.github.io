@@ -1,0 +1,96 @@
+\section*{Overview}
+
+SOS DP means ``sum over subsets'' DP, but the idea is broader than just sums. It is the standard transform when each
+mask needs information from all of its submasks or all of its supermasks, and the naive \(O(4^n)\) approach is too
+slow.
+
+\section*{When to Use It}
+
+Use SOS DP when:
+
+\begin{itemize}
+  \item the state is a bitmask,
+  \item each mask wants to aggregate values over all submasks or all supermasks,
+  \item \(n\) is small enough for \(2^n\) states but not small enough for nested subset enumeration on every mask.
+\end{itemize}
+
+\section*{Core Idea}
+
+Instead of iterating through every \((mask, submask)\) pair independently, process the bits one by one. At each bit,
+decide whether information should flow from the version without that bit to the version with that bit.
+
+That transforms the brute-force subset aggregation into a dimension-by-dimension DP over the hypercube.
+
+\section*{Key Insight}
+
+The expensive part is repeated reuse of the same smaller masks. SOS DP avoids recomputing that reuse from scratch. It
+folds one bit at a time, very much like a fast transform.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item initialize \(\texttt{f[mask]}\) with the base values,
+  \item for each bit, propagate from masks missing that bit to masks containing it,
+  \item read the transformed array as ``sum over all submasks'' or the corresponding variant.
+\end{itemize}
+
+\paragraph{Worked example.}
+If \(\texttt{f[mask]}\) counts exact masks, the transformed array after SOS can store how many exact masks are subsets
+of each query mask. That is the version used in many inclusion-style bitmask problems.
+
+\section*{Correctness Intuition}
+
+After processing the first \(b\) bits, each state already contains the aggregate over all choices of those bits that are
+compatible with it. When the next bit is processed, the same invariant extends by one dimension. After all bits are
+processed, every submask has been accounted for exactly once.
+
+\section*{Complexity Analysis}
+
+For \(n\) bits:
+\begin{itemize}
+  \item time: \(O(n 2^n)\),
+  \item memory: \(O(2^n)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The code includes both:
+
+\begin{itemize}
+  \item subset-sum transform,
+  \item superset-sum transform.
+\end{itemize}
+
+That is the pair I reach for most often.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using SOS DP when ordinary submask enumeration is already fast enough.
+  \item Mixing up the subset and superset directions.
+  \item Forgetting that the state count still grows as \(2^n\), so the bit count must stay small.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Fast zeta transform and Mobius inversion on subsets.
+  \item XOR / AND / OR convolution families.
+  \item Bitset tricks when the values are boolean instead of numeric counts.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count how many given masks are subsets of each query mask.
+  \item Optimize over all supermasks of a state.
+  \item Inclusion-style DP where many masks share the same submask contributions.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/plat/dp-sos?lang=py}{USACO Guide: Sum over Subsets DP}.
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+  \item \href{https://oi-wiki.org/dp/sos/}{OI Wiki: SOS DP}.
+\end{itemize}

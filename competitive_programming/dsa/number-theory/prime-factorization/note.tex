@@ -1,0 +1,106 @@
+\section*{Overview}
+
+Prime factorization is the step that exposes arithmetic structure. Once a number is written as a product of prime powers,
+questions about divisors, gcd/lcm, multiplicative functions, and modular conditions usually become much clearer.
+
+\section*{When to Use It}
+
+Use factorization when:
+
+\begin{itemize}
+  \item divisor counts or divisor sums matter,
+  \item the statement talks about prime powers or coprimality,
+  \item a multiplicative function needs to be evaluated from the prime exponents,
+  \item the input size suggests the factors themselves are more useful than the raw number.
+\end{itemize}
+
+\section*{Core Idea}
+
+Every positive integer has a unique factorization:
+\[
+n = p_1^{e_1} p_2^{e_2} \cdots p_k^{e_k}.
+\]
+The implementation question is not whether this decomposition exists, but which method finds it fast enough:
+
+\begin{itemize}
+  \item trial division,
+  \item sieve-assisted factorization,
+  \item Pollard Rho for harder 64-bit cases.
+\end{itemize}
+
+\section*{Key Insight}
+
+Factorization is usually the preprocessing, not the end goal. The real value is what it unlocks afterward: divisor
+enumeration, phi, Mobius, CRT conditions, and multiplicative formulas.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item divide by each prime factor while it still fits,
+  \item count the exponent of each factor,
+  \item if the remaining value is \(> 1\), it is prime in the trial-division setting.
+\end{itemize}
+
+\paragraph{Worked example.}
+If \(n = 360\), then
+\[
+360 = 2^3 \cdot 3^2 \cdot 5.
+\]
+From that, the divisor count is \((3+1)(2+1)(1+1) = 24\).
+
+\section*{Correctness Intuition}
+
+Whenever a prime \(p\) divides \(n\), dividing out all copies of \(p\) records its exponent exactly. After all primes up
+to \(\sqrt{n}\) are tested, any remaining value must itself be prime, because a composite remainder would still have a
+factor at most its square root.
+
+\section*{Complexity Analysis}
+
+\begin{itemize}
+  \item trial division: \(O(\sqrt{n})\),
+  \item repeated queries with smallest-prime-factor sieve: roughly \(O(\log n)\) per number after preprocessing,
+  \item large 64-bit inputs may need Miller-Rabin plus Pollard Rho.
+\end{itemize}
+
+\section*{Implementation}
+
+The code includes:
+
+\begin{itemize}
+  \item basic trial-division factorization,
+  \item divisor generation from the prime-exponent list.
+\end{itemize}
+
+That is enough for many problems before the harder randomized methods become necessary.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Trial-dividing up to the original \(\sqrt{n}\) instead of the shrinking current value.
+  \item Forgetting the leftover prime factor when the loop ends.
+  \item Building divisor formulas from distinct primes but ignoring their exponents.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item SPF sieve for many small-to-medium queries.
+  \item Pollard Rho for difficult 64-bit factorization.
+  \item Use factorization as the base for phi, Mobius, divisor sums, and multiplicative functions.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Count divisors or sum divisors.
+  \item Factor many input values after one sieve.
+  \item Construct all divisors from the prime powers.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://cp-algorithms.com/algebra/factorization.html}{cp-algorithms: Integer Factorization}.
+  \item \href{https://usaco.guide/gold/prime-factorization}{USACO Guide: Prime Factorization}.
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+\end{itemize}

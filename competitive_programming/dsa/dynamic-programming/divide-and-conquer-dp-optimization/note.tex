@@ -1,0 +1,88 @@
+\section*{Overview}
+
+Divide and conquer DP optimization is the first optimization I check when a transition looks like ``take the best split
+point \(k\) for every position \(j\)'' and the straightforward implementation is one quadratic loop too slow.
+
+\section*{When to Use It}
+
+Use it when the recurrence has the shape
+\[
+dp[i][j] = \min_{k \le j} \bigl(dp[i-1][k-1] + C(k, j)\bigr),
+\]
+and the optimal split points satisfy:
+\[
+opt[i][j] \le opt[i][j+1].
+\]
+
+That monotonicity usually comes from a quadrangle inequality or a similar structure in the cost function.
+
+\section*{Core Idea}
+
+If the best split index for \(j\) never moves left when \(j\) increases, then after computing the optimum at the middle
+position, the left half only needs to search smaller split indices and the right half only needs to search larger ones.
+
+That is exactly the same pruning pattern as divide and conquer on a monotone answer boundary.
+
+\section*{Key Insight}
+
+The optimization does not come from algebraic magic. It comes from reducing the search interval for the best split at
+each position. Once the opt indices are monotone, every recursive subproblem can ignore a large part of the \(k\)-range.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item verify or prove opt monotonicity,
+  \item compute one DP row from the previous row,
+  \item recurse on the left and right halves with narrowed split ranges.
+\end{itemize}
+
+\paragraph{Worked example.}
+If the middle position \(j = 50\) is optimized by \(k = 18\), then every position left of \(50\) only needs to try
+split points up to \(18\), while positions to the right only need to try split points from \(18\) onward.
+
+\section*{Correctness Intuition}
+
+The monotonicity of the optimal split points guarantees that recursion never removes the true optimum from a subproblem's
+search interval. So every position still checks all of its valid candidates, just within a much smaller window.
+
+\section*{Complexity Analysis}
+
+For one row of length \(n\), the optimized computation is typically \(O(n \log n)\) if evaluating one candidate is
+\(O(1)\). Over \(m\) rows, that becomes \(O(m n \log n)\).
+
+\section*{Implementation}
+
+The reference code is the reusable core: given a previous row, a current row, and a cost function, it fills one row via
+the divide-and-conquer recursion.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Using the optimization without actually proving opt monotonicity.
+  \item Off-by-one mistakes in the split range and in the meaning of \(dp[i-1][k-1]\).
+  \item Forgetting that the cost function itself still needs to be \(O(1)\) or cheap enough.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Knuth optimization, which is even stronger but applies to a narrower family of recurrences.
+  \item Convex hull trick when the transition can be rewritten as line queries.
+  \item Aliens trick when the DP is wrapped inside a parametric search.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Partition DP with monotone optimal cut positions.
+  \item Grouping or clustering DP where the segment cost is precomputable.
+  \item Circular Barn and similar row-by-row partition problems.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://usaco.guide/plat/DC-DP}{USACO Guide: Divide and Conquer DP}.
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+  \item \href{https://cp-algorithms.com/}{cp-algorithms, via the references collected in USACO Guide and CP resources for this optimization family}.
+\end{itemize}

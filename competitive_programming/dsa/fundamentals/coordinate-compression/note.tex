@@ -1,0 +1,95 @@
+\section*{Overview}
+
+Coordinate compression is the step that turns ``the values are too large'' into ``the relative order is the only thing
+that matters.'' In contest code, it is often the small preprocessing move that makes Fenwick trees, segment trees,
+sweep-line arrays, and offline events feasible.
+
+\section*{When to Use It}
+
+Use coordinate compression when:
+
+\begin{itemize}
+  \item values are large, negative, or sparse,
+  \item only comparisons or relative order matter,
+  \item an array-based data structure would be perfect after remapping the values,
+  \item offline queries refer only to values already known in advance.
+\end{itemize}
+
+\section*{Core Idea}
+
+Collect the values that matter, sort them, erase duplicates, and replace each value by its index in that sorted list.
+If \(x < y\), then the compressed indices preserve that order.
+
+So instead of storing information on a huge axis like \(10^9\), I work on an axis of size at most the number of
+distinct values that appear.
+
+\section*{Key Insight}
+
+Compression preserves order, not distance. That is enough for frequency tables, predecessor logic, inversion counting,
+and many sweep-style solutions. It is not enough when actual gaps or coordinate lengths matter unless those lengths are
+handled separately.
+
+\section*{Operations / Main Technique}
+
+\begin{itemize}
+  \item gather all values that will ever be referenced,
+  \item sort and deduplicate,
+  \item replace each original value by \(\texttt{lower\_bound}\) in the sorted list,
+  \item keep the reverse lookup array if the original value must be recovered later.
+\end{itemize}
+
+\paragraph{Worked example.}
+If the values are \(\{100, -7, 100, 42\}\), the sorted unique list is \(\{-7, 42, 100\}\), so the compressed values
+are \(\{2, 0, 2, 1\}\).
+
+\section*{Correctness Intuition}
+
+Sorting and deduplication turn the values into their rank order. Since any comparison between original values is
+equivalent to comparing their ranks, every order-based algorithm remains valid after the transformation.
+
+\section*{Complexity Analysis}
+
+For \(n\) collected values:
+\begin{itemize}
+  \item compression preprocessing: \(O(n \log n)\),
+  \item each map-to-index query with \(\texttt{lower\_bound}\): \(O(\log n)\),
+  \item memory: \(O(n)\).
+\end{itemize}
+
+\section*{Implementation}
+
+The code includes a small compressor that returns both the compressed indices and the sorted list of unique values. I
+prefer this shape because most problems need the reverse mapping sooner or later.
+
+\section*{Common Pitfalls}
+
+\begin{itemize}
+  \item Compressing values but forgetting to include future query values in the collected set.
+  \item Using compression when real distances matter directly.
+  \item Mixing 0-indexed compressed coordinates with a 1-indexed Fenwick tree without adjusting.
+  \item Recomputing \(\texttt{lower\_bound}\) repeatedly when a one-time map would be simpler.
+\end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Compress pairs or tuples lexicographically.
+  \item Compress one axis inside offline geometry or sweep-line problems.
+  \item Use a hash map after sorting if many repeated lookups are needed.
+\end{itemize}
+
+\section*{Practice Problems}
+
+\begin{itemize}
+  \item Inversion counting with a Fenwick tree.
+  \item Offline rectangle counting after compressing one or two axes.
+  \item Dynamic frequency queries on large input values.
+\end{itemize}
+
+\section*{References}
+
+\begin{itemize}
+  \item \href{https://codeforces.com/catalog?locale=en}{Codeforces Catalog}.
+  \item \href{https://cp-algorithms.com/data_structures/segment_tree.html}{cp-algorithms: Segment Tree} for common compressed-coordinate uses.
+  \item \href{https://usaco.guide/plat/sweep-line}{USACO Guide: Sweep Line and related offline geometry modules}.
+\end{itemize}
