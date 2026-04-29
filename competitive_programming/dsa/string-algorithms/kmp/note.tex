@@ -1,90 +1,120 @@
 \section*{Overview}
 
-KMP is the classical linear-time pattern-matching algorithm built on the prefix function. I like it because the core
-idea is small: when a mismatch happens, do not restart from scratch. Reuse the longest border of what has already
-matched.
+KMP is the classical linear-time pattern matcher built on the prefix function. Its main lesson is not ``use this one
+trick''. Its main lesson is that after a mismatch, we should not restart from scratch if some of the matched prefix is
+still usable.
+
+That same prefix-function viewpoint also explains borders, periodicity, and several other string facts that show up in
+contest problems.
 
 \section*{When to Use It}
 
 Use it when:
 
 \begin{itemize}
-  \item you need all occurrences of a pattern in a text,
-  \item the alphabet can be arbitrary and hashing is unnecessary or too fragile,
+  \item you need all occurrences of one pattern in one text,
   \item you want a deterministic linear-time matcher,
-  \item the prefix function itself is useful for border or periodicity questions.
+  \item hashing would be unnecessary or too fragile,
+  \item border information or periodicity is relevant, even if full matching is not.
 \end{itemize}
 
-For single ad hoc substring checks, the standard library may be enough. KMP becomes interesting when the linear
-guarantee or the prefix function structure matters.
+For one casual substring check, the standard library is often enough. KMP matters when the prefix-function structure
+itself is useful.
 
 \section*{Core Idea}
 
-For each prefix ending at position \(i\), the prefix function \(\pi[i]\) stores the length of the longest proper
-prefix that is also a suffix of the substring ending at \(i\).
+For each position \(i\), the prefix function \(\pi[i]\) is the length of the longest proper prefix of the string that
+is also a suffix ending at \(i\).
 
-When matching a pattern against a text, suppose the first \(k\) pattern characters already match and the next
-character mismatches. Instead of throwing away all progress, KMP jumps to the longest border of the matched prefix,
-whose length is \(\pi[k - 1]\). That is exactly the longest candidate that could still extend to a full match.
+That ``prefix equals suffix'' object is called a \textbf{border}. KMP uses borders as fallback positions: after a
+mismatch, the only remaining candidates are borders of what has already matched.
 
-\section*{Operations}
+\section*{Key Insight}
+
+The invariant during the text scan is:
+\textbf{the current matched length is the longest prefix of the pattern that is also a suffix of the processed text}.
+
+So if a mismatch happens after matching \(k\) characters, the next sensible candidate is not ``start over''. It is the
+longest border of that matched prefix, whose length is \(\pi[k - 1]\).
+
+That is why no text character needs to be revisited from scratch.
+
+\section*{Operations / Main Technique}
+
+The standard workflow is:
 
 \begin{itemize}
   \item compute the prefix function of the pattern,
   \item scan the text left to right,
-  \item on mismatch, repeatedly jump with \(\pi\),
+  \item on mismatch, fall back through prefix-function links,
   \item on full match, report the occurrence and continue from the next border.
 \end{itemize}
 
-The same prefix-function routine is also useful by itself for border arrays, repetitions, and string compression
-questions.
+\paragraph{Worked example.}
+If the pattern prefix \(\texttt{abab}\) has matched and the next text character mismatches, KMP does not forget
+everything. The matched prefix has border \(\texttt{ab}\), so matching can continue as if those two characters had
+already been confirmed.
 
 \section*{Correctness Intuition}
 
-At every point in the scan, KMP keeps the invariant that \(\texttt{matched}\) is the length of the longest prefix of
-the pattern that matches a suffix of the text processed so far.
+At every step, the matched length is the longest possible viable prefix length. If a mismatch occurs, any longer
+candidate is impossible, so the next candidate must be the longest border of the current matched prefix. Repeating that
+step eventually finds the longest remaining candidate that could still continue the match.
 
-When a mismatch occurs, any longer candidate is impossible, so the only sensible fallback is the longest border of
-that matched prefix. Repeating this step eventually finds the longest viable suffix-prefix overlap. No text character
-needs to be revisited from scratch, which is why the total work stays linear.
+Because the matched length only moves forward or falls back along prefix-function links, the total amount of fallback
+work is linear.
 
 \section*{Complexity Analysis}
 
 \begin{itemize}
-  \item prefix function: \(O(n)\) for pattern length \(n\),
-  \item text scan: \(O(m)\) for text length \(m\),
+  \item prefix function of a length-\(n\) pattern: \(O(n)\),
+  \item scan of a length-\(m\) text: \(O(m)\),
   \item total matching time: \(O(n + m)\),
   \item memory: \(O(n)\).
 \end{itemize}
 
 \section*{Implementation}
 
-The note code exposes two small functions:
+The reference code separates:
 
 \begin{itemize}
-  \item \texttt{prefix\_function(pattern)}
-  \item \texttt{kmp\_search(text, pattern)}
+  \item \texttt{prefix\_function(pattern)},
+  \item \texttt{kmp\_search(text, pattern)}.
 \end{itemize}
 
-That is usually the minimal contest-ready surface area. If I only need border information, I stop after the first
-function.
+That split matters because many problems only need the prefix function itself. Matching is just one of its most famous
+applications.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
   \item Confusing the prefix function with the Z-function.
   \item Forgetting that \(\pi[i]\) is a \emph{proper} prefix length.
-  \item Mishandling the empty pattern edge case.
+  \item Mishandling the empty-pattern edge case.
   \item Writing the fallback loop incorrectly and skipping valid borders.
-  \item Reaching for rolling hash when deterministic linear matching would be simpler.
+  \item Treating KMP as only a matching tool and missing border/periodicity applications.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item prefix-function automaton style transitions,
+  \item border enumeration,
+  \item periodicity tests,
+  \item counting occurrences of every prefix,
+  \item comparison with the Z-function, which stores a different but related prefix-match view.
+\end{itemize}
+
+The Z-function often feels cleaner for some pattern tasks, but KMP is still the more natural language for borders and
+periodicity.
 
 \section*{Practice Problems}
 
 \begin{itemize}
   \item Find all pattern occurrences in a long text.
-  \item Count borders or detect periodic strings with the prefix function.
-  \item Problems that combine pattern matching with automaton-style DP over prefixes.
+  \item Compute all borders of a string.
+  \item Detect the smallest repeating period of a string.
+  \item Problems that combine a small automaton with digit DP or DP on strings.
 \end{itemize}
 
 \section*{References}

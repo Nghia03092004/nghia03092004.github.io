@@ -1,91 +1,139 @@
 \section*{Overview}
 
-A plain segment tree handles range queries and point updates well, but it slows down immediately when an update must
-touch every element in a long interval. Lazy propagation fixes that by postponing work until a later query or descent
-actually needs the children.
+Lazy propagation is what turns a plain segment tree into a practical range-update structure. Instead of pushing every
+update all the way to the leaves immediately, the tree delays work until that work is actually needed.
+
+This is the standard contest upgrade when the problem asks for range updates together with range queries, such as
+``add \(x\) to every value on \([l, r]\)'' and ``report the sum on \([l, r]\)''.
 
 \section*{When to Use It}
 
-Use a lazy segment tree when both of these are true:
+Use it when:
 
 \begin{itemize}
-  \item the problem has range updates,
-  \item the update can be summarized as a tag instead of individually rewriting every element.
+  \item updates affect whole intervals rather than single points,
+  \item queries still ask for segment aggregates,
+  \item the update can be composed compactly as a lazy tag,
+  \item doing the update naively would touch too many leaves.
 \end{itemize}
 
-The common contest versions are range add / range sum, range assign / range sum, and affine updates on modular sums.
+If the operation is static, a difference array might be enough. If the update logic is too complicated to summarize in
+one tag, a plain lazy tree may stop being the right tool.
 
 \section*{Core Idea}
 
-Each node stores two things:
+Each node still represents a segment and stores its aggregate. The new ingredient is a \textbf{lazy tag}: pending work
+that conceptually applies to the whole segment but has not yet been pushed to the children.
+
+For range add / range sum, if I add \(x\) to a segment of length \(\ell\), then:
 
 \begin{itemize}
-  \item the summary of its segment,
-  \item a delayed tag describing updates that should apply to the whole segment below it.
+  \item the node sum increases by \(x \cdot \ell\),
+  \item the children do not need to be updated immediately,
+  \item I only record that both children should eventually receive \(x\) as well.
 \end{itemize}
 
-When an update fully covers a node, we modify the node summary immediately and compose the tag, but we do not recurse
-to the children. When a later operation needs more detail, we \emph{push} that delayed tag down first.
+That deferred record is the lazy value.
 
-\section*{Operations}
+\section*{Key Insight}
+
+Lazy propagation works because a query or update never needs the children to be exact \emph{until} it descends below
+the current node. As long as the whole current segment is either fully covered or fully skipped, it is enough that the
+current node summary is correct.
+
+So the tree can postpone detailed child work without losing correctness. The delayed work is pushed only when a later
+operation partially overlaps the segment and needs to see finer structure.
+
+\section*{Operations / Main Technique}
+
+The three core routines are:
 
 \begin{itemize}
-  \item \textbf{apply}: update a node summary and accumulate the lazy tag.
-  \item \textbf{push}: pass the delayed work to both children before going deeper.
-  \item \textbf{pull}: recompute the parent from the children after recursion returns.
+  \item \textbf{apply(node, tag)}: update the node summary and combine the lazy tag,
+  \item \textbf{push(node)}: send the pending tag to the children before going deeper,
+  \item \textbf{pull(node)}: recompute the parent from the children after a recursive change.
 \end{itemize}
 
-The reference code covers the cleanest teaching case: range add with range sum queries.
+\paragraph{Worked example.}
+Suppose the tree stores sums and I apply ``add \(5\)'' on \([1, 8]\). The root sum increases by \(5 \cdot 8\), and the
+root lazy tag becomes \(+5\). If the next query asks only about \([1, 4]\), then the root must first \emph{push} the
+tag so the left and right children both learn about that pending \(+5\).
 
 \section*{Correctness Intuition}
 
-The invariant is that every node summary already includes all updates that fully cover that node's segment, even if
-some of those updates have not yet been distributed to the children.
+The invariant is that every node's stored summary already reflects all updates that fully covered that node's segment,
+even if some of those updates have not been propagated to descendants yet.
 
-Because of that, a query that stops at a fully covered node may trust its stored summary immediately. A query that
-goes deeper pushes first, so the children inherit the missing work before they are read.
+When we descend, \texttt{push} preserves that invariant by transferring the pending effect to the children. When we
+return from recursion, \texttt{pull} restores the parent summary from the now-correct child summaries.
+
+So lazy propagation does not skip work forever. It only postpones work until the tree actually needs lower-level
+detail.
 
 \section*{Complexity Analysis}
 
 \begin{itemize}
-  \item Build: \(O(n)\)
-  \item Range add: \(O(\log n)\)
-  \item Range sum query: \(O(\log n)\)
-  \item Memory: \(O(n)\)
+  \item range update: \(O(\log n)\),
+  \item range query: \(O(\log n)\),
+  \item memory: \(O(n)\).
 \end{itemize}
+
+Each operation visits only \(O(\log n)\) nodes on the recursion frontier, and each visited node does only constant
+extra work for tag handling.
 
 \section*{Implementation}
 
-The code panel stores:
+The reference code implements the most common teaching version:
 
 \begin{itemize}
-  \item \texttt{sum[node]} for the segment total,
-  \item \texttt{lazy[node]} for the pending addition.
+  \item range add,
+  \item range sum,
+  \item recursive tree,
+  \item one lazy tag per node.
 \end{itemize}
 
-This is the version I would adapt first in contests because the update rule and the push rule are both transparent.
+That version is useful because the meaning of every field is easy to state. Once this shape is stable, it is much
+easier to adapt it to range assign, range min/max, or tree-path problems.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
-  \item Updating the lazy tag but forgetting to update the node summary at the same time.
-  \item Pushing too late, after already reading stale children.
-  \item Mixing different kinds of lazy tags without a clear composition rule.
-  \item Forgetting segment length when a tag affects sums.
+  \item Updating the node sum but forgetting to store the lazy tag.
+  \item Pushing too late, so a partial-overlap recursion reads stale child data.
+  \item Pulling from children that have not yet received the pushed tag.
+  \item Mixing segment length formulas, especially with inclusive endpoints.
+  \item Treating range assign and range add as if they compose the same way.
 \end{itemize}
+
+Most wrong answers come from violating the meaning of ``what is already reflected in this node''.
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item range assign + range sum,
+  \item range min/max with range add,
+  \item lazy segment tree over custom monoids,
+  \item tree-path queries after heavy-light decomposition,
+  \item segment tree beats when one lazy tag is no longer expressive enough.
+\end{itemize}
+
+AtCoder Library's \texttt{lazysegtree} is a good reference for the ``generic algebraic'' viewpoint, but in contest
+practice I still like understanding one concrete hand-written version first.
 
 \section*{Practice Problems}
 
 \begin{itemize}
-  \item Range add and range sum queries.
-  \item Range assign and range minimum queries.
-  \item Tree path updates after heavy-light decomposition.
+  \item Range add and range sum on one array.
+  \item Range assign and range minimum.
+  \item Heavy-light decomposition problems that need path updates instead of only path queries.
+  \item Problems where you must define the node summary and lazy tag yourself.
 \end{itemize}
 
 \section*{References}
 
 \begin{itemize}
-  \item \href{https://cp-algorithms.com/data_structures/segment_tree.html}{cp-algorithms: Segment Tree and lazy propagation}.
-  \item \href{https://atcoder.github.io/ac-library/master/document_en/lazysegtree.html}{AtCoder Library: lazysegtree}.
+  \item \href{https://cp-algorithms.com/data_structures/segment_tree.html#range-updates-lazy-propagation}{cp-algorithms: Lazy propagation}.
+  \item \href{https://atcoder.github.io/ac-library/production/document_en/lazysegtree.html}{AtCoder Library: lazysegtree}.
   \item \href{https://github.com/kth-competitive-programming/kactl}{KACTL}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
 \end{itemize}

@@ -1,99 +1,120 @@
 \section*{Overview}
 
-Mo's algorithm is an offline range-query technique for static arrays. Instead of answering queries in the given
-order, it reorders them so that the current interval moves only a small amount from one query to the next.
+Mo's algorithm is an offline range-query technique for static arrays. Instead of answering queries in the given order,
+it reorders them so that the active interval changes only a little between consecutive queries.
+
+The entire method is built around one idea: if I can maintain one interval with cheap \texttt{add} and
+\texttt{remove} operations, then smart offline ordering may be enough to answer all queries quickly.
 
 \section*{When to Use It}
 
 Use it when:
 
 \begin{itemize}
-  \item the array is static or almost static,
-  \item the answer can be maintained by cheap \texttt{add} and \texttt{remove} operations,
-  \item segment trees or Fenwick trees do not naturally express the query statistic,
-  \item offline reordering is allowed.
+  \item the array is static or nearly static,
+  \item the statistic is hard for Fenwick trees or segment trees but easy to update when extending/shrinking an
+  interval,
+  \item offline processing is allowed,
+  \item each \texttt{add}/\texttt{remove} is cheap.
 \end{itemize}
 
-It is especially attractive for statistics such as number of distinct values, frequency-based scores, and some xor or
-mode-like variants.
+Typical fits include distinct-value queries, frequency-score queries, and some xor or mode-like statistics.
 
 \section*{Core Idea}
 
-Split the array into blocks of size about \(\sqrt{n}\). Sort queries primarily by the block of the left endpoint and
+Split indices into blocks of size about \(\sqrt{n}\). Sort queries primarily by the block of the left endpoint and
 secondarily by the right endpoint.
 
-Then keep one active interval \([curL, curR]\). For each next query, slide the endpoints until the active interval
-matches the requested one, calling only:
+Then keep one active interval \([curL, curR]\). For each next query, move the endpoints until they match the desired
+interval, calling only:
 
 \begin{itemize}
-  \item \texttt{add(index)}
-  \item \texttt{remove(index)}
+  \item \texttt{add(index)},
+  \item \texttt{remove(index)}.
 \end{itemize}
 
-The sorted order is chosen so that the total movement over all queries stays manageable.
+The sorted order is chosen so that the total pointer movement stays manageable.
 
-\section*{Operations}
+\section*{Key Insight}
+
+Mo's algorithm does not invent a new clever query formula. It changes the \emph{order} of work so that one maintained
+data structure can be reused across many queries.
+
+That makes the add/remove invariant the real center of the method:
+\textbf{after each endpoint movement, the maintained statistic must equal the answer on the current active interval.}
+
+\section*{Operations / Main Technique}
+
+The standard recipe is:
 
 \begin{itemize}
-  \item choose a block size, usually near \(\sqrt{n}\),
-  \item sort queries by block order,
-  \item maintain one answer object for the active interval,
-  \item apply endpoint moves until the current interval equals the query interval.
+  \item choose a block size near \(\sqrt{n}\),
+  \item sort queries by Mo order,
+  \item maintain the current interval and one answer object,
+  \item process sorted queries by endpoint moves.
 \end{itemize}
 
-The note code uses the common alternating right-endpoint order inside each block, which reduces pointer movement in
-practice.
+\paragraph{Worked invariant.}
+For distinct-value queries, the maintained state is just a frequency table plus one counter \(\texttt{distinct}\). When
+adding a value, increment its frequency and raise \(\texttt{distinct}\) if the frequency became \(1\). When removing,
+lower \(\texttt{distinct}\) if the frequency became \(0\).
 
 \section*{Correctness Intuition}
 
-At every step, the maintained data structure reflects exactly the current active interval. The only thing Mo's
-algorithm changes is the order in which queries are processed, not the definition of the answer for any query.
+Mo's ordering changes only the sequence of queries, not the meaning of any query. At every step, the active interval is
+transformed into the next query interval through a sequence of valid add/remove operations.
 
-Because every interval transition is implemented by a sequence of valid \texttt{add} and \texttt{remove} operations,
-the maintained statistic after the transition is exactly the answer for the new query.
+If the maintained statistic is correct after every single add/remove, then it is correct after the whole transition,
+which means it is correct for the new query interval.
 
 \section*{Complexity Analysis}
 
-With block size about \(\sqrt{n}\), the standard bound is:
+With block size about \(\sqrt{n}\) and \(O(1)\) add/remove:
 
 \begin{itemize}
   \item sorting: \(O(q \log q)\),
-  \item interval movement plus updates: about \(O((n + q)\sqrt{n})\) when each add/remove is \(O(1)\),
-  \item memory: problem-dependent, often \(O(n)\) or \(O(\text{value range})\).
+  \item interval movement: about \(O((n + q)\sqrt{n})\),
+  \item memory: problem-dependent, usually \(O(n)\) or \(O(\text{value range})\).
 \end{itemize}
 
-The constants matter a lot. Mo's algorithm is powerful, but it is not the first tool I try when an online log-time
-structure already fits.
+The constants matter. Mo's algorithm is powerful, but it is not the first structure I try when an online log-time
+solution already fits naturally.
 
 \section*{Implementation}
 
-The reference code solves the classic distinct-value query problem on a static array. It assumes the values are
-already coordinate compressed, which keeps the frequency table compact.
+The reference code solves the classic distinct-values query problem. It assumes the values are already coordinate
+compressed, which keeps the frequency array compact.
 
-The key ingredients are:
-
-\begin{itemize}
-  \item a \texttt{Query} struct with \texttt{l}, \texttt{r}, and \texttt{idx},
-  \item one frequency table,
-  \item one integer tracking the current number of distinct values.
-\end{itemize}
+It also uses the alternating right-endpoint order inside each left block. That is a common practical optimization for
+reducing pointer movement.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
-  \item Forgetting that the technique is offline.
-  \item Using raw values so large that the frequency table becomes wasteful instead of compressing first.
-  \item Mixing inclusive and half-open interval conventions.
-  \item Choosing a perfectly fine theoretical block size but missing constant-factor optimizations in practice.
-  \item Forcing Mo's algorithm onto problems with updates, where the three-dimensional variant becomes much harder.
+  \item Forgetting that the method is offline.
+  \item Not coordinate-compressing large values before building the frequency table.
+  \item Mixing inclusive intervals with half-open intervals in the pointer moves.
+  \item Writing an add/remove pair that is not perfectly symmetric.
+  \item Choosing Mo's algorithm even though the problem really wanted a simpler online structure.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Mo with updates, where time becomes a third dimension,
+  \item tree Mo after an Euler-tour reduction,
+  \item Hilbert-order variants for better constants,
+  \item block-size tuning depending on the cost of add/remove.
+\end{itemize}
+
+The update and tree variants are powerful, but they are also much easier to get wrong than the plain array version.
 
 \section*{Practice Problems}
 
 \begin{itemize}
   \item Distinct values on subarrays.
-  \item Frequency-based score functions where \texttt{add} and \texttt{remove} are symmetric.
-  \item Offline range queries that resist prefix sums and segment trees.
+  \item Frequency-score queries where add/remove are local.
+  \item Offline range problems that resist prefix sums and standard trees.
 \end{itemize}
 
 \section*{References}

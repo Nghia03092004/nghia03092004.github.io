@@ -1,8 +1,10 @@
 \section*{Overview}
 
-Heavy-light decomposition is the tree technique I use when a problem keeps asking for path queries or path updates
-and the answer on one path can be merged from smaller contiguous pieces. The decomposition turns a tree path into a
-small number of interval queries on a base array.
+Heavy-light decomposition is the standard reduction from tree path queries to array interval queries. It breaks the
+tree into a small number of heavy chains, then uses a segment tree or Fenwick tree on the flattened order.
+
+When a problem keeps asking for values on paths between arbitrary vertices, HLD is often the first general technique
+that turns the tree into something interval-based and manageable.
 
 \section*{When to Use It}
 
@@ -10,94 +12,111 @@ Use it when:
 
 \begin{itemize}
   \item queries are on paths between arbitrary vertices,
-  \item each path answer can be combined associatively,
-  \item point updates or interval updates inside a chain are manageable with a segment tree or Fenwick tree,
-  \item simpler root-based tricks are not enough.
+  \item path answers can be merged associatively,
+  \item the tree is static,
+  \item you can maintain each chain with a range-query structure.
 \end{itemize}
 
-It is usually overkill for pure subtree queries, because Euler tour flattening alone often solves those.
+It is usually unnecessary for pure subtree queries, where an Euler-tour flattening alone often solves the problem.
 
 \section*{Core Idea}
 
-Pick one \textbf{heavy child} for each vertex: the child with the largest subtree. Follow heavy edges downward and
-you get vertex-disjoint chains.
+For each vertex, choose one child with maximum subtree size as its \textbf{heavy child}. Heavy edges link a vertex to
+its heavy child; the other edges are light.
 
 \includegraphics[width=\textwidth]{figures/chains.svg}
 
-The important fact is not the picture itself but what it implies: every time a root-to-node walk crosses a light
-edge, the remaining subtree size at least halves. So any root-to-node path crosses only \(O(\log n)\) light edges,
-which means a path between two arbitrary vertices also breaks into only \(O(\log n)\) chains.
+Following heavy edges downward forms vertex-disjoint chains. Every vertex belongs to exactly one chain, and each chain
+becomes a contiguous interval in the flattened array.
 
-Once each vertex receives a position in the flattened chain order, every chain segment becomes an ordinary interval.
+\section*{Key Insight}
 
-\section*{Operations}
+The crucial fact is not the chain picture itself. The crucial fact is:
+\textbf{every time a root-to-node path crosses a light edge, the remaining subtree size at least halves}.
 
-The standard workflow is:
+That means a root-to-node path crosses only \(O(\log n)\) light edges. Therefore a path between two arbitrary vertices
+breaks into only \(O(\log n)\) heavy-chain segments.
+
+That is the entire reason HLD is useful: one hard tree path becomes a logarithmic number of easy interval queries.
+
+\section*{Operations / Main Technique}
+
+The usual workflow is:
 
 \begin{itemize}
-  \item run one DFS to compute subtree sizes and identify the heavy child,
-  \item run a second DFS to assign chain heads and flattened positions,
-  \item store the flattened values in a segment tree,
+  \item first DFS: compute subtree sizes and choose the heavy child,
+  \item second DFS: assign each vertex a chain head and a position in the flattened array,
+  \item build a segment tree over the flattened vertex values,
   \item answer a path query by repeatedly climbing the deeper chain head.
 \end{itemize}
 
-If two vertices are on different chains, I query the deeper chain segment first, move to the parent of that chain
-head, and repeat until both vertices land on the same chain.
+\paragraph{Worked path query.}
+While \(\texttt{head[u]} \neq \texttt{head[v]}\), query the deeper chain segment, jump that endpoint to the parent of
+its chain head, and continue. Once both vertices are on the same chain, finish with one final interval query.
 
 \section*{Correctness Intuition}
 
-Every tree edge belongs to exactly one chain step: either it is heavy and stays inside a chain, or it is light and
-marks a jump between chains. Therefore the path between \(u\) and \(v\) can be partitioned into chain segments with
-no overlap and no gaps.
+Every tree edge is either heavy or light, so any path is partitioned into consecutive chain segments with no overlap
+and no gaps. Each of those chain segments is contiguous in the flattened array by construction.
 
-Because each chain segment is stored contiguously in the flattened array, the segment tree answers each piece
-correctly. Merging those piece answers in traversal order reconstructs the full path answer.
-
-The logarithmic bound comes from light edges. Each time you move through a light edge toward the root, the current
-subtree size at least doubles compared to where you came from, so there can be only \(O(\log n)\) such jumps.
+Therefore the path answer is exactly the merge of those segment-tree answers. The logarithmic number of segments comes
+from the ``light edge halves the subtree'' argument.
 
 \section*{Complexity Analysis}
 
 \begin{itemize}
-  \item preprocessing: \(O(n)\) for the two DFS passes,
+  \item preprocessing: \(O(n)\),
   \item point update: \(O(\log n)\),
-  \item path query: \(O(\log^2 n)\) with a segment tree,
-  \item subtree query: \(O(\log n)\) if the note's flattened order is reused.
+  \item path query with a segment tree: \(O(\log^2 n)\),
+  \item subtree query in the same flattening: \(O(\log n)\),
+  \item memory: \(O(n)\) plus the inner range structure.
 \end{itemize}
 
-With more specialized data structures, the extra logarithm can sometimes be reduced, but \(O(\log^2 n)\) is the
-contest default.
+The extra logarithm in path queries comes from doing \(O(\log n)\) chain jumps and paying \(O(\log n)\) per segment
+tree query.
 
 \section*{Implementation}
 
-The reference implementation uses vertex values and supports:
+The reference code stores values on vertices and supports:
 
 \begin{itemize}
-  \item build from an initial value per vertex,
+  \item build from initial vertex values,
   \item point assignment,
   \item path-sum query,
-  \item subtree-sum query on the same flattening.
+  \item subtree-sum query.
 \end{itemize}
 
-That version is enough for most introductory HLD problems. Edge-value problems usually store each edge's value on
-the deeper endpoint and adjust the final interval boundaries accordingly.
+That is the version I want to trust first. For edge-value problems, the common trick is to store each edge's value on
+its deeper endpoint and adjust the final same-chain interval accordingly.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
-  \item Forgetting whether the structure stores values on vertices or on edges.
-  \item Querying the final same-chain segment with the wrong inclusive range.
-  \item Comparing vertex depth instead of chain-head depth when deciding which side to climb.
-  \item Reusing the subtree interval trick without checking the flattening order still matches the decomposition DFS.
-  \item Writing the segment tree correctly but assigning \texttt{head} or \texttt{pos} in the wrong order.
+  \item Forgetting whether values live on vertices or on edges.
+  \item Comparing depths of vertices instead of depths of chain heads in the climb loop.
+  \item Getting the final same-chain interval off by one.
+  \item Reusing subtree intervals without checking that the flattening order is compatible.
+  \item Writing a correct segment tree but assigning \texttt{head} or \texttt{pos} in the wrong DFS order.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item edge-value HLD,
+  \item path updates via lazy segment trees,
+  \item path max, min, xor, or custom associative states,
+  \item mixing path queries with subtree queries in the same flattened order,
+  \item HLD plus LCA or binary lifting for related tree tasks.
+\end{itemize}
+
+Compared with link-cut trees, HLD wins on simplicity when the represented tree is static.
 
 \section*{Practice Problems}
 
 \begin{itemize}
   \item Path sum or path maximum queries with point updates.
-  \item Queries that mix path operations and subtree operations in the same tree.
-  \item Problems where HLD is the outer shell and the inner segment tree stores richer node states.
+  \item Tree problems that mix subtree sums and arbitrary path queries.
+  \item Static-tree tasks where dynamic-tree machinery would be unnecessary.
 \end{itemize}
 
 \section*{References}

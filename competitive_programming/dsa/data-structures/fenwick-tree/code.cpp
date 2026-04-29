@@ -4,10 +4,18 @@ struct Fenwick {
 
     Fenwick() : n(0) {}
     explicit Fenwick(int n) { init(n); }
+    explicit Fenwick(const vector<long long>& values) { build(values); }
 
     void init(int n_) {
         n = n_;
         bit.assign(n + 1, 0);
+    }
+
+    void build(const vector<long long>& values) {
+        init((int)values.size());
+        for (int i = 0; i < n; ++i) {
+            add(i + 1, values[i]);
+        }
     }
 
     void add(int idx, long long delta) {

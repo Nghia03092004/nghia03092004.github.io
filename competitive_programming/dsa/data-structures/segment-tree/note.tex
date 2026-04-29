@@ -1,87 +1,137 @@
 \section*{Overview}
 
-The segment tree is the contest default when the problem is really about intervals. It keeps the array in a binary
-decomposition of ranges, which makes it flexible enough for sums, minima, maxima, gcds, and many custom merges.
+The segment tree is the contest default for dynamic interval queries. Once a problem stops being ``just prefixes'' and
+starts asking about arbitrary subarrays with updates, the segment tree is usually the first serious tool worth trying.
+
+It is more general than a Fenwick tree, easier to customize than many advanced structures, and flexible enough to
+serve as the inner engine for techniques like heavy-light decomposition or offline divide-and-conquer optimizations.
 
 \section*{When to Use It}
 
 Use it when:
 
 \begin{itemize}
-  \item queries are on arbitrary intervals,
-  \item updates are not limited to prefixes,
-  \item the merge operation is associative,
-  \item a Fenwick tree is too specialized.
+  \item queries are on arbitrary intervals rather than only prefixes,
+  \item updates are not limited to one simple prefix transformation,
+  \item the answer can be merged associatively from child intervals,
+  \item the array is dynamic enough that prefix sums or sparse tables are no longer sufficient.
 \end{itemize}
 
-It is often the right first structure for path-query frameworks such as heavy-light decomposition too.
+Common examples are range sum, range min, range max, range gcd, and custom node states for DP-like transitions.
 
 \section*{Core Idea}
 
-Every node represents a segment. Its value is the merge of the two child segments. The root stores the whole array,
-its children store the left and right halves, and so on until leaves represent single positions.
+The array is recursively decomposed into halves. Each tree node stores the aggregate of one segment, and each internal
+node is just the merge of its two children.
 
-The reason this is useful is that any query interval can be decomposed into only \(O(\log n)\) disjoint tree nodes.
-So instead of scanning the whole interval, we merge a logarithmic number of precomputed summaries.
+\includegraphics[width=\textwidth]{figures/decomposition.svg}
 
-\section*{Operations}
+That picture matters because any query interval can be decomposed into only \(O(\log n)\) disjoint tree segments. So
+instead of scanning every array element in \([l, r]\), we merge a small number of precomputed summaries.
+
+\paragraph{Worked example.}
+If the array has eight elements and I query \([2, 7]\), the tree does not inspect six leaves one by one. It splits the
+query into a small set of covered nodes, merges their summaries, and ignores the rest of the tree completely.
+
+\section*{Key Insight}
+
+The real power of a segment tree is not the tree shape itself. The power is that:
 
 \begin{itemize}
-  \item \textbf{build}: initialize the leaves, then pull parent values upward.
-  \item \textbf{point update}: change one leaf, then recompute the ancestors.
-  \item \textbf{range query}: walk upward from the left and right borders, collecting the covered segments.
+  \item each node summarizes a contiguous interval,
+  \item every interval can be broken into a logarithmic number of node intervals,
+  \item the merge operation is local and reusable.
 \end{itemize}
 
-The reference implementation uses the iterative layout because it is short, cache-friendly, and hard to break.
+Once that viewpoint is clear, many ``advanced'' segment tree problems are just different choices of node state and
+merge logic.
+
+\section*{Operations / Main Technique}
+
+The standard operations are:
+
+\begin{itemize}
+  \item \textbf{build}: initialize leaves, then pull values upward,
+  \item \textbf{point update}: change one leaf and recompute ancestors,
+  \item \textbf{range query}: collect the minimal set of disjoint nodes covering the interval.
+\end{itemize}
+
+\paragraph{Iterative vs recursive.}
+Both versions are useful:
+
+\begin{itemize}
+  \item the \textbf{iterative} version is short, cache-friendly, and great for plain point-update/range-query tasks,
+  \item the \textbf{recursive} version is often easier when lazy propagation or custom node states become complicated.
+\end{itemize}
+
+The reference code uses the iterative version because it is the cleanest baseline.
 
 \section*{Correctness Intuition}
 
-Two facts do all the work:
+Two invariants carry the whole structure:
 
 \begin{itemize}
-  \item every internal node is defined as the merge of its two children,
+  \item every internal node stores the merge of its two children,
   \item every query interval can be partitioned into disjoint node intervals from the tree.
 \end{itemize}
 
-Once those are true, the answer over any queried interval is just the merge over that partition.
+Because the merge is associative, it does not matter how the interval was split during the recursion or iterative
+walk. The final merged answer is exactly the answer on the original interval.
 
 \section*{Complexity Analysis}
 
 \begin{itemize}
-  \item Build: \(O(n)\)
-  \item Point update: \(O(\log n)\)
-  \item Range query: \(O(\log n)\)
-  \item Memory: \(O(n)\) in the iterative layout, usually stored as \(2n\)
+  \item build: \(O(n)\),
+  \item point update: \(O(\log n)\),
+  \item range query: \(O(\log n)\),
+  \item memory: \(O(n)\), usually stored as about \(2n\) in the iterative layout.
 \end{itemize}
+
+The log factor comes from climbing up or touching at most one node per level on each side of the query.
 
 \section*{Implementation}
 
-The code panel shows an iterative sum segment tree with:
+The reference code keeps an iterative sum tree with:
 
 \begin{itemize}
   \item build from an array,
   \item point assignment,
-  \item point increment,
-  \item range sum query on \([l,r]\).
+  \item point add,
+  \item range sum query on an inclusive interval.
 \end{itemize}
 
-If the problem needs a different merge, the structure stays the same and only the node type plus merge function change.
+That is enough to illustrate the common layout. In practice, many contest trees differ only in two places:
+the node type and the merge rule.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
-  \item Mixing inclusive and half-open interval conventions.
-  \item Forgetting that the iterative layout naturally wants 0-indexed positions but stores leaves starting at \texttt{n}.
-  \item Using a non-associative merge.
-  \item Reaching for a segment tree when the problem is static and a sparse table would be simpler.
+  \item Mixing inclusive ranges with half-open ranges.
+  \item Using a merge that is not associative.
+  \item Forgetting that the iterative layout stores leaves starting at \(\texttt{n}\).
+  \item Reaching for a segment tree when the array is static and a sparse table would be simpler.
+  \item Writing a custom node merge without proving what each field actually means.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item lazy propagation for range updates,
+  \item segment tree beats for harder range chmin/chmax style problems,
+  \item persistent segment trees,
+  \item implicit segment trees for huge coordinates,
+  \item segment trees whose nodes store richer states such as max subarray, matrices, or DP transitions.
+\end{itemize}
+
+Most segment-tree-heavy problems are really in this section, not in the plain base tree.
 
 \section*{Practice Problems}
 
 \begin{itemize}
-  \item Dynamic range sum / min queries on an array.
-  \item Path queries after heavy-light decomposition.
-  \item Segment-tree-based DP transitions where each node stores a custom state.
+  \item Dynamic range sum or range minimum queries.
+  \item Maximum subarray queries with point updates.
+  \item Heavy-light decomposition path queries with a segment tree as the path engine.
+  \item Problems where each segment tree node stores a small custom struct instead of one number.
 \end{itemize}
 
 \section*{References}
@@ -89,5 +139,6 @@ If the problem needs a different merge, the structure stays the same and only th
 \begin{itemize}
   \item \href{https://cp-algorithms.com/data_structures/segment_tree.html}{cp-algorithms: Segment Tree}.
   \item \href{https://github.com/kth-competitive-programming/kactl}{KACTL}.
+  \item \href{https://atcoder.github.io/ac-library/production/document_en/segtree.html}{AtCoder Library: segtree}.
   \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
 \end{itemize}

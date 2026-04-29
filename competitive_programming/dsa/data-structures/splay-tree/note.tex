@@ -1,107 +1,152 @@
 \section*{Overview}
 
-A splay tree is a binary search tree that does not try to stay balanced after every operation. Instead, whenever a
-node is accessed, it is rotated to the root. The tree shape keeps changing, but the amortized guarantees remain
-logarithmic.
+A splay tree is a binary search tree that refuses to keep a fixed balance condition. Instead, whenever a node is
+accessed, the tree rotates that node to the root. The shape keeps changing, but the total cost over a sequence of
+operations stays logarithmic on average.
 
-That tradeoff makes splay trees unusually versatile in competitive programming. Once the rotation logic is stable,
-the same machinery can support ordered sets, implicit sequences, split / merge operations, and the preferred-path
-representation inside link-cut trees.
+That tradeoff makes splay trees unusually important in competitive programming. They can act like an ordered set, an
+implicit sequence, a cut-and-paste editor, or the preferred-path engine inside a link-cut tree. The code is more
+fragile than a treap, but the payoff is that one splay core unlocks several advanced structures.
 
 \section*{When to Use It}
 
-I think about a splay tree when I need BST flexibility and at least one of these is true:
+I think about a splay tree when:
 
 \begin{itemize}
-  \item I want split / merge as first-class operations,
-  \item I care about access locality and am willing to reason amortized,
-  \item the same splay core will be reused for a bigger structure such as a link-cut tree,
-  \item I need sequence-style operations that feel awkward with a fixed balanced BST template.
+  \item I want split and merge plus ordered-set operations,
+  \item I need sequence operations such as reverse, cut, paste, or range aggregate,
+  \item I want a fully pointer-based BST without randomization,
+  \item the same balancing machinery will later be reused for link-cut trees.
 \end{itemize}
+
+If I only want a fast randomized ordered set, treap is usually simpler. Splay becomes attractive when access-based
+restructuring or sequence-style operations matter.
 
 \section*{Core Idea}
 
-Every access ends by \emph{splaying} the accessed node to the root. The local cases are the familiar ones:
+Every access ends by \emph{splaying} the touched node to the root. That means repeatedly rotating it upward until it
+reaches the top.
 
 \includegraphics[width=\textwidth]{figures/rotations.svg}
 
-The three patterns are enough:
+The local cases are:
 
 \begin{itemize}
-  \item \textbf{zig}: \(x\) has a parent but no grandparent,
-  \item \textbf{zig-zig}: \(x\) and its parent are on the same side,
-  \item \textbf{zig-zag}: \(x\) and its parent are on opposite sides.
+  \item \textbf{zig}: the node has a parent but no grandparent,
+  \item \textbf{zig-zig}: the node and parent are on the same side,
+  \item \textbf{zig-zag}: the node and parent are on opposite sides.
 \end{itemize}
 
-The tree is not maintained by a global balance condition. Instead, the access itself reshapes the searched path.
+The inorder order never changes, so BST correctness survives every rotation.
 
-\section*{Operations}
+\section*{Key Insight}
 
-For ordered-set style problems, the core operations are:
+The point of splaying is not just ``move this node to the root''. The point is that deep accesses are exactly the
+expensive ones, so a costly access spends its work reshaping the tree to make related future accesses cheaper.
+
+That is the readable version of the amortized idea. The formal proof uses the access lemma and a potential function,
+but the operational takeaway is simpler:
 
 \begin{itemize}
-  \item \textbf{rotate(x)}: local structural change around \(x\) and its parent,
-  \item \textbf{splay(x)}: repeat rotations until \(x\) becomes root,
-  \item \textbf{find(key)}: BST walk, then splay the last touched node,
-  \item \textbf{insert(key)}: BST insert, then splay the new node,
-  \item \textbf{erase(key)}: splay the node, remove it, then join the two remaining trees,
-  \item \textbf{kth(k)}: walk by subtree sizes and splay the result.
+  \item recently touched nodes move upward,
+  \item long searched paths get reorganized aggressively,
+  \item repeated accesses to nearby keys often become much cheaper.
 \end{itemize}
 
-The note code keeps the ordered-set version because it shows the invariants clearly. Sequence versions usually add
-lazy tags, subtree sizes, and split / merge by position.
+\section*{Operations / Main Technique}
+
+For an ordered-set splay tree, the usual primitives are:
+
+\begin{itemize}
+  \item \textbf{rotate(x)},
+  \item \textbf{splay(x)},
+  \item \textbf{find(key)},
+  \item \textbf{insert(key)},
+  \item \textbf{erase(key)},
+  \item \textbf{split(root, key)} and \textbf{merge(left, right)},
+  \item \textbf{kth(k)} if subtree sizes are stored.
+\end{itemize}
+
+\paragraph{Sequence operations.}
+Once subtree sizes and lazy tags are added, the same structure can support:
+
+\begin{itemize}
+  \item split by position instead of by key,
+  \item reverse a segment,
+  \item cut one segment and paste it elsewhere,
+  \item maintain range sums or other aggregates.
+\end{itemize}
+
+That is a big reason splay trees remain relevant in advanced CP. They are not only search trees; they are flexible
+sequence containers.
 
 \section*{Correctness Intuition}
 
-The BST property is preserved because every rotation only changes the relative parent-child relation of a small
-constant-size neighborhood while keeping the inorder order unchanged.
+Every rotation preserves inorder order, so the BST property stays intact. Subtree sizes and aggregates remain correct
+as long as each rotation updates the affected nodes in the right order.
 
-The interesting part is not correctness of one operation but why repeated splaying stays cheap on average. The rough
-intuition is that splaying moves a recently useful node upward and also shortens much of the searched path around it.
-Some future accesses become cheaper, and that saved work helps pay for the current restructuring.
+The deeper statement is the amortized bound. One splay can certainly cost \(O(n)\), but those bad cases happen exactly
+when a deep path is being shortened dramatically. The access lemma formalizes that the total restructuring cost can be
+charged against a potential that drops over time.
+
+I do not try to remember the full proof in a contest. I remember the engineering rule: \textbf{a single operation can
+be ugly, but a long sequence is cheap enough}.
 
 \section*{Complexity Analysis}
 
-One operation can still take \(O(n)\) in the worst case. The point of splay trees is the amortized bound:
-
 \begin{itemize}
-  \item search / insert / erase / split / merge: \(O(\log n)\) amortized,
+  \item search, insert, erase, split, merge: \(O(\log n)\) amortized,
+  \item one individual operation: up to \(O(n)\) worst case,
   \item memory: \(O(n)\).
 \end{itemize}
 
-This is the part where the Sleator--Tarjan access lemma matters. In contest use, I mostly remember the operational
-consequence: a sequence of operations is cheap even though a single one can be ugly.
+That ``amortized, not worst-case'' distinction matters. It is the main conceptual difference from treaps or AVL-like
+trees.
 
 \section*{Implementation}
 
-The reference implementation keeps:
+The reference code keeps the ordered-set version with:
 
 \begin{itemize}
   \item parent pointers,
   \item two children per node,
   \item subtree size,
-  \item ordered-set operations on unique keys.
+  \item splay, insert, erase, split, merge, and kth.
 \end{itemize}
 
-That is enough to exercise the full splay loop, erase-by-join, and k-th queries without burying the main idea under
-sequence-specific lazy tags.
+That base is intentionally smaller than a full implicit splay. I would rather trust a compact ordered-set core first,
+then add lazy tags and positional splits once the rotations are already reliable.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
-  \item Forgetting to update a parent pointer during rotation.
+  \item Forgetting one parent-pointer update during rotation.
   \item Pulling subtree sizes in the wrong order after structural changes.
   \item Splaying the wrong node after a failed search.
   \item Expecting worst-case \(O(\log n)\) instead of amortized \(O(\log n)\).
-  \item Writing the base splay incorrectly, then trying to build link-cut trees on top of it.
+  \item Building link-cut trees on top of a splay implementation that is only ``mostly correct''.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item implicit splay for sequence manipulation,
+  \item lazy propagation for reverse, add, assign, and affine updates,
+  \item augmented ordered sets with subtree sums or counts,
+  \item link-cut trees, where each auxiliary tree is a splay tree.
+\end{itemize}
+
+\paragraph{Compared with treap.}
+Treaps are randomized and usually simpler to write. Splay trees are deterministic, amortized, and more delicate, but
+they are better suited when access restructuring itself is useful or when the same machinery must support link-cut
+trees.
 
 \section*{Practice Problems}
 
 \begin{itemize}
-  \item Ordered set with insert / erase / predecessor / successor / k-th.
+  \item Ordered set with insert, erase, predecessor, successor, and k-th queries.
   \item Sequence cut-and-paste problems after upgrading to an implicit splay.
-  \item Dynamic tree problems, once the splay core feels completely reliable.
+  \item Dynamic tree problems once the splay core feels completely trustworthy.
 \end{itemize}
 
 \section*{References}
@@ -110,4 +155,5 @@ sequence-specific lazy tags.
   \item \href{https://zhtluo.com/cp/splay-tree-one-tree-to-rule-them-all.html}{Zhtluo: Splay Tree - One Tree to Rule Them All}.
   \item \href{https://www.cs.princeton.edu/courses/archive/fall02/cs521/ST85.pdf}{Sleator and Tarjan: Self-Adjusting Binary Search Trees}.
   \item \href{https://ocw.mit.edu/courses/6-854j-advanced-algorithms-fall-2005/cfaa2099f5edb14d32d93998efd87fc1_n3_splay.pdf}{MIT 6.854 notes on splay trees}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
 \end{itemize}

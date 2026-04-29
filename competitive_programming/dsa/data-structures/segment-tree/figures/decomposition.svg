@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 340" role="img" aria-labelledby="title desc">
+  <title id="title">Segment tree interval decomposition</title>
+  <desc id="desc">A binary interval tree with a highlighted query interval decomposed into a small number of tree nodes.</desc>
+  <rect width="840" height="340" rx="28" fill="#fff8ef"/>
+  <g font-family="IBM Plex Mono, monospace" fill="#3f352c">
+    <text x="34" y="40" font-size="18">A query like [2,7] is answered by merging a few disjoint segment nodes instead of scanning every position.</text>
+  </g>
+  <g stroke-linecap="round" fill="none" stroke="#8a7c6c" stroke-width="3">
+    <path d="M420 78 L240 138"/>
+    <path d="M420 78 L600 138"/>
+    <path d="M240 138 L150 206"/>
+    <path d="M240 138 L330 206"/>
+    <path d="M600 138 L510 206"/>
+    <path d="M600 138 L690 206"/>
+  </g>
+  <g font-family="IBM Plex Mono, monospace" font-size="15" text-anchor="middle">
+    <g stroke="#3f352c" stroke-width="2">
+      <rect x="360" y="54" width="120" height="38" rx="14" fill="#fffdf7"/>
+      <rect x="180" y="118" width="120" height="38" rx="14" fill="#fffdf7"/>
+      <rect x="540" y="118" width="120" height="38" rx="14" fill="#fffdf7"/>
+      <rect x="90" y="186" width="120" height="38" rx="14" fill="rgba(194,95,53,0.2)"/>
+      <rect x="270" y="186" width="120" height="38" rx="14" fill="rgba(13,92,110,0.2)"/>
+      <rect x="450" y="186" width="120" height="38" rx="14" fill="rgba(13,92,110,0.2)"/>
+      <rect x="630" y="186" width="120" height="38" rx="14" fill="rgba(194,95,53,0.2)"/>
+    </g>
+    <g fill="#161412">
+      <text x="420" y="78">[1,8]</text>
+      <text x="240" y="142">[1,4]</text>
+      <text x="600" y="142">[5,8]</text>
+      <text x="150" y="210">[1,2]</text>
+      <text x="330" y="210">[3,4]</text>
+      <text x="510" y="210">[5,6]</text>
+      <text x="690" y="210">[7,8]</text>
+    </g>
+  </g>
+  <g font-family="IBM Plex Mono, monospace" font-size="16" fill="#3f352c">
+    <text x="80" y="286">Query [2,7] can be decomposed into:</text>
+    <text x="80" y="314">[2,2] + [3,4] + [5,6] + [7,7], or in an iterative tree, the equivalent small set of covered nodes.</text>
+  </g>
+</svg>

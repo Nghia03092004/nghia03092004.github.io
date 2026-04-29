@@ -1,60 +1,83 @@
 \section*{Overview}
 
-The convex hull trick is the optimization I look for when a DP transition has the form
+The convex hull trick is the DP optimization pattern for transitions that can be rewritten as evaluating a family of
+lines at query points:
 \[
 dp[i] = \min_j (m_j x_i + b_j)
 \]
-or the same expression with \(\max\) instead of \(\min\). Each previous state contributes a line, and answering the
-transition means finding the best line at one query point \(x_i\).
+or the same with \(\max\).
+
+The big reduction is that each old state becomes a line, and each new state becomes a query. Once that translation is
+visible, many quadratic DP transitions collapse to logarithmic or even amortized constant time per state.
 
 \section*{When to Use It}
 
 Use it when:
 
 \begin{itemize}
-  \item the transition can be rewritten as evaluating lines \(y = mx + b\),
+  \item the transition can be rearranged into \(m x + b\),
   \item many candidate lines accumulate over time,
-  \item the problem gives monotone slopes, monotone queries, or some other structure that makes line maintenance cheap,
-  \item the naive \(O(n^2)\) DP is too slow.
+  \item query points or slopes are monotone, or you have another data structure for dynamic lines,
+  \item the naive DP is too slow.
 \end{itemize}
 
-If the slope order or query order is arbitrary, a Li Chao tree or a more general line container is often the safer
-implementation.
+If the problem does not reduce cleanly to lines and point queries, trying to force CHT usually creates more confusion
+than speed.
 
 \section*{Core Idea}
 
-Treat each transition source as a line and each target state as a query point.
+Each transition source contributes one line \(y = m x + b\). For a target state with query value \(x\), the answer is
+the lowest line value at that \(x\).
 
 \includegraphics[width=\textwidth]{figures/lower-hull.svg}
 
-For the monotone deque version, I maintain the lower hull of useful lines. When a new line arrives, any older line
-that can never again be the minimum gets removed from the back. When queries come in monotone \(x\)-order, I can
-also pop from the front while the next line is better at the current \(x\).
+So the optimization problem becomes a geometry/data-structure problem: maintain the lower envelope of useful lines and
+query it quickly.
 
-That turns a quadratic DP into linear hull maintenance plus one pass of queries.
+\section*{Key Insight}
 
-\section*{Operations}
+There are really two families of CHT:
 
 \begin{itemize}
-  \item \textbf{add line}: insert a new line with slope order already guaranteed,
-  \item \textbf{remove dominated line}: compare intersections implicitly and pop the middle line if it became useless,
-  \item \textbf{query}: while the second line beats the first at the current \(x\), discard the front line.
+  \item \textbf{monotone hulls}: slopes are inserted in sorted order and queries come in sorted \(x\)-order,
+  \item \textbf{dynamic hulls}: insertion/query order is arbitrary, so a stronger structure such as Li Chao tree is
+  needed.
 \end{itemize}
 
-The note code implements the common special case: minimum queries, increasing slopes, increasing query \(x\).
+The deque-based hull in this note belongs to the first family. It is extremely fast, but only because the monotonicity
+assumptions let every popped line disappear forever.
+
+\section*{Operations / Main Technique}
+
+For the monotone minimum version:
+
+\begin{itemize}
+  \item \textbf{add line}: insert lines in monotone slope order,
+  \item \textbf{remove bad line}: if the middle of three lines is never optimal, pop it from the back,
+  \item \textbf{query}: while the second line beats the first at the current \(x\), pop from the front.
+\end{itemize}
+
+\paragraph{Worked DP pattern.}
+If
+\[
+dp[i] = a_i^2 + \min_{j < i}(dp[j] + b_j^2 - 2 a_i b_j),
+\]
+then each \(j\) contributes slope \(m_j = -2b_j\) and intercept \(c_j = dp[j] + b_j^2\), queried at \(x = a_i\).
 
 \section*{Correctness Intuition}
 
-On a lower hull, every line that survives owns some interval of \(x\)-values where it is optimal. Those intervals
+Every line that survives on the lower hull owns an interval of \(x\)-values where it is optimal. Those intervals
 appear in the same order as the lines on the hull.
 
-When a new line makes the previous intersection order non-monotone, the middle line loses its interval completely and
-can be deleted forever. Likewise, once the second line beats the first at the current query \(x\), the first line can
-never return as the minimum for any later query because the queries only move rightward.
+If inserting a new line makes the intersection order stop being monotone, the middle line loses its whole ownership
+interval and can never be optimal again. Likewise, if the second line is already better than the first at the current
+query \(x\), the first line will never return for any later monotone query.
 
-So both kinds of popping are permanent, which is why the total work stays linear.
+That is why both kinds of popping are permanent.
 
 \section*{Complexity Analysis}
+
+For the monotone deque version:
 
 \begin{itemize}
   \item add line: amortized \(O(1)\),
@@ -63,37 +86,48 @@ So both kinds of popping are permanent, which is why the total work stays linear
   \item memory: \(O(n)\).
 \end{itemize}
 
-These bounds belong only to the monotone version. General variants are usually \(O(\log n)\) per operation.
+General online variants usually cost \(O(\log n)\) per operation instead.
 
 \section*{Implementation}
 
-The reference code stores a deque of lines and uses cross multiplication with \texttt{\_\_int128} to avoid precision
-bugs in the dominance test. That is deliberate: floating-point intersection code often works until one ugly test case
-arrives.
+The reference code stores a deque of lines and uses cross multiplication with \texttt{\_\_int128} rather than floating
+intersections. That choice is deliberate: integer geometry is much easier to trust under contest constraints.
 
-The interface is small:
+The exposed interface is minimal:
 
 \begin{itemize}
-  \item \texttt{add\_line(m, b)}
-  \item \texttt{query(x)}
+  \item \texttt{add\_line(m, b)},
+  \item \texttt{query(x)}.
 \end{itemize}
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
   \item Using the monotone deque version when slopes or query points are not monotone.
-  \item Mixing up minimum hulls and maximum hulls without flipping the inequalities consistently.
-  \item Comparing line intersections with floating point when integer cross multiplication is available.
-  \item Forgetting that equal slopes need special handling if both lines are inserted.
-  \item Writing the hull correctly but failing to derive \(m\) and \(b\) from the DP transition cleanly.
+  \item Mixing up minimum-hull and maximum-hull inequalities.
+  \item Comparing line intersections with floating point when exact integer comparison is possible.
+  \item Ignoring equal-slope edge cases.
+  \item Deriving the data structure correctly but deriving the DP transformation incorrectly.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item Li Chao tree for arbitrary insertion/query order,
+  \item offline hulls after sorting queries,
+  \item maximum instead of minimum,
+  \item hulls inside divide-and-conquer or alien-trick style optimizations.
+\end{itemize}
+
+Li Chao tree is the extension I keep in mind when the geometry is still linear but the monotonicity assumptions are
+gone.
 
 \section*{Practice Problems}
 
 \begin{itemize}
-  \item DP recurrences of the form \(dp[i] = \min_j (dp[j] + a_j \cdot x_i + c_j)\).
-  \item Problems where the array order already guarantees monotone query points.
-  \item Tasks that are almost Li Chao tree problems but become linear after sorting or natural monotonicity.
+  \item DP recurrences with one quadratic term that expands into lines.
+  \item Problems where sorted coordinates give monotone query points for free.
+  \item Tasks that can be solved either by monotone CHT or by Li Chao tree.
 \end{itemize}
 
 \section*{References}

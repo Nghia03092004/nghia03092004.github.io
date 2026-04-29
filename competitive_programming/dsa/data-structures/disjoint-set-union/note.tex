@@ -1,85 +1,136 @@
 \section*{Overview}
 
-Disjoint set union is the standard answer when the graph only becomes more connected over time. It tracks connected
-components, supports merges, and lets a representative carry small component metadata such as size.
+Disjoint Set Union is the data structure for connectivity under merges. It keeps track of which elements belong to the
+same component while supporting fast ``find the leader'' and ``merge the two components'' operations.
+
+In competitive programming, DSU shows up everywhere: Kruskal, offline connectivity, component counting on grids,
+small-to-large style reasoning, and rollback-based dynamic connectivity.
 
 \section*{When to Use It}
 
-Use DSU when:
+Use it when:
 
 \begin{itemize}
-  \item edges are only added, not deleted,
-  \item you need to know whether two vertices are already connected,
-  \item component-level information can be merged locally.
+  \item components only merge and never split,
+  \item queries ask whether two elements are in the same component,
+  \item you want to maintain a simple statistic per component such as size,
+  \item the graph evolves by adding edges rather than deleting them.
 \end{itemize}
 
-The most common contest appearances are Kruskal, offline connectivity, grouping equal states, and greedy merging.
+If the problem needs deletions or cut operations, plain DSU is usually the wrong tool and rollback DSU or a dynamic
+tree structure becomes more relevant.
 
 \section*{Core Idea}
 
-Each set is represented by a rooted tree. The root is the leader. Two heuristics keep the trees shallow:
+Represent each component as a rooted tree. Every node points to a parent, and the root of each tree is the component
+leader.
+
+The two operations are:
 
 \begin{itemize}
-  \item \textbf{union by size/rank}: attach the smaller tree under the larger one,
-  \item \textbf{path compression}: while finding the leader, rewrite the path to point closer to the root.
+  \item \textbf{find(x)}: climb to the root and return the leader,
+  \item \textbf{unite(a, b)}: connect the roots if they are different.
 \end{itemize}
 
-Together they make the amortized complexity essentially constant for contest purposes.
+The tree itself is not the graph component. It is only an internal representation of the partition.
 
-\section*{Operations}
+\section*{Key Insight}
+
+The reason DSU is fast is the combination of two heuristics:
 
 \begin{itemize}
-  \item \textbf{find(x)} returns the representative of \(x\)'s set.
-  \item \textbf{unite(a, b)} merges the two sets if they are different.
-  \item \textbf{same(a, b)} checks connectivity.
-  \item \textbf{size(x)} returns the current component size via the representative.
+  \item \textbf{path compression}: after finding the root, rewrite the visited path so future finds are shorter,
+  \item \textbf{union by size or rank}: attach the smaller tree under the larger one.
 \end{itemize}
+
+Path compression makes repeated finds on the same region cheaper. Union by size keeps the internal trees from growing
+deep in the first place. Together they make the amortized cost essentially constant for contest purposes.
+
+\section*{Operations / Main Technique}
+
+The standard interface is:
+
+\begin{itemize}
+  \item \textbf{find(x)},
+  \item \textbf{unite(a, b)},
+  \item \textbf{same(a, b)},
+  \item \textbf{size(x)}.
+\end{itemize}
+
+\paragraph{Component invariant.}
+Only the root stores component-wide information such as size. That is a useful mental rule: if a value should mean
+``for the whole set'', keep it on the leader.
+
+\paragraph{Worked example.}
+If \(\{1, 2, 3\}\) and \(\{4, 5\}\) are separate components, uniting \(2\) and \(5\) does not attach those exact
+vertices conceptually. It finds their leaders first, then merges the two whole components through those leaders.
 
 \section*{Correctness Intuition}
 
-The structure is correct because the parent pointers always define a forest whose roots are exactly the set leaders.
-Union only changes one root to point to another root, so it merges two components into one without mixing unrelated
-vertices. Path compression changes the forest shape but not the represented partition.
+At all times, every element belongs to exactly one leader tree. Two elements are in the same component exactly when
+their leaders are equal.
+
+Path compression does not change the partition, because it only shortcuts parent pointers inside one component toward
+the same root. Union by size also preserves correctness, because it merges two different roots into one new component
+without losing any membership relation.
 
 \section*{Complexity Analysis}
 
+With path compression and union by size/rank:
+
 \begin{itemize}
-  \item \textbf{find} and \textbf{unite}: \(O(\alpha(n))\) amortized
-  \item Memory: \(O(n)\)
+  \item \texttt{find}, \texttt{unite}, \texttt{same}, \texttt{size}: \(O(\alpha(n))\) amortized,
+  \item memory: \(O(n)\).
 \end{itemize}
 
-\(\alpha(n)\) is the inverse Ackermann function. In practice, it is smaller than any logarithm you care about.
+The inverse Ackermann function \(\alpha(n)\) grows so slowly that for contest input sizes it behaves like a tiny
+constant.
 
 \section*{Implementation}
 
-The code panel keeps the standard contest shape:
+The reference code stores one array \texttt{parent} where roots keep negative component sizes and non-roots keep their
+parent index. That layout is compact and keeps all the basic operations together.
 
-\begin{itemize}
-  \item negative parent array values store component sizes at roots,
-  \item non-roots store the parent index,
-  \item \texttt{find} is recursive with path compression.
-\end{itemize}
+It also tracks the number of connected components explicitly, which is often convenient in graph problems where the
+final answer depends on how many merges succeeded.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
-  \item Forgetting that ordinary DSU does \emph{not} support deletions.
-  \item Storing component metadata on non-root nodes.
-  \item Accidentally using stale leaders after a merge.
-  \item Confusing union by rank and union by size when updating the stored field.
+  \item Forgetting to find the leaders before merging.
+  \item Mixing ``rank'' and ``size'' logic halfway through one implementation.
+  \item Updating component data on a non-root instead of the root.
+  \item Assuming DSU can handle deletions just because connectivity is involved.
+  \item Adding path compression to a rollback DSU, where that optimization becomes inconvenient or incorrect.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item DSU rollback for offline dynamic connectivity,
+  \item DSU with parity or xor distance information,
+  \item DSU that stores custom data per component,
+  \item offline painting / next-unprocessed-cell DSU tricks,
+  \item union-by-size ``small to large'' ideas on explicit containers.
+\end{itemize}
+
+Rollback DSU is the extension I see most often in harder contest problems, especially when edges are added and removed
+over time but the whole query sequence is known offline.
 
 \section*{Practice Problems}
 
 \begin{itemize}
-  \item Dynamic road construction with component counts and largest component size.
   \item Kruskal minimum spanning tree.
-  \item Offline reverse-process connectivity queries.
+  \item Grid component counting after activating cells.
+  \item Offline connectivity where edges are processed in reverse time.
+  \item Problems that require storing one extra statistic such as component sum or bipartite validity.
 \end{itemize}
 
 \section*{References}
 
 \begin{itemize}
   \item \href{https://cp-algorithms.com/data_structures/disjoint_set_union.html}{cp-algorithms: Disjoint Set Union}.
+  \item \href{https://atcoder.github.io/ac-library/production/document_en/dsu.html}{AtCoder Library: dsu}.
   \item \href{https://usaco.guide/CPH.pdf}{Competitive Programmer's Handbook}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
 \end{itemize}

@@ -1,83 +1,97 @@
 \section*{Overview}
 
-Dijkstra's algorithm is the shortest-path routine I reach for when the graph has non-negative edge weights and I
-need distances from one source to many targets. The algorithm is greedy, but it is greedy in a very specific way:
-it always expands the vertex whose current tentative distance is smallest.
+Dijkstra's algorithm is the shortest-path routine for graphs with nonnegative edge weights. It grows the known region
+outward from a source, always finalizing the not-yet-finalized vertex with the smallest tentative distance.
+
+This is one of the most reused graph patterns in contests. Once the priority-queue invariant is clear, the code is
+short and reliable.
 
 \section*{When to Use It}
 
 Use it when:
 
 \begin{itemize}
-  \item edge weights are non-negative,
-  \item the graph is sparse enough that an adjacency list plus heap is natural,
-  \item you need one-source distances, parents, or a shortest-path tree,
-  \item simpler special cases such as BFS or 0-1 BFS do not apply.
+  \item all edge weights are nonnegative,
+  \item you need distances from one source to many vertices,
+  \item the graph is sparse enough for an adjacency list and heap to be natural,
+  \item BFS is too weak because weights are not all equal.
 \end{itemize}
 
-If even one edge can be negative, this greedy invariant breaks and I switch to a different tool.
+If the edges are only \(0\) and \(1\), 0-1 BFS is often better. If negative edges exist, the key greedy invariant
+breaks and Bellman-Ford or something stronger is needed.
 
 \section*{Core Idea}
 
-Maintain a distance array \(\texttt{dist}\), where \(\texttt{dist}[v]\) is the best distance found so far from the
-source \(s\) to vertex \(v\). Initially \(\texttt{dist}[s] = 0\) and everything else is infinity.
+Maintain tentative distances \(\texttt{dist[v]}\). Initially only the source has distance \(0\); everyone else is
+infinity.
 
-The heap stores candidates \((d, v)\). When the smallest candidate is popped, two cases can happen:
+The heap stores candidates \((d, v)\). Each step extracts the smallest candidate. If it matches the current stored
+distance, then \(v\) is finalized and all outgoing edges are relaxed.
+
+Relaxing \((v, to, w)\) means checking whether going through \(v\) improves \(\texttt{dist[to]}\):
+\[
+\texttt{dist[to]} > \texttt{dist[v]} + w.
+\]
+
+\section*{Key Insight}
+
+The priority queue is not just a speed trick. It enforces the main correctness invariant:
+\textbf{when a fresh state \((d, v)\) leaves the heap, \(d\) is already the true shortest distance to \(v\)}.
+
+That is exactly why nonnegative edges matter. If an unseen path could later subtract weight, then the ``smallest
+tentative distance is safe to finalize'' rule would no longer hold.
+
+\section*{Operations / Main Technique}
+
+The ordinary sparse-graph version uses:
 
 \begin{itemize}
-  \item if \(d \neq \texttt{dist}[v]\), the entry is stale and can be ignored,
-  \item otherwise, \(v\) is the next vertex whose shortest distance is finalized.
+  \item an adjacency list,
+  \item a min-heap,
+  \item one distance array,
+  \item optional parent pointers for restoring a shortest path.
 \end{itemize}
 
-From there, relax every outgoing edge \((v, to, w)\). If \(\texttt{dist}[v] + w\) improves the current answer for
-\(to\), update it and push the new pair into the heap.
+\paragraph{Stale entries.}
+I almost always use the lazy heap version: push improved states freely, and when popping, skip the state if it no
+longer matches \(\texttt{dist[v]}\). That avoids a more complicated decrease-key structure.
 
-\section*{Operations}
-
-\begin{itemize}
-  \item \textbf{initialize}: set all distances to infinity except the source,
-  \item \textbf{extract-min}: pop the heap until you find a non-stale state,
-  \item \textbf{relax}: try to improve each neighbor through the current vertex,
-  \item \textbf{restore path}: follow parent pointers backward if you need one concrete shortest path.
-\end{itemize}
-
-The implementation here uses lazy deletion instead of trying to remove old heap entries in place. That keeps the
-code short and reliable.
+\paragraph{Worked example.}
+If the heap contains both \((9, x)\) and later \((5, x)\), then the first one is stale by the time it is popped.
+Skipping it is not optional bookkeeping. It is how the lazy version stays correct and simple.
 
 \section*{Correctness Intuition}
 
-Suppose the heap pops a non-stale state \((d, v)\). I claim that \(d\) is already the true shortest-path distance to
-\(v\).
+Assume the heap pops a fresh state \((d, v)\). Suppose for contradiction there were a strictly shorter path to \(v\).
+Walk along that path from the source until you reach the first not-yet-finalized vertex. Its predecessor on the path
+was already finalized earlier, so the relaxation from that predecessor would have inserted a candidate no larger than
+the true path length.
 
-If there were a strictly shorter path to \(v\), consider the first vertex on that path that had not been finalized
-yet. Its predecessor on the path would already be finalized, so the relaxation from that predecessor would have
-inserted a candidate no larger than the true path length. That candidate would have reached the heap before \(v\)
-was finalized with the larger value \(d\), which is a contradiction.
-
-So every time a fresh state leaves the heap, that distance is permanent.
+That candidate should have been popped before \((d, v)\), contradicting the choice of \(v\) as the smallest fresh
+tentative distance. Therefore \(d\) is final.
 
 \section*{Complexity Analysis}
 
 \begin{itemize}
-  \item Heap-based Dijkstra on an adjacency list: \(O((n + m)\log n)\)
-  \item Memory: \(O(n + m)\)
+  \item heap-based Dijkstra on a sparse graph: \(O((n + m)\log n)\),
+  \item memory: \(O(n + m)\).
 \end{itemize}
 
-The bound comes from pushing at most one improved state per successful relaxation and paying a logarithmic heap cost.
+The heap receives at most one new state per successful relaxation, and each push/pop costs a logarithm.
 
 \section*{Implementation}
 
 The reference code keeps:
 
 \begin{itemize}
-  \item an adjacency list of \((to, weight)\) pairs,
-  \item a min-heap of \((distance, vertex)\),
-  \item a parent array for path restoration,
-  \item lazy deletion for stale heap entries.
+  \item adjacency lists of \((to, weight)\),
+  \item a \texttt{priority\_queue} with \texttt{greater<...>},
+  \item \texttt{long long} distances,
+  \item parent restoration for one concrete shortest path.
 \end{itemize}
 
-That is the version I trust most under contest pressure. It is also the easiest one to adapt to multi-source
-initialization: just push several sources with distance zero.
+That is the version I trust most under contest pressure. Multi-source Dijkstra is just the same code with several
+initial zero-distance pushes.
 
 \section*{Common Pitfalls}
 
@@ -85,16 +99,27 @@ initialization: just push several sources with distance zero.
   \item Running Dijkstra on graphs with negative edges.
   \item Forgetting to skip stale heap entries.
   \item Using \texttt{int} when path lengths need \texttt{long long}.
-  \item Setting infinity too small and silently overflowing during relaxation.
-  \item Missing special-case optimizations such as BFS or 0-1 BFS when the weights allow them.
+  \item Choosing infinity too small and overflowing during relaxation.
+  \item Missing simpler special cases such as BFS or 0-1 BFS.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item multi-source Dijkstra,
+  \item Dijkstra on state graphs instead of ordinary vertices,
+  \item counting shortest paths while relaxing,
+  \item Dijkstra with potentials inside Johnson-style reweighting or min-cost-flow subroutines.
+\end{itemize}
+
+In CP, ``run Dijkstra on a product state'' is often more useful than the textbook graph-only framing.
 
 \section*{Practice Problems}
 
 \begin{itemize}
-  \item CSES: \texttt{Shortest Routes I}
-  \item CSES: \texttt{Flight Routes}
-  \item Path problems where you need distances first and then some second pass over the shortest-path tree
+  \item CSES: \texttt{Shortest Routes I}.
+  \item CSES: \texttt{Flight Routes}.
+  \item Weighted shortest-path problems where the graph is built from problem states rather than explicit roads.
 \end{itemize}
 
 \section*{References}

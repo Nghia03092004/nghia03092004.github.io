@@ -1,83 +1,138 @@
 \section*{Overview}
 
-Link-cut trees maintain a forest under edge insertions, edge deletions, rerooting, and path queries. They are one of
-the few contest structures that genuinely feel like ``data structure engineering'': the outer API is about trees, but
-the inside is really a careful use of splay trees on preferred paths.
+Link-cut trees maintain a dynamic forest under rerooting, linking, cutting, and path queries. They are one of the few
+structures in contest programming that really feel layered: the public API talks about trees, but the implementation is
+powered by splay trees over preferred paths.
+
+This is an advanced note because both the idea and the debugging burden are real. Still, once the structure clicks, it
+becomes one of the cleanest ways to handle dynamic-tree path queries in \(O(\log n)\) amortized time.
 
 \section*{When to Use It}
 
-Use a link-cut tree when the represented forest is dynamic and the query is path-based:
+Use a link-cut tree when:
 
 \begin{itemize}
-  \item connect two trees,
-  \item cut one edge,
-  \item reroot a tree,
-  \item query an aggregate on the path between two vertices.
+  \item the forest changes over time,
+  \item queries are about paths rather than static subtrees,
+  \item you need operations like \texttt{link}, \texttt{cut}, \texttt{make\_root}, or path aggregate queries,
+  \item heavy-light decomposition is not enough because the represented tree itself is dynamic.
 \end{itemize}
 
-If the tree is static, heavy-light decomposition is usually much simpler.
+If the tree is static, heavy-light decomposition is usually much easier to trust and implement.
 
 \section*{Core Idea}
 
-The represented forest is decomposed into \emph{preferred paths}. Each preferred path is stored as a splay tree whose
-inorder order matches the path order.
+The represented forest is decomposed into \emph{preferred paths}. Each preferred path is stored as one auxiliary splay
+tree.
 
 \includegraphics[width=\textwidth]{figures/preferred-paths.svg}
 
-The operation \texttt{access(x)} rewires preferred paths so that the root-to-\(x\) path becomes the active preferred
-path. Once that path is exposed, path queries reduce to a query on one auxiliary splay tree.
+The central operation is \texttt{access(x)}. It repeatedly walks toward the represented root and rewires preferred
+paths so that the final preferred path from the represented root to \(x\) becomes explicit.
 
-\section*{Operations}
+After that exposure, path operations become splay-tree operations on one auxiliary tree.
+
+\section*{Key Insight}
+
+The phrase that made link-cut trees readable to me is:
+\textbf{a link-cut tree is a splay tree data structure for root-to-node exposure}.
+
+Everything revolves around exposing a path:
 
 \begin{itemize}
-  \item \textbf{access(x)} exposes the path from the represented root to \(x\),
-  \item \textbf{make\_root(x)} reroots the represented tree at \(x\),
-  \item \textbf{link(x, y)} connects two different trees,
-  \item \textbf{cut(x, y)} removes one tree edge,
-  \item \textbf{path\_query(x, y)} exposes the path and reads the aggregate from the top auxiliary root.
+  \item \texttt{access(x)} makes the root-to-\(x\) path preferred,
+  \item \texttt{make\_root(x)} is basically expose + reverse,
+  \item path queries between \(u\) and \(v\) become ``reroot \(u\), then expose \(v\)''.
 \end{itemize}
+
+So the structure is not maintaining all simple paths directly. It keeps changing which paths are represented
+explicitly, depending on what was accessed last.
+
+\section*{Operations / Main Technique}
+
+The standard operations are:
+
+\begin{itemize}
+  \item \textbf{access(x)}: expose the represented root-to-\(x\) path,
+  \item \textbf{make\_root(x)}: reroot the represented tree at \(x\),
+  \item \textbf{find\_root(x)}: find the represented root of \(x\)'s tree,
+  \item \textbf{link(x, y)}: connect two different trees,
+  \item \textbf{cut(x, y)}: remove one represented edge,
+  \item \textbf{connected(x, y)}: test whether two vertices lie in the same tree,
+  \item \textbf{path\_query(x, y)}: query an aggregate on the path.
+\end{itemize}
+
+\paragraph{Worked path query.}
+To query the path from \(u\) to \(v\):
+
+\begin{enumerate}
+  \item call \(\texttt{make\_root(u)}\),
+  \item call \(\texttt{access(v)}\),
+  \item splay \(v\),
+  \item now the auxiliary splay rooted at \(v\) represents exactly the path from \(u\) to \(v\).
+\end{enumerate}
+
+So if each splay node stores a path aggregate, the answer is sitting at that auxiliary root.
 
 \section*{Correctness Intuition}
 
-The splay tree does not represent arbitrary subtrees of the original forest. It represents one preferred path at a
-time. That is why \texttt{access} is the central operation: it rebuilds the preferred-path decomposition so the path
-we care about becomes explicit.
+The auxiliary splay trees are not arbitrary partitions of the represented tree. Each auxiliary tree corresponds to one
+preferred path, and \texttt{access} is the operation that changes which child edge is preferred at each step upward.
 
-After \texttt{make\_root(x)} and \texttt{access(y)}, the entire path from \(x\) to \(y\) sits inside one auxiliary
-splay tree rooted at \(y\). Any aggregate maintained by pull operations is then available at that root.
+After \(\texttt{make\_root(u)}\), vertex \(u\) becomes the represented root. Then \(\texttt{access(v)}\) exposes the
+entire path from \(u\) to \(v\) as one preferred path. Since the path is now explicit inside a single auxiliary splay
+tree, any maintained path aggregate is correct after the usual splay push/pull routines.
 
 \section*{Complexity Analysis}
 
-All standard operations are \(O(\log n)\) amortized, with \(O(n)\) memory.
+\begin{itemize}
+  \item \texttt{access}, \texttt{make\_root}, \texttt{link}, \texttt{cut}, path queries: \(O(\log n)\) amortized,
+  \item memory: \(O(n)\).
+\end{itemize}
+
+The amortization comes from the splay-tree layer. Link-cut trees inherit both the power and the caveats of splaying.
 
 \section*{Implementation}
 
-The reference code keeps the smallest version I still find useful in practice:
+The reference code keeps a deliberately limited but useful version:
 
 \begin{itemize}
   \item vertex values,
-  \item path-sum queries,
+  \item path sums,
   \item link, cut, connected, reroot, and point update.
 \end{itemize}
 
-It does \emph{not} include subtree aggregates or path lazy updates. Those are possible, but they are a different
-layer of difficulty.
+It does not attempt subtree aggregates or heavy lazy propagation. Those are possible, but they add a second layer of
+difficulty and deserve their own careful pass.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
-  \item Building on a shaky splay implementation.
-  \item Forgetting push-down of the reversal flag before rotations.
-  \item Confusing ``auxiliary tree root'' with ``represented tree root''.
-  \item Attempting subtree queries with a path-only implementation.
+  \item Building on top of a splay implementation that is not fully reliable.
+  \item Forgetting to push the reversal flag before rotations or before walking down the tree.
+  \item Confusing the represented-tree parent with the auxiliary-tree parent.
+  \item Forgetting that \texttt{access} changes preferred paths globally, not just locally at one node.
+  \item Trying to answer subtree queries with a path-only implementation.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item path xor, min, max, or other associative aggregates,
+  \item subtree information by tracking virtual subtrees,
+  \item lazy path updates,
+  \item dynamic MST or replacement-edge style applications.
+\end{itemize}
+
+The structure stays conceptually the same: expose paths with link-cut operations, and let the auxiliary splay nodes
+store the right summary.
 
 \section*{Practice Problems}
 
 \begin{itemize}
   \item Dynamic forest connectivity with link and cut.
   \item Dynamic path sum or xor queries.
-  \item Replacement-edge or dynamic MST style problems, once the base implementation feels reliable.
+  \item Problems where edges appear and disappear over time and the maintained answer depends on tree paths.
 \end{itemize}
 
 \section*{References}
@@ -86,4 +141,5 @@ layer of difficulty.
   \item \href{https://usaco.guide/adv/link-cut-tree?lang=cpp}{USACO Guide: Link-Cut Tree}.
   \item \href{https://www.researchgate.net/publication/221590599_A_Data_Structure_for_Dynamic_Trees}{Sleator and Tarjan: A Data Structure for Dynamic Trees}.
   \item \href{https://zhtluo.com/cp/splay-tree-one-tree-to-rule-them-all.html}{Zhtluo: Splay Tree - One Tree to Rule Them All}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
 \end{itemize}

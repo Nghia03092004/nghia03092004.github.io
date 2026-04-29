@@ -1,86 +1,133 @@
 \section*{Overview}
 
-A treap is a binary search tree on keys and a heap on random priorities. That combination makes the tree shape behave
-like a random BST, which is usually enough to get logarithmic expected time without carrying the heavy invariants of
-AVL or red-black trees.
+The treap is the balanced binary search tree I find easiest to turn into contest code. It combines two invariants:
+the keys satisfy the binary-search-tree order, while random priorities satisfy the heap order.
+
+That combination gives a tree that behaves like a random BST. In practice, it means I get split and merge almost for
+free, which is why treaps show up in ordered sets, implicit sequences, and many ``cut this interval, move that
+interval'' problems.
 
 \section*{When to Use It}
 
-Treaps are useful when the problem needs an ordered set or sequence structure with operations such as:
+Use it when:
 
 \begin{itemize}
-  \item split by key or by position,
-  \item merge two adjacent sets,
-  \item insert / erase,
-  \item k-th element or order statistics.
+  \item you need an ordered set with insert and erase,
+  \item split and merge are the cleanest primitive operations,
+  \item an implicit sequence representation would be useful later,
+  \item you want randomized balancing instead of amortized balancing.
 \end{itemize}
 
-In contest code, I mostly choose treaps when split and merge are more natural than repeated point updates on a segment tree.
+If the task only needs an ordinary ordered set, the STL may already be enough. Treaps become attractive when you need
+direct control of the tree structure itself.
 
 \section*{Core Idea}
 
 Each node stores:
 
 \begin{itemize}
-  \item a key, which keeps BST order,
-  \item a random priority, which keeps heap order.
+  \item a \textbf{key} for BST order,
+  \item a random \textbf{priority} for heap order.
 \end{itemize}
 
-If the priorities are independent and uniformly random, the expected height is \(O(\log n)\). The nicest consequence
-is that many operations can be written around only two primitives:
+So the inorder traversal is sorted by key, while priorities decrease from parent to child.
+
+The useful consequence is that once priorities are fixed, the treap shape is determined. Random priorities make that
+shape behave like a randomly built BST, which keeps the expected height logarithmic.
+
+\section*{Key Insight}
+
+The treap is easiest to reason about through \textbf{split} and \textbf{merge}, not through raw rotations.
 
 \begin{itemize}
-  \item \textbf{split(root, key)}: all keys \(< key\) go left, the rest go right,
-  \item \textbf{merge(a, b)}: assumes every key in \(a\) is smaller than every key in \(b\).
+  \item \textbf{split(root, key)} returns two treaps: keys \(< key\) and keys \(\ge key\),
+  \item \textbf{merge(left, right)} assumes all keys in the left treap are smaller and rebuilds one valid treap.
 \end{itemize}
 
-\section*{Operations}
+Once those two routines are correct, insert and erase are usually only a few lines of logic around them.
+
+\section*{Operations / Main Technique}
+
+The standard ordered-set version supports:
 
 \begin{itemize}
-  \item Insert: split around the key, merge left + new node + right.
-  \item Erase: isolate the node, then merge its children back.
-  \item k-th: walk by subtree sizes.
-  \item order\_of\_key: count how many nodes lie strictly to the left.
+  \item \textbf{split},
+  \item \textbf{merge},
+  \item \textbf{insert},
+  \item \textbf{erase},
+  \item \textbf{kth} or order-statistic queries if subtree sizes are stored.
 \end{itemize}
+
+\paragraph{Worked example.}
+To insert \(x\), split by \(x\), create one node with key \(x\), then merge left + node + right. To erase \(x\), find
+the node, remove it, and merge its left and right children back together.
+
+That is why treaps feel modular: the balancing is hidden inside merge rather than spread throughout many case splits.
 
 \section*{Correctness Intuition}
 
-BST order is preserved because every recursive call respects the key boundary. Heap order is preserved because
-\texttt{merge} always chooses the node with better priority as the new root. Once both invariants hold at every node,
-the whole structure is a valid treap.
+BST order is preserved because split partitions keys correctly and merge is only called when every key in the left
+treap is smaller than every key in the right treap.
+
+Heap order is preserved because merge always picks the root with higher priority, then recursively merges the remaining
+subtree on the correct side. Since both subtrees were already valid treaps, the combined result is a valid treap too.
 
 \section*{Complexity Analysis}
 
-All standard operations run in \(O(\log n)\) expected time, with \(O(n)\) memory.
+With random priorities:
+
+\begin{itemize}
+  \item split, merge, insert, erase, kth: \(O(\log n)\) expected,
+  \item memory: \(O(n)\).
+\end{itemize}
+
+The worst case still exists, but randomized priorities make it unlikely enough for normal contest use.
 
 \section*{Implementation}
 
-The code panel shows a key-based treap with:
+The reference code keeps:
 
 \begin{itemize}
+  \item explicit node pointers,
+  \item random priorities,
+  \item subtree sizes,
   \item split / merge,
-  \item insert / erase,
-  \item k-th,
-  \item order\_of\_key.
+  \item insert / erase / kth.
 \end{itemize}
 
-This is the version I find easiest to extend toward implicit treaps later.
+That is the version I like as a base because it scales naturally to implicit treaps, where indices replace keys and
+interval operations become split/merge chains.
 
 \section*{Common Pitfalls}
 
 \begin{itemize}
-  \item Forgetting to recompute subtree size after changing children.
-  \item Using predictable priorities instead of a proper RNG.
-  \item Mishandling duplicates; the reference code treats keys as unique.
-  \item Mixing ``split by key'' and ``split by position'' logic in the same helper.
+  \item Forgetting to pull subtree size after recursive changes.
+  \item Merging trees whose key ranges overlap.
+  \item Using a weak random source and then trusting the shape too much.
+  \item Mixing ``duplicates allowed'' and ``unique keys'' rules halfway through the implementation.
+  \item Writing implicit-treap code before the plain ordered-set version feels stable.
 \end{itemize}
+
+\section*{Variants / Extensions}
+
+\begin{itemize}
+  \item implicit treap for sequence manipulation,
+  \item lazy tags for range reverse, range add, or range assign,
+  \item treap with duplicate counts,
+  \item persistent treap variants,
+  \item union of two treaps in \(O(m \log(n/m))\) expected time.
+\end{itemize}
+
+Compared with splay trees, treaps are randomized rather than amortized. I usually reach for treap first when I want
+something predictable to code quickly, and for splay when I specifically want access-based restructuring or link-cut
+trees later.
 
 \section*{Practice Problems}
 
 \begin{itemize}
-  \item Dynamic ordered set with k-th queries.
-  \item Sequence cut-and-paste operations via implicit treap.
-  \item Offline divide-and-conquer tasks where split / merge is the clean local move.
+  \item Ordered set with insert, erase, predecessor, successor, and k-th queries.
+  \item Cut-and-paste sequence problems with an implicit treap.
+  \item Interval reverse or rotate operations after adding lazy tags.
 \end{itemize}
 
 \section*{References}
@@ -89,4 +136,5 @@ This is the version I find easiest to extend toward implicit treaps later.
   \item \href{https://cp-algorithms.com/data_structures/treap.html}{cp-algorithms: Treap}.
   \item \href{https://usaco.guide/adv/treaps}{USACO Guide: Treaps}.
   \item \href{https://github.com/kth-competitive-programming/kactl}{KACTL}.
+  \item \href{https://codeforces.com/catalog}{Codeforces Catalog}.
 \end{itemize}

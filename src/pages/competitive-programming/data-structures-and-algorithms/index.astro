@@ -21,6 +21,47 @@ const taxonomy = renderLatexContent(landingSources.taxonomyTex, {
 	headingSlugPrefix: 'dsa-taxonomy',
 });
 const implementedNotes = categories.flatMap((category) => category.notes);
+const noteByKey = new Map(implementedNotes.map((note) => [`${note.categorySlug}/${note.slug}`, note]));
+const pickNotes = (keys: string[]) =>
+	keys
+		.map((key) => noteByKey.get(key))
+		.filter((note): note is NonNullable<typeof note> => Boolean(note));
+const startHereNotes = pickNotes([
+	'data-structures/fenwick-tree',
+	'data-structures/segment-tree',
+	'data-structures/disjoint-set-union',
+	'graph-algorithms/dijkstra',
+	'string-algorithms/kmp',
+]);
+const spotlightNotes = pickNotes([
+	'data-structures/splay-tree',
+	'data-structures/link-cut-tree',
+	'graph-algorithms/heavy-light-decomposition',
+	'dynamic-programming/convex-hull-trick',
+	'number-theory/ntt',
+]);
+const learningPath = [
+	{
+		title: 'Start here',
+		description: 'Prefix and interval structures, one shortest-path routine, and one core string matcher.',
+		notes: 'Fenwick Tree, Segment Tree, Disjoint Set Union, Dijkstra, KMP',
+	},
+	{
+		title: 'Build fluency',
+		description: 'Range updates, static RMQ, offline ordering, and the first state-heavy DP pattern.',
+		notes: 'Lazy Segment Tree, Sparse Table, Mo\'s Algorithm, Digit DP',
+	},
+	{
+		title: 'Push into advanced',
+		description: 'Tree-path reductions, DP line containers, randomized BSTs, and polynomial convolution.',
+		notes: 'Heavy-Light Decomposition, Convex Hull Trick, Treap, NTT',
+	},
+	{
+		title: 'Save for last',
+		description: 'The pointer-heavy amortized structures that pay off once the foundations are already solid.',
+		notes: 'Splay Tree, Link-Cut Tree',
+	},
+];
 ---
 
 <BaseLayout
@@ -71,6 +112,31 @@ const implementedNotes = categories.flatMap((category) => category.notes);
 	<section class="section-panel">
 		<div class="section-heading">
 			<div>
+				<span class="section-label">Start Here</span>
+				<h2>A practical first path</h2>
+				<p>These notes form the shortest useful route into the section before the more structural topics take over.</p>
+			</div>
+		</div>
+		<div class="track-grid">
+			{
+				startHereNotes.map((note) => (
+					<a class="card dsa-note-card" data-tone={getDsaLevelTone(note.level)} href={withBase(getDsaRoutePath(note.categorySlug, note.slug))}>
+						<span class="eyebrow">{note.level}</span>
+						<h3>{note.title}</h3>
+						<p>{note.summary}</p>
+						<div class="card__meta">
+							<span class="metric">{note.categoryTitle}</span>
+							<span class="metric">{note.tags.slice(0, 2).join(' / ')}</span>
+						</div>
+					</a>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section-panel">
+		<div class="section-heading">
+			<div>
 				<span class="section-label">Categories</span>
 				<h2>Browse by technique family</h2>
 				<p>Each category page mixes finished notes with clearly marked planned topics, so the section can grow without pretending to be complete.</p>
@@ -95,6 +161,35 @@ const implementedNotes = categories.flatMap((category) => category.notes);
 		</div>
 	</section>
 
+	<section class="section-panel">
+		<div class="section-heading">
+			<div>
+				<span class="section-label">Learning Path</span>
+				<h2>One reasonable order to learn this</h2>
+				<p>The notes are cross-linked by topic, but this order keeps the prerequisites and implementation burden under control.</p>
+			</div>
+		</div>
+		<div class="cp-year-grid">
+			{
+				learningPath.map((stage, index) => (
+					<article class="cp-year-card cp-year-card--browse">
+						<div class="cp-year-card__topline">
+							<div>
+								<strong>0{index + 1}</strong>
+								<span>{stage.title}</span>
+							</div>
+							<span class="chip" data-tone={index < 2 ? 'olive' : index === 2 ? 'warm' : 'expert'}>
+								{index < 2 ? 'Core' : index === 2 ? 'Advanced' : 'Expert'}
+							</span>
+						</div>
+						<p class="cp-year-card__summary">{stage.description}</p>
+						<p class="cp-content__notice">{stage.notes}</p>
+					</article>
+				))
+			}
+		</div>
+	</section>
+
 	<section class="section-panel section-panel--signal">
 		<div class="section-heading">
 			<div>
@@ -106,6 +201,34 @@ const implementedNotes = categories.flatMap((category) => category.notes);
 		<div class="signal-grid">
 			{
 				implementedNotes.map((note, index) => (
+					<a class="signal-card dsa-note-card" data-tone={getDsaLevelTone(note.level)} href={withBase(getDsaRoutePath(note.categorySlug, note.slug))}>
+						<span class="signal-card__index">0{index + 1}</span>
+						<div>
+							<span class="eyebrow">{note.categoryTitle}</span>
+							<h3>{note.title}</h3>
+							<p>{note.summary}</p>
+						</div>
+						<div class="signal-card__meta">
+							<span class="metric">{note.level}</span>
+							<span class="metric">{note.tags.slice(0, 2).join(' / ')}</span>
+						</div>
+					</a>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section-panel section-panel--signal">
+		<div class="section-heading">
+			<div>
+				<span class="section-label">Advanced Spotlight</span>
+				<h2>Save these for when the basics feel routine</h2>
+				<p>These notes are the ones most likely to repay a slower read: they unlock bigger structures, stronger reductions, or heavier implementation patterns.</p>
+			</div>
+		</div>
+		<div class="signal-grid">
+			{
+				spotlightNotes.map((note, index) => (
 					<a class="signal-card dsa-note-card" data-tone={getDsaLevelTone(note.level)} href={withBase(getDsaRoutePath(note.categorySlug, note.slug))}>
 						<span class="signal-card__index">0{index + 1}</span>
 						<div>

@@ -7,9 +7,9 @@ the adrenaline of the original contest is gone.
 I care about three things here:
 
 \begin{itemize}
-  \item the structural reason an algorithm works,
-  \item the shape of the implementation I would trust in contest code,
-  \item the failure modes that usually cost time or wrong answers.
+  \item the structural reason an algorithm or data structure works,
+  \item the implementation shape I would still trust in contest code,
+  \item the failure modes that usually cause wrong answers or wasted time.
 \end{itemize}
 
 \section*{How the Notes Are Written}
@@ -19,14 +19,27 @@ source of truth. The site renders the TeX into HTML and shows the C++ file separ
 focused while the code remains directly copyable.
 
 The finished notes are meant to be public-facing study material, not private scraps. That means the emphasis is
-on explanations, invariants, and tradeoffs instead of dumping templates with no context.
+on explanations, invariants, use cases, and pitfalls instead of dumping templates with no context.
+
+\section*{Recommended Learning Path}
+
+If I were revising this section from scratch, I would move in roughly this order:
+
+\begin{itemize}
+  \item \textbf{basic building blocks}: Fenwick tree, segment tree, sparse table, DSU, KMP, Dijkstra,
+  \item \textbf{next layer}: lazy segment tree, digit DP, treap, Mo's algorithm,
+  \item \textbf{advanced tree and DP tools}: heavy-light decomposition, convex hull trick, NTT,
+  \item \textbf{expert structures}: splay tree and link-cut tree.
+\end{itemize}
+
+That is not the only valid order, but it keeps the prerequisites fairly natural.
 
 \section*{What ``Finished'' Means Here}
 
 A finished note should answer the questions I usually care about when revising:
 
 \begin{itemize}
-  \item What kind of contest situations make this technique the right tool?
+  \item What kind of contest situation makes this the right tool?
   \item What invariant is doing the real work?
   \item Which implementation shape is the least fragile under time pressure?
   \item Which edge cases usually break the first version?
