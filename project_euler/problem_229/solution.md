@@ -2,75 +2,105 @@
 
 ## Problem Statement
 
-Find the count of integers $n \leq 2 \times 10^9$ that can **simultaneously** be represented in all four forms:
+We seek the positive integers $n \le 2 \times 10^9$ that admit all four representations
 
-1. $n = a^2 + b^2$
-2. $n = a^2 + 7c^2$
-3. $n = a^2 + 11d^2$
-4. $n = a^2 + 13e^2$
+$$
+\begin{aligned}
+n &= a_1^2 + b_1^2, \\
+n &= a_2^2 + 2b_2^2, \\
+n &= a_3^2 + 3b_3^2, \\
+n &= a_7^2 + 7b_7^2,
+\end{aligned}
+$$
 
-where $a, b, c, d, e$ are non-negative integers (the values of $a$ may differ between representations).
+where every $a_k$ and $b_k$ is positive.
 
-## Mathematical Foundation
+How many such $n$ are there?
 
-**Theorem 1 (Representability as $a^2 + kb^2$).** *An integer $n$ is representable as $a^2 + kb^2$ (with $a, b \geq 0$) if and only if, for every prime $p$ dividing $n$ to an odd power, $p$ is representable as $a^2 + kb^2$ (up to conditions on the class group of $\mathbb{Z}[\sqrt{-k}]$).*
+## Mathematical Development
 
-**Proof.** (Sketch) This follows from the theory of binary quadratic forms. For class number 1 cases (e.g., $k = 1$), a prime $p$ is represented iff $-k$ is a quadratic residue mod $p$ (by Fermat's theorem on sums of two squares and its generalizations). For general $k$, the genus theory of quadratic forms determines representability. The full proof requires class field theory. $\square$
+For each coefficient $k \in \{1,2,3,7\}$, define
 
-**Theorem 2 (Sum of Two Squares).** *A positive integer $n$ is a sum of two squares iff every prime factor $p \equiv 3 \pmod{4}$ appears to an even power in the factorization of $n$.*
+$$
+R_k=\{a^2+k b^2 : a,b \ge 1\}.
+$$
 
-**Proof.** ($\Rightarrow$) If $p \equiv 3 \pmod{4}$ and $p \mid a^2 + b^2$, then $a^2 \equiv -b^2 \pmod{p}$. If $p \nmid b$, then $(ab^{-1})^2 \equiv -1 \pmod{p}$, contradicting $-1$ being a QNR mod $p$. Hence $p \mid b$, so $p \mid a$, and $p^2 \mid n$. By induction, $p$ appears to even power.
+The answer is the size of
 
-($\Leftarrow$) By the multiplicativity of the norm in $\mathbb{Z}[i]$: $(a^2+b^2)(c^2+d^2) = (ac \pm bd)^2 + (ad \mp bc)^2$. Primes $p \equiv 1 \pmod{4}$ split in $\mathbb{Z}[i]$ as $p = \pi\bar{\pi}$ with $N(\pi) = p$, so $p$ is a sum of two squares. The prime 2 is a sum of squares ($1^2 + 1^2$). Primes $p \equiv 3 \pmod{4}$ to even powers give $p^{2k} = (p^k)^2 + 0^2$. $\square$
+$$
+R_1 \cap R_2 \cap R_3 \cap R_7
+$$
 
-**Theorem 3 (Sieve Correctness).** *For each form $a^2 + kb^2$ with $k \in \{1, 7, 11, 13\}$, the set of representable $n \leq N$ can be computed by enumerating all pairs $(a, b)$ with $a^2 + kb^2 \leq N$.*
+inside $[1,2\times 10^9]$.
 
-**Proof.** By definition, $n$ is representable iff there exist non-negative integers $a, b$ with $n = a^2 + kb^2$. The enumeration is exhaustive: $b$ ranges from 0 to $\lfloor\sqrt{N/k}\rfloor$, and for each $b$, $a$ ranges from 0 to $\lfloor\sqrt{N - kb^2}\rfloor$. $\square$
+The direct issue is memory. A full Boolean table up to $2\times 10^9$ would be far too large, even before storing four copies. The key monotonicity observation is that for fixed $a$ and fixed $k$, the values
 
-**Lemma 1 (Bit Array Intersection).** *The count of $n \leq N$ representable in all four forms equals the number of set bits in $B_1 \wedge B_7 \wedge B_{11} \wedge B_{13}$, where $B_k$ is the characteristic bit array of numbers representable as $a^2 + kb^2$.*
+$$
+a^2+k b^2
+$$
 
-**Proof.** $n$ is in the intersection iff it is representable in each form, iff the corresponding bit is set in every $B_k$. The bitwise AND computes set intersection. $\square$
+increase strictly with $b$. Therefore, if we process the search interval in slices
 
-**Lemma 2 (Pair Count).** *For form $a^2 + kb^2 \leq N$, the number of pairs $(a, b)$ is*
+$$
+[L,R),
+$$
 
-$$\sum_{b=0}^{\lfloor\sqrt{N/k}\rfloor} \left(\lfloor\sqrt{N - kb^2}\rfloor + 1\right) = \Theta\!\left(\frac{N}{\sqrt{k}}\right).$$
+then for each pair $(a,k)$ the admissible $b$ values inside that slice form one consecutive interval of integers. When we move to the next slice, the first relevant $b$ can never move backwards.
 
-**Proof.** The sum approximates $\int_0^{\sqrt{N/k}} \sqrt{N - kt^2}\,dt = \frac{\pi N}{4\sqrt{k}}$, giving $\Theta(N/\sqrt{k})$. $\square$
+So it is enough to store four rolling pointers:
+
+- $b_1[a]$ for $a^2+b^2$,
+- $b_2[a]$ for $a^2+2b^2$,
+- $b_3[a]$ for $a^2+3b^2$,
+- $b_7[a]$ for $a^2+7b^2$.
+
+Inside one slice we mark every hit with a four-bit mask. At the end of the slice, a number belongs to the intersection exactly when all four bits are set.
+
+This computes the intersection exactly, but only uses memory proportional to the slice size.
 
 ## Editorial
-Count n <= 2*10^9 that can simultaneously be written as: n = a^2 + b^2 n = a^2 + 7*c^2 n = a^2 + 11*d^2 n = a^2 + 13*e^2 Approach: segmented sieve with bit arrays. Note: Full computation requires ~250MB RAM and significant time. For demonstration, we show the algorithm and print the known answer. We segmented sieve to manage memory.
+
+The brute-force formulation is not actually the enemy here; global storage is. For each of the four quadratic forms, the set of represented values is sparse, but the search interval is enormous. The useful observation is that the curves
+
+$$
+a^2 + k b^2
+$$
+
+are monotone in $b$, so once a certain $b$ has moved past the current slice, it never needs to be revisited.
+
+That is why the implementation keeps the interval in rolling blocks of one million integers. For every $a$, it remembers where each form last left off in $b$, resumes from there, and marks only the values that land in the current block. A single byte per value is enough: four bits record which of the four forms hit that value. After all $(a,b)$ pairs that can reach the block have been processed, the bytes equal to `1111` are exactly the numbers represented in all four ways.
 
 ## Pseudocode
 
 ```text
-    Segmented sieve to manage memory
-    B = 10^7 // block size
-    count = 0
+Choose a block size B.
+For every a up to sqrt(N), initialize four pointers:
+    b1[a], b2[a], b3[a], b7[a] = 1.
 
-    For block_start from 0 to N step B:
-        block_end = min(block_start + B - 1, N)
+For each block [L, R):
+    clear a byte array of length R - L
 
-        For each k in {1, 7, 11, 13}:
-            bit_array_k = new bit array of size B, all zeros
-            For b from 0 to floor(sqrt(block_end / k)):
-                lo = max(0, block_start - k*b^2)
-                a_lo = ceil(sqrt(lo)) if lo > 0 else 0
-                a_hi = floor(sqrt(block_end - k*b^2))
-                For a from a_lo to a_hi:
-                    n = a^2 + k*b^2
-                    If block_start <= n <= block_end then
-                        bit_array_k[n - block_start] = 1
+    For a from 1 upward while a^2 + b1[a]^2 < R:
+        continue the sequence a^2 + b^2 from b = b1[a]
+            and set bit 0 for every hit inside the block
+        continue the sequence a^2 + 2b^2 from b = b2[a]
+            and set bit 1
+        continue the sequence a^2 + 3b^2 from b = b3[a]
+            and set bit 2
+        continue the sequence a^2 + 7b^2 from b = b7[a]
+            and set bit 3
 
-        result = bit_array_1 AND bit_array_7 AND bit_array_11 AND bit_array_13
-        count += popcount(result)
+        store the first unused b back into the corresponding pointer
 
-    Return count
+    Count how many entries in the block have all four bits set.
+Add those counts over all blocks.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(N / \sqrt{k})$ per form, summed over $k \in \{1, 7, 11, 13\}$, giving $O(N)$. The segmented approach does not change the asymptotic cost.
-- **Space:** $O(B / 8)$ per bit array, with $B = 10^7$ giving $\approx 1.25$ MB per array, $\approx 5$ MB total.
+- **Time:** Proportional to the total number of marked values
+  $a^2 + k b^2 \le N$ across the four forms.
+- **Space:** $O(B + \sqrt N)$ for the current slice and the rolling $b$ pointers.
 
 ## Answer
 

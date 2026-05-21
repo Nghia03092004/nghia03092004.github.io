@@ -2,52 +2,128 @@
 
 ## Problem Statement
 
-How many ordered triples $(a, b, c)$ with $a \leq b \leq c$ satisfy $a^2 + b^2 = c^2 + 1$ and $a + b + c \leq 25{,}000{,}000$?
+How many ordered triples $(a,b,c)$ with
 
-## Mathematical Foundation
+$$
+a \le b \le c,
+\qquad
+a^2+b^2=c^2+1,
+\qquad
+a+b+c \le 25{,}000{,}000
+$$
 
-**Theorem 1 (Difference-of-Squares Factorization).** *The equation $a^2 + b^2 = c^2 + 1$ is equivalent to $(c - b)(c + b) = (a - 1)(a + 1)$.*
+exist?
 
-**Proof.** $a^2 + b^2 = c^2 + 1 \iff c^2 - b^2 = a^2 - 1 \iff (c-b)(c+b) = (a-1)(a+1)$. $\square$
+## Mathematical Development
 
-**Lemma 1 (Change of Variables).** *Setting $d = c - b$ and $e = c + b$, we have $d \cdot e = (a-1)(a+1)$, $b = (e - d)/2$, $c = (e + d)/2$, and the perimeter is $a + e$.*
+Starting from
 
-**Proof.** From $d = c - b$ and $e = c + b$: $b = (e - d)/2$, $c = (e + d)/2$. The perimeter is $a + b + c = a + e$. $\square$
+$$
+a^2+b^2=c^2+1,
+$$
 
-**Theorem 2 (Case $a = 1$).** *When $a = 1$, the equation becomes $b = c$, contributing $(L - 1)/2$ solutions where $L = 25{,}000{,}000$.*
+we factor the difference of squares:
 
-**Proof.** $a = 1$ gives $(a-1)(a+1) = 0$, so $d = 0$ and $b = c$. The constraint $1 + 2b \leq L$ gives $b \leq (L-1)/2 = 12{,}499{,}999$. $\square$
+$$
+(c-b)(c+b)=a^2-1=(a-1)(a+1).
+$$
 
-**Theorem 3 (Coprime Factorization, Even $a$).** *For even $a \geq 2$, $n = (a-1)(a+1)$ is odd, $\gcd(a-1, a+1) = 1$, and every divisor of $n$ factors uniquely as a product of a divisor of $(a-1)$ and a divisor of $(a+1)$.*
+Introduce
 
-**Proof.** Since $a$ is even, $a - 1$ and $a + 1$ are both odd, so $n$ is odd. Since $(a+1) - (a-1) = 2$ and both are odd, $\gcd(a-1, a+1) = 1$. By the Chinese Remainder Theorem, the divisors of $n = (a-1)(a+1)$ biject with pairs of divisors of $a-1$ and $a+1$. $\square$
+$$
+d=c-b,
+\qquad
+e=c+b.
+$$
 
-**Theorem 4 (Coprime Factorization, Odd $a$).** *For odd $a \geq 3$, $4 \mid n$ and writing $d = 2d'$, $e = 2e'$ gives $d' e' = \frac{a-1}{2} \cdot \frac{a+1}{2}$ with $\gcd\!\left(\frac{a-1}{2}, \frac{a+1}{2}\right) = 1$.*
+Then
 
-**Proof.** For odd $a$, both $a - 1$ and $a + 1$ are even, so $4 \mid (a-1)(a+1)$. For $b$ and $c$ to be integers, $d$ and $e$ must have the same parity. Since $n$ is even, they must both be even. Write $d = 2d'$, $e = 2e'$:
+$$
+de=(a-1)(a+1),
+\qquad
+b=\frac{e-d}{2},
+\qquad
+c=\frac{e+d}{2},
+$$
 
-$$d'e' = \frac{n}{4} = \frac{a-1}{2} \cdot \frac{a+1}{2}.$$
+and the perimeter becomes
 
-Since $\frac{a+1}{2} - \frac{a-1}{2} = 1$, these factors are coprime. $\square$
+$$
+a+b+c = a+e.
+$$
 
-**Lemma 2 (Constraints).** *For a valid triple, the divisor pair $(d, e)$ must satisfy: (i) $d \leq e$, (ii) $e - d \geq 2a$ (so that $b \geq a$), and (iii) $a + e \leq L$.*
+So for each fixed $a$, we only need factor pairs $(d,e)$ of $a^2-1$ satisfying:
 
-**Proof.** (i) ensures $b \leq c$. (ii) follows from $b = (e-d)/2 \geq a$. (iii) is the perimeter bound. $\square$
+- $d \le e$,
+- $d$ and $e$ have the same parity,
+- $e-d \ge 2a$ so that $b \ge a$,
+- $a+e \le L$.
+
+The arithmetic simplifies because the two factors around $a$ are almost coprime.
+
+If $a$ is even, then $a-1$ and $a+1$ are odd and coprime, so every divisor of $a^2-1$ is a product of one divisor of $a-1$ and one divisor of $a+1$.
+
+If $a$ is odd, then $d$ and $e$ must both be even. Writing
+
+$$
+d=2d',
+\qquad
+e=2e'
+$$
+
+gives
+
+$$
+d'e'=\frac{a-1}{2}\cdot\frac{a+1}{2},
+$$
+
+and the two factors on the right are consecutive integers, hence coprime.
+
+That is why a smallest-prime-factor sieve up to $L/3$ is enough: each case reduces to enumerating divisors of two coprime numbers.
 
 ## Editorial
-Count ordered triples (a, b, c) with a <= b <= c, a^2 + b^2 = c^2 + 1, and a + b + c <= 25,000,000. Key: (c-b)(c+b) = (a-1)(a+1). Let d = c-b, e = c+b, d*e = (a-1)(a+1). b = (e-d)/2, c = (e+d)/2, perimeter = a + e. Need d,e same parity, d <= e, b >= a (e-d >= 2a), a+e <= L. For a even: n = a^2-1 is odd, so d,e both odd. n = (a-1)(a+1), gcd=1. For a odd: n = a^2-1 divisible by 4. d,e both even. n/4 = ((a-1)/2)*((a+1)/2), gcd=1. Factor using coprime factorization to enumerate divisors efficiently. We else.
+
+The factorization
+
+$$
+(c-b)(c+b)=(a-1)(a+1)
+$$
+
+turns the triangle count into a divisor problem. Once $a$ is fixed, the perimeter is just $a+e$, so the large variable is not $c$ but the factor $e=c+b$. That is the useful reduction: instead of searching in three dimensions, we enumerate factorizations of $a^2-1$ and recover $b$ and $c$ from one complementary divisor pair.
+
+The reason this is fast enough is the coprimality built into $a-1$ and $a+1$. For even $a$, they are already coprime. For odd $a$, the only common factor is the expected factor $2$, and removing it leaves consecutive coprime integers. So the code never factors the full product from scratch. It sieves smallest prime factors once, generates divisors of the two smaller coprime pieces, combines them into $(d,e)$, and checks the geometric constraints.
 
 ## Pseudocode
 
 ```text
-if a is even
-else
+Count the special family a = 1 separately:
+    then b = c and the perimeter condition is immediate.
+
+Build a smallest-prime-factor sieve up to L / 3.
+
+For each even a from 2 to L / 3:
+    factor a - 1 and a + 1
+    generate all divisors of each factor
+    for every product d = d1 * d2:
+        let e be the complementary factor
+        keep it only if d <= e, e - d >= 2a, and a + e <= L
+
+For each odd a from 3 to L / 3:
+    set u = (a - 1) / 2 and v = (a + 1) / 2
+    factor u and v
+    generate all divisors of each factor
+    for every product d' = d1 * d2:
+        let e' be the complementary factor
+        turn them back into d = 2d' and e = 2e'
+        keep the pair only if the same three inequalities hold
+
+Return the total count.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(L \log L)$. For each $a$, we enumerate divisors of two coprime factors. The average number of divisors is $O(\log n)$, giving total work $O\!\left(\sum_{a=2}^{L/3} \tau((a-1)(a+1))\right) = O(L \log L)$.
-- **Space:** $O(L/3)$ for the smallest-prime-factor sieve.
+- **Time:** Roughly $O(L \log L)$ in practice, dominated by divisor generation over all $a \le L/3$.
+- **Space:** $O(L)$ for the smallest-prime-factor sieve.
 
 ## Answer
 

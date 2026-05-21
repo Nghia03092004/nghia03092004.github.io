@@ -14,12 +14,10 @@ int main() {
                "5359408128481117450284102701938521105559"
                "64462294895493038196";
 
-    // Use __int128 for large positions
-    typedef __int128 lll;
     const int MAXN = 200;
-    lll L[MAXN + 1];
+    unsigned long long L[MAXN + 1];
     L[1] = L[2] = 100;
-    lll cap = (lll)1e25;
+    const unsigned long long cap = 1000000000000000000ULL;
     for (int i = 3; i <= MAXN; i++) {
         L[i] = L[i-1] + L[i-2];
         if (L[i] > cap) {
@@ -28,16 +26,15 @@ int main() {
         }
     }
 
-    // Compute 7^n using __int128
-    auto power7 = [](int n) -> lll {
-        lll result = 1;
+    auto power7 = [](int n) -> unsigned long long {
+        unsigned long long result = 1;
         for (int i = 0; i < n; i++) result *= 7;
         return result;
     };
 
     // Find the k-th digit (1-indexed) of the Fibonacci word
     // F(n) = F(n-2) . F(n-1): first L[n-2] chars from F(n-2), rest from F(n-1)
-    auto find_digit = [&](lll k) -> int {
+    auto find_digit = [&](unsigned long long k) -> int {
         int n = 1;
         while (L[n] < k) n++;
         while (n > 2) {
@@ -56,7 +53,7 @@ int main() {
     long long answer = 0;
     long long pow10 = 1;
     for (int n = 0; n <= 17; n++) {
-        lll k = (lll)(127 + 19 * n) * power7(n);
+        unsigned long long k = (unsigned long long)(127 + 19 * n) * power7(n);
         int digit = find_digit(k);
         answer += pow10 * digit;
         pow10 *= 10;

@@ -2,49 +2,143 @@
 
 ## Problem Statement
 
-How many ordered triples $(a, b, c)$ with $a \leq b \leq c$ satisfy $a^2 + b^2 = c^2 - 1$ and $a + b + c \leq 75{,}000{,}000$?
+How many ordered triples $(a,b,c)$ with
 
-## Mathematical Foundation
+$$
+a \le b \le c,
+\qquad
+a^2+b^2=c^2-1,
+\qquad
+a+b+c \le 75{,}000{,}000
+$$
 
-**Theorem 1 (Factorization).** *The equation $a^2 + b^2 = c^2 - 1$ is equivalent to $(c - b)(c + b) = a^2 + 1$.*
+exist?
 
-**Proof.** $a^2 + b^2 = c^2 - 1 \iff c^2 - b^2 = a^2 + 1 \iff (c-b)(c+b) = a^2 + 1$. $\square$
+## Mathematical Development
 
-**Theorem 2 (Only Even $a$).** *No solutions exist with $a$ odd.*
+Write
 
-**Proof.** Let $d = c - b$, $e = c + b$. For $b$ and $c$ to be integers, $d$ and $e$ must have the same parity. If $a$ is odd, then $a^2 + 1 \equiv 2 \pmod{4}$. If $d, e$ are both odd, then $de$ is odd, contradicting $de \equiv 2$. If $d, e$ are both even, then $4 \mid de$, contradicting $de \equiv 2 \pmod{4}$. Hence no solution exists. $\square$
+$$
+Q(a,b,c)=a^2+b^2-c^2.
+$$
 
-**Theorem 3 (Parametrization for Even $a$).** *For $a = 2m$, we have $n = 4m^2 + 1$, which is odd. Every divisor $d$ of $n$ with $d \leq \sqrt{n}$ yields at most one valid triple via $e = n/d$, $b = (e - d)/2$, $c = (e + d)/2$.*
+We want the positive integer solutions of
 
-**Proof.** Since $n = 4m^2 + 1$ is odd, $d$ and $e = n/d$ are both odd, so $b = (e-d)/2$ and $c = (e+d)/2$ are integers. The constraint $d \leq \sqrt{n}$ avoids double-counting. $\square$
+$$
+Q(a,b,c)=-1.
+$$
 
-**Lemma 1 (Validity Constraints).** *A divisor pair $(d, e)$ produces a valid triple iff: (i) $e - d \geq 4m$ (so $b \geq a$), and (ii) $2m + e \leq L$ (perimeter bound).*
+Any common divisor of $a,b,c$ would also divide
 
-**Proof.** $b \geq a$ requires $(e - d)/2 \geq 2m$, i.e., $e - d \geq 4m$. The perimeter is $a + b + c = 2m + e \leq L$. $\square$
+$$
+a^2+b^2-c^2=-1,
+$$
 
-**Theorem 4 (Sieve Factorization).** *The values $n = 4m^2 + 1$ for $m = 1, \ldots, L/6$ can be factored using a sieve over primes $p \equiv 1 \pmod{4}$.*
+so every solution is primitive.
 
-**Proof.** A prime $p$ divides $4m^2 + 1$ iff $(2m)^2 \equiv -1 \pmod{p}$, which has solutions iff $-1$ is a quadratic residue mod $p$, iff $p \equiv 1 \pmod{4}$ (by the first supplement to quadratic reciprocity). For each such prime, the residue classes of $m$ satisfying $4m^2 + 1 \equiv 0 \pmod{p}$ can be computed from a square root of $-1$ modulo $p$. This allows sieving in arithmetic progressions. $\square$
+The classical Berggren matrices for the ternary quadratic form $x^2+y^2-z^2$ are
 
-**Lemma 2 (Square Root of $-1$ mod $p$).** *For $p \equiv 1 \pmod{4}$, if $g$ is a primitive root mod $p$, then $r = g^{(p-1)/4}$ satisfies $r^2 \equiv -1 \pmod{p}$.*
+$$
+M_1=
+\begin{pmatrix}
+1&-2&2\\
+2&-1&2\\
+2&-2&3
+\end{pmatrix},
+\quad
+M_2=
+\begin{pmatrix}
+1&2&2\\
+2&1&2\\
+2&2&3
+\end{pmatrix},
+\quad
+M_3=
+\begin{pmatrix}
+-1&2&2\\
+-2&1&2\\
+-2&2&3
+\end{pmatrix}.
+$$
 
-**Proof.** $r^2 = g^{(p-1)/2} \equiv -1 \pmod{p}$ by Euler's criterion, since $g$ is a primitive root. $\square$
+Each satisfies
+
+$$
+Q(M_i v)=Q(v),
+$$
+
+so they preserve the equation $Q=-1$.
+
+The smallest positive solution is
+
+$$
+(2,2,3),
+$$
+
+and the Hall-Berggren theory for this form shows that every positive solution of $Q=-1$ is obtained by repeatedly applying these matrices.
+
+Because $a$ and $b$ play symmetric roles, we sort them after each transformation. When $a=b$, the first and third matrices produce the same sorted child, so only two distinct descendants remain. That gives a duplicate-free tree.
+
+Therefore the counting problem is reduced to a depth-first traversal of that tree, pruning as soon as
+
+$$
+a+b+c > 75{,}000{,}000.
+$$
 
 ## Editorial
-Count ordered triples (a, b, c) with a <= b <= c, a^2 + b^2 = c^2 - 1, and a + b + c <= 75,000,000. Only even a have solutions (proved: a odd => a^2+1 = 2 mod 4, no same-parity factorization). For a = 2m: n = a^2+1 = 4m^2+1 (odd). (c-b)(c+b) = n. d*e = n, both odd, d <= e. b = (e-d)/2 >= a = 2m, perimeter = a + e <= L. This solution uses a block sieve to factor 4m^2+1 for all m. Note: This Python version is significantly slower than the C++ version. For a fast result, use the C++ solution. We sieve: for each m in [1, M], compute divisors of 4m^2 + 1. We then m satisfies 4m^2 + 1 = 0 mod p iff 2m = +/- r mod p. Finally, remaining n_values[m] > 1 is a large prime.
+
+The direct factorization
+
+$$
+(c-b)(c+b)=a^2+1
+$$
+
+is valid, but it is not the most convenient way to count all solutions up to a perimeter of seventy-five million. The better observation is that the equation lives on the quadratic surface
+
+$$
+a^2+b^2-c^2=-1,
+$$
+
+and that this surface has the same Berggren-style tree structure that ordinary Pythagorean triples have.
+
+So instead of factoring $4m^2+1$ for millions of values of $m$, we start from the root $(2,2,3)$ and generate every solution exactly once. Each matrix application gives a new valid triple, sorting the first two coordinates restores the convention $a \le b$, and the perimeter bound cuts off the recursion naturally. That turns the problem into a pure tree walk with almost no arithmetic overhead.
 
 ## Pseudocode
 
 ```text
-Sieve: for each m in [1, M], compute divisors of 4m^2 + 1
-m satisfies 4m^2 + 1 = 0 mod p iff 2m = +/- r mod p
-Remaining n_values[m] > 1 is a large prime
+Store the three Berggren matrices that preserve a^2 + b^2 - c^2.
+
+Initialize a stack with the root triple (2, 2, 3).
+Set the answer counter to 0.
+
+While the stack is not empty:
+    remove one triple (a, b, c)
+    reorder the first two entries so that a <= b
+
+    If a + b + c exceeds the perimeter limit:
+        discard this branch
+        continue
+
+    Count the current triple.
+
+    If a = b:
+        only the first two matrices give distinct sorted children
+    otherwise:
+        use all three matrices
+
+    For each chosen matrix:
+        compute the transformed triple
+        keep it only if all three coordinates stay positive
+        sort the first two coordinates
+        push the child onto the stack
+
+Return the counter.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(M \log \log M + M \bar{d})$, where $M = L/6 \approx 1.25 \times 10^7$ and $\bar{d}$ is the average number of divisors ($\approx 10$--$20$).
-- **Space:** $O(M)$ for the sieve arrays and divisor lists.
+- **Time:** Linear in the number of generated triples; every valid solution is visited once.
+- **Space:** Proportional to the maximum size of the DFS stack.
 
 ## Answer
 

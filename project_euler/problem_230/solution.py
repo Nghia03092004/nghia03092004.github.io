@@ -54,4 +54,6 @@ def solve():
 
     print(answer)
 
-solve()
+
+if __name__ == "__main__":
+    solve()

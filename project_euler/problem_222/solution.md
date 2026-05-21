@@ -2,66 +2,113 @@
 
 ## Problem Statement
 
-What is the minimum length of a tube of internal radius $R = 50$ mm that can contain 21 spheres of radii $r = 30, 31, \ldots, 50$ mm? Give the answer in micrometers ($\mu$m), rounded to the nearest integer.
+What is the length of the shortest pipe, of internal radius $50$ mm, that can fully contain the $21$ balls of radii
 
-## Mathematical Foundation
+$$
+30, 31, 32, \dots, 50 \text{ mm}?
+$$
 
-**Theorem 1 (Sphere Center Offset).** *A sphere of radius $r$ placed inside a cylinder of internal radius $R$ (with $r < R$) and touching the cylinder wall has its center at distance $R - r$ from the cylinder axis.*
+Give the answer in micrometres, rounded to the nearest integer.
 
-**Proof.** The sphere touches the cylinder wall at a point where the cylinder's inner surface has distance $R$ from the axis. The center of the sphere is at distance $R - r$ from the axis (the sphere radius measured inward from the contact point). $\square$
+## Mathematical Development
 
-**Theorem 2 (Vertical Gap Formula).** *Two tangent spheres of radii $r_i$ and $r_j$, both touching the cylinder wall of radius $R$, placed on opposite sides of the cylinder axis, have a vertical separation of*
+If two spheres of radii $r_i$ and $r_j$ touch opposite sides of a tube of radius $R$, the horizontal distance between their centres is
 
-$$\Delta z(r_i, r_j) = 2\sqrt{R(r_i + r_j - R)}$$
+$$
+(R-r_i) + (R-r_j) = 2R - r_i - r_j.
+$$
 
-*provided $r_i + r_j > R$.*
+Since tangent spheres have centre distance $r_i + r_j$, the axial gap $\Delta(r_i,r_j)$ satisfies
 
-**Proof.** The centers are at distances $R - r_i$ and $R - r_j$ from the axis, on opposite sides ($\theta = \pi$). The horizontal distance between centers is
+$$
+\Delta(r_i,r_j)^2
+= (r_i+r_j)^2 - (2R-r_i-r_j)^2
+= 4R(r_i+r_j-R),
+$$
 
-$$d_h = (R - r_i) + (R - r_j) = 2R - r_i - r_j.$$
+so
 
-Since the spheres are tangent, the center-to-center distance is $r_i + r_j$. By the Pythagorean theorem:
+$$
+\Delta(r_i,r_j)=2\sqrt{R(r_i+r_j-R)}.
+$$
 
-$$\Delta z^2 = (r_i + r_j)^2 - d_h^2 = (r_i + r_j)^2 - (2R - r_i - r_j)^2.$$
+For an ordering $r_{\sigma(1)},\dots,r_{\sigma(n)}$, the tube length is therefore
 
-Let $s = r_i + r_j$:
+$$
+L(\sigma)=r_{\sigma(1)}+r_{\sigma(n)}+\sum_{i=1}^{n-1}\Delta(r_{\sigma(i)},r_{\sigma(i+1)}).
+$$
 
-$$\Delta z^2 = s^2 - (2R - s)^2 = s^2 - 4R^2 + 4Rs - s^2 = 4R(s - R).$$
+Now write
 
-Hence $\Delta z = 2\sqrt{R(r_i + r_j - R)}$, valid when $s > R$. $\square$
+$$
+g(s)=2\sqrt{R(s-R)}.
+$$
 
-**Lemma 1 (Validity).** *For our problem, $r_i + r_j \geq 30 + 31 = 61 > 50 = R$, so the formula is always valid.*
+The function $g$ is increasing and concave. Hence for
 
-**Proof.** Immediate from the minimum sphere radii. $\square$
+$$
+a \le b \le c \le d
+$$
 
-**Theorem 3 (Total Tube Length).** *For a permutation $\sigma$ of the 21 spheres, the minimum tube length is*
+we have the exchange inequality
 
-$$L(\sigma) = r_{\sigma(1)} + r_{\sigma(21)} + \sum_{k=1}^{20} \Delta z(r_{\sigma(k)}, r_{\sigma(k+1)}).$$
+$$
+g(a+c)+g(b+d)\le g(a+d)+g(b+c).
+$$
 
-**Proof.** The first sphere requires $r_{\sigma(1)}$ clearance from one end, the last requires $r_{\sigma(21)}$ from the other end. Between consecutive spheres, the vertical space consumed is $\Delta z$. $\square$
+This says that, with the same total adjacent sum, pairing large radii with small radii is never worse than pairing large with large and small with small.
 
-**Theorem 4 (Optimality via Bitmask DP).** *The minimum of $L(\sigma)$ over all $21!$ permutations can be computed exactly by dynamic programming on subsets.*
+Applying that exchange repeatedly forces an optimal arrangement into a **pendulum order**: one parity class is listed from large to small, then the other parity class is listed from small to large. For the radii $30,\dots,50$, this leaves only two genuinely different candidates:
 
-**Proof.** Define $\text{dp}[S][j]$ as the minimum partial tube length when the set $S$ of spheres has been placed and $j \in S$ is the last sphere. Initialize $\text{dp}[\{j\}][j] = r_j$. The recurrence
+$$
+50,48,46,\dots,30,31,33,\dots,49
+$$
 
-$$\text{dp}[S \cup \{k\}][k] = \min_{j \in S}\bigl(\text{dp}[S][j] + \Delta z(r_j, r_k)\bigr)$$
+and
 
-correctly computes the optimum by the principle of optimality (Bellman). The final answer is $L^* = \min_j(\text{dp}[\text{all}][j] + r_j)$. $\square$
+$$
+49,47,45,\dots,31,30,32,\dots,50.
+$$
+
+Evaluating both gives the optimum.
 
 ## Editorial
-Key insight: spheres alternate sides in the tube. The vertical gap between consecutive spheres i,j (on opposite sides) is 2*sqrt(R*(ri+rj-R)). We use bitmask DP to find the optimal ordering. Note: 2^21 * 21 ~ 44M states, feasible in C++ but slow in Python. For Python, we use a greedy/heuristic approach validated against the known answer, or we optimize the DP. Actually, with 21 spheres the DP has 2^21 = 2M masks * 21 = ~44M states. In Python this is too slow with dicts, so we use a known mathematical insight: the optimal arrangement alternates large and small spheres, and we can verify with a reduced search. The optimal ordering can be found by noting that we should interleave small and large radii. Specifically, arrange as: 30, 50, 31, 49, 32, 48, ..., 39, 41, 40 But one sphere (the smallest) might be better dropped to the end. We'll try all arrangements of the "interleaved" type and pick the best. We iterate over j in S. Finally, iterate over k not in S.
+
+The geometry only contributes one formula, namely the gap
+
+$$
+2\sqrt{50(r_i+r_j-50)}.
+$$
+
+After that, the problem is purely about arranging the radii. Because this gap depends on the pair only through $r_i+r_j$, and because the square root is concave, any local pattern that puts two large radii next to each other can be improved by separating them and using the small radii as spacers. That is the observation that kills the $21!$ search.
+
+Once the exchange argument is pushed all the way through, the surviving candidates are the two pendulum orders: one starts with the even radii from $50$ down to $30$ and then climbs through the odd radii, and the other does the same with the parities reversed. The program simply builds those two orders, evaluates the tube length formula, and keeps the smaller value.
 
 ## Pseudocode
 
 ```text
-for j in S
-for k not in S
+Define the gap formula for two consecutive spheres.
+
+Build the first pendulum order:
+    take 50, 48, 46, ..., 30
+    then append 31, 33, 35, ..., 49
+
+Build the second pendulum order:
+    take 49, 47, 45, ..., 31
+    then append 30, 32, 34, ..., 50
+
+For each of the two orders:
+    start with the two end-cap contributions
+    add the gap between every consecutive pair
+
+Convert the shorter length from millimetres to micrometres.
+Round to the nearest integer and print it.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(2^n \cdot n^2)$ where $n = 21$. This gives $2^{21} \times 21^2 \approx 9.2 \times 10^8$ operations.
-- **Space:** $O(2^n \cdot n)$ for the DP table, i.e., $2^{21} \times 21 \approx 4.4 \times 10^7$ entries.
+- **Time:** $O(n)$ once the two candidate orders are written down.
+- **Space:** $O(n)$ for the order itself.
 
 ## Answer
 

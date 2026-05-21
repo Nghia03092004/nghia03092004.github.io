@@ -2,62 +2,99 @@
 
 ## Problem Statement
 
-The **Blancmange curve** (Takagi curve) is defined by
+The Blancmange curve is
 
-$$\operatorname{blanc}(x) = \sum_{n=0}^{\infty} \frac{s(2^n x)}{2^n}$$
+$$
+\operatorname{blanc}(x)=\sum_{n=0}^{\infty}\frac{s(2^n x)}{2^n},
+\qquad
+s(x)=\min_{k\in\mathbb Z}|x-k|.
+$$
 
-where $s(x) = \min_{k \in \mathbb{Z}} |x - k|$ is the distance from $x$ to the nearest integer. Consider the circle $C$ with center $(1/4, 1/2)$ and radius $1/4$:
+Consider the circle
 
-$$(x - 1/4)^2 + (y - 1/2)^2 = 1/16.$$
+$$
+\left(x-\frac14\right)^2+\left(y-\frac12\right)^2=\frac1{16}.
+$$
 
-Find the area of the region that lies both below the Blancmange curve and inside $C$, to 8 decimal places.
+Find the area of the region that lies both below the Blancmange curve and inside the circle, to $8$ decimal places.
 
-## Mathematical Foundation
+## Mathematical Development
 
-**Theorem 1 (Convergence of the Blancmange Series).** *The series $\operatorname{blanc}(x) = \sum_{n=0}^{\infty} \frac{s(2^n x)}{2^n}$ converges uniformly on $\mathbb{R}$.*
+Since $0 \le s(t) \le \tfrac12$, the tail of the Blancmange series is bounded by
 
-**Proof.** Since $0 \leq s(t) \leq 1/2$ for all $t$, each term satisfies $0 \leq \frac{s(2^n x)}{2^n} \leq \frac{1}{2^{n+1}}$. The series $\sum_{n=0}^{\infty} \frac{1}{2^{n+1}} = 1$ converges, so by the Weierstrass $M$-test, $\operatorname{blanc}(x)$ converges uniformly. $\square$
+$$
+\sum_{n=N}^{\infty}\frac{1}{2^{n+1}}=2^{-N}.
+$$
 
-**Theorem 2 (Continuity and Non-Differentiability).** *$\operatorname{blanc}(x)$ is continuous everywhere and differentiable nowhere on $[0,1]$.*
+So truncating after $60$ terms leaves an error below $10^{-18}$, which is far smaller than the required precision.
 
-**Proof.** Continuity follows from the uniform limit of continuous functions $s(2^n x)/2^n$. Nowhere-differentiability is the classical Takagi theorem (1903). $\square$
+The lower arc of the circle is
 
-**Lemma 1 (Truncation Error).** *Truncating the series at $N$ terms gives error bounded by $2^{-N}$:*
+$$
+y_{\mathrm{low}}(x)
+=
+\frac12-\sqrt{\frac1{16}-\left(x-\frac14\right)^2}.
+$$
 
-$$\left|\operatorname{blanc}(x) - \sum_{n=0}^{N-1} \frac{s(2^n x)}{2^n}\right| \leq \sum_{n=N}^{\infty} \frac{1}{2^{n+1}} = \frac{1}{2^N}.$$
+The relevant intersection points satisfy
 
-**Proof.** Direct from $|s(t)| \leq 1/2$ and geometric series summation. $\square$
+$$
+\left(x-\frac14\right)^2+\left(\operatorname{blanc}(x)-\frac12\right)^2=\frac1{16}.
+$$
 
-**Theorem 3 (Symmetry).** *$\operatorname{blanc}(x) = \operatorname{blanc}(1 - x)$ for all $x$.*
+One of them is obvious:
 
-**Proof.** $s(t) = s(1 - t)$ for all $t$ (distance to nearest integer is symmetric about $1/2$ modulo 1). Hence $s(2^n x) = s(2^n(1-x))$ for all $n$ (since $2^n(1-x) = 2^n - 2^n x$ and $s$ is periodic with period 1). $\square$
+$$
+x=\frac12,
+\qquad
+\operatorname{blanc}\!\left(\frac12\right)=\frac12.
+$$
 
-**Lemma 2 (Circle Arcs).** *The circle $C$ has lower and upper arcs on $[0, 1/2]$:*
+The other lies near $x \approx 0.0789$ and is found numerically. Once that left intersection $x_1$ is known, the desired area is
 
-$$y_{\text{low}}(x) = \frac{1}{2} - \sqrt{\frac{1}{16} - \left(x - \frac{1}{4}\right)^2}, \quad y_{\text{up}}(x) = \frac{1}{2} + \sqrt{\frac{1}{16} - \left(x - \frac{1}{4}\right)^2}.$$
+$$
+\int_{x_1}^{1/2}\bigl(\operatorname{blanc}(x)-y_{\mathrm{low}}(x)\bigr)\,dx.
+$$
 
-**Proof.** Solve $(x - 1/4)^2 + (y - 1/2)^2 = 1/16$ for $y$. $\square$
+So the whole problem reduces to two numerical tasks:
 
-**Theorem 4 (Intersection and Area).** *The Blancmange curve intersects the circle at $x_2 = 1/2$ (where $\operatorname{blanc}(1/2) = 1/2$) and at some $x_1 \approx 0.0789$. Between $x_1$ and $x_2$, the curve lies above the lower arc and inside $C$. The enclosed area is*
-
-$$A = \int_{x_1}^{x_2}\bigl[\operatorname{blanc}(x) - y_{\text{low}}(x)\bigr]\,dx.$$
-
-**Proof.** At $x = 1/2$: $\operatorname{blanc}(1/2) = 1/2$ and $(1/2 - 1/4)^2 + (1/2 - 1/2)^2 = 1/16$, confirming the point lies on $C$. The left intersection $x_1$ is the unique root of $(x - 1/4)^2 + (\operatorname{blanc}(x) - 1/2)^2 = 1/16$ on $(0, 1/2)$ (verified numerically). Between $x_1$ and $x_2$, the Blancmange curve lies above $y_{\text{low}}(x)$ and below $y_{\text{up}}(x)$, so the area between the curve and the lower arc gives the enclosed region. $\square$
+1. find the left intersection accurately;
+2. integrate the difference between the curve and the lower arc.
 
 ## Editorial
-We find x1 by Brent's method on f(x) = (x-1/4)^2 + (blanc(x)-1/2)^2 - 1/16. Finally, simpson's rule with M subdivisions.
+
+The function itself is not the obstacle. Because the Blancmange series has a geometric tail, $60$ terms already give much more accuracy than the final answer needs. That lets us treat $\operatorname{blanc}(x)$ as an ordinary smooth-enough numeric function everywhere in the relevant interval.
+
+From there, the geometry is clean. The enclosed region starts at the nontrivial intersection of the curve with the circle, ends at $x=\tfrac12$, and its height is simply
+
+$$
+\operatorname{blanc}(x)-y_{\mathrm{low}}(x).
+$$
+
+So the program first locates the left intersection with a robust one-dimensional root finder, then integrates that height with Simpson's rule on a fine grid. There is no symbolic trick after that; the important part is keeping the truncation and quadrature errors comfortably below $10^{-8}$.
 
 ## Pseudocode
 
 ```text
-Find x1 by Brent's method on f(x) = (x-1/4)^2 + (blanc(x)-1/2)^2 - 1/16
-Simpson's rule with M subdivisions
+Approximate blanc(x) by summing the first 60 terms of the series.
+
+Define the circle equation
+    f(x) = (x - 1/4)^2 + (blanc(x) - 1/2)^2 - 1/16.
+
+Use a bracketing root finder on the interval near 0.08
+to locate the left intersection x1.
+
+Define the lower circle arc y_low(x).
+Define the integrand blanc(x) - y_low(x).
+
+Apply Simpson's rule on [x1, 1/2] with a sufficiently fine subdivision.
+Print the area to 8 decimal places.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(N \cdot M)$ where $N = 60$ (series terms) and $M = 2 \times 10^6$ (quadrature points). Total: $\approx 1.2 \times 10^8$ floating-point operations.
-- **Space:** $O(1)$ (each quadrature point is computed on the fly).
+- **Time:** $O(T \cdot M)$ where $T=60$ Blancmange terms are evaluated at each of the $M$ quadrature points.
+- **Space:** $O(1)$.
 
 ## Answer
 

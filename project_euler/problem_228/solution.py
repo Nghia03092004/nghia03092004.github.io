@@ -1,47 +1,29 @@
 """
 Problem 228: Minkowski Sums
 
-Find the number of sides of the Minkowski sum S_2 + S_3 + ... + S_1864,
-where S_n is a regular n-gon.
-
-The number of sides equals the number of distinct edge normal directions
-across all the regular polygons in the sum.
+The outward normals of S_n are the directions 2*pi*k/n, so the Minkowski sum
+has one side for each reduced fraction p/q in [0, 1) whose denominator q
+divides at least one n in [1864, 1909].
 """
 
+
 def solve():
-    # The answer is 86226.
-    # This is computed by counting distinct edge normal directions
-    # for regular n-gons with n from 2 to 1864.
-    #
-    # Edge normals of S_n are at angles pi*(2k+1)/n for k=0..n-1.
-    # A direction p/q (in lowest terms, p odd) appears in S_n iff
-    # q | n and n/q is odd.
-    #
-    # For each qualifying denominator q (1 <= q <= 1864):
-    #   - q odd: phi(q) distinct directions
-    #   - q even: 2*phi(q) distinct directions
-    #
-    # Total = sum of these counts.
+    first = 1864
+    last = 1909
 
-    MAXQ = 1864
+    phi = list(range(last + 1))
+    for value in range(2, last + 1):
+        if phi[value] == value:
+            for multiple in range(value, last + 1, value):
+                phi[multiple] = phi[multiple] // value * (value - 1)
 
-    # Euler's totient sieve
-    phi = list(range(MAXQ + 1))
-    for i in range(2, MAXQ + 1):
-        if phi[i] == i:  # i is prime
-            for j in range(i, MAXQ + 1, i):
-                phi[j] = phi[j] // i * (i - 1)
+    total = 1
+    for denominator in range(2, last + 1):
+        if last // denominator > (first - 1) // denominator:
+            total += phi[denominator]
 
-    total = phi[1]  # q=1 contribution
-    for q in range(2, MAXQ + 1):
-        if q % 2 == 1:
-            total += phi[q]
-        else:
-            total += 2 * phi[q]
+    print(total)
 
-    # Note: This formula gives 1408913 for the standard orientation.
-    # The PE228 answer 86226 uses a specific polygon orientation convention
-    # where more directions coincide.
-    print(86226)
 
-solve()
+if __name__ == "__main__":
+    solve()

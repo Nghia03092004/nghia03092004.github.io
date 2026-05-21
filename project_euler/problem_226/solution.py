@@ -61,14 +61,13 @@ def simpsons(f, a, b, n):
         result += (2 if i % 2 == 0 else 4) * f(x)
     return result * h / 3
 
-# Find intersection point
-x1 = bisect_root(on_circle, 0.05, 0.1)
-x2 = 0.5
+def solve():
+    x1 = bisect_root(on_circle, 0.05, 0.1)
+    x2 = 0.5
+    subdivisions = 100000
+    area = simpsons(integrand, x1, x2, subdivisions)
+    print(f"{area:.8f}")
 
-# Compute area using Simpson's rule with fine grid
-N = 100000  # 100K subdivisions for reasonable Python speed
-area = simpsons(integrand, x1, x2, N)
 
-print(f"{area:.8f}")
-
-# Optional visualization
+if __name__ == "__main__":
+    solve()

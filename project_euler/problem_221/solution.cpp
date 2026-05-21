@@ -96,11 +96,16 @@ int main(){
         }
         for(long long d : divs){
             long long e = N / d;
-            // A = p * (d+p) * (e+p), check overflow
-            __int128 A128 = (__int128)p * (d + p) * (e + p);
-            if(A128 > ALIMIT) continue;
-            long long A = (long long)A128;
-            alex_set.insert(A);
+            unsigned long long x = (unsigned long long)p;
+            unsigned long long y = (unsigned long long)(d + p);
+            unsigned long long z = (unsigned long long)(e + p);
+
+            if (x > (unsigned long long)ALIMIT / y) continue;
+            unsigned long long partial = x * y;
+            if (partial > (unsigned long long)ALIMIT / z) continue;
+
+            unsigned long long A = partial * z;
+            alex_set.insert((long long)A);
         }
     }
 

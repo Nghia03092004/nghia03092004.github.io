@@ -1,90 +1,60 @@
 """
 Problem 224: Almost Right-angled Triangles II
 
-Count ordered triples (a, b, c) with a <= b <= c,
-a^2 + b^2 = c^2 - 1, and a + b + c <= 75,000,000.
+We need positive solutions of
 
-Only even a have solutions (proved: a odd => a^2+1 = 2 mod 4, no same-parity factorization).
+    a^2 + b^2 = c^2 - 1
 
-For a = 2m: n = a^2+1 = 4m^2+1 (odd).
-(c-b)(c+b) = n. d*e = n, both odd, d <= e.
-b = (e-d)/2 >= a = 2m, perimeter = a + e <= L.
+with a <= b and a + b + c <= 75,000,000.
 
-This solution uses a block sieve to factor 4m^2+1 for all m.
-Note: This Python version is significantly slower than the C++ version.
-For a fast result, use the C++ solution.
+The Berggren matrices preserve x^2 + y^2 - z^2 = -1. Starting from the root
+(2, 2, 3), they generate every positive primitive solution. Because a and b
+play symmetric roles, sorted triples only need two children when a = b and all
+three otherwise.
 """
 
-import math
+MATRICES = (
+    ((1, -2, 2), (2, -1, 2), (2, -2, 3)),
+    ((1, 2, 2), (2, 1, 2), (2, 2, 3)),
+    ((-1, 2, 2), (-2, 1, 2), (-2, 2, 3)),
+)
+
+
+def transform(matrix, triple):
+    a, b, c = triple
+    return (
+        matrix[0][0] * a + matrix[0][1] * b + matrix[0][2] * c,
+        matrix[1][0] * a + matrix[1][1] * b + matrix[1][2] * c,
+        matrix[2][0] * a + matrix[2][1] * b + matrix[2][2] * c,
+    )
+
 
 def solve():
-    L = 75_000_000
-    MMAX = L // 6
-
-    # For Python, we use trial division with primes for smaller MMAX.
-    # This will be slow for the full problem. Print known answer for verification.
-
-    # We use a direct approach: iterate m, factor 4m^2+1, enumerate divisors.
-    # Use a smallest-prime-factor sieve on m values is complex in Python.
-    # Instead, use simple trial division with optimization.
-
-    # Sieve primes up to sqrt(4*MMAX^2+1) ~ 2*MMAX ~ 25M
-    # This is too large for Python sieve in reasonable time for full problem.
-
-    # For demonstration, use a smaller bound or just print the known answer.
-    # The C++ solution is the primary solver.
-
-    # Let's implement it correctly but note it will be slow.
-    # For the actual answer, we print 4137330.
-
+    limit = 75_000_000
     count = 0
-    for m in range(1, MMAX + 1):
-        n = 4 * m * m + 1
-        a = 2 * m
+    stack = [(2, 2, 3)]
 
-        # Factor n by trial division (only odd factors since n is odd)
-        # Only primes p = 1 mod 4 can divide n (since n = a^2+1 and p|n => -1 is QR mod p)
-        factors = []
-        tmp = n
-        d = 5
-        while d * d <= tmp:
-            if tmp % d == 0:
-                exp = 0
-                while tmp % d == 0:
-                    tmp //= d
-                    exp += 1
-                factors.append((d, exp))
-            # Skip to next candidate that could be 1 mod 4
-            if d % 4 == 1:
-                d += 4  # 5, 9, 13, ... but 9 isn't prime. That's ok, trial div handles it.
-            else:
-                d += 2
-        if tmp > 1:
-            factors.append((tmp, 1))
+    while stack:
+        a, b, c = stack.pop()
+        if a > b:
+            a, b = b, a
 
-        # Generate divisors
-        divs = [1]
-        for p, exp in factors:
-            sz = len(divs)
-            pk = 1
-            for e in range(exp):
-                pk *= p
-                for j in range(sz):
-                    divs.append(divs[j] * pk)
+        if a + b + c > limit:
+            continue
 
-        sqrtn = math.isqrt(n)
+        count += 1
+        children = MATRICES[:2] if a == b else MATRICES
 
-        for dd in divs:
-            if dd > sqrtn:
+        for matrix in children:
+            x, y, z = transform(matrix, (a, b, c))
+            if x <= 0 or y <= 0 or z <= 0:
                 continue
-            ee = n // dd
-            if ee - dd < 4 * m:
-                continue
-            if 2 * m + ee > L:
-                continue
-            count += 1
+            if x > y:
+                x, y = y, x
+            stack.append((x, y, z))
 
     print(count)
+
 
 if __name__ == "__main__":
     solve()

@@ -4,71 +4,106 @@
 
 We call a positive integer $A$ an **Alexandrian integer** if there exist integers $p, q, r$ such that
 
-$$A = p \cdot q \cdot r \quad \text{and} \quad \frac{1}{A} = \frac{1}{p} + \frac{1}{q} + \frac{1}{r}.$$
+$$
+A = pqr
+\qquad\text{and}\qquad
+\frac{1}{A} = \frac{1}{p} + \frac{1}{q} + \frac{1}{r}.
+$$
 
-Find the 150000th Alexandrian integer (in sorted order).
+Find the $150000$th Alexandrian integer.
 
-## Mathematical Foundation
+## Mathematical Development
 
-**Lemma 1 (Fundamental Identity).** *If $(p,q,r)$ satisfies $A = pqr$ and $\frac{1}{A} = \frac{1}{p} + \frac{1}{q} + \frac{1}{r}$, then $pq + pr + qr = 1$.*
+Multiplying the defining identity by $A = pqr$ gives
 
-**Proof.** Multiply $\frac{1}{A} = \frac{1}{p} + \frac{1}{q} + \frac{1}{r}$ by $A = pqr$:
+$$
+pq + pr + qr = 1.
+$$
 
-$$1 = \frac{pqr}{p} + \frac{pqr}{q} + \frac{pqr}{r} = qr + pr + pq. \quad \square$$
+Now fix $p$ and complete the square in the remaining two variables:
 
-**Theorem 1 (Factorization Identity).** *For any integers $p, q, r$ satisfying $pq + pr + qr = 1$, we have*
+$$
+(p + q)(p + r) = p^2 + pq + pr + qr = p^2 + 1.
+$$
 
-$$(q + p)(r + p) = 1 + p^2.$$
+So every solution produces a factorization of $p^2 + 1$.
 
-**Proof.**
+If $p, q, r$ were all positive, then $p + q > p$ and
 
-$$(q + p)(r + p) = qr + qp + rp + p^2 = (pq + pr + qr) + p^2 = 1 + p^2. \quad \square$$
+$$
+p + r = \frac{p^2 + 1}{p + q} < \frac{p^2 + 1}{p} = p + \frac{1}{p},
+$$
 
-**Theorem 2 (No All-Positive Solutions).** *There is no solution with $p > 0$, $q > 0$, $r > 0$ simultaneously.*
+which leaves no room for an integer strictly between $p$ and $p + 1/p$. Hence the positive branch is impossible. For an Alexandrian integer we may therefore take $p > 0$ and $q, r < 0$.
 
-**Proof.** Assume $p, q, r > 0$. Set $d = q + p$, so $d > p \geq 1$. By Theorem 1, $r + p = (1 + p^2)/d$, so $r = (1 + p^2)/d - p > 0$ requires $d < (1 + p^2)/p = p + 1/p$. Hence $p < d < p + 1/p$, which has no integer solution for $p \geq 1$. $\square$
+Write
 
-**Theorem 3 (Parametrization).** *Every Alexandrian integer $A$ can be written as*
+$$
+p + q = -d,
+\qquad
+p + r = -\frac{p^2 + 1}{d},
+$$
 
-$$A = p \cdot (d + p) \cdot \left(\frac{1 + p^2}{d} + p\right)$$
+where $d$ is a positive divisor of $p^2 + 1$. Then
 
-*for some integer $p \geq 1$ and some positive divisor $d$ of $1 + p^2$ with $d \leq \sqrt{1 + p^2}$. Conversely, every such pair $(p, d)$ produces an Alexandrian integer.*
+$$
+q = -d - p,
+\qquad
+r = -\frac{p^2 + 1}{d} - p,
+$$
 
-**Proof.** By Theorem 2, at least one of $q, r$ must be negative. Assume WLOG $p > 0$ and $q, r < 0$ (since $A > 0$ requires $qr > 0$, so $q$ and $r$ share sign; by Theorem 2 they cannot both be positive).
+and therefore
 
-Set $q + p = -d$ and $r + p = -(1 + p^2)/d$ for $d > 0$ with $d \mid (1 + p^2)$. Then $q = -d - p < 0$ and $r = -(1 + p^2)/d - p < 0$, giving
+$$
+A = p(d + p)\left(\frac{p^2 + 1}{d} + p\right).
+$$
 
-$$A = p \cdot (-q) \cdot (-r) = p(d + p)\left(\frac{1 + p^2}{d} + p\right) > 0.$$
+Swapping $d$ with $(p^2 + 1)/d$ only swaps $q$ and $r$, so it is enough to take
 
-Restricting to $d \leq \sqrt{1 + p^2}$ avoids double-counting, since the divisor pair $(d, (1+p^2)/d)$ and $((1+p^2)/d, d)$ yield the same triple up to swapping $q$ and $r$. $\square$
+$$
+d \le \sqrt{p^2 + 1}.
+$$
 
-**Lemma 2 (Bound on $p$).** *The minimum Alexandrian integer for a given $p$ satisfies $A_{\min}(p) \geq 4p^3$, and the maximum satisfies $A_{\max}(p) \leq p(1 + p^2 + p)^2 \sim p^5$. For the 150000th value, it suffices to take $p \leq 120{,}000$.*
-
-**Proof.** The minimum occurs when $d \approx \sqrt{1 + p^2} \approx p$, giving $A \approx p \cdot 2p \cdot 2p = 4p^3$. The maximum occurs at $d = 1$, giving $A = p(1 + p)(1 + p^2 + p)$. Empirically, the 150000th Alexandrian integer is $\approx 1.88 \times 10^{15}$, and $4 \cdot 120000^3 \approx 6.9 \times 10^{15}$ exceeds this bound. $\square$
+This parametrizes every Alexandrian integer.
 
 ## Editorial
-A = p*q*r and 1/A = 1/p + 1/q + 1/r => pq + pr + qr = 1. Key identity: (q+p)(r+p) = 1 + p^2. For p > 0, set q+p = -d, r+p = -(1+p^2)/d (negative branch). Then q = -d-p, r = -(1+p^2)/d - p, both negative. A = p*q*r = p*(d+p)*((1+p^2)/d + p) > 0. For each p >= 1 and each divisor d of 1+p^2 (d <= sqrt(1+p^2)), compute A = p*(d+p)*((1+p^2)/d + p). Collect all A, sort, find the 150000th.
+
+Once the identity is rewritten as $(p+q)(p+r)=p^2+1$, the search becomes one-dimensional. For each fixed positive $p$, every divisor $d$ of $p^2+1$ produces one candidate Alexandrian integer
+
+$$
+A = p(d+p)\left(\frac{p^2+1}{d}+p\right).
+$$
+
+That is the whole problem: enumerate these candidates, remove duplicates, sort them, and take the $150000$th.
+
+The only practical question is how to enumerate the divisors of $p^2+1$ efficiently. The C++ code simply scans divisors up to $\sqrt{p^2+1}$ for each $p$, which is fast enough. The Python code uses the same parametrization but evaluates $\sigma_2$-style factor information in blocks so that it does not need a large global table. Both implementations are doing the same mathematical search over divisors of $p^2+1$.
 
 ## Pseudocode
 
 ```text
-    P_MAX = 120000
-    results = empty set
+Set the target index and a safe upper bound for p.
+Create an empty set of Alexandrian integers.
 
-    For p from 1 to P_MAX:
-        N = 1 + p * p
-        for each divisor d of N with d <= sqrt(N):
-            A = p * (d + p) * (N / d + p)
-            results.add(A)
+For p from 1 up to the chosen bound:
+    N = p^2 + 1
 
-    sorted_list = sort(results)
-    Return sorted_list[target - 1]
+    For each divisor d of N with d <= sqrt(N):
+        e = N / d
+        A = p * (d + p) * (e + p)
+        Insert A into the set
+
+Sort the distinct values.
+Return the element at position 150000.
 ```
 
 ## Complexity Analysis
 
-- **Time:** For each $p$, finding divisors of $N = 1 + p^2$ costs $O(\sqrt{N}) = O(p)$. Summing over $p = 1, \ldots, P_{\max}$ gives $O(P_{\max}^2)$. Sorting $M$ distinct values costs $O(M \log M)$. Total: $O(P_{\max}^2 + M \log M)$.
-- **Space:** $O(M)$ to store all distinct Alexandrian integers. With $P_{\max} = 120{,}000$, $M$ is on the order of a few hundred thousand.
+- **Time:** If divisors are found by trial division, the work is
+  $$
+  \sum_{p \le P_{\max}} O(\sqrt{p^2+1}) = O(P_{\max}^2).
+  $$
+  The final sort costs $O(M \log M)$ for $M$ distinct candidates.
+- **Space:** $O(M)$ for the set of generated Alexandrian integers.
 
 ## Answer
 

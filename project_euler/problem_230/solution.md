@@ -2,63 +2,89 @@
 
 ## Problem Statement
 
-For any two strings of digits $A$ and $B$, define the Fibonacci word sequence:
+Let $A$ and $B$ be the two given $100$-digit strings from $\pi$, and define
 
-- $F(1) = A$
-- $F(2) = B$
-- $F(n) = F(n-2) \cdot F(n-1)$ for $n > 2$ (concatenation)
+$$
+F(1)=A,\qquad F(2)=B,\qquad F(n)=F(n-2)\,F(n-1)\quad(n>2).
+$$
 
-Let $D(k)$ denote the $k$-th digit of the first term in the sequence that has at least $k$ digits.
+For a positive integer $k$, let $D(k)$ be the $k$th digit of the first Fibonacci word long enough to contain that position.
 
-Given $A$ and $B$ as 100-digit strings from $\pi$, compute
+Compute
 
-$$\sum_{n=0}^{17} 10^n \cdot D\bigl((127 + 19n) \cdot 7^n\bigr).$$
+$$
+\sum_{n=0}^{17} 10^n \, D\bigl((127+19n)7^n\bigr).
+$$
 
-## Mathematical Foundation
+## Mathematical Development
 
-**Theorem 1 (Length Recurrence).** *The lengths $L(n) = |F(n)|$ satisfy $L(1) = L(2) = 100$ and $L(n) = L(n-1) + L(n-2)$ for $n \geq 3$.*
+Let
 
-**Proof.** $F(n) = F(n-2) \cdot F(n-1)$ is the concatenation of $F(n-2)$ and $F(n-1)$, so $|F(n)| = |F(n-2)| + |F(n-1)|$. $\square$
+$$
+L(n)=|F(n)|.
+$$
 
-**Theorem 2 (Exponential Growth).** *$L(n) = \Theta(\phi^n)$ where $\phi = (1 + \sqrt{5})/2$ is the golden ratio. Specifically,*
+Because $F(n)$ is the concatenation of $F(n-2)$ and $F(n-1)$,
 
-$$L(n) = \frac{100}{\phi + 1}\bigl(\phi^{n-1} + (-\phi)^{-(n-1)}\bigr) + \frac{100}{\phi + 1}\bigl(\phi^{n-2} + (-\phi)^{-(n-2)}\bigr).$$
+$$
+L(1)=L(2)=100,
+\qquad
+L(n)=L(n-2)+L(n-1).
+$$
 
-**Proof.** The recurrence $L(n) = L(n-1) + L(n-2)$ with $L(1) = L(2) = 100$ has characteristic equation $x^2 = x + 1$ with roots $\phi$ and $-1/\phi$. The closed form follows from solving the initial conditions. Asymptotically, the $(-1/\phi)^n$ terms vanish, giving $L(n) = \Theta(\phi^n)$. $\square$
+So the lengths follow the Fibonacci recurrence and grow exponentially. This means we can reach any queried position by precomputing only a short table of lengths.
 
-**Lemma 1 (Sufficient Depth).** *The largest position queried is $k_{17} = (127 + 19 \cdot 17) \cdot 7^{17} = 450 \cdot 7^{17} \approx 1.05 \times 10^{17}$. We need $L(n) \geq k_{17}$, which is satisfied for $n \approx 85$.*
+Now suppose $n$ is the smallest index with $L(n)\ge k$. Since
 
-**Proof.** $L(n) \approx 100 \cdot \phi^{n-2} / (\phi + 1)$. Solving $L(n) \geq 10^{17}$ gives $n \geq \lceil 2 + \log_\phi(10^{17} \cdot (\phi+1)/100) \rceil \approx 85$. $\square$
+$$
+F(n)=F(n-2)\,F(n-1),
+$$
 
-**Theorem 3 (Recursive Digit Lookup).** *To find the $k$-th digit of $F(n)$ where $n$ is the smallest index with $L(n) \geq k$:*
+the first $L(n-2)$ digits come from $F(n-2)$ and the remaining digits come from $F(n-1)$. Therefore
 
-- *If $n = 1$: return $A[k]$.*
-- *If $n = 2$: return $B[k]$.*
-- *If $k \leq L(n-2)$: the digit is in $F(n-2)$; recurse with $(n-2, k)$.*
-- *If $k > L(n-2)$: the digit is in $F(n-1)$; recurse with $(n-1, k - L(n-2))$.*
+$$
+D_n(k)=
+\begin{cases}
+D_{n-2}(k), & k \le L(n-2),\\[4pt]
+D_{n-1}(k-L(n-2)), & k > L(n-2).
+\end{cases}
+$$
 
-**Proof.** Since $F(n) = F(n-2) \cdot F(n-1)$, the first $L(n-2)$ characters are from $F(n-2)$ and the remaining $L(n-1)$ characters are from $F(n-1)$. The recursion correctly decomposes the position. Termination is guaranteed since at each step we reduce $n$ by at least 1 (and $k$ stays bounded by $L(n)$, which decreases exponentially). $\square$
-
-**Lemma 2 (Lookup Complexity).** *Each digit lookup performs $O(n) = O(\log_\phi k)$ recursive steps.*
-
-**Proof.** At each step, $n$ decreases by 1 or 2. Since we start at $n \approx \log_\phi k$ and reach $n \in \{1, 2\}$, the number of steps is $O(\log_\phi k)$. $\square$
+This reduces the query to a smaller Fibonacci word without ever constructing the actual string.
 
 ## Editorial
-F(1) = A (100 digits of pi), F(2) = B (next 100 digits of pi) F(n) = F(n-2) . F(n-1) (concatenation, older part first) Sequence: A, B, AB, BAB, ABBAB, ... Find sum of D((127+19n)*7^n) * 10^n for n = 0 to 17, where D(k) is the k-th digit of the infinite Fibonacci word. We precompute Fibonacci lengths. We then find smallest n with L[n] >= k. Finally, recurse.
+
+The strings themselves are a red herring. By the time the index reaches $(127+19n)7^n$ for $n=17$, the relevant Fibonacci word is astronomically long, so building it explicitly is impossible. But the only thing the concatenation rule preserves is length, and length is exactly the information needed to walk a position backwards through the recursion.
+
+So the program does two tiny pieces of precomputation. First it builds the length table until the entries are safely larger than every requested index. Then, for each query position, it repeatedly asks whether the digit lies in the left block $F(n-2)$ or the right block $F(n-1)$. Every step replaces one huge word by a smaller one and eventually lands in either $A$ or $B$, where the digit is read directly.
 
 ## Pseudocode
 
 ```text
-Precompute Fibonacci lengths
-Find smallest n with L[n] >= k
-Recurse
-else
+Store the two 100-digit base strings A and B.
+
+Precompute the Fibonacci-style length table L(n)
+until it is larger than every queried position.
+
+To answer one query k:
+    find the first n with L(n) >= k
+    while n > 2:
+        if k <= L(n - 2):
+            move to F(n - 2)
+            n = n - 2
+        otherwise:
+            subtract L(n - 2) from k
+            move to F(n - 1)
+            n = n - 1
+    read the kth digit from A or B
+
+Evaluate the 18 queries and accumulate digit * 10^n.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(18 \cdot \log_\phi k_{\max}) = O(18 \times 85) = O(1530)$. Essentially instantaneous.
-- **Space:** $O(\log_\phi k_{\max}) = O(85)$ for the precomputed lengths.
+- **Time:** $O(\log k)$ per digit lookup, so the whole sum is tiny.
+- **Space:** $O(\log k)$ for the length table.
 
 ## Answer
 

@@ -1,46 +1,70 @@
 """
 Problem 227: The Chase
 
-Two players on a circular board of 100 spaces start diametrically opposite.
-Each turn both roll two dice and move toward each other.
-Find the expected number of turns to meet.
+State d is the shorter circular distance between the two dice, so d ranges
+from 0 to 50. The expected time satisfies
 
-The game is modeled as a Markov chain where the state is the distance
-between the two players (0 to 50). We solve a 50x50 linear system.
+    E(d) = 1 + sum P(d -> d') * E(d')
+
+for d >= 1. We solve the resulting 50 x 50 linear system.
 """
 
-import numpy as np
+
+def gaussian_elimination(matrix):
+    n = len(matrix)
+
+    for col in range(n):
+        pivot = max(range(col, n), key=lambda row: abs(matrix[row][col]))
+        matrix[col], matrix[pivot] = matrix[pivot], matrix[col]
+
+        pivot_value = matrix[col][col]
+        for row in range(col + 1, n):
+            factor = matrix[row][col] / pivot_value
+            if factor == 0.0:
+                continue
+            for index in range(col, n + 1):
+                matrix[row][index] -= factor * matrix[col][index]
+
+    solution = [0.0] * n
+    for row in range(n - 1, -1, -1):
+        value = matrix[row][n]
+        for col in range(row + 1, n):
+            value -= matrix[row][col] * solution[col]
+        solution[row] = value / matrix[row][row]
+
+    return solution
+
 
 def solve():
-    BOARD = 100
-    N = BOARD // 2  # max distance = 50
+    board = 100
+    states = board // 2
+    delta_probabilities = {
+        -2: 1.0 / 36.0,
+        -1: 8.0 / 36.0,
+        0: 18.0 / 36.0,
+        1: 8.0 / 36.0,
+        2: 1.0 / 36.0,
+    }
 
-    # Movement model: each player rolls two dice.
-    # Die passing rules: roll 1 = pass left (1/6), roll 6 = pass right (1/6),
-    # roll 2-5 = keep (4/6).
-    # Combined gap change delta = delta_B - delta_A:
-    #   -2: 1/36, -1: 8/36, 0: 18/36, +1: 8/36, +2: 1/36
-    delta_prob = {-2: 1/36, -1: 8/36, 0: 18/36, 1: 8/36, 2: 1/36}
+    transition = [[0.0] * states for _ in range(states)]
+    for distance in range(1, states + 1):
+        for delta, probability in delta_probabilities.items():
+            raw = (distance + delta) % board
+            new_distance = min(raw, board - raw)
+            if 1 <= new_distance <= states:
+                transition[distance - 1][new_distance - 1] += probability
 
-    # Build transition matrix T[d][d'] for d in 1..N
-    T = np.zeros((N, N))
-    for d in range(1, N + 1):
-        for delta, p in delta_prob.items():
-            raw = (d + delta) % BOARD
-            if raw < 0:
-                raw += BOARD
-            d_new = min(raw, BOARD - raw)
-            if 1 <= d_new <= N:
-                T[d - 1][d_new - 1] += p
+    augmented = []
+    for row in range(states):
+        equation = [0.0] * (states + 1)
+        for col in range(states):
+            equation[col] = (1.0 if row == col else 0.0) - transition[row][col]
+        equation[states] = 1.0
+        augmented.append(equation)
 
-    # Solve (I - T) * E = 1
-    A = np.eye(N) - T
-    b = np.ones(N)
-    E = np.linalg.solve(A, b)
+    expectations = gaussian_elimination(augmented)
+    print(f"{expectations[states - 1]:.6f}")
 
-    # E[N-1] = expected turns from distance N (= 50)
-    # This gives ~3780.62 for the die-passing model.
-    # The stated answer for the problem as described is 36.395863.
-    print("36.395863")
 
-solve()
+if __name__ == "__main__":
+    solve()

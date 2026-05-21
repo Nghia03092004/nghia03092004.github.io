@@ -2,49 +2,110 @@
 
 ## Problem Statement
 
-"The Chase" is a game played by two players on a circular board of 100 spaces. The two players start at diametrically opposite positions (50 spaces apart). Each turn, both players simultaneously roll two fair six-sided dice and move toward each other based on their rolls. Find the expected number of turns for them to land on the same space, to 6 decimal places.
+One hundred players sit around a circular table. Two opposite players start with one die each. On every turn, the two players who currently hold dice roll them:
 
-## Mathematical Foundation
+- on a $1$, the die is passed to the neighbour on the left;
+- on a $6$, the die is passed to the neighbour on the right;
+- otherwise the die stays where it is.
 
-**Theorem 1 (State Reduction by Symmetry).** *The game state is fully determined by the distance $d \in \{0, 1, \ldots, 50\}$ between the two players along the shorter arc of the circular board.*
+The game ends when, after the roll-and-pass step, one player holds both dice. Find the expected number of turns, rounded to $10$ significant digits.
 
-**Proof.** The board has rotational symmetry, so only the relative distance matters. Since the board has 100 spaces, the distance along the shorter arc is $\min(d, 100 - d) \in \{0, \ldots, 50\}$, where $d$ is the clockwise distance. $\square$
+## Mathematical Development
 
-**Theorem 2 (Absorbing Markov Chain).** *Let $E(d)$ be the expected number of turns to reach $d = 0$ starting from distance $d$. Then $E(0) = 0$ and for $1 \leq d \leq 50$:*
+The rotational symmetry means that the full state is determined by the shorter circular distance $d$ between the two dice:
 
-$$E(d) = 1 + \sum_{d'=1}^{50} T(d, d') \cdot E(d')$$
+$$
+d \in \{0,1,\dots,50\}.
+$$
 
-*where $T(d, d')$ is the transition probability from distance $d$ to distance $d'$.*
+State $d=0$ is absorbing.
 
-**Proof.** This is the standard first-step decomposition for expected hitting times in a Markov chain. At distance $d$, one turn is consumed, and the chain moves to distance $d'$ with probability $T(d, d')$. The term $T(d, 0)$ is implicitly absorbed (the chain stops). $\square$
+For one die, the move distribution is
 
-**Lemma 1 (Transition Probabilities).** *Let $P_1(k)$ and $P_2(k)$ be the probability distributions of movement for each player based on their two-dice roll (each player moves $k$ steps toward the other, or 0 if they roll neither a double nor qualifying sum). The combined movement is $m = m_1 + m_2$ where $m_1, m_2$ are independent. The new distance on the circular board is*
+$$
+-1 \text{ with probability } \frac16,
+\qquad
+0 \text{ with probability } \frac46,
+\qquad
+1 \text{ with probability } \frac16.
+$$
 
-$$d' = \min\bigl((d - m) \bmod 100,\; 100 - ((d - m) \bmod 100)\bigr).$$
+Therefore the distance change for the pair is
 
-**Proof.** The net reduction in gap is $m = m_1 + m_2$. On the circular board of 100 spaces, the raw distance becomes $(d - m) \bmod 100$, and the shorter-arc distance is $\min(r, 100 - r)$ where $r = (d - m) \bmod 100$. $\square$
+$$
+\Delta \in \{-2,-1,0,1,2\}
+$$
 
-**Theorem 3 (Linear System Solution).** *The system $(I - T)\mathbf{E} = \mathbf{1}$ is a $50 \times 50$ linear system with a unique solution, solvable by Gaussian elimination.*
+with probabilities
 
-**Proof.** The matrix $I - T$ is non-singular because the Markov chain is absorbing (state 0 is absorbing and is reachable from every transient state). The fundamental matrix $(I - T)^{-1}$ exists and its $(d, d')$ entry gives the expected number of visits to state $d'$ starting from $d$. The expected absorption time is $E(d) = \sum_{d'} (I - T)^{-1}_{d,d'}$, equivalently the solution to $(I - T)\mathbf{E} = \mathbf{1}$. $\square$
+$$
+\frac1{36},\ \frac8{36},\ \frac{18}{36},\ \frac8{36},\ \frac1{36}.
+$$
+
+If the current state is $d$, let
+
+$$
+r=(d+\Delta)\bmod 100.
+$$
+
+Then the actual next state is the shorter of the two arcs:
+
+$$
+d'=\min(r,100-r).
+$$
+
+Let $E(d)$ be the expected remaining number of turns from state $d$. Then
+
+$$
+E(0)=0
+$$
+
+and for $1 \le d \le 50$,
+
+$$
+E(d)=1+\sum_{d'=1}^{50} T(d,d')\,E(d'),
+$$
+
+where $T(d,d')$ is the transition probability. This is a $50\times 50$ linear system:
+
+$$
+(I-T)\,E=\mathbf 1.
+$$
 
 ## Editorial
-Two players on a circular board of 100 spaces start diametrically opposite. Each turn both roll two dice and move toward each other. Find the expected number of turns to meet. The game is modeled as a Markov chain where the state is the distance between the two players (0 to 50). We solve a 50x50 linear system. We compute movement distribution for one player (two dice). We then compute combined movement distribution P(m) = sum P1(k1)*P2(k2) where m=k1+k2. Finally, build 50x50 transition matrix T.
+
+Once the distance between the dice is chosen as the state, nothing else matters. The labels of the players disappear completely, and the stochastic process becomes a small absorbing Markov chain.
+
+The transition law is also tiny. Each die only has three possible effects on the gap, so the combined move has five possibilities, from $-2$ to $+2$. That means the whole problem is just linear algebra: build the $50\times 50$ transition matrix on the transient states, write down the first-step equations
+
+$$
+E(d)=1+\sum T(d,d')E(d'),
+$$
+
+and solve them with Gaussian elimination. The wanted value is the expectation from the initial opposite state $d=50$.
 
 ## Pseudocode
 
 ```text
-Compute movement distribution for one player (two dice)
-Compute combined movement distribution P(m) = sum P1(k1)*P2(k2) where m=k1+k2
-Build 50x50 transition matrix T
-for each possible combined move m
-Solve (I - T) * E = 1
+Build the five probabilities for the net distance change:
+    -2, -1, 0, 1, 2.
+
+For each transient state d from 1 to 50:
+    For each possible net change:
+        update the probability of the resulting shorter-arc distance d'
+
+Form the linear system
+    (I - T) * E = 1
+on the 50 transient states.
+
+Solve the system by Gaussian elimination.
+Output E(50) with 6 digits after the decimal point.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(n^3)$ for Gaussian elimination, where $n = 50$. Building the transition matrix costs $O(n \cdot K)$ where $K$ is the number of combined moves. Total: $O(n^3) = O(125{,}000)$.
-- **Space:** $O(n^2) = O(2500)$ for the matrix.
+- **Time:** $O(50^3)$ for Gaussian elimination.
+- **Space:** $O(50^2)$ for the matrix.
 
 ## Answer
 

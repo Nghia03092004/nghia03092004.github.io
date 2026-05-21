@@ -2,58 +2,92 @@
 
 ## Problem Statement
 
-Let $S_n$ denote a regular $n$-sided polygon. Find the number of sides of the Minkowski sum
+Let $S_n$ be the regular $n$-gon whose vertices are
 
-$$T = S_2 + S_3 + S_4 + \cdots + S_{1864}.$$
+$$
+(\cos((2k-1)\pi/n),\ \sin((2k-1)\pi/n)),
+\qquad
+k=1,\dots,n.
+$$
 
-## Mathematical Foundation
+How many sides does the Minkowski sum
 
-**Theorem 1 (Minkowski Sum Edge Count).** *The Minkowski sum of convex polygons $P_1, P_2, \ldots, P_k$ is a convex polygon whose number of edges equals the number of distinct edge normal directions across all summands.*
+$$
+S_{1864}+S_{1865}+\cdots+S_{1909}
+$$
 
-**Proof.** The Minkowski sum of convex polygons is convex. By the support function characterization, $h_{P+Q}(\theta) = h_P(\theta) + h_Q(\theta)$. The edges of a convex polygon correspond to maximal arcs of the unit circle on which the support function is affine (linear in $\theta$). Two edges from different summands merge if and only if they share the same outward normal direction. Hence the edge count of the sum equals the number of distinct normal directions. $\square$
+have?
 
-**Lemma 1 (Normal Directions of $S_n$).** *A regular $n$-gon in standard orientation has outward edge normals at angles*
+## Mathematical Development
 
-$$\theta_k^{(n)} = \frac{\pi(2k + 1)}{n}, \quad k = 0, 1, \ldots, n - 1.$$
+For a convex polygon, each side corresponds to an outward normal direction. The Minkowski sum adds support functions, so its sides are obtained by taking the union of all outward normal directions that appear in the summands.
 
-**Proof.** The vertices of a regular $n$-gon are at angles $2\pi k/n$. Edge $k$ connects vertex $k$ to vertex $k+1$, so its direction is at angle $\pi(2k+1)/n$. The outward normal is this direction rotated by $\pi/2$, but since we only care about the set of directions modulo $2\pi$, the normal of edge $k$ is at angle $\pi(2k+1)/n$ (up to a constant rotation that does not affect the counting). $\square$
+With the given orientation, the outward normals of $S_n$ are the directions
 
-**Theorem 2 (Reduced Fraction Characterization).** *A direction $\pi \cdot \frac{2k+1}{n}$ reduces to $\pi \cdot \frac{p}{q}$ where $p$ is odd, $\gcd(p, q) = 1$, and $0 < p < 2q$. The direction with denominator $q$ appears in $S_n$ if and only if $q \mid n$ and $n/q$ is odd.*
+$$
+\frac{2\pi k}{n},
+\qquad
+k=0,1,\dots,n-1.
+$$
 
-**Proof.** Write $\frac{2k+1}{n} = \frac{p}{q}$ in lowest terms. Since $2k+1$ is odd, $p$ must be odd. The direction appears in $S_n$ iff $\frac{p}{q} = \frac{2k+1}{n}$ for some integer $k$ with $0 \leq k < n$. This requires $n = q \cdot \frac{2k+1}{p}$. For $n/q$ to be an integer, $q \mid n$. Moreover, $n/q = (2k+1)/p$ is a ratio of two odd numbers, hence odd. $\square$
+Two such directions coincide exactly when the fractions $k/n$ reduce to the same rational number. So a reduced fraction
 
-**Theorem 3 (Direction Count per Denominator).** *For a given denominator $q$ with $2 \leq q \leq 1864$:*
+$$
+\frac{p}{q},
+\qquad
+0 \le p < q,
+\qquad
+\gcd(p,q)=1,
+$$
 
-- *If $q$ is odd: there are $\phi(q)$ distinct odd values of $p$ with $\gcd(p, q) = 1$ and $0 < p < 2q$.*
-- *If $q$ is even: there are $2\phi(q)$ such values.*
+appears in the union if and only if some polygon $S_n$ in the range has a side normal in that direction, which is equivalent to
 
-*Additionally, for $q = 1$: there is $\phi(1) = 1$ direction (namely $p = 1$).*
+$$
+q \mid n
+$$
 
-**Proof.** We count odd $p \in (0, 2q)$ with $\gcd(p, q) = 1$.
+for at least one $n \in [1864,1909]$.
 
-*Case $q$ odd:* Among $\{1, 2, \ldots, 2q - 1\}$, there are $\phi(2q)$ values coprime to $2q$. Since $\gcd(p, 2q) = 1$ requires $p$ odd and $\gcd(p, q) = 1$, we get $\phi(2q) = \phi(2)\phi(q) = \phi(q)$ values.
+Therefore each denominator $q$ contributes all reduced numerators modulo $q$, namely $\varphi(q)$ directions, provided the interval contains a multiple of $q$. The denominator $q=1$ contributes the single direction $0$.
 
-*Case $q$ even:* Among odd $p \in \{1, 3, \ldots, 2q-1\}$, there are $q$ odd numbers. Those coprime to $q$ number $\sum_{d \mid q} \mu(d) \cdot \lceil q/(2d) \rceil$. By Mobius inversion and the fact that for even $q$, exactly $2\phi(q)$ odd numbers in $[1, 2q)$ are coprime to $q$. $\square$
+So the answer is
 
-**Theorem 4 (Existence of Each Direction).** *For each denominator $q$ with $1 \leq q \leq 1864$, $S_q$ is among the summands (since $2 \leq q \leq 1864$, or $q = 1$ via $S_2$), so every direction with denominator $q \leq 1864$ is realized.*
+$$
+1+\sum_{\substack{2 \le q \le 1909\\ \exists n \in [1864,1909],\ q\mid n}}\varphi(q).
+$$
 
-**Proof.** For $q \geq 2$, $S_q$ is directly a summand. For $q = 1$, the direction $\pi \cdot 1/1 = \pi$ appears in $S_n$ for any odd $n$, e.g., $S_3$. $\square$
+The divisibility condition is easy to test:
+
+$$
+\left\lfloor \frac{1909}{q} \right\rfloor
+>
+\left\lfloor \frac{1863}{q} \right\rfloor.
+$$
 
 ## Editorial
-.. + S_1864, where S_n is a regular n-gon. The number of sides equals the number of distinct edge normal directions across all the regular polygons in the sum. We compute Euler's totient via sieve. Finally, else.
+
+This problem looks geometric, but the geometry disappears almost immediately. The Minkowski sum only cares about which edge normals occur, and a regular $n$-gon contributes the $n$ equally spaced directions $2\pi k/n$.
+
+So the question becomes arithmetic: how many reduced fractions $p/q$ occur with a denominator $q$ that divides at least one integer between $1864$ and $1909$? Once $q$ is fixed, there are exactly $\varphi(q)$ such fractions. That reduces the whole problem to a totient sieve followed by a short scan over the possible denominators.
 
 ## Pseudocode
 
 ```text
-Compute Euler's totient via sieve
-if q is odd
-else
+Compute Euler's totient function phi(q) for every q up to 1909.
+
+Start the answer at 1 for the denominator q = 1.
+
+For q from 2 to 1909:
+    If the interval [1864, 1909] contains a multiple of q:
+        add phi(q) to the answer
+
+Print the result.
 ```
 
 ## Complexity Analysis
 
-- **Time:** $O(N \log \log N)$ for the totient sieve, $O(N)$ for the summation. Total: $O(N \log \log N)$.
-- **Space:** $O(N)$ for the totient array.
+- **Time:** $O(1909 \log \log 1909)$ for the totient sieve, plus a linear scan.
+- **Space:** $O(1909)$.
 
 ## Answer
 

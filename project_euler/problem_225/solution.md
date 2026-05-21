@@ -2,48 +2,82 @@
 
 ## Problem Statement
 
-The Tribonacci sequence $T_n$ is defined by $T_1 = T_2 = T_3 = 1$ and $T_n = T_{n-1} + T_{n-2} + T_{n-3}$ for $n > 3$. Find the 124th odd number that does **not** divide any Tribonacci number.
+The Tribonacci sequence is defined by
 
-## Mathematical Foundation
+$$
+T_1=T_2=T_3=1,
+\qquad
+T_n=T_{n-1}+T_{n-2}+T_{n-3}\quad(n>3).
+$$
 
-**Theorem 1 (All Tribonacci Numbers Are Odd).** *For all $n \geq 1$, $T_n$ is odd.*
+Find the $124$th odd number that does **not** divide any Tribonacci number.
 
-**Proof.** Base cases: $T_1 = T_2 = T_3 = 1$ are odd. Inductive step: assume $T_{n-3}, T_{n-2}, T_{n-1}$ are all odd. Then $T_n = T_{n-1} + T_{n-2} + T_{n-3} \equiv 1 + 1 + 1 \equiv 1 \pmod{2}$, which is odd. By strong induction, all $T_n$ are odd. $\square$
+## Mathematical Development
 
-**Theorem 2 (Pure Periodicity Modulo $m$).** *For any positive integer $m$, the Tribonacci sequence modulo $m$ is purely periodic.*
+Modulo any positive integer $m$, the sequence is controlled by triples
 
-**Proof.** Consider the sequence of triples $(T_n \bmod m, T_{n+1} \bmod m, T_{n+2} \bmod m)$. There are $m^3$ possible triples, so by the pigeonhole principle, some triple must repeat: there exist $i < j$ with
+$$
+(T_n,T_{n+1},T_{n+2}) \pmod m.
+$$
 
-$$(T_i, T_{i+1}, T_{i+2}) \equiv (T_j, T_{j+1}, T_{j+2}) \pmod{m}.$$
+There are only $m^3$ such triples, so some triple must repeat. The recurrence is invertible:
 
-The recurrence is invertible: $T_{n-1} = T_{n+2} - T_{n+1} - T_n$. Therefore we can extend the sequence backwards uniquely. Applying the inverse recurrence $j - i$ times from the repeated triple shows that $(T_1, T_2, T_3) \equiv (T_{j-i+1}, T_{j-i+2}, T_{j-i+3}) \pmod{m}$. Hence the sequence is purely periodic with period dividing $j - i$. $\square$
+$$
+T_{n-1}=T_{n+2}-T_{n+1}-T_n.
+$$
 
-**Lemma 1 (Period Bound).** *The period of the Tribonacci sequence modulo $m$ is at most $m^3$.*
+Therefore once a triple repeats, the whole sequence before and after that point repeats as well. In particular, the Tribonacci sequence modulo $m$ is **purely periodic**.
 
-**Proof.** There are $m^3$ possible triples of residues, so a repetition must occur within $m^3 + 1$ steps. $\square$
+So to decide whether $m$ divides any Tribonacci number, it is enough to start from
 
-**Theorem 3 (Divisibility Criterion).** *An odd number $m$ divides some Tribonacci number $T_n$ if and only if $0$ appears in one complete period of the sequence $(T_n \bmod m)$.*
+$$
+(1,1,1)
+$$
 
-**Proof.** ($\Rightarrow$) If $m \mid T_n$, then $T_n \bmod m = 0$ appears in the sequence. ($\Leftarrow$) If $0$ appears in one period, then since the sequence is purely periodic, $T_k \equiv 0 \pmod{m}$ for some $k$. Conversely, if $0$ never appears in one full period, the pure periodicity guarantees it never appears at all. $\square$
+and follow the sequence modulo $m$ until one of two things happens:
 
-**Lemma 2 (Cycle Detection).** *To test whether $0$ appears in the period, compute $(T_n, T_{n+1}, T_{n+2}) \bmod m$ starting from $(1, 1, 1)$ until either $T_n \equiv 0$ (divisor found) or the triple returns to $(1, 1, 1)$ (non-divisor confirmed).*
+- a term becomes $0$, so $m$ is a divisor of some Tribonacci number;
+- the triple returns to $(1,1,1)$, so one full period has been traversed without seeing $0$.
 
-**Proof.** By Theorem 2, the sequence is purely periodic starting from $(1,1,1)$. If $(1,1,1)$ recurs, one full period has been traversed. If $0$ was not encountered, it never will be. $\square$
+Because every Tribonacci number is odd, only odd candidates can possibly fail to divide the sequence.
 
 ## Editorial
-T(1) = T(2) = T(3) = 1, T(n) = T(n-1) + T(n-2) + T(n-3). For each odd m, compute T(n) mod m. If 0 never appears in the cycle, then m is a non-divisor. We loop.
+
+The key observation is that this is not a growth problem at all; it is a finite-state problem. Modulo $m$, the sequence never produces anything except triples of residues, and there are only $m^3$ of those. Once the initial triple comes back, the cycle is closed and nothing new can happen.
+
+That means every candidate odd number can be tested independently with constant memory. The program walks the Tribonacci recurrence modulo $m$, stops immediately if it ever hits $0$, and otherwise declares success when the state returns to $(1,1,1)$. Counting such odd moduli in increasing order gives the required $124$th example.
 
 ## Pseudocode
 
 ```text
-while true
-loop
+Set the target count to 124.
+Initialize the current odd candidate m = 1.
+
+Repeat forever:
+    Skip m = 1 because it divides every integer.
+
+    Start the Tribonacci state modulo m at (1, 1, 1).
+
+    Advance the recurrence:
+        next = (a + b + c) mod m
+        shift (a, b, c) to (b, c, next)
+
+        If c becomes 0:
+            m divides some Tribonacci number
+            stop testing this m
+
+        If the state returns to (1, 1, 1):
+            m is a Tribonacci non-divisor
+            increase the running count
+            if this is the 124th one, print m and stop
+
+    Move on to the next odd number.
 ```
 
 ## Complexity Analysis
 
-- **Time:** For each candidate $m$, the cycle detection runs for at most $m^3$ iterations, but in practice the period is much shorter (typically $O(m)$). We test odd numbers up to approximately 2009. Total work is bounded by $O\!\left(\sum_{m \text{ odd}} \pi(m)\right)$ where $\pi(m)$ is the actual period, empirically $O(m_{\max}^2)$.
-- **Space:** $O(1)$ per candidate (only three residues stored).
+- **Time:** For a fixed modulus $m$, at most one full period is explored. The crude bound is $O(m^3)$, though the actual periods are much shorter.
+- **Space:** $O(1)$.
 
 ## Answer
 
